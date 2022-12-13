@@ -18,6 +18,8 @@ package org.exoplatform.social.notification;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,42 +34,59 @@ import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
 import org.exoplatform.commons.notification.channel.MailChannel;
 import org.exoplatform.commons.notification.channel.WebChannel;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.plugin.*;
 
 /**
- * Created by The eXo Platform SAS
- * Author : eXoPlatform
- *          thanhvc@exoplatform.com
- * Aug 20, 2013  
+ * Created by The eXo Platform SAS Author : eXoPlatform thanhvc@exoplatform.com
+ * Aug 20, 2013
  */
 public abstract class AbstractPluginTest extends AbstractCoreTest {
 
-  protected Locale initialDefaultLocale;
+  protected Locale             initialDefaultLocale;
 
   protected UserSettingService userSettingService;
 
   public abstract BaseNotificationPlugin getPlugin();
-  
+
+  public static final List<String> MANAGED_USERS = Arrays.asList("root", "john", "demo", "mary", "ghost");
+
+  public static final List<String> PLUGIN_IDS    = Arrays.asList(PostActivityPlugin.ID,
+                                                                 ActivityCommentPlugin.ID,
+                                                                 ActivityReplyToCommentPlugin.ID,
+                                                                 ActivityMentionPlugin.ID,
+                                                                 LikePlugin.ID,
+                                                                 EditActivityPlugin.ID,
+                                                                 EditCommentPlugin.ID,
+                                                                 LikeCommentPlugin.ID,
+                                                                 RequestJoinSpacePlugin.ID,
+                                                                 SpaceInvitationPlugin.ID,
+                                                                 RelationshipReceivedRequestPlugin.ID,
+                                                                 PostActivitySpaceStreamPlugin.ID);
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
+
     userSettingService = Utils.getService(UserSettingService.class);
 
-    // set default locale to en (used for notification wording) to have deterministic tests
+    // set default locale to en (used for notification wording) to have
+    // deterministic tests
     initialDefaultLocale = Locale.getDefault();
     Locale.setDefault(new Locale("en", "US"));
 
-    initUserSetting();
     turnON(getPlugin());
+    initUsersSetting();
+    notificationService.clearAll();
   }
-  
+
   @Override
   protected void tearDown() throws Exception {
     //
@@ -83,11 +102,11 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
   public void destroyPlugins(BaseNotificationPlugin plugin) {
     plugin = null;
   }
-  
+
   /**
    * It will be invoked after make Activity, Relationship and New User also.
-   * 
    * Makes the notification message and retrieve from MockNotificationService
+   * 
    * @return
    */
   protected NotificationInfo getNotificationInfo(String username) {
@@ -95,22 +114,24 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     assertTrue(list.size() > 0);
     return list.get(0);
   }
-  
+
   protected List<NotificationInfo> getNotificationInfos(String username) {
     return notificationService.storeDigest(username);
   }
-  
+
   /**
    * Validates the Message's subject
+   * 
    * @param message
    * @param validatedString
    */
   protected void assertSubject(MessageInfo message, String validatedString) {
     assertEquals(validatedString, message.getSubject());
   }
-  
+
   /**
    * Validates the Message's body
+   * 
    * @param message
    * @param includedString
    */
@@ -118,18 +139,20 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     assertTrue("body = '" + message.getBody() + "' \r\n doesn't contain\r\n " + includedString,
                message.getBody().indexOf(includedString) > 0);
   }
-  
+
   /**
    * Validate the digest email
+   * 
    * @param writer
    * @param includedString
    */
   protected void assertDigest(Writer writer, String includedString) {
     assertEquals(includedString, writer.toString().replaceAll("\\<.*?>", ""));
   }
-  
+
   /**
    * Asserts the number of notification what made by the plugins.
+   * 
    * @param number
    */
   protected void assertMadeMailDigestNotifications(int number) {
@@ -141,12 +164,13 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
 
   /**
    * Asserts the number of notification what made by the plugins.
+   * 
    * @param number
    */
   protected List<NotificationInfo> assertMadeMailDigestNotifications(String username, int number) {
     UserSetting setting = userSettingService.get(username);
     List<NotificationInfo> got = notificationService.storeDigest(username);
-    if (setting.isActive(UserSetting.EMAIL_CHANNEL, getPlugin().getKey().getId())) {
+    if (setting.isActive(MailChannel.ID, getPlugin().getKey().getId())) {
       got = notificationService.storeInstantly(username);
       assertEquals(number, got.size());
     }
@@ -155,6 +179,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
 
   /**
    * Asserts the number of web's notifications what made by the plugins.
+   * 
    * @param number
    */
   protected void assertMadeWebNotifications(int number) {
@@ -166,6 +191,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
 
   /**
    * Asserts the number of web's notifications what made by the plugins.
+   * 
    * @param number
    */
   protected List<NotificationInfo> assertMadeWebNotifications(String username, int number) {
@@ -177,29 +203,31 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     }
     return got;
   }
-  
+
   /**
    * Turn on the plug in
+   * 
    * @param plugin
    */
   protected void turnON(BaseNotificationPlugin plugin) {
-    pluginSettingService.saveActivePlugin(UserSetting.EMAIL_CHANNEL, plugin.getId(), true);
+    pluginSettingService.saveActivePlugin(MailChannel.ID, plugin.getId(), true);
   }
-  
-  protected void turnFeatureOn() {
-    exoFeatureService.saveActiveFeature("notification", true);
-  }
-  
-  protected void turnFeatureOff() {
-    exoFeatureService.saveActiveFeature("notification", false);
-  }
-  
+
   /**
    * Turn off the plugin
+   * 
    * @param plugin
    */
   protected void turnOFF(BaseNotificationPlugin plugin) {
-    pluginSettingService.saveActivePlugin(UserSetting.EMAIL_CHANNEL, plugin.getId(), false);
+    pluginSettingService.saveActivePlugin(MailChannel.ID, plugin.getId(), false);
+  }
+
+  protected void turnFeatureOn() {
+    exoFeatureService.saveActiveFeature("notification", true);
+  }
+
+  protected void turnFeatureOff() {
+    exoFeatureService.saveActiveFeature("notification", false);
   }
 
   protected Relationship makeRelationship(Identity identity1, Identity identity2) {
@@ -207,7 +235,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     tearDownRelationshipList.add(relationship);
     return relationship;
   }
-  
+
   protected void cancelRelationship(Identity identity1, Identity identity2) {
     Relationship relationship = relationshipManager.get(identity1, identity2);
     if (relationship != null && relationship.getStatus() == Relationship.Type.PENDING) {
@@ -219,13 +247,14 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
   /**
    * Makes a comment reply used for Test Case
    * 
-   * @param activity
-   * @param commenter
-   * @param commentTitle
-   * @param parentCommentId
+   * @param  activity
+   * @param  commenter
+   * @param  commentTitle
+   * @param  parentCommentId
    * @return
    */
-  protected ExoSocialActivity makeCommentReply(ExoSocialActivity activity, Identity commenter, String commentTitle, String parentCommentId) {
+  protected ExoSocialActivity makeCommentReply(ExoSocialActivity activity, Identity commenter, String commentTitle,
+                                               String parentCommentId) {
     ExoSocialActivity comment = new ExoSocialActivityImpl();
     comment.setTitle(commentTitle);
     comment.setUserId(commenter.getId());
@@ -237,9 +266,10 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
 
   /**
    * Makes the comment for Test Case
-   * @param activity
-   * @param commenter
-   * @param commentTitle
+   * 
+   * @param  activity
+   * @param  commenter
+   * @param  commentTitle
    * @return
    */
   protected ExoSocialActivity makeComment(ExoSocialActivity activity, Identity commenter, String commentTitle) {
@@ -254,9 +284,9 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
   /**
    * Edit the comment for Test Case
    * 
-   * @param activity
-   * @param comment
-   * @param commentTitle
+   * @param  activity
+   * @param  comment
+   * @param  commentTitle
    * @return
    */
   protected ExoSocialActivity editComment(ExoSocialActivity activity, ExoSocialActivity comment, String commentTitle) {
@@ -265,13 +295,15 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
 
     return comment;
   }
-  
+
   /**
    * Make space with space name
-   * @param number
+   * 
+   * @param  number
    * @return
    * @throws Exception
    */
+  @SuppressWarnings("deprecation")
   protected Space getSpaceInstance(int number) throws Exception {
     Space space = new Space();
     space.setDisplayName("my space " + number);
@@ -284,8 +316,12 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setAvatarUrl("my-avatar-url");
-    String[] managers = new String[] {rootIdentity.getRemoteId()};
-    String[] members = new String[] {rootIdentity.getRemoteId()};
+    String[] managers = new String[] {
+        rootIdentity.getRemoteId()
+    };
+    String[] members = new String[] {
+        rootIdentity.getRemoteId()
+    };
     String[] invitedUsers = new String[] {};
     String[] pendingUsers = new String[] {};
     space.setInvitedUsers(invitedUsers);
@@ -298,156 +334,111 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     tearDownSpaceList.add(space);
     return space;
   }
-  
+
   /**
    * Make Instantly setting
-   * @param userId 
+   * 
+   * @param userId
    * @param settings the list of plugins
    */
   protected void setInstantlySettings(String userId, List<String> settings) {
-    UserSetting userSetting =  userSettingService.get(userId);
-    
+    UserSetting userSetting = userSettingService.get(userId);
+
     if (userSetting == null) {
       userSetting = UserSetting.getInstance();
       userSetting.setUserId(userId);
     }
-    userSetting.setChannelActive(UserSetting.EMAIL_CHANNEL);
+    userSetting.setChannelActive(MailChannel.ID);
     //
-    userSetting.setChannelPlugins(UserSetting.EMAIL_CHANNEL, settings);
+    userSetting.setChannelPlugins(MailChannel.ID, settings);
     userSettingService.save(userSetting);
   }
-  
+
   /**
    * Make Daily setting
+   * 
    * @param userId
    * @param settings
    */
   protected void setDailySetting(String userId, List<String> settings) {
-    UserSetting userSetting =  userSettingService.get(userId);
-    
+    UserSetting userSetting = userSettingService.get(userId);
+
     if (userSetting == null) {
       userSetting = UserSetting.getInstance();
       userSetting.setUserId(userId);
     }
-    userSetting.setChannelActive(UserSetting.EMAIL_CHANNEL);
-    
+    userSetting.setChannelActive(MailChannel.ID);
+
     userSetting.setDailyPlugins(settings);
     userSettingService.save(userSetting);
   }
-  
+
   /**
    * Make Weekly setting
+   * 
    * @param userId
    * @param settings
    */
   protected void setWeeklySetting(String userId, List<String> settings) {
-    UserSetting userSetting =  userSettingService.get(userId);
-    
+    UserSetting userSetting = userSettingService.get(userId);
+
     if (userSetting == null) {
       userSetting = UserSetting.getInstance();
       userSetting.setUserId(userId);
     }
-    userSetting.setChannelActive(UserSetting.EMAIL_CHANNEL);
-    
+    userSetting.setChannelActive(MailChannel.ID);
+
     userSetting.setWeeklyPlugins(settings);
     userSettingService.save(userSetting);
   }
-  
-  /**
-   * Initialize the User Setting for root
-   */
-  private void initUserSetting() {
 
-    List<String> instantly = new ArrayList<String>();
-    instantly.add(PostActivityPlugin.ID);
-    instantly.add(ActivityCommentPlugin.ID);
-    instantly.add(ActivityReplyToCommentPlugin.ID);
-    instantly.add(ActivityMentionPlugin.ID);
-    instantly.add(LikePlugin.ID);
-    instantly.add(EditCommentPlugin.ID);
-    instantly.add(EditActivityPlugin.ID);
-    instantly.add(LikeCommentPlugin.ID);
-    instantly.add(RequestJoinSpacePlugin.ID);
-    instantly.add(SpaceInvitationPlugin.ID);
-    instantly.add(RelationshipReceivedRequestPlugin.ID);
-    instantly.add(PostActivitySpaceStreamPlugin.ID);
-    List<String> daily = new ArrayList<String>();
-    daily.add(PostActivityPlugin.ID);
-    daily.add(ActivityCommentPlugin.ID);
-    daily.add(ActivityReplyToCommentPlugin.ID);
-    daily.add(ActivityMentionPlugin.ID);
-    daily.add(LikePlugin.ID);
-    daily.add(EditActivityPlugin.ID);
-    daily.add(EditCommentPlugin.ID);
-    daily.add(RequestJoinSpacePlugin.ID);
-    daily.add(SpaceInvitationPlugin.ID);
-    daily.add(RelationshipReceivedRequestPlugin.ID);
-    daily.add(PostActivitySpaceStreamPlugin.ID);
-    daily.add(NewUserPlugin.ID);
-    
-    List<String> weekly = new ArrayList<String>();
-    weekly.add(PostActivityPlugin.ID);
-    weekly.add(ActivityCommentPlugin.ID);
-    daily.add(ActivityReplyToCommentPlugin.ID);
-    weekly.add(ActivityMentionPlugin.ID);
-    weekly.add(LikePlugin.ID);
-    weekly.add(EditCommentPlugin.ID);
-    weekly.add(EditActivityPlugin.ID);
-    weekly.add(RequestJoinSpacePlugin.ID);
-    weekly.add(SpaceInvitationPlugin.ID);
-    weekly.add(RelationshipReceivedRequestPlugin.ID);
-    weekly.add(PostActivitySpaceStreamPlugin.ID);
-    
-    List<String> webNotifs = new ArrayList<String>();
-    webNotifs.add(NewUserPlugin.ID);
-    webNotifs.add(PostActivityPlugin.ID);
-    webNotifs.add(ActivityCommentPlugin.ID);
-    webNotifs.add(ActivityReplyToCommentPlugin.ID);
-    webNotifs.add(ActivityMentionPlugin.ID);
-    webNotifs.add(LikePlugin.ID);
-    webNotifs.add(EditActivityPlugin.ID);
-    webNotifs.add(EditCommentPlugin.ID);
-    webNotifs.add(LikeCommentPlugin.ID);
-    webNotifs.add(RequestJoinSpacePlugin.ID);
-    webNotifs.add(SpaceInvitationPlugin.ID);
-    webNotifs.add(RelationshipReceivedRequestPlugin.ID);
-    webNotifs.add(PostActivitySpaceStreamPlugin.ID);
-
-    // root
-    saveSetting(instantly, daily, weekly, webNotifs, rootIdentity.getRemoteId());
-
-    // mary
-    saveSetting(instantly, daily, weekly, webNotifs, maryIdentity.getRemoteId());
-
-    // john
-    saveSetting(instantly, daily, weekly, webNotifs, johnIdentity.getRemoteId());
-
-    // demo
-    saveSetting(instantly, daily, weekly, webNotifs, demoIdentity.getRemoteId());
+  private void initUsersSetting() {
+    initSettings(rootIdentity.getRemoteId());
+    initSettings(maryIdentity.getRemoteId());
+    initSettings(johnIdentity.getRemoteId());
+    initSettings(demoIdentity.getRemoteId());
   }
 
-  private void saveSetting(List<String> instantly, List<String> daily, List<String> weekly, List<String> webNotifs, String userId) {
+  private void initSettings(String username) {
+    List<String> instantly = new ArrayList<>(PLUGIN_IDS);
+    instantly.add(NewUserPlugin.ID);
+    List<String> daily = new ArrayList<>(PLUGIN_IDS);
+    daily.add(NewUserPlugin.ID);
+    List<String> weekly = new ArrayList<>(PLUGIN_IDS);
+    List<String> webNotifs = new ArrayList<>(PLUGIN_IDS);
+    webNotifs.add(NewUserPlugin.ID);
+
+    // root
+    saveSetting(instantly, daily, weekly, webNotifs, username);
+  }
+
+  private void saveSetting(List<String> instantly,
+                           List<String> daily,
+                           List<String> weekly,
+                           List<String> webNotifs,
+                           String userId) {
     UserSetting model = UserSetting.getInstance();
-    model.setUserId(userId).setChannelActive(UserSetting.EMAIL_CHANNEL);
-    model.setChannelPlugins(UserSetting.EMAIL_CHANNEL, instantly);
+    model.setUserId(userId);
+    model.setChannelActives(new HashSet<>(Arrays.asList(MailChannel.ID, WebChannel.ID)));
     model.setDailyPlugins(daily);
     model.setWeeklyPlugins(weekly);
+    model.setChannelPlugins(MailChannel.ID, instantly);
     model.setChannelPlugins(WebChannel.ID, webNotifs);
     userSettingService.save(model);
   }
-  
+
   protected AbstractTemplateBuilder getTemplateBuilder(NotificationContext ctx) {
     //
     AbstractChannel channel = ctx.getChannelManager().getChannel(ChannelKey.key(MailChannel.ID));
     assertNotNull(channel);
     return channel.getTemplateBuilder(ctx.getNotificationInfo().getKey());
   }
-  
+
   /**
-   * It will be invoked after the notification will be created.
+   * It will be invoked after the notification will be created. Makes the
+   * Message Info by the plugin and NotificationContext
    * 
-   * Makes the Message Info by the plugin and NotificationContext
-   * @ctx the provided NotificationContext
+   * @ctx    the provided NotificationContext
    * @return
    */
   protected MessageInfo buildMessageInfo(NotificationContext ctx) {

@@ -24,13 +24,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.commons.api.notification.plugin.config.PluginConfig;
+import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.RootContainer.PortalContainerPostInitTask;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -39,12 +46,13 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.notification.channel.SpaceWebChannel;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 
 @SuppressWarnings("removal")
-public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService {
+public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService, Startable {
 
   public static final String               APPLICATION_SUB_ITEM_IDS = "applicationSubItemIds";
 
@@ -53,20 +61,57 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   private static final Log                 LOG                      =
                                                ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
 
+  private PortalContainer                  container;
+
   private MetadataService                  metadataService;
 
   private ListenerService                  listenerService;
+
+  private PluginSettingService             pluginSettingService;
 
   private boolean                          enabled;
 
   private List<SpaceWebNotificationPlugin> plugins                  = new ArrayList<>();
 
-  public SpaceWebNotificationServiceImpl(MetadataService metadataService,
+  public SpaceWebNotificationServiceImpl(PortalContainer container,
+                                         MetadataService metadataService,
                                          ExoFeatureService featureService,
+                                         PluginSettingService pluginSettingService,
                                          ListenerService listenerService) {
+    this.container = container;
     this.metadataService = metadataService;
     this.listenerService = listenerService;
+    this.pluginSettingService = pluginSettingService;
     this.enabled = featureService.isActiveFeature("SpaceWebNotifications");
+  }
+
+  @Override
+  public void start() { // NOSONAR
+    if (enabled) {
+      PortalContainer.addInitTask(container.getPortalContext(), new PortalContainerPostInitTask() {
+        @Override
+        public void execute(ServletContext context, PortalContainer portalContainer) {
+          for (SpaceWebNotificationPlugin spaceWebNotificationPlugin : plugins) {
+            List<String> notificationPluginIds = spaceWebNotificationPlugin.getNotificationPluginIds();
+            if (CollectionUtils.isNotEmpty(notificationPluginIds)) {
+              for (String notificationPluginId : notificationPluginIds) {
+                PluginConfig pluginConfig = pluginSettingService.getPluginConfig(notificationPluginId);
+                if (pluginConfig == null) {
+                  LOG.warn("Notification plugin {} wasn't found", notificationPluginId);
+                } else {
+                  pluginConfig.addAdditionalChannel(SpaceWebChannel.ID);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  @Override
+  public void stop() {
+    // Nothing to stop
   }
 
   @Override
