@@ -220,7 +220,7 @@ export default {
       }
     },
     initialized() {
-      if (this.initialized) {
+      if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
       }
     },
