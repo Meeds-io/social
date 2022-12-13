@@ -14,10 +14,10 @@
         text>
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
-              <div
-                class="unread-activity-badge"
-                v-bind="attrs"
-                v-on="on"></div>
+            <div
+              class="unread-activity-badge"
+              v-bind="attrs"
+              v-on="on"></div>
           </template>
           <span>{{ $t('Unread.clickTooltip') }}</span>
         </v-tooltip>
