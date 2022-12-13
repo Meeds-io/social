@@ -30,6 +30,18 @@
     <v-list-item-content>
       <v-list-item-title class="body-2" v-text="spaceDisplayName" />
     </v-list-item-content>
+    <v-list-item-icon
+      v-if="spaceUnreadCount"
+      class="me-2 align-center">
+      <v-chip
+        v-if="spaceUnreadCount"
+        color="error-color-background"
+        min-width="22"
+        height="22"
+        dark>
+        {{ spaceUnreadCount }}
+      </v-chip>
+    </v-list-item-icon>
   </v-list-item>
   <v-list-item
     v-else
