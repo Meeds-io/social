@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
@@ -29,8 +32,12 @@ import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
 import org.exoplatform.commons.api.notification.service.storage.NotificationService;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.notification.channel.WebChannel;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserProfile;
 
 public class MockNotificationService implements NotificationService {
 
@@ -87,50 +94,65 @@ public class MockNotificationService implements NotificationService {
   @Override
   public void process(NotificationInfo notification) throws Exception {
     String pluginId = notification.getKey().getId();
-    
+
     // if the provider is not active, do nothing
-    PluginSettingService settingService = CommonsUtils.getService(PluginSettingService.class);
-    if (settingService.isActive(UserSetting.EMAIL_CHANNEL, pluginId) == false)
+    PluginSettingService pluginSettingService = CommonsUtils.getService(PluginSettingService.class);
+    if (pluginSettingService.isActive(UserSetting.EMAIL_CHANNEL, pluginId) == false)
       return;
-    
+
     List<String> userIds = notification.getSendToUserIds();
-    MockUserSettingServiceImpl userSettingService = (MockUserSettingServiceImpl) CommonsUtils.getService(UserSettingService.class);
+    UserSettingService userSettingService = CommonsUtils.getService(UserSettingService.class);
     //
     if (notification.isSendAll()) {
-      userIds = userSettingService.getUserHasSettingPlugin(UserSetting.EMAIL_CHANNEL, pluginId);
+      SettingService settingService = CommonsUtils.getService(SettingService.class);
+      OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+      long usersCount = settingService.countContextsByType(Context.USER.getName());
+      int maxResults = 100;
+      for (int i = 0; i < usersCount; i += maxResults) {
+        userIds = settingService.getContextNamesByType(Context.USER.getName(), i, maxResults);
+        if (notification.isSendAllInternals()) {
+          userIds = userIds.stream().filter(userId -> {
+            // Filter on external users
+            try {
+              UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(userId);
+              return userProfile == null || !StringUtils.equals(userProfile.getAttribute(UserProfile.OTHER_KEYS[2]), "true");
+            } catch (Exception e) {
+              return false;
+            }
+          }).collect(Collectors.toList());
+        }
+        if (!notification.getExcludedUsersIds().isEmpty()) {
+          userIds = userIds.stream().filter(userId -> !notification.isExcluded(userId)).collect(Collectors.toList());
+        }
+      }
     }
-    
+
+    userIds = userIds.stream().filter(userId -> userSettingService.get(userId).isEnabled()).collect(Collectors.toList());
     for (String userId : userIds) {
-      UserSetting userSetting =  userSettingService.get(userId);
-      
+      UserSetting userSetting = userSettingService.get(userId);
       if (userSetting == null) {
         userSetting = userSettingService.getDefaultSettings();
         userSetting.setUserId(userId);
       }
-      
       if (userSetting.isActive(UserSetting.EMAIL_CHANNEL, pluginId)) {
-        if(!this.storeInstantly.containsKey(userId)) {
+        if (!this.storeInstantly.containsKey(userId)) {
           this.storeInstantly.put(userId, new ArrayList<>());
         }
         this.storeInstantly.get(userId).add(notification);
       }
-      
       if (userSetting.isActive(WebChannel.ID, pluginId)) {
-        if(!this.storeWebNotifs.containsKey(userId)) {
+        if (!this.storeWebNotifs.containsKey(userId)) {
           this.storeWebNotifs.put(userId, new ArrayList<>());
         }
         this.storeWebNotifs.get(userId).add(notification);
       }
-      
       if (userSetting.isInDaily(pluginId) || userSetting.isInWeekly(pluginId)) {
-        if(!this.storedDigest.containsKey(userId)) {
+        if (!this.storedDigest.containsKey(userId)) {
           this.storedDigest.put(userId, new ArrayList<>());
         }
         this.storedDigest.get(userId).add(notification);
       }
-      
     }
-    
   }
 
 

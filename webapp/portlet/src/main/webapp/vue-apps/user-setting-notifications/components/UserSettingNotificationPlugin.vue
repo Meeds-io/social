@@ -55,15 +55,10 @@ export default {
       type: Object,
       default: null,
     },
-  },
-  data (){
-    return {
-      digestMailNotificationEnabled: false,
-    };
-  },
-  created() {
-    this.$featureService.isFeatureEnabled('digestMailNotification')
-      .then(enabled => this.digestMailNotificationEnabled = enabled);
+    digestMailNotificationEnabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     label() {

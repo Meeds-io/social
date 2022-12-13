@@ -448,7 +448,7 @@
               </collection>
             </field>
             <field name="groupId">
-              <string>spaces</string>
+              <string>activity_stream</string>
             </field>
             <field name="bundlePath">
               <string>locale.notification.template.Notification</string>
