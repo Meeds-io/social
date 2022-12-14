@@ -54,14 +54,14 @@ export default {
     isPageHidden: false,
   }),
   computed: {
+    isUnread() {
+      return !!this.unreadMetadata;
+    },
     displayBadge() {
       return this.spaceWebNotificationsEnabled && this.spaceId && this.isUnread;
     },
     waitTimeToMarkAsRead() {
       return Math.max(parseInt(this.textLength / 100 * 5000) - 1000, 4000);
-    },
-    isUnread() {
-      return !!this.unreadMetadata;
     },
     applicationName() {
       return this.unreadMetadata?.objectType;
@@ -121,22 +121,23 @@ export default {
     },
     handleUpdatesFromWebSocket(event) {
       const data = event?.detail;
-      const spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
       const wsEventName = data?.wsEventName || '';
-      const applicationName = spaceWebNotificationItem.applicationName;
-      const applicationId = spaceWebNotificationItem.applicationItemId;
-      const spaceId = spaceWebNotificationItem.spaceId;
-      if (Number(this.spaceId) === Number(spaceId)
-          && this.applicationName === applicationName
-          && this.applicationId === applicationId) {
+      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
+      if (spaceWebNotificationItem?.length) {
+        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
+      }
+      const applicationName = spaceWebNotificationItem?.applicationName;
+      const applicationId = spaceWebNotificationItem?.applicationItemId;
+      const spaceId = spaceWebNotificationItem?.spaceId;
+      if (Number(this.spaceId) === Number(spaceId)) {
         if (wsEventName === 'notification.read.allItems') {
-          this.$emit('read', false);
+          this.$emit('read');
         } else {
           if (applicationName === this.applicationName && applicationId === this.applicationId) {
             if (wsEventName === 'notification.unread.item') {
-              this.$emit('read', true);
+              this.$emit('unread');
             } else if (wsEventName === 'notification.read.item') {
-              this.$emit('read', false);
+              this.$emit('read');
             }
           }
         }
@@ -171,9 +172,9 @@ export default {
     computeIsPageHidden() {
       this.isPageHidden = document.hidden || document.msHidden || document.webkitHidden || document.mozHidden;
     },
-    markAsRead() {
+    markAsRead(event) {
       if (this.displayBadge) {
-        this.$spaceService.markAsRead(this.spaceId, this.applicationName, this.applicationId);
+        this.$spaceService.markAsRead(this.spaceId, this.applicationName, this.applicationId, event?.type && 'click' || 'read');
       }
     },
   }
