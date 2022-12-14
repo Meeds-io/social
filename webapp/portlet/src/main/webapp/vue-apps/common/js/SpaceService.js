@@ -669,7 +669,7 @@ export function shareActivityOnSpaces(spaceId, sharedActivity) {
   });
 }
 
-export function markAsRead(spaceId, applicationName, applicationItemId) {
+export function markAsRead(spaceId, applicationName, applicationItemId, userEvent) {
   cCometd.publish('/SpaceWebNotification', JSON.stringify({
     wsEventName: 'notification.read.item',
     message: {
@@ -678,12 +678,13 @@ export function markAsRead(spaceId, applicationName, applicationItemId) {
         spaceId,
         applicationName,
         applicationItemId,
+        userEvent,
       })
     }
   }));
 }
 
-export function markAsUnread(spaceId, applicationName, applicationItemId) {
+export function markAsUnread(spaceId, applicationName, applicationItemId, userEvent) {
   cCometd.publish('/SpaceWebNotification', JSON.stringify({
     wsEventName: 'notification.unread.item',
     message: {
@@ -692,6 +693,7 @@ export function markAsUnread(spaceId, applicationName, applicationItemId) {
         spaceId,
         applicationName,
         applicationItemId,
+        userEvent,
       })
     }
   }));
@@ -704,6 +706,7 @@ export function markAllAsRead(spaceId) {
       spaceWebNotificationItem: JSON.stringify({
         userId: eXo.env.portal.userIdentityId,
         spaceId,
+        userEvent: 'click',
       })
     }
   }));
