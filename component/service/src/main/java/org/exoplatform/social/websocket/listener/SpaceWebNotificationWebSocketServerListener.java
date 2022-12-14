@@ -28,7 +28,7 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
+import org.exoplatform.social.notification.model.SpaceWebNotificationItemUpdate;
 import org.exoplatform.social.websocket.SpaceWebNotificationWebSocketService;
 import org.exoplatform.social.websocket.entity.WebSocketMessage;
 import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
@@ -80,8 +80,8 @@ public class SpaceWebNotificationWebSocketServerListener implements ServerChanne
     RequestLifeCycle.begin(container);
     try {
       WebSocketMessage webSocketMessage = fromJsonString(data.toString());
-      SpaceWebNotificationItem spaceWebNotificationItem = (SpaceWebNotificationItem) webSocketMessage.getMessage()
-                                                                                                     .get(SPACE_WEB_NOTIFICATION_ITEM_MAP_KEY);
+      SpaceWebNotificationItemUpdate spaceWebNotificationItem = (SpaceWebNotificationItemUpdate) webSocketMessage.getMessage()
+                                                                                                                 .get(SPACE_WEB_NOTIFICATION_ITEM_MAP_KEY);
       spaceWebNotificationWebSocketService.receiveMessage(from.getId(),
                                                           webSocketMessage.getWsEventName(),
                                                           spaceWebNotificationItem);
@@ -111,9 +111,8 @@ public class SpaceWebNotificationWebSocketServerListener implements ServerChanne
 
       JsonDefaultHandler notificationItemHandler = new JsonDefaultHandler();
       new JsonParserImpl().parse(new ByteArrayInputStream(notificationItemString.getBytes()), notificationItemHandler);
-      SpaceWebNotificationItem spaceWebNotificationItem = ObjectBuilder.createObject(SpaceWebNotificationItem.class,
-                                                                                     notificationItemHandler.getJsonObject());
-
+      SpaceWebNotificationItemUpdate spaceWebNotificationItem = ObjectBuilder.createObject(SpaceWebNotificationItemUpdate.class,
+                                                                                           notificationItemHandler.getJsonObject());
       return new WebSocketMessage(wsEventName,
                                   Collections.singletonMap(SPACE_WEB_NOTIFICATION_ITEM_MAP_KEY, spaceWebNotificationItem));
     } catch (JsonException e) {
