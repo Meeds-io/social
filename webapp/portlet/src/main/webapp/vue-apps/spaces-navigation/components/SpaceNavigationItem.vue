@@ -178,10 +178,13 @@ export default {
     handleUpdatesFromWebSocket(event) {
       const data = event?.detail;
       const wsEventName = data?.wsEventName || '';
-      const spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
-      const applicationName = spaceWebNotificationItem.applicationName;
-      const applicationItemId = spaceWebNotificationItem.applicationItemId;
-      const spaceId = spaceWebNotificationItem.spaceId;
+      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
+      if (spaceWebNotificationItem?.length) {
+        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
+      }
+      const applicationName = spaceWebNotificationItem?.applicationName;
+      const applicationItemId = spaceWebNotificationItem?.applicationItemId;
+      const spaceId = spaceWebNotificationItem?.spaceId;
       const itemRef = `${applicationName}-${applicationItemId}`;
       if (!this.webSocketSpaceUnreadItems[spaceId]) {
         this.webSocketSpaceUnreadItems[spaceId] = {};
@@ -195,13 +198,13 @@ export default {
           this.spaceUnreadItems[applicationName] = 0;
         }
         if (wsEventName === 'notification.unread.item') {
-          if (!this.webSocketSpaceUnreadItems[spaceId][itemRef]) {
+          if (this.webSocketSpaceUnreadItems[spaceId][itemRef] !== true) {
             this.webSocketSpaceUnreadItems[spaceId][itemRef] = true;
             this.spaceUnreadItems[applicationName]++;
           }
         } else if (wsEventName === 'notification.read.item') {
           if (this.spaceUnreadItems[applicationName] > 0) {
-            if (this.webSocketSpaceUnreadItems[spaceId][itemRef]) {
+            if (this.webSocketSpaceUnreadItems[spaceId][itemRef] !== false) {
               this.webSocketSpaceUnreadItems[spaceId][itemRef] = false;
               this.spaceUnreadItems[applicationName]--;
             }
