@@ -92,8 +92,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   public static final String                   DEFAULT_APP_CATEGORY     = "spacesApplications";
 
-  private final static String                  PLATFORM_WEB_CONTRIBUTORS_GROUP = "/platform/web-contributors";
-
   private IdentityRegistry                     identityRegistry;
 
   private SpaceStorage                         spaceStorage;
@@ -1482,7 +1480,7 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public boolean canRedactOnSpace(Space space, org.exoplatform.services.security.Identity viewer) {
     String username = viewer.getUserId();
-    return (isMember(space, username) && (!hasRedactor(space) || isRedactor(space, username) || viewer.isMemberOf(PLATFORM_WEB_CONTRIBUTORS_GROUP, "publisher")))
+    return (isMember(space, username) && (!hasRedactor(space) || isRedactor(space, username)))
         || isManagerOrSpaceManager(viewer, space);
   }
 
