@@ -90,6 +90,11 @@
     </init-params>
   </component>
 
+  <component>
+    <key>org.exoplatform.social.metadata.thumbnail.ImageThumbnailService</key>
+    <type>org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImpl</type>
+  </component>
+
 
   <component>
     <type>org.exoplatform.web.url.URLFactoryService</type>
@@ -249,6 +254,52 @@
       <name>social.new.user.event.listener</name>
       <set-method>addListenerPlugin</set-method>
       <type>org.exoplatform.social.core.listeners.SocialUserEventListenerImpl</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
+    <component-plugin>
+      <name>ThumbnailMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>5</int>
+            </field>
+            <field name="name">
+              <string>thumbnail</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>file.created</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ThumbnailFileListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>file.updated</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ThumbnailFileListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>file.deleted</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ThumbnailFileListener</type>
     </component-plugin>
   </external-component-plugins>
 

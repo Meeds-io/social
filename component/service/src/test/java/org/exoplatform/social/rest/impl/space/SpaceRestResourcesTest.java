@@ -1,11 +1,14 @@
 package org.exoplatform.social.rest.impl.space;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -361,6 +364,51 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals(200, response.getStatus());
   }
 
+  public void testGetSpaceAvatarWithDefaultSize() throws Exception {
+    String user = "john";
+
+    Space space = getSpaceInstance(1, user);
+    uploadSpaceAvatar(user, space.getId(),"hr-avatar.png");
+
+    space = spaceService.getSpaceById(space.getId());
+    assertNotNull(space.getAvatarUrl());
+
+    startSessionAs("mary");
+
+    String avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    assertEquals(45, receivedImage.getWidth());
+    assertEquals(45, receivedImage.getHeight());
+  }
+
+  public void testGetSpaceAvatarWithOriginalSize() throws Exception {
+    String user = "john";
+
+    Space space = getSpaceInstance(1, user);
+    uploadSpaceAvatar(user, space.getId(),"hr-avatar.png");
+
+    space = spaceService.getSpaceById(space.getId());
+    assertNotNull(space.getAvatarUrl());
+
+    startSessionAs("mary");
+
+    String avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
+    avatarUrl+="&size=0x0";
+
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    assertEquals(595, receivedImage.getWidth());
+    assertEquals(595, receivedImage.getHeight());
+  }
+
   public void testGetSpaceBannerForAnonymous() throws Exception {
     String user = "john";
 
@@ -708,13 +756,17 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     endSession();
   }
 
+
   private void uploadSpaceAvatar(String user, String spaceId) throws Exception {
+    uploadSpaceAvatar(user,spaceId,"blank.gif");
+  }
+  private void uploadSpaceAvatar(String user, String spaceId, String fileName) throws Exception {
     startSessionAs(user);
-    String uploadId = "testtest";
+    String uploadId = fileName;
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
-    URL resource = getClass().getClassLoader().getResource("blank.gif");
-    uploadService.createUploadResource(uploadId, resource.getFile(), "avatar.png", "image/png");
+    URL resource = getClass().getClassLoader().getResource(fileName);
+    uploadService.createUploadResource(uploadId, resource.getFile(), fileName, "image/png");
     String input = "{\"id\":\"" + spaceId + "\",\"avatarId\":\"" + uploadId + "\"}";
     // root try to update demo activity
     ContainerResponse response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);

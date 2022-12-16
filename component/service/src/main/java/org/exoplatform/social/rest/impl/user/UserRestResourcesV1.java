@@ -492,7 +492,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                     @Context Request request,
                                     @Parameter(description = "User name", required = true) @PathParam("id") String id,
                                     @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                    @Parameter(description = "resized avatar size") @DefaultValue("45x45") @QueryParam("size") String size,
+                                    @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("45x45") @QueryParam("size") String size,
                                     @Parameter(
                                         description = "A mandatory valid token that is used to authorize anonymous request"
                                     ) @QueryParam("r") String token) throws IOException {
@@ -521,12 +521,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (isDefault) {
       eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     } else if (lastUpdated != null) {
-      eTag = new EntityTag(String.valueOf(lastUpdated));
+      eTag = new EntityTag(lastUpdated+"-"+size);
     }
 
     builder = eTag == null ? null : request.evaluatePreconditions(eTag);
     if (builder == null) {
-      if (isDefault) {
+      if (isDefault || lastUpdated == null) {
         builder = getDefaultAvatarBuilder();
       } else {
         if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
@@ -539,43 +539,32 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
 
         if (identity.isEnable() && !identity.isDeleted()) {
-          InputStream stream = identityManager.getAvatarInputStream(identity);
-          byte[] avatarContent;
-          if (stream != null) {
-            /*
-            * As recommended in the the RFC1341
-            * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
-            * set the avatar content-type to "image/png". So, its data would be
-            * recognized as "image" by the user-agent
-            */
-            builder = Response.ok(stream, "image/png");
-            int[] dimension = Utils.parseDimension(size);
-            try {
-              avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                                                                         identity,
-                                                                         dimension[0],
-                                                                         dimension[1])
-                                                   .getAsByte();
-              if (avatarContent != null) {
-                builder = Response.ok(avatarContent, "image/png");
-              }
-            } catch (Exception e) {
-              LOG.error("Error while resizing avatar, original Image will be returned", e);
-            }
-            builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
-
-            if (eTag != null) {
-              builder.tag(eTag);
-            }
-          } else {
-            builder = getDefaultAvatarBuilder();
+          int[] dimension = Utils.parseDimension(size);
+          byte[] avatarContent = null;
+          try {
+            avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+                                                                       identity,
+                                                                       dimension[0],
+                                                                       dimension[1])
+                                                 .getAsByte();
+          } catch (Exception e) {
+            LOG.error("Error while resizing avatar, original Image will be returned", e);
           }
-        } else {
-          builder = getDefaultAvatarBuilder();
+          if (avatarContent != null) {
+            builder = Response.ok(avatarContent, "image/png");
+          }
         }
       }
     }
 
+    if (builder == null) {
+      InputStream stream = identityManager.getAvatarInputStream(identity);
+      builder = Response.ok(stream, "image/png");
+    }
+    builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+    if (eTag != null) {
+      builder.tag(eTag);
+    }
     builder.cacheControl(CACHE_CONTROL);
     // If the query has a lastModified parameter, it means that the client
     // will change the lastModified entry when it really changes
