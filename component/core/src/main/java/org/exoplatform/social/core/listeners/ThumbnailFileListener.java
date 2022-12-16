@@ -19,22 +19,19 @@ import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
 import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
 
-public class FileActionListener extends Listener<FileInfo, Object> {
+public class ThumbnailFileListener extends Listener<FileInfo, Object> {
 
   private static final String   FILE_UPDATED_EVENT      = "file.updated";
 
   private static final String   FILE_DELETED_EVENT      = "file.deleted";
 
-  private static final String   THUMBNAIL_METADATA_NAME = "thumbnail";
+  private final ImageThumbnailService imageThumbnailService;
 
-  private static final String   THUMBNAIL_OBJECT_TYPE   = "file";
-
-  private final MetadataService metadataService;
-
-  public FileActionListener(MetadataService metadataService) {
-    this.metadataService = metadataService;
+  public ThumbnailFileListener(ImageThumbnailService imageThumbnailService) {
+    this.imageThumbnailService = imageThumbnailService;
   }
 
   @Override
@@ -42,8 +39,7 @@ public class FileActionListener extends Listener<FileInfo, Object> {
     String eventName = event.getEventName();
     FileInfo fileInfo = event.getSource();
     if (eventName.equals(FILE_UPDATED_EVENT) || eventName.equals(FILE_DELETED_EVENT)) {
-      ThumbnailObject thumbnailObject = new ThumbnailObject(THUMBNAIL_OBJECT_TYPE, Long.toString(fileInfo.getId()));
-      metadataService.deleteMetadataItemsByMetadataTypeAndObject(THUMBNAIL_METADATA_NAME, thumbnailObject);
+      imageThumbnailService.deleteThumbnails(fileInfo.getId());
     }
   }
 }
