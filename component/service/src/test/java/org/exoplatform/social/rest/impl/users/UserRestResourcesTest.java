@@ -4,10 +4,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
 
+import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -421,6 +423,46 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     response = service("GET", getURLResource("users/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/avatar"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
+  }
+
+  public void testGetUserAvatarWithDefaultSize() throws Exception {
+    String user = "john";
+
+    uploadUserAvatar(user, "user.png");
+
+    startSessionAs("mary");
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+    String avatarUrl = identity.getProfile().getAvatarUrl().replace("/portal/rest", "");
+
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    assertEquals(45, receivedImage.getWidth());
+    assertEquals(45, receivedImage.getHeight());
+
+  }
+
+  public void testGetUserAvatarWithOriginalSize() throws Exception {
+    String user = "john";
+
+    uploadUserAvatar(user, "user.png");
+
+    startSessionAs("mary");
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
+    String avatarUrl = identity.getProfile().getAvatarUrl().replace("/portal/rest", "");
+    avatarUrl+="&size=0x0";
+    ContainerResponse response = service("GET", avatarUrl, "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    assertEquals(512, receivedImage.getWidth());
+    assertEquals(512, receivedImage.getHeight());
+
   }
 
   public void testGetUserBannerForAnonymous() throws Exception {
@@ -1119,13 +1161,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
 
   private void uploadUserAvatar(String user) throws Exception {
+    uploadUserAvatar(user,"blank.gif");
+  }
+
+  private void uploadUserAvatar(String user, String resourceName) throws Exception {
     startSessionAs(user);
-    String uploadId = "testtest";
+    String uploadId = resourceName;
     byte[] formData = ("name=avatar&value=" + uploadId).getBytes();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
-    URL resource = getClass().getClassLoader().getResource("blank.gif");
-    uploadService.createUploadResource(uploadId, resource.getFile(), "avatar.png", "image/png");
+    URL resource = getClass().getClassLoader().getResource(resourceName);
+    uploadService.createUploadResource(uploadId, resource.getFile(), resourceName, "image/png");
     ContainerResponse response = service("PATCH", getURLResource("users/" + user), "", headers, formData);
     assertNotNull(response);
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());

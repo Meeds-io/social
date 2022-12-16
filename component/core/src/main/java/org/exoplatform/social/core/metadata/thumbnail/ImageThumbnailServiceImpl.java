@@ -89,7 +89,7 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
                                                    && metadataItem.getProperties()
                                                                   .get(THUMBNAIL_HEIGHT_PROPERTY)
                                                                   .equals(String.valueOf(height)))
-                                               .collect(Collectors.toList());
+                                               .toList();
     if (!items.isEmpty()) {
       long fileId = Long.parseLong(items.get(0).getParentObjectId());
       try {
@@ -121,5 +121,11 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
       metadataService.createMetadataItem(thumbnailMetadataObject, metadataKey, properties, Long.parseLong(identity.getId()));
       return thumbnailFileItem;
     }
+  }
+
+  @Override
+  public void deleteThumbnails(Long fileId) {
+    ThumbnailObject thumbnailObject = new ThumbnailObject(THUMBNAIL_OBJECT_TYPE, Long.toString(fileId));
+    metadataService.deleteMetadataItemsByMetadataTypeAndObject(THUMBNAIL_METADATA_TYPE.getName(), thumbnailObject);
   }
 }

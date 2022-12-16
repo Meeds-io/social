@@ -19,6 +19,7 @@ import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.social.metadata.MetadataService;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,16 +33,16 @@ import java.util.Date;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FileActionListenerTest {
+public class ThumbnailFileListenerTest {
 
   @Mock
-  private MetadataService    metadataService;
+  private ImageThumbnailService imageThumbnailService;
   
-  private FileActionListener fileActionListener;
+  private ThumbnailFileListener thumbnailFileListener;
 
   @Before
   public void setUp() throws Exception {
-    fileActionListener = new FileActionListener(metadataService);
+    thumbnailFileListener = new ThumbnailFileListener(imageThumbnailService);
   }
 
   @Test
@@ -57,10 +58,10 @@ public class FileActionListenerTest {
                                      false,
                                      new ByteArrayInputStream("test".getBytes()));
     Event<FileInfo, Object> updateFile = new Event<>("file.updated", fileItem.getFileInfo(), null);
-    fileActionListener.onEvent(updateFile);
-    verify(metadataService, times(1)).deleteMetadataItemsByMetadataTypeAndObject("thumbnail", thumbnailObject);
+    thumbnailFileListener.onEvent(updateFile);
+    verify(imageThumbnailService, times(1)).deleteThumbnails(1L);
     Event<FileInfo, Object> deleteFile = new Event<>("file.deleted", fileItem.getFileInfo(), null);
-    fileActionListener.onEvent(deleteFile);
-    verify(metadataService, times(2)).deleteMetadataItemsByMetadataTypeAndObject("thumbnail", thumbnailObject);
+    thumbnailFileListener.onEvent(deleteFile);
+    verify(imageThumbnailService, times(2)).deleteThumbnails(1L);
   }
 }

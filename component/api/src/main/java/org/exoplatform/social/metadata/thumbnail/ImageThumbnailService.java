@@ -30,4 +30,6 @@ public interface ImageThumbnailService {
      * @return {@link FileItem}
      */
     FileItem getOrCreateThumbnail(FileItem file, Identity identity, int width, int height) throws Exception;
+
+    void deleteThumbnails(Long fileId);
 }

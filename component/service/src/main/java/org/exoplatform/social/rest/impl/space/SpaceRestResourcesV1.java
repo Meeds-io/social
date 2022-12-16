@@ -101,15 +101,15 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
-  private ActivityRestResourcesV1   activityRestResourcesV1;
+  private final ActivityRestResourcesV1 activityRestResourcesV1;
 
-  private IdentityManager           identityManager;
+  private final IdentityManager identityManager;
 
-  private UploadService             uploadService;
+  private final UploadService uploadService;
 
-  private SpaceService              spaceService;
+  private final SpaceService spaceService;
   
-  private ImageThumbnailService     imageThumbnailService;
+  private final ImageThumbnailService imageThumbnailService;
 
   private byte[]                    defaultSpaceAvatar          = null;
 
@@ -465,7 +465,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                      @Context Request request,
                                      @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                      @Parameter(description = "Space pretty name", required = true) @PathParam("id") String id,
-                                     @Parameter(description = "resized avatar size") @DefaultValue("45x45") @QueryParam("size") String size,
+                                     @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("45x45") @QueryParam("size") String size,
                                      @Parameter(
                                          description = "A mandatory valid token that is used to authorize anonymous request",
                                          required = false
@@ -474,6 +474,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     Response.ResponseBuilder builder = null;
     Long lastUpdated = null;
+    EntityTag eTag = null;
+
     if (!isDefault) {
       if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
                                                                           SpaceIdentityProvider.NAME,
@@ -499,32 +501,27 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       if (profile != null) {
         lastUpdated = profile.getAvatarLastUpdated();
       }
-      EntityTag eTag = null;
       if (lastUpdated != null) {
-        eTag = new EntityTag(Integer.toString(lastUpdated.hashCode()));
+        eTag = new EntityTag(lastUpdated.hashCode() +"-"+size);
       }
       //
       builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
       if (builder == null) {
-        InputStream stream = identityManager.getAvatarInputStream(identity);
-        if (stream != null) {
-          builder = Response.ok(stream, "image/png");
-          int[] dimension = Utils.parseDimension(size);
-          try {
-            byte[] avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                            identity,
-                            dimension[0],
-                            dimension[1])
-                    .getAsByte();
-            if (avatarContent != null) {
-              builder = Response.ok(avatarContent, "image/png");
-            }
-          } catch (Exception e) {
-            LOG.error("Error while resizing avatar, original Image will be returned", e);
+        int[] dimension = Utils.parseDimension(size);
+        try {
+          byte[] avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+                          identity,
+                          dimension[0],
+                          dimension[1])
+                  .getAsByte();
+          if (avatarContent != null) {
+            builder = Response.ok(avatarContent, "image/png");
           }
-          builder.tag(eTag);
+        } catch (Exception e) {
+          LOG.error("Error while resizing avatar, original Image will be returned", e);
         }
       }
+
     }
 
     if (builder == null) {
@@ -533,6 +530,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     builder.cacheControl(CACHE_CONTROL);
     builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
+    if (eTag != null) {
+      builder.tag(eTag);
+    }
     // If the query has a lastModified parameter, it means that the client
     // will change the lastModified entry when it really changes
     // Which means that we can cache the image in browser side
