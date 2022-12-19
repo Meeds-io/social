@@ -827,4 +827,20 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>TopBarMenu</portlet-name>
+    <display-name xml:lang="EN">TopBar Navigation Menu</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/topBarMenu.html</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>TopBar Navigation Menu</title>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>
