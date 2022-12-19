@@ -75,10 +75,10 @@ const defaultActivityOptions = {
     icon: 'fa fa-link',
   },
   getBody: activity => {
-    return Vue.prototype.$utils.trim((activity.templateParams && activity.templateParams.comment)
+    return (activity.templateParams && activity.templateParams.comment)
            || (activity && activity.title)
            || (activity && activity.body)
-           || '');
+           || '';
   },
   getBodyToEdit: activity => {
     let templateParams = activity.templateParams; 
