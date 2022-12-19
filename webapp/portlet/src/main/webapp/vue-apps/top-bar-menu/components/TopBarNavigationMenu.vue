@@ -17,13 +17,17 @@
 <template>
   <v-app>
     <v-tabs
-      class="mt-1"
       v-model="tab"
-      fixed-tabs>
+      fixed-tabs
+      center-active
+      height="56"
+      slider-size="3">
       <navigation-menu-item
         v-for="navigation in navigations"
         :key="navigation.id"
-        :navigation="navigation" />
+        :navigation="navigation"
+        :base-site-uri="`${BASE_SITE_URI}${navigations[0].name}/`"
+        @update-navigation-state="updateNavigationState" />
     </v-tabs>
   </v-app>
 </template>
@@ -37,7 +41,7 @@ export default {
     globalScope: 'children',
     visibility: 'displayed',
     siteType: 'PORTAL',
-    tab: location.pathname
+    tab: sessionStorage.getItem('topNavigationTabState')
   }),
   created() {
     this.getNavigations();
@@ -53,7 +57,6 @@ export default {
               .then(navigations => {
                 this.navigations = navigations || [];
                 this.navigations.map(navigation => {
-                  navigation.uri = homeNavigation.uri;
                   this.navigations.push(...navigation.children);
                   navigation.children = [];
                 });
@@ -61,6 +64,9 @@ export default {
           }
         });
     },
+    updateNavigationState(value) {
+      sessionStorage.setItem('topNavigationTabState',  value);
+    }
   }
 };
 </script>
