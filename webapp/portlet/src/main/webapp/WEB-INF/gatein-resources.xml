@@ -30,6 +30,9 @@
         <path>/js/login.bundle.js</path>
       </script>
       <depends>
+        <module>loginCommon</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -1452,6 +1455,25 @@
     <depends>
       <module>commons-cometd3</module>
       <as>cCometd</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>loginCommon</name>
+    <script>
+      <path>/js/loginCommon.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
     </depends>
   </module>
 

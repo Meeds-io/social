@@ -20,6 +20,7 @@ let config = {
   entry: {
     commonVueComponents: './src/main/webapp/vue-apps/common/main.js',
     login: './src/main/webapp/vue-apps/login/main.js',
+    loginCommon: './src/main/webapp/vue-apps/login-common/main.js',
     register: './src/main/webapp/vue-apps/user-register/main.js',
     registerOnboarding: './src/main/webapp/vue-apps/user-register-onboarding/main.js',
     oAuthLoginExtension: './src/main/webapp/vue-apps/login-oauth/main.js',
