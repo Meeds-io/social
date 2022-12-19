@@ -30,14 +30,14 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <a :href="spaceURL" class="font-weight-bold text-truncate-2 text-break-all primary--text mb-2">{{ spaceDisplayName }}</a>
+          <a :href="spaceURL" class="font-weight-bold text-truncate-2 primary--text mb-2">{{ spaceDisplayName }}</a>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </v-flex>
-    <p class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4 text-break-all">
+    <p class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4">
       {{ description }}
     </p>
     <v-flex>
