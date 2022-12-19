@@ -65,4 +65,5 @@
      eXo.env.portal.StreamFilterEnabled = <%=featureService.isFeatureActiveForUser("StreamFilter", userName)%>;
      eXo.env.portal.PinActivityEnabled = <%=featureService.isFeatureActiveForUser("PinActivity", userName)%>;
      eXo.env.portal.SpaceWebNotificationsEnabled = <%=featureService.isFeatureActiveForUser("SpaceWebNotifications", userName)%>;
+     eXo.env.portal.topBarNavigationEnabled = <%=PropertyManager.getProperty("exo.feature.navigationPortlet.enabled")%>;
 </script>
