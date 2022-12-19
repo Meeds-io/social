@@ -21,10 +21,12 @@
     offset-y>
     <template #activator="{ attrs, on }">
       <v-tab
+        class="mx-auto text-caption"
         v-bind="attrs"
-        :href="`${BASE_SITE_URI}${navigation.uri}`"
-        link>
-        {{ navigation.name }}
+        :href="`${baseSiteUri}${navigation.uri}`"
+        link
+        @change="updateNavigationState(navigation.uri)">
+        {{ navigation.label }}
         <v-btn
           v-if="navigation.children.length"
           v-on="navigation.children.length && on"
@@ -36,15 +38,10 @@
         </v-btn>
       </v-tab>
     </template>
-    <v-list>
-      <v-list-item
-        v-for="children in navigation.children"
-        :key="children.id"
-        :href="`${BASE_SITE_URI}${children.uri}`"
-        link>
-        <v-list-item-title v-text="children.name" />
-      </v-list-item>
-    </v-list>
+    <navigation-menu-sub-item
+      :navigation="navigation.children"
+      :base-site-uri="baseSiteUri"
+      @update-navigation-state="updateNavigationState" />
   </v-menu>
 </template>
 
@@ -52,7 +49,6 @@
 export default {
   data () {
     return {
-      BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
       showMenu: false,
     };
   },
@@ -60,6 +56,10 @@ export default {
     navigation: {
       type: Object,
       default: null,
+    },
+    baseSiteUri: {
+      type: String,
+      default: null
     }
   },
   created() {
@@ -70,6 +70,11 @@ export default {
         },100);
       }
     });
+  },
+  methods: {
+    updateNavigationState(value) {
+      this.$emit('update-navigation-state', `${this.baseSiteUri}${value}`);
+    }
   }
 };
 </script>
