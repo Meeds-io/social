@@ -16,17 +16,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-import Login from './components/Login.vue';
-import LoginMain from './components/LoginMain.vue';
-import LoginMainTopExtensions from './components/LoginMainTopExtensions.vue';
-import LoginMainBottomExtensions from './components/LoginMainBottomExtensions.vue';
+import BrandingImage from './components/BrandingImage.vue';
+import Introduction from './components/Introduction.vue';
+import PageTemplate from './components/PageTemplate.vue';
 
 const components = {
-  'portal-login': Login,
-  'portal-login-main': LoginMain,
-  'portal-login-main-top-extensions': LoginMainTopExtensions,
-  'portal-login-main-bottom-extensions': LoginMainBottomExtensions,
+  'portal-login-template': PageTemplate,
+  'portal-login-introduction': Introduction,
+  'portal-login-branding-image': BrandingImage,
 };
 
 for (const key in components) {
