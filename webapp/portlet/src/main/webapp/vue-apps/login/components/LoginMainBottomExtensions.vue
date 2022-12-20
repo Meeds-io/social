@@ -26,22 +26,10 @@
     parent-element="div"
     element="div">
     <template #separator>
-      <div class="d-flex my-5">
-        <v-divider class="my-auto secondary login-separator" />
-        <span class="mx-3 text-uppercase">
-          {{ $t('UILoginForm.label.or') }}
-        </span>
-        <v-divider class="my-auto secondary login-separator" />
-      </div>
+      <portal-login-separator class="my-5" />
     </template>
     <template #header>
-      <div class="d-flex my-5">
-        <v-divider class="my-auto secondary login-separator" />
-        <span class="mx-3 text-uppercase">
-          {{ $t('UILoginForm.label.or') }}
-        </span>
-        <v-divider class="my-auto secondary login-separator" />
-      </div>
+      <portal-login-separator class="my-5" />
     </template>
   </extension-registry-components>
 </template>
