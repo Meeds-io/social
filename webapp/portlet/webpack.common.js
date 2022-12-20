@@ -23,7 +23,6 @@ let config = {
     loginCommon: './src/main/webapp/vue-apps/login-common/main.js',
     register: './src/main/webapp/vue-apps/user-register/main.js',
     registerOnboarding: './src/main/webapp/vue-apps/user-register-onboarding/main.js',
-    oAuthLoginExtension: './src/main/webapp/vue-apps/login-oauth/main.js',
     spacesAdministration: './src/main/webapp/vue-apps/spaces-administration/main.js',
     hamburgerMenu: './src/main/webapp/vue-apps/hamburger-menu/main.js',
     administrationHamburgerMenu: './src/main/webapp/vue-apps/administration-navigation/main.js',
