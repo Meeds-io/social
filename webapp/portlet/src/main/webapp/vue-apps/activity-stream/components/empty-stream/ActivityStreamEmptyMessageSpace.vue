@@ -26,21 +26,21 @@
           <activity-stream-empty-message-space-icons-column
             :icon-size="iconSize"
             :icon-ref="userGearIcon"
-            :info-message="firstFeatureMessage" />
+            :info-message="emptyStreamForSpacesThatUserManage1" />
           <activity-stream-empty-message-space-icons-column
-            icon-color="secondary"
             :icon-size="iconSize"
             :icon-ref="shareIcon"
-            :info-message="secondFeatureMessage" />
+            :info-message="emptyStreamForSpacesThatUserManage2" 
+            icon-color="secondary" />
           <activity-stream-empty-message-space-icons-column
             :icon-size="iconSize"
             :icon-ref="awardIcon"
-            :info-message="thirdFeatureMessage" />
+            :info-message="emptyStreamForSpacesThatUserManage3" />
           <activity-stream-empty-message-space-icons-column
-            icon-color="secondary"
             :icon-size="iconSize"
             :icon-ref="trophyIcon"
-            :info-message="fourthFeatureMessage" />      
+            :info-message="emptyStreamForSpacesThatUserManage4"      
+            icon-color="secondary" /> 
         </v-row>
       </v-card>
       <div v-sanitized-html="welcomeSpaceParagraph1" class="mb-4"></div>
@@ -77,33 +77,33 @@ export default {
   },
   computed: {
     welcomeTitle() {
-      return this.$t && this.$t('UIActivity.label.Welcome_Space', {
+      return this.$t('UIActivity.label.Welcome_Space', {
         'space name': `<strong>${eXo.env.portal.spaceDisplayName}</strong>`,
       });
     },
-    firstFeatureMessage() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_manage_community');
+    emptyStreamForSpacesThatUserManage1() {
+      return this.$t('UIActivity.label.empty_space_stream_manage_community');
     },
-    secondFeatureMessage() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_share_knowledge');
+    emptyStreamForSpacesThatUserManage2() {
+      return this.$t('UIActivity.label.empty_space_stream_share_knowledge');
     },
-    thirdFeatureMessage() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_congrats');
+    emptyStreamForSpacesThatUserManage3() {
+      return this.$t('UIActivity.label.empty_space_stream_congrats');
     },
-    fourthFeatureMessage() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_value_skills');
+    emptyStreamForSpacesThatUserManage4() {
+      return this.$t('UIActivity.label.empty_space_stream_value_skills');
     },
     welcomeSpaceParagraph1() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_one');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_one');
     },
     welcomeSpaceParagraph2() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_two');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_two');
     },
     welcomeSpaceParagraph3() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_three');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_three');
     },
     welcomeSpaceParagraph4() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_four');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_four');
     },
     welcomeSpaceNumberedParagraph1() {
       return this.$t('UIActivity.label.empty_space_stream_paragraph_numbered_one', {
@@ -112,10 +112,10 @@ export default {
       });
     },
     welcomeSpaceNumberedParagraph2() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_numbered_two');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_numbered_two');
     },
     welcomeSpaceNumberedParagraph3() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_numbered_three');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_numbered_three');
     },
   },
   methods: {
