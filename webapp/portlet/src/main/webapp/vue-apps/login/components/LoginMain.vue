@@ -49,6 +49,10 @@
       :params="params"
       :rememberme="rememberme" />
 
+    <portal-login-providers
+      :params="params"
+      :rememberme="rememberme" />
+
     <form
       name="loginForm"
       action="/portal/login"
