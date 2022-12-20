@@ -53,7 +53,7 @@
                     <span
                       v-on="on"
                       v-bind="attrs"
-                      class="blue--text text--darken-3 font-weight-bold">
+                      class="primary--text text--darken-3 font-weight-bold">
                       {{ logoTitle }}
                     </span>
                   </template>
