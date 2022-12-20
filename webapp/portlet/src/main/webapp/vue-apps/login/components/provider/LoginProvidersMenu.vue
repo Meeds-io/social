@@ -19,15 +19,35 @@
 
 -->
 <template>
-  <div v-if="oAuthEnabled" id="social-pane">
-    <div id="social-login">
-      <portal-login-oauth-provider-link
-        v-for="oAuthProvider in oAuthProviders"
-        :key="oAuthProvider.key"
-        :provider="oAuthProvider"
-        :rememberme="rememberme" />
-    </div>
-  </div>
+  <v-card
+    id="login-providers-menu"
+    flat>
+    <v-menu offset-x offset-y>
+      <template #activator="{on, attrs}">
+        <v-btn
+          min-width="auto"
+          color="primary"
+          class="pa-4"
+          outlined
+          v-bind="attrs"
+          v-on="on">
+          <span class="display-1">...</span>
+        </v-btn>
+      </template>
+      <v-list dense>
+        <component
+          v-for="provider in providers"
+          :key="provider.key"
+          :provider="provider"
+          :rememberme="rememberme"
+          :params="params"
+          :is="provider.vueComponentName || 'portal-login-provider-menu-link'"
+          class="mx-auto"
+          display-text
+          is-menu />
+      </v-list>
+    </v-menu>
+  </v-card>
 </template>
 <script>
 export default {
@@ -36,23 +56,13 @@ export default {
       type: Object,
       default: null,
     },
+    providers: {
+      type: Array,
+      default: null,
+    },
     rememberme: {
       type: Boolean,
       default: false,
-    },
-  },
-  computed: {
-    oAuthEnabled() {
-      return this.params && this.params.oAuthEnabled;
-    },
-    oAuthProviderTypes() {
-      return this.params && this.params.oAuthProviderTypes || [];
-    },
-    oAuthProviders() {
-      return this.params && this.params.oAuthProviderTypes && this.params.oAuthProviderTypes.map(key => ({
-        key,
-        url: this.params[`oAuthInitURL-${key}`],
-      })) || [];
     },
   },
 };
