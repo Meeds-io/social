@@ -16,82 +16,32 @@
 -->
 <template>
   <div class="d-flex flex-column white border-radius">
-    <div class="mx-4 my-4">
+    <img
+      :height="height"
+      :style="{maxHeight: height}"
+      src="/social-portlet/images/emptySpaceStream.png"
+      class="mx-auto"
+      loading="lazy">
+    <div class="mx-4 mb-4">
       <p v-sanitized-html="welcomeTitle"></p>
-      <v-card
-        max-width="500"
-        flat
-        class="mx-auto my-8">
-        <v-row>
-          <activity-stream-empty-message-space-icons-column
-            :icon-size="iconSize"
-            :icon-ref="userGearIcon"
-            :info-message="emptyStreamForSpacesThatUserManage1" />
-          <activity-stream-empty-message-space-icons-column
-            :icon-size="iconSize"
-            :icon-ref="shareIcon"
-            :info-message="emptyStreamForSpacesThatUserManage2" 
-            icon-color="secondary" />
-          <activity-stream-empty-message-space-icons-column
-            :icon-size="iconSize"
-            :icon-ref="awardIcon"
-            :info-message="emptyStreamForSpacesThatUserManage3" />
-          <activity-stream-empty-message-space-icons-column
-            :icon-size="iconSize"
-            :icon-ref="trophyIcon"
-            :info-message="emptyStreamForSpacesThatUserManage4"      
-            icon-color="secondary" /> 
-        </v-row>
-      </v-card>
       <div v-sanitized-html="welcomeSpaceParagraph1" class="mb-4"></div>
       <div v-sanitized-html="welcomeSpaceParagraph2" class="mb-4"></div>
-      <div v-sanitized-html="welcomeSpaceParagraph3" class="mb-4"></div>
-      <div>
-        <ol>
-          <li v-html="welcomeSpaceNumberedParagraph1"></li>
-          <li v-sanitized-html="welcomeSpaceNumberedParagraph2"></li>
-          <li v-sanitized-html="welcomeSpaceNumberedParagraph3"></li>
-        </ol>
-      </div>
-      <div v-sanitized-html="welcomeSpaceParagraph4" class="my-4"></div>
+      <div v-sanitized-html="conclusionParagraph"></div>
     </div>
   </div>
 </template>
 <script>
 export default {
-  data() {
+  data: function() {
     return {
-      emptyActivityStreamActionName: 'empty-activity-stream-spaces',
-      iconSize: '30',
-      userGearIcon: 'fa-user-cog',
-      shareIcon: 'fa-share-alt',
-      awardIcon: 'fa-award',
-      trophyIcon: 'fa-trophy',
+      height: '380px',
     };
-  },
-  created() {
-    document.addEventListener(this.emptyActivityStreamActionName, this.clickOnSpacesActivityStreamEmptyActionLink);
-  },
-  beforeDestroy() {
-    document.removeEventListener(this.emptyActivityStreamActionName, this.clickOnSpacesActivityStreamEmptyActionLink);
   },
   computed: {
     welcomeTitle() {
       return this.$t('UIActivity.label.Welcome_Space', {
         'space name': `<strong>${eXo.env.portal.spaceDisplayName}</strong>`,
       });
-    },
-    emptyStreamForSpacesThatUserManage1() {
-      return this.$t('UIActivity.label.empty_space_stream_manage_community');
-    },
-    emptyStreamForSpacesThatUserManage2() {
-      return this.$t('UIActivity.label.empty_space_stream_share_knowledge');
-    },
-    emptyStreamForSpacesThatUserManage3() {
-      return this.$t('UIActivity.label.empty_space_stream_congrats');
-    },
-    emptyStreamForSpacesThatUserManage4() {
-      return this.$t('UIActivity.label.empty_space_stream_value_skills');
     },
     welcomeSpaceParagraph1() {
       return this.$t('UIActivity.label.empty_space_stream_paragraph_one');
