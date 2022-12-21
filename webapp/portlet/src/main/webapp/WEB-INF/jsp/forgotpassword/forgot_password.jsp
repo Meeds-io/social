@@ -1,148 +1,122 @@
 <%--
 
-    Copyright (C) 2009 eXo Platform SAS.
-    
-    This is free software; you can redistribute it and/or modify it
-    under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation; either version 2.1 of
-    the License, or (at your option) any later version.
-    
-    This software is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    Lesser General Public License for more details.
-    
-    You should have received a copy of the GNU Lesser General Public
-    License along with this software; if not, write to the Free
-    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ This file is part of the Meeds project (https://meeds.io/).
+ Copyright (C) 2022 Meeds Association
+ contact@meeds.io
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 --%>
-
+<%@page import="java.util.ResourceBundle"%>
+<%@page import="org.exoplatform.services.resources.ResourceBundleService"%>
+<%@ page language="java"%>
+<%@ page import="java.util.Set"%>
+<%@ page import="java.util.List"%>
+<%@ page import="org.gatein.portal.controller.resource.ResourceRequestHandler"%>
 <%@ page import="org.exoplatform.container.PortalContainer"%>
-<%@ page import="org.exoplatform.services.resources.ResourceBundleService"%>
-<%@ page import="org.exoplatform.portal.resource.SkinService"%>
-<%@ page import="java.util.ResourceBundle"%>
-<%@ page import="org.exoplatform.web.controller.QualifiedName" %>
-<%@ page import="org.exoplatform.web.login.recovery.PasswordRecoveryService" %>
-<%@ page import="org.exoplatform.portal.resource.SkinConfig" %>
-<%@ page import="java.util.Collection" %>
-<%@ page import="java.util.Locale" %>
-<%@ page import="org.exoplatform.commons.utils.I18N" %>
-<%@ page import="org.exoplatform.portal.config.UserPortalConfigService" %>
-<%@ page import="org.exoplatform.portal.resource.config.tasks.PortalSkinTask" %>
-<%@ page import="org.gatein.portal.controller.resource.ResourceRequestHandler" %>
-<%@ page import="org.exoplatform.services.resources.LocaleConfigService"%>
 <%@ page import="org.exoplatform.services.resources.LocaleConfig"%>
 <%@ page import="org.exoplatform.services.resources.Orientation"%>
-
-<%@ page language="java" %>
 <%
-    PortalContainer portalContainer = PortalContainer.getCurrentInstance(session.getServletContext());
-    ResourceBundleService service = portalContainer.getComponentInstanceOfType(ResourceBundleService.class);
-    Locale locale = (Locale)request.getAttribute("request_locale");
-    if (locale == null) {
-        locale = request.getLocale();
-    }
-    ResourceBundle res = service.getResourceBundle(service.getSharedResourceBundleNames(), locale);
-    String contextPath = portalContainer.getPortalContext().getContextPath();
+  response.setCharacterEncoding("UTF-8");
+  response.setContentType("text/html; charset=UTF-8");
 
-    UserPortalConfigService userPortalConfigService = portalContainer.getComponentInstanceOfType(UserPortalConfigService.class);
-    SkinService skinService = portalContainer.getComponentInstanceOfType(SkinService.class);
-    String skinName = userPortalConfigService.getDefaultPortalSkinName();
-    String loginCssPath = skinService.getSkin("portal/login", skinName).getCSSPath()+"?v="+ResourceRequestHandler.VERSION;
-    String coreCssPath = skinService.getPortalSkin(PortalSkinTask.DEFAULT_MODULE_NAME, skinName).getCSSPath()+"?v="+ResourceRequestHandler.VERSION;
-    String brandingCss = "/rest/v1/platform/branding/css?v="+ResourceRequestHandler.VERSION;
+  String contextPath = request.getContextPath();
 
-    String username = (String)request.getAttribute("username");
-    String error = (String)request.getAttribute("error");
-    String success = (String)request.getAttribute("success");
+  // Styles
+  List<String> skinUrls = (List<String>) request.getAttribute("skinUrls");
 
-    PasswordRecoveryService passRecoveryServ = portalContainer.getComponentInstanceOfType(PasswordRecoveryService.class);
-    String forgotPasswordPath = passRecoveryServ.getPasswordRecoverURL(null, I18N.toTagIdentifier(locale));
+  // Scripts
+  List<String> headerScripts = (List<String>) request.getAttribute("headerScripts");
+  Set<String> pageScripts = (Set<String>) request.getAttribute("pageScripts");
+  String jsConfig = (String) request.getAttribute("jsConfig");
+  String inlineScripts = (String) request.getAttribute("inlineScripts");
 
+  // Branding
+  String brandingPrimaryColor = (String) request.getAttribute("brandingPrimaryColor");
+  String brandingThemeUrl = (String) request.getAttribute("brandingThemeUrl");
 
-    String initURL = (String)request.getAttribute("initURL");
-    if (initURL == null || !initURL.equals(contextPath + "/login")) {
-        initURL = contextPath + "/login";
-    }
+  // Locale
+  LocaleConfig localeConfig = (LocaleConfig) request.getAttribute("localeConfig");
+  String browserLanguage = localeConfig.getLocale().getLanguage();
+  Orientation orientation = localeConfig.getOrientation();
+  String direction = orientation.isLT() ? "ltr" : "rtl";
 
-    response.setCharacterEncoding("UTF-8");
-    response.setContentType("text/html; charset=UTF-8");
-
-    String browserLanguage = request.getLocale() == null ? "en" : request.getLocale().getLanguage();
-    LocaleConfigService localeConfigService = portalContainer.getComponentInstanceOfType(LocaleConfigService.class);
-    LocaleConfig localeConfig = localeConfigService.getLocaleConfig(browserLanguage);
-    String direction = localeConfig == null || localeConfig.getOrientation() != Orientation.RT ? "ltr" : "rtl";
+  PortalContainer portalContainer = PortalContainer.getInstance();
+  ResourceBundleService resourceBundleService = portalContainer.getComponentInstanceOfType(ResourceBundleService.class);
+  ResourceBundle res = resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), localeConfig.getLocale());
 %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<%=browserLanguage%>" lang="<%=browserLanguage%>" dir="<%=direction%>">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xml:lang="<%=browserLanguage%>"
+  lang="<%=browserLanguage%>"
+  dir="<%=direction%>">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%=res.getString("gatein.forgotPassword.title")%></title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="shortcut icon" type="image/x-icon"  href="<%=contextPath%>/favicon.ico" />
-    <link id="brandingSkin" rel="stylesheet" type="text/css" href="<%=brandingCss%>">
-    <link href="<%=coreCssPath%>" rel="stylesheet" type="text/css"/>
-    <link href="<%=loginCssPath%>" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="/eXoResources/javascript/jquery-3.2.1.js"></script>
-    <script type="text/javascript" src="/eXoResources/javascript/eXo/webui/FormValidation.js"></script>
+  <%-- Embedded Title that will change once page loaded --%>
+  <title><%=res.getString("gatein.forgotPassword.title")%></title>
+  <!-- Metadatas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="theme-color" content="<%=brandingPrimaryColor%>" />
+  <!-- Preload Styles & Fonts & Scripts for HTTP/2 optimizations -->
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/vuetify/materialdesignicons-webfont.woff2?v=5.9.55" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/Ionic/ionicons.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="preload" href="/eXoSkin/skin/fonts/PLF-FONT-ICONS.ttf?-m9uidt" as="font" type="font/ttf" crossorigin />
+  <link rel="preload" as="style" type="text/css" href="<%=brandingThemeUrl%>" />
+  <% for(String skinUrl : skinUrls) { %>
+  <link rel="preload" href= "<%=skinUrl%>" as="style" type="text/css" />
+  <% } %>
+  <% for (String url : pageScripts) { %>
+  <link rel="preload" href= "<%=url%>" as="script" type="text/javascript" />
+  <% } %>
+  <!-- Styles -->
+  <link rel="shortcut icon" type="image/x-icon" href="<%=contextPath%>/favicon.ico" />
+  <link id="brandingSkin" rel="stylesheet" type="text/css" href="<%=brandingThemeUrl%>" />
+  <% for(String skinUrl : skinUrls) { %>
+  <link rel="stylesheet" type="text/css" href="<%=skinUrl%>" />
+  <% } %>
+  <!-- Scripts -->
+  <script type="text/javascript">
+   var require = <%= jsConfig %>;
+  </script>
+  <% for (String url : headerScripts) { %>
+  <script type="text/javascript" src="<%= url %>"></script>
+  <% } %>
+  <script type="text/javascript">
+   require(['SHARED/bootstrap'], function() {
+     eXo.env.portal.context = "<%=contextPath%>";
+     eXo.env.portal.containerName = "<%=PortalContainer.getInstance().getName()%>";
+     eXo.env.portal.language='<%= browserLanguage %>';
+     eXo.env.portal.orientation='<%= direction %>';
+     eXo.env.portal.rest = '<%= PortalContainer.getCurrentRestContextName() %>';
+     eXo.env.server.context = "<%=contextPath%>";
+     eXo.env.client.assetsVersion = "<%=ResourceRequestHandler.VERSION%>";
+     eXo.env.portal.vuetifyPreset = {
+       dark: true,
+       silent: true,
+       iconfont: 'mdi',
+       rtl: eXo.env.portal.orientation === 'rtl',
+       theme: { disable: true },
+     };
+     eXo.developing = <%=org.exoplatform.commons.utils.PropertyManager.isDevelopping()%>;
+     <%=inlineScripts%>;
+   });
+  </script>
 </head>
-<body class="modal-open">
-<div class="uiPopupWrapper">
-    <div class="UIPopupWindow uiPopup uiForgotPassword UIDragObject NormalStyle">
-        <div class="popupHeader ClearFix">
-            <span class="popupTitle center"><%=res.getString("gatein.forgotPassword.title")%></span>
-        </div>
-        <div class="popupContent">
-            <% if (success != null) { %>
-            <div class="alertForm">
-                <div class="alert alert-success">
-                    <i class="uiIconSuccess"></i><%=success%>
-                </div>
-            </div>
-            <%}%>
-            <form name="registerForm" action="<%= contextPath + forgotPasswordPath %>" method="post" style="margin: 0px;" autocomplete="off">
-                <div class="">
-                    <div class="text">
-                        <h5><%=res.getString("gatein.forgotPassword.message.heading")%></h5>
-                        <%=res.getString("gatein.forgotPassword.message.msg1")%>
-                        <br/>
-                        <%=res.getString("gatein.forgotPassword.message.msg2")%>
-                    </div>
-                    <div>
-                        
-                            <input style="width: 100%;" data-validation="require" class="username" name="username" type="text" value="<%=(username != null ? username : "")%>" placeholder="<%=res.getString("gatein.forgotPassword.usernameOrEmail")%>"/>
-                            <% if (error != null) { %>
-                                <br/>
-                                <span class="mgT5" style="display: inline-block;color: #333;"><i class="uiIconColorError"></i> <%=error%></span>
-                            <%}%>
-                        
-                    </div>
-                    <input type="hidden" name="action" value="send"/>
-                    <input type="hidden" name="initURL" value="<%=initURL%>"/>
-                </div>
-                <div id="UIPortalLoginFormAction" class="uiAction">
-                    <button type="submit" class="btn btn-primary disabled" disabled="disabled"><%=res.getString("gatein.forgotPassword.send")%></button>
-                    <a href="<%=initURL%>" class="btn ActionButton LightBlueStyle"><%=res.getString("gatein.forgotPassword.back")%></a>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<script type="text/javascript">
-  var $form = $('form[name="registerForm"]');
-  $form.on('formValidate', function(e, valid) {
-    var $btnSubmit = $form.find('.btn[type="submit"]');
-    if (valid) {      
-      $btnSubmit.attr('disabled', false).removeClass('disabled');
-    } else {
-      $btnSubmit.attr('disabled', true).addClass('disabled');
-    }
-  });
-  $form.find('input[type="text"]').on('keyup', function() {
-    $form.validate();
-  });
-</script>
+<body>
+  <div class="VuetifyApp">
+    <div id="forgotPasswordApplication"></div>
+  </div>
 </body>
 </html>
