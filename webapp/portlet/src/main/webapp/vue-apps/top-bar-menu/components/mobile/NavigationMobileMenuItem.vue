@@ -22,31 +22,33 @@
     offset-y>
     <template #activator="{ attrs, on }">
       <v-tab
-        class="mx-auto text-caption text-break"
+        class="mx-auto text-caption pa-0 text-break navigation-mobile-menu-tab"
         v-bind="attrs"
         :href="`${baseSiteUri}${navigation.uri}`"
-        :disabled="!navigation.pageKey && !navigation.children?.length"
+        :disabled="!navigation.pageKey && !navigation.children.length"
         :link="!!navigation.pageKey"
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
         <span
-          class="text-truncate-3">
+          class="text-truncate-3 pt-2">
           {{ navigation.label }}
         </span>
         <v-btn
           v-if="navigation.children.length"
           v-on="navigation.children.length && on"
+          class="mt-2"
           icon
           @click.stop.prevent>
           <v-icon size="20">
-            fa-angle-down
+            fa-angle-up
           </v-icon>
         </v-btn>
       </v-tab>
     </template>
-    <navigation-menu-sub-item
+    <navigation-mobile-menu-sub-item
       :navigation="navigation.children"
       :base-site-uri="baseSiteUri"
+      :show-menu="showMenu"
       :parent-navigation-uri="navigation.uri"
       @update-navigation-state="updateNavigationState" />
   </v-menu>
@@ -67,6 +69,10 @@ export default {
     baseSiteUri: {
       type: String,
       default: null
+    },
+    isMobile: {
+      type: Boolean,
+      default: false
     }
   },
   created() {
