@@ -41,7 +41,7 @@
         <span
           v-if="useHtml"
           class="text--lighten-1 flex-grow-1 pe-4"
-          v-html="alertMessage"
+          v-sanitized-html="alertMessage"
           @click="handleAlertClicked">
         </span>
         <span v-else class="text--lighten-1 flex-grow-1 pe-4">
