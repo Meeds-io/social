@@ -23,7 +23,7 @@
         :color="iconColor"
         :class="iconRef && iconRef || ''" />
     </v-row>
-    <v-row class="text-center">
+    <v-row class="text-center mt-1">
       {{ infoMessage }}
     </v-row>
   </v-col>
