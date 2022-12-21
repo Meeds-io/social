@@ -19,11 +19,7 @@
 
 -->
 <template>
-  <v-card
-    width="350px"
-    max-width="100%"
-    class="mx-auto"
-    flat>
+  <v-card flat>
     <v-card-title class="primary--text px-0">
       {{ $t('forgotpassword.resetPassword') }}
     </v-card-title>
@@ -100,23 +96,25 @@
             max-width="100%"
             tabindex="3"
             color="primary"
-            class="mx-auto login-button btn-primary"
+            class="mx-auto login-button btn-primary text-none"
             elevation="0">
             {{ $t('forgotpassword.send') }}
           </v-btn>
+        </v-row>
+        <v-row class="mx-0 mt-4 pa-0">
           <v-btn
-            :aria-label="$t('forgotpassword.goToLogin')"
+            :aria-label="$t('forgotpassword.backToLogin')"
             href="/portal/login"
             width="222"
             max-width="100%"
             tabindex="4"
-            class="mx-auto mt-4 login-button"
+            class="mx-auto login-button text-none"
             elevation="0"
             outlined>
             <span>
               <v-icon size="16" class="position-absolute mt-n2">fas fa-arrow-left</v-icon>
             </span>
-            <span class="text-capitalize mx-auto">
+            <span class="mx-auto">
               {{ $t('forgotpassword.backToLogin') }}
             </span>
           </v-btn>

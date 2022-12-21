@@ -28,7 +28,7 @@
           :target="targetLink"
           min-width="auto"
           color="primary"
-          class="pa-4"
+          class="pa-4 text-none"
           outlined
           large
           v-bind="attrs"
