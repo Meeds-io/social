@@ -127,7 +127,7 @@
             max-width="100%"
             tabindex="4"
             color="primary"
-            class="mx-auto login-button"
+            class="mx-auto login-button text-none"
             elevation="0">
             {{ $t('portal.login.Signin') }}
           </v-btn>
@@ -195,6 +195,8 @@ export default {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('username')) {
         this.username = urlParams.get('username');
+      } else if (urlParams.has('email')) {
+        this.username = urlParams.get('email');
       }
     },
     toggleShow(){
