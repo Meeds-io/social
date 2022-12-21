@@ -61,7 +61,6 @@
 export default {
   data() {
     return {
-      emptyActivityStreamActionName: 'empty-activity-stream-spaces',
       iconSize: '30',
       userGearIcon: 'fa-user-cog',
       shareIcon: 'fa-share-alt',
@@ -69,18 +68,15 @@ export default {
       trophyIcon: 'fa-trophy',
     };
   },
-  created() {
-    document.addEventListener(this.emptyActivityStreamActionName, this.clickOnSpacesActivityStreamEmptyActionLink);
-  },
-  beforeDestroy() {
-    document.removeEventListener(this.emptyActivityStreamActionName, this.clickOnSpacesActivityStreamEmptyActionLink);
-  },
   computed: {
     profileName() {
       return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.fullname;
     },
     profileUri() {
       return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile`;
+    },
+    spacesUri() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/spaces`;
     },
     profilelink() {
       return `<a href="${this.profileUri}"><strong class="text-color">${this.profileName}</strong></a>`;
@@ -116,7 +112,7 @@ export default {
     },
     welcomeSpaceNumberedParagraph1() {
       return this.$t('UIActivity.label.empty_space_stream_paragraph_numbered_one', {
-        0: `<a class="primary--text font-weight-bold" href="javascript:void(0)" onclick="document.dispatchEvent(new CustomEvent('${this.emptyActivityStreamActionName}'))">`,
+        0: `<a class="primary--text font-weight-bold" href="${this.spacesUri}"">`,
         1: '</a>',
       });
     },
@@ -125,11 +121,6 @@ export default {
     },
     welcomeSpaceNumberedParagraph3() {
       return this.$t('UIActivity.label.empty_space_stream_paragraph_numbered_three');
-    },
-  },
-  methods: {
-    clickOnSpacesActivityStreamEmptyActionLink() {
-      window.location.href = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/spaces`;
     },
   },
 };
