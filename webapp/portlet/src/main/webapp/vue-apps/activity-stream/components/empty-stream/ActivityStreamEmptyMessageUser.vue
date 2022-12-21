@@ -68,12 +68,6 @@ export default {
       trophyIcon: 'fa-trophy',
     };
   },
-  created() {
-    document.addEventListener(this.emptyActivityStreamActionName, this.clickOnSpacesActivityStreamEmptyActionLink);
-  },
-  beforeDestroy() {
-    document.removeEventListener(this.emptyActivityStreamActionName, this.clickOnSpacesActivityStreamEmptyActionLink);
-  },
   computed: {
     profileName() {
       return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.fullname;
