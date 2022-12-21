@@ -62,7 +62,10 @@
                 <slot></slot>
               </div>
             </div>
-            <portal-login-branding-image v-if="brandingImage" :params="params" />
+            <portal-login-branding-image
+              v-if="brandingImage"
+              :params="params"
+              class="d-none d-md-flex" />
           </v-col>
           <v-col v-if="center" class="d-none d-sm-flex" />
         </v-row>
