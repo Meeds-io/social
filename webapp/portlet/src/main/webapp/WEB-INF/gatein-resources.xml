@@ -58,6 +58,41 @@
   </portlet>
 
   <portlet>
+    <name>ForgotPassword</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/forgotPassword.bundle.js</path>
+      </script>
+      <depends>
+        <module>loginCommon</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>vueEllipsis</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
     <name>Register</name>
     <module>
       <script>
