@@ -1,5 +1,5 @@
 userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position
-root,root,root,root,root@example.com,*:/platform/users;member:/platform/administrators,root,root,root,root
+root,root,root,testroot1,root@example.com,*:/platform/users;member:/platform/administrators,root,root,root,root
 erroruser1,user1,user1,testuser1,erroruser1@example.com,*:/platform/users;member:/platform/administrators,aboutMe1,timeZone1,company1,position1
 erroruser2,user2,user2,testuser2,erroruser1@example.com,*:/platform/users;member:/platform/administrators,aboutMe2,timeZone2,company2,position2
 erroruser3,user3,user3,testuser3,erroruser3@example.com,*:/platform/not_existing;member:/platform/administrators,aboutMe3,timeZone3,company3,position3
