@@ -39,18 +39,18 @@ export default {
   },
   computed: {
     welcomeTitle() {
-      return this.$t && this.$t('UIActivity.label.Welcome_Space', {
+      return this.$t('UIActivity.label.Welcome_Space', {
         'space name': `<strong>${eXo.env.portal.spaceDisplayName}</strong>`,
       });
     },
     welcomeSpaceParagraph1() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_one');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_one');
     },
     welcomeSpaceParagraph2() {
-      return this.$t && this.$t('UIActivity.label.empty_space_stream_paragraph_two');
+      return this.$t('UIActivity.label.empty_space_stream_paragraph_two');
     },
     conclusionParagraph() {
-      return this.$t && this.$t('UIActivity.label.empty_stream_lets_begin');
+      return this.$t('UIActivity.label.empty_stream_lets_begin');
     },
   },
 };
