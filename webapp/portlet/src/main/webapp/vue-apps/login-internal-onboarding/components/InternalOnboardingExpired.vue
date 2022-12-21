@@ -21,7 +21,7 @@
 <template>
   <v-card flat>
     <v-card-title class="primary--text subtitle-1 px-0">
-      <span class="mx-auto text-center">{{ $t('forgotpassword.linkExpired') }}</span>
+      <span class="mx-auto text-center">{{ $t('internalOnboarding.linkExpired') }}</span>
     </v-card-title>
     <div class="d-flex ma-0 flex-column">
       <div class="pa-0">
@@ -32,10 +32,10 @@
             color="primary"
             width="222"
             max-width="100%"
-            tabindex="4"
+            tabindex="1"
             class="mx-auto login-button text-none"
             elevation="0">
-            {{ $t('forgotpassword.go') }}
+            {{ $t('forgotpassword.backToLogin') }}
           </v-btn>
         </v-row>
       </div>
