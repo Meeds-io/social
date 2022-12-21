@@ -16,17 +16,39 @@
 -->
 <template>
   <v-app>
+    <v-footer
+      v-if="isMobile"
+      class="white pt-0 pr-0 pl-0"
+      fixed>
+      <v-tabs
+        class="navigation-mobile-menu"
+        v-model="tab"
+        optional
+        height="56"
+        slider-size="4">
+        <navigation-mobile-menu-item
+          v-for="navigation in mobileNavigations"
+          :key="navigation.id"
+          :navigation="navigation"
+          :base-site-uri="`${BASE_SITE_URI}${mobileNavigations[0].name}/`"
+          :is-mobile="isMobile"
+          @update-navigation-state="updateNavigationState" />
+      </v-tabs>
+    </v-footer>
     <v-tabs
+      v-else
       v-model="tab"
-      fixed-tabs
+      show-arrows
       center-active
+      optional
       height="56"
-      slider-size="3">
+      slider-size="4">
       <navigation-menu-item
         v-for="navigation in navigations"
         :key="navigation.id"
         :navigation="navigation"
         :base-site-uri="`${BASE_SITE_URI}${navigations[0].name}/`"
+        :is-mobile="isMobile"
         @update-navigation-state="updateNavigationState" />
     </v-tabs>
   </v-app>
@@ -37,14 +59,28 @@ export default {
   data: () => ({
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     navigations: [],
+    mobileNavigations: [],
     scope: 'ALL',
     globalScope: 'children',
     visibility: 'displayed',
     siteType: 'PORTAL',
-    tab: sessionStorage.getItem('topNavigationTabState')
+    tab: null
   }),
   created() {
     this.getNavigations();
+    this.getActiveTab();
+  },
+  watch: {
+    isMobile(mobile) {
+      if (mobile) {
+        this.refreshMobileNavigations();
+      }
+    },
+  },
+  computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+    },
   },
   methods: {
     getNavigations() {
@@ -56,16 +92,43 @@ export default {
             return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, homeNavigation.id)
               .then(navigations => {
                 this.navigations = navigations || [];
-                this.navigations.map(navigation => {
-                  this.navigations.push(...navigation.children);
-                  navigation.children = [];
-                });
+                this.constructNavigations();
               });
           }
         });
     },
     updateNavigationState(value) {
       sessionStorage.setItem('topNavigationTabState',  value);
+    },
+    constructNavigations() {
+      if (this.navigations.length && this.navigations[0].children?.length) {
+        this.navigations.push(...this.navigations[0].children);
+        this.navigations[0].children = [];
+      }
+      if (this.isMobile) {
+        this.refreshMobileNavigations();
+      }
+    },
+    refreshMobileNavigations() {
+      if (this.navigations.length > 2) {
+        this.mobileNavigations = [];
+        const children = this.navigations.slice(1, this.navigations.length);
+        this.mobileNavigations.push(...this.navigations.slice(0, 2));
+        this.mobileNavigations.push({
+          id: 0,
+          name: 'more',
+          label: this.$t('topBar.navigation.label.more'),
+          children: children
+        });
+      } else {
+        this.mobileNavigations = this.navigations;
+      }
+    },
+    getActiveTab() {
+      this.tab = sessionStorage.getItem('topNavigationTabState');
+      if (location.pathname !== this.tab && !location.pathname.startsWith(this.tab)) {
+        this.tab = null;
+      }
     }
   }
 };
