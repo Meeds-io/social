@@ -18,13 +18,11 @@
   <div class="d-flex flex-column white border-radius">
     <v-flex class="d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto py-10 text-center text-sub-title">
-        <img
-          width="70px"
-          height="70px"
-          :src="emptyStreamImage"
-          :alt="streamFilter"
-          class="mx-auto mt-8"
-          loading="lazy">
+        <v-icon
+          size="70"
+          color="primary"
+          class="mx-auto mt-8 fa"
+          :class="emptyStreamIcon" />
         <span class="text-sub-title my-7">{{ emptyStreamLabel }}</span>
       </div>
     </v-flex>
@@ -42,8 +40,21 @@ export default {
     emptyStreamLabel() {
       return this.$t(`activity.filter.empty_${this.streamFilter}.msg`);
     },
-    emptyStreamImage() {
-      return `/social-portlet/images/empty_${this.streamFilter}.png`;
+    emptyStreamIcon() { 
+      switch (this.streamFilter) {
+      case 'favorite_spaces_stream':
+        return 'fa-star-half-alt';
+      case 'manage_spaces_stream':
+        return 'fa-user-cog';
+      case 'pin_stream':
+        return 'fa-thumbtack';
+      case 'user_stream':
+        return 'fa-feather-alt';
+      case 'user_favorite_stream':
+        return 'fa-star-half-alt';
+      default:
+        return '';
+      }
     },
   }
 };
