@@ -827,4 +827,37 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>OverviewBanner</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/overviewBanner.jsp</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.navigation.portal.meeds</resource-bundle>
+    <portlet-info>
+      <title>Overview Page Banner</title>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>bannerUrl</name>
+        <read-only>false</read-only>
+      </preference>
+      <preference>
+        <name>bannerTitle</name>
+        <read-only>false</read-only>
+      </preference>
+      <preference>
+        <name>bannerCaption</name>
+        <read-only>false</read-only>
+      </preference>
+    </portlet-preferences>
+  </portlet>
+
 </portlet-app>
