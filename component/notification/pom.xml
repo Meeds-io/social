@@ -64,6 +64,11 @@
       <artifactId>jsoup</artifactId>
     </dependency>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <scope>test</scope>
@@ -146,6 +151,7 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

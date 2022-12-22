@@ -18,6 +18,7 @@
 package org.exoplatform.social.rest.entity;
 
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.social.core.identity.model.Identity;
 
@@ -327,6 +328,15 @@ public class SpaceEntity extends BaseEntity {
 
   public SpaceEntity setIsFavorite(String isFavorite) {
     setProperty("isFavorite", isFavorite);
+    return this;
+  }
+
+  public Map<String, Long> getUnreadItems() {
+    return (Map<String, Long>) getProperty("unread");
+  }
+
+  public SpaceEntity setUnreadItems(Map<String, Long> getUnreadItems) {
+    setProperty("unread", getUnreadItems);
     return this;
   }
 

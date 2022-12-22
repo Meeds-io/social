@@ -218,7 +218,7 @@ export default {
       return this.isMobile && ' ' || 'pull-left';
     },
     subtitleNewLineClass() {
-      return !this.subtitleNewLine && `d-flex${this.pullLeft}` || this.pullLeft;
+      return !this.subtitleNewLine && `d-flex ${this.pullLeft}` || this.pullLeft;
     },
   },
   created() {

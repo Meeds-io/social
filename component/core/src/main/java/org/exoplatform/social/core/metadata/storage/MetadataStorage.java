@@ -15,12 +15,8 @@
  */
 package org.exoplatform.social.core.metadata.storage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.math.BigInteger;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -36,6 +32,8 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
+
+import javax.persistence.Tuple;
 
 public class MetadataStorage {
 
@@ -138,6 +136,16 @@ public class MetadataStorage {
     return metadataItemDAO.countMetadataItemsByMetadataTypeAndCreator(metadataType, creatorId);
   }
 
+  public Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(long metadataType, long creatorId, long spaceId) {
+    List<Tuple> metadataItemsTuple =
+                                   metadataItemDAO.countMetadataItemsByMetadataTypeAndAudienceId(metadataType, creatorId, spaceId);
+    Map<String, Long> metadataItemsMap = new HashMap<>();
+    for (Tuple tuple : metadataItemsTuple) {
+      metadataItemsMap.put((String) tuple.get(0), ((BigInteger) tuple.get(1)).longValue());
+    }
+    return metadataItemsMap;
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                            String metadataTypeName,
                                                                            String objectType,
@@ -208,6 +216,16 @@ public class MetadataStorage {
     for (MetadataItem metadataItem : metadataItems) {
       deleteMetadataItemById(metadataItem.getId());
     }
+  }
+
+  public List<MetadataItem> deleteByMetadataTypeAndSpaceIdAndCreatorId(long metadataType, long spaceId, long userIdentityId) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByTypeAndSpaceIdAndCreatorId(metadataType,
+                                                                                                                 spaceId,
+                                                                                                                 userIdentityId);
+    for (MetadataItemEntity metadataItemEntity : metadataItemEntities) {
+      deleteMetadataItemById(metadataItemEntity.getId());
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
   }
 
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {

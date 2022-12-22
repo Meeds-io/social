@@ -46,7 +46,6 @@ public interface SpaceRestResources extends SocialRest {
  * @param sort
  * @param order
  * @param returnSize
- * @param favorites
  * @param expand
  * @return
  * @throws Exception

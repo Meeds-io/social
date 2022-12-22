@@ -17,7 +17,6 @@
 package org.exoplatform.social.notification;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.api.notification.service.storage.MailNotificationStorage;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
@@ -73,10 +72,6 @@ public class Utils {
   @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> clazz) {
     return (T) PortalContainer.getInstance().getComponentInstanceOfType(clazz);
-  }
-  
-  public static MailNotificationStorage getSocialEmailStorage() {
-    return getService(MailNotificationStorage.class);
   }
 
   /**

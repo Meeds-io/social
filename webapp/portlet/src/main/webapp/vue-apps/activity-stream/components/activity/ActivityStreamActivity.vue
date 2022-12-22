@@ -1,7 +1,10 @@
 <template>
-  <div
+  <unread-badge
     :id="id"
-    class="white border-radius activity-detail flex flex-column position-relative">
+    :unread-metadata="unreadMetadata"
+    :space-id="spaceId"
+    class="white border-radius activity-detail flex flex-column"
+    @read="unreadMetadata = null">
     <v-progress-circular
       v-if="displayLoading"
       color="primary"
@@ -73,7 +76,7 @@
           class="px-4" />
       </template>
     </template>
-  </div>
+  </unread-badge>
 </template>
 
 <script>
@@ -120,6 +123,7 @@ export default {
     loading: false,
     initialized: false,
     noExtension: false,
+    unreadMetadata: null,
   }),
   computed: {
     id() {
@@ -190,6 +194,9 @@ export default {
     activityLoading() {
       return this.activity && this.activity.loading;
     },
+    spaceId() {
+      return this.activity?.activityStream?.space?.id || '';
+    },
   },
   watch: {
     activityLoading() {
@@ -210,6 +217,11 @@ export default {
     activityTypeExtension() {
       if (this.activityTypeExtension) {
         this.retrieveActivityProperties();
+      }
+    },
+    initialized() {
+      if (this.initialized && !this.isActivityShared) {
+        this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
       }
     },
   },

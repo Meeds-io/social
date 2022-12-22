@@ -73,7 +73,7 @@ public class CachedActivityStorage implements ActivityStorage {
 
   }
 
-  void clearOwnerCache(String ownerId) {
+  public void clearOwnerCache(String ownerId) {
 
     try {
       exoActivityCache.select(new ActivityOwnerCacheSelector(ownerId));
@@ -90,7 +90,7 @@ public class CachedActivityStorage implements ActivityStorage {
    * 
    * @param streamOwner owner of stream to be cleared.
    */
-  void clearOwnerStreamCache(String streamOwner) {
+  public void clearOwnerStreamCache(String streamOwner) {
     try {
       exoActivityCache.select(new ActivityStreamOwnerCacheSelector(streamOwner));
     } catch (Exception e) {

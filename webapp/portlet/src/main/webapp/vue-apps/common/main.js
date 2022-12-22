@@ -11,6 +11,7 @@ import * as featureService from './js/FeatureService.js';
 import * as activityService from './js/ActivityService.js';
 import * as favoriteService from './js/FavoriteService.js';
 import * as tagService from './js/TagService.js';
+import * as socialWebSocket from './js/WebSocket.js';
 import {spacesConstants} from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
 
@@ -63,6 +64,9 @@ window.Object.defineProperty(Vue.prototype, '$favoriteService', {
 });
 window.Object.defineProperty(Vue.prototype, '$tagService', {
   value: tagService,
+});
+window.Object.defineProperty(Vue.prototype, '$socialWebSocket', {
+  value: socialWebSocket,
 });
 window.Object.defineProperty(Vue.prototype, '$utils', {
   value: utils,

@@ -23,13 +23,25 @@
     @click="openOrCloseDrawer()">
     <v-list-item-avatar 
       size="28"
-      class="me-3 tile my-0 spaceAvatar"
+      class="me-3 ms-3 tile my-0 spaceAvatar"
       tile>
       <v-img :src="spaceAvatar" />
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title class="body-2" v-text="spaceDisplayName" />
     </v-list-item-content>
+    <v-list-item-icon
+      v-if="spaceUnreadCount"
+      class="me-2 align-center">
+      <v-chip
+        v-if="spaceUnreadCount"
+        color="error-color-background"
+        min-width="22"
+        height="22"
+        dark>
+        {{ spaceUnreadCount }}
+      </v-chip>
+    </v-list-item-icon>
   </v-list-item>
   <v-list-item
     v-else
@@ -41,7 +53,7 @@
     @mouseleave="showItemActions = false">
     <v-list-item-avatar 
       size="28"
-      class="me-3 tile my-0 spaceAvatar"
+      class="me-3 ms-2 tile my-0 spaceAvatar"
       tile>
       <v-img :src="spaceAvatar" />
     </v-list-item-avatar>
@@ -62,18 +74,23 @@
         </v-icon>
       </v-btn>
     </v-list-item-icon>
+    <v-list-item-icon
+      v-if="!toggleArrow && spaceUnreadCount"
+      class="me-2 align-center">
+      <v-chip
+        v-if="spaceUnreadCount"
+        color="error-color-background"
+        min-width="22"
+        height="22"
+        dark>
+        {{ spaceUnreadCount }}
+      </v-chip>
+    </v-list-item-icon>
   </v-list-item>
 </template>
 <script>
+
 export default {
-  data () {
-    return {
-      secondLevelVueInstancee: null,
-      secondeLevel: false,
-      showItemActions: false,
-      arrowIcon: 'fa-arrow-right'
-    };
-  },
   props: {
     space: {
       type: Object,
@@ -92,7 +109,19 @@ export default {
       default: false,
     }
   },
+  data: () => ({
+    secondLevelVueInstancee: null,
+    secondeLevel: false,
+    showItemActions: false,
+    arrowIcon: 'fa-arrow-right',
+    spaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
+    spaceUnreadItems: null,
+    webSocketSpaceUnreadItems: {},
+  }),
   computed: {
+    spaceId() {
+      return this.space?.id;
+    },
     spaceLink() {
       return this.spaceUrl;
     },
@@ -102,11 +131,25 @@ export default {
     spaceDisplayName() {
       return this.space?.displayName;
     },
+    spaceUnreadCount() {
+      return this.spaceWebNotificationsEnabled && this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
+    },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
+  },
+  watch: {
+    space: {
+      immediate: true,
+      deep: true,
+      handler: function() {
+        if (JSON.stringify(this.spaceUnreadItems || {}) !== JSON.stringify(this.space?.unread || {})) {
+          this.spaceUnreadItems = this.space?.unread;
+        }
+      },
     },
   },
   created() {
@@ -122,8 +165,64 @@ export default {
       this.secondeLevel = false;
       this.showItemActions = false;
     });
+    document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+    document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+    document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+  },
+  beforeDestroy() {
+    document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+    document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+    document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
   },
   methods: {
+    handleUpdatesFromWebSocket(event) {
+      const data = event?.detail;
+      const wsEventName = data?.wsEventName || '';
+      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
+      if (spaceWebNotificationItem?.length) {
+        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
+      }
+      const applicationName = spaceWebNotificationItem?.applicationName;
+      const applicationItemId = spaceWebNotificationItem?.applicationItemId;
+      const spaceId = spaceWebNotificationItem?.spaceId;
+      const itemRef = `${applicationName}-${applicationItemId}`;
+      if (!this.webSocketSpaceUnreadItems[spaceId]) {
+        this.webSocketSpaceUnreadItems[spaceId] = {};
+      }
+      if (spaceId && Number(this.spaceId) === Number(spaceId)) {
+        if (!this.spaceUnreadItems) {
+          this.space.unread = {};
+          this.spaceUnreadItems = this.space.unread;
+        }
+        if (!this.spaceUnreadItems[applicationName]) {
+          this.spaceUnreadItems[applicationName] = 0;
+        }
+        if (wsEventName === 'notification.unread.item') {
+          if (this.webSocketSpaceUnreadItems[spaceId][itemRef] !== true) {
+            this.webSocketSpaceUnreadItems[spaceId][itemRef] = true;
+            this.spaceUnreadItems[applicationName]++;
+          }
+        } else if (wsEventName === 'notification.read.item') {
+          if (this.spaceUnreadItems[applicationName] > 0) {
+            if (this.webSocketSpaceUnreadItems[spaceId][itemRef] !== false) {
+              this.webSocketSpaceUnreadItems[spaceId][itemRef] = false;
+              this.spaceUnreadItems[applicationName]--;
+            }
+          }
+        } else if (wsEventName === 'notification.read.allItems') {
+          this.spaceUnreadItems = null;
+          this.webSocketSpaceUnreadItems[spaceId] = {};
+        }
+        this.refreshUnreadItems();
+      }
+    },
+    refreshUnreadItems() {
+      this.spaceUnreadItems = this.spaceUnreadItems && Object.assign({}, this.spaceUnreadItems) || null;
+      document.dispatchEvent(new CustomEvent('space-unread-activities-updated', {detail: {
+        spaceId: this.spaceId,
+        unread: this.spaceUnreadItems,
+      }}));
+    },
     hideSecondeItem() {
       this.arrowIcon= 'fa-arrow-right';
       this.showItemActions = false;

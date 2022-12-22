@@ -134,6 +134,23 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " WHERE mi.spaceId = :spaceId"
         + " AND mi.metadata.audienceId = :audienceId"
 )
+@NamedQuery(
+    name = "SocMetadataItemEntity.getMetadataItemsByTypeAndSpaceIdAndCreatorId",
+    query = "SELECT mi FROM SocMetadataItemEntity mi "
+        + " WHERE mi.metadata.type = :metadataType"
+        + " AND mi.creatorId = :creatorId"
+        + " AND mi.spaceId = :spaceId"
+)
+@NamedNativeQuery(
+    name = "SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndAudienceId",
+    query = "SELECT item.object_type, COUNT(DISTINCT item.metadata_item_id) FROM SOC_METADATA_ITEMS item "
+        + " INNER JOIN SOC_METADATAS sm"
+        + " ON item.metadata_id = sm.metadata_id "
+        + " AND sm.type = :metadataType "
+        + " AND sm.audience_id = :creatorId "
+        + " WHERE item.space_id = :spaceId "
+        + " GROUP BY item.object_type"
+)
 @NamedNativeQuery(
     name = "SocMetadataItemEntity.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty",
     query = "SELECT DISTINCT sm.*  FROM SOC_METADATA_ITEMS sm"

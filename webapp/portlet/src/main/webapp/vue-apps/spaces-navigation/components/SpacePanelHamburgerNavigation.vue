@@ -82,16 +82,18 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
+              :disabled="markAsReadDisabled"
               v-bind="attrs" 
               v-on="on" 
-              icon>
-              <v-icon class="me-0 pa-2 disabled--text not-clickable" small>
+              icon
+              @click="markAsAllRead">
+              <v-icon class="me-0 pa-2" small>
                 fa-envelope-open-text
               </v-icon>
             </v-btn>
           </template>
           <span>
-            {{ $t('menu.spaces.unreadActivities') }}
+            {{ $t('menu.spaces.markAsRead') }}
           </span>
         </v-tooltip>
         <exo-space-favorite-action
@@ -117,32 +119,17 @@
     </v-flex>
     <v-flex>
       <v-list>
-        <v-list-item
+        <space-panel-hamburger-navigation-item
           v-for="navigation in spaceNavigations"
           :key="navigation.id"
-          :href="navigation.uri">
-          <v-list-item-icon class="me-3 py-3 my-0 d-flex">
-            <i 
-              aria-hidden="true" 
-              :class="`${applicationIcon(navigation.icon)} icon-default-color icon-default-size`"> </i>
-          </v-list-item-icon>
-          <v-list-item-content class="mt-n1">
-            {{ navigation.label }}
-          </v-list-item-content>
-        </v-list-item>
+          :navigation="navigation"
+          :space-unread-items="spaceUnreadItems" />
       </v-list>
     </v-flex>
   </v-container>
 </template>
 <script>
 export default {
-  data() {
-    return {
-      spaceNavigations: [],
-      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
-      externalExtensions: [],
-    };
-  },
   props: {
     space: {
       type: Object,
@@ -153,6 +140,13 @@ export default {
       default: null
     }
   },
+  data: () => ({
+    spaceNavigations: [],
+    favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
+    externalExtensions: [],
+    spaceUnreadItems: null,
+    spaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
+  }),
   computed: {
     spaceId() {
       return this.space?.id;
@@ -206,7 +200,13 @@ export default {
     },
     avatarHeight() {
       return this.isMobile && '45' || '60';
-    }
+    },
+    hasUnreadItems() {
+      return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) > 0;
+    },
+    markAsReadDisabled() {
+      return !this.spaceWebNotificationsEnabled || !this.hasUnreadItems;
+    },
   },
   watch: {
     spaceId: {
@@ -217,11 +217,28 @@ export default {
         }
       },
     },
+    space: {
+      deep: true,
+      immediate: true,
+      handler: function() {
+        this.spaceUnreadItems = this.space?.unread;
+      },
+    },
   },
   created() {
+    document.addEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
     this.retrieveSpaceNavigations(this.spaceId);
   },
   methods: {
+    applySpaceUnreadChanges(event) {
+      if (!event?.detail) {
+        return;
+      }
+      const {spaceId, unread} = event.detail;
+      if (this.spaceId === spaceId) {
+        this.spaceUnreadItems = unread;
+      }
+    },
     retrieveSpaceNavigations(spaceId) {
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/navigations`, {
         method: 'GET',
@@ -235,26 +252,8 @@ export default {
           this.spaceNavigations = data || [];
         });
     },
-    applicationIcon(iconClass) {
-      const navigationIcon = iconClass || '';
-      if (!navigationIcon?.length) {
-        return 'fas fa-sticky-note';
-      }
-      if (navigationIcon.includes('uiIconAppSpaceHomePage')) {
-        return 'fas fa-stream';
-      } else if (navigationIcon.includes('uiIconAppMembersPortlet')) {
-        return 'fas fa-users';
-      } else if (navigationIcon.includes('uiIconAppTasksManagement') || navigationIcon.includes('uiIconApptasks')) {
-        return 'fas fa-tasks';
-      } else if (navigationIcon.includes('uiIconAppNotes') || navigationIcon.includes('uiIconAppnotes') ) {
-        return 'fas fa-clipboard';
-      } else if (navigationIcon.includes('uiIconAppSpaceWallet')) {
-        return 'fas fa-wallet';
-      } else if (navigationIcon.includes('uiIconAppSpaceSettingPortlet')) {
-        return 'fas fa-cog';
-      } else {
-        return navigationIcon;
-      } 
+    markAsAllRead() {
+      this.$spaceService.markAllAsRead(this.spaceId);
     },
     closeMenu() {
       this.$emit('close-menu');

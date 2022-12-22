@@ -637,3 +637,46 @@ export function shareActivityOnSpaces(spaceId, sharedActivity) {
     }
   });
 }
+
+export function markAsRead(spaceId, applicationName, applicationItemId, userEvent) {
+  cCometd.publish('/SpaceWebNotification', JSON.stringify({
+    wsEventName: 'notification.read.item',
+    message: {
+      spaceWebNotificationItem: JSON.stringify({
+        userId: eXo.env.portal.userIdentityId,
+        spaceId,
+        applicationName,
+        applicationItemId,
+        userEvent,
+      })
+    }
+  }));
+}
+
+export function markAsUnread(spaceId, applicationName, applicationItemId, userEvent) {
+  cCometd.publish('/SpaceWebNotification', JSON.stringify({
+    wsEventName: 'notification.unread.item',
+    message: {
+      spaceWebNotificationItem: JSON.stringify({
+        userId: eXo.env.portal.userIdentityId,
+        spaceId,
+        applicationName,
+        applicationItemId,
+        userEvent,
+      })
+    }
+  }));
+}
+
+export function markAllAsRead(spaceId) {
+  cCometd.publish('/SpaceWebNotification', JSON.stringify({
+    wsEventName: 'notification.read.allItems',
+    message: {
+      spaceWebNotificationItem: JSON.stringify({
+        userId: eXo.env.portal.userIdentityId,
+        spaceId,
+        userEvent: 'click',
+      })
+    }
+  }));
+}

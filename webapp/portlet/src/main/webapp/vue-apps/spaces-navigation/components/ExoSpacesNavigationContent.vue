@@ -3,11 +3,11 @@
     :class="shaped && 'ms-12'"
     class="mx-0 spacesNavigationContent"
     flat>
-    <v-list :shaped="shaped" dense>
+    <v-list dense>
       <v-list-item-group v-model="selectedSpaceIndex">
         <space-navigation-item 
           v-for="space in filteredSpaces" 
-          :key="space.id" 
+          :key="space.id"
           :space="space"
           :space-url="url(space)"
           :home-icon="homeIcon"
@@ -112,10 +112,26 @@ export default {
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
+    document.addEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
+    document.addEventListener('unread-items-deleted', (event) => {
+      if (event) {
+        this.searchSpaces();
+      }
+    });
   },
   methods: {
+    applySpaceUnreadChanges(event) {
+      if (!event?.detail) {
+        return;
+      }
+      const {spaceId, unread} = event.detail;
+      const space = this.spaces?.find(displayedSpace => displayedSpace.id === spaceId);
+      if (space) {
+        space.unread = unread && JSON.parse(JSON.stringify(unread)) || null;
+      }
+    },
     searchSpaces() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=&offset=${this.offset}&limit=${this.limitToFetch}&filterType=lastVisited&returnSize=true&expand=member,managers,favorite`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=&offset=${this.offset}&limit=${this.limitToFetch}&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread`, {
         method: 'GET',
         credentials: 'include',
       })

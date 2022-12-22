@@ -1,7 +1,7 @@
 <template>
   <div
-      :class="truncateText"
-      class="text-light-color">
+    :class="truncateText"
+    class="text-light-color">
     <v-icon
       v-if="!noIcon"
       class="text-light-color me-1"
@@ -13,7 +13,6 @@
         <v-btn
           :href="activityLink"
           :height="btnHeight"
-          :disabled="isActivityShared"
           :x-small="btnXSmall"
           :class="btnClass"
           class="hover-underline width-auto text-capitalize-first-letter px-0 "
