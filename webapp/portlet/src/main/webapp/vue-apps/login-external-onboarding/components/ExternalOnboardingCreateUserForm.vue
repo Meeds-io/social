@@ -35,27 +35,64 @@
       <input
         type="hidden"
         name="action"
-        value="resetPassword">
+        value="saveExternal">
+      <input
+        type="hidden"
+        :value="token"
+        name="token">
       <div>
         <v-card-title class="px-0 mt-4 text-break title font-weight-bold">
-          {{ $t('onboarding.yourPasswordTitle') }}
+          {{ $t('onboarding.yourProfileTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
           <v-card width="350" flat>
             <v-text-field
-              id="username"
-              v-model="username"
-              :placeholder="$t('portal.login.Username')"
-              name="username"
+              id="email"
+              v-model="email"
+              name="email"
               prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
               class="login-username border-box-sizing pt-0"
               aria-required="true"
-              type="text"
+              type="email"
               required="required"
               readonly
               outlined
               dense />
+            <v-text-field
+              id="firstName"
+              v-model="firstName"
+              :placeholder="$t('onboarding.firstName')"
+              name="firstName"
+              class="login-username border-box-sizing"
+              aria-required="true"
+              type="text"
+              required="required"
+              minlength="1"
+              maxlength="255"
+              autofocus="autofocus"
+              tabindex="1"
+              outlined
+              dense />
+            <v-text-field
+              id="lastName"
+              v-model="lastName"
+              :placeholder="$t('onboarding.lastName')"
+              name="lastName"
+              class="login-username border-box-sizing"
+              aria-required="true"
+              type="text"
+              required="required"
+              minlength="1"
+              maxlength="255"
+              tabindex="2"
+              outlined
+              dense />
           </v-card>
+        </v-row>
+        <v-card-title class="px-0 text-break title font-weight-bold">
+          {{ $t('onboarding.yourPasswordTitle') }}
+        </v-card-title>
+        <v-row class="ma-0 pa-0">
           <v-card width="350" flat>
             <v-text-field
               id="password"
@@ -64,12 +101,11 @@
               :type="passwordType"
               :append-icon="showPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"
               prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
-              class="login-password border-box-sizing"
+              class="login-password border-box-sizing pt-0"
               name="password"
               autocomplete="new-password"
-              autofocus="autofocus"
-              tabindex="1"
               required="required"
+              tabindex="3"
               outlined
               dense
               @click:append="toggleShow" />
@@ -86,8 +122,8 @@
               class="login-password border-box-sizing pt-2"
               name="password2"
               autocomplete="new-password"
-              tabindex="2"
               required="required"
+              tabindex="4"
               outlined
               dense
               @click:append="toggleConfirmShow" />
@@ -98,7 +134,7 @@
             width="350"
             flat>
             <v-img
-              src="/portal/on-boarding?serveCaptcha=true"
+              src="/portal/external-registration?serveCaptcha=true"
               width="150"
               heigh="40"
               class="primary me-2 rounded-lg"
@@ -113,7 +149,7 @@
               aria-required="true"
               type="text"
               required="required"
-              tabindex="3"
+              tabindex="5"
               outlined
               dense />
           </v-card>
@@ -121,13 +157,13 @@
         <v-row class="mx-0 my-8 pa-0">
           <v-btn
             :aria-label="$t('onboarding.save')"
-            :disabled="!username"
+            :disabled="disabled"
             type="submit"
             width="222"
             max-width="100%"
-            tabindex="4"
+            tabindex="6"
             color="primary"
-            class="login-button btn-primary text-none mx-auto  mx-md-0"
+            class="login-button btn-primary text-none mx-auto mx-md-0"
             elevation="0">
             {{ $t('onboarding.save') }}
           </v-btn>
@@ -145,7 +181,9 @@ export default {
     },
   },
   data: () => ({
-    username: '',
+    email: '',
+    firstName: '',
+    lastName: '',
     password: '',
     confirmPassword: '',
     captcha: '',
@@ -159,9 +197,19 @@ export default {
     passwordConfirmType() {
       return this.showConfirmPassword ? 'text' :'password';
     },
+    disabled() {
+      return !this.email?.length
+        || !this.firstName?.length
+        || !this.lastName?.length
+        || !this.password?.length
+        || !this.confirmPassword?.length
+        || !this.captcha?.length;
+    },
   },
   mounted() {
-    this.username = this.params?.username;
+    this.email = this.params?.email;
+    this.firstName = this.params?.firstName;
+    this.lastName = this.params?.lastName;
     this.password = this.params?.password;
     this.confirmPassword = this.params?.password2;
   },
