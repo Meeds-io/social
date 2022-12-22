@@ -25,10 +25,10 @@
     </v-row>
     <v-row class="text-center mt-1">
       <v-card
-      flat
-      max-width="150"
-      class="mx-auto">
-      {{ infoMessage }}
+        flat
+        max-width="150"
+        class="mx-auto">
+        {{ infoMessage }}
       </v-card>
     </v-row>
   </v-col>
