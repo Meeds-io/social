@@ -28,10 +28,10 @@
       {{ companyName }}
     </v-card-title>
 
-    <portal-internal-onboarding-expired
+    <portal-external-onboarding-expired
       v-if="action === 'expired'"
       :params="params" />
-    <portal-internal-onboarding-reset-form
+    <portal-external-onboarding-create-user-form
       v-else
       :params="params" />
 

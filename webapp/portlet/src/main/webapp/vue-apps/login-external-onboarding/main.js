@@ -26,7 +26,7 @@ if (components && components.length > 0) {
   });
 }
 
-const appId = 'internalOnboardingApplication';
+const appId = 'externalRegisterApplication';
 
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -44,9 +44,9 @@ export function init(params) {
       data: {
         params: params,
       },
-      template: `<portal-internal-onboarding id="${appId}" :params="params" />`,
+      template: `<portal-external-onboarding id="${appId}" :params="params" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
-    }, `#${appId}`, 'Internal Onboarding');
+    }, `#${appId}`, 'External Onboarding');
   });
 }
