@@ -40,6 +40,7 @@ import ActivityCommentReplyAction from './components/comment/footer/actions/Acti
 import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
 import ActivityStreamToolbar from './components/toolbar/ActivityStreamToolbar.vue';
 import ActivityComposerDrawer from './components/toolbar/ActivityComposerDrawer.vue';
+import ActivityStreamEmptyMessageSpaceIconsColumn from './components/empty-stream/ActivityStreamEmptyMessageSpaceIconsColumn.vue';
 
 const components = {
   'activity-stream': ActivityStream,
@@ -49,6 +50,7 @@ const components = {
   'activity-notification-alerts': ActivityNotificationAlerts,
   'activity-auto-link': ActivityAutoLink,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
+  'activity-stream-empty-message-space-icons-column': ActivityStreamEmptyMessageSpaceIconsColumn,
   'activity-stream-empty-message-user': ActivityStreamEmptyMessageUser,
   'activity-stream-empty-message-filter': ActivityStreamEmptyMessageFilter,
   'activity-not-found': ActivityNotFound,
