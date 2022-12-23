@@ -72,7 +72,6 @@ export default {
       this.sendingImage = false;
     },
     uploadAvatar(file) {
-      console.warn('t', this.avatarUrl);
       if (file && file.size) {
         if (file.type && file.type.indexOf('image/') !== 0) {
           this.$emit('error', this.$t('profile.warning.message.fileType'));
