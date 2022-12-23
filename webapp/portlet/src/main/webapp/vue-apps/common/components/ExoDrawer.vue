@@ -151,7 +151,7 @@ export default {
       return this.expand && '100%' || this.drawerWidth;
     },
     isMobile() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+      return this.$vuetify?.breakpoint?.smAndDown;
     },
     expandIcon() {
       return this.expand && 'mdi-arrow-collapse' || 'mdi-arrow-expand';
