@@ -1,20 +1,23 @@
 <template>
-  <v-avatar
-    :class="hover && 'spaceAvatarHoverEdit'"
-    :size="size"
-    class="spaceAvatar"
-    tile>
-    <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
+  <div class="d-flex">
+    <v-avatar
+      class="spaceAvatar"
+      :class="hover && 'spaceAvatarHoverEdit'"
+      :size="size"
+      tile>
+      <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
+    </v-avatar>
     <v-file-input
       v-if="!sendingImage"
       v-show="hover"
       ref="avatarInput"
       prepend-icon="mdi-camera"
-      class="changeAvatarButton"
+      class="changeAvatarButton ma-0 pa-2 align-center"
       accept="image/*"
       clearable
+      hide-input
       @change="uploadAvatar" />
-  </v-avatar>
+  </div>
 </template>
 
 <script>
@@ -69,6 +72,7 @@ export default {
       this.sendingImage = false;
     },
     uploadAvatar(file) {
+      console.warn('t', this.avatarUrl);
       if (file && file.size) {
         if (file.type && file.type.indexOf('image/') !== 0) {
           this.$emit('error', this.$t('profile.warning.message.fileType'));
