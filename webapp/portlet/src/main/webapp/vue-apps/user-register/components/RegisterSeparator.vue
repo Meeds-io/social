@@ -19,26 +19,11 @@
 
 -->
 <template>
-  <portal-login-template
-    :params="params"
-    branding-image
-    center>
-    <portal-register-main :params="params" />
-  </portal-login-template>
+  <div class="d-flex">
+    <v-divider class="my-auto secondary login-separator" />
+    <span class="mx-3 text-uppercase">
+      {{ $t('UILoginForm.label.or') }}
+    </span>
+    <v-divider class="my-auto secondary login-separator" />
+  </div>
 </template>
-<script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  },
-  created() {
-    document.title = this.$t('UILoginForm.label.ForAccount');
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-};
-</script>

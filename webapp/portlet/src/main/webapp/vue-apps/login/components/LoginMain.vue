@@ -54,12 +54,13 @@
       :rememberme="rememberme" />
 
     <form
-      name="loginForm"
+      ref="form"
+      name="form"
       action="/portal/login"
       method="post"
       autocomplete="off"
       class="d-flex ma-0 flex-column"
-      onsubmit="return isValidForm()">
+      @submit="validateForm()">
       <input
         v-if="initialUri"
         type="hidden"
@@ -78,7 +79,7 @@
             name="username"
             aria-required="true"
             type="text"
-            tabindex="1"
+            tabindex="0"
             required="required"
             outlined
             dense />
@@ -94,7 +95,6 @@
             prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
             class="login-password border-box-sizing"
             name="password"
-            tabindex="2"
             required="required"
             outlined
             dense
@@ -123,9 +123,9 @@
           <v-btn
             :aria-label="$t('portal.login.Signin')"
             :type="disabled && 'button' || 'submit'"
+            :loading="loading"
             width="222"
             max-width="100%"
-            tabindex="4"
             color="primary"
             class="mx-auto login-button text-none"
             elevation="0">
@@ -150,6 +150,7 @@ export default {
   },
   data: () => ({
     rememberme: true,
+    loading: false,
     username: '',
     showPassword: false
   }),
@@ -202,7 +203,9 @@ export default {
     toggleShow(){
       this.showPassword = !this.showPassword;
     },
-    isValidForm(){
+    validateForm() {
+      this.loading = this.$refs.form.reportValidity();
+      window.setTimeout(() => this.loading = false, 10000);
       return !this.disabled;
     },
   },
