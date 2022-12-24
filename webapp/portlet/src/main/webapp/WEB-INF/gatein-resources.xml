@@ -25,6 +25,7 @@
   <portlet>
     <name>Login</name>
     <module>
+      <load-group>login-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/login.bundle.js</path>
@@ -60,6 +61,7 @@
   <portlet>
     <name>ForgotPassword</name>
     <module>
+      <load-group>forgot-password-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/forgotPassword.bundle.js</path>
@@ -94,6 +96,7 @@
 
   <portlet>
     <name>InternalOnboarding</name>
+    <load-group>internal-onboarding-extensions</load-group>
     <module>
       <script>
         <minify>false</minify>
@@ -130,6 +133,7 @@
   <portlet>
     <name>ExternalOnboarding</name>
     <module>
+      <load-group>external-onboarding-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/externalOnboarding.bundle.js</path>
@@ -165,6 +169,7 @@
   <portlet>
     <name>Register</name>
     <module>
+      <load-group>register-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/register.bundle.js</path>
@@ -197,6 +202,7 @@
   <portlet>
     <name>OnboardingRegisterExtension</name>
     <module>
+      <load-group>register-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/registerOnboarding.bundle.js</path>
