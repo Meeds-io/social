@@ -25,6 +25,8 @@
     <v-menu offset-x offset-y>
       <template #activator="{on, attrs}">
         <v-btn
+          :title="$t('UILoginForm.label.moreProviders')"
+          :aria-label="$t('UILoginForm.label.moreProviders')"
           min-width="auto"
           color="primary"
           class="pa-4"
