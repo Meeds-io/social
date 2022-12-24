@@ -19,57 +19,85 @@
 
 -->
 <template>
-  <div v-if="onboardingRegisterEnabled">
-    <v-alert
-      v-if="onBoardingEmailSent"
-      type="success"
-      class="position-static my-2 white"
-      dense
-      outlined
-      rounded>
-      {{ $t('UILoginForm.label.onboardingEmailSent') }}
-    </v-alert>
-    <v-alert
-      v-if="errorMessage"
-      type="error"
-      class="position-static my-2 white"
-      dense
-      outlined
-      rounded>
-      {{ errorMessage }}
-    </v-alert>
-    <form
-      action="/portal/register"
-      method="post"
-      class="center">
-      <input
-        name="onboardingRegister"
-        type="hidden"
-        :value="true">
-      <input
-        name="onboardingRegisterToken"
-        type="hidden"
-        :value="onboardingRegisterToken">
-      <input
-        id="email"
-        :placeholder="$t('UILoginForm.label.email')"
-        :value="email"
-        name="email"
-        tabindex="2"
-        type="email"
-        class="ps-4 pe-8">
-      <v-btn
-        :aria-label="$t('portal.register')"
-        type="submit"
-        tabindex="3"
-        class="col-4 secondary"
-        elevation="0">
-        <span class="text-capitalize">
-          {{ $t('UILoginForm.label.Signup') }}
-        </span>
-      </v-btn>
-    </form>
-  </div>
+  <form
+    name="registerForm"
+    method="post"
+    autocomplete="off"
+    class="d-flex ma-0 flex-column">
+    <div class="d-flex flex-column">
+      <div class="mb-5 mx-auto primary--text font-weight-bold">{{ $t('onboarding.emailSummary') }}</div>
+      <v-row class="ma-0 pa-0">
+        <v-text-field
+          id="email"
+          v-model="email"
+          :placeholder="$t('onboarding.emailPlaceholder')"
+          name="email"
+          prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
+          class="login-username border-box-sizing pt-0"
+          autofocus="autofocus"
+          aria-required="true"
+          type="email"
+          tabindex="0"
+          required="required"
+          outlined
+          dense />
+        <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
+        <v-card
+          class="d-flex mt-4"
+          width="350"
+          flat>
+          <v-img
+            src="/portal/register?serveCaptcha=true"
+            width="150"
+            heigh="40"
+            class="primary me-2 rounded-lg"
+            eager
+            contain />
+          <v-text-field
+            id="captcha"
+            v-model="captcha"
+            :placeholder="$t('onboarding.captchaPlaceholder')"
+            name="captcha"
+            class="login-username border-box-sizing pa-0 mt-1"
+            aria-required="true"
+            type="text"
+            required="required"
+            outlined
+            dense />
+        </v-card>
+      </v-row>
+      <v-row class="mx-0 mt-4 pa-0">
+        <v-btn
+          :aria-label="$t('forgotpassword.send')"
+          :disabled="disabled"
+          type="submit"
+          width="222"
+          max-width="100%"
+          color="primary"
+          class="mx-auto login-button btn-primary text-none"
+          elevation="0">
+          {{ $t('forgotpassword.send') }}
+        </v-btn>
+      </v-row>
+      <v-row class="mx-0 mt-4 pa-0">
+        <v-btn
+          :aria-label="$t('forgotpassword.back')"
+          href="/portal/login"
+          width="222"
+          max-width="100%"
+          class="mx-auto login-button text-none"
+          elevation="0"
+          outlined>
+          <span>
+            <v-icon size="16" class="position-absolute mt-n2">fas fa-arrow-left</v-icon>
+          </span>
+          <span class="mx-auto">
+            {{ $t('forgotpassword.backToLogin') }}
+          </span>
+        </v-btn>
+      </v-row>
+    </div>
+  </form>
 </template>
 <script>
 export default {
@@ -79,31 +107,18 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    email: null,
+    captcha: null,
+  }),
   computed: {
-    onboardingRegisterToken() {
-      return this.params && this.params.onboardingRegisterToken;
-    },
-    onboardingRegisterEnabled() {
-      return this.params && this.params.onboardingRegisterEnabled;
-    },
-    onBoardingEmailSent() {
-      return this.params && this.params.onBoardingEmailSent;
-    },
-    errorCode() {
-      return this.params && this.params.errorCode;
-    },
-    errorMessage() {
-      if (this.errorCode === 'REGISTRATION_ERROR') {
-        return this.$t('UILoginForm.label.unknownError');
-      } else if (this.errorCode === 'EMAIL_ALREADY_EXISTS') {
-        return this.$t('UILoginForm.label.emailAlreadyExists');
-      } else if (this.errorCode === 'USER_ALREADY_EXISTS') {
-        return this.$t('UILoginForm.label.usernameAlreadyExists');
-      } else if (this.errorCode === 'EMAIL_MANDATORY') {
-        return this.$t('UILoginForm.label.emailMandatory');
-      }
-      return this.errorCode;
+    disabled() {
+      return !this.email?.length
+        || !this.captcha?.length;
     },
   },
+  mounted() {
+    this.email = this.params?.email;
+  }, 
 };
 </script>

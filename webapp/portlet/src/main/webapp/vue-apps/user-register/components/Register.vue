@@ -19,60 +19,12 @@
 
 -->
 <template>
-  <v-app>
-    <v-main>
-      <v-container fluid>
-        <div class="loginBGLight">
-          <span></span>
-        </div>
-        <div class="uiLogin">
-          <div class="loginContainer">
-            <div class="loginHeader introBox">
-              <div class="userLoginIcon">
-                {{ $t('portal.login.Connectlabel') }}
-              </div>
-            </div>
-            <div class="loginContent">
-              <p class="brandingComanyClass mt-5 mb-0">{{ companyName }}</p>
-              <div class="center white--text my-3">
-                {{ $t('UILoginForm.label.alreadyHaveAccount') }}
-                <a
-                  :title="$t('UILoginForm.button.registerNewAccount')"
-                  href="/portal/login"
-                  class="text-decoration-underline white--text">
-                  {{ $t('UILoginForm.label.Signin') }}
-                </a>
-              </div>
-              <div class="titleLogin">
-                <extension-registry-components
-                  :params="{params}"
-                  name="Register"
-                  type="register-extension"
-                  parent-element="div"
-                  element="div">
-                  <template #separator>
-                    <div class="d-flex my-5">
-                      <v-divider class="my-auto white" />
-                      <span class="mx-3 white--text text-uppercase">
-                        {{ $t('UILoginForm.label.or') }}
-                      </span>
-                      <v-divider class="my-auto white" />
-                    </div>
-                  </template>
-                </extension-registry-components>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="brandingImageContent">
-          <img
-            :src="brandingLogo"
-            class="brandingImage"
-            role="presentation">
-        </div>
-      </v-container>
-    </v-main>
-  </v-app>
+  <portal-login-template
+    :params="params"
+    branding-image
+    center>
+    <portal-register-main :params="params" />
+  </portal-login-template>
 </template>
 <script>
 export default {
@@ -80,14 +32,6 @@ export default {
     params: {
       type: Object,
       default: null,
-    },
-  },
-  computed: {
-    companyName() {
-      return this.params && this.params.companyName;
-    },
-    brandingLogo() {
-      return this.params && this.params.brandingLogo;
     },
   },
   created() {

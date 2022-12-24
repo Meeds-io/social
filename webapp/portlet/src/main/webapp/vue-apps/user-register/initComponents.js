@@ -17,9 +17,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Register from './components/Register.vue';
+import RegisterMain from './components/RegisterMain.vue';
+import RegisterExtensions from './components/RegisterExtensions.vue';
+import RegisterSeparator from './components/RegisterSeparator.vue';
 
 const components = {
   'portal-register': Register,
+  'portal-register-main': RegisterMain,
+  'portal-register-extensions': RegisterExtensions,
+  'portal-register-separator': RegisterSeparator,
 };
 
 for (const key in components) {

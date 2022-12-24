@@ -66,7 +66,7 @@
             name="password"
             autocomplete="new-password"
             autofocus="autofocus"
-            tabindex="1"
+            tabindex="0"
             required="required"
             outlined
             dense
@@ -81,7 +81,6 @@
             class="login-password border-box-sizing"
             name="password2"
             autocomplete="new-password"
-            tabindex="2"
             required="required"
             outlined
             dense
@@ -94,7 +93,6 @@
             type="submit"
             width="222"
             max-width="100%"
-            tabindex="3"
             color="primary"
             class="mx-auto login-button btn-primary text-none"
             elevation="0">
@@ -107,7 +105,6 @@
             href="/portal/login"
             width="222"
             max-width="100%"
-            tabindex="4"
             class="mx-auto login-button text-none"
             elevation="0"
             outlined>
