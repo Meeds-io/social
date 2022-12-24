@@ -24,10 +24,6 @@
     max-width="100%"
     class="mx-auto"
     flat>
-    <v-card-title class="display-1 primary--text px-0 center d-none d-sm-block">
-      {{ companyName }}
-    </v-card-title>
-
     <portal-forgot-password-expired
       v-if="action === 'expired'"
       :params="params" />
@@ -37,8 +33,6 @@
     <portal-forgot-password-email-form
       v-else
       :params="params" />
-
-    <alert-notifications />
   </v-card>
 </template>
 <script>
@@ -53,40 +47,6 @@ export default {
     action() {
       return this.params?.action;
     },
-    successMessage() {
-      return this.params?.success;
-    },
-    errorMessage() {
-      return this.params?.error;
-    },
-    companyName() {
-      return this.params?.companyName;
-    },
   },
-  watch: {
-    successMessage: {
-      immediate: true,
-      handler: function() {
-        if (this.successMessage?.trim()?.length) {
-          this.displayAlert(this.successMessage, 'success');
-        }
-      },
-    },
-    errorMessage: {
-      immediate: true,
-      handler: function() {
-        if (this.errorMessage?.trim()?.length) {
-          this.displayAlert(this.errorMessage, 'error');
-        }
-      },
-    },
-  },
-  methods: {
-    displayAlert(message, type) {
-      window.setTimeout(() => {
-        this.$root.$emit('alert-message', message, type);
-      }, 200);
-    }
-  }
 };
 </script>

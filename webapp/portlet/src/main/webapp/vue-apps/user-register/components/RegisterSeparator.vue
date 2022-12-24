@@ -19,29 +19,11 @@
 
 -->
 <template>
-  <div class="brandingLogo">
-    <v-img
-      :src="brandingLogo"
-      width="9em"
-      max-width="150px"
-      max-height="6em"
-      role="presentation"
-      contain
-      eager />
+  <div class="d-flex">
+    <v-divider class="my-auto secondary login-separator" />
+    <span class="mx-3 text-uppercase">
+      {{ $t('UILoginForm.label.or') }}
+    </span>
+    <v-divider class="my-auto secondary login-separator" />
   </div>
 </template>
-<script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  },
-  computed: {
-    brandingLogo() {
-      return this.params?.brandingLogo;
-    },
-  },
-};
-</script>

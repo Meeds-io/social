@@ -32,7 +32,7 @@
             color="primary"
             width="222"
             max-width="100%"
-            tabindex="1"
+            tabindex="0"
             class="mx-auto login-button text-none"
             elevation="0">
             {{ $t('forgotpassword.backToLogin') }}

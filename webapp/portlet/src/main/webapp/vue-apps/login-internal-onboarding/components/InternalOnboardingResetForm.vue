@@ -68,7 +68,7 @@
               name="password"
               autocomplete="new-password"
               autofocus="autofocus"
-              tabindex="1"
+              tabindex="0"
               required="required"
               outlined
               dense
@@ -86,7 +86,6 @@
               class="login-password border-box-sizing pt-2"
               name="password2"
               autocomplete="new-password"
-              tabindex="2"
               required="required"
               outlined
               dense
@@ -113,7 +112,6 @@
               aria-required="true"
               type="text"
               required="required"
-              tabindex="3"
               outlined
               dense />
           </v-card>
@@ -125,7 +123,6 @@
             type="submit"
             width="222"
             max-width="100%"
-            tabindex="4"
             color="primary"
             class="login-button btn-primary text-none mx-auto"
             elevation="0">
