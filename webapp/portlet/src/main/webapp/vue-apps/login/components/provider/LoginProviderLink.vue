@@ -26,6 +26,7 @@
           :id="id"
           :href="link"
           :target="targetLink"
+          :aria-label="providerButtonLabel"
           min-width="auto"
           color="primary"
           class="pa-4 text-none"
