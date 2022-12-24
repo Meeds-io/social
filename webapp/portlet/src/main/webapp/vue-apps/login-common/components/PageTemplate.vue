@@ -55,8 +55,13 @@
               </template>
             </portal-login-introduction>
             <div :class="center && 'd-block' || 'd-sm-flex flex-column flex-grow-1 px-sm-8'" class="px-4 px-sm-0">
-              <v-card-title v-if="$slots.title" class="display-1 primary--text px-0 d-none d-sm-block">
+              <v-card-title v-if="$slots.title" class="display-1 primary--text px-0 d-none d-sm-flex text-wrap">
                 <slot name="title"></slot>
+              </v-card-title>
+              <v-card-title
+                v-else
+                class="display-1 primary--text px-0 d-none d-sm-flex text-break text-center justify-center mx-n12">
+                {{ companyName }}
               </v-card-title>
               <div :class="center && 'd-block' || 'd-sm-flex flex mx-0'">
                 <slot></slot>
@@ -71,6 +76,7 @@
         </v-row>
       </v-main>
     </div>
+    <alert-notifications />
   </v-app>
 </template>
 <script>
@@ -105,9 +111,50 @@ export default {
     authenticationSubtitleKey() {
       return this.params?.authenticationSubtitle || 'UILoginForm.label.pageSubTitle';
     },
+    successCode() {
+      return this.params?.success || this.params?.successCode || this.params?.successMessage;
+    },
+    errorCode() {
+      return this.params?.error || this.params?.errorCode || this.params?.errorMessage;
+    },
+    successMessage() {
+      return this.successCode && this.$te(`UILoginForm.label.${this.successCode}`)
+        && this.$t(`UILoginForm.label.${this.successCode}`)
+        || this.successCode;
+    },
+    errorMessage() {
+      return this.errorCode && this.$te(`UILoginForm.label.${this.errorCode}`)
+        && this.$t(`UILoginForm.label.${this.errorCode}`)
+        || this.errorCode;
+    },
+  },
+  watch: {
+    successMessage: {
+      immediate: true,
+      handler: function() {
+        if (this.successMessage?.trim()?.length) {
+          this.displayAlert(this.successMessage, 'success');
+        }
+      },
+    },
+    errorMessage: {
+      immediate: true,
+      handler: function() {
+        if (this.errorMessage?.trim()?.length) {
+          this.displayAlert(this.errorMessage, 'error');
+        }
+      },
+    },
   },
   mounted() {
     this.$root.$applicationLoaded();
+  },
+  methods: {
+    displayAlert(message, type) {
+      window.setTimeout(() => {
+        this.$root.$emit('alert-message', message, type);
+      }, 200);
+    },
   },
 };
 </script>

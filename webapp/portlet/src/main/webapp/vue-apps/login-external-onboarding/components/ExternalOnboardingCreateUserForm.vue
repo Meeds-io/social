@@ -28,18 +28,24 @@
     </v-card-title>
 
     <form
-      name="resetPasswordForm"
+      name="form"
+      ref="form"
       method="post"
       autocomplete="off"
-      class="d-flex ma-0 flex-column">
+      class="d-flex ma-0 flex-column"
+      @submit="validateForm()">
       <input
         type="hidden"
         name="action"
         value="saveExternal">
       <input
         type="hidden"
-        :value="token"
-        name="token">
+        :value="username"
+        name="username">
+      <input
+        type="hidden"
+        :value="initialURI"
+        name="initialURI">
       <div>
         <v-card-title class="px-0 mt-4 text-break title font-weight-bold">
           {{ $t('onboarding.yourProfileTitle') }}
@@ -49,19 +55,24 @@
             <v-text-field
               id="email"
               v-model="email"
+              :readonly="isEmailReadOnly"
+              :tabindex="!isEmailReadOnly && '0'"
+              :autofocus="!isEmailReadOnly && 'autofocus'"
+              :placeholder="$t('onboarding.emailPlaceholder')"
               name="email"
               prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
               class="login-username border-box-sizing pt-0"
               aria-required="true"
               type="email"
               required="required"
-              readonly
               outlined
               dense />
             <v-text-field
               id="firstName"
               v-model="firstName"
               :placeholder="$t('onboarding.firstName')"
+              :tabindex="isEmailReadOnly && '0'"
+              :autofocus="isEmailReadOnly && 'autofocus'"
               name="firstName"
               class="login-username border-box-sizing"
               aria-required="true"
@@ -69,8 +80,6 @@
               required="required"
               minlength="1"
               maxlength="255"
-              autofocus="autofocus"
-              tabindex="1"
               outlined
               dense />
             <v-text-field
@@ -84,7 +93,6 @@
               required="required"
               minlength="1"
               maxlength="255"
-              tabindex="2"
               outlined
               dense />
           </v-card>
@@ -105,7 +113,6 @@
               name="password"
               autocomplete="new-password"
               required="required"
-              tabindex="3"
               outlined
               dense
               @click:append="toggleShow" />
@@ -123,7 +130,6 @@
               name="password2"
               autocomplete="new-password"
               required="required"
-              tabindex="4"
               outlined
               dense
               @click:append="toggleConfirmShow" />
@@ -149,7 +155,6 @@
               aria-required="true"
               type="text"
               required="required"
-              tabindex="5"
               outlined
               dense />
           </v-card>
@@ -158,10 +163,10 @@
           <v-btn
             :aria-label="$t('onboarding.save')"
             :disabled="disabled"
+            :loading="loading"
             type="submit"
             width="222"
             max-width="100%"
-            tabindex="6"
             color="primary"
             class="login-button btn-primary text-none mx-auto"
             elevation="0">
@@ -181,14 +186,17 @@ export default {
     },
   },
   data: () => ({
-    email: '',
-    firstName: '',
-    lastName: '',
-    password: '',
-    confirmPassword: '',
-    captcha: '',
+    username: null,
+    email: null,
+    firstName: null,
+    lastName: null,
+    password: null,
+    confirmPassword: null,
+    captcha: null,
+    initialURI: null,
     showPassword: false,
     showConfirmPassword: false,
+    loading: false,
   }),
   computed: {
     passwordType() {
@@ -196,6 +204,9 @@ export default {
     },
     passwordConfirmType() {
       return this.showConfirmPassword ? 'text' :'password';
+    },
+    isEmailReadOnly() {
+      return !this.username;
     },
     disabled() {
       return !this.email?.length
@@ -207,11 +218,13 @@ export default {
     },
   },
   mounted() {
+    this.username = this.params?.username;
     this.email = this.params?.email;
     this.firstName = this.params?.firstName;
     this.lastName = this.params?.lastName;
     this.password = this.params?.password;
     this.confirmPassword = this.params?.password2;
+    this.initialURI = this.params?.initialURI;
   },
   methods: {
     toggleShow() {
@@ -219,6 +232,11 @@ export default {
     },
     toggleConfirmShow() {
       this.showConfirmPassword = !this.showConfirmPassword;
+    },
+    validateForm() {
+      this.loading = this.$refs.form.reportValidity();
+      window.setTimeout(() => this.loading = false, 10000);
+      return !this.disabled;
     },
   },
 };

@@ -24,9 +24,6 @@
     max-width="100%"
     class="mx-auto"
     flat>
-    <v-card-title class="display-1 primary--text px-0 center d-none d-sm-block">
-      {{ companyName }}
-    </v-card-title>
     <div v-if="registerEnabled" class="center my-3">
       {{ $t('UILoginForm.label.registerNewAccount') }}
       <a
@@ -37,14 +34,6 @@
       </a>
     </div>
 
-    <v-alert
-      v-if="errorCode"
-      type="error"
-      class="position-static elevation-0"
-      dismissible>
-      {{ errorMessage }}
-    </v-alert>
-
     <portal-login-main-top-extensions
       :params="params"
       :rememberme="rememberme" />
@@ -54,12 +43,13 @@
       :rememberme="rememberme" />
 
     <form
-      name="loginForm"
+      ref="form"
+      name="form"
       action="/portal/login"
       method="post"
       autocomplete="off"
       class="d-flex ma-0 flex-column"
-      onsubmit="return isValidForm()">
+      @submit="validateForm()">
       <input
         v-if="initialUri"
         type="hidden"
@@ -78,7 +68,7 @@
             name="username"
             aria-required="true"
             type="text"
-            tabindex="1"
+            tabindex="0"
             required="required"
             outlined
             dense />
@@ -94,7 +84,6 @@
             prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
             class="login-password border-box-sizing"
             name="password"
-            tabindex="2"
             required="required"
             outlined
             dense
@@ -119,13 +108,14 @@
             </span>
           </a>
         </v-row>
-        <v-row class="mx-0 mt-8 pa-0">
+        <v-row class="mx-0 mt-8 pa-0 loginButton">
           <v-btn
+            id="loginButton"
             :aria-label="$t('portal.login.Signin')"
             :type="disabled && 'button' || 'submit'"
+            :loading="loading"
             width="222"
             max-width="100%"
-            tabindex="4"
             color="primary"
             class="mx-auto login-button text-none"
             elevation="0">
@@ -150,15 +140,13 @@ export default {
   },
   data: () => ({
     rememberme: true,
+    loading: false,
     username: '',
     showPassword: false
   }),
   computed: {
     passwordType(){
       return this.showPassword ? 'text' :'password';
-    },
-    companyName() {
-      return this.params?.companyName;
     },
     disabled() {
       return this.params?.disabled;
@@ -176,7 +164,9 @@ export default {
       return this.params?.errorCode;
     },
     errorMessage() {
-      return this.errorCode && this.$t(`UILoginForm.label.${this.errorCode}`);
+      return this.errorCode && this.$te(`UILoginForm.label.${this.errorCode}`)
+        && this.$t(`UILoginForm.label.${this.errorCode}`)
+        || this.errorCode;
     },
     extensionParams() {
       return {
@@ -199,10 +189,12 @@ export default {
         this.username = urlParams.get('email');
       }
     },
-    toggleShow(){
+    toggleShow() {
       this.showPassword = !this.showPassword;
     },
-    isValidForm(){
+    validateForm() {
+      this.loading = this.$refs.form.reportValidity();
+      window.setTimeout(() => this.loading = false, 10000);
       return !this.disabled;
     },
   },
