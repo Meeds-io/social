@@ -19,28 +19,16 @@
 
 -->
 <template>
-  <v-card flat>
-    <v-card-title class="primary--text subtitle-1 px-0">
-      <span class="mx-auto text-center">{{ $t('forgotpassword.linkExpired') }}</span>
-    </v-card-title>
-    <div class="d-flex ma-0 flex-column">
-      <div class="pa-0">
-        <v-row class="mx-0 mt-8 pa-0">
-          <v-btn
-            :aria-label="$t('forgotpassword.backToLogin')"
-            href="/portal/login"
-            color="primary"
-            width="222"
-            max-width="100%"
-            tabindex="0"
-            class="mx-auto login-button text-none"
-            elevation="0">
-            {{ $t('forgotpassword.go') }}
-          </v-btn>
-        </v-row>
-      </div>
-    </div>
-  </v-card>
+  <extension-registry-components
+    :params="{params}"
+    name="Register"
+    type="register-extension"
+    parent-element="div"
+    element="div">
+    <template #separator>
+      <portal-register-separator class="my-5" />
+    </template>
+  </extension-registry-components>
 </template>
 <script>
 export default {
@@ -48,11 +36,6 @@ export default {
     params: {
       type: Object,
       default: null,
-    },
-  },
-  computed: {
-    formUrl() {
-      return window.location.pathname;
     },
   },
 };
