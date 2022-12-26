@@ -1,18 +1,18 @@
 <template>
   <v-bottom-sheet
     v-model="showChildren"
+    content-class="topBar-navigation-bottom-drop-menu elevation-0"
     hide-overlay>
-    <v-sheet
-      class="mb-16">
+    <v-sheet>
       <div
         v-if="navigationObject.previous">
         <v-btn
-          class="mt-2"
+          class="mt-2 ms-1"
           icon
           @click.stop.prevent="prev">
           <v-icon
             size="15">
-            fa-arrow-left
+            {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
           </v-icon>
         </v-btn>
       </div>
@@ -24,7 +24,7 @@
             v-for="children in navigationObject"
             :key="children.id"
             :href="`${baseSiteUri}${children.uri}`"
-            :disabled="!children.pageKey && !children.children.length"
+            :disabled="!children.pageKey && !children.children?.length"
             :link="!!children.pageKey"
             @click.stop="checkLink(children, $event)">
             <v-list-item-content>
@@ -38,7 +38,7 @@
                 @click.stop.prevent="next(children)">
                 <v-icon
                   size="18">
-                  fa-angle-right
+                  {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
                 </v-icon>
               </v-btn>
             </v-list-item-icon>
@@ -82,6 +82,9 @@ export default {
   watch: {
     showMenu(value) {
       this.showChildren = value;
+      if (value) {
+        this.navigationObject = Object.assign({}, this.navigation);
+      }
     }
   },
   methods: {
