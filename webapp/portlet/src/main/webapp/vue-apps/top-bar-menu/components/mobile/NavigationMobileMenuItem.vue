@@ -18,14 +18,13 @@
   <v-menu
     v-model="showMenu"
     rounded
-    :close-on-click="true"
     offset-y>
     <template #activator="{ attrs, on }">
       <v-tab
         class="mx-auto text-caption pa-0 text-break navigation-mobile-menu-tab"
         v-bind="attrs"
         :href="`${baseSiteUri}${navigation.uri}`"
-        :disabled="!navigation.pageKey && !navigation.children.length"
+        :disabled="!navigation.pageKey && !navigation.children?.length"
         :link="!!navigation.pageKey"
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
@@ -34,11 +33,11 @@
           {{ navigation.label }}
         </span>
         <v-btn
-          v-if="navigation.children.length"
-          v-on="navigation.children.length && on"
+          v-if="navigation.children?.length"
+          v-on="navigation.children?.length && on"
           class="mt-2"
           icon
-          @click.stop.prevent>
+          @click.stop.prevent="openDropMenu">
           <v-icon size="20">
             fa-angle-up
           </v-icon>
@@ -83,6 +82,11 @@ export default {
         },100);
       }
     });
+    this.$root.$on('close-other-drop-menus', (emitter) => {
+      if (this !== emitter && this.showMenu) {
+        this.showMenu = false;
+      }
+    });
   },
   methods: {
     updateNavigationState(value) {
@@ -91,6 +95,19 @@ export default {
     checkLink(navigation, e) {
       if (!navigation.pageKey) {
         e.preventDefault();
+      }
+      if (navigation.children) {
+        this.openDropMenu();
+      }
+    },
+    openDropMenu(persist) {
+      if (!persist && this.showMenu) {
+        this.showMenu = false;
+      } else if (!this.showMenu) {
+        this.$root.$emit('close-other-drop-menus', this);
+        this.$nextTick().then(() => {
+          this.showMenu = true;
+        });
       }
     }
   }
