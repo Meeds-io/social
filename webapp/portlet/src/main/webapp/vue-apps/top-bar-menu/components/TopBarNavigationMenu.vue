@@ -18,7 +18,7 @@
   <v-app>
     <v-footer
       v-if="isMobile"
-      class="white pt-0 pr-0 pl-0"
+      class="white pt-0 pr-0 pl-0 elevation-2"
       fixed>
       <v-tabs
         class="navigation-mobile-menu"
@@ -30,7 +30,7 @@
           v-for="navigation in mobileNavigations"
           :key="navigation.id"
           :navigation="navigation"
-          :base-site-uri="`${BASE_SITE_URI}${mobileNavigations[0].name}/`"
+          :base-site-uri="`${BASE_SITE_URI}`"
           :is-mobile="isMobile"
           @update-navigation-state="updateNavigationState" />
       </v-tabs>
@@ -47,7 +47,7 @@
         v-for="navigation in navigations"
         :key="navigation.id"
         :navigation="navigation"
-        :base-site-uri="`${BASE_SITE_URI}${navigations[0].name}/`"
+        :base-site-uri="`${BASE_SITE_URI}`"
         :is-mobile="isMobile"
         @update-navigation-state="updateNavigationState" />
     </v-tabs>
@@ -61,10 +61,10 @@ export default {
     navigations: [],
     mobileNavigations: [],
     scope: 'ALL',
-    globalScope: 'children',
     visibility: 'displayed',
     siteType: 'PORTAL',
-    tab: null
+    exclude: 'global',
+    tab: null,
   }),
   created() {
     this.getNavigations();
@@ -85,34 +85,21 @@ export default {
   methods: {
     getNavigations() {
       const siteName = eXo.env.portal.portalName;
-      return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility)
+      return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility, this.exclude)
         .then(navigations => {
-          if (navigations.length) {
-            const homeNavigation = navigations[0];
-            return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, homeNavigation.id)
-              .then(navigations => {
-                this.navigations = navigations || [];
-                this.constructNavigations();
-              });
+          this.navigations = navigations || [];
+          if (this.isMobile) {
+            this.refreshMobileNavigations();
           }
         });
     },
     updateNavigationState(value) {
       sessionStorage.setItem('topNavigationTabState',  value);
     },
-    constructNavigations() {
-      if (this.navigations.length && this.navigations[0].children?.length) {
-        this.navigations.push(...this.navigations[0].children);
-        this.navigations[0].children = [];
-      }
-      if (this.isMobile) {
-        this.refreshMobileNavigations();
-      }
-    },
     refreshMobileNavigations() {
-      if (this.navigations.length > 2) {
+      if (this.navigations.length > 3) {
         this.mobileNavigations = [];
-        const children = this.navigations.slice(1, this.navigations.length);
+        const children = this.navigations.slice(2, this.navigations.length);
         this.mobileNavigations.push(...this.navigations.slice(0, 2));
         this.mobileNavigations.push({
           id: 0,
@@ -127,7 +114,7 @@ export default {
     getActiveTab() {
       this.tab = sessionStorage.getItem('topNavigationTabState');
       if (location.pathname !== this.tab && !location.pathname.startsWith(this.tab)) {
-        this.tab = null;
+        this.tab = location.pathname;
       }
     }
   }

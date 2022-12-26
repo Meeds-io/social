@@ -18,9 +18,9 @@
   <v-menu
     v-model="showMenu"
     rounded
-    :close-on-click="true"
+    content-class="topBar-navigation-drop-menu"
     offset-y>
-    <template #activator="{ attrs, on }">
+    <template #activator="{ attrs }">
       <v-tab
         class="mx-auto text-caption text-break"
         v-bind="attrs"
@@ -34,10 +34,9 @@
           {{ navigation.label }}
         </span>
         <v-btn
-          v-if="navigation.children.length"
-          v-on="navigation.children.length && on"
+          v-if="navigation.children?.length"
           icon
-          @click.stop.prevent>
+          @click.stop.prevent="openDropMenu">
           <v-icon size="20">
             fa-angle-down
           </v-icon>
@@ -77,6 +76,11 @@ export default {
         },100);
       }
     });
+    this.$root.$on('close-other-drop-menus', (emitter) => {
+      if (this !== emitter && this.showMenu) {
+        this.showMenu = false;
+      }
+    });
   },
   methods: {
     updateNavigationState(value) {
@@ -85,6 +89,17 @@ export default {
     checkLink(navigation, e) {
       if (!navigation.pageKey) {
         e.preventDefault();
+      }
+      if (navigation.children) {
+        this.openDropMenu();
+      }
+    },
+    openDropMenu(persist) {
+      if (!persist && this.showMenu) {
+        this.showMenu = false;
+      } else if (!this.showMenu) {
+        this.showMenu = true;
+        this.$root.$emit('close-other-drop-menus', this);
       }
     }
   }
