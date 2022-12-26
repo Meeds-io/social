@@ -27,7 +27,7 @@
       @click.stop="checkLink(children, $event)"
       :link="!!children.pageKey">
       <v-menu
-        content-class="topBar-navigation-sub-menu"
+        content-class="topBar-navigation-drop-sub-menu"
         rounded
         offset-x>
         <template #activator="{ attrs, on }">
@@ -36,15 +36,15 @@
             v-bind="attrs"
             v-text="children.label" />
           <v-list-item-icon
-            v-if="children.children.length"
+            v-if="children.children?.length"
             class="ms-0 me-n2 ma-auto full-height">
             <v-btn
-              v-on="children.children.length && on"
+              v-on="children.children?.length && on"
               icon
-              @click.stop.prevent="next">
+              @click.stop.prevent>
               <v-icon
                 size="18">
-                fa-angle-right
+                {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
               </v-icon>
             </v-btn>
           </v-list-item-icon>
@@ -79,9 +79,6 @@ export default {
     }
   },
   methods: {
-    next() {
-      this.showMenu = true;
-    },
     checkLink(navigation, e) {
       if (!navigation.pageKey) {
         e.preventDefault();
