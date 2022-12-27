@@ -683,8 +683,11 @@ public final class Util {
    * @return true if the user is external
    */
   public static boolean isExternal(String userId) {
-    Identity userIdentity =  getIdentityManager(PortalContainer.getCurrentPortalContainerName()).getIdentity(userId);
-    return userIdentity.getProfile() != null && userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null && userIdentity.getProfile().getProperty(Profile.EXTERNAL).equals("true"); }
+    Identity userIdentity = getIdentityManager(PortalContainer.getCurrentPortalContainerName()).getIdentity(userId);
+    return userIdentity != null && userIdentity.getProfile() != null
+        && userIdentity.getProfile().getProperty(Profile.EXTERNAL) != null
+        && userIdentity.getProfile().getProperty(Profile.EXTERNAL).equals("true");
+  }
 
   public static String getResourceBundleLabel(Locale locale, String label) {
     ResourceBundleService resourceBundleService =  ExoContainerContext.getService(ResourceBundleService.class);
