@@ -36,6 +36,7 @@
   <name>eXo PLF:: Social - Oauth authentication and authorization</name>
   <description>Oauth authentication and authorization services to integrate with social identity model</description>
   <properties>
+    <exo.test.coverage.ratio>0.19</exo.test.coverage.ratio>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
