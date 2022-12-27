@@ -21,7 +21,7 @@
     offset-y>
     <template #activator="{ attrs, on }">
       <v-tab
-        class="mx-auto text-caption pa-0 text-break navigation-mobile-menu-tab"
+        class="mx-auto text-caption text-break navigation-mobile-menu-tab"
         v-bind="attrs"
         :href="`${baseSiteUri}${navigation.uri}`"
         :disabled="!navigation.pageKey && !navigation.children?.length"
@@ -33,7 +33,7 @@
           {{ navigation.label }}
         </span>
         <v-btn
-          v-if="navigation.children?.length"
+          v-if="navigation.children?.length && navigation.pageKey"
           v-on="navigation.children?.length && on"
           class="mt-2"
           icon
@@ -42,6 +42,12 @@
             fa-angle-up
           </v-icon>
         </v-btn>
+        <v-icon
+          class="pa-3 mt-2"
+          v-else-if="navigation.children?.length"
+          size="20">
+          fa-angle-up
+        </v-icon>
       </v-tab>
     </template>
     <navigation-mobile-menu-sub-item
