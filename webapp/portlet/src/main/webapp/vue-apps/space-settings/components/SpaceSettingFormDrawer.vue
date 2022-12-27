@@ -13,14 +13,17 @@
         class="ma-4 d-flex row"
         @submit="saveSpace">
         <div class="width-full d-flex">
-          <space-setting-avatar
-            ref="spaceAvatar"
-            v-model="space.avatarId"
-            :avatar-url="`${space.avatarUrl}&size=165x165`"
-            :max-upload-size="maxUploadSize"
-            class="mx-auto mb-6 mt-2"
-            hover
-            @error="handleImageUploadError" />
+          <v-hover>
+            <space-setting-avatar
+              ref="spaceAvatar"
+              slot-scope="{ hover }"
+              v-model="space.avatarId"
+              :avatar-url="`${space.avatarUrl}&size=165x165`"
+              :max-upload-size="maxUploadSize"
+              class="mx-auto mb-6 mt-2"
+              :hover="hover"
+              @error="handleImageUploadError" />
+          </v-hover>
         </div>
         <v-label for="name">
           {{ $t('SpaceSettings.label.name') }}

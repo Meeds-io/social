@@ -1,23 +1,19 @@
 <template>
-  <div class="d-flex">
-    <v-avatar
-      class="spaceAvatar"
-      :class="hover && 'spaceAvatarHoverEdit'"
-      :size="size"
-      tile>
-      <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
-    </v-avatar>
+  <v-avatar
+    :class="hover && 'spaceAvatarHoverEdit'"
+    :size="size"
+    class="spaceAvatar">
+    <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
     <v-file-input
       v-if="!sendingImage"
       v-show="hover"
       ref="avatarInput"
       prepend-icon="mdi-camera"
-      class="changeAvatarButton ma-0 pa-2 align-center"
+      class="changeAvatarButton mb-1"
       accept="image/*"
       clearable
-      hide-input
       @change="uploadAvatar" />
-  </div>
+  </v-avatar>
 </template>
 
 <script>
