@@ -1,97 +1,104 @@
 /*
- * Copyright (C) 2015 eXo Platform SAS.
- *
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation; either version 2.1 of
- * the License, or (at your option) any later version.
- *
- * This software is distributed in the hope that it will be useful,
+ * This file is part of the Meeds project (https://meeds.io/).
+ * Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-
 package org.exoplatform.oauth.filter;
 
-import org.exoplatform.container.component.ComponentRequestLifecycle;
-import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.oauth.OAuthConst;
-import org.exoplatform.oauth.service.OAuthRegistrationServices;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.web.security.AuthenticationRegistry;
-import org.gatein.security.oauth.common.OAuthConstants;
-import org.gatein.security.oauth.spi.OAuthPrincipal;
+import java.io.IOException;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.gatein.security.oauth.common.OAuthConstants;
+import org.gatein.security.oauth.spi.OAuthPrincipal;
+
+import org.exoplatform.oauth.OAuthConst;
+import org.exoplatform.oauth.service.OAuthRegistrationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.web.security.AuthenticationRegistry;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 public class OauthSignupOnflyFilter extends OAuthAbstractFilter {
-    static final String SESSION_KEY_SIGNUP_ON_FLY_ERROR = "__onfly_error";
 
-    @Override
-    protected void executeFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
+  static final String SESSION_KEY_SIGNUP_ON_FLY_ERROR = "__onfly_error";
 
-        AuthenticationRegistry authReg = getService(AuthenticationRegistry.class);
-        User detectedUser = (User)authReg.getAttributeOfClient(req, OAuthConst.ATTRIBUTE_AUTHENTICATED_PORTAL_USER_DETECTED);
-        if(detectedUser != null) {
-            chain.doFilter(req, res);
-            return;
-        }
+  @Override
+  @SuppressWarnings("unchecked")
+  protected void executeFilter(HttpServletRequest request, // NOSONAR
+                               HttpServletResponse response,
+                               FilterChain chain) throws IOException, ServletException {
 
-        OAuthPrincipal principal = (OAuthPrincipal) authReg.getAttributeOfClient(req, OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
-        OAuthRegistrationServices regService = getService(OAuthRegistrationServices.class);
-        boolean isOnFly = regService != null && regService.isRegistrationOnFly(principal.getOauthProviderType());
-        if (isOnFly) {
-            String oauth = principal.getOauthProviderType().getKey() + "_" + principal.getUserName();
-            String onFlyError = (String)req.getSession().getAttribute(SESSION_KEY_SIGNUP_ON_FLY_ERROR);
-            if (onFlyError != null) {
-                if (oauth.equals(onFlyError)) {
-                    //. Did not detect and auto create user for this oauth-user, just show registration form
-                    chain.doFilter(req, res);
-                    return;
-
-                } else {
-                    req.getSession().removeAttribute(SESSION_KEY_SIGNUP_ON_FLY_ERROR);
-                }
-            }
-
-            detectedUser = regService.detectGateInUser(req, principal);
-            if (detectedUser != null) {
-                authReg.setAttributeOfClient(req, OAuthConst.ATTRIBUTE_AUTHENTICATED_PORTAL_USER_DETECTED, detectedUser);
-
-            } else {
-                OrganizationService orgService = getService(OrganizationService.class);
-                if (orgService instanceof ComponentRequestLifecycle) {
-                    RequestLifeCycle.begin((ComponentRequestLifecycle)orgService);
-                }
-                User newUser = regService.createGateInUser(principal);
-                if (orgService instanceof ComponentRequestLifecycle) {
-                    RequestLifeCycle.end();
-                }
-
-                if (newUser != null) {
-                    authReg.removeAttributeOfClient(req, OAuthConstants.ATTRIBUTE_AUTHENTICATED_PORTAL_USER);
-                    // send redirect to continue oauth login
-                    res.sendRedirect(getContext().getContextPath());
-                    return;
-                } else {
-                    req.getSession().setAttribute(SESSION_KEY_SIGNUP_ON_FLY_ERROR, oauth);
-                    req.getSession().setAttribute(OAuthConst.SESSION_KEY_ON_FLY_ERROR, Boolean.TRUE);
-                }
-            }
-        }
-        chain.doFilter(req, res);
+    AuthenticationRegistry authenticationRegistry = getService(AuthenticationRegistry.class);
+    OAuthRegistrationService oAuthRegistrationService = getService(OAuthRegistrationService.class);
+    if (oAuthRegistrationService == null || userExists(request, authenticationRegistry)) {
+      chain.doFilter(request, response);
+      return;
     }
+
+    OAuthPrincipal<?> principal = getPrincipal(request, authenticationRegistry);
+    if (oAuthRegistrationService.isRegistrationOnFly(principal.getOauthProviderType())) {
+      String oauth = principal.getOauthProviderType().getKey() + "_" + principal.getUserName();
+      String onFlyError = (String) request.getSession().getAttribute(SESSION_KEY_SIGNUP_ON_FLY_ERROR);
+      if (StringUtils.isNotBlank(onFlyError)) {
+        if (StringUtils.equals(oauth, onFlyError)) {
+          // Did not detect and auto create user for this oauth-user, just
+          // show registration form
+          chain.doFilter(request, response);
+          return;
+        } else {
+          request.getSession().removeAttribute(SESSION_KEY_SIGNUP_ON_FLY_ERROR);
+        }
+      }
+
+      User user = oAuthRegistrationService.detectGateInUser(request, principal);
+      if (user != null) {
+        authenticationRegistry.setAttributeOfClient(request,
+                                                    OAuthConst.ATTRIBUTE_AUTHENTICATED_PORTAL_USER_DETECTED,
+                                                    user);
+
+      } else {
+        User registeredUser = oAuthRegistrationService.createGateInUser(principal);
+        if (registeredUser != null) {
+          authenticationRegistry.removeAttributeOfClient(request, OAuthConstants.ATTRIBUTE_AUTHENTICATED_PORTAL_USER);
+          // send redirect to continue oauth login
+          response.sendRedirect(getContext().getContextPath());
+          return;
+        } else {
+          request.getSession().setAttribute(SESSION_KEY_SIGNUP_ON_FLY_ERROR, oauth);
+          request.getSession().setAttribute(OAuthConst.SESSION_KEY_ON_FLY_ERROR, Boolean.TRUE);
+        }
+      }
+    }
+    chain.doFilter(request, response);
+  }
+
+  private OAuthPrincipal<?> getPrincipal(HttpServletRequest request, AuthenticationRegistry authenticationRegistry) {
+    OAuthPrincipal<?> principal;
+    principal = (OAuthPrincipal<?>) authenticationRegistry.getAttributeOfClient(request,
+                                                                                OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
+    return principal;
+  }
+
+  private boolean userExists(HttpServletRequest request, AuthenticationRegistry authenticationRegistry) {
+    User detectedUser;
+    detectedUser = (User) authenticationRegistry.getAttributeOfClient(request,
+                                                                      OAuthConst.ATTRIBUTE_AUTHENTICATED_PORTAL_USER_DETECTED);
+    return detectedUser != null;
+  }
 }

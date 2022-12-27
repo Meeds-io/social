@@ -320,51 +320,7 @@
             </value-param>
         </init-params>
     </component>
-    
-    <component>
-        <key>org.exoplatform.social.core.service.ProfileConfig</key>
-        <type>org.exoplatform.social.core.service.ProfileConfig</type>
-        <init-params>
-            <values-param>
-                <name>nodetype.emails</name>
-                <value>exo:profileKeyValue</value>
-            </values-param>
-            <values-param>
-                <name>nodetype.phones</name>
-                <value>exo:profileKeyValue</value>
-            </values-param>
-            <values-param>
-                <name>nodetype.ims</name>
-                <value>exo:profileKeyValue</value>
-            </values-param>
-            <values-param>
-                <name>nodetype.urls</name>
-                <value>exo:profileKeyValue</value>
-            </values-param>
-            <values-param>
-                <name>nodetype.address</name>
-                <value>exo:profileAddress</value>
-            </values-param>
-            <values-param>
-                <name>nodetype.experiences</name>
-                <value>exo:profileExperience</value>
-            </values-param>
-            <values-param>
-                <name>nodetype.education</name>
-                <value>exo:profileEducation</value>
-            </values-param>
-            <values-param>
-                <name>forceMultiValue</name>
-                <value>xxxxxxxxxxxx</value>
-            </values-param>
-        </init-params>
-    </component>
-    
-    <component>
-        <key>org.exoplatform.social.core.profile.ProfileMapper</key>
-        <type>org.exoplatform.social.core.profile.ProfileMapper</type>
-    </component>
-    
+
     <!-- Space Configuration -->
     
     <component>

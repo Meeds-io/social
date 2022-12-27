@@ -147,7 +147,5 @@
     </component-plugin>
   </external-component-plugins>
 
-  <import>jar:/conf/tokenservice-configuration.xml</import>
-
   <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
 </configuration>

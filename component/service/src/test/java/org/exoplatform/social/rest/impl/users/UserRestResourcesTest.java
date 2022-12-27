@@ -218,18 +218,26 @@ public class UserRestResourcesTest extends AbstractResourceTest {
    
   public void testGetDisabledUsers() throws Exception {
     startSessionAs("root");
-    //when
-    maryIdentity.setEnable(false);
-    johnIdentity.setEnable(false);
-    identityManager.saveIdentity(maryIdentity);
-    identityManager.saveIdentity(johnIdentity);
     ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
     //then
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(2, collections.getEntities().size());
-    
+    assertNotNull(collections);
+    int initialSize = collections.getEntities().size();
+
+    //when
+    maryIdentity.setEnable(false);
+    johnIdentity.setEnable(false);
+    identityManager.saveIdentity(maryIdentity);
+    identityManager.saveIdentity(johnIdentity);
+    response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
+    //then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(initialSize + 2, collections.getEntities().size());
+
     //when
     maryIdentity.setEnable(true);
     johnIdentity.setEnable(true);
@@ -240,7 +248,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getEntities().size());
+    assertEquals(initialSize, collections.getEntities().size());
   }
 
   public void testGetUsersByUserType() throws Exception {
