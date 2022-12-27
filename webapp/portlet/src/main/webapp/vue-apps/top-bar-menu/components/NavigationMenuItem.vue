@@ -19,6 +19,7 @@
     v-model="showMenu"
     rounded
     content-class="topBar-navigation-drop-menu"
+    :left="$vuetify.rtl"
     offset-y>
     <template #activator="{ attrs }">
       <v-tab
@@ -34,13 +35,19 @@
           {{ navigation.label }}
         </span>
         <v-btn
-          v-if="navigation.children?.length"
+          v-if="navigation.children?.length && navigation.pageKey"
           icon
           @click.stop.prevent="openDropMenu">
           <v-icon size="20">
             fa-angle-down
           </v-icon>
         </v-btn>
+        <v-icon
+          class="pa-3"
+          v-else-if="navigation.children?.length"
+          size="20">
+          fa-angle-down
+        </v-icon>
       </v-tab>
     </template>
     <navigation-menu-sub-item
