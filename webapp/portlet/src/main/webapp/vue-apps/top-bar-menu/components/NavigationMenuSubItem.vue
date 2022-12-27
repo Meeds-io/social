@@ -29,6 +29,7 @@
       <v-menu
         content-class="topBar-navigation-drop-sub-menu"
         rounded
+        :left="$vuetify.rtl"
         offset-x>
         <template #activator="{ attrs, on }">
           <v-list-item-title

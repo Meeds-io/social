@@ -19,6 +19,7 @@
     <v-footer
       v-if="isMobile"
       class="white pt-0 pr-0 pl-0 elevation-2"
+      inset
       fixed>
       <v-tabs
         class="navigation-mobile-menu"
@@ -30,7 +31,7 @@
           v-for="navigation in mobileNavigations"
           :key="navigation.id"
           :navigation="navigation"
-          :base-site-uri="`${BASE_SITE_URI}`"
+          :base-site-uri="BASE_SITE_URI"
           :is-mobile="isMobile"
           @update-navigation-state="updateNavigationState" />
       </v-tabs>
@@ -47,7 +48,7 @@
         v-for="navigation in navigations"
         :key="navigation.id"
         :navigation="navigation"
-        :base-site-uri="`${BASE_SITE_URI}`"
+        :base-site-uri="BASE_SITE_URI"
         :is-mobile="isMobile"
         @update-navigation-state="updateNavigationState" />
     </v-tabs>
@@ -65,6 +66,7 @@ export default {
     siteType: 'PORTAL',
     exclude: 'global',
     tab: null,
+    navigationTabState: 'topNavigationTabState'
   }),
   created() {
     this.getNavigations();
@@ -94,7 +96,7 @@ export default {
         });
     },
     updateNavigationState(value) {
-      sessionStorage.setItem('topNavigationTabState',  value);
+      sessionStorage.setItem(this.navigationTabState,  value);
     },
     refreshMobileNavigations() {
       if (this.navigations.length > 3) {
@@ -112,8 +114,13 @@ export default {
       }
     },
     getActiveTab() {
-      this.tab = sessionStorage.getItem('topNavigationTabState');
-      if (location.pathname !== this.tab && !location.pathname.startsWith(this.tab)) {
+      const siteName = eXo.env.portal.portalName;
+      if (location.pathname.endsWith(siteName)) {
+        this.updateNavigationState(`${location.pathname}/home`);
+      }
+      this.tab = sessionStorage.getItem(this.navigationTabState);
+      if (location.pathname !== this.tab && !location.pathname.startsWith(this.tab)
+          && !location.pathname.endsWith(siteName)) {
         this.tab = location.pathname;
       }
     }
