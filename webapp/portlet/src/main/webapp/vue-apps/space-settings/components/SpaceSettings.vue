@@ -1,5 +1,6 @@
 <template>
   <v-app
+    id="SpaceSettings"
     class="transparent"
     flat
     v-if="displayed">
