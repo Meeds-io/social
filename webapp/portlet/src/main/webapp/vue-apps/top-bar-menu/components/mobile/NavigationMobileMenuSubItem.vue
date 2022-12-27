@@ -1,9 +1,11 @@
 <template>
   <v-bottom-sheet
     v-model="showChildren"
-    content-class="topBar-navigation-bottom-drop-menu elevation-0"
+    inset
+    content-class="topBar-navigation-bottom-drop-menu"
     hide-overlay>
-    <v-sheet>
+    <v-sheet
+      v-if="showChildren">
       <div
         v-if="navigationObject.previous">
         <v-btn
