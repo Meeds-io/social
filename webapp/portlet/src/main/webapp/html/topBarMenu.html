@@ -2,7 +2,7 @@
     <div id="topBarMenu">
         <script type="text/javascript">
             require(['PORTLET/social-portlet/TopBarMenu'], app => {
-                if (!eXo.env.portal.spaceGroup && eXo.env.portal.navigationPortletEnabled) {
+                if (!eXo.env.portal.spaceGroup && eXo.env.portal.topBarNavigationEnabled) {
                     app.init()
                 }
             });
