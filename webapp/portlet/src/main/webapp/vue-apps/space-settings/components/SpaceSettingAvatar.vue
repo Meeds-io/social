@@ -2,15 +2,14 @@
   <v-avatar
     :class="hover && 'spaceAvatarHoverEdit'"
     :size="size"
-    class="spaceAvatar"
-    tile>
+    class="spaceAvatar">
     <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
     <v-file-input
       v-if="!sendingImage"
       v-show="hover"
       ref="avatarInput"
       prepend-icon="mdi-camera"
-      class="changeAvatarButton"
+      class="changeAvatarButton mb-1"
       accept="image/*"
       clearable
       @change="uploadAvatar" />
