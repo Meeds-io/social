@@ -75,7 +75,6 @@
      <type>org.exoplatform.services.rest.impl.provider.JAXBContextResolver</type>
   </component>
 
-
   <external-component-plugins>
      <target-component>org.exoplatform.services.rest.impl.provider.JAXBContextResolver</target-component>
      <component-plugin>
