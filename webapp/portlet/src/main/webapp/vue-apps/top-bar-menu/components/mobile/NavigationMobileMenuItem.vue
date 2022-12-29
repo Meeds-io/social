@@ -24,8 +24,8 @@
         class="mx-auto text-caption pa-1 text-break navigation-mobile-menu-tab"
         v-bind="attrs"
         :href="`${baseSiteUri}${navigation.uri}`"
-        :disabled="!navigation.pageKey && !navigation.children?.length"
-        :link="!!navigation.pageKey"
+        :disabled="!hasPage && !hasChildren"
+        :link="hasPage"
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
         <span
@@ -33,8 +33,8 @@
           {{ navigation.label }}
         </span>
         <v-btn
-          v-if="navigation.children?.length && navigation.pageKey"
-          v-on="navigation.children?.length && on"
+          v-if="hasPage && hasChildren"
+          v-on="hasChildren && on"
           class="mt-2"
           icon
           @click.stop.prevent="openDropMenu">
@@ -44,7 +44,7 @@
         </v-btn>
         <v-icon
           class="pa-3 mt-2"
-          v-else-if="navigation.children?.length"
+          v-else-if="hasChildren"
           size="20">
           fa-angle-up
         </v-icon>
@@ -74,25 +74,19 @@ export default {
     baseSiteUri: {
       type: String,
       default: null
-    },
-    isMobile: {
-      type: Boolean,
-      default: false
     }
   },
   created() {
-    document.addEventListener('click', () => {
-      if (this.showMenu) {
-        setTimeout(() => {
-          this.showMenu = false;
-        },100);
-      }
-    });
-    this.$root.$on('close-other-drop-menus', (emitter) => {
-      if (this !== emitter && this.showMenu) {
-        this.showMenu = false;
-      }
-    });
+    document.addEventListener('click', this.handleCloseMenu);
+    this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  },
+  computed: {
+    hasChildren() {
+      return this.navigation?.children?.length;
+    },
+    hasPage() {
+      return !!this.navigation?.pageKey;
+    }
   },
   methods: {
     updateNavigationState(value) {
@@ -110,10 +104,22 @@ export default {
       if (!persist && this.showMenu) {
         this.showMenu = false;
       } else if (!this.showMenu) {
-        this.$root.$emit('close-other-drop-menus', this);
+        this.$root.$emit('close-sibling-drop-menus', this);
         this.$nextTick().then(() => {
           this.showMenu = true;
         });
+      }
+    },
+    handleCloseSiblingMenus(emitter) {
+      if (this !== emitter && this.showMenu) {
+        this.showMenu = false;
+      }
+    },
+    handleCloseMenu() {
+      if (this.showMenu) {
+        setTimeout(() => {
+          this.showMenu = false;
+        }, 100);
       }
     }
   }

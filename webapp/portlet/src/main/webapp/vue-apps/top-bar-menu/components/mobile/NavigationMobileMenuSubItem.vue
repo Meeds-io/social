@@ -101,6 +101,9 @@ export default {
     checkLink(navigation, e) {
       if (!navigation.pageKey) {
         e.preventDefault();
+        if (navigation.children) {
+          this.next(navigation);
+        }
       } else {
         this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
       }
