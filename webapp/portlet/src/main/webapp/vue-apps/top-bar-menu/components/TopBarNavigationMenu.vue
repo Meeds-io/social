@@ -28,11 +28,10 @@
         height="56"
         slider-size="4">
         <navigation-mobile-menu-item
-          v-for="navigation in mobileNavigations"
+          v-for="(navigation, index) in mobileNavigations"
           :key="navigation.id"
           :navigation="navigation"
-          :base-site-uri="BASE_SITE_URI"
-          :is-mobile="isMobile"
+          :base-site-uri="getNavigationBaseUri(index)"
           @update-navigation-state="updateNavigationState" />
       </v-tabs>
     </v-footer>
@@ -45,11 +44,10 @@
       height="56"
       slider-size="4">
       <navigation-menu-item
-        v-for="navigation in navigations"
+        v-for="(navigation, index) in navigations"
         :key="navigation.id"
         :navigation="navigation"
-        :base-site-uri="BASE_SITE_URI"
-        :is-mobile="isMobile"
+        :base-site-uri="getNavigationBaseUri(index)"
         @update-navigation-state="updateNavigationState" />
     </v-tabs>
   </v-app>
@@ -62,6 +60,7 @@ export default {
     navigations: [],
     mobileNavigations: [],
     scope: 'ALL',
+    globalScope: 'children',
     visibility: 'displayed',
     siteType: 'PORTAL',
     exclude: 'global',
@@ -85,18 +84,35 @@ export default {
     },
   },
   methods: {
+    getNavigationBaseUri(index) {
+      const navigationBaseUri = `${this.BASE_SITE_URI}${this.navigations[0].name}`;
+      return index && `${navigationBaseUri}/` || navigationBaseUri;
+    },
     getNavigations() {
       const siteName = eXo.env.portal.portalName;
       return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility, this.exclude)
         .then(navigations => {
-          this.navigations = navigations || [];
-          if (this.isMobile) {
-            this.refreshMobileNavigations();
+          if (navigations.length) {
+            const homeNavigation = navigations[0];
+            return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id)
+              .then(navigations => {
+                this.navigations = navigations || [];
+                this.constructNavigations();
+              });
           }
         });
     },
     updateNavigationState(value) {
       sessionStorage.setItem(this.navigationTabState,  value);
+    },
+    constructNavigations() {
+      if (this.navigations.length && this.navigations[0].children?.length) {
+        this.navigations.push(...this.navigations[0].children);
+        this.navigations[0].children = [];
+      }
+      if (this.isMobile) {
+        this.refreshMobileNavigations();
+      }
     },
     refreshMobileNavigations() {
       if (this.navigations.length > 3) {

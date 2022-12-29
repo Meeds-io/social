@@ -52,7 +52,9 @@
         </template>
         <navigation-menu-sub-item
           :navigation="children.children"
-          :base-site-uri="baseSiteUri" />
+          :parent-navigation-uri="parentNavigationUri"
+          :base-site-uri="baseSiteUri"
+          @update-navigation-state="updateNavigationState" />
       </v-menu>
     </v-list-item>
   </v-list>
@@ -86,7 +88,10 @@ export default {
       } else {
         this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
       }
-    }
+    },
+    updateNavigationState(value) {
+      this.$emit('update-navigation-state', value);
+    },
   }
 };
 </script>
