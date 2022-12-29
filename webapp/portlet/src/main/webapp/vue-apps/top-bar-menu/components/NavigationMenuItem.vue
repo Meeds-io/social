@@ -26,8 +26,8 @@
         class="mx-auto text-caption text-break"
         v-bind="attrs"
         :href="`${baseSiteUri}${navigation.uri}`"
-        :disabled="!navigation.pageKey && !navigation.children?.length"
-        :link="!!navigation.pageKey"
+        :disabled="!hasPage && !hasChildren"
+        :link="hasPage"
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
         <span
@@ -35,7 +35,7 @@
           {{ navigation.label }}
         </span>
         <v-btn
-          v-if="navigation.children?.length && navigation.pageKey"
+          v-if="hasPage && hasChildren"
           icon
           @click.stop.prevent="openDropMenu">
           <v-icon size="20">
@@ -44,7 +44,7 @@
         </v-btn>
         <v-icon
           class="pa-3"
-          v-else-if="navigation.children?.length"
+          v-else-if="hasChildren"
           size="20">
           fa-angle-down
         </v-icon>
@@ -76,18 +76,16 @@ export default {
     }
   },
   created() {
-    document.addEventListener('click', () => {
-      if (this.showMenu) {
-        setTimeout(() => {
-          this.showMenu = false;
-        },100);
-      }
-    });
-    this.$root.$on('close-other-drop-menus', (emitter) => {
-      if (this !== emitter && this.showMenu) {
-        this.showMenu = false;
-      }
-    });
+    document.addEventListener('click', this.handleCloseMenu);
+    this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  },
+  computed: {
+    hasChildren() {
+      return this.navigation?.children?.length;
+    },
+    hasPage() {
+      return !!this.navigation?.pageKey;
+    }
   },
   methods: {
     updateNavigationState(value) {
@@ -106,7 +104,19 @@ export default {
         this.showMenu = false;
       } else if (!this.showMenu) {
         this.showMenu = true;
-        this.$root.$emit('close-other-drop-menus', this);
+        this.$root.$emit('close-sibling-drop-menus', this);
+      }
+    },
+    handleCloseSiblingMenus(emitter) {
+      if (this !== emitter && this.showMenu) {
+        this.showMenu = false;
+      }
+    },
+    handleCloseMenu() {
+      if (this.showMenu) {
+        setTimeout(() => {
+          this.showMenu = false;
+        }, 100);
       }
     }
   }
