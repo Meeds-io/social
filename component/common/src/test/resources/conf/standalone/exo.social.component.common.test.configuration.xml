@@ -150,4 +150,5 @@
     </component-plugins>   
   </component>
 
+  <remove-configuration>org.exoplatform.commons.search.index.IndexingOperationProcessor</remove-configuration>
 </configuration>

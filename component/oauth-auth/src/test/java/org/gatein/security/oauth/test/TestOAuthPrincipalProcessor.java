@@ -15,8 +15,8 @@
  */
 package org.gatein.security.oauth.test;
 
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

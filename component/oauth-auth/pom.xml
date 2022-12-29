@@ -33,7 +33,7 @@
   <artifactId>social-component-oauth-auth</artifactId>
   <packaging>jar</packaging>
 
-  <name>eXo PLF:: Social - Oauth authentication and authorization</name>
+  <name>eXo PLF:: Social Oauth authentication and authorization</name>
   <description>Oauth authentication and authorization services to integrate with social identity model</description>
   <properties>
     <exo.test.coverage.ratio>0.19</exo.test.coverage.ratio>
@@ -42,24 +42,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.organization.api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.portal</artifactId>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.gatein.sso</groupId>
@@ -68,10 +52,6 @@
     <dependency>
       <groupId>org.exoplatform.gatein.sso</groupId>
       <artifactId>sso-agent</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.social</groupId>
-      <artifactId>social-component-core</artifactId>
     </dependency>
 
     <!-- Twitter -->
@@ -125,11 +105,6 @@
       <artifactId>google-api-services-oauth2</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-api</artifactId>
       <scope>provided</scope>
@@ -154,27 +129,11 @@
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-core</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.gatein.portal</groupId>
       <artifactId>exo.portal.component.web.security</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-testing</artifactId>
-      <!--
-        Disable test scope to make a transitive dependency to all
-        dependant test-jar modules
-      -->
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
   <build>

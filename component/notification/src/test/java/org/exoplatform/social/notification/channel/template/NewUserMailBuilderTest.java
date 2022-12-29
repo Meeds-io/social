@@ -172,14 +172,15 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     assertMadeMailDigestNotifications("mary", 3);
     assertMadeMailDigestNotifications("demo", 3);
     List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 3);
-    
+
+    //
+    removeUser("user_111");
+
     NotificationContext ctx = NotificationContextImpl.cloneInstance();
     // remove duplicate message
     list = new ArrayList<NotificationInfo>(new LinkedHashSet<NotificationInfo>(list));
 
     list.get(0).setTo(rootIdentity.getRemoteId());
-    //
-    removeUser("user_111");
     
     ctx.setNotificationInfos(list);
     Writer writer = new StringWriter();

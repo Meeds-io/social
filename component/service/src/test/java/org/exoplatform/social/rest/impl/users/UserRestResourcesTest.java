@@ -23,6 +23,7 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -79,6 +80,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private Identity            demoIdentity;
 
+  @Override
   public void setUp() throws Exception {
     super.setUp();
 
@@ -768,8 +770,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(204, response.getStatus());
 
     uploadId = "users-enabled.csv";
-    resource = getClass().getClassLoader().getResource("users-enabled.csv");
-    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    resource = getClass().getClassLoader().getResource(uploadId);
+    uploadService.createUploadResource(uploadId, resource.getFile(), uploadId, "text/csv");
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
     assertNotNull(response);
     assertNull(response.getEntity());
@@ -823,8 +825,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     // Test import enabled or disabled users
     uploadId = "users-enabled.csv";
-    resource = getClass().getClassLoader().getResource("users-enabled.csv");
-    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    resource = getClass().getClassLoader().getResource(uploadId);
+    uploadService.createUploadResource(uploadId, resource.getFile(), uploadId, "text/csv");
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
     assertNotNull(response);
     assertNotNull(response.getEntity());
