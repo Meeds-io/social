@@ -68,11 +68,6 @@
         dependant test-jar modules
       -->
     </dependency>
-    <dependency>
-      <groupId>org.imgscalr</groupId>
-      <artifactId>imgscalr-lib</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>

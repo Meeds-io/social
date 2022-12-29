@@ -73,11 +73,6 @@
       <artifactId>social-component-core</artifactId>
       <type>test-jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.imgscalr</groupId>
-      <artifactId>imgscalr-lib</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
