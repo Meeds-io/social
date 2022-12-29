@@ -36,25 +36,11 @@
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-component-common</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-component-common</artifactId>
-      <type>test-jar</type>
-      <!--
-        Disable test scope to make a transitive dependency to all
-        dependant test-jar modules
-      -->
     </dependency>
   </dependencies>
   <build>
