@@ -27,11 +27,7 @@
   <component>
     <type>org.exoplatform.services.scheduler.QueueTasks</type>
   </component>
-  <component>
-    <key>org.exoplatform.services.scheduler.JobSchedulerService</key>
-    <type>org.exoplatform.services.scheduler.impl.JobSchedulerServiceImpl</type>
-  </component>
-  
+
    <component>
      <type>org.exoplatform.social.core.jpa.search.ActivitySearchConnector</type>
       <init-params>
@@ -220,12 +216,6 @@
     <type>org.exoplatform.social.core.processor.OSHtmlSanitizerProcessor</type>
   </component>
 
-
-
-  <component>
-    <type>org.exoplatform.social.core.identity.model.PropertiesDefinition</type>
-  </component>
-
   <component>
     <key>org.exoplatform.social.core.manager.RelationshipManager</key>
     <type>org.exoplatform.social.core.manager.RelationshipManagerImpl</type>
@@ -356,37 +346,6 @@
       </properties-param>
     </init-params>
   </component>
-
-  <component>
-    <type>org.exoplatform.social.core.jpa.search.PeopleElasticUnifiedSearchServiceConnector</type>
-    <init-params>
-      <properties-param>
-        <name>constructor.params</name>
-        <property name="displayName" value="People" />
-        <property name="index" value="profile_alias" />
-        <property name="type" value="profile" />
-        <property name="enable" value="${exo.unified-search.connector.people.enable:true}" />
-        <property name="titleField" value="name" />
-        <property name="searchFields" value="name,firstName,lastName,position,skills" />
-      </properties-param>
-    </init-params>
-  </component>
-
-  <component>
-    <type>org.exoplatform.social.core.jpa.search.SpaceElasticUnifiedSearchServiceConnector</type>
-    <init-params>
-      <properties-param>
-        <name>constructor.params</name>
-        <property name="displayName" value="Space" />
-        <property name="index" value="space_alias" />
-        <property name="type" value="space" />
-        <property name="enable" value="${exo.unified-search.connector.space.enable:true}" />
-        <property name="titleField" value="displayName" />
-        <property name="searchFields" value="prettyName,displayName,description" />
-      </properties-param>
-    </init-params>
-  </component>
-  
   <!-- Spaces Groups Binding -->
   <component>
     <key>org.exoplatform.social.core.jpa.storage.dao.UserSpaceBindingDAO</key>
@@ -1354,48 +1313,6 @@
             </field>
           </object>
         </object-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.api.search.SearchService</target-component>
-    <component-plugin profiles="all">
-      <name>PeopleElasticUnifiedSearchServiceConnector</name>
-      <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.core.jpa.search.PeopleElasticUnifiedSearchServiceConnector</type>
-      <description>People ElasticSearch Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="displayName" value="People"/>
-          <property name="index" value="profile_alias"/>
-          <property name="type" value="profile"/>
-          <property name="enable" value="${exo.unified-search.connector.people.enable:true}"/>
-          <property name="titleField" value="name"/>
-          <property name="searchFields" value="name,firstName,lastName,position,skills"/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-  
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.api.search.SearchService</target-component>
-    <component-plugin profiles="all">
-      <name>SpaceElasticUnifiedSearchServiceConnector</name>
-      <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.core.jpa.search.SpaceElasticUnifiedSearchServiceConnector</type>
-      <description>Space ElasticSearch Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="displayName" value="Spaces"/>
-          <property name="index" value="space_alias"/>
-          <property name="type" value="space"/>
-          <property name="enable" value="${exo.unified-search.connector.space.enable:true}"/>
-          <property name="titleField" value="displayName"/>
-          <property name="searchFields" value="prettyName,displayName,description"/>
-        </properties-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>

@@ -47,7 +47,6 @@ import org.exoplatform.web.security.codec.CodecInitializer;
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 @ConfiguredBy({
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration.xml")
 })
 public class TestSocialNetworkService extends AbstractKernelTest {

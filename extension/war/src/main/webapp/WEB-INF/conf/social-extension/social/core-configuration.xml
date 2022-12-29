@@ -260,12 +260,7 @@
             </value-param>
         </init-params>
     </component>
-    
-    <component>
-        <key>org.exoplatform.social.core.identity.model.PropertiesDefinition</key>
-        <type>org.exoplatform.social.core.identity.model.PropertiesDefinition</type>
-    </component>
-    
+
     <component>
         <key>org.exoplatform.social.core.manager.RelationshipManager</key>
         <type>org.exoplatform.social.core.manager.RelationshipManagerImpl</type>

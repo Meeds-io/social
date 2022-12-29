@@ -48,7 +48,6 @@ import org.exoplatform.services.organization.User;
  * @version $Revision$
  */
 @ConfiguredBy({
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration.xml"),
 })
 public class TestOAuthPrincipalProcessor extends AbstractKernelTest {

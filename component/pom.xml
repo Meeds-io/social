@@ -35,7 +35,6 @@
     <module>service</module>
     <module>notification</module>
     <module>oauth-auth</module>
-    <module>search</module>
     <module>webui</module>
   </modules>
 </project>

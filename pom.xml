@@ -129,11 +129,6 @@
       </dependency>
       <dependency>
         <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-component-search</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
         <artifactId>social-extension-war</artifactId>
         <version>${project.version}</version>
         <type>war</type>

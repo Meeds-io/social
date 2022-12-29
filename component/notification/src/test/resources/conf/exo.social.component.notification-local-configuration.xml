@@ -25,11 +25,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.commons.search.index.IndexingOperationProcessor</key>
-    <type>org.exoplatform.social.notification.mock.MockIndexingOperationProcessor</type>
-  </component>
-
-  <component>
     <key>org.exoplatform.commons.api.notification.service.storage.NotificationService</key>
     <type>org.exoplatform.social.notification.mock.MockNotificationService</type>
   </component>
@@ -37,11 +32,6 @@
   <component>
     <key>org.exoplatform.commons.api.notification.service.QueueMessage</key>
     <type>org.exoplatform.social.notification.mock.MockMessageQueue</type>
-  </component>
-  
-  <component>
-    <key>org.exoplatform.services.scheduler.JobSchedulerService</key>
-    <type>org.exoplatform.social.notification.mock.MockJobSchedulerService</type>
   </component>
 
   <component>

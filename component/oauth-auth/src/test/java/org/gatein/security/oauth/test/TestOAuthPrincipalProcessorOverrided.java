@@ -33,8 +33,7 @@ import org.exoplatform.component.test.ConfiguredBy;
  * @version $Revision$
  */
 @ConfiguredBy({
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.identity-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-overrided.xml")
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-overrided.xml")
 })
 public class TestOAuthPrincipalProcessorOverrided extends AbstractKernelTest {
 
