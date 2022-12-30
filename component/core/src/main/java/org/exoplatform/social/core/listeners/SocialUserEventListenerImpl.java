@@ -16,16 +16,14 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
+
 import org.exoplatform.commons.ObjectAlreadyExistsException;
-import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.User;
@@ -37,146 +35,124 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
 /**
- * Listens to user updating events.
+ * Listens to user updating events. Created by hanh.vi@exoplatform.com Jan 17,
+ * 2011
  * 
- * Created by hanh.vi@exoplatform.com
- * 
- * Jan 17, 2011
- * @since  1.2.0-GA
+ * @since 1.2.0-GA
  */
 public class SocialUserEventListenerImpl extends UserEventListener {
 
   private static final Log LOG = ExoLogger.getLogger(SocialUserEventListenerImpl.class);
-  
+
+  private ExoContainer container;
+
+  public SocialUserEventListenerImpl(ExoContainer container) {
+    this.container = container;
+  }
+
   @Override
+  @ExoTransactional
   public void preSave(User user, boolean isNew) throws Exception {
-
-    RequestLifeCycle.begin(PortalContainer.getInstance());
-    try{
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      IdentityStorage ids = (IdentityStorage) container.getComponentInstanceOfType(IdentityStorage.class);
-  
-      Identity identity = ids.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
-  
-      if (isNew && identity != null && identity.isDeleted()) {
-          throw new ObjectAlreadyExistsException(identity, "Unable to create a previously deleted user : " + user.getUserName());
-      }
-
-    }
-    finally{
-      RequestLifeCycle.end();
+    IdentityStorage ids = container.getComponentInstanceOfType(IdentityStorage.class);
+    Identity identity = ids.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+    if (isNew && identity != null && identity.isDeleted()) {
+      throw new ObjectAlreadyExistsException(identity, "Unable to create a previously deleted user : " + user.getUserName());
     }
   }
 
-  /**
-   * Listens to postSave action for updating profile.
-   *
-   * @param user
-   * @param isNew
-   * @throws Exception
-   */
-  public void postSave(User user, boolean isNew) throws Exception {
-    RequestLifeCycle.begin(PortalContainer.getInstance());
-    
-    try{
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      //
-      IdentityManager idm = (IdentityManager) container.getComponentInstanceOfType(IdentityManager.class);
-      Identity identity = idm.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName(), true);
-       
-      //
-      Profile profile = identity.getProfile();
-      
-      //
-      boolean hasUpdated = false;
-      
-      if(!isNew) {
-        String uFirstName = user.getFirstName();
-        String uLastName = user.getLastName();
-        String uDisplayName = user.getDisplayName();
-        String uEmail = user.getEmail();
-  
-        //
-        String pFirstName = (String) profile.getProperty(Profile.FIRST_NAME);
-        String pLastName = (String) profile.getProperty(Profile.LAST_NAME);
-        String pFullName = (String) profile.getProperty(Profile.FULL_NAME);
-        String pEmail = (String) profile.getProperty(Profile.EMAIL);
-       
-  
-        if ((pFirstName == null) || (!pFirstName.equals(uFirstName))) {
-          profile.setProperty(Profile.FIRST_NAME, uFirstName);
-          hasUpdated = true;
-        }
-  
-        if ((pLastName == null) || (!pLastName.equals(uLastName))) {
-          profile.setProperty(Profile.LAST_NAME, uLastName);
-          hasUpdated = true;
-        }
-        
-        if (uDisplayName == null || StringUtils.isEmpty(uDisplayName)) {
-          uDisplayName = uFirstName + " " + uLastName;
-        } 
-        
-        if(!uDisplayName.equals(pFullName)) {
-          profile.setProperty(Profile.FULL_NAME, uDisplayName);
-        }
-        
-        if ((pEmail == null) || (!pEmail.equals(uEmail))) {
-          profile.setProperty(Profile.EMAIL, uEmail);
-          hasUpdated = true;
-        }
-        
-      }
-      
-      if (hasUpdated) {
-        profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
-      } else {
-        profile.setListUpdateTypes(new ArrayList<Profile.UpdateType>());
-      }
-      idm.updateProfile(profile);
+  @ExoTransactional
+  @Override
+  public void postSave(User user, boolean isNew) throws Exception {// NOSONAR
+    //
+    if (user == null) {
+      throw new IllegalArgumentException("User parameter is mandatory");
     }
-    finally{
-      RequestLifeCycle.end();
+    IdentityManager identityManager = container.getComponentInstanceOfType(IdentityManager.class);
+    Identity identity = identityManager.getOrCreateUserIdentity(user.getUserName());
+    if (identity == null) {
+      IdentityStorage storage = container.getComponentInstanceOfType(IdentityStorage.class);
+      identity = storage.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
     }
+    if (identity == null) {
+      LOG.debug("Can't find identity for user {}, ignore updating profile", user.getUserName());
+      return;
+    }
+    //
+    Profile profile = identity.getProfile();
+    //
+    boolean hasUpdated = false;
+
+    if (!isNew) {
+      String uFirstName = user.getFirstName();
+      String uLastName = user.getLastName();
+      String uDisplayName = user.getDisplayName();
+      String uEmail = user.getEmail();
+
+      //
+      String pFirstName = (String) profile.getProperty(Profile.FIRST_NAME);
+      String pLastName = (String) profile.getProperty(Profile.LAST_NAME);
+      String pFullName = (String) profile.getProperty(Profile.FULL_NAME);
+      String pEmail = (String) profile.getProperty(Profile.EMAIL);
+
+      if ((pFirstName == null) || (!pFirstName.equals(uFirstName))) {
+        profile.setProperty(Profile.FIRST_NAME, uFirstName);
+        hasUpdated = true;
+      }
+
+      if ((pLastName == null) || (!pLastName.equals(uLastName))) {
+        profile.setProperty(Profile.LAST_NAME, uLastName);
+        hasUpdated = true;
+      }
+
+      if (uDisplayName == null || StringUtils.isEmpty(uDisplayName)) {
+        uDisplayName = uFirstName + " " + uLastName;
+      }
+
+      if (!uDisplayName.equals(pFullName)) {
+        profile.setProperty(Profile.FULL_NAME, uDisplayName);
+      }
+
+      if ((pEmail == null) || (!pEmail.equals(uEmail))) {
+        profile.setProperty(Profile.EMAIL, uEmail);
+        hasUpdated = true;
+      }
+
+    }
+
+    if (hasUpdated) {
+      profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
+    } else {
+      profile.setListUpdateTypes(Collections.emptyList());
+    }
+    identityManager.updateProfile(profile);
   }
 
   @Override
+  @ExoTransactional
   public void preDelete(final User user) throws Exception {
-
-    RequestLifeCycle.begin(PortalContainer.getInstance());
+    IdentityStorage storage = container.getComponentInstanceOfType(IdentityStorage.class);
+    Identity identity = storage.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
     try {
-      IdentityStorage storage = CommonsUtils.getService(IdentityStorage.class);
-      Identity identity = storage.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
-
-      try {
-        if(identity != null) {
-          storage.hardDeleteIdentity(identity);
-        }
-      } catch (Exception e) {
-        LOG.warn("Problem occurred when deleting user named " + identity.getRemoteId(), e);
-      }
-
-    } finally {
-      RequestLifeCycle.end();
-    }
-
-  }
-  
-  @Override
-  public void postSetEnabled(User user) throws Exception {
-    RequestLifeCycle.begin(PortalContainer.getInstance());
-    try {
-      //Makes sure the user has been synchronized in LDAP, then to enable/disable it.
-      IdentityStorage storage = CommonsUtils.getService(IdentityStorage.class);
-      Identity identity = storage.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
       if (identity != null) {
-        IdentityManager idm = CommonsUtils.getService(IdentityManager.class);
-        idm.processEnabledIdentity(user.getUserName(), user.isEnabled());
-      } else {
-        LOG.warn(String.format("Social's Identity(%s) not found!", user.getUserName()));
+        storage.hardDeleteIdentity(identity);
       }
-    } finally {
-      RequestLifeCycle.end();
+    } catch (Exception e) {
+      LOG.warn("Problem occurred when deleting user named " + identity.getRemoteId(), e);
+    }
+  }
+
+  @Override
+  @ExoTransactional
+  public void postSetEnabled(User user) throws Exception {
+    // Makes sure the user has been synchronized in LDAP, then to enable/disable
+    // it.
+    IdentityStorage storage = container.getComponentInstanceOfType(IdentityStorage.class);
+    Identity identity = storage.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+    if (identity != null) {
+      IdentityManager idm = container.getComponentInstanceOfType(IdentityManager.class);
+      idm.processEnabledIdentity(user.getUserName(), user.isEnabled());
+    } else {
+      LOG.warn(String.format("Social's Identity(%s) not found!", user.getUserName()));
     }
   }
 }
