@@ -28,7 +28,7 @@ public class LikeCommentWebBuilderTest extends AbstractPluginTest {
   private final static String COMMENT_TITLE = "my comment's title add today.";
 
   @Override
-  protected void setUp() throws Exception {
+  public void setUp() throws Exception {
     super.setUp();
     manager = getService(ChannelManager.class);
   }

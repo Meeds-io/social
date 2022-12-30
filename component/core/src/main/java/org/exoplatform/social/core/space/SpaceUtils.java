@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import javax.portlet.RenderRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -1021,8 +1022,8 @@ public class SpaceUtils {
       MembershipHandler memberShipHandler = organizationService.getMembershipHandler();
       if (MEMBER.equals(membership)) {
         Collection<Membership> memberships = memberShipHandler.findMembershipsByUserAndGroup(remoteId, groupId);
-        if (memberships.size() == 0) {
-          LOG.info("User: " + remoteId + " is not a member of group: " + groupId);
+        if (CollectionUtils.isEmpty(memberships)) {
+          LOG.debug("User: " + remoteId + " is not a member of group: " + groupId);
           return;
         }
         Iterator<Membership> itr = memberships.iterator();
@@ -1041,7 +1042,7 @@ public class SpaceUtils {
           memberShipHandler.removeMembership(any.getId(), true);
         }
         if (memberShip == null) {
-          LOG.info("User: " + remoteId + " is not a " + membership + " of group: " + groupId);
+          LOG.debug("User: " + remoteId + " is not a " + membership + " of group: " + groupId);
           return;
         }
         UserHandler userHandler = organizationService.getUserHandler();
@@ -1151,10 +1152,18 @@ public class SpaceUtils {
    * @since 1.2.8
    */
   public static void refreshNavigation() {
-    UserPortal userPortal = getUserPortal();
+    try {
+      UserPortal userPortal = getUserPortal();
 
-    if (userPortal != null) {
-      userPortal.refresh();
+      if (userPortal != null) {
+        userPortal.refresh();
+      }
+    } catch (Exception e) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("It seem that we don't have a WebUI context, ignoring.", e);
+      } else {
+        LOG.warn("It seem that we don't have a WebUI context, error message: {}. Ignoring.", e.getMessage());
+      }
     }
   }
 
@@ -1219,8 +1228,7 @@ public class SpaceUtils {
    */
   public static UserPortalConfig getUserPortalConfig() throws Exception {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-    UserPortalConfigService userPortalConfigSer =
-                                                (UserPortalConfigService) container.getComponentInstanceOfType(UserPortalConfigService.class);
+    UserPortalConfigService userPortalConfigSer = container.getComponentInstanceOfType(UserPortalConfigService.class);
 
     UserPortalContext NULL_CONTEXT = new UserPortalContext() {
       public ResourceBundle getBundle(UserNavigation navigation) {
@@ -1232,11 +1240,16 @@ public class SpaceUtils {
       }
     };
 
-    String remoteId = ConversationState.getCurrent().getIdentity().getUserId();
-    UserPortalConfig userPortalCfg = userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getDefaultPortal(),
-                                                                             remoteId,
-                                                                             NULL_CONTEXT);
-    return userPortalCfg;
+    ConversationState conversationState = ConversationState.getCurrent();
+    String remoteId;
+    if (conversationState == null) {
+      remoteId = null;
+    } else {
+      remoteId = conversationState.getIdentity().getUserId();
+    }
+    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getDefaultPortal(),
+                                                   remoteId,
+                                                   NULL_CONTEXT);
   }
 
   /**
@@ -1352,17 +1365,21 @@ public class SpaceUtils {
   public static UserNode getSpaceUserNode(Space space, UserNodeFilterConfig filter) throws Exception {
     NavigationContext spaceNavCtx = getGroupNavigationContext(space.getGroupId());
 
-    UserNavigation userNav = SpaceUtils.getUserPortal().getNavigation(spaceNavCtx.getKey());
+    UserNode spaceUserNode = null;
+    UserPortal userPortal = SpaceUtils.getUserPortal();
+    if (userPortal != null) {
+      UserNavigation userNav = userPortal.getNavigation(spaceNavCtx.getKey());
 
-    UserNode parentUserNode = SpaceUtils.getUserPortal().getNode(userNav, Scope.CHILDREN, filter, null);
-    UserNode spaceUserNode = parentUserNode.getChildrenSize() > 0 ? parentUserNode.getChild(0) : null;
+      UserNode parentUserNode = userPortal.getNode(userNav, Scope.CHILDREN, filter, null);
+      spaceUserNode = parentUserNode.getChildrenSize() > 0 ? parentUserNode.getChild(0) : null;
 
-    if (spaceUserNode != null) {
-      SpaceUtils.getUserPortal().updateNode(spaceUserNode, Scope.CHILDREN, null);
-    } else {
-      LOG.warn("Failed to get because of spaceUserNode is NULL");
+      if (spaceUserNode != null) {
+        userPortal.updateNode(spaceUserNode, Scope.CHILDREN, null);
+      }
     }
-
+    if (spaceUserNode == null) {
+      LOG.warn("Failed to get spaceUserNode of group {}", space.getGroupId());
+    }
     return spaceUserNode;
   }
 

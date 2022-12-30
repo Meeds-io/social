@@ -26,19 +26,17 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
-import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
-import org.exoplatform.social.mock.MockUploadService;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
@@ -47,7 +45,6 @@ import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
-import org.json.JSONObject;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
   private IdentityManager       identityManager;

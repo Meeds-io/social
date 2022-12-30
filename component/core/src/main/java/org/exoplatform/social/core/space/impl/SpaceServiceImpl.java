@@ -577,8 +577,6 @@ public class SpaceServiceImpl implements SpaceService {
           if (!isMandatory(groupHandler, deletedGroup, mandatories)) {
             SpaceUtils.removeGroup(space);
           }
-        } else {
-          LOG.warn("deletedGroup is null");
         }
 
         //remove pages and group navigation of space

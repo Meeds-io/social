@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2003-2010 eXo Platform SAS.
+  This file is part of the Meeds project (https://meeds.io/).
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public License
-    as published by the Free Software Foundation; either version 3
-    of the License, or (at your option) any later version.
+  Copyright (C) 2022 Meeds Association contact@meeds.io
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, see<http://www.gnu.org/licenses />.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -34,174 +35,16 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.portlet</groupId>
-      <artifactId>portlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-webui-ext</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.organization.api</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>xpp3</groupId>
-          <artifactId>xpp3_min</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.security.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.kernel</groupId>
-      <artifactId>exo.kernel.commons</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.kernel</groupId>
-      <artifactId>exo.kernel.container</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.core</artifactId>
-    </dependency> 
-    <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
-    <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-common</artifactId>
     </dependency>
-    <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
     <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-core</artifactId>
     </dependency>
-    <!-- added for dependency-analyze -->
     <dependency>
-      <groupId>org.gatein.common</groupId>
-      <artifactId>common-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.application-registry</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.portal</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.xml.stream</groupId>
-          <artifactId>stax-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.resources</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.controller</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.resources</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.ant</groupId>
-          <artifactId>ant</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.eXo</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.exoplatform.gatein.portal</groupId>
-          <artifactId>exo.portal.webui.core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.framework</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.portal</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>el-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>jasper-el</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-beanutils</groupId>
-          <artifactId>commons-beanutils-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>xml-apis</groupId>
-          <artifactId>xml-apis</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.exoplatform.gatein.portal</groupId>
-          <artifactId>exo.portal.webui.core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.portlet</artifactId>
-    </dependency>
-    <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-component-service</artifactId>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-service</artifactId>
     </dependency>
   </dependencies>
   <build>

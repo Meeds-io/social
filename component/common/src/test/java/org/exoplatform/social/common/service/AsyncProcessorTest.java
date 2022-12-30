@@ -64,7 +64,7 @@ public class AsyncProcessorTest extends TestSocialServiceContext {
         try {
           got = process(processorContext);
           
-          Thread.sleep(500);
+          Thread.sleep(10);
           
           if (got.isDone()) {
             callback.done(got); 
@@ -117,11 +117,9 @@ public class AsyncProcessorTest extends TestSocialServiceContext {
     
     for(int i = 0; i < 80; i++) {
       ProcessContext got = serviceExecute(params, createAsyncCallback());
-      Thread.sleep(50);
+      Thread.sleep(10);
       assertEquals("done", got.getProperty("result", String.class));
     }
-    
-    Thread.sleep(1000);
   }
 
   private AsyncCallback createAsyncCallback() {

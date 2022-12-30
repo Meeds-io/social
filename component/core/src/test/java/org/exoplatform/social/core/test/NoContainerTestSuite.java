@@ -28,7 +28,6 @@ import org.exoplatform.social.core.identity.model.GlobalIdTest;
 import org.exoplatform.social.core.identity.model.IdentityTest;
 import org.exoplatform.social.core.image.ImageUtilsTest;
 import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
-import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.search.SearchServiceTest;
@@ -41,14 +40,12 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
     IdentityTest.class,
     ImageUtilsTest.class,
     ActivityResourceBundlePluginTest.class,
-    I18NActivityProcessorTest.class,
     RelationshipTest.class,
     StorageUtilsTest.class,
     ActivityIteratorTest.class,
     IdentityResultTest.class,
     GettingStartedServiceTest.class,
     UserProfileComparatorTest.class,
-    SearchServiceTest.class,
     ActivityIndexingServiceConnectorTest.class,
     ActivitySearchConnectorTest.class,
 })

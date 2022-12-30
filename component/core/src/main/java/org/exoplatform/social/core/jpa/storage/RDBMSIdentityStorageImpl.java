@@ -81,7 +81,6 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 /**
  * Created by The eXo Platform SAS
@@ -628,11 +627,6 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       } catch (Exception e) {
         LOG.error(e.getMessage());
       }
-    }
-
-    //by N days
-    if (filter.getDays() > 0) {
-      activeUsers = StorageUtils.getLastLogin(filter.getDays());
     }
 
     //Gets online users and push to activate users

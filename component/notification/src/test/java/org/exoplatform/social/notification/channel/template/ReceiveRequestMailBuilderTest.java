@@ -45,7 +45,7 @@ public class ReceiveRequestMailBuilderTest extends AbstractPluginTest {
   private ChannelManager manager;
   
   @Override
-  protected void setUp() throws Exception {
+  public void setUp() throws Exception {
     super.setUp();
     manager = getService(ChannelManager.class);
   }

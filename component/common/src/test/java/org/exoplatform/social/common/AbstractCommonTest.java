@@ -26,7 +26,8 @@ import org.exoplatform.component.test.*;
  * @since Jul 6, 2010
  */
 @ConfiguredBy({
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/standalone/exo.social.component.common.test.configuration.xml")
+  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
 })
 public abstract class AbstractCommonTest extends BaseExoTestCase {
 

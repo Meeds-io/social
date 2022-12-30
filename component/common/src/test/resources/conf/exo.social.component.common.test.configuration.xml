@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2003-2011 eXo Platform SAS.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<configuration
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
+  xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+
+  <component>
+    <key>org.exoplatform.social.common.xmlprocessor.XMLProcessor</key>
+    <type>org.exoplatform.social.common.xmlprocessor.XMLProcessorImpl</type>
+  </component>
+  
+  <component>
+    <key>org.exoplatform.social.common.service.thread.ThreadPoolConfig</key>
+    <type>org.exoplatform.social.common.service.thread.ThreadPoolConfig</type>
+    <init-params>
+      <value-param>
+        <name>pool-size</name>
+        <value>10</value>
+      </value-param>
+      <value-param>
+        <name>max-pool-size</name>
+        <value>20</value>
+      </value-param>
+      <value-param>
+        <name>async-mode</name>
+        <value>false</value>
+      </value-param>
+      <value-param>
+        <name>thread-priority</name>
+        <value>10</value>
+      </value-param>
+    </init-params>
+  </component>
+  
+  <component>
+    <key>org.exoplatform.social.common.router.ExoRouter</key>
+    <type>org.exoplatform.social.common.router.ExoRouter</type>
+    <component-plugins>
+      <component-plugin>
+        <name>addRoutes</name>
+        <set-method>addRoutes</set-method>
+        <type>org.exoplatform.social.common.router.ExoRouterConfig</type>
+        <init-params>
+          <object-param>
+            <name>uri.configuration</name>
+            <description>defines action name which associate with uri pattern.</description>
+            <object type="org.exoplatform.social.common.router.ExoRouterConfig">
+              <field name="routeMapping">
+                <map type="java.util.HashMap">
+                  <entry>
+                    <key><string>activity.show</string></key>
+                    <value><string>/activity/{activityID}</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>activity.stream.owner.show</string></key>
+                    <value><string>/activities/{streamOwnerId}</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>profile.owner.show</string></key>
+                    <value><string>/profile/{streamOwnerId}</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>connections.network.show</string></key>
+                    <value><string>/connections/{relationshipStatus}/{streamOwnerId}</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>space.access</string></key>
+                    <value><string>{spacePrettyName}</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>space.app.access</string></key>
+                    <value><string>{spacePrettyName}/{appName}</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>space.app.page.access</string></key>
+                    <value><string><![CDATA[{spacePrettyName}/{appName}/{<.*>page}]]></string></value>
+                  </entry>
+                  <entry>
+                    <key><string>forum.home</string></key>
+                    <value><string>/{pageID}/ForumService</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>forum.search</string></key>
+                    <value><string>/{pageID}/SearchForum</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>forum.tag</string></key>
+                    <value><string>/{pageID}/Tag</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>forum.topic.show</string></key>
+                    <value><string>/{pageID}/topic/{topicID}</string></value>
+                  </entry>
+                  <entry>
+                    <key><string>forum.topic.reply</string></key>
+                    <value><string>/{pageID}/topic/{topicID}/reply</string></value>
+                  </entry>
+                   <entry>
+                    <key><string>forum.topic.reply</string></key>
+                    <value><string>/{pageID}/topic/{topicID}/reply</string></value>
+                  </entry>
+                   <entry>
+                    <key><string>forum.topic.quote</string></key>
+                    <value><string>/{pageID}/topic/{topicID}/quote</string></value>
+                  </entry>
+                   <entry>
+                    <key><string>forum.topic.post.show</string></key>
+                    <value><string>/{pageID}/topic/{topicID}/post/{postID}</string></value>
+                  </entry>
+                   <entry>
+                    <key><string>forum.topic.page</string></key>
+                    <value><string>/{pageID}/topic/{topicID}/page/{pageNo}</string></value>
+                  </entry>
+                   <entry>
+                    <key><string>forum.show</string></key>
+                    <value><string>/{pageID}/forum/{forumID}</string></value>
+                  </entry>
+                   <entry>
+                    <key><string>forum.show.page</string></key>
+                    <value><string>/{pageID}/forum/{forumID}/page/{pageNo}</string></value>
+                  </entry>
+                   <entry>
+                    <key><string>category.show</string></key>
+                    <value><string>/{pageID}/category/{categoryID}</string></value>
+                  </entry>
+                </map>
+              </field>
+            </object>
+          </object-param>
+        </init-params>
+      </component-plugin>    
+    </component-plugins>   
+  </component>
+
+  <remove-configuration>org.exoplatform.commons.search.index.IndexingOperationProcessor</remove-configuration>
+</configuration>

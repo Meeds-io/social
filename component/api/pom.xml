@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2003-2010 eXo Platform SAS.
+  This file is part of the Meeds project (https://meeds.io/).
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public License
-    as published by the Free Software Foundation; either version 3
-    of the License, or (at your option) any later version.
+  Copyright (C) 2022 Meeds Association contact@meeds.io
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, see<http://www.gnu.org/licenses />.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -31,35 +32,68 @@
     <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.api</artifactId>
-    </dependency>
+    <!-- All upper layer dependencies -->
     <dependency>
       <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-component-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-component-product</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-component-upgrade</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-search</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.api</artifactId>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-comet-service</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-webui-component</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-webui-ext</artifactId>
+    </dependency>
+    <!--
+      Avoid addming deprecated JAR commons-juzu here
+      that is defined in commons-extensions.war as dependency
+      to simplify deleting it in one single place, where it's used.
+    -->
 
     <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <scope>provided</scope>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-component-common</artifactId>
+      <type>test-jar</type>
+      <!--
+        Disable test scope to make a transitive dependency to all
+        dependant test-jar modules
+      -->
     </dependency>
     <dependency>
-      <groupId>com.ibm.icu</groupId>
-      <artifactId>icu4j</artifactId>
+      <groupId>org.exoplatform.commons</groupId>
+      <artifactId>commons-component-upgrade</artifactId>
+      <type>test-jar</type>
+      <!--
+        Disable test scope to make a transitive dependency to all
+        dependant test-jar modules
+      -->
+    </dependency>
+
+    <!-- Used by social-component-notification -->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
     </dependency>
   </dependencies>
 
@@ -69,22 +103,6 @@
       <plugin>
         <groupId>com.jcabi</groupId>
         <artifactId>jcabi-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>delombok</goal>
-            </goals>
-            <configuration>
-              <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-              <addOutputDirectory>false</addOutputDirectory>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

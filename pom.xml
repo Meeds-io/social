@@ -74,63 +74,96 @@
         <classifier>source-release</classifier>
         <type>zip</type>
       </dependency>
+
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>social-component-api</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>social-component-api</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>social-component-common</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>social-component-common</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>social-component-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>social-component-core</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
       </dependency>
+
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-component-notification</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-component-notification</artifactId>
-        <version>${project.version}</version>
-        <type>test-jar</type>
-      </dependency>
-      <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>social-component-service</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>social-component-service</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
       </dependency>
+
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-component-webui</artifactId>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>social-component-notification</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>social-component-notification</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>social-component-oauth-auth</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
-        <artifactId>social-component-search</artifactId>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>social-component-oauth-auth</artifactId>
         <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>social-component-webui</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>social-component-webui</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.exoplatform.social</groupId>
+        <artifactId>social-extension</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.exoplatform.social</groupId>
@@ -144,6 +177,7 @@
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
+
       <dependency>
         <groupId>org.exoplatform.social</groupId>
         <artifactId>social-webapp-portlet</artifactId>
@@ -156,6 +190,7 @@
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
+
      </dependencies>
   </dependencyManagement>
 
@@ -195,6 +230,18 @@
             <!-- Don't include libraries into Web Archives -->
             <packagingExcludes>WEB-INF/lib/*.jar,**/less/**,**/*.vue</packagingExcludes>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>test-jar</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2003-2010 eXo Platform SAS.
+  This file is part of the Meeds project (https://meeds.io/).
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public License
-    as published by the Free Software Foundation; either version 3
-    of the License, or (at your option) any later version.
+  Copyright (C) 2022 Meeds Association contact@meeds.io
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, see<http://www.gnu.org/licenses />.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -32,122 +33,18 @@
     <exo.test.coverage.ratio>0.60</exo.test.coverage.ratio>
   </properties>
   <dependencies>
-  
-    <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
-    <dependency>
-      <groupId>org.exoplatform.social</groupId>
-      <artifactId>social-component-common</artifactId>
-    </dependency>
-    <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
-    <dependency>
-      <groupId>org.exoplatform.social</groupId>
-      <artifactId>social-component-core</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-service</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-component-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.portal</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-testing</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-search</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.ws</groupId>
-      <artifactId>exo.ws.testframework</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.identity</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.portal</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.application-registry</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.test.core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-component-common</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.social</groupId>
-      <artifactId>social-component-core</artifactId>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-    <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-service</artifactId>
-      <scope>test</scope>
       <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.resources</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
+      <!--
+        Disable test scope to make a transitive dependency to all
+        dependant test-jar modules
+      -->
     </dependency>
   </dependencies>
   <build>
@@ -159,22 +56,8 @@
         <configuration>
           <includes>
             <include>**/InitContainerTestSuite.java</include>
-            <include>**/UtilsTestCase.java</include>
-            <include>**/SocialNotificationUtilsTest.java</include>
           </includes>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

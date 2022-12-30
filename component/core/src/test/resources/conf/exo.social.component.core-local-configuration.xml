@@ -974,5 +974,4 @@
 
   <remove-configuration>org.exoplatform.portal.resource.SkinResourceRequestHandler</remove-configuration>
   <remove-configuration>org.exoplatform.web.WebAppController</remove-configuration>
-  <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
 </configuration>

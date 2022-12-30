@@ -16,9 +16,7 @@ import org.exoplatform.services.test.mock.MockPrincipal;
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.service-dependencies-configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.service-local-configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.service-configuration.xml"),
 })
 public abstract class BaseRestServicesTestCase extends AbstractKernelTest {
 

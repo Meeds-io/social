@@ -34,8 +34,6 @@ import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
 import org.exoplatform.commons.notification.channel.MailChannel;
 import org.exoplatform.commons.notification.channel.WebChannel;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.User;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -72,7 +70,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
                                                                  PostActivitySpaceStreamPlugin.ID);
 
   @Override
-  protected void setUp() throws Exception {
+  public void setUp() throws Exception {
     super.setUp();
 
     userSettingService = Utils.getService(UserSettingService.class);
@@ -88,7 +86,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
   }
 
   @Override
-  protected void tearDown() throws Exception {
+  public void tearDown() throws Exception {
     //
     turnOFF(getPlugin());
 
