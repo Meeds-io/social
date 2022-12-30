@@ -77,6 +77,7 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -1377,6 +1378,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
           userName = importUser(userImportResultEntity, locale, url, fields, userCSVLine);
         } catch (Throwable e) {
+          LOG.warn("Error importing user data {}", userName, e);
+
           if (StringUtils.isNotBlank(userName)) {
             userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
           }
@@ -1447,6 +1450,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       try {
         organizationService.getUserHandler().createUser(user, true);
       } catch (Exception e) {
+        LOG.warn("Error importing user {}", userName, e);
         userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
         return userName;
       }
@@ -1506,9 +1510,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     String warnMessage = null;
     try {
       saveProfile(userName, profileEntity);
+    } catch (ObjectNotFoundException e) {
+      // Not a mandatory operation such as IDM store updates
+      // This may happen when user is disabled
+      LOG.debug("User Identity profile {} wasn't found, ignore processing", userName);
     } catch (IdentityStorageException e) {
+      LOG.warn("Error saving user profile {}", userName, e);
       warnMessage = e.getMessageKey();
     } catch (Exception e) {
+      LOG.warn("Error saving user profile {}", userName, e);
       warnMessage = "CREATE_USER_PROFILE_ERROR:" + e.getMessage();
     }
     if (warnMessage != null) {
@@ -1539,16 +1549,20 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
     Identity userIdentity = getUserIdentity(username);
-    Profile profile = userIdentity.getProfile();
+    if (userIdentity == null) {
+      throw new ObjectNotFoundException("User identity of " + username + " wasn't found. It can be due to a disabled user.");
+    } else {
+      Profile profile = userIdentity.getProfile();
 
-    Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
-    for (Entry<String, Object> entry : profileEntries) {
-      String name = entry.getKey();
-      Object value = entry.getValue();
-      String fieldName = ProfileEntity.getFieldName(name);
-      updateProfileField(profile, fieldName, value, false);
+      Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
+      for (Entry<String, Object> entry : profileEntries) {
+        String name = entry.getKey();
+        Object value = entry.getValue();
+        String fieldName = ProfileEntity.getFieldName(name);
+        updateProfileField(profile, fieldName, value, false);
+      }
+      identityManager.updateProfile(profile, true);
     }
-    identityManager.updateProfile(profile, true);
   }
 
   private void fillUserFromModel(User user, UserEntity model) {
