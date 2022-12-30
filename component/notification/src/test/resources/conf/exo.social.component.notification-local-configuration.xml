@@ -25,11 +25,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.commons.search.index.IndexingOperationProcessor</key>
-    <type>org.exoplatform.social.notification.mock.MockIndexingOperationProcessor</type>
-  </component>
-
-  <component>
     <key>org.exoplatform.commons.api.notification.service.storage.NotificationService</key>
     <type>org.exoplatform.social.notification.mock.MockNotificationService</type>
   </component>
@@ -37,11 +32,6 @@
   <component>
     <key>org.exoplatform.commons.api.notification.service.QueueMessage</key>
     <type>org.exoplatform.social.notification.mock.MockMessageQueue</type>
-  </component>
-  
-  <component>
-    <key>org.exoplatform.services.scheduler.JobSchedulerService</key>
-    <type>org.exoplatform.social.notification.mock.MockJobSchedulerService</type>
   </component>
 
   <component>
@@ -128,6 +118,32 @@
       <name>RelationshipNotificationImpl</name>
       <set-method>addListenerPlugin</set-method>
       <type>org.exoplatform.social.notification.impl.RelationshipNotificationImpl</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
+    <component-plugin>
+      <name>social.new.user.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.SocialUserEventListenerImpl</type>
+    </component-plugin>
+    <component-plugin>
+      <name>social.update.membership.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.ExternalUsersListenerImpl</type>
+      <description>Update external profile property.</description>
+    </component-plugin>
+    <component-plugin>
+      <name>social.update.membership.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.SocialMembershipListenerImpl</type>
+      <priority>50</priority>
+    </component-plugin>
+    <component-plugin>
+      <name>social.update.profile.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImpl</type>
     </component-plugin>
   </external-component-plugins>
 

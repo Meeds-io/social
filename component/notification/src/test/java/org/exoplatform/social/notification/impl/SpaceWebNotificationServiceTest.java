@@ -35,10 +35,11 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
+import org.exoplatform.social.notification.AbstractCoreTest;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SpaceWebNotificationServiceTest {
+public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
 
   private static final String                    ACTIVE_FEATURE       = "SpaceWebNotifications";
 
@@ -70,7 +71,7 @@ public class SpaceWebNotificationServiceTest {
   @Before
   public void setUp() throws Exception {
     when(featureService.isActiveFeature(ACTIVE_FEATURE)).thenReturn(true);
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       featureService,
                                                                       pluginSettingService,
@@ -92,7 +93,7 @@ public class SpaceWebNotificationServiceTest {
                                                        null,
                                                        spaceId);
     when(featureService.isActiveFeature(ACTIVE_FEATURE)).thenReturn(false);
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       featureService,
                                                                       pluginSettingService,
@@ -101,7 +102,7 @@ public class SpaceWebNotificationServiceTest {
     verify(metadataService, never()).createMetadataItem(any(), any(), any(), anyLong());
 
     when(featureService.isActiveFeature(ACTIVE_FEATURE)).thenReturn(true);
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       featureService,
                                                                       pluginSettingService,
@@ -257,7 +258,7 @@ public class SpaceWebNotificationServiceTest {
                                                              metadataObject)).thenReturn(Arrays.asList(new MetadataItem(metadataItemId, metadata, metadataObject, userIdentityId, System.currentTimeMillis(), null)));
 
     when(featureService.isActiveFeature(ACTIVE_FEATURE)).thenReturn(false);
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       featureService,
                                                                       pluginSettingService,
@@ -266,7 +267,7 @@ public class SpaceWebNotificationServiceTest {
     verify(metadataService, never()).deleteMetadataItem(anyLong(), anyBoolean());
 
     when(featureService.isActiveFeature(ACTIVE_FEATURE)).thenReturn(true);
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       featureService,
                                                                       pluginSettingService,
