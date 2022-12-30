@@ -1,14 +1,21 @@
 package org.exoplatform.social.core.storage.impl;
 
-import java.lang.reflect.Method;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -68,18 +75,6 @@ public class StorageUtils {
                                                                                                    // x
                                                                                                    // 1000
                                                                                                    // milisecond.
-
-  private static Class<?>    cls;
-
-  static {
-    try {
-      cls = Class.forName("org.exoplatform.platform.gadget.services.LoginHistory.LoginHistoryServiceImpl");
-    } catch (ClassNotFoundException e) {
-      cls = null;
-      LOG.error("org.exoplatform.platform.gadget.services.LoginHistory.LoginHistoryServiceImpl class not found."
-          + e.getMessage());
-    }
-  }
 
   public static String processUsernameSearchPattern(final String userName) {
     String modifiedUserName = userName;
@@ -288,32 +283,6 @@ public class StorageUtils {
   }
 
   /**
-   * Retrieves the user list who has last login around given days.
-   * 
-   * @param aroundDays the given days.
-   * @return The list of users.
-   */
-  public static Set<String> getLastLogin(int aroundDays) {
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.DAY_OF_MONTH, 0 - aroundDays);
-    long fromDay = calendar.getTimeInMillis();
-    try {
-      if (cls != null) {
-        Class<?>[] params = new Class<?>[1];
-        params[0] = Long.TYPE;
-        Method method = cls.getMethod("getLastUsersLogin", params);
-        Object obj = CommonsUtils.getService(cls);
-        return (Set<String>) method.invoke(obj, fromDay);
-      } else {
-        return null;
-      }
-    } catch (Exception e) {
-      LOG.warn("Failed to invoke method " + e.getMessage());
-      return null;
-    }
-  }
-
-  /**
    * @param aroundDays
    * @param lazilyCreatedTime
    * @return
@@ -323,41 +292,6 @@ public class StorageUtils {
     cal.set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH) - aroundDays);
     long limitTime = cal.getTimeInMillis();
     return lazilyCreatedTime >= limitTime;
-  }
-
-  public static long getBeforeLastLogin(String userId) {
-    try {
-      if (cls != null) {
-        Class<?>[] params = new Class<?>[1];
-        params[0] = String.class;
-        Method method = cls.getMethod("getBeforeLastLogin", params);
-        Object obj = CommonsUtils.getService(cls);
-        return (Long) method.invoke(obj, userId);
-      } else {
-        return 0;
-      }
-    } catch (Exception e) {
-      LOG.error("Failed to invoke method " + e.getMessage(), e);
-      return 0;
-    }
-  }
-
-  public static Map<String, Integer> getActiveUsers(int aroundDays) {
-    try {
-      if (cls != null) {
-        Class<?>[] params = new Class<?>[1];
-        params[0] = Integer.TYPE;
-        Method method = cls.getMethod("getActiveUsers", params);
-        Object obj = CommonsUtils.getService(cls);
-        return (Map<String, Integer>) method.invoke(obj, aroundDays);
-      } else {
-        return new HashMap<String, Integer>();
-      }
-
-    } catch (Exception e) {
-      LOG.error("Failed to invoke method " + e.getMessage(), e);
-      return null;
-    }
   }
 
   /**
