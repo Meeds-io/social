@@ -165,7 +165,6 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
   @Override
   public SpaceTemplate getSpaceTemplateByName(String name) {
     if (name == null) {
-      LOG.warn("Attempt to get template with null name. Falling back to default template name");
       name = getDefaultSpaceTemplate();
     }
     SpaceTemplate template = spaceTemplates.get(name);
