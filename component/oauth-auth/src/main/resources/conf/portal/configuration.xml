@@ -1,32 +1,175 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2009 eXo Platform SAS.
-    
-    This is free software; you can redistribute it and/or modify it
-    under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation; either version 2.1 of
-    the License, or (at your option) any later version.
-    
-    This software is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-    Lesser General Public License for more details.
-    
-    You should have received a copy of the GNU Lesser General Public
-    License along with this software; if not, write to the Free
-    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ This file is part of the Meeds project (https://meeds.io/).
+ 
+ Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
+ 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
-
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
                xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
   <component>
-    <key>org.exoplatform.oauth.service.OAuthRegistrationServices</key>
-    <type>org.exoplatform.oauth.service.impl.OAuthRegistrationServicesImpl</type>
+    <key>io.meeds.oauth.spi.SocialNetworkService</key>
+    <type>io.meeds.oauth.data.SocialNetworkServiceImpl</type>
+  </component>
+
+  <component>
+    <key>io.meeds.oauth.spi.OAuthProviderTypeRegistry</key>
+    <type>io.meeds.oauth.registry.OAuthProviderTypeRegistryImpl</type>
+  </component>
+
+  <component>
+    <key>io.meeds.oauth.facebook.GateInFacebookProcessor</key>
+    <type>io.meeds.oauth.facebook.GateInFacebookProcessorImpl</type>
+    <init-params>
+      <value-param>
+        <name>clientId</name>
+        <value>${gatein.oauth.facebook.clientId}</value>
+      </value-param>
+      <value-param>
+        <name>clientSecret</name>
+        <value>${gatein.oauth.facebook.clientSecret}</value>
+      </value-param>
+      <!-- URL to redirect from Facebook during Facebook OAuth authentication -->
+      <value-param>
+        <name>redirectURL</name>
+        <value>${gatein.oauth.facebook.redirectURL}</value>
+      </value-param>
+      <value-param>
+        <name>scope</name>
+        <value>${gatein.oauth.facebook.scope}</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
+    <key>io.meeds.oauth.twitter.TwitterProcessor</key>
+    <type>io.meeds.oauth.twitter.TwitterProcessorImpl</type>
+    <init-params>
+      <value-param>
+        <name>clientId</name>
+        <value>${gatein.oauth.twitter.clientId}</value>
+      </value-param>
+      <value-param>
+        <name>clientSecret</name>
+        <value>${gatein.oauth.twitter.clientSecret}</value>
+      </value-param>
+      <!-- URL to redirect from Twitter during Twitter OAuth authentication -->
+      <value-param>
+        <name>redirectURL</name>
+        <value>${gatein.oauth.twitter.redirectURL}</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <!-- LinkedIn -->
+  <component>
+    <key>io.meeds.oauth.linkedin.LinkedinProcessor</key>
+    <type>io.meeds.oauth.linkedin.LinkedinProcessorImpl</type>
+    <init-params>
+      <value-param>
+        <name>apiKey</name>
+        <value>${gatein.oauth.linkedin.apiKey}</value>
+      </value-param>
+      <value-param>
+        <name>apiSecret</name>
+        <value>${gatein.oauth.linkedin.apiSecret}</value>
+      </value-param>
+      <!-- URL to redirect from LinkedIn during LinkedIn OAuth authentication -->
+      <value-param>
+        <name>redirectURL</name>
+        <value>${gatein.oauth.linkedin.redirectURL}</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
+    <key>io.meeds.oauth.google.GoogleProcessor</key>
+    <type>io.meeds.oauth.google.GoogleProcessorImpl</type>
+    <init-params>
+      <value-param>
+        <name>clientId</name>
+        <value>${gatein.oauth.google.clientId}</value>
+      </value-param>
+      <value-param>
+        <name>clientSecret</name>
+        <value>${gatein.oauth.google.clientSecret}</value>
+      </value-param>
+      <!-- URL to redirect from Google during Google OAuth2 authentication -->
+      <value-param>
+        <name>redirectURL</name>
+        <value>${gatein.oauth.google.redirectURL}</value>
+      </value-param>
+      <value-param>
+        <name>scope</name>
+        <value>${gatein.oauth.google.scope}</value>
+      </value-param>
+      <value-param>
+        <name>accessType</name>
+        <value>${gatein.oauth.google.accessType}</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
+    <key>io.meeds.oauth.openid.OpenIdProcessor</key>
+    <type>io.meeds.oauth.openid.OpenIdProcessorImpl</type>
+    <init-params>
+      <value-param>
+        <name>clientId</name>
+        <value>${exo.oauth.openid.clientId}</value>
+      </value-param>
+      <value-param>
+        <name>clientSecret</name>
+        <value>${exo.oauth.openid.clientSecret}</value>
+      </value-param>
+      <!-- URL to redirect from OpenId during Openid authentication -->
+      <value-param>
+        <name>redirectURL</name>
+        <value>${exo.oauth.openid.redirectURL}</value>
+      </value-param>
+      <value-param>
+        <name>scope</name>
+        <value>openid email profile</value>
+      </value-param>
+      <value-param>
+        <name>accessType</name>
+        <value>${exo.oauth.openid.accessType}</value>
+      </value-param>
+      <value-param>
+        <name>wellKnownConfigurationUrl</name>
+        <value>${exo.oauth.openid.wellKnownConfigurationUrl}</value>
+      </value-param>
+    </init-params>
+  </component>
+
+  <component>
+    <key>io.meeds.oauth.webapi.OAuthFilterIntegrator</key>
+    <type>io.meeds.oauth.webapi.OAuthFilterIntegratorImpl</type>
+  </component>
+
+  <component>
+    <type>io.meeds.oauth.web.OauthLoginParamsExtension</type>
+  </component>
+
+  <component>
+    <key>io.meeds.oauth.service.OAuthRegistrationService</key>
+    <type>io.meeds.oauth.service.impl.OAuthRegistrationServiceImpl</type>
     <init-params>
       <value-param>
         <name>registerOnFly</name>
@@ -34,6 +177,404 @@
       </value-param>
     </init-params>
   </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
+    <component-plugin>
+      <name>UniqueOAuthProviderUsernameListener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>io.meeds.oauth.data.UniqueOAuthProviderUsernameListener</type>
+    </component-plugin>
+    <component-plugin>
+      <name>AccessTokenInvalidationListener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>io.meeds.oauth.data.AccessTokenInvalidationListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>FacebookFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>providerKey</name>
+          <value>FACEBOOK</value>
+        </value-param>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.web.facebook.FacebookFilter</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.facebook.enabled:false}</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/facebookAuth</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>TwitterFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>providerKey</name>
+          <value>TWITTER</value>
+        </value-param>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.web.twitter.TwitterFilter</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.twitter.enabled:false}</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/twitterAuth</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>GoogleFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>providerKey</name>
+          <value>GOOGLE</value>
+        </value-param>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.web.google.GoogleFilter</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.google.enabled:false}</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/googleAuth</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>LinkedInFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>providerKey</name>
+          <value>LINKEDIN</value>
+        </value-param>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.web.linkedin.LinkedInFilter</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.linkedin.enabled:false}</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/linkedinAuth</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>OpenIdFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>providerKey</name>
+          <value>OPENID</value>
+        </value-param>
+        <value-param>
+          <name>filterClass</name>
+          <value>${gatein.oauth.openid.filterClass:io.meeds.oauth.web.openid.OpenIdFilter}</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.openid.enabled:false}</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>${gatein.oauth.openid.filterMapping:/openidAuth}</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>OAuthIntegrationFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.web.OAuthAuthenticationFilter</value>
+        </value-param>
+        <!-- It's always enable here but not used if all OAuthProviders (social networks) are disabled. See OAuthFilterIntegratorImpl -->
+        <value-param>
+          <name>enabled</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/*</value>
+        </value-param>
+        <!-- URL to redirect after finish OAuth authentication process. It's used if registration of new GateIn user is needed -->
+        <value-param>
+          <name>registrationUrl</name>
+          <value>/@@portal.container.name@@/</value>
+        </value-param>
+        <!-- URL to redirect after finish OAuth authentication process. It's used if registration of new GateIn user is not needed because user is already registered -->
+        <value-param>
+          <name>loginUrl</name>
+          <value>/@@portal.container.name@@/login</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>OAuthLinkAccountFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <!-- It's always enable here but not used if all OAuthProviders (social networks) are disabled. See OAuthFilterIntegratorImpl -->
+        <value-param>
+          <name>enabled</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.web.OAuthLinkAccountFilter</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/*</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <component-plugin>
+      <name>FacebookOauthProvider</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <init-params>
+        <value-param>
+          <name>key</name>
+          <value>FACEBOOK</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.facebook.enabled}</value>
+        </value-param>
+        <value-param>
+          <name>userNameAttributeName</name>
+          <value>user.social-info.facebook.userName</value>
+        </value-param>
+        <value-param>
+          <name>oauthProviderProcessorClass</name>
+          <value>io.meeds.oauth.facebook.GateInFacebookProcessor</value>
+        </value-param>
+        <value-param>
+          <name>principalProcessorClass</name>
+          <value>io.meeds.oauth.facebook.FacebookPrincipalProcessor</value>
+        </value-param>
+        <value-param>
+          <name>initOAuthURL</name>
+          <value>/facebookAuth</value>
+        </value-param>
+        <value-param>
+          <name>friendlyName</name>
+          <value>Facebook</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <component-plugin>
+      <name>TwitterOauthProvider</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <init-params>
+        <value-param>
+          <name>key</name>
+          <value>TWITTER</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.twitter.enabled}</value>
+        </value-param>
+        <value-param>
+          <name>userNameAttributeName</name>
+          <value>user.social-info.twitter.userName</value>
+        </value-param>
+        <value-param>
+          <name>oauthProviderProcessorClass</name>
+          <value>io.meeds.oauth.twitter.TwitterProcessor</value>
+        </value-param>
+        <value-param>
+          <name>initOAuthURL</name>
+          <value>/twitterAuth</value>
+        </value-param>
+        <value-param>
+          <name>friendlyName</name>
+          <value>Twitter</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <component-plugin>
+      <name>LinkedInOauthProvider</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <init-params>
+        <value-param>
+          <name>key</name>
+          <value>LINKEDIN</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.linkedin.enabled}</value>
+        </value-param>
+        <value-param>
+          <name>userNameAttributeName</name>
+          <value>user.social-info.linkedin.userName</value>
+        </value-param>
+        <value-param>
+          <name>oauthProviderProcessorClass</name>
+          <value>io.meeds.oauth.linkedin.LinkedinProcessor</value>
+        </value-param>
+        <value-param>
+          <name>principalProcessorClass</name>
+          <value>io.meeds.oauth.linkedin.LinkedInPrincipalProcessor</value>
+        </value-param>
+        <value-param>
+          <name>initOAuthURL</name>
+          <value>/linkedinAuth</value>
+        </value-param>
+        <value-param>
+          <name>friendlyName</name>
+          <value>LinkedIn</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <component-plugin>
+      <name>GoogleOauthProvider</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <init-params>
+        <value-param>
+          <name>key</name>
+          <value>GOOGLE</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.google.enabled}</value>
+        </value-param>
+        <value-param>
+          <name>userNameAttributeName</name>
+          <value>user.social-info.google.userName</value>
+        </value-param>
+        <value-param>
+          <name>oauthProviderProcessorClass</name>
+          <value>io.meeds.oauth.google.GoogleProcessor</value>
+        </value-param>
+        <value-param>
+          <name>oauthPrincipalProcessorClass</name>
+          <value>package.Classname</value>
+        </value-param>
+        <value-param>
+          <name>initOAuthURL</name>
+          <value>/googleAuth</value>
+        </value-param>
+        <value-param>
+          <name>friendlyName</name>
+          <value>Google+</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <component-plugin>
+      <name>OpenIdOauthProvider</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <init-params>
+        <value-param>
+          <name>key</name>
+          <value>OPENID</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>${gatein.oauth.openid.enabled}</value>
+        </value-param>
+        <value-param>
+          <name>userNameAttributeName</name>
+          <value>user.social-info.openid.userName</value>
+        </value-param>
+        <value-param>
+          <name>oauthProviderProcessorClass</name>
+          <value>io.meeds.oauth.openid.OpenIdProcessor</value>
+        </value-param>
+        <value-param>
+          <name>principalProcessorClass</name>
+          <value>io.meeds.oauth.openid.OpenIdPrincipalProcessor</value>
+        </value-param>
+        <value-param>
+          <name>initOAuthURL</name>
+          <value>/openidAuth</value>
+        </value-param>
+        <value-param>
+          <name>friendlyName</name>
+          <value>OpenId</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 
   <external-component-plugins>
     <!-- The full qualified name of the ExtensibleFilter -->
@@ -51,7 +592,7 @@
           <object type="org.exoplatform.web.filter.FilterDefinition">
             <!-- The filter instance -->
             <field name="filter">
-              <object type="org.exoplatform.oauth.filter.OauthSignupOnflyFilter">
+              <object type="io.meeds.oauth.filter.OauthSignupOnflyFilter">
               </object>
             </field>
             <!-- The mapping to use -->
@@ -80,7 +621,7 @@
           <object type="org.exoplatform.web.filter.FilterDefinition">
             <!-- The filter instance -->
             <field name="filter">
-              <object type="org.exoplatform.oauth.filter.OAuthLoginServletFilter"></object>
+              <object type="io.meeds.oauth.filter.OAuthLoginServletFilter"></object>
             </field>
             <!-- The mapping to use -->
             <!-- WARNING: the mapping is expressed with regular expressions -->
