@@ -23,46 +23,6 @@
    xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
   <external-component-plugins>
-    <target-component>org.exoplatform.commons.api.search.SearchService</target-component>
-    <component-plugin profiles="all">
-      <name>PeopleElasticUnifiedSearchServiceConnector</name>
-      <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.core.jpa.search.PeopleElasticUnifiedSearchServiceConnector</type>
-      <description>People ElasticSearch Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="displayName" value="People"/>
-          <property name="index" value="profile_alias"/>
-          <property name="enable" value="${exo.unified-search.connector.people.enable:true}"/>
-          <property name="titleField" value="name"/>
-          <property name="searchFields" value="name,firstName,lastName,position,skills,aboutMe"/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-  
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.api.search.SearchService</target-component>
-    <component-plugin profiles="all">
-      <name>SpaceElasticUnifiedSearchServiceConnector</name>
-      <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.core.jpa.search.SpaceElasticUnifiedSearchServiceConnector</type>
-      <description>Space ElasticSearch Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="displayName" value="Spaces"/>
-          <property name="index" value="space_alias"/>
-          <property name="enable" value="${exo.unified-search.connector.space.enable:true}"/>
-          <property name="titleField" value="displayName"/>
-          <property name="searchFields" value="prettyName,displayName,description"/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
     <target-component>org.exoplatform.social.core.manager.IdentityManager</target-component>
     <component-plugin>
       <name>ProfileESListenerImpl</name>
