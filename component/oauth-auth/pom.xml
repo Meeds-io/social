@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ JBoss, a division of Red Hat
-  ~ Copyright 2013, Red Hat Middleware, LLC, and individual
-  ~ contributors as indicated by the @authors tag. See the
-  ~ copyright.txt in the distribution for a full listing of
-  ~ individual contributors.
-  ~
-  ~ This is free software; you can redistribute it and/or modify it
-  ~ under the terms of the GNU Lesser General Public License as
-  ~ published by the Free Software Foundation; either version 2.1 of
-  ~ the License, or (at your option) any later version.
-  ~
-  ~ This software is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  ~ Lesser General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Lesser General Public
-  ~ License along with this software; if not, write to the Free
-  ~ Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-  ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-  -->
 
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2022 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>social-component</artifactId>
@@ -33,40 +29,100 @@
   <artifactId>social-component-oauth-auth</artifactId>
   <packaging>jar</packaging>
 
-  <name>eXo PLF:: Social - Oauth authentication and authorization</name>
+  <name>eXo PLF:: Social Oauth authentication and authorization</name>
   <description>Oauth authentication and authorization services to integrate with social identity model</description>
   <properties>
+    <exo.test.coverage.ratio>0.19</exo.test.coverage.ratio>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.api</artifactId>
+      <groupId>org.exoplatform.social</groupId>
+      <artifactId>social-component-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.exoplatform.gatein.sso</groupId>
+      <artifactId>sso-integration</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.security</artifactId>
+      <groupId>org.exoplatform.gatein.sso</groupId>
+      <artifactId>sso-agent</artifactId>
+    </dependency>
+
+    <!-- Twitter -->
+    <dependency>
+      <groupId>org.twitter4j</groupId>
+      <artifactId>twitter4j-core</artifactId>
+    </dependency>
+
+    <!-- LinkedIn -->
+    <dependency>
+      <groupId>com.github.scribejava</groupId>
+      <artifactId>scribejava-apis</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.component.web.oauth-common</artifactId>
+      <groupId>com.github.scribejava</groupId>
+      <artifactId>scribejava-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- Google -->
+    <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.core</groupId>
-      <artifactId>exo.core.component.organization.api</artifactId>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.core</artifactId>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-jackson</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
-      <artifactId>exo.portal.webui.portal</artifactId>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-plus</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-oauth2</artifactId>
+    </dependency>
+
+    <!-- Json Web Token -->
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.exoplatform.social</groupId>
       <artifactId>social-component-core</artifactId>
+      <type>test-jar</type>
+      <!-- Test scope : Avoid defining it with scope=test to apply transitive dependencies -->
     </dependency>
   </dependencies>
   <build>
