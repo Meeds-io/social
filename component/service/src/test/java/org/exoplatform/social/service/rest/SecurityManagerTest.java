@@ -17,7 +17,9 @@
 package org.exoplatform.social.service.rest;
 
 
-import org.exoplatform.commons.utils.ListAccess;
+import java.util.List;
+import java.util.Random;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -28,18 +30,11 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
-import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.social.service.test.AbstractServiceTest;
-import org.jmock.core.constraint.Or;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Unit Test for {@link SecurityManager}.
