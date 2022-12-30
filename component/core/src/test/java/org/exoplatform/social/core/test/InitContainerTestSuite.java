@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.test;
 
 import org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImplTest;
+import org.exoplatform.social.core.profile.ProfilePropertySettingsServiceTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -86,6 +87,7 @@ import org.exoplatform.social.metadata.tag.TagServiceTest;
     MetadataServiceTest.class,
     FavoriteServiceTest.class,
     TagServiceTest.class,
+    ProfilePropertySettingsServiceTest.class,
     ActivityMetadataListenerTest.class,
     ActivityTagMetadataListenerTest.class,
     MetadataActivityProcessorTest.class,

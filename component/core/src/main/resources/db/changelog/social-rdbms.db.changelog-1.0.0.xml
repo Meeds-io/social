@@ -835,4 +835,31 @@
         </addColumn>
     </changeSet>
 
+
+    <changeSet author="social" id="1.0.0-85">
+        <createTable tableName="SOC_PROFILE_PROPERTY_SETTING">
+            <column name="PROPERTY_SETTING_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PROPERTY_SETTING_ID" />
+            </column>
+            <column name="PROPERTY_NAME" type="NVARCHAR(550)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="PROPERTY_SETTING_UNIQUE_NAME"/>
+            </column>
+            <column name="VISIBLE" type="BOOLEAN"/>
+            <column name="EDITABLE" type="BOOLEAN"/>
+            <column name="ACTIVE" type="BOOLEAN"/>
+            <column name="GROUP_SYNCHRONIZED" type="BOOLEAN"/>
+            <column name="SYSTEM_PROPERTY" type="BOOLEAN"/>
+            <column name="LDAP_ATTRIBUTE" type="NVARCHAR(550)"/>
+            <column name="ORDER" type="BIGINT"/>
+            <column name="PARENT_ID" type="BIGINT"/>
+        </createTable>
+        <modifySql dbms="mysql">
+            <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+        </modifySql>
+    </changeSet>
+
+    <changeSet author="social" id="1.0.0-86" dbms="hsqldb">
+        <createSequence sequenceName="SEQ_SOC_PROPERTY_SETTING_ID" startValue="1"/>
+    </changeSet>
+
 </databaseChangeLog>

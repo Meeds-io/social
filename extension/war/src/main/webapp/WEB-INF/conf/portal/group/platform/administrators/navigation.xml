@@ -43,6 +43,11 @@
       <page-reference>group::/platform/administrators::membershipsManagement</page-reference>
     </node>
     <node>
+      <name>profileManagement</name>
+      <label>#{administration.profileManagement}</label>
+      <page-reference>group::/platform/administrators::profileManagement</page-reference>
+    </node>
+    <node>
       <name>branding</name>
       <label>#{administration.Branding}</label>
       <page-reference>group::/platform/administrators::branding</page-reference>

@@ -37,6 +37,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -66,6 +67,7 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
   protected RelationshipManager relationshipManager;
   protected ActivityManager activityManager;
   protected ActivityStorage activityStorage;
+  protected ProfileSettingStorage profileSettingStorage;
   protected EntityManagerService entityManagerService;
 
   protected Identity rootIdentity;
@@ -76,10 +78,11 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
   @Override
   protected void setUp() throws Exception {
     begin();
-    
+
     identityManager = getService(IdentityManager.class);
     activityManager =  getService(ActivityManager.class);
     activityStorage = getService(ActivityStorage.class);
+    profileSettingStorage = getService(ProfileSettingStorage.class);
     relationshipManager = getService(RelationshipManager.class);
     spaceService = getService(SpaceService.class);
     entityManagerService = getService(EntityManagerService.class);
