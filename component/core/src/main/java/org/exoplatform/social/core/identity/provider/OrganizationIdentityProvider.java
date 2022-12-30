@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -46,7 +45,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
   private OrganizationService organizationService;
 
   /** The Constant NAME. */
-  public final static String  NAME = ActivityStream.ORGANIZATION_PROVIDER_ID;
+  public static final String  NAME = ActivityStream.ORGANIZATION_PROVIDER_ID;
 
   /**
    * Instantiates a new organization identity provider.
@@ -67,7 +66,10 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
    * {@inheritDoc} Return only 500 maximum users for this duplicated method.
    *
    * @return list of string containing user names.
+   * @deprecated Will be removed
    */
+  @Deprecated(forRemoval = true, since = "the begining")
+  @Override
   public List<String> getAllUserId() {
     try {
 
@@ -94,7 +96,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
     User user;
     try {
       RequestLifeCycle.begin((ComponentRequestLifecycle) organizationService);
-      user = CommonsUtils.getUser(remoteId);
+      user = organizationService.getUserHandler().findUserByName(remoteId);
     } catch (Exception e) {
       LOG.warn("An error occured while getting identity from store", e);
       return null;

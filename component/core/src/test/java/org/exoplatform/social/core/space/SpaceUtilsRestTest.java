@@ -45,10 +45,6 @@ public class SpaceUtilsRestTest extends AbstractCoreTest {
   private Identity root = null;
   private SocialStorageCacheService cacheService;
 
-  public SpaceUtilsRestTest() {
-    setForceContainerReload(true);
-  }
-
   @Override
   public void setUp() throws Exception {
     identityStorage = (IdentityStorage) getContainer().getComponentInstanceOfType(IdentityStorage.class);
