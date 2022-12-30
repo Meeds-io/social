@@ -56,10 +56,6 @@ public class RelationshipPublisherTest extends  AbstractCoreTest {
   private Identity raulIdentity;
   private Identity paulIdentity;
 
-  public RelationshipPublisherTest() {
-    setForceContainerReload(true);
-  }
-
   public void setUp() throws Exception {
     super.setUp();
     tearDownActivityList = new ArrayList<ExoSocialActivity>();
