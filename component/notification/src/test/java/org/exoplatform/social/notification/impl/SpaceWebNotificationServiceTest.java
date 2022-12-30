@@ -4,7 +4,6 @@ import static org.exoplatform.social.notification.impl.SpaceWebNotificationServi
 import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_ALL_READ_EVENT_NAME;
 import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_READ_EVENT_NAME;
 import static org.exoplatform.social.notification.service.SpaceWebNotificationService.NOTIFICATION_UNREAD_EVENT_NAME;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -25,7 +24,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.metadata.MetadataService;
@@ -34,10 +32,11 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
+import org.exoplatform.social.notification.AbstractCoreTest;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SpaceWebNotificationServiceTest {
+public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
 
   private static final String                    METADATA_TYPE_NAME   = "unread";
 
@@ -63,7 +62,8 @@ public class SpaceWebNotificationServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    super.setUp();
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       pluginSettingService,
                                                                       listenerService);
@@ -83,7 +83,7 @@ public class SpaceWebNotificationServiceTest {
                                                        activityId,
                                                        null,
                                                        spaceId);
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       pluginSettingService,
                                                                       listenerService);
@@ -237,7 +237,7 @@ public class SpaceWebNotificationServiceTest {
     when(metadataService.getMetadataItemsByMetadataAndObject(metadataKey,
                                                              metadataObject)).thenReturn(Arrays.asList(new MetadataItem(metadataItemId, metadata, metadataObject, userIdentityId, System.currentTimeMillis(), null)));
 
-    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(PortalContainer.getInstance(),
+    spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       pluginSettingService,
                                                                       listenerService);
