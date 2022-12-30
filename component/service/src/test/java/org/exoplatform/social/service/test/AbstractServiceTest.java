@@ -47,9 +47,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.service-dependencies-configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.service-local-configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.service-configuration.xml"),
 })
 public abstract class AbstractServiceTest extends BaseExoTestCase {
   protected static Log log = ExoLogger.getLogger(AbstractServiceTest.class.getName());
