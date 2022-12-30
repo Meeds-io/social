@@ -6,6 +6,7 @@
     :absolute="absolute"
     :top="top"
     :right="right"
+    :small="false"
     type="space"
     type-label="space"
     :entity-type="entityType"
