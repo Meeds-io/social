@@ -16,7 +16,6 @@
 package io.meeds.oauth.linkedin;
 
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,10 +27,12 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.web.security.security.SecureRandomService;
 
 import io.meeds.oauth.common.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
@@ -42,23 +43,24 @@ import io.meeds.oauth.utils.OAuthPersistenceUtils;
 
 public class LinkedinProcessorImpl implements LinkedinProcessor {
 
-  private static Log    log         = ExoLogger.getLogger(LinkedinProcessorImpl.class);
+  private static Log                log   = ExoLogger.getLogger(LinkedinProcessorImpl.class);
 
-  private final String  redirectURL;
+  private final String              redirectURL;
 
-  private final String  apiKey;
+  private final String              apiKey;
 
-  private final String  apiSecret;
+  private final String              apiSecret;
 
-  private String        scope       = "r_liteprofile r_emailaddress w_member_social";
+  private String                    scope = "r_liteprofile r_emailaddress w_member_social";
 
-  private final String  secretState = "secret" + new Random().nextInt(999_999);
+  private final SecureRandomService secureRandomService;
 
-  private final int     chunkLength;
+  private final int                 chunkLength;
 
-  public OAuth20Service oAuth20Service;
+  public OAuth20Service             oAuth20Service;
 
-  public LinkedinProcessorImpl(ExoContainerContext context, InitParams params) {
+  public LinkedinProcessorImpl(ExoContainerContext context, SecureRandomService secureRandomService, InitParams params) {
+    this.secureRandomService = secureRandomService;
     this.apiKey = params.getValueParam("apiKey").getValue();
     this.apiSecret = params.getValueParam("apiSecret").getValue();
     String redirectURLParam = params.getValueParam("redirectURL").getValue();
@@ -101,11 +103,11 @@ public class LinkedinProcessorImpl implements LinkedinProcessor {
     this.scope = scope;
     this.redirectURL = redirectURL;
     this.chunkLength = chunkLength;
-    this.oAuth20Service = oAuth20Service = new ServiceBuilder(apiKey)
-                                                                     .apiSecret(apiSecret)
-                                                                     .defaultScope(scope)
-                                                                     .callback(redirectURL)
-                                                                     .build(LinkedInApi20.instance());
+    this.oAuth20Service = new ServiceBuilder(apiKey).apiSecret(apiSecret)
+                                                    .defaultScope(scope)
+                                                    .callback(redirectURL)
+                                                    .build(LinkedInApi20.instance());
+    this.secureRandomService = PortalContainer.getInstance().getComponentInstanceOfType(SecureRandomService.class);
   }
 
   @Override
@@ -125,7 +127,7 @@ public class LinkedinProcessorImpl implements LinkedinProcessor {
                                                .callback(redirectURL)
                                                .build(LinkedInApi20.instance());
     if (httpRequest.getParameter("code") == null) {
-      String redirect = oAuth20Service.getAuthorizationUrl(secretState);
+      String redirect = oAuth20Service.getAuthorizationUrl("secret" + secureRandomService.getSecureRandom().nextLong());
       httpResponse.sendRedirect(redirect);
       return new InteractionState<LinkedinAccessTokenContext>(InteractionState.State.AUTH, null);
     } else {
