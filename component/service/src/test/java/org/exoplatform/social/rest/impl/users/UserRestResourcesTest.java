@@ -1,20 +1,27 @@
 package org.exoplatform.social.rest.impl.users;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileReader;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.services.thumbnail.ImageResizeService;
-import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
@@ -27,20 +34,24 @@ import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
-import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.mock.MockUploadService;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
@@ -79,6 +90,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private Identity            demoIdentity;
 
+  @Override
   public void setUp() throws Exception {
     super.setUp();
 
@@ -218,18 +230,26 @@ public class UserRestResourcesTest extends AbstractResourceTest {
    
   public void testGetDisabledUsers() throws Exception {
     startSessionAs("root");
-    //when
-    maryIdentity.setEnable(false);
-    johnIdentity.setEnable(false);
-    identityManager.saveIdentity(maryIdentity);
-    identityManager.saveIdentity(johnIdentity);
     ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
     //then
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(2, collections.getEntities().size());
-    
+    assertNotNull(collections);
+    int initialSize = collections.getEntities().size();
+
+    //when
+    maryIdentity.setEnable(false);
+    johnIdentity.setEnable(false);
+    identityManager.saveIdentity(maryIdentity);
+    identityManager.saveIdentity(johnIdentity);
+    response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
+    //then
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(initialSize + 2, collections.getEntities().size());
+
     //when
     maryIdentity.setEnable(true);
     johnIdentity.setEnable(true);
@@ -240,7 +260,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getEntities().size());
+    assertEquals(initialSize, collections.getEntities().size());
   }
 
   public void testGetUsersByUserType() throws Exception {
@@ -760,8 +780,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(204, response.getStatus());
 
     uploadId = "users-enabled.csv";
-    resource = getClass().getClassLoader().getResource("users-enabled.csv");
-    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    resource = getClass().getClassLoader().getResource(uploadId);
+    uploadService.createUploadResource(uploadId, resource.getFile(), uploadId, "text/csv");
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
     assertNotNull(response);
     assertNull(response.getEntity());
@@ -815,8 +835,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     // Test import enabled or disabled users
     uploadId = "users-enabled.csv";
-    resource = getClass().getClassLoader().getResource("users-enabled.csv");
-    uploadService.createUploadResource(uploadId, resource.getFile(), "users-enabled.csv", "text/csv");
+    resource = getClass().getClassLoader().getResource(uploadId);
+    uploadService.createUploadResource(uploadId, resource.getFile(), uploadId, "text/csv");
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&progress=true").getBytes());
     assertNotNull(response);
     assertNotNull(response.getEntity());

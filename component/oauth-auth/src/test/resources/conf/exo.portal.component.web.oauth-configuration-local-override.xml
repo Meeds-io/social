@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+ 
+ Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
+ 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
+               xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+
+  <component>
+    <key>io.meeds.oauth.principal.DefaultPrincipalProcessor</key>
+    <type>io.meeds.oauth.test.DefaultPrincipalProcessorOverrided</type>
+  </component>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <component-plugin>
+      <name>FacebookOauthProvider</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <init-params>
+        <value-param>
+          <name>key</name>
+          <value>FACEBOOK</value>
+        </value-param>
+        <value-param>
+          <name>enabled</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>userNameAttributeName</name>
+          <value>user.social-info.facebook.userName</value>
+        </value-param>
+        <value-param>
+          <name>oauthProviderProcessorClass</name>
+          <value>io.meeds.oauth.facebook.GateInFacebookProcessor</value>
+        </value-param>
+        <value-param>
+          <name>principalProcessorClass</name>
+          <value>io.meeds.oauth.test.DefaultPrincipalProcessorOverrided</value>
+        </value-param>
+        <value-param>
+          <name>initOAuthURL</name>
+          <value>/facebookAuth</value>
+        </value-param>
+        <value-param>
+          <name>friendlyName</name>
+          <value>Facebook</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+</configuration>
+
