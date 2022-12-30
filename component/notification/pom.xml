@@ -56,8 +56,6 @@
         <configuration>
           <includes>
             <include>**/InitContainerTestSuite.java</include>
-            <include>**/UtilsTestCase.java</include>
-            <include>**/SocialNotificationUtilsTest.java</include>
           </includes>
         </configuration>
       </plugin>
