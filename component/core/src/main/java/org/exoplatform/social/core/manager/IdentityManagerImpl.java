@@ -450,20 +450,11 @@ public class IdentityManagerImpl implements IdentityManager {
     return identityStorage.getIdentitiesCount(providerId);
   }
 
-  
-  /**
-   * {@inheritDoc}
-   */
   public Identity getIdentity(String identityId, boolean forceLoadOrReloadProfile) {
     Identity returnIdentity = this.getIdentityStorage().findIdentityById(identityId);
-
     if (returnIdentity != null) {
-      if (forceLoadOrReloadProfile) {
-        Profile profile = this.getIdentityStorage().loadProfile(returnIdentity.getProfile());
-        returnIdentity.setProfile(profile);
-      }
-    } else {
-      LOG.info("Can not get identity with id: " + identityId);
+      Profile profile = this.getIdentityStorage().loadProfile(returnIdentity.getProfile());
+      returnIdentity.setProfile(profile);
     }
     return returnIdentity;
   }
