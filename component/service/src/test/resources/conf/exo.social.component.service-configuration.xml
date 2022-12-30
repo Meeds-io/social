@@ -40,166 +40,9 @@
   </component>
 
   <component>
-    <type>org.exoplatform.services.rest.impl.ProvidersRegistry</type>
-  </component>
-  
-  <component>
-     <type>org.exoplatform.services.rest.impl.RequestHandlerImpl</type>
-  </component>
-
-  <component>
-     <type>org.exoplatform.services.rest.impl.RequestDispatcher</type>
-  </component>
-
-  <!-- Request/Response filters. -->
-  <component>
-     <type>org.exoplatform.services.rest.impl.ProvidersRegistry</type>
-  </component>
-
-  <component>
-     <type>org.exoplatform.services.rest.impl.ResourceBinder</type>
-  </component>
-
-  <component>
-     <type>org.exoplatform.services.rest.impl.provider.JAXBContextResolver</type>
-  </component>
-
-  <component>
-    <key>org.exoplatform.upload.UploadService</key>
-    <type>org.exoplatform.social.mock.MockUploadService</type>
-    <init-params>
-      <value-param>
-        <name>upload.limit.size</name>
-        <description>Maximum size of the file to upload in MB</description>
-        <value>10</value>
-      </value-param>
-    </init-params>
-  </component>
-
-  <component>
-    <type>org.exoplatform.web.WebAppController</type>
-    <init-params>
-      <value-param>
-        <name>controller.config</name>
-        <value>target/test-classes/conf/controller.xml</value>
-      </value-param>
-    </init-params>
-  </component>
-
-  <component>
     <key>org.exoplatform.social.metadata.thumbnail.ImageThumbnailService</key>
     <type>org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImpl</type>
   </component>
-
-
-  <component>
-    <type>org.exoplatform.web.url.URLFactoryService</type>
-    <component-plugins>
-      <component-plugin>
-        <name>navigation.urlfactory.plugin</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.web.url.navigation.NodeURLFactoryPlugin</type>
-      </component-plugin>
-      <component-plugin>
-        <name>navigation.urlfactory.plugin</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.portal.url.component.ComponentURLFactoryPlugin</type>
-      </component-plugin>
-      <component-plugin>
-        <name>navigation.urlfactory.plugin</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.web.url.simple.SimpleURLFactoryPlugin</type>
-      </component-plugin>
-    </component-plugins>
-  </component>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.web.WebAppController</target-component>
-    <component-plugin>
-      <name>UploadHandler</name>
-      <set-method>register</set-method>
-      <type>org.exoplatform.web.handler.UploadHandler</type>
-    </component-plugin>
-    <component-plugin>
-      <name>DownloadHandler</name>
-      <set-method>register</set-method>
-      <type>org.exoplatform.web.handler.DownloadHandler</type>
-    </component-plugin>
-    <component-plugin>
-      <name>PortalRequestHandler</name>
-      <set-method>register</set-method>
-      <type>org.exoplatform.portal.application.PortalRequestHandler</type>
-    </component-plugin>
-    <component-plugin>
-      <name>LegacyRequestHandler</name>
-      <set-method>register</set-method>
-      <type>org.exoplatform.portal.application.LegacyRequestHandler</type>
-    </component-plugin>
-    <component-plugin>
-      <name>DefaultRequestHandler</name>
-      <set-method>register</set-method>
-      <type>org.exoplatform.portal.application.DefaultRequestHandler</type>
-    </component-plugin>
-    <component-plugin>
-      <name>StaticResourceRequestHandler</name>
-      <set-method>register</set-method>
-      <type>org.exoplatform.portal.application.StaticResourceRequestHandler</type>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-      <target-component>org.exoplatform.services.rest.impl.RequestHandlerImpl</target-component>
-      <component-plugin>
-       <name>ws.rs.response.filter</name>
-       <set-method>addPlugin</set-method>
-       <type>org.exoplatform.services.rest.impl.ResponseFilterComponentPlugin</type>
-       <init-params>
-          <value-param>
-             <name>ws.rs.response.social-response-filter</name>
-             <value>org.exoplatform.social.rest.filter.SocialResponseFilter</value>
-          </value-param>
-       </init-params>
-      </component-plugin>
-  </external-component-plugins>
-  <!-- Request/Response filters. -->
-  
-  <external-component-plugins>
-     <target-component>org.exoplatform.services.rest.impl.provider.JAXBContextResolver</target-component>
-     <component-plugin>
-        <name>ws.rs.jaxb.context</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.rest.impl.provider.JAXBContextComponentPlugin</type>
-        <init-params>
-           <value-param>
-              <name>wadl.application</name>
-              <value>org.exoplatform.services.rest.wadl.research.Application</value>
-           </value-param>
-        </init-params>
-     </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-     <target-component>org.exoplatform.services.rest.impl.RequestHandlerImpl</target-component>
-     <component-plugin>
-        <name>ws.rs.entity.provider</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.rest.impl.provider.EntityProviderComponentPlugin</type>
-     </component-plugin>
-     <component-plugin>
-        <name>ws.rs.method.filter</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.rest.impl.method.MethodInvokerFilterComponentPlugin</type>
-     </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
-    <component-plugin>
-      <name>social.new.user.event.listener</name>
-      <set-method>addListenerPlugin</set-method>
-      <type>org.exoplatform.social.core.listeners.SocialUserEventListenerImpl</type>
-    </component-plugin>
-  </external-component-plugins>
 
   <external-component-plugins>
     <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
@@ -245,6 +88,21 @@
       <set-method>addListener</set-method>
       <type>org.exoplatform.social.core.listeners.ThumbnailFileListener</type>
     </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+      <target-component>org.exoplatform.services.rest.impl.RequestHandlerImpl</target-component>
+      <component-plugin>
+       <name>ws.rs.response.filter</name>
+       <set-method>addPlugin</set-method>
+       <type>org.exoplatform.services.rest.impl.ResponseFilterComponentPlugin</type>
+       <init-params>
+          <value-param>
+             <name>ws.rs.response.social-response-filter</name>
+             <value>org.exoplatform.social.rest.filter.SocialResponseFilter</value>
+          </value-param>
+       </init-params>
+      </component-plugin>
   </external-component-plugins>
 
 </configuration>
