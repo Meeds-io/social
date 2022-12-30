@@ -24,18 +24,18 @@
                xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
   <component>
-    <key>org.gatein.security.oauth.spi.SocialNetworkService</key>
-    <type>org.gatein.security.oauth.data.SocialNetworkServiceImpl</type>
+    <key>io.meeds.oauth.spi.SocialNetworkService</key>
+    <type>io.meeds.oauth.data.SocialNetworkServiceImpl</type>
   </component>
 
   <component>
-    <key>org.gatein.security.oauth.spi.OAuthProviderTypeRegistry</key>
-    <type>org.gatein.security.oauth.registry.OAuthProviderTypeRegistryImpl</type>
+    <key>io.meeds.oauth.spi.OAuthProviderTypeRegistry</key>
+    <type>io.meeds.oauth.registry.OAuthProviderTypeRegistryImpl</type>
   </component>
 
   <component>
-    <key>org.gatein.security.oauth.facebook.GateInFacebookProcessor</key>
-    <type>org.gatein.security.oauth.facebook.GateInFacebookProcessorImpl</type>
+    <key>io.meeds.oauth.facebook.GateInFacebookProcessor</key>
+    <type>io.meeds.oauth.facebook.GateInFacebookProcessorImpl</type>
     <init-params>
       <value-param>
         <name>clientId</name>
@@ -58,8 +58,8 @@
   </component>
 
   <component>
-    <key>org.gatein.security.oauth.twitter.TwitterProcessor</key>
-    <type>org.gatein.security.oauth.twitter.TwitterProcessorImpl</type>
+    <key>io.meeds.oauth.twitter.TwitterProcessor</key>
+    <type>io.meeds.oauth.twitter.TwitterProcessorImpl</type>
     <init-params>
       <value-param>
         <name>clientId</name>
@@ -79,8 +79,8 @@
 
   <!-- LinkedIn -->
   <component>
-    <key>org.gatein.security.oauth.linkedin.LinkedinProcessor</key>
-    <type>org.gatein.security.oauth.linkedin.LinkedinProcessorImpl</type>
+    <key>io.meeds.oauth.linkedin.LinkedinProcessor</key>
+    <type>io.meeds.oauth.linkedin.LinkedinProcessorImpl</type>
     <init-params>
       <value-param>
         <name>apiKey</name>
@@ -99,8 +99,8 @@
   </component>
 
   <component>
-    <key>org.gatein.security.oauth.google.GoogleProcessor</key>
-    <type>org.gatein.security.oauth.google.GoogleProcessorImpl</type>
+    <key>io.meeds.oauth.google.GoogleProcessor</key>
+    <type>io.meeds.oauth.google.GoogleProcessorImpl</type>
     <init-params>
       <value-param>
         <name>clientId</name>
@@ -127,8 +127,8 @@
   </component>
 
   <component>
-    <key>org.gatein.security.oauth.openid.OpenIdProcessor</key>
-    <type>org.gatein.security.oauth.openid.OpenIdProcessorImpl</type>
+    <key>io.meeds.oauth.openid.OpenIdProcessor</key>
+    <type>io.meeds.oauth.openid.OpenIdProcessorImpl</type>
     <init-params>
       <value-param>
         <name>clientId</name>
@@ -159,17 +159,17 @@
   </component>
 
   <component>
-    <key>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</key>
-    <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorImpl</type>
+    <key>io.meeds.oauth.webapi.OAuthFilterIntegrator</key>
+    <type>io.meeds.oauth.webapi.OAuthFilterIntegratorImpl</type>
   </component>
 
   <component>
-    <type>org.gatein.security.oauth.web.OauthLoginParamsExtension</type>
+    <type>io.meeds.oauth.web.OauthLoginParamsExtension</type>
   </component>
 
   <component>
-    <key>org.exoplatform.oauth.service.OAuthRegistrationService</key>
-    <type>org.exoplatform.oauth.service.impl.OAuthRegistrationServiceImpl</type>
+    <key>io.meeds.oauth.service.OAuthRegistrationService</key>
+    <type>io.meeds.oauth.service.impl.OAuthRegistrationServiceImpl</type>
     <init-params>
       <value-param>
         <name>registerOnFly</name>
@@ -183,25 +183,21 @@
     <component-plugin>
       <name>UniqueOAuthProviderUsernameListener</name>
       <set-method>addListenerPlugin</set-method>
-      <type>org.gatein.security.oauth.data.UniqueOAuthProviderUsernameListener</type>
+      <type>io.meeds.oauth.data.UniqueOAuthProviderUsernameListener</type>
     </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
     <component-plugin>
       <name>AccessTokenInvalidationListener</name>
       <set-method>addListenerPlugin</set-method>
-      <type>org.gatein.security.oauth.data.AccessTokenInvalidationListener</type>
+      <type>io.meeds.oauth.data.AccessTokenInvalidationListener</type>
     </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>FacebookFilter</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -209,7 +205,7 @@
         </value-param>
         <value-param>
           <name>filterClass</name>
-          <value>org.gatein.security.oauth.web.facebook.FacebookFilter</value>
+          <value>io.meeds.oauth.web.facebook.FacebookFilter</value>
         </value-param>
         <value-param>
           <name>enabled</name>
@@ -224,11 +220,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>TwitterFilter</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -236,7 +232,7 @@
         </value-param>
         <value-param>
           <name>filterClass</name>
-          <value>org.gatein.security.oauth.web.twitter.TwitterFilter</value>
+          <value>io.meeds.oauth.web.twitter.TwitterFilter</value>
         </value-param>
         <value-param>
           <name>enabled</name>
@@ -251,11 +247,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>GoogleFilter</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -263,7 +259,7 @@
         </value-param>
         <value-param>
           <name>filterClass</name>
-          <value>org.gatein.security.oauth.web.google.GoogleFilter</value>
+          <value>io.meeds.oauth.web.google.GoogleFilter</value>
         </value-param>
         <value-param>
           <name>enabled</name>
@@ -278,11 +274,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>LinkedInFilter</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -290,7 +286,7 @@
         </value-param>
         <value-param>
           <name>filterClass</name>
-          <value>org.gatein.security.oauth.web.linkedin.LinkedInFilter</value>
+          <value>io.meeds.oauth.web.linkedin.LinkedInFilter</value>
         </value-param>
         <value-param>
           <name>enabled</name>
@@ -305,11 +301,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>OpenIdFilter</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -317,7 +313,7 @@
         </value-param>
         <value-param>
           <name>filterClass</name>
-          <value>org.gatein.security.oauth.web.openid.OpenIdFilter</value>
+          <value>${gatein.oauth.openid.filterClass:io.meeds.oauth.web.openid.OpenIdFilter}</value>
         </value-param>
         <value-param>
           <name>enabled</name>
@@ -325,22 +321,22 @@
         </value-param>
         <value-param>
           <name>filterMapping</name>
-          <value>/openidAuth</value>
+          <value>${gatein.oauth.openid.filterMapping:/openidAuth}</value>
         </value-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>OAuthIntegrationFilter</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>filterClass</name>
-          <value>org.gatein.security.oauth.web.OAuthAuthenticationFilter</value>
+          <value>io.meeds.oauth.web.OAuthAuthenticationFilter</value>
         </value-param>
         <!-- It's always enable here but not used if all OAuthProviders (social networks) are disabled. See OAuthFilterIntegratorImpl -->
         <value-param>
@@ -366,11 +362,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>OAuthLinkAccountFilter</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <!-- It's always enable here but not used if all OAuthProviders (social networks) are disabled. See OAuthFilterIntegratorImpl -->
         <value-param>
@@ -379,7 +375,7 @@
         </value-param>
         <value-param>
           <name>filterClass</name>
-          <value>org.gatein.security.oauth.web.OAuthLinkAccountFilter</value>
+          <value>io.meeds.oauth.web.OAuthLinkAccountFilter</value>
         </value-param>
         <value-param>
           <name>filterMapping</name>
@@ -390,11 +386,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
     <component-plugin>
       <name>FacebookOauthProvider</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
       <init-params>
         <value-param>
           <name>key</name>
@@ -410,11 +406,11 @@
         </value-param>
         <value-param>
           <name>oauthProviderProcessorClass</name>
-          <value>org.gatein.security.oauth.facebook.GateInFacebookProcessor</value>
+          <value>io.meeds.oauth.facebook.GateInFacebookProcessor</value>
         </value-param>
         <value-param>
           <name>principalProcessorClass</name>
-          <value>org.gatein.security.oauth.facebook.FacebookPrincipalProcessor</value>
+          <value>io.meeds.oauth.facebook.FacebookPrincipalProcessor</value>
         </value-param>
         <value-param>
           <name>initOAuthURL</name>
@@ -429,11 +425,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
     <component-plugin>
       <name>TwitterOauthProvider</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
       <init-params>
         <value-param>
           <name>key</name>
@@ -449,7 +445,7 @@
         </value-param>
         <value-param>
           <name>oauthProviderProcessorClass</name>
-          <value>org.gatein.security.oauth.twitter.TwitterProcessor</value>
+          <value>io.meeds.oauth.twitter.TwitterProcessor</value>
         </value-param>
         <value-param>
           <name>initOAuthURL</name>
@@ -464,11 +460,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
     <component-plugin>
       <name>LinkedInOauthProvider</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
       <init-params>
         <value-param>
           <name>key</name>
@@ -484,11 +480,11 @@
         </value-param>
         <value-param>
           <name>oauthProviderProcessorClass</name>
-          <value>org.gatein.security.oauth.linkedin.LinkedinProcessor</value>
+          <value>io.meeds.oauth.linkedin.LinkedinProcessor</value>
         </value-param>
         <value-param>
           <name>principalProcessorClass</name>
-          <value>org.gatein.security.oauth.linkedin.LinkedInPrincipalProcessor</value>
+          <value>io.meeds.oauth.linkedin.LinkedInPrincipalProcessor</value>
         </value-param>
         <value-param>
           <name>initOAuthURL</name>
@@ -503,11 +499,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
     <component-plugin>
       <name>GoogleOauthProvider</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
       <init-params>
         <value-param>
           <name>key</name>
@@ -523,7 +519,7 @@
         </value-param>
         <value-param>
           <name>oauthProviderProcessorClass</name>
-          <value>org.gatein.security.oauth.google.GoogleProcessor</value>
+          <value>io.meeds.oauth.google.GoogleProcessor</value>
         </value-param>
         <value-param>
           <name>oauthPrincipalProcessorClass</name>
@@ -542,11 +538,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.gatein.security.oauth.spi.OAuthProviderTypeRegistry</target-component>
+    <target-component>io.meeds.oauth.spi.OAuthProviderTypeRegistry</target-component>
     <component-plugin>
       <name>OpenIdOauthProvider</name>
       <set-method>addPlugin</set-method>
-      <type>org.gatein.security.oauth.registry.OauthProviderTypeRegistryPlugin</type>
+      <type>io.meeds.oauth.registry.OauthProviderTypeRegistryPlugin</type>
       <init-params>
         <value-param>
           <name>key</name>
@@ -562,11 +558,11 @@
         </value-param>
         <value-param>
           <name>oauthProviderProcessorClass</name>
-          <value>org.gatein.security.oauth.openid.OpenIdProcessor</value>
+          <value>io.meeds.oauth.openid.OpenIdProcessor</value>
         </value-param>
         <value-param>
           <name>principalProcessorClass</name>
-          <value>org.gatein.security.oauth.openid.OpenIdPrincipalProcessor</value>
+          <value>io.meeds.oauth.openid.OpenIdPrincipalProcessor</value>
         </value-param>
         <value-param>
           <name>initOAuthURL</name>
@@ -596,7 +592,7 @@
           <object type="org.exoplatform.web.filter.FilterDefinition">
             <!-- The filter instance -->
             <field name="filter">
-              <object type="org.exoplatform.oauth.filter.OauthSignupOnflyFilter">
+              <object type="io.meeds.oauth.filter.OauthSignupOnflyFilter">
               </object>
             </field>
             <!-- The mapping to use -->
@@ -625,7 +621,7 @@
           <object type="org.exoplatform.web.filter.FilterDefinition">
             <!-- The filter instance -->
             <field name="filter">
-              <object type="org.exoplatform.oauth.filter.OAuthLoginServletFilter"></object>
+              <object type="io.meeds.oauth.filter.OAuthLoginServletFilter"></object>
             </field>
             <!-- The mapping to use -->
             <!-- WARNING: the mapping is expressed with regular expressions -->
