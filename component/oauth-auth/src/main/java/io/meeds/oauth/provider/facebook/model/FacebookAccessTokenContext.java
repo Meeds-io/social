@@ -13,18 +13,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.facebook;
+package io.meeds.oauth.provider.facebook.model;
 
 import java.io.Serializable;
 import java.util.Collection;
 
-import io.meeds.oauth.spi.AccessTokenContext;
+import io.meeds.oauth.model.AccessTokenContext;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Encapsulate informations about Facebook access token
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class FacebookAccessTokenContext extends AccessTokenContext implements Serializable {
 
   private static final long serialVersionUID = -7264897192745766989L;
@@ -52,30 +56,4 @@ public class FacebookAccessTokenContext extends AccessTokenContext implements Se
     this.accessToken = accessToken;
   }
 
-  @Override
-  public String getAccessToken() {
-    return accessToken;
-  }
-
-  @Override
-  public String toString() {
-    return new StringBuilder("FacebookAccessTokenContext [")
-                                                            .append("accessToken=" + accessToken)
-                                                            .append(super.toString())
-                                                            .toString();
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    if (!super.equals(that)) {
-      return false;
-    }
-    FacebookAccessTokenContext thatt = (FacebookAccessTokenContext) that;
-    return this.accessToken.equals(thatt.getAccessToken());
-  }
-
-  @Override
-  public int hashCode() {
-    return super.hashCode() * 13 + accessToken.hashCode();
-  }
 }

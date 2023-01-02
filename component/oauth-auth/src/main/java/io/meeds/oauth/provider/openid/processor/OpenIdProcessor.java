@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.openid;
+package io.meeds.oauth.provider.openid.processor;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,28 +45,31 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.services.organization.impl.UserImpl;
+import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.SecureRandomService;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.IncorrectClaimException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MissingClaimException;
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthCodec;
-import io.meeds.oauth.utils.HttpResponseContext;
+import io.meeds.oauth.model.HttpResponseContext;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.provider.openid.model.OpenIdAccessTokenContext;
+import io.meeds.oauth.provider.spi.OAuthProviderProcessor;
 import io.meeds.oauth.utils.OAuthPersistenceUtils;
 import io.meeds.oauth.utils.OAuthUtils;
 
-/**
- * {@inheritDoc}
- */
-public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
+public class OpenIdProcessor extends OAuthProviderProcessor<OpenIdAccessTokenContext> implements Startable {
 
-  private static Log                  log    = ExoLogger.getLogger(OpenIdProcessorImpl.class);
+  private static final Log            LOG = ExoLogger.getLogger(OpenIdProcessor.class);
 
   private final String                redirectURL;
 
@@ -79,7 +83,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private final String                clientSecret;
 
-  private final Set<String>           scopes = new HashSet<String>();
+  private final Set<String>           scopes;
 
   private final String                accessType;
 
@@ -95,7 +99,12 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private final SecureRandomService   secureRandomService;
 
-  public OpenIdProcessorImpl(ExoContainerContext context, InitParams params, SecureRandomService secureRandomService) {
+  public OpenIdProcessor(ExoContainerContext context,
+                         SecureRandomService secureRandomService,
+                         CodecInitializer codecInitializer,
+                         InitParams params)
+      throws TokenServiceInitializationException {
+    super(codecInitializer);
     this.clientID = params.getValueParam("clientId").getValue();
     this.clientSecret = params.getValueParam("clientSecret").getValue();
     String redirectURLParam = params.getValueParam("redirectURL").getValue();
@@ -124,12 +133,12 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       this.redirectURL = redirectURLParam.replaceAll("@@portal.container.name@@", context.getName());
     }
 
-    addScopesFromString(scope, this.scopes);
+    this.scopes = new HashSet<>(Arrays.asList(scope.split(" ")));
 
     this.chunkLength = OAuthPersistenceUtils.getChunkLength(params);
 
-    if (log.isDebugEnabled()) {
-      log.debug("configuration: clientId=" + clientID
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("configuration: clientId=" + clientID
           +
           ", clientSecret=" + clientSecret +
           ", redirectURL=" + redirectURL +
@@ -146,21 +155,18 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   public InteractionState<OpenIdAccessTokenContext> processOAuthInteraction(HttpServletRequest httpRequest,
                                                                             HttpServletResponse httpResponse) throws IOException,
                                                                                                               OAuthException {
-    return processOAuthInteractionImpl(httpRequest, httpResponse, this.scopes);
+    return processOAuthInteractionImpl(httpRequest, httpResponse);
   }
 
   @Override
   public InteractionState<OpenIdAccessTokenContext> processOAuthInteraction(HttpServletRequest httpRequest,
                                                                             HttpServletResponse httpResponse,
                                                                             String scope) throws IOException, OAuthException {
-    Set<String> scopes = new HashSet<String>();
-    addScopesFromString(scope, scopes);
-    return processOAuthInteractionImpl(httpRequest, httpResponse, scopes);
+    return processOAuthInteractionImpl(httpRequest, httpResponse);
   }
 
   protected InteractionState<OpenIdAccessTokenContext> processOAuthInteractionImpl(HttpServletRequest request,
-                                                                                   HttpServletResponse response,
-                                                                                   Set<String> scopes) throws IOException {
+                                                                                   HttpServletResponse response) throws IOException {
     HttpSession session = request.getSession();
     String state = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
 
@@ -190,19 +196,19 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         + this.scopes.stream().collect(Collectors.joining(" ")) + "&redirect_uri=" + this.redirectURL + "&state="
         + verificationState;
 
-    if (log.isTraceEnabled()) {
-      log.trace("Starting OAuth2 interaction with OpenId");
-      log.trace("URL to send to OpenId: " + authorizeUrl);
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Starting OAuth2 interaction with OpenId");
+      LOG.trace("URL to send to OpenId: " + authorizeUrl);
     }
 
     HttpSession session = request.getSession();
     session.setAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE, verificationState);
     session.setAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE, InteractionState.State.AUTH.name());
     response.sendRedirect(authorizeUrl);
-    return new InteractionState<OpenIdAccessTokenContext>(InteractionState.State.AUTH, null);
+    return new InteractionState<>(InteractionState.State.AUTH, null);
   }
 
-  protected OAuth2AccessToken obtainAccessToken(HttpServletRequest request) throws IOException {
+  protected OAuth2AccessToken obtainAccessToken(HttpServletRequest request) { // NOSONAR
     HttpSession session = request.getSession();
     String stateFromSession = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
     String stateFromRequest = request.getParameter(OAuthConstants.STATE_PARAMETER);
@@ -223,7 +229,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     } else {
       String code = request.getParameter(OAuthConstants.CODE_PARAMETER);
 
-      Map<String, String> params = new HashMap<String, String>();
+      Map<String, String> params = new HashMap<>();
       params.put(OAuthConstants.CODE_PARAMETER, code);
       params.put(OAuthConstants.CLIENT_ID_PARAMETER, clientID);
       params.put(OAuthConstants.CLIENT_SECRET_PARAMETER, clientSecret);
@@ -252,16 +258,16 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
             wr.write(urlParameters.getBytes());
           }
           HttpResponseContext httpResponse = OAuthUtils.readUrlContent(conn);
-          if (httpResponse.getResponseCode() == 200) {
-            return parseResponse(httpResponse.getResponse());
-          } else if (httpResponse.getResponseCode() == 400) {
-            String errorMessage = "Error when obtaining content from OpenId. Error details: " + httpResponse.getResponse();
-            log.warn(errorMessage);
+          if (httpResponse.responseCode() == 200) {
+            return parseResponse(httpResponse.response());
+          } else if (httpResponse.responseCode() == 400) {
+            String errorMessage = "Error when obtaining content from OpenId. Error details: " + httpResponse.response();
+            LOG.warn(errorMessage);
             throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR, errorMessage);
           } else {
-            String errorMessage = "Unspecified IO error. Http response code: " + httpResponse.getResponseCode() + ", details: "
-                + httpResponse.getResponse();
-            log.warn(errorMessage);
+            String errorMessage = "Unspecified IO error. Http response code: " + httpResponse.responseCode() + ", details: "
+                + httpResponse.response();
+            LOG.warn(errorMessage);
             throw new OAuthException(OAuthExceptionCode.IO_ERROR, errorMessage);
           }
         }
@@ -270,8 +276,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         protected OAuth2AccessToken parseResponse(String httpResponse) throws JSONException {
           JSONObject json = new JSONObject(httpResponse);
           String accessToken = json.getString(OAuthConstants.ACCESS_TOKEN_PARAMETER);
-          if (log.isTraceEnabled())
-            log.trace("Access Token=" + accessToken);
+          if (LOG.isTraceEnabled())
+            LOG.trace("Access Token=" + accessToken);
 
           return new OAuth2AccessToken(accessToken,
                                        json.getString(OAuthConstants.TOKEN_TYPE_PARAMETER),
@@ -285,8 +291,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
       }.executeRequest(params);
 
-      if (log.isTraceEnabled()) {
-        log.trace("Successfully obtained accessToken from openid: " + tokenResponse);
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Successfully obtained accessToken from openid: " + tokenResponse);
       }
 
       return tokenResponse;
@@ -308,17 +314,17 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
                          .parseClaimsJws(tokenId)
                          .getBody();
     } catch (IncorrectClaimException e) {
-      log.error("Issuer or audience have not the correct value in the token", e);
+      LOG.error("Issuer or audience have not the correct value in the token", e);
       throw new OAuthException(OAuthExceptionCode.TOKEN_VALIDATION_ERROR,
                                "Issuer or audience have not the correct value in the token",
                                e);
     } catch (MissingClaimException e) {
-      log.error("Required claims (issuer or audience) are missing in JWT Token", e);
+      LOG.error("Required claims (issuer or audience) are missing in JWT Token", e);
       throw new OAuthException(OAuthExceptionCode.TOKEN_VALIDATION_ERROR,
                                "Required claims (issuer or audience) are missing in JWT Token",
                                e);
     } catch (JSONException e) {
-      log.error("Unable to parse the accessToken");
+      LOG.error("Unable to parse the accessToken");
       throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR, "Unable to parse the accessToken", e);
     }
     OpenIdAccessTokenContext accessTokenContext = new OpenIdAccessTokenContext(accessToken.getTokenData(), scope);
@@ -340,9 +346,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   @Override
   public void saveAccessTokenAttributesToUserProfile(UserProfile userProfile,
-                                                     OAuthCodec codec,
                                                      OpenIdAccessTokenContext accessToken) {
-    String encodedAccessToken = codec.encodeString(accessToken.accessToken.getAccessToken());
+    String encodedAccessToken = encodeString(accessToken.accessToken.getAccessToken());
     OAuthPersistenceUtils.saveLongAttribute(encodedAccessToken,
                                             userProfile,
                                             OAuthConstants.PROFILE_OPEN_ID_ACCESS_TOKEN,
@@ -352,15 +357,15 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   }
 
   @Override
-  public OpenIdAccessTokenContext getAccessTokenFromUserProfile(UserProfile userProfile, OAuthCodec codec) {
+  public OpenIdAccessTokenContext getAccessTokenFromUserProfile(UserProfile userProfile) {
     String encodedAccessToken = OAuthPersistenceUtils.getLongAttribute(userProfile,
                                                                        OAuthConstants.PROFILE_OPEN_ID_ACCESS_TOKEN,
                                                                        false);
     String encodedAccessTokenSecret = OAuthPersistenceUtils.getLongAttribute(userProfile,
                                                                              OAuthConstants.PROFILE_OPEN_ID_ACCESS_TOKEN_SECRET,
                                                                              false);
-    String decodedAccessToken = codec.decodeString(encodedAccessToken);
-    String decodedAccessTokenSecret = codec.decodeString(encodedAccessTokenSecret);
+    String decodedAccessToken = decodeString(encodedAccessToken);
+    String decodedAccessTokenSecret = decodeString(encodedAccessTokenSecret);
 
     if (decodedAccessToken == null || decodedAccessTokenSecret == null) {
       return null;
@@ -376,7 +381,6 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     OAuthPersistenceUtils.removeLongAttribute(userProfile, OAuthConstants.PROFILE_OPEN_ID_ACCESS_TOKEN_SECRET, false);
   }
 
-  @Override
   public JSONObject obtainUserInfo(OpenIdAccessTokenContext accessTokenContext) {
     Map<String, String> params = new HashMap<>();
     params.put(OAuthConstants.ACCESS_TOKEN_PARAMETER, accessTokenContext.getAccessToken());
@@ -394,61 +398,45 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + params.get(OAuthConstants.ACCESS_TOKEN_PARAMETER));
         HttpResponseContext httpResponse = OAuthUtils.readUrlContent(conn);
-        if (httpResponse.getResponseCode() == 200) {
-          return parseResponse(httpResponse.getResponse());
+        if (httpResponse.responseCode() == 200) {
+          return parseResponse(httpResponse.response());
         } else {
-          String errorMessage = "Unable to read OpenId userInfo endpoint. Http response code: " + httpResponse.getResponseCode()
-              + ", details: " + httpResponse.getResponse() + ". We will use claims in id_token";
-          log.info(errorMessage);
+          String errorMessage = "Unable to read OpenId userInfo endpoint. Http response code: " + httpResponse.responseCode()
+              + ", details: " + httpResponse.response() + ". We will use claims in id_token";
+          LOG.info(errorMessage);
         }
         return new JSONObject();
       }
 
       @Override
       protected JSONObject parseResponse(String httpResponse) throws JSONException {
-        JSONObject json = new JSONObject(httpResponse);
-        return json;
+        return new JSONObject(httpResponse);
       }
-
     };
-    JSONObject uinfo = userInfoRequest.executeRequest(params);
-
-    if (log.isTraceEnabled()) {
-      log.trace("Successfully obtained userInfo from openid: " + uinfo);
-    }
-
-    return uinfo;
+    return userInfoRequest.executeRequest(params);
   }
 
   @Override
   public void revokeToken(OpenIdAccessTokenContext accessToken) throws OAuthException {
-
-  }
-
-  // Parse given String and add all scopes from it to given Set
-  private void addScopesFromString(String scope, Set<String> scopes) {
-    String[] scopes2 = scope.split(" ");
-    for (String current : scopes2) {
-      scopes.add(current);
-    }
+    // Not used
   }
 
   protected URL sendAccessTokenRequest() throws IOException {
-    if (log.isTraceEnabled())
-      log.trace("AccessToken Request=" + this.accessTokenURL);
+    if (LOG.isTraceEnabled())
+      LOG.trace("AccessToken Request=" + this.accessTokenURL);
     return new URL(this.accessTokenURL);
   }
 
   protected URL getUserInfoURL() throws IOException {
-    if (log.isTraceEnabled())
-      log.trace("UserInfo Request=" + this.userInfoURL);
+    if (LOG.isTraceEnabled())
+      LOG.trace("UserInfo Request=" + this.userInfoURL);
     return new URL(this.userInfoURL);
   }
 
   @Override
   public void start() {
     if (StringUtils.isBlank(this.wellKnownConfigurationUrl)) {
-      log.error("wellKnownConfigurationUrl is not configured");
+      LOG.error("wellKnownConfigurationUrl is not configured");
       return;
     }
     try {
@@ -462,9 +450,9 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl);
       }
     } catch (JSONException e) {
-      log.error("Unable to read webKnownUrl content : " + this.wellKnownConfigurationUrl);
+      LOG.error("Unable to read webKnownUrl content : " + this.wellKnownConfigurationUrl);
     } catch (MalformedURLException e) {
-      log.error("WellKnowConfigurationUrl malformed : url" + this.wellKnownConfigurationUrl);
+      LOG.error("WellKnowConfigurationUrl malformed : url" + this.wellKnownConfigurationUrl);
     }
   }
 
@@ -483,7 +471,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
       return buffer.toString();
     } catch (IOException e) {
-      log.error(e.getMessage());
+      LOG.error(e.getMessage());
     }
     return null;
   }

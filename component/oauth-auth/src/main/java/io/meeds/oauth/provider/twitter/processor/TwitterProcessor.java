@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.twitter;
+package io.meeds.oauth.provider.twitter.processor;
 
 import java.io.IOException;
 
@@ -26,12 +26,15 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.web.security.codec.CodecInitializer;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthCodec;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.provider.spi.OAuthProviderProcessor;
+import io.meeds.oauth.provider.twitter.model.TwitterAccessTokenContext;
 import io.meeds.oauth.utils.OAuthPersistenceUtils;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -43,9 +46,9 @@ import twitter4j.conf.ConfigurationBuilder;
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class TwitterProcessorImpl implements TwitterProcessor {
+public class TwitterProcessor extends OAuthProviderProcessor<TwitterAccessTokenContext> {
 
-  private static Log           log = ExoLogger.getLogger(TwitterProcessorImpl.class);
+  private static Log           log = ExoLogger.getLogger(TwitterProcessor.class);
 
   private final String         redirectURL;
 
@@ -57,7 +60,11 @@ public class TwitterProcessorImpl implements TwitterProcessor {
 
   private final int            chunkLength;
 
-  public TwitterProcessorImpl(ExoContainerContext context, InitParams params) {
+  public TwitterProcessor(ExoContainerContext context,
+                          CodecInitializer codecInitializer,
+                          InitParams params)
+      throws TokenServiceInitializationException {
+    super(codecInitializer);
     this.clientID = params.getValueParam("clientId").getValue();
     this.clientSecret = params.getValueParam("clientSecret").getValue();
     String redirectURLParam = params.getValueParam("redirectURL").getValue();
@@ -118,7 +125,7 @@ public class TwitterProcessorImpl implements TwitterProcessor {
         // Redirect to twitter to perform authentication
         response.sendRedirect(requestToken.getAuthenticationURL());
 
-        return new InteractionState<TwitterAccessTokenContext>(InteractionState.State.AUTH, null);
+        return new InteractionState<>(InteractionState.State.AUTH, null);
       } else {
         String verifier = request.getParameter(OAuthConstants.OAUTH_VERIFIER);
 
@@ -139,7 +146,7 @@ public class TwitterProcessorImpl implements TwitterProcessor {
         TwitterAccessTokenContext accessTokenContext = new TwitterAccessTokenContext(accessToken.getToken(),
                                                                                      accessToken.getTokenSecret());
 
-        return new InteractionState<TwitterAccessTokenContext>(InteractionState.State.FINISH, accessTokenContext);
+        return new InteractionState<>(InteractionState.State.FINISH, accessTokenContext);
       }
     } catch (TwitterException twitterException) {
       throw new OAuthException(OAuthExceptionCode.TWITTER_ERROR, twitterException);
@@ -166,23 +173,10 @@ public class TwitterProcessorImpl implements TwitterProcessor {
   }
 
   @Override
-  public Twitter getAuthorizedTwitterInstance(TwitterAccessTokenContext accessTokenContext) {
-    ConfigurationBuilder builder = new ConfigurationBuilder();
-    builder.setOAuthConsumerKey(clientID).setOAuthConsumerSecret(clientSecret);
-
-    // Now add accessToken properties to builder
-    builder.setOAuthAccessToken(accessTokenContext.getAccessToken());
-    builder.setOAuthAccessTokenSecret(accessTokenContext.getAccessTokenSecret());
-
-    // Return twitter instance with successfully established accessToken
-    return new TwitterFactory(builder.build()).getInstance();
-  }
-
-  @Override
-  public void saveAccessTokenAttributesToUserProfile(UserProfile userProfile, OAuthCodec codec,
+  public void saveAccessTokenAttributesToUserProfile(UserProfile userProfile,
                                                      TwitterAccessTokenContext accessToken) {
-    String encodedAccessToken = codec.encodeString(accessToken.getAccessToken());
-    String encodedAccessTokenSecret = codec.encodeString(accessToken.getAccessTokenSecret());
+    String encodedAccessToken = encodeString(accessToken.getAccessToken());
+    String encodedAccessTokenSecret = encodeString(accessToken.getAccessTokenSecret());
     OAuthPersistenceUtils.saveLongAttribute(encodedAccessToken,
                                             userProfile,
                                             OAuthConstants.PROFILE_TWITTER_ACCESS_TOKEN,
@@ -196,15 +190,15 @@ public class TwitterProcessorImpl implements TwitterProcessor {
   }
 
   @Override
-  public TwitterAccessTokenContext getAccessTokenFromUserProfile(UserProfile userProfile, OAuthCodec codec) {
+  public TwitterAccessTokenContext getAccessTokenFromUserProfile(UserProfile userProfile) {
     String encodedAccessToken = OAuthPersistenceUtils.getLongAttribute(userProfile,
                                                                        OAuthConstants.PROFILE_TWITTER_ACCESS_TOKEN,
                                                                        false);
     String encodedAccessTokenSecret = OAuthPersistenceUtils.getLongAttribute(userProfile,
                                                                              OAuthConstants.PROFILE_TWITTER_ACCESS_TOKEN_SECRET,
                                                                              false);
-    String decodedAccessToken = codec.decodeString(encodedAccessToken);
-    String decodedAccessTokenSecret = codec.decodeString(encodedAccessTokenSecret);
+    String decodedAccessToken = decodeString(encodedAccessToken);
+    String decodedAccessTokenSecret = decodeString(encodedAccessTokenSecret);
 
     if (decodedAccessToken == null || decodedAccessTokenSecret == null) {
       return null;
@@ -241,6 +235,18 @@ public class TwitterProcessorImpl implements TwitterProcessor {
 
   @Override
   public void revokeToken(TwitterAccessTokenContext accessToken) {
-    // TODO: (if it's possible with Twitter... Maybe it's noop)
+    // not used
+  }
+
+  public Twitter getAuthorizedTwitterInstance(TwitterAccessTokenContext accessTokenContext) {
+    ConfigurationBuilder builder = new ConfigurationBuilder();
+    builder.setOAuthConsumerKey(clientID).setOAuthConsumerSecret(clientSecret);
+
+    // Now add accessToken properties to builder
+    builder.setOAuthAccessToken(accessTokenContext.getAccessToken());
+    builder.setOAuthAccessTokenSecret(accessTokenContext.getAccessTokenSecret());
+
+    // Return twitter instance with successfully established accessToken
+    return new TwitterFactory(builder.build()).getInstance();
   }
 }

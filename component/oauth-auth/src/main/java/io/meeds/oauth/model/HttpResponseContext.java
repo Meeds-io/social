@@ -13,29 +13,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.utils;
+package io.meeds.oauth.model;
 
 /**
  * Wrap info about obtained HTTP response
- *
- * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
+ * 
+ * @param responseCode HTTP Response Code
+ * @param response     HTTP Response Content
  */
-public class HttpResponseContext {
-
-  private final int    responseCode;
-
-  private final String response;
-
-  public HttpResponseContext(int responseCode, String response) {
-    this.responseCode = responseCode;
-    this.response = response;
-  }
-
-  public int getResponseCode() {
-    return responseCode;
-  }
-
-  public String getResponse() {
-    return response;
-  }
+public record HttpResponseContext(int responseCode, String response) {
 }

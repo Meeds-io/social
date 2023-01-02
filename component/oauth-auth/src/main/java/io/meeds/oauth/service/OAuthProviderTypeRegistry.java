@@ -13,17 +13,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.spi;
+package io.meeds.oauth.service;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
+import io.meeds.oauth.model.AccessTokenContext;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.plugin.OauthProviderTypeRegistryPlugin;
 
 /**
  * Registry of all registered instances of {@link OAuthProviderType}, which is
  * used by portal to know about all registered OAuth Providers (social networks)
- *
- * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
+ * 
+ * @param <T> {@link AccessTokenContext} Type
  */
-public interface OAuthProviderTypeRegistry {
+public class OAuthProviderTypeRegistry {
+
+  private static final Log                                         LOG                =
+                                                                       ExoLogger.getLogger(OAuthProviderTypeRegistry.class);
+
+  // Key is String identifier of OauthProviderType (Key of this
+  // OAuthProviderType). Value is OAuthProviderType
+  private final Map<String, OAuthProviderType<AccessTokenContext>> oauthProviderTypes = new LinkedHashMap<>();
+
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
+  public void addPlugin(OauthProviderTypeRegistryPlugin oauthPlugin) {
+    OAuthProviderType<AccessTokenContext> oauthPrType = oauthPlugin.getOAuthProviderType();
+    if (oauthPrType != null) {
+      this.oauthProviderTypes.put(oauthPrType.getKey(), oauthPrType);
+    } else {
+      LOG.info("Skip disabled OAuthProviderType " + oauthPrType);
+    }
+  }
 
   /**
    * Obtain registered OAuth provider
@@ -34,15 +63,23 @@ public interface OAuthProviderTypeRegistry {
    *                                   {@link OAuthProviderType}
    * @return                         oauth provider for given key
    */
-  <T extends AccessTokenContext> OAuthProviderType<T> getOAuthProvider(String key, Class<T> accessTokenContextClass);
+  public OAuthProviderType<AccessTokenContext> getOAuthProvider(String key,
+                                                                Class<? extends AccessTokenContext> accessTokenContextClass) {
+    return oauthProviderTypes.get(key);
+  }
 
   /**
    * @return collection of all registered OAuth providers
    */
-  Collection<OAuthProviderType> getEnabledOAuthProviders();
+  public Collection<OAuthProviderType<AccessTokenContext>> getEnabledOAuthProviders() {
+    return Collections.unmodifiableCollection(oauthProviderTypes.values());
+  }
 
   /**
    * @return true if at least one OAuth provider is enabled
    */
-  boolean isOAuthEnabled();
+  public boolean isOAuthEnabled() {
+    return !oauthProviderTypes.isEmpty();
+  }
+
 }

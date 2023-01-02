@@ -13,15 +13,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.spi;
+package io.meeds.oauth.model;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.exoplatform.commons.utils.Safe;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * General class, which encapsulates all important information about OAuth
@@ -30,15 +30,15 @@ import org.exoplatform.commons.utils.Safe;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public abstract class AccessTokenContext implements Serializable {
+@EqualsAndHashCode
+@ToString
+public abstract class AccessTokenContext {
 
-  private static final long  serialVersionUID = -7034897192745766989L;
+  public static final String DELIMITER = " ";
 
-  public static final String DELIMITER        = " ";
+  private final Set<String>  scopes    = new HashSet<>();
 
-  private final Set<String>  scopes           = new HashSet<String>();
-
-  public AccessTokenContext(String... scopes) {
+  protected AccessTokenContext(String... scopes) {
     if (scopes != null && scopes.length > 0) {
       for (String scope : scopes) {
         this.scopes.add(scope);
@@ -46,17 +46,17 @@ public abstract class AccessTokenContext implements Serializable {
     }
   }
 
-  public AccessTokenContext(String scopesAsString) {
+  protected AccessTokenContext(String scopesAsString) {
     if (scopesAsString == null) {
       scopesAsString = "";
     }
-    String[] scopes = scopesAsString.split(DELIMITER);
-    for (String scope : scopes) {
+    String[] scopesArray = scopesAsString.split(DELIMITER);
+    for (String scope : scopesArray) {
       this.scopes.add(scope);
     }
   }
 
-  public AccessTokenContext(Collection<String> scopes) {
+  protected AccessTokenContext(Collection<String> scopes) {
     if (scopes != null) {
       this.scopes.addAll(scopes);
     }
@@ -91,30 +91,4 @@ public abstract class AccessTokenContext implements Serializable {
    */
   public abstract String getAccessToken();
 
-  @Override
-  public String toString() {
-    return new StringBuilder(" scope=" + getScopesAsString()).append("]").toString();
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    if (that == this) {
-      return true;
-    }
-    if (that == null) {
-      return false;
-    }
-
-    if (!(that.getClass().equals(this.getClass()))) {
-      return false;
-    }
-
-    AccessTokenContext thatt = (AccessTokenContext) that;
-    return Safe.equals(this.scopes, thatt.scopes);
-  }
-
-  @Override
-  public int hashCode() {
-    return scopes.hashCode();
-  }
 }

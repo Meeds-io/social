@@ -13,21 +13,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.web.google;
+package io.meeds.oauth.provider.google.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.api.services.oauth2.model.Userinfo;
 
-import io.meeds.oauth.common.OAuthConstants;
-import io.meeds.oauth.google.GoogleAccessTokenContext;
-import io.meeds.oauth.google.GoogleProcessor;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.OAuthProviderType;
+import io.meeds.oauth.constant.OAuthConstants;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.google.model.GoogleAccessTokenContext;
+import io.meeds.oauth.provider.google.processor.GoogleProcessor;
+import io.meeds.oauth.provider.spi.OAuthProviderFilter;
 import io.meeds.oauth.utils.OAuthUtils;
-import io.meeds.oauth.web.OAuthProviderFilter;
 
 /**
  * Filter for integration with authentication handhsake via Google+ with usage
@@ -38,7 +38,7 @@ import io.meeds.oauth.web.OAuthProviderFilter;
 public class GoogleFilter extends OAuthProviderFilter<GoogleAccessTokenContext> {
 
   @Override
-  protected OAuthProviderType<GoogleAccessTokenContext> getOAuthProvider() {
+  protected OAuthProviderType<GoogleAccessTokenContext> getOAuthProviderType() {
     return this.getOauthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_GOOGLE, GoogleAccessTokenContext.class);
   }
 
@@ -53,17 +53,10 @@ public class GoogleFilter extends OAuthProviderFilter<GoogleAccessTokenContext> 
                                                                        InteractionState<GoogleAccessTokenContext> interactionState) {
     GoogleAccessTokenContext accessTokenContext = interactionState.getAccessTokenContext();
     Userinfo userInfo = ((GoogleProcessor) getOauthProviderProcessor()).obtainUserInfo(accessTokenContext);
+    return OAuthUtils.convertGoogleInfoToOAuthPrincipal(userInfo,
+                                                        accessTokenContext,
+                                                        getOAuthProviderType());
 
-    if (log.isTraceEnabled()) {
-      log.trace("Obtained tokenResponse from Google authentication: " + accessTokenContext);
-      log.trace("User info from Google: " + userInfo);
-    }
-
-    OAuthPrincipal<GoogleAccessTokenContext> oauthPrincipal = OAuthUtils.convertGoogleInfoToOAuthPrincipal(userInfo,
-                                                                                                           accessTokenContext,
-                                                                                                           getOAuthProvider());
-
-    return oauthPrincipal;
   }
 
 }

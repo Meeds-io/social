@@ -13,22 +13,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.openid;
+package io.meeds.oauth.provider.openid.model;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 
-import io.meeds.oauth.spi.AccessTokenContext;
+import io.meeds.oauth.model.AccessTokenContext;
+import lombok.EqualsAndHashCode;
 
 /**
  * Encapsulate informations about OpenId access token
  */
-public class OpenIdAccessTokenContext extends AccessTokenContext implements Serializable {
-
-  private static final long      serialVersionUID = -7038197192745766989L;
+@EqualsAndHashCode(callSuper = true)
+public class OpenIdAccessTokenContext extends AccessTokenContext {
 
   public final OAuth2AccessToken accessToken;
 

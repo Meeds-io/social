@@ -30,26 +30,26 @@ import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.services.organization.User;
 
-import io.meeds.oauth.common.OAuthConstants;
-import io.meeds.oauth.facebook.FacebookAccessTokenContext;
-import io.meeds.oauth.facebook.FacebookPrincipalProcessor;
-import io.meeds.oauth.linkedin.LinkedInPrincipalProcessor;
-import io.meeds.oauth.linkedin.LinkedinAccessTokenContext;
-import io.meeds.oauth.linkedin.LinkedinProcessorImpl;
-import io.meeds.oauth.principal.DefaultPrincipalProcessor;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.OAuthPrincipalProcessor;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
+import io.meeds.oauth.constant.OAuthConstants;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.DefaultPrincipalProcessor;
+import io.meeds.oauth.provider.facebook.FacebookPrincipalProcessor;
+import io.meeds.oauth.provider.facebook.model.FacebookAccessTokenContext;
+import io.meeds.oauth.provider.linkedin.LinkedInPrincipalProcessor;
+import io.meeds.oauth.provider.linkedin.LinkedinAccessTokenContext;
+import io.meeds.oauth.provider.linkedin.LinkedinProcessor;
+import io.meeds.oauth.provider.spi.OAuthPrincipalProcessor;
+import io.meeds.oauth.service.OAuthProviderTypeRegistry;
 
 /**
  * @author  <a href="trongtt@gmail.com">Trong Tran</a>
  * @version $Revision$
  */
 @ConfiguredBy({
-  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local.xml")
+    @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local.xml")
 })
 public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
 
@@ -76,7 +76,8 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
     assertNotNull(oauthPrincipalProcessor);
     assertEquals(FacebookPrincipalProcessor.class, oauthPrincipalProcessor.getClass());
 
-    oAuthProvider = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_LINKEDIN, LinkedinAccessTokenContext.class);
+    oAuthProvider = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_LINKEDIN,
+                                                               LinkedinAccessTokenContext.class);
     assertNotNull("Twitter provider isn't found", oAuthProvider);
     oauthPrincipalProcessor = oAuthProvider.getOauthPrincipalProcessor();
     assertNotNull(oauthPrincipalProcessor);
@@ -94,7 +95,7 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
                                                   providerType);
 
     DefaultPrincipalProcessor principalProcessor = new DefaultPrincipalProcessor();
-    User user = principalProcessor.convertToGateInUser(principal);
+    User user = principalProcessor.createPortalUser(principal);
 
     assertNotNull(user);
     assertEquals("username", user.getUserName());
@@ -115,7 +116,7 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
                                                   providerType);
 
     LinkedInPrincipalProcessor principalProcessor = new LinkedInPrincipalProcessor();
-    User user = principalProcessor.convertToGateInUser(principal);
+    User user = principalProcessor.createPortalUser(principal);
 
     assertNotNull(user);
     assertEquals("linkedin_user", user.getUserName());
@@ -139,7 +140,7 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
     when(request.getContextPath()).thenReturn("/portal");
     when(request.getContextPath()).thenReturn("/linkedinAuth");
     HttpServletResponse response = mock(HttpServletResponse.class);
-    LinkedinProcessorImpl linkedinProcessor = new LinkedinProcessorImpl(apiKey, apiSecret, redirectURL, scope, 0);
+    LinkedinProcessor linkedinProcessor = new LinkedinProcessor(apiKey, apiSecret, redirectURL, scope, 0);
     linkedinProcessor.processOAuthInteraction(request, response);
     String reponseType = linkedinProcessor.oAuth20Service.getResponseType();
     assertEquals("code", reponseType);

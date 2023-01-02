@@ -17,27 +17,26 @@ package io.meeds.oauth.test;
 
 import org.exoplatform.component.test.AbstractKernelTest;
 import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 
-import io.meeds.oauth.common.OAuthConstants;
-import io.meeds.oauth.facebook.FacebookAccessTokenContext;
-import io.meeds.oauth.linkedin.LinkedInPrincipalProcessor;
-import io.meeds.oauth.linkedin.LinkedinAccessTokenContext;
-import io.meeds.oauth.spi.OAuthPrincipalProcessor;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
-
-import org.exoplatform.component.test.ConfiguredBy;
+import io.meeds.oauth.constant.OAuthConstants;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.facebook.model.FacebookAccessTokenContext;
+import io.meeds.oauth.provider.linkedin.LinkedInPrincipalProcessor;
+import io.meeds.oauth.provider.linkedin.LinkedinAccessTokenContext;
+import io.meeds.oauth.provider.spi.OAuthPrincipalProcessor;
+import io.meeds.oauth.service.OAuthProviderTypeRegistry;
 
 /**
  * @author  <a href="trongtt@gmail.com">Trong Tran</a>
  * @version $Revision$
  */
 @ConfiguredBy({
-  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local-override.xml")
+    @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local-override.xml")
 })
 public class TestOAuthPrincipalProcessorOverrided extends AbstractKernelTest {
 
@@ -64,7 +63,8 @@ public class TestOAuthPrincipalProcessorOverrided extends AbstractKernelTest {
     assertNotNull(oauthPrincipalProcessor);
     assertEquals(DefaultPrincipalProcessorOverrided.class, oauthPrincipalProcessor.getClass());
 
-    oAuthProvider = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_LINKEDIN, LinkedinAccessTokenContext.class);
+    oAuthProvider = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_LINKEDIN,
+                                                               LinkedinAccessTokenContext.class);
     assertNotNull("LinkedIN provider is null", oAuthProvider);
     oauthPrincipalProcessor = oAuthProvider.getOauthPrincipalProcessor();
     assertNotNull(oauthPrincipalProcessor);

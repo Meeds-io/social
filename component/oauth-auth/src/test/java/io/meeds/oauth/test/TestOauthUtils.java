@@ -27,9 +27,9 @@ import org.junit.Test;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 
-import io.meeds.oauth.common.OAuthConstants;
-import io.meeds.oauth.openid.OpenIdAccessTokenContext;
-import io.meeds.oauth.spi.OAuthPrincipal;
+import io.meeds.oauth.constant.OAuthConstants;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.provider.openid.OpenIdAccessTokenContext;
 import io.meeds.oauth.utils.OAuthUtils;
 
 public class TestOauthUtils {

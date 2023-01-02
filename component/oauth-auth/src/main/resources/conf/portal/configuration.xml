@@ -159,12 +159,11 @@
   </component>
 
   <component>
-    <key>io.meeds.oauth.webapi.OAuthFilterIntegrator</key>
-    <type>io.meeds.oauth.webapi.OAuthFilterIntegratorImpl</type>
+    <type>io.meeds.oauth.web.OAuthFilterIntegrator</type>
   </component>
 
   <component>
-    <type>io.meeds.oauth.web.OauthLoginParamsExtension</type>
+    <type>io.meeds.oauth.web.OauthLoginExtension</type>
   </component>
 
   <component>
@@ -177,6 +176,49 @@
       </value-param>
     </init-params>
   </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.security.Authenticator</target-component>
+    <component-plugin>
+      <name>OAuthAuthenticator</name>
+      <set-method>addAuthenticatorPlugin</set-method>
+      <type>io.meeds.oauth.web.filter.OAuthAuthenticator</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.web.filter.ExtensibleFilter</target-component>
+    <component-plugin>
+      <name>OAuthSignInFilterDefinition</name>
+      <set-method>addFilterDefinitions</set-method>
+      <type>io.meeds.oauth.web.filter.OAuthSignInFilterDefinition</type>
+    </component-plugin>
+    <component-plugin>
+      <name>Facicon And JSP filter Plugin</name>
+      <set-method>addFilterDefinitions</set-method>
+      <type>org.exoplatform.web.filter.FilterDefinitionPlugin</type>
+      <init-params>
+        <object-param>
+          <name>Facicon And JSP Filter</name>
+          <object type="org.exoplatform.web.filter.FilterDefinition">
+            <field name="filter">
+              <object type="org.exoplatform.web.filter.RedefinableResourceFilter"/>
+            </field>
+            <field name="patterns">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>.*/.*\.jsp</string>
+                </value>
+                <value>
+                  <string>.*/favicon\.ico</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 
   <external-component-plugins>
     <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
@@ -193,11 +235,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.web.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>FacebookFilter</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.web.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -220,11 +262,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.web.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>TwitterFilter</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.web.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -247,11 +289,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.web.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>GoogleFilter</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.web.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -274,11 +316,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.web.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>LinkedInFilter</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.web.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -301,11 +343,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.web.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>OpenIdFilter</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.web.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>providerKey</name>
@@ -328,11 +370,11 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.web.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>OAuthIntegrationFilter</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.web.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <value-param>
           <name>filterClass</name>
@@ -347,26 +389,16 @@
           <name>filterMapping</name>
           <value>/*</value>
         </value-param>
-        <!-- URL to redirect after finish OAuth authentication process. It's used if registration of new GateIn user is needed -->
-        <value-param>
-          <name>registrationUrl</name>
-          <value>/@@portal.container.name@@/</value>
-        </value-param>
-        <!-- URL to redirect after finish OAuth authentication process. It's used if registration of new GateIn user is not needed because user is already registered -->
-        <value-param>
-          <name>loginUrl</name>
-          <value>/@@portal.container.name@@/login</value>
-        </value-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <target-component>io.meeds.oauth.web.OAuthFilterIntegrator</target-component>
     <component-plugin>
       <name>OAuthLinkAccountFilter</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <type>io.meeds.oauth.web.OAuthFilterIntegratorPlugin</type>
       <init-params>
         <!-- It's always enable here but not used if all OAuthProviders (social networks) are disabled. See OAuthFilterIntegratorImpl -->
         <value-param>
@@ -592,7 +624,7 @@
           <object type="org.exoplatform.web.filter.FilterDefinition">
             <!-- The filter instance -->
             <field name="filter">
-              <object type="io.meeds.oauth.filter.OauthSignupOnflyFilter">
+              <object type="io.meeds.oauth.web.OauthSignupOnflyFilter">
               </object>
             </field>
             <!-- The mapping to use -->
@@ -621,7 +653,7 @@
           <object type="org.exoplatform.web.filter.FilterDefinition">
             <!-- The filter instance -->
             <field name="filter">
-              <object type="io.meeds.oauth.filter.OAuthLoginServletFilter"></object>
+              <object type="io.meeds.oauth.web.OAuthLoginServletFilter"></object>
             </field>
             <!-- The mapping to use -->
             <!-- WARNING: the mapping is expressed with regular expressions -->

@@ -13,28 +13,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.linkedin;
+package io.meeds.oauth.provider.linkedin.model;
 
-import java.io.Serializable;
+import io.meeds.oauth.model.AccessTokenContext;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.oauth.OAuth20Service;
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class LinkedinAccessTokenContext extends AccessTokenContext {
 
-import io.meeds.oauth.spi.AccessTokenContext;
+  private final String accessToken;
 
-public class LinkedinAccessTokenContext extends AccessTokenContext implements Serializable {
-
-  public final OAuth2AccessToken        accessToken;
-
-  public final transient OAuth20Service oauth20Service;
-
-  public LinkedinAccessTokenContext(OAuth2AccessToken accessToken, OAuth20Service oauth20Service) {
+  public LinkedinAccessTokenContext(String accessToken) {
     this.accessToken = accessToken;
-    this.oauth20Service = oauth20Service;
   }
 
-  @Override
-  public String getAccessToken() {
-    return accessToken.getAccessToken();
-  }
 }

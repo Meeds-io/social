@@ -13,21 +13,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.data;
+package io.meeds.oauth.listener;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
-import io.meeds.oauth.spi.SocialNetworkService;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.service.OAuthProviderTypeRegistry;
+import io.meeds.oauth.service.SocialNetworkService;
 
 /**
  * Listener to validate that OAuth username of given user is unique, because we
@@ -53,23 +55,22 @@ public class UniqueOAuthProviderUsernameListener extends UserProfileEventListene
   }
 
   @Override
-  public void preSave(UserProfile user, boolean isNew) throws Exception {
-    for (OAuthProviderType opt : oauthProviderTypeRegistry.getEnabledOAuthProviders()) {
-      String oauthProviderUsername = user.getAttribute(opt.getUserNameAttrName());
-
-      if (oauthProviderUsername == null) {
+  public void preSave(UserProfile userProfile, boolean isNew) throws Exception {
+    for (OAuthProviderType<?> oAuthProviderType : oauthProviderTypeRegistry.getEnabledOAuthProviders()) {
+      String oauthProviderUsername = userProfile.getAttribute(oAuthProviderType.getUserNameAttrName());
+      if (StringUtils.isBlank(oauthProviderUsername)) {
         continue;
       }
-
-      User foundUser = socialNetworkService.findUserByOAuthProviderUsername(opt, oauthProviderUsername);
-      if (foundUser != null && !user.getUserName().equals(foundUser.getUserName())) {
-        String message = "Attempt to save " + opt.getUserNameAttrName() + " with value " + oauthProviderUsername +
-            " but it already exists. currentUser=" + user.getUserName() + ", userWithThisOAuthUsername="
+      User foundUser = socialNetworkService.findUserByOAuthProviderUsername(oAuthProviderType, oauthProviderUsername);
+      if (foundUser != null && !userProfile.getUserName().equals(foundUser.getUserName())) {
+        String message = "Attempt to save " + oAuthProviderType.getUserNameAttrName() + " with value " + oauthProviderUsername +
+            " but it already exists. currentUser=" + userProfile.getUserName() + ", userWithThisOAuthUsername="
             + foundUser.getUserName();
-        Map<String, Object> exceptionAttribs = new HashMap<String, Object>();
-        exceptionAttribs.put(OAuthConstants.EXCEPTION_OAUTH_PROVIDER_USERNAME_ATTRIBUTE_NAME, opt.getUserNameAttrName());
+        Map<String, Object> exceptionAttribs = new HashMap<>();
+        exceptionAttribs.put(OAuthConstants.EXCEPTION_OAUTH_PROVIDER_USERNAME_ATTRIBUTE_NAME,
+                             oAuthProviderType.getUserNameAttrName());
         exceptionAttribs.put(OAuthConstants.EXCEPTION_OAUTH_PROVIDER_USERNAME, oauthProviderUsername);
-        exceptionAttribs.put(OAuthConstants.EXCEPTION_OAUTH_PROVIDER_NAME, opt.getFriendlyName());
+        exceptionAttribs.put(OAuthConstants.EXCEPTION_OAUTH_PROVIDER_NAME, oAuthProviderType.getFriendlyName());
 
         throw new OAuthException(OAuthExceptionCode.DUPLICATE_OAUTH_PROVIDER_USERNAME, exceptionAttribs, message);
       }

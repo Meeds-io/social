@@ -13,15 +13,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.google;
+package io.meeds.oauth.provider.google.processor;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
@@ -44,51 +47,59 @@ import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.SecureRandomService;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthCodec;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.provider.google.model.GoogleAccessTokenContext;
+import io.meeds.oauth.provider.spi.OAuthProviderProcessor;
 import io.meeds.oauth.utils.OAuthPersistenceUtils;
 
 /**
- * {@inheritDoc}
- *
- * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
+ * TODO Use <a href="https://github.com/googleapis/google-auth-library-java">
+ * google-auth-library</a> for handling Google OAuth2 Credentials
  */
-public class GoogleProcessorImpl implements GoogleProcessor {
+@SuppressWarnings("deprecation")
+public class GoogleProcessor extends OAuthProviderProcessor<GoogleAccessTokenContext> {
 
-  private static Log                log          = ExoLogger.getLogger(GoogleProcessorImpl.class);
-
-  private final String              redirectURL;
-
-  private final String              clientID;
-
-  private final String              clientSecret;
-
-  private final Set<String>         scopes       = new HashSet<String>();
-
-  private final String              accessType;
-
-  private final String              applicationName;
-
-  private final int                 chunkLength;
-
-  private final SecureRandomService secureRandomService;
+  private static Log                  log          = ExoLogger.getLogger(GoogleProcessor.class);
 
   /**
-   * Default HTTP transport to use to make HTTP requests.
+   * This is Thread safe, thus made as constant
    */
-  private final HttpTransport       TRANSPORT    = new NetHttpTransport();
+  private static final HttpTransport  TRANSPORT    = new NetHttpTransport();
 
   /**
-   * Default JSON factory to use to deserialize JSON.
+   * This is Thread safe, thus made as constant
    */
-  private final JacksonFactory      JSON_FACTORY = new JacksonFactory();
+  private static final JacksonFactory JSON_FACTORY = new JacksonFactory();
 
-  public GoogleProcessorImpl(ExoContainerContext context, InitParams params, SecureRandomService secureRandomService) {
+  private final String                redirectURL;
+
+  private final String                clientID;
+
+  private final String                clientSecret;
+
+  private final Set<String>           scopes;
+
+  private final String                accessType;
+
+  private final String                applicationName;
+
+  private final int                   chunkLength;
+
+  private final SecureRandomService   secureRandomService;
+
+  public GoogleProcessor(ExoContainerContext context,
+                         SecureRandomService secureRandomService,
+                         CodecInitializer codecInitializer,
+                         InitParams params)
+      throws TokenServiceInitializationException {
+    super(codecInitializer);
     this.clientID = params.getValueParam("clientId").getValue();
     this.clientSecret = params.getValueParam("clientSecret").getValue();
     String redirectURLParam = params.getValueParam("redirectURL").getValue();
@@ -117,7 +128,7 @@ public class GoogleProcessorImpl implements GoogleProcessor {
       this.redirectURL = redirectURLParam.replaceAll("@@portal.container.name@@", context.getName());
     }
 
-    addScopesFromString(scope, this.scopes);
+    this.scopes = new HashSet<>(Arrays.asList(scope.split(" ")));
 
     this.chunkLength = OAuthPersistenceUtils.getChunkLength(params);
 
@@ -134,104 +145,18 @@ public class GoogleProcessorImpl implements GoogleProcessor {
     this.secureRandomService = secureRandomService;
   }
 
-  @Override
   public InteractionState<GoogleAccessTokenContext> processOAuthInteraction(HttpServletRequest httpRequest,
                                                                             HttpServletResponse httpResponse) throws IOException,
                                                                                                               OAuthException {
     return processOAuthInteractionImpl(httpRequest, httpResponse, this.scopes);
   }
 
-  @Override
   public InteractionState<GoogleAccessTokenContext> processOAuthInteraction(HttpServletRequest httpRequest,
                                                                             HttpServletResponse httpResponse,
                                                                             String scope) throws IOException, OAuthException {
-    Set<String> scopes = new HashSet<String>();
-    addScopesFromString(scope, scopes);
-    return processOAuthInteractionImpl(httpRequest, httpResponse, scopes);
+    return processOAuthInteractionImpl(httpRequest, httpResponse, new HashSet<>(Arrays.asList(scope.split(" "))));
   }
 
-  protected InteractionState<GoogleAccessTokenContext> processOAuthInteractionImpl(HttpServletRequest request,
-                                                                                   HttpServletResponse response,
-                                                                                   Set<String> scopes)
-                                                                                                       throws IOException {
-    HttpSession session = request.getSession();
-    String state = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
-
-    // Very initial request to portal
-    if (state == null || state.isEmpty()) {
-
-      return initialInteraction(request, response, scopes);
-    } else if (state.equals(InteractionState.State.AUTH.name())) {
-      GoogleTokenResponse tokenResponse = obtainAccessToken(request);
-      GoogleAccessTokenContext accessTokenContext = validateTokenAndUpdateScopes(new GoogleAccessTokenContext(tokenResponse));
-
-      // Clear session attributes
-      session.removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
-      session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
-
-      return new InteractionState<GoogleAccessTokenContext>(InteractionState.State.FINISH, accessTokenContext);
-    }
-
-    // Likely shouldn't happen...
-    return new InteractionState<GoogleAccessTokenContext>(InteractionState.State.valueOf(state), null);
-  }
-
-  protected InteractionState<GoogleAccessTokenContext> initialInteraction(HttpServletRequest request,
-                                                                          HttpServletResponse response,
-                                                                          Set<String> scopes) throws IOException {
-    String verificationState = String.valueOf(secureRandomService.getSecureRandom().nextLong());
-    String authorizeUrl = new GoogleAuthorizationCodeRequestUrl(clientID, redirectURL, scopes).setState(verificationState)
-                                                                                              .setAccessType(accessType)
-                                                                                              .build();
-    if (log.isTraceEnabled()) {
-      log.trace("Starting OAuth2 interaction with Google+");
-      log.trace("URL to send to Google+: " + authorizeUrl);
-    }
-
-    HttpSession session = request.getSession();
-    session.setAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE, verificationState);
-    session.setAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE, InteractionState.State.AUTH.name());
-    response.sendRedirect(authorizeUrl);
-    return new InteractionState<GoogleAccessTokenContext>(InteractionState.State.AUTH, null);
-  }
-
-  protected GoogleTokenResponse obtainAccessToken(HttpServletRequest request) throws IOException {
-    HttpSession session = request.getSession();
-    String stateFromSession = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
-    String stateFromRequest = request.getParameter(OAuthConstants.STATE_PARAMETER);
-    if (stateFromSession == null || stateFromRequest == null || !stateFromSession.equals(stateFromRequest)) {
-      throw new OAuthException(OAuthExceptionCode.INVALID_STATE,
-                               "Validation of state parameter failed. stateFromSession="
-                                   + stateFromSession + ", stateFromRequest=" + stateFromRequest);
-    }
-
-    // Check if user didn't permit scope
-    String error = request.getParameter(OAuthConstants.ERROR_PARAMETER);
-    if (error != null) {
-      if (OAuthConstants.ERROR_ACCESS_DENIED.equals(error)) {
-        throw new OAuthException(OAuthExceptionCode.USER_DENIED_SCOPE, error);
-      } else {
-        throw new OAuthException(OAuthExceptionCode.UNKNOWN_ERROR, error);
-      }
-    } else {
-      String code = request.getParameter(OAuthConstants.CODE_PARAMETER);
-
-      GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(TRANSPORT,
-                                                                                  JSON_FACTORY,
-                                                                                  clientID,
-                                                                                  clientSecret,
-                                                                                  code,
-                                                                                  redirectURL).execute();
-
-      if (log.isTraceEnabled()) {
-        log.trace("Successfully obtained accessToken from google: " + tokenResponse);
-      }
-
-      return tokenResponse;
-    }
-  }
-
-  @Override
   public GoogleAccessTokenContext validateTokenAndUpdateScopes(GoogleAccessTokenContext accessTokenContext) {
     GoogleRequest<Tokeninfo> googleRequest = new GoogleRequest<Tokeninfo>() {
 
@@ -255,10 +180,8 @@ public class GoogleProcessorImpl implements GoogleProcessor {
                                     cause);
         }
       }
-
     };
     Tokeninfo tokenInfo = googleRequest.executeRequest(accessTokenContext, this);
-
     // If there was an error in the token info, abort.
     if (tokenInfo.containsKey("error")) {
       throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR,
@@ -269,16 +192,9 @@ public class GoogleProcessorImpl implements GoogleProcessor {
       throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR,
                                "Token's client ID does not match app's. clientID from tokenINFO: " + tokenInfo.getIssuedTo());
     }
-
-    if (log.isTraceEnabled()) {
-      log.trace("Successfully validated accessToken from google: " + tokenInfo);
-    }
-
-    String[] scopes = tokenInfo.getScope().split(" ");
-    return new GoogleAccessTokenContext(accessTokenContext.getTokenData(), scopes);
+    return new GoogleAccessTokenContext(accessTokenContext.getTokenData(), tokenInfo.getScope().split(" "));
   }
 
-  @Override
   public <C> C getAuthorizedSocialApiObject(GoogleAccessTokenContext accessToken, Class<C> socialApiObjectType) {
     if (Oauth2.class.equals(socialApiObjectType)) {
       return socialApiObjectType.cast(getOAuth2Instance(accessToken));
@@ -292,7 +208,79 @@ public class GoogleProcessorImpl implements GoogleProcessor {
     }
   }
 
-  @Override
+  public void saveAccessTokenAttributesToUserProfile(UserProfile userProfile, GoogleAccessTokenContext accessToken) {
+    GoogleTokenResponse tokenData = accessToken.getTokenData();
+    String encodedAccessToken = encodeString(tokenData.getAccessToken());
+    String encodedRefreshToken = encodeString(tokenData.getRefreshToken());
+    String encodedScope = encodeString(accessToken.getScopesAsString());
+
+    OAuthPersistenceUtils.saveLongAttribute(encodedAccessToken,
+                                            userProfile,
+                                            OAuthConstants.PROFILE_GOOGLE_ACCESS_TOKEN,
+                                            false,
+                                            chunkLength);
+    userProfile.setAttribute(OAuthConstants.PROFILE_GOOGLE_SCOPE, encodedScope);
+
+    // Don't overwrite existing refresh token because it's not present in every
+    // accessToken response (only in very first one)
+    if (encodedRefreshToken != null) {
+      OAuthPersistenceUtils.saveLongAttribute(encodedRefreshToken,
+                                              userProfile,
+                                              OAuthConstants.PROFILE_GOOGLE_REFRESH_TOKEN,
+                                              false,
+                                              chunkLength);
+    }
+  }
+
+  public GoogleAccessTokenContext getAccessTokenFromUserProfile(UserProfile userProfile) {
+    String encodedAccessToken = OAuthPersistenceUtils.getLongAttribute(userProfile,
+                                                                       OAuthConstants.PROFILE_GOOGLE_ACCESS_TOKEN,
+                                                                       false);
+    String decodedAccessToken = decodeString(encodedAccessToken);
+
+    // We don't have token in userProfile
+    if (decodedAccessToken == null) {
+      return null;
+    }
+
+    String encodedRefreshToken = OAuthPersistenceUtils.getLongAttribute(userProfile,
+                                                                        OAuthConstants.PROFILE_GOOGLE_REFRESH_TOKEN,
+                                                                        false);
+    String decodedRefreshToken = decodeString(encodedRefreshToken);
+    String decodedScope = decodeString(userProfile.getAttribute(OAuthConstants.PROFILE_GOOGLE_SCOPE));
+    GoogleTokenResponse grc = new GoogleTokenResponse();
+    grc.setAccessToken(decodedAccessToken);
+    grc.setRefreshToken(decodedRefreshToken);
+    grc.setTokenType("Bearer");
+    grc.setExpiresInSeconds(1000L);
+    grc.setIdToken("someTokenId");
+    return new GoogleAccessTokenContext(grc, decodedScope);
+  }
+
+  public void removeAccessTokenFromUserProfile(UserProfile userProfile) {
+    OAuthPersistenceUtils.removeLongAttribute(userProfile, OAuthConstants.PROFILE_GOOGLE_ACCESS_TOKEN, false);
+    OAuthPersistenceUtils.removeLongAttribute(userProfile, OAuthConstants.PROFILE_GOOGLE_REFRESH_TOKEN, false);
+    userProfile.setAttribute(OAuthConstants.PROFILE_GOOGLE_SCOPE, null);
+  }
+
+  public void revokeToken(GoogleAccessTokenContext accessTokenContext) throws OAuthException {
+    GoogleRequest<Void> googleRequest = new GoogleRequest<Void>() {
+
+      @Override
+      protected Void invokeRequest(GoogleAccessTokenContext accessTokenContext) throws IOException {
+        revokeTokenImpl(accessTokenContext.getTokenData());
+        return null;
+      }
+
+      @Override
+      protected OAuthException createException(IOException cause) {
+        return new OAuthException(OAuthExceptionCode.TOKEN_REVOCATION_FAILED, "Error when revoking token", cause);
+      }
+
+    };
+    googleRequest.executeRequest(accessTokenContext, this);
+  }
+
   public Userinfo obtainUserInfo(GoogleAccessTokenContext accessTokenContext) {
     final Oauth2 oauth2 = getOAuth2Instance(accessTokenContext);
 
@@ -326,7 +314,6 @@ public class GoogleProcessorImpl implements GoogleProcessor {
     return uinfo;
   }
 
-  @Override
   public Oauth2 getOAuth2Instance(GoogleAccessTokenContext accessTokenContext) {
     GoogleTokenResponse tokenData = accessTokenContext.getTokenData();
     return getOAuth2InstanceImpl(tokenData);
@@ -337,117 +324,24 @@ public class GoogleProcessorImpl implements GoogleProcessor {
     return new Oauth2.Builder(TRANSPORT, JSON_FACTORY, credential).setApplicationName(applicationName).build();
   }
 
-  @Override
   public Plus getPlusService(GoogleAccessTokenContext accessTokenContext) {
     GoogleTokenResponse tokenData = accessTokenContext.getTokenData();
     // Build credential from stored token data.
     GoogleCredential credential = getGoogleCredential(tokenData);
-
     // Create a new authorized API client.
-    Plus service = new Plus.Builder(TRANSPORT, JSON_FACTORY, credential)
-                                                                        .setApplicationName(applicationName)
-                                                                        .build();
-    return service;
+    return new Plus.Builder(TRANSPORT, JSON_FACTORY, credential)
+                                                                .setApplicationName(applicationName)
+                                                                .build();
   }
 
   private GoogleCredential getGoogleCredential(GoogleTokenResponse tokenResponse) {
-    return new GoogleCredential.Builder()
-                                         .setJsonFactory(JSON_FACTORY)
+    return new GoogleCredential.Builder().setJsonFactory(JSON_FACTORY)
                                          .setTransport(TRANSPORT)
                                          .setClientSecrets(clientID, clientSecret)
                                          .build()
                                          .setFromTokenResponse(tokenResponse);
   }
 
-  @Override
-  public void saveAccessTokenAttributesToUserProfile(UserProfile userProfile, OAuthCodec codec,
-                                                     GoogleAccessTokenContext accessToken) {
-    GoogleTokenResponse tokenData = accessToken.getTokenData();
-    String encodedAccessToken = codec.encodeString(tokenData.getAccessToken());
-    String encodedRefreshToken = codec.encodeString(tokenData.getRefreshToken());
-    String encodedScope = codec.encodeString(accessToken.getScopesAsString());
-
-    OAuthPersistenceUtils.saveLongAttribute(encodedAccessToken,
-                                            userProfile,
-                                            OAuthConstants.PROFILE_GOOGLE_ACCESS_TOKEN,
-                                            false,
-                                            chunkLength);
-    userProfile.setAttribute(OAuthConstants.PROFILE_GOOGLE_SCOPE, encodedScope);
-
-    // Don't overwrite existing refresh token because it's not present in every
-    // accessToken response (only in very first one)
-    if (encodedRefreshToken != null) {
-      OAuthPersistenceUtils.saveLongAttribute(encodedRefreshToken,
-                                              userProfile,
-                                              OAuthConstants.PROFILE_GOOGLE_REFRESH_TOKEN,
-                                              false,
-                                              chunkLength);
-    }
-  }
-
-  @Override
-  public GoogleAccessTokenContext getAccessTokenFromUserProfile(UserProfile userProfile, OAuthCodec codec) {
-    String encodedAccessToken = OAuthPersistenceUtils.getLongAttribute(userProfile,
-                                                                       OAuthConstants.PROFILE_GOOGLE_ACCESS_TOKEN,
-                                                                       false);
-    String decodedAccessToken = codec.decodeString(encodedAccessToken);
-
-    // We don't have token in userProfile
-    if (decodedAccessToken == null) {
-      return null;
-    }
-
-    String encodedRefreshToken = OAuthPersistenceUtils.getLongAttribute(userProfile,
-                                                                        OAuthConstants.PROFILE_GOOGLE_REFRESH_TOKEN,
-                                                                        false);
-    String decodedRefreshToken = codec.decodeString(encodedRefreshToken);
-    String decodedScope = codec.decodeString(userProfile.getAttribute(OAuthConstants.PROFILE_GOOGLE_SCOPE));
-    GoogleTokenResponse grc = new GoogleTokenResponse();
-    grc.setAccessToken(decodedAccessToken);
-    grc.setRefreshToken(decodedRefreshToken);
-    grc.setTokenType("Bearer");
-    grc.setExpiresInSeconds(1000L);
-    grc.setIdToken("someTokenId");
-    return new GoogleAccessTokenContext(grc, decodedScope);
-  }
-
-  @Override
-  public void removeAccessTokenFromUserProfile(UserProfile userProfile) {
-    OAuthPersistenceUtils.removeLongAttribute(userProfile, OAuthConstants.PROFILE_GOOGLE_ACCESS_TOKEN, false);
-    OAuthPersistenceUtils.removeLongAttribute(userProfile, OAuthConstants.PROFILE_GOOGLE_REFRESH_TOKEN, false);
-    userProfile.setAttribute(OAuthConstants.PROFILE_GOOGLE_SCOPE, null);
-  }
-
-  @Override
-  public void revokeToken(GoogleAccessTokenContext accessTokenContext) throws OAuthException {
-    GoogleRequest<Void> googleRequest = new GoogleRequest<Void>() {
-
-      @Override
-      protected Void invokeRequest(GoogleAccessTokenContext accessTokenContext) throws IOException {
-        revokeTokenImpl(accessTokenContext.getTokenData());
-        return null;
-      }
-
-      @Override
-      protected OAuthException createException(IOException cause) {
-        return new OAuthException(OAuthExceptionCode.TOKEN_REVOCATION_FAILED, "Error when revoking token", cause);
-      }
-
-    };
-    googleRequest.executeRequest(accessTokenContext, this);
-  }
-
-  // Send request to google without any exception handling.
-  private void revokeTokenImpl(GoogleTokenResponse tokenData) throws IOException {
-    TRANSPORT.createRequestFactory()
-             .buildGetRequest(new GenericUrl("https://accounts.google.com/o/oauth2/revoke?token=" + tokenData.getAccessToken()))
-             .execute();
-    if (log.isTraceEnabled()) {
-      log.trace("Revoked token " + tokenData);
-    }
-  }
-
-  @Override
   public void refreshToken(GoogleAccessTokenContext accessTokenContext) {
     GoogleTokenResponse tokenData = accessTokenContext.getTokenData();
     if (tokenData.getRefreshToken() == null) {
@@ -473,11 +367,82 @@ public class GoogleProcessorImpl implements GoogleProcessor {
     }
   }
 
-  // Parse given String and add all scopes from it to given Set
-  private void addScopesFromString(String scope, Set<String> scopes) {
-    String[] scopes2 = scope.split(" ");
-    for (String current : scopes2) {
-      scopes.add(current);
+  protected InteractionState<GoogleAccessTokenContext> processOAuthInteractionImpl(HttpServletRequest request,
+                                                                                   HttpServletResponse response,
+                                                                                   Set<String> scopes)
+                                                                                                       throws IOException {
+    HttpSession session = request.getSession();
+    String state = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
+
+    // Very initial request to portal
+    if (StringUtils.isBlank(state)) {
+      return initialInteraction(request, response, scopes);
+    } else if (state.equals(InteractionState.State.AUTH.name())) {
+      GoogleTokenResponse tokenResponse = obtainAccessToken(request);
+      GoogleAccessTokenContext accessTokenContext = validateTokenAndUpdateScopes(new GoogleAccessTokenContext(tokenResponse));
+
+      // Clear session attributes
+      session.removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
+      session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
+
+      return new InteractionState<>(InteractionState.State.FINISH, accessTokenContext);
+    }
+
+    // Likely shouldn't happen...
+    return new InteractionState<>(InteractionState.State.valueOf(state), null);
+  }
+
+  protected InteractionState<GoogleAccessTokenContext> initialInteraction(HttpServletRequest request,
+                                                                          HttpServletResponse response,
+                                                                          Set<String> scopes) throws IOException {
+    String verificationState = String.valueOf(secureRandomService.getSecureRandom().nextLong());
+    String authorizeUrl = new GoogleAuthorizationCodeRequestUrl(clientID, redirectURL, scopes).setState(verificationState)
+                                                                                              .setAccessType(accessType)
+                                                                                              .build();
+    HttpSession session = request.getSession();
+    session.setAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE, verificationState);
+    session.setAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE, InteractionState.State.AUTH.name());
+    response.sendRedirect(authorizeUrl);
+    return new InteractionState<>(InteractionState.State.AUTH, null);
+  }
+
+  protected GoogleTokenResponse obtainAccessToken(HttpServletRequest request) throws IOException {
+    HttpSession session = request.getSession();
+    String stateFromSession = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
+    String stateFromRequest = request.getParameter(OAuthConstants.STATE_PARAMETER);
+    if (stateFromSession == null || stateFromRequest == null || !stateFromSession.equals(stateFromRequest)) {
+      throw new OAuthException(OAuthExceptionCode.INVALID_STATE,
+                               "Validation of state parameter failed. stateFromSession="
+                                   + stateFromSession + ", stateFromRequest=" + stateFromRequest);
+    }
+
+    // Check if user didn't permit scope
+    String error = request.getParameter(OAuthConstants.ERROR_PARAMETER);
+    String code = request.getParameter(OAuthConstants.CODE_PARAMETER);
+    if (StringUtils.isBlank(error) && StringUtils.isNotBlank(code)) {
+      return new GoogleAuthorizationCodeTokenRequest(TRANSPORT,
+                                                     JSON_FACTORY,
+                                                     clientID,
+                                                     clientSecret,
+                                                     code,
+                                                     redirectURL).execute();
+    } else {
+      if (OAuthConstants.ERROR_ACCESS_DENIED.equals(error)) {
+        throw new OAuthException(OAuthExceptionCode.USER_DENIED_SCOPE, error);
+      } else {
+        throw new OAuthException(OAuthExceptionCode.UNKNOWN_ERROR, error);
+      }
     }
   }
+
+  // Send request to google without any exception handling.
+  private void revokeTokenImpl(GoogleTokenResponse tokenData) throws IOException {
+    TRANSPORT.createRequestFactory()
+             .buildGetRequest(new GenericUrl("https://accounts.google.com/o/oauth2/revoke?token=" + tokenData.getAccessToken()))
+             .execute();
+    if (log.isTraceEnabled()) {
+      log.trace("Revoked token " + tokenData);
+    }
+  }
+
 }

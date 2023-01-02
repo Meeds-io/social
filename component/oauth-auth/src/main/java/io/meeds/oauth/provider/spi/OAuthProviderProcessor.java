@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.spi;
+package io.meeds.oauth.provider.spi;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -21,28 +21,41 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.web.security.codec.AbstractCodec;
+import org.exoplatform.web.security.codec.CodecInitializer;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
 import io.meeds.oauth.exception.OAuthException;
+import io.meeds.oauth.model.AccessTokenContext;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.utils.OAuthUtils;
 
 /**
  * Processor to call operations on given OAuth provider (Social network)
- *
- * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
+ * 
+ * @param  <T> {@link AccessTokenContext}
+ * @author     <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public interface OAuthProviderProcessor<T extends AccessTokenContext> {
+public abstract class OAuthProviderProcessor<T extends AccessTokenContext> {
+
+  private AbstractCodec codec;
+
+  protected OAuthProviderProcessor(CodecInitializer codecInitializer) throws TokenServiceInitializationException {
+    this.codec = codecInitializer.getCodec();
+  }
 
   /**
    * Process OAuth workflow for this OAuth provider (social network). Workflow
-   * is finished if returned
-   * {@link io.meeds.oauth.spi.InteractionState} is in state
-   * {@link io.meeds.oauth.spi.InteractionState.State#FINISH} and in
+   * is finished if returned {@link io.meeds.oauth.model.InteractionState} is in
+   * state {@link io.meeds.oauth.model.InteractionState.State#FINISH} and in
    * this case, InteractionState should also have accessToken filled. If
-   * {@link io.meeds.oauth.spi.InteractionState} is in state
-   * {@link io.meeds.oauth.spi.InteractionState.State#AUTH}, then
-   * more redirections are needed. In this case, given
-   * {@link HttpServletResponse} should be already committed and prepared for
-   * redirection.
+   * {@link io.meeds.oauth.model.InteractionState} is in state
+   * {@link io.meeds.oauth.model.InteractionState.State#AUTH}, then more
+   * redirections are needed. In this case, given {@link HttpServletResponse}
+   * should be already committed and prepared for redirection.
    *
    * @param  httpRequest
    * @param  httpResponse
@@ -58,9 +71,11 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    *                          (authorization screen in web of given social
    *                          network)
    */
-  InteractionState<T> processOAuthInteraction(HttpServletRequest httpRequest,
-                                              HttpServletResponse httpResponse) throws IOException, OAuthException,
-                                                                                ExecutionException, InterruptedException;
+  public abstract InteractionState<T> processOAuthInteraction(HttpServletRequest httpRequest,
+                                                              HttpServletResponse httpResponse) throws IOException,
+                                                                                                OAuthException,
+                                                                                                ExecutionException,
+                                                                                                InterruptedException;
 
   /**
    * Possibility to create new OAuth interaction with custom scope (not just the
@@ -77,9 +92,10 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    * @throws IOException
    * @throws OAuthException
    */
-  InteractionState<T> processOAuthInteraction(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-                                              String scope) throws IOException, OAuthException, ExecutionException,
-                                                            InterruptedException;
+  public abstract InteractionState<T> processOAuthInteraction(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
+                                                              String scope) throws IOException, OAuthException,
+                                                                            ExecutionException,
+                                                                            InterruptedException;
 
   /**
    * Revoke given access token on OAuth provider side, so application is removed
@@ -91,7 +107,7 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    *                          if remote revocation of access token failed for
    *                          some reason
    */
-  void revokeToken(T accessToken) throws OAuthException;
+  public abstract void revokeToken(T accessToken) throws OAuthException;
 
   /**
    * Send request to OAuth Provider to validate if given access token is valid
@@ -110,7 +126,7 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    *                          {@link io.meeds.oauth.exception.OAuthExceptionCode#IO_ERROR}
    *                          if IO error occurs
    */
-  T validateTokenAndUpdateScopes(T accessToken) throws OAuthException;
+  public abstract T validateTokenAndUpdateScopes(T accessToken) throws OAuthException;
 
   /**
    * Return object, which can be used to call some operations on this Social
@@ -123,7 +139,7 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    * @return                     initialized object of required type or null if
    *                             type wasn't found (supported) by this processor
    */
-  <C> C getAuthorizedSocialApiObject(T accessToken, Class<C> socialApiObjectType);
+  public abstract <C> C getAuthorizedSocialApiObject(T accessToken, Class<C> socialApiObjectType);
 
   // OPERATIONS FOR ACCESS TOKEN PERSISTENCE
 
@@ -132,11 +148,9 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    * any DB save operations, just filling data into given userProfile
    *
    * @param userProfile where data about access token will be filled
-   * @param codec       to encode some attributes (sensitive data) before save
-   *                      them to user profile
    * @param accessToken specific access token for this OAuth processor
    */
-  void saveAccessTokenAttributesToUserProfile(UserProfile userProfile, OAuthCodec codec, T accessToken);
+  public abstract void saveAccessTokenAttributesToUserProfile(UserProfile userProfile, T accessToken);
 
   /**
    * Obtain needed data from given userProfile and create accessToken from them
@@ -146,12 +160,38 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    * @return             accesstoken or null if accessToken is not found in
    *                     persistent storage
    */
-  T getAccessTokenFromUserProfile(UserProfile userProfile, OAuthCodec codec);
+  public abstract T getAccessTokenFromUserProfile(UserProfile userProfile);
 
   /**
    * Remove data about access token from this user profile
    * 
    * @param userProfile from which data will be removed
    */
-  void removeAccessTokenFromUserProfile(UserProfile userProfile);
+  public abstract void removeAccessTokenFromUserProfile(UserProfile userProfile);
+
+  public abstract User getPortalUser(OAuthPrincipal<?> principal) {
+    // TODO how to know exactly what user it is ???? !!!!!!!!! A possible hack here !!!!
+    return OAuthUtils.convertOAuthPrincipalToGateInUser(principal);
+  }
+
+  public User createPortalUser(OAuthPrincipal<?> principal) {
+    return OAuthUtils.convertOAuthPrincipalToGateInUser(principal);
+  }
+
+  public String encodeString(String input) {
+    if (input == null) {
+      return null;
+    } else {
+      return codec.encode(input);
+    }
+  }
+
+  public String decodeString(String input) {
+    if (input == null) {
+      return null;
+    } else {
+      return codec.decode(input);
+    }
+  }
+
 }

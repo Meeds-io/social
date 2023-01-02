@@ -13,21 +13,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.web.twitter;
+package io.meeds.oauth.provider.twitter.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.twitter.TwitterAccessTokenContext;
-import io.meeds.oauth.twitter.TwitterProcessor;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.spi.OAuthProviderFilter;
+import io.meeds.oauth.provider.twitter.model.TwitterAccessTokenContext;
+import io.meeds.oauth.provider.twitter.processor.TwitterProcessor;
 import io.meeds.oauth.utils.OAuthUtils;
-import io.meeds.oauth.web.OAuthProviderFilter;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -41,7 +41,7 @@ import twitter4j.User;
 public class TwitterFilter extends OAuthProviderFilter<TwitterAccessTokenContext> {
 
   @Override
-  protected OAuthProviderType<TwitterAccessTokenContext> getOAuthProvider() {
+  protected OAuthProviderType<TwitterAccessTokenContext> getOAuthProviderType() {
     return getOauthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_TWITTER, TwitterAccessTokenContext.class);
   }
 
@@ -63,9 +63,8 @@ public class TwitterFilter extends OAuthProviderFilter<TwitterAccessTokenContext
       throw new OAuthException(OAuthExceptionCode.TWITTER_ERROR, "Error when obtaining user", te);
     }
 
-    OAuthPrincipal<TwitterAccessTokenContext> oauthPrincipal = OAuthUtils.convertTwitterUserToOAuthPrincipal(twitterUser,
-                                                                                                             accessTokenContext,
-                                                                                                             getOAuthProvider());
-    return oauthPrincipal;
+    return OAuthUtils.convertTwitterUserToOAuthPrincipal(twitterUser,
+                                                         accessTokenContext,
+                                                         getOAuthProviderType());
   }
 }

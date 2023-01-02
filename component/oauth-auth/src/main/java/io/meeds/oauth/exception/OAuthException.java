@@ -32,18 +32,18 @@ public class OAuthException extends RuntimeException {
   private final OAuthExceptionCode  exceptionCode;
 
   // Context with additional attributes about error
-  private final Map<String, Object> exceptionAttributes;
+  private final Map<String, Object> exceptionAttributes;                     // NOSONAR
 
   public OAuthException() {
     super();
     this.exceptionCode = OAuthExceptionCode.UNKNOWN_ERROR;
-    this.exceptionAttributes = new HashMap<String, Object>();
+    this.exceptionAttributes = new HashMap<>();
   }
 
   public OAuthException(OAuthExceptionCode exceptionCode, Map<String, Object> exceptionAttributes, String message) {
     super(message);
     this.exceptionCode = exceptionCode;
-    this.exceptionAttributes = exceptionAttributes == null ? new HashMap<String, Object>() : exceptionAttributes;
+    this.exceptionAttributes = exceptionAttributes == null ? new HashMap<>() : exceptionAttributes;
   }
 
   public OAuthException(OAuthExceptionCode exceptionCode,
@@ -52,13 +52,13 @@ public class OAuthException extends RuntimeException {
                         Throwable cause) {
     super(message, cause);
     this.exceptionCode = exceptionCode;
-    this.exceptionAttributes = exceptionAttributes == null ? new HashMap<String, Object>() : exceptionAttributes;
+    this.exceptionAttributes = exceptionAttributes == null ? new HashMap<>() : exceptionAttributes;
   }
 
   public OAuthException(OAuthExceptionCode exceptionCode, Map<String, Object> exceptionAttributes, Throwable cause) {
     super(cause);
     this.exceptionCode = exceptionCode;
-    this.exceptionAttributes = exceptionAttributes == null ? new HashMap<String, Object>() : exceptionAttributes;
+    this.exceptionAttributes = exceptionAttributes == null ? new HashMap<>() : exceptionAttributes;
   }
 
   public OAuthException(OAuthExceptionCode exceptionCode, String message) {

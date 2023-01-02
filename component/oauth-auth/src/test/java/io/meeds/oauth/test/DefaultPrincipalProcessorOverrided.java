@@ -18,12 +18,12 @@ package io.meeds.oauth.test;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.UserImpl;
 
-import io.meeds.oauth.principal.DefaultPrincipalProcessor;
-import io.meeds.oauth.spi.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.provider.DefaultPrincipalProcessor;
 
 public class DefaultPrincipalProcessorOverrided extends DefaultPrincipalProcessor {
   @Override
-  public User convertToGateInUser(OAuthPrincipal principal) {
+  public User convertToPortalUser(OAuthPrincipal<?> principal) {
     return new UserImpl("User_overrided");
   }
 }

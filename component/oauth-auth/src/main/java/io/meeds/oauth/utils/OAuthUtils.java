@@ -18,11 +18,11 @@ package io.meeds.oauth.utils;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,16 +37,17 @@ import com.google.api.services.oauth2.model.Userinfo;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.UserImpl;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.facebook.FacebookAccessTokenContext;
-import io.meeds.oauth.google.GoogleAccessTokenContext;
-import io.meeds.oauth.openid.OpenIdAccessTokenContext;
-import io.meeds.oauth.social.FacebookPrincipal;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.twitter.TwitterAccessTokenContext;
+import io.meeds.oauth.model.HttpResponseContext;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.facebook.model.FacebookAccessTokenContext;
+import io.meeds.oauth.provider.facebook.model.FacebookPrincipal;
+import io.meeds.oauth.provider.google.model.GoogleAccessTokenContext;
+import io.meeds.oauth.provider.openid.model.OpenIdAccessTokenContext;
+import io.meeds.oauth.provider.twitter.model.TwitterAccessTokenContext;
 
 /**
  * Various util methods
@@ -148,8 +149,8 @@ public class OAuthUtils {
     }
   }
 
-  public static User convertOAuthPrincipalToGateInUser(OAuthPrincipal principal) {
-    User gateinUser = new UserImpl(OAuthUtils.refineUserName(principal.getUserName()));
+  public static User convertOAuthPrincipalToGateInUser(OAuthPrincipal<?> principal) {
+    User gateinUser = new UserImpl();
     gateinUser.setFirstName(principal.getFirstName());
     gateinUser.setLastName(principal.getLastName());
     gateinUser.setEmail(principal.getEmail());
@@ -159,12 +160,9 @@ public class OAuthUtils {
 
   public static String getURLToRedirectAfterLinkAccount(HttpServletRequest request, HttpSession session) {
     String urlToRedirect = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_URL_TO_REDIRECT_AFTER_LINK_SOCIAL_ACCOUNT);
-    if (urlToRedirect == null) {
-      urlToRedirect = request.getContextPath();
-    } else {
+    if (urlToRedirect != null) {
       session.removeAttribute(OAuthConstants.ATTRIBUTE_URL_TO_REDIRECT_AFTER_LINK_SOCIAL_ACCOUNT);
     }
-
     return urlToRedirect;
   }
 
@@ -188,32 +186,18 @@ public class OAuthUtils {
         queryString.append("&");
       }
       queryString.append(paramName).append("=");
-      String encodedParamValue;
-      try {
-        if (paramValue == null)
-          throw new RuntimeException("paramValue is null for paramName=" + paramName);
-        encodedParamValue = URLEncoder.encode(paramValue, "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        throw new OAuthException(OAuthExceptionCode.UNKNOWN_ERROR, e);
-      }
+      String encodedParamValue = URLEncoder.encode(paramValue, StandardCharsets.UTF_8);
       queryString.append(encodedParamValue);
     }
     return queryString.toString();
   }
 
-  public static String encodeParam(String param) {
-    try {
-      return URLEncoder.encode(param, "UTF-8");
-    } catch (UnsupportedEncodingException uee) {
-      throw new OAuthException(OAuthExceptionCode.UNKNOWN_ERROR, uee);
-    }
-  }
-
   /**
    * Whole HTTP response as String from given URLConnection
    *
-   * @param  connection
-   * @return            whole HTTP response as String
+   * @param  connection  {@link URLConnection}
+   * @return             whole HTTP response as String
+   * @throws IOException when error reading HTTP response
    */
   public static HttpResponseContext readUrlContent(URLConnection connection) throws IOException {
     StringBuilder result = new StringBuilder();
@@ -253,44 +237,27 @@ public class OAuthUtils {
    * {@code accessToken=123456&expires=20071458} it returns map with two keys
    * "accessToken" and "expires" and their corresponding values
    *
-   * @param  encodedData
+   * @param  encodedData Encoded data parameters to parse
    * @return             map with output data
    */
   public static Map<String, String> formUrlDecode(String encodedData) {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     String[] elements = encodedData.split("&");
     for (String element : elements) {
       String[] pair = element.split("=");
       if (pair.length == 2) {
         String paramName = pair[0];
-        String paramValue;
-        try {
-          paramValue = URLDecoder.decode(pair[1], "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-          throw new RuntimeException(e);
-        }
+        String paramValue = URLDecoder.decode(pair[1], StandardCharsets.UTF_8);
         params.put(paramName, paramValue);
       } else {
-        throw new RuntimeException("Unexpected name-value pair in response: " + element);
+        throw new IllegalArgumentException("Unexpected name-value pair in response: " + element);
       }
     }
     return params;
   }
 
-  public static String refineUserName(String username) {
-    final String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012456789._";
-    final char replaced = '_';
-
-    if (username == null || username.isEmpty()) {
-      return "";
-    }
-
-    final char[] chars = username.toCharArray();
-    for (int i = 0; i < chars.length; i++) {
-      if (ALLOWED_CHARACTERS.indexOf(chars[i]) == -1) {
-        chars[i] = replaced;
-      }
-    }
-    return new String(chars);
+  public static String encodeParam(String param) {
+    return URLEncoder.encode(param, StandardCharsets.UTF_8);
   }
+
 }

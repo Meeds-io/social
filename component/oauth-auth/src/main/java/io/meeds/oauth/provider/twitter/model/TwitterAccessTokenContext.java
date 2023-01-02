@@ -13,24 +13,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.twitter;
+package io.meeds.oauth.provider.twitter.model;
 
-import java.io.Serializable;
-
-import io.meeds.oauth.spi.AccessTokenContext;
+import io.meeds.oauth.model.AccessTokenContext;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Encapsulate informations about Twitter access token
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class TwitterAccessTokenContext extends AccessTokenContext implements Serializable {
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class TwitterAccessTokenContext extends AccessTokenContext {
 
-  private static final long serialVersionUID = -7034897191845766989L;
+  private final String accessToken;
 
-  private final String      accessToken;
-
-  private final String      accessTokenSecret;
+  private final String accessTokenSecret;
 
   public TwitterAccessTokenContext(String accessToken, String accessTokenSecret) {
     if (accessToken == null || accessTokenSecret == null) {
@@ -39,28 +39,5 @@ public class TwitterAccessTokenContext extends AccessTokenContext implements Ser
     }
     this.accessToken = accessToken;
     this.accessTokenSecret = accessTokenSecret;
-  }
-
-  @Override
-  public String getAccessToken() {
-    return accessToken;
-  }
-
-  public String getAccessTokenSecret() {
-    return accessTokenSecret;
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    if (!super.equals(that)) {
-      return false;
-    }
-
-    TwitterAccessTokenContext thatt = (TwitterAccessTokenContext) that;
-    return this.accessToken.equals(thatt.getAccessToken()) && this.accessTokenSecret.equals(thatt.getAccessTokenSecret());
-  }
-
-  public int hashCode() {
-    return super.hashCode() * 13 + accessToken.hashCode() * 11 + accessTokenSecret.hashCode();
   }
 }

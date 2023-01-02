@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.registry;
+package io.meeds.oauth.plugin;
 
 import org.gatein.common.classloader.DelegatingClassLoader;
 
@@ -22,40 +22,25 @@ import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 
-import io.meeds.oauth.principal.DefaultPrincipalProcessor;
-import io.meeds.oauth.spi.AccessTokenContext;
-import io.meeds.oauth.spi.OAuthPrincipalProcessor;
-import io.meeds.oauth.spi.OAuthProviderProcessor;
-import io.meeds.oauth.spi.OAuthProviderType;
+import io.meeds.oauth.model.AccessTokenContext;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.spi.OAuthProviderProcessor;
 
-/**
- * Kernel plugin wrapping data about single
- * {@link io.meeds.oauth.spi.OAuthProviderType}
- *
- * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
- */
 public class OauthProviderTypeRegistryPlugin<T extends AccessTokenContext> extends BaseComponentPlugin {
 
-  private final OAuthProviderType oauthPrType;
+  private final OAuthProviderType<T> oauthPrType;
 
-  public OauthProviderTypeRegistryPlugin(InitParams params, ExoContainerContext containerContext) throws Exception {
-    String key = getParam(params, "key");
-    String enabledPar = getParam(params, "enabled");
-    String usernameAttributeName = getParam(params, "userNameAttributeName");
-    String oauthProviderProcessorClass = getParam(params, "oauthProviderProcessorClass");
-    String principalProcessorClassName = null;
+  @SuppressWarnings("unchecked")
+  public OauthProviderTypeRegistryPlugin(ExoContainerContext containerContext,
+                                         InitParams params)
+      throws Exception { // NOSONAR
+    if (Boolean.parseBoolean(getParam(params, "enabled"))) {
+      String key = getParam(params, "key");
+      String usernameAttributeName = getParam(params, "userNameAttributeName");
+      String oauthProviderProcessorClass = getParam(params, "oauthProviderProcessorClass");
+      String initOAuthURL = getParam(params, "initOAuthURL");
+      String friendlyName = getParam(params, "friendlyName");
 
-    ValueParam param = params.getValueParam("principalProcessorClass");
-    if (param != null) {
-      principalProcessorClassName = param.getValue();
-    }
-
-    String initOAuthURL = getParam(params, "initOAuthURL");
-    String friendlyName = getParam(params, "friendlyName");
-
-    boolean enabled = Boolean.parseBoolean(enabledPar);
-
-    if (enabled) {
       ClassLoader tccl = Thread.currentThread().getContextClassLoader();
       ClassLoader oauth = OAuthProviderType.class.getClassLoader();
       ClassLoader delegating = new DelegatingClassLoader(tccl, oauth);
@@ -63,30 +48,17 @@ public class OauthProviderTypeRegistryPlugin<T extends AccessTokenContext> exten
                                                       (Class<OAuthProviderProcessor<T>>) delegating.loadClass(oauthProviderProcessorClass);
       OAuthProviderProcessor<T> oauthProviderProcessor =
                                                        containerContext.getContainer().getComponentInstanceOfType(processorClass);
-
-      OAuthPrincipalProcessor principalProcessor = null;
-      Class<OAuthPrincipalProcessor> principalProcessorClass =
-                                                             (Class<OAuthPrincipalProcessor>) (principalProcessorClassName != null ? delegating
-                                                                                                                                               .loadClass(principalProcessorClassName)
-                                                                                                                                   : DefaultPrincipalProcessor.class);
-      principalProcessor = containerContext.getContainer().getComponentInstanceOfType(principalProcessorClass);
-      if (principalProcessor == null) {
-        principalProcessor = principalProcessorClass.newInstance();
-      }
-
-      oauthPrType = new OAuthProviderType<T>(key,
-                                             enabled,
-                                             usernameAttributeName,
-                                             oauthProviderProcessor,
-                                             principalProcessor,
-                                             initOAuthURL,
-                                             friendlyName);
+      this.oauthPrType = new OAuthProviderType<>(key,
+                                                 usernameAttributeName,
+                                                 oauthProviderProcessor,
+                                                 initOAuthURL,
+                                                 friendlyName);
     } else {
-      oauthPrType = null;
+      this.oauthPrType = null;
     }
   }
 
-  OAuthProviderType getOAuthProviderType() {
+  public OAuthProviderType<T> getOAuthProviderType() {
     return oauthPrType;
   }
 
@@ -95,7 +67,7 @@ public class OauthProviderTypeRegistryPlugin<T extends AccessTokenContext> exten
     if (param == null) {
       throw new IllegalArgumentException("Parameter '" + paramName + "' needs to be provided");
     }
-
     return param.getValue();
   }
+
 }

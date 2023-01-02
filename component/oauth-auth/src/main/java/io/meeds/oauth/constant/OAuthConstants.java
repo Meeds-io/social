@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.common;
+package io.meeds.oauth.constant;
 
 /**
  * Various constants related to OAuth
@@ -21,6 +21,10 @@ package io.meeds.oauth.common;
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class OAuthConstants {
+
+  private OAuthConstants() {
+    // Just Constants
+  }
 
   // OAuth parameters used in http requests (most of these parameters are
   // mentioned in OAuth2 specification)
@@ -157,13 +161,13 @@ public class OAuthConstants {
 
   // URL
 
-  public static final String FACEBOOK_AUTHENTICATION_URL_PATH                    = "/facebookAuth";
+  public static final String FACEBOOK_AUTHENTICATION_URL_PATH                    = "/facebookAuth";                              // NOSONAR
 
-  public static final String GOOGLE_AUTHENTICATION_URL_PATH                      = "/googleAuth";
+  public static final String GOOGLE_AUTHENTICATION_URL_PATH                      = "/googleAuth";                                // NOSONAR
 
-  public static final String TWITTER_AUTHENTICATION_URL_PATH                     = "/twitterAuth";
+  public static final String TWITTER_AUTHENTICATION_URL_PATH                     = "/twitterAuth";                               // NOSONAR
 
-  public static final String OPEN_ID_AUTHENTICATION_URL_PATH                     = "/openidAuth";
+  public static final String OPEN_ID_AUTHENTICATION_URL_PATH                     = "/openidAuth";                                // NOSONAR
 
   // Request parameters
 
@@ -195,4 +199,17 @@ public class OAuthConstants {
   public static final String PICTURE_ATTRIBUTE                                   = "picture";
 
   public static final String FAMILY_NAME_ATTRIBUTE                               = "family_name";
+
+  public static final String SESSION_KEY_ON_FLY_ERROR                            = "oauth_onfly_error";
+
+  public static final String ATTRIBUTE_AUTHENTICATED_PORTAL_USER_DETECTED        = "_authenticatedPortalUserDetected";
+
+  public static final String REGISTER_ON_FLY_INIT_PARAM                          = "registerOnFly";
+
+  public static final String USERNAME_REQUEST_PARAM                              = "username";
+
+  public static final String PASSWORD_REQUEST_PARAM                              = "password";
+
+  public static final String PASSWORD_PARAM_PREFIX                               = "oauth";
+
 }

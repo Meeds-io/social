@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.web;
+package io.meeds.oauth.web.ui;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,8 +30,8 @@ import org.exoplatform.web.ControllerContext;
 import org.exoplatform.web.login.LoginHandler;
 import org.exoplatform.web.login.UIParamsExtension;
 
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.service.OAuthProviderTypeRegistry;
 
 /**
  * oAuth Login parameters List
@@ -64,7 +64,6 @@ public class OauthLoginParamsExtension implements UIParamsExtension {
         && CollectionUtils.isNotEmpty(oAuthProviderTypeRegistry.getEnabledOAuthProviders())) {
       Map<String, Object> oAuthProvidersParams = new HashMap<>();
       oAuthProvidersParams.put(OAUTH_ENABLED_PARAM, true);
-
       Set<String> oAuthProviderTypes = oAuthProviderTypeRegistry.getEnabledOAuthProviders()
                                                                 .stream()
                                                                 .map(OAuthProviderType::getKey)

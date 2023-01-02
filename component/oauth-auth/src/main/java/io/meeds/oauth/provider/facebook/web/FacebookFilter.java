@@ -13,21 +13,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.web.facebook;
+package io.meeds.oauth.provider.facebook.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import io.meeds.oauth.common.OAuthConstants;
-import io.meeds.oauth.facebook.FacebookAccessTokenContext;
-import io.meeds.oauth.facebook.GateInFacebookProcessor;
-import io.meeds.oauth.social.FacebookPrincipal;
-import io.meeds.oauth.spi.AccessTokenContext;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.OAuthProviderType;
+import io.meeds.oauth.constant.OAuthConstants;
+import io.meeds.oauth.model.AccessTokenContext;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.facebook.model.FacebookAccessTokenContext;
+import io.meeds.oauth.provider.facebook.model.FacebookPrincipal;
+import io.meeds.oauth.provider.facebook.processor.FacebookOAuthProcessor;
+import io.meeds.oauth.provider.spi.OAuthProviderFilter;
 import io.meeds.oauth.utils.OAuthUtils;
-import io.meeds.oauth.web.OAuthProviderFilter;
 
 /**
  * Filter for integration with authentication handhsake via Facebook with usage
@@ -38,7 +38,7 @@ import io.meeds.oauth.web.OAuthProviderFilter;
 public class FacebookFilter extends OAuthProviderFilter<FacebookAccessTokenContext> {
 
   @Override
-  protected OAuthProviderType<FacebookAccessTokenContext> getOAuthProvider() {
+  protected OAuthProviderType<FacebookAccessTokenContext> getOAuthProviderType() {
     return this.getOauthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_FACEBOOK, FacebookAccessTokenContext.class);
   }
 
@@ -52,25 +52,16 @@ public class FacebookFilter extends OAuthProviderFilter<FacebookAccessTokenConte
   protected OAuthPrincipal<FacebookAccessTokenContext> getOAuthPrincipal(HttpServletRequest request, HttpServletResponse response,
                                                                          InteractionState<FacebookAccessTokenContext> interactionState) {
     FacebookAccessTokenContext accessTokenContext = interactionState.getAccessTokenContext();
-    FacebookPrincipal principal = ((GateInFacebookProcessor) getOauthProviderProcessor()).getPrincipal(accessTokenContext);
-    String avatarURL = ((GateInFacebookProcessor) getOauthProviderProcessor()).getAvatar(accessTokenContext);
-
+    FacebookPrincipal principal = ((FacebookOAuthProcessor) getOauthProviderProcessor()).getPrincipal(accessTokenContext);
+    String avatarURL = ((FacebookOAuthProcessor) getOauthProviderProcessor()).getAvatar(accessTokenContext);
     if (principal == null) {
-      log.error("Principal was null");
       return null;
     } else {
-      if (log.isTraceEnabled()) {
-        log.trace("Finished Facebook OAuth2 flow with state: " + interactionState);
-        log.trace("Facebook accessToken: " + principal.getAccessToken());
-      }
+      return OAuthUtils.convertFacebookPrincipalToOAuthPrincipal(principal,
+                                                                 avatarURL,
+                                                                 getOAuthProviderType(),
+                                                                 accessTokenContext);
 
-      OAuthPrincipal<FacebookAccessTokenContext> oauthPrincipal = OAuthUtils.convertFacebookPrincipalToOAuthPrincipal(
-                                                                                                                      principal,
-                                                                                                                      avatarURL,
-                                                                                                                      getOAuthProvider(),
-                                                                                                                      accessTokenContext);
-
-      return oauthPrincipal;
     }
   }
 
@@ -94,7 +85,6 @@ public class FacebookFilter extends OAuthProviderFilter<FacebookAccessTokenConte
       }
       customScope = result.toString();
     }
-
     return customScope;
   }
 }

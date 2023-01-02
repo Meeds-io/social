@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.openid;
+package io.meeds.oauth.provider.openid.processor;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,15 +21,10 @@ import java.util.Map;
 
 import org.json.JSONException;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
 
 abstract class OpenIdRequest<T> {
-
-  private static Log log = ExoLogger.getLogger(OpenIdRequest.class);
 
   protected abstract URL createURL() throws IOException;
 
@@ -40,9 +35,7 @@ abstract class OpenIdRequest<T> {
   public T executeRequest(Map<String, String> params) {
     try {
       return invokeRequest(params);
-    } catch (JSONException e) {
-      throw new OAuthException(OAuthExceptionCode.IO_ERROR, e);
-    } catch (IOException e) {
+    } catch (JSONException | IOException e) {
       throw new OAuthException(OAuthExceptionCode.IO_ERROR, e);
     }
   }

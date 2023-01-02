@@ -30,15 +30,15 @@ import org.exoplatform.services.organization.impl.UserImpl;
 import org.exoplatform.web.security.codec.AbstractCodec;
 import org.exoplatform.web.security.codec.CodecInitializer;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.facebook.FacebookAccessTokenContext;
-import io.meeds.oauth.google.GoogleAccessTokenContext;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
-import io.meeds.oauth.spi.SocialNetworkService;
-import io.meeds.oauth.twitter.TwitterAccessTokenContext;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.facebook.model.FacebookAccessTokenContext;
+import io.meeds.oauth.provider.google.GoogleAccessTokenContext;
+import io.meeds.oauth.provider.twitter.TwitterAccessTokenContext;
+import io.meeds.oauth.service.OAuthProviderTypeRegistry;
+import io.meeds.oauth.service.SocialNetworkService;
 
 /**
  * Test persistence of data with usage of {@link SocialNetworkService}
@@ -46,9 +46,9 @@ import io.meeds.oauth.twitter.TwitterAccessTokenContext;
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 @ConfiguredBy({
-  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local.xml")
+    @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.web.oauth-configuration-local.xml")
 })
 public class TestSocialNetworkService extends AbstractKernelTest {
 
@@ -326,20 +326,25 @@ public class TestSocialNetworkService extends AbstractKernelTest {
   }
 
   private OAuthProviderType<FacebookAccessTokenContext> getFacebookProvider() {
-    OAuthProviderType<FacebookAccessTokenContext> oAuthProvider = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_FACEBOOK,
-                                                      FacebookAccessTokenContext.class);
+    OAuthProviderType<FacebookAccessTokenContext> oAuthProvider =
+                                                                oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_FACEBOOK,
+                                                                                                           FacebookAccessTokenContext.class);
     assertNotNull("Facebook provider is null", oAuthProvider);
     return oAuthProvider;
   }
 
   private OAuthProviderType<GoogleAccessTokenContext> getGoogleProvider() {
-    OAuthProviderType<GoogleAccessTokenContext> oAuthProvider = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_GOOGLE, GoogleAccessTokenContext.class);
+    OAuthProviderType<GoogleAccessTokenContext> oAuthProvider =
+                                                              oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_GOOGLE,
+                                                                                                         GoogleAccessTokenContext.class);
     assertNotNull("Google provider is null", oAuthProvider);
     return oAuthProvider;
   }
 
   private OAuthProviderType<TwitterAccessTokenContext> getTwitterProvider() {
-    OAuthProviderType<TwitterAccessTokenContext> oAuthProvider = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_TWITTER, TwitterAccessTokenContext.class);
+    OAuthProviderType<TwitterAccessTokenContext> oAuthProvider =
+                                                               oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_TWITTER,
+                                                                                                          TwitterAccessTokenContext.class);
     assertNotNull("Twitter provider is null", oAuthProvider);
     return oAuthProvider;
   }

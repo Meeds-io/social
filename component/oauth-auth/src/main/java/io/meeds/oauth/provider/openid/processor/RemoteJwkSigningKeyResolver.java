@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.openid;
+package io.meeds.oauth.provider.openid.processor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -63,11 +63,13 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public Key resolveSigningKey(JwsHeader header, Claims claims) {
     return getKey(header.getKeyId());
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public Key resolveSigningKey(JwsHeader header, String plaintext) {
     return getKey(header.getKeyId());
   }
@@ -128,10 +130,10 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
     while (keys.hasNext()) {
       String key = keys.next();
       Object value = jsonobj.get(key);
-      if (value instanceof JSONArray) {
-        value = toList((JSONArray) value);
-      } else if (value instanceof JSONObject) {
-        value = toMap((JSONObject) value);
+      if (value instanceof JSONArray array) {
+        value = toList(array);
+      } else if (value instanceof JSONObject object) {
+        value = toMap(object);
       }
       map.put(key, value);
     }
@@ -142,10 +144,10 @@ public class RemoteJwkSigningKeyResolver implements SigningKeyResolver {
     List<Object> list = new ArrayList<>();
     for (int i = 0; i < array.length(); i++) {
       Object value = array.get(i);
-      if (value instanceof JSONArray) {
-        value = toList((JSONArray) value);
-      } else if (value instanceof JSONObject) {
-        value = toMap((JSONObject) value);
+      if (value instanceof JSONArray jsonArray) {
+        value = toList(jsonArray);
+      } else if (value instanceof JSONObject jsonObject) {
+        value = toMap(jsonObject);
       }
       list.add(value);
     }

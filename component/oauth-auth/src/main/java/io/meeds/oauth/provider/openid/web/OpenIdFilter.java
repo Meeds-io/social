@@ -13,21 +13,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.web.openid;
+package io.meeds.oauth.provider.openid.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
-import io.meeds.oauth.common.OAuthConstants;
-import io.meeds.oauth.openid.OpenIdAccessTokenContext;
-import io.meeds.oauth.openid.OpenIdProcessor;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.OAuthProviderType;
+import io.meeds.oauth.constant.OAuthConstants;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.openid.model.OpenIdAccessTokenContext;
+import io.meeds.oauth.provider.openid.processor.OpenIdProcessor;
+import io.meeds.oauth.provider.spi.OAuthProviderFilter;
 import io.meeds.oauth.utils.OAuthUtils;
-import io.meeds.oauth.web.OAuthProviderFilter;
 
 /**
  * Filter for integration with authentication handhsake via OpenId
@@ -35,7 +35,7 @@ import io.meeds.oauth.web.OAuthProviderFilter;
 public class OpenIdFilter extends OAuthProviderFilter<OpenIdAccessTokenContext> {
 
   @Override
-  protected OAuthProviderType<OpenIdAccessTokenContext> getOAuthProvider() {
+  protected OAuthProviderType<OpenIdAccessTokenContext> getOAuthProviderType() {
     return this.getOauthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_OPEN_ID, OpenIdAccessTokenContext.class);
   }
 
@@ -55,7 +55,7 @@ public class OpenIdFilter extends OAuthProviderFilter<OpenIdAccessTokenContext> 
       log.trace("Obtained tokenResponse from OpenId authentication: " + accessTokenContext);
     }
 
-    return OAuthUtils.convertOpenIdInfoToOAuthPrincipal(userInfo, accessTokenContext, getOAuthProvider());
+    return OAuthUtils.convertOpenIdInfoToOAuthPrincipal(userInfo, accessTokenContext, getOAuthProviderType());
   }
 
 }

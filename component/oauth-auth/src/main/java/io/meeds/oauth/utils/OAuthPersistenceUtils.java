@@ -54,9 +54,12 @@ public class OAuthPersistenceUtils {
    *                                    compatibility
    * @param lengthOfOneChunk          length of single chunk
    */
-  public static void saveLongAttribute(String longAttribute, UserProfile userProfile, String attributePrefix,
-                                       boolean useSuffixInFirstAttribute, int lengthOfOneChunk) {
-    List<String> chunks = new ArrayList<String>();
+  public static void saveLongAttribute(String longAttribute,
+                                       UserProfile userProfile,
+                                       String attributePrefix,
+                                       boolean useSuffixInFirstAttribute,
+                                       int lengthOfOneChunk) {
+    List<String> chunks = new ArrayList<>();
     while (longAttribute.length() > lengthOfOneChunk) {
       chunks.add(longAttribute.substring(0, lengthOfOneChunk));
       longAttribute = longAttribute.substring(lengthOfOneChunk);
@@ -95,7 +98,9 @@ public class OAuthPersistenceUtils {
    * Remove very long attribute. For parameters description see
    * {@link #saveLongAttribute(String, UserProfile, String, boolean, int)}
    */
-  public static void removeLongAttribute(UserProfile userProfile, String attributePrefix, boolean useSuffixInFirstAttribute) {
+  public static void removeLongAttribute(UserProfile userProfile,
+                                         String attributePrefix,
+                                         boolean useSuffixInFirstAttribute) {
     boolean chunkRemoved;
     int chunkCounter = 1;
     do {
@@ -119,7 +124,9 @@ public class OAuthPersistenceUtils {
    * 
    * @return very long attribute from all chunks
    */
-  public static String getLongAttribute(UserProfile userProfile, String attributePrefix, boolean useSuffixInFirstAttribute) {
+  public static String getLongAttribute(UserProfile userProfile,
+                                        String attributePrefix,
+                                        boolean useSuffixInFirstAttribute) {
     boolean chunkFound;
     int chunkCounter = 1;
     StringBuilder result = new StringBuilder();

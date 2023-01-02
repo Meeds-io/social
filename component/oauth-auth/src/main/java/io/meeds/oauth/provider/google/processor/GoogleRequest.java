@@ -13,17 +13,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.google;
+package io.meeds.oauth.provider.google.processor;
 
 import java.io.IOException;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.HttpResponseException;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-
 import io.meeds.oauth.exception.OAuthException;
+import io.meeds.oauth.provider.google.model.GoogleAccessTokenContext;
 
 /**
  * Wrap Google operation within block of code to handle errors (and possibly
@@ -33,35 +31,29 @@ import io.meeds.oauth.exception.OAuthException;
  */
 abstract class GoogleRequest<T> {
 
-  private static Log log = ExoLogger.getLogger(GoogleRequest.class);
-
   protected abstract T invokeRequest(GoogleAccessTokenContext accessTokenContext) throws IOException;
 
   protected abstract OAuthException createException(IOException cause);
 
-  public T executeRequest(GoogleAccessTokenContext accessTokenContext, GoogleProcessor googleProcessor) {
+  public T executeRequest(GoogleAccessTokenContext accessTokenContext, // NOSONAR
+                          GoogleProcessor googleProcessor) {
     GoogleTokenResponse tokenData = accessTokenContext.getTokenData();
     try {
       return invokeRequest(accessTokenContext);
     } catch (IOException ioe) {
-      if (ioe instanceof HttpResponseException) {
-        HttpResponseException googleException = (HttpResponseException) ioe;
-        if (googleException.getStatusCode() == 400 && tokenData.getRefreshToken() != null) {
-          try {
-            // Refresh token and retry revocation with refreshed token
-            googleProcessor.refreshToken(accessTokenContext);
-            return invokeRequest(accessTokenContext);
-          } catch (OAuthException refreshException) {
-            // Log this one with trace level. We will rethrow original exception
-            if (log.isTraceEnabled()) {
-              log.trace("Refreshing token failed", refreshException);
-            }
-          } catch (IOException ioe2) {
-            ioe = ioe2;
-          }
+      if (ioe instanceof HttpResponseException googleException
+          && googleException.getStatusCode() == 400
+          && tokenData.getRefreshToken() != null) {
+        try {
+          // Refresh token and retry revocation with refreshed token
+          googleProcessor.refreshToken(accessTokenContext);
+          return invokeRequest(accessTokenContext);
+        } catch (OAuthException refreshException) {
+          // Log this one with trace level. We will rethrow original exception
+        } catch (IOException e) {
+          ioe = e;
         }
       }
-      log.warn("Error when calling Google operation. Details: " + ioe.getMessage());
       throw createException(ioe);
     }
   }

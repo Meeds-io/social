@@ -13,16 +13,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.spi;
+package io.meeds.oauth.model;
 
 import java.security.Principal;
+
+import lombok.Data;
 
 /**
  * Principal, which contains info about user, who was authenticated through
  * OAuth
  *
- * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
+ * @param  <T> {@link AccessTokenContext} Type
+ * @author     <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
+@Data
 public class OAuthPrincipal<T extends AccessTokenContext> implements Principal {
 
   private final String               userName;
@@ -51,7 +55,7 @@ public class OAuthPrincipal<T extends AccessTokenContext> implements Principal {
     this(userName, firstName, lastName, displayName, email, null, accessToken, oauthProviderType);
   }
 
-  public OAuthPrincipal(String userName,
+  public OAuthPrincipal(String userName, // NOSONAR
                         String firstName,
                         String lastName,
                         String displayName,
@@ -72,38 +76,7 @@ public class OAuthPrincipal<T extends AccessTokenContext> implements Principal {
   @Override
   public String getName() {
     // Using userName as name of OAuthPrincipal
-    return userName;
+    return getUserName();
   }
 
-  public String getUserName() {
-    return userName;
-  }
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public String getAvatar() {
-    return avatar;
-  }
-
-  public T getAccessToken() {
-    return accessToken;
-  }
-
-  public OAuthProviderType getOauthProviderType() {
-    return oauthProviderType;
-  }
 }

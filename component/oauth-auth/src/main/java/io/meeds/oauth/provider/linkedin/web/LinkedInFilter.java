@@ -13,40 +13,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.web.linkedin;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+package io.meeds.oauth.provider.linkedin.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuth20Service;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.linkedin.LinkedinAccessTokenContext;
-import io.meeds.oauth.spi.InteractionState;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.web.OAuthProviderFilter;
+import io.meeds.oauth.model.InteractionState;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.linkedin.model.LinkedinAccessTokenContext;
+import io.meeds.oauth.provider.linkedin.processor.LinkedinProcessor;
+import io.meeds.oauth.provider.spi.OAuthProviderFilter;
 
 public class LinkedInFilter extends OAuthProviderFilter<LinkedinAccessTokenContext> {
-  private static String URL_CURRENT_PROFILE_USER       =
+  private static String URL_CURRENT_PROFILE_USER       =                                                                                                           // NOSONAR
                                                  "https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams))";
 
-  private static String URL_CURRENT_PROFILE_USER_EMAIL =
+  private static String URL_CURRENT_PROFILE_USER_EMAIL =                                                                                                           // NOSONAR
                                                        "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))";
 
   @Override
-  protected OAuthProviderType<LinkedinAccessTokenContext> getOAuthProvider() {
+  protected OAuthProviderType<LinkedinAccessTokenContext> getOAuthProviderType() {
     return getOauthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_LINKEDIN, LinkedinAccessTokenContext.class);
   }
 
@@ -62,17 +60,17 @@ public class LinkedInFilter extends OAuthProviderFilter<LinkedinAccessTokenConte
 
     OAuthRequest oauthRequest = new OAuthRequest(Verb.GET, URL_CURRENT_PROFILE_USER);
     OAuthRequest oauthRequest1 = new OAuthRequest(Verb.GET, URL_CURRENT_PROFILE_USER_EMAIL);
-    accessTokenContext.oauth20Service.signRequest(accessTokenContext.accessToken, oauthRequest);
-    accessTokenContext.oauth20Service.signRequest(accessTokenContext.accessToken, oauthRequest1);
+    getOAuth20Service().signRequest(accessTokenContext.getAccessToken(), oauthRequest);
+    getOAuth20Service().signRequest(accessTokenContext.getAccessToken(), oauthRequest1);
     oauthRequest.addHeader("x-li-format", "json");
     oauthRequest.addHeader("Accept-Language", "ru-RU");
     oauthRequest1.addHeader("x-li-format", "json");
     oauthRequest1.addHeader("Accept-Language", "ru-RU");
     try {
-      Response responses = accessTokenContext.oauth20Service.execute(oauthRequest);
+      Response responses = getOAuth20Service().execute(oauthRequest);
       String body = responses.getBody();
       JSONObject json = new JSONObject(body);
-      Response responses1 = accessTokenContext.oauth20Service.execute(oauthRequest1);
+      Response responses1 = getOAuth20Service().execute(oauthRequest1);
       String body1 = responses1.getBody();
       JSONObject json1 = new JSONObject(body1);
       String id = json.getString("id");
@@ -90,20 +88,28 @@ public class LinkedInFilter extends OAuthProviderFilter<LinkedinAccessTokenConte
         }
       }
 
-      OAuthPrincipal<LinkedinAccessTokenContext> principal =
-                                                           new OAuthPrincipal<LinkedinAccessTokenContext>(id,
-                                                                                                          firstName,
-                                                                                                          lastName,
-                                                                                                          displayName,
-                                                                                                          email,
-                                                                                                          avatar,
-                                                                                                          accessTokenContext,
-                                                                                                          getOAuthProvider());
-
-      return principal;
-
-    } catch (JSONException | InterruptedException | ExecutionException | IOException ex) {
+      return new OAuthPrincipal<>(id,
+                                  firstName,
+                                  lastName,
+                                  displayName,
+                                  email,
+                                  avatar,
+                                  accessTokenContext,
+                                  getOAuthProviderType());
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+      return null;
+    } catch (Exception ex) {
       throw new OAuthException(OAuthExceptionCode.LINKEDIN_ERROR, "Error when obtaining user", ex);
     }
+  }
+
+  @Override
+  protected LinkedinProcessor getOauthProviderProcessor() {
+    return (LinkedinProcessor) super.getOauthProviderProcessor();
+  }
+
+  private OAuth20Service getOAuth20Service() {
+    return getOauthProviderProcessor().getOAuth20Service();
   }
 }

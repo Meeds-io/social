@@ -13,10 +13,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.spi;
+package io.meeds.oauth.model;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
+import io.meeds.oauth.provider.spi.OAuthProviderProcessor;
 import io.meeds.oauth.utils.OAuthUtils;
+import lombok.Data;
 
 /**
  * Encapsulate data about single OAuth provider (social network), which are
@@ -26,13 +28,11 @@ import io.meeds.oauth.utils.OAuthUtils;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
+@Data
 public class OAuthProviderType<T extends AccessTokenContext> {
 
   // Key of particular provider (for example 'FACEBOOK')
   private final String                    key;
-
-  // Whether this OAuth provider should be enabled or not
-  private final boolean                   enabled;
 
   // Name of UserProfile attribute, which will be used to save OAuth userName
   // (userName of user in given social network)
@@ -42,8 +42,6 @@ public class OAuthProviderType<T extends AccessTokenContext> {
   // be used to call OAuth operations on given OAuth provider
   private final OAuthProviderProcessor<T> oauthProviderProcessor;
 
-  private final OAuthPrincipalProcessor   oauthPrincipalProcessor;
-
   // URL suffix used to start OAuth authentication workflow with given OAuth
   // provider
   private final String                    initOAuthURL;
@@ -52,64 +50,22 @@ public class OAuthProviderType<T extends AccessTokenContext> {
   private final String                    friendlyName;
 
   public OAuthProviderType(String key,
-                           boolean enabled,
                            String userNameAttrName,
                            OAuthProviderProcessor<T> oauthProviderProcessor,
-                           OAuthPrincipalProcessor principalProcessor,
                            String initOAuthURL,
                            String friendlyName) {
     this.key = key;
-    this.enabled = enabled;
     this.userNameAttrName = userNameAttrName;
     this.oauthProviderProcessor = oauthProviderProcessor;
-    this.oauthPrincipalProcessor = principalProcessor;
     this.initOAuthURL = initOAuthURL;
     this.friendlyName = friendlyName;
   }
 
-  public String getKey() {
-    return key;
-  }
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public String getUserNameAttrName() {
-    return userNameAttrName;
-  }
-
-  public OAuthProviderProcessor<T> getOauthProviderProcessor() {
-    return oauthProviderProcessor;
-  }
-
-  public OAuthPrincipalProcessor getOauthPrincipalProcessor() {
-    return this.oauthPrincipalProcessor;
-  }
-
   public String getInitOAuthURL(String contextPath, String requestURI) {
     requestURI = OAuthUtils.encodeParam(requestURI);
-
     return contextPath + initOAuthURL
         + "?" + OAuthConstants.PARAM_OAUTH_INTERACTION + "=" + OAuthConstants.PARAM_OAUTH_INTERACTION_VALUE_START
         + "&" + OAuthConstants.PARAM_INITIAL_URI + "=" + requestURI;
   }
 
-  public String getFriendlyName() {
-    return friendlyName;
-  }
-
-  @Override
-  public String toString() {
-    return new StringBuilder("OAuthProviderType [ ")
-                                                    .append("key=" + key)
-                                                    .append(", enabled=" + enabled)
-                                                    .append(", userNameAttrName=" + userNameAttrName)
-                                                    .append(", oauthProviderProcessor=" + oauthProviderProcessor)
-                                                    .append(", oauthPrincipalProcessor=" + oauthPrincipalProcessor)
-                                                    .append(", initOAuthURL=" + initOAuthURL)
-                                                    .append(", friendlyName=" + friendlyName)
-                                                    .append(" ]")
-                                                    .toString();
-  }
 }

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.social;
+package io.meeds.oauth.provider.facebook.processor;
 
 import java.io.IOException;
 import java.net.URL;
@@ -25,7 +25,7 @@ import org.exoplatform.services.log.Log;
 
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.utils.HttpResponseContext;
+import io.meeds.oauth.model.HttpResponseContext;
 import io.meeds.oauth.utils.OAuthUtils;
 
 /**
@@ -37,29 +37,27 @@ abstract class FacebookRequest<T> {
 
   private static Log log = ExoLogger.getLogger(FacebookRequest.class);
 
-  protected abstract URL createURL(String accessToken) throws IOException;
+  protected abstract URL createURL() throws IOException;
 
   protected abstract T parseResponse(String httpResponse) throws JSONException;
 
-  public T executeRequest(String accessToken) {
+  public T executeRequest() {
     try {
-      URL url = createURL(accessToken);
+      URL url = createURL();
       HttpResponseContext httpResponse = OAuthUtils.readUrlContent(url.openConnection());
-      if (httpResponse.getResponseCode() == 200) {
-        return parseResponse(httpResponse.getResponse());
-      } else if (httpResponse.getResponseCode() == 400) {
-        String errorMessage = "Error when obtaining content from Facebook. Error details: " + httpResponse.getResponse();
+      if (httpResponse.responseCode() == 200) {
+        return parseResponse(httpResponse.response());
+      } else if (httpResponse.responseCode() == 400) {
+        String errorMessage = "Error when obtaining content from Facebook. Error details: " + httpResponse.response();
         log.warn(errorMessage);
         throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR, errorMessage);
       } else {
-        String errorMessage = "Unspecified IO error. Http response code: " + httpResponse.getResponseCode() + ", details: "
-            + httpResponse.getResponse();
+        String errorMessage = "Unspecified IO error. Http response code: " + httpResponse.responseCode() + ", details: "
+            + httpResponse.response();
         log.warn(errorMessage);
         throw new OAuthException(OAuthExceptionCode.IO_ERROR, errorMessage);
       }
-    } catch (JSONException e) {
-      throw new OAuthException(OAuthExceptionCode.IO_ERROR, e);
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new OAuthException(OAuthExceptionCode.IO_ERROR, e);
     }
   }

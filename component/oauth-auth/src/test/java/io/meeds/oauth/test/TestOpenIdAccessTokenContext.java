@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 
-import io.meeds.oauth.openid.OpenIdAccessTokenContext;
+import io.meeds.oauth.provider.openid.OpenIdAccessTokenContext;
 
 public class TestOpenIdAccessTokenContext {
 

@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.web;
+package io.meeds.oauth.web.filter;
 
 import java.io.IOException;
 
@@ -25,16 +25,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.gatein.sso.agent.filter.api.AbstractSSOInterceptor;
+import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
+import org.exoplatform.container.web.AbstractFilter;
 
-import io.meeds.oauth.common.OAuthConstants;
+import io.meeds.oauth.constant.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.exception.OAuthExceptionCode;
-import io.meeds.oauth.spi.OAuthPrincipal;
-import io.meeds.oauth.spi.SocialNetworkService;
+import io.meeds.oauth.model.AccessTokenContext;
+import io.meeds.oauth.model.OAuthPrincipal;
+import io.meeds.oauth.service.SocialNetworkService;
 import io.meeds.oauth.utils.OAuthUtils;
 
 /**
@@ -46,23 +46,15 @@ import io.meeds.oauth.utils.OAuthUtils;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class OAuthLinkAccountFilter extends AbstractSSOInterceptor {
-
-  private static Log           log = ExoLogger.getLogger(OAuthLinkAccountFilter.class);
+public class OAuthLinkAccountFilter extends AbstractFilter {
 
   private SocialNetworkService socialNetworkService;
 
   @Override
-  protected void initImpl() {
-    socialNetworkService = (SocialNetworkService) getExoContainer().getComponentInstanceOfType(SocialNetworkService.class);
-  }
-
-  @Override
-  public void destroy() {
-  }
-
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+  @SuppressWarnings("unchecked")
+  public void doFilter(ServletRequest request,
+                       ServletResponse response,
+                       FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
     HttpSession session = httpRequest.getSession();
@@ -73,7 +65,8 @@ public class OAuthLinkAccountFilter extends AbstractSSOInterceptor {
       return;
     }
 
-    OAuthPrincipal oauthPrincipal = (OAuthPrincipal) request.getAttribute(OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
+    OAuthPrincipal<AccessTokenContext> oauthPrincipal =
+                                                      (OAuthPrincipal<AccessTokenContext>) request.getAttribute(OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
 
     if (oauthPrincipal == null) {
       chain.doFilter(request, response);
@@ -101,14 +94,10 @@ public class OAuthLinkAccountFilter extends AbstractSSOInterceptor {
     }
 
     String urlToRedirect = OAuthUtils.getURLToRedirectAfterLinkAccount(httpRequest, session);
-
-    if (log.isTraceEnabled()) {
-      log.trace("User profile successfully updated with new userName and accessToken. oauthProvider="
-          + oauthPrincipal.getOauthProviderType() +
-          ", username=" + httpRequest.getRemoteUser() + ", oauthUsername=" + oauthPrincipal.getUserName());
-      log.trace("Will redirect user to URL: " + urlToRedirect);
+    if (StringUtils.isBlank(urlToRedirect)) {
+      httpResponse.sendRedirect(httpResponse.encodeRedirectURL(urlToRedirect));
+    } else {
+      chain.doFilter(request, response);
     }
-
-    httpResponse.sendRedirect(httpResponse.encodeRedirectURL(urlToRedirect));
   }
 }

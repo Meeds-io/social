@@ -13,22 +13,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.google;
-
-import java.io.Serializable;
+package io.meeds.oauth.provider.google.model;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 
-import io.meeds.oauth.spi.AccessTokenContext;
+import io.meeds.oauth.model.AccessTokenContext;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Encapsulate informations about Google+ access token
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class GoogleAccessTokenContext extends AccessTokenContext implements Serializable {
-
-  private static final long         serialVersionUID = -7038197192745766989L;
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class GoogleAccessTokenContext extends AccessTokenContext {
 
   private final GoogleTokenResponse tokenData;
 
@@ -48,34 +48,9 @@ public class GoogleAccessTokenContext extends AccessTokenContext implements Seri
     this.tokenData = tokenData;
   }
 
-  public GoogleTokenResponse getTokenData() {
-    return tokenData;
-  }
-
   @Override
   public String getAccessToken() {
     return tokenData.getAccessToken();
   }
 
-  @Override
-  public String toString() {
-    return new StringBuilder("GoogleAccessTokenContext [")
-                                                          .append("accessToken=" + tokenData)
-                                                          .append(super.toString())
-                                                          .toString();
-  }
-
-  @Override
-  public boolean equals(Object that) {
-    if (!super.equals(that)) {
-      return false;
-    }
-    GoogleAccessTokenContext thatt = (GoogleAccessTokenContext) that;
-    return this.tokenData.equals(thatt.getTokenData());
-  }
-
-  @Override
-  public int hashCode() {
-    return super.hashCode() * 13 + tokenData.hashCode();
-  }
 }

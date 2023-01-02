@@ -13,20 +13,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.oauth.data;
+package io.meeds.oauth.listener;
 
-import org.exoplatform.commons.utils.Safe;
+import org.apache.commons.lang.StringUtils;
+
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.web.security.codec.AbstractCodec;
+import org.exoplatform.web.security.codec.CodecInitializer;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
-import io.meeds.oauth.spi.OAuthCodec;
-import io.meeds.oauth.spi.OAuthProviderProcessor;
-import io.meeds.oauth.spi.OAuthProviderType;
-import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
+import io.meeds.oauth.model.OAuthProviderType;
+import io.meeds.oauth.provider.spi.OAuthProviderProcessor;
+import io.meeds.oauth.service.OAuthProviderTypeRegistry;
 
 /**
  * Listener for invalidate access token of particular user, if OAuth username of
@@ -34,23 +37,25 @@ import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
+@SuppressWarnings("rawtypes")
 public class AccessTokenInvalidationListener extends UserProfileEventListener {
 
-  private static Log                      log = ExoLogger.getLogger(AccessTokenInvalidationListener.class);
+  private static final Log                LOG =
+                                              ExoLogger.getLogger(AccessTokenInvalidationListener.class);
 
   private final UserProfileHandler        userProfileHandler;
 
   private final OAuthProviderTypeRegistry oauthProviderTypeRegistry;
 
-  private final OAuthCodec                oauthCodec;                                                      // actually
-                                                                                                           // SocialNetworkServiceImpl
+  private AbstractCodec                   codec;
 
   public AccessTokenInvalidationListener(OrganizationService orgService,
                                          OAuthProviderTypeRegistry oauthProviderTypeRegistry,
-                                         OAuthCodec oauthCodec) {
+                                         CodecInitializer codecInitializer)
+      throws TokenServiceInitializationException {
     this.userProfileHandler = orgService.getUserProfileHandler();
     this.oauthProviderTypeRegistry = oauthProviderTypeRegistry;
-    this.oauthCodec = oauthCodec;
+    this.codec = codecInitializer.getCodec();
   }
 
   @Override
@@ -60,25 +65,42 @@ public class AccessTokenInvalidationListener extends UserProfileEventListener {
       foundUserProfile = userProfileHandler.createUserProfileInstance(userProfile.getUserName());
     }
 
-    for (OAuthProviderType opt : oauthProviderTypeRegistry.getEnabledOAuthProviders()) {
-      String oauthProviderUsername = userProfile.getAttribute(opt.getUserNameAttrName());
-      String foundOauthProviderUsername = foundUserProfile.getAttribute(opt.getUserNameAttrName());
+    for (OAuthProviderType oAuthProviderType : oauthProviderTypeRegistry.getEnabledOAuthProviders()) {
+      String oauthProviderUsername = userProfile.getAttribute(oAuthProviderType.getUserNameAttrName());
+      String foundOauthProviderUsername = foundUserProfile.getAttribute(oAuthProviderType.getUserNameAttrName());
 
       // This means that oauthUsername has been changed. We may need to
       // invalidate current accessToken as well
-      if (!Safe.equals(oauthProviderUsername, foundOauthProviderUsername)) {
-        OAuthProviderProcessor processor = opt.getOauthProviderProcessor();
-        Object currentAccessToken = processor.getAccessTokenFromUserProfile(userProfile, oauthCodec);
-        Object foundAccessToken = processor.getAccessTokenFromUserProfile(foundUserProfile, oauthCodec);
+      if (!StringUtils.equals(oauthProviderUsername, foundOauthProviderUsername)) {
+        OAuthProviderProcessor<?> processor = oAuthProviderType.getOauthProviderProcessor();
+        Object currentAccessToken = processor.getAccessTokenFromUserProfile(userProfile);
+        Object foundAccessToken = processor.getAccessTokenFromUserProfile(foundUserProfile);
 
         // In this case, we need to remove existing accessToken
         if (currentAccessToken != null && currentAccessToken.equals(foundAccessToken)) {
-          if (log.isTraceEnabled()) {
-            log.trace("Removing accessToken for oauthProvider=" + opt + ", username=" + userProfile.getUserName());
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("Removing accessToken for oauthProvider= {}, username= {}", oAuthProviderType, userProfile.getUserName());
           }
           processor.removeAccessTokenFromUserProfile(userProfile);
         }
       }
     }
   }
+
+  public String encodeString(String input) {
+    if (input == null) {
+      return null;
+    } else {
+      return codec.encode(input);
+    }
+  }
+
+  public String decodeString(String input) {
+    if (input == null) {
+      return null;
+    } else {
+      return codec.decode(input);
+    }
+  }
+
 }
