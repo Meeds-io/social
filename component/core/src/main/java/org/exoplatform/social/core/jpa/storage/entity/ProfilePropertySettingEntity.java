@@ -47,28 +47,28 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "PROPERTY_NAME", nullable = false)
   private String            propertyName;
 
-  @Column(name = "VISIBLE", nullable = false)
+  @Column(name = "VISIBLE")
   private boolean           isVisible;
 
-  @Column(name = "EDITABLE", nullable = false)
+  @Column(name = "EDITABLE")
   private boolean           isEditable;
 
   @Column(name="PARENT_ID")
   private Long parentId;
 
-  @Column(name = "ORDER", nullable = false)
+  @Column(name = "ORDER")
   private Long            order;
 
-  @Column(name = "ACTIVE", nullable = false)
+  @Column(name = "ACTIVE")
   private boolean           isActive;
 
-  @Column(name = "SYSTEM_PROPERTY", nullable = false)
+  @Column(name = "SYSTEM_PROPERTY")
   private boolean           isSystemProperty;
 
-  @Column(name = "LDAP_ATTRIBUTE", nullable = false)
+  @Column(name = "LDAP_ATTRIBUTE")
   private String            ldapAttribute;
 
-  @Column(name = "GROUP_SYNCHRONIZED", nullable = false)
+  @Column(name = "GROUP_SYNCHRONIZED")
   private boolean           IsGroupSynchronized;
 
 
