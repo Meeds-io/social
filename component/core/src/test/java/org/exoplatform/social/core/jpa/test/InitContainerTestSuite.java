@@ -36,6 +36,7 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
     RDBMSRelationshipManagerTest.class,
     IdentityStorageTest.class,
     RDBMSSpaceStorageTest.class,
+    ProfileSettingStorageTest.class,
     SpaceMemberDAOTest.class,
     SpaceExternalInvitationDAOTest.class,
     SpaceDAOTest.class,

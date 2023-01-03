@@ -95,6 +95,25 @@
         </value-param>
         <value-param>
           <name>uri</name>
+          <value>profileManagement</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>NavigationCategoryPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.portal.config.NavigationCategoryPlugin</type>
+      <init-params>
+        <value-param>
+          <name>category.order</name>
+          <value>10</value>
+        </value-param>
+        <value-param>
+          <name>category</name>
+          <value>usersAndSpaces</value>
+        </value-param>
+        <value-param>
+          <name>uri</name>
           <value>spacesAdministration</value>
         </value-param>
       </init-params>
