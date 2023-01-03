@@ -17,12 +17,8 @@
 package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
-
 import javax.persistence.*;
-
 import org.exoplatform.commons.api.persistence.ExoEntity;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 
 @Entity(name = "SocProfileSettingEntity")
 @ExoEntity

@@ -18,7 +18,6 @@ package org.exoplatform.social.core.jpa.storage.dao;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfilePropertySettingEntity, Long> {
