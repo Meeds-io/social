@@ -27,8 +27,6 @@ public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfileProperty
         .setParameter("name", name);
         try {
             return query.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
         } catch (Exception e) {
             return null;
         }

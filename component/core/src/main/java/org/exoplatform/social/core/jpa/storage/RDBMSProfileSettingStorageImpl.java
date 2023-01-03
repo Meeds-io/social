@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 import org.exoplatform.social.core.jpa.storage.dao.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
-import org.exoplatform.social.core.profilePropertySetting.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profilepropertysetting.model.ProfilePropertySetting;
 import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
 
 public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
@@ -33,7 +33,7 @@ public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
 
   @Override
   public List<ProfilePropertySetting> getPropertySettings() {
-    return profilePropertySettingDAO.findAll().stream().map(this::convertFromEntity).collect(Collectors.toList());
+    return profilePropertySettingDAO.findAll().stream().map(this::convertFromEntity).toList();
   }
 
   @Override

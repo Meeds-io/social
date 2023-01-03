@@ -252,7 +252,6 @@ export default {
         this.$root.$emit('update-setting', this.setting,true);
       }
       this.saving = false;
-      //this.drawer = false;
     },
     cancel() {
       this.drawer = false;

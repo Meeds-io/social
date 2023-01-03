@@ -28,14 +28,10 @@ import org.exoplatform.services.log.Log;
 @ExoEntity
 @Table(name = "SOC_PROFILE_PROPERTY_SETTING ")
 
-@NamedQueries({ @NamedQuery(name = "SocProfileSettingEntity.findProfileSettingByName",
-                query = "SELECT c FROM SocProfileSettingEntity c WHERE propertyName = :name")
-})
+@NamedQuery(name = "SocProfileSettingEntity.findProfileSettingByName", query = "SELECT c FROM SocProfileSettingEntity c WHERE propertyName = :name")
 
 public class ProfilePropertySettingEntity implements Serializable {
 
-
-  private static final Log  LOG              = ExoLogger.getLogger(ProfilePropertySettingEntity.class);
 
   @Id
   @SequenceGenerator(name="SEQ_SOC_PROPERTY_SETTING_ID", sequenceName="SEQ_SOC_PROPERTY_SETTING_ID", allocationSize = 1)
@@ -69,7 +65,7 @@ public class ProfilePropertySettingEntity implements Serializable {
   private String            ldapAttribute;
 
   @Column(name = "GROUP_SYNCHRONIZED")
-  private boolean           IsGroupSynchronized;
+  private boolean           isGroupSynchronized;
 
 
   public Long getId() {
@@ -137,11 +133,11 @@ public class ProfilePropertySettingEntity implements Serializable {
   }
 
   public boolean isGroupSynchronized() {
-    return IsGroupSynchronized;
+    return isGroupSynchronized;
   }
 
   public void setGroupSynchronized(boolean groupSynchronized) {
-    IsGroupSynchronized = groupSynchronized;
+    isGroupSynchronized = groupSynchronized;
   }
 
   public boolean isSystemProperty() {

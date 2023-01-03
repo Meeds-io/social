@@ -19,7 +19,7 @@ package org.exoplatform.social.core.jpa.storage;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
-import org.exoplatform.social.core.profilePropertySetting.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profilepropertysetting.model.ProfilePropertySetting;
 import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
 
 /**

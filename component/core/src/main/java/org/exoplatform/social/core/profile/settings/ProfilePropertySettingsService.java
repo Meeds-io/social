@@ -27,7 +27,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.profilePropertySetting.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profilepropertysetting.model.ProfilePropertySetting;
 import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
 import org.picocontainer.Startable;
 

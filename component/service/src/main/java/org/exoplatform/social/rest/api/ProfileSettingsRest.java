@@ -26,7 +26,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
-import org.exoplatform.social.core.profilePropertySetting.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profilepropertysetting.model.ProfilePropertySetting;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -93,7 +93,7 @@ public class ProfileSettingsRest implements ResourceContainer {
     @ApiResponse(responseCode = "401", description = "Unauthorized operation") })
   public Response createPropertySetting(@Context UriInfo uriInfo,
                               @RequestBody(description = "Profile property setting object to be created"
-                                                , required = true) ProfilePropertySetting profilePropertySetting) throws Exception {
+                                                , required = true) ProfilePropertySetting profilePropertySetting) {
     long currentIdentityId = RestUtils.getCurrentUserIdentityId();
     if (currentIdentityId == 0) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -129,7 +129,7 @@ public class ProfileSettingsRest implements ResourceContainer {
           @ApiResponse(responseCode = "401", description = "Unauthorized operation") })
   public Response updatePropertySetting(@Context UriInfo uriInfo,
                               @RequestBody(description = "Profile property setting object to be updated"
-                                                , required = true) ProfilePropertySetting profilePropertySetting) throws Exception {
+                                                , required = true) ProfilePropertySetting profilePropertySetting) {
     long currentIdentityId = RestUtils.getCurrentUserIdentityId();
     if (currentIdentityId == 0) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -162,7 +162,7 @@ public class ProfileSettingsRest implements ResourceContainer {
           @ApiResponse(responseCode = "401", description = "Unauthorized operation") })
   public Response deletePropertySetting(@Context UriInfo uriInfo,
                               @RequestBody(description = "Profile property setting object to be updated"
-                                                , required = true) ProfilePropertySetting profilePropertySetting) throws Exception {
+                                                , required = true) ProfilePropertySetting profilePropertySetting) {
     long currentIdentityId = RestUtils.getCurrentUserIdentityId();
     if (currentIdentityId == 0) {
       return Response.status(Response.Status.UNAUTHORIZED).build();

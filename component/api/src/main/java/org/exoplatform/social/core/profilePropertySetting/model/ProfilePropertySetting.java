@@ -14,7 +14,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package org.exoplatform.social.core.profilePropertySetting.model;
+package org.exoplatform.social.core.profilepropertysetting.model;
 
 public class  ProfilePropertySetting {
   String       propertyName;
@@ -24,7 +24,7 @@ public class  ProfilePropertySetting {
   Long          order;
   boolean      isActive;
   String       ldapAttribute;
-  boolean      IsGroupSynchronized;
+  boolean      isGroupSynchronized;
   boolean      isSystemProperty;
   private Long id;
 
@@ -93,11 +93,11 @@ public class  ProfilePropertySetting {
   }
 
   public boolean isGroupSynchronized() {
-    return IsGroupSynchronized;
+    return isGroupSynchronized;
   }
 
   public void setGroupSynchronized(boolean groupSynchronized) {
-    IsGroupSynchronized = groupSynchronized;
+    isGroupSynchronized = groupSynchronized;
   }
 
   public boolean isSystemProperty() {
