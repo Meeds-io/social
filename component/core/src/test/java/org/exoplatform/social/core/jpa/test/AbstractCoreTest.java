@@ -42,6 +42,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
@@ -51,7 +52,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-
+import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
 import org.mockito.Mockito;
 
 import java.lang.reflect.InvocationTargetException;
@@ -80,6 +81,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   protected RelationshipManager relationshipManager;
   protected ActivityManager activityManager;
   protected ActivityStorage activityStorage;
+  protected ProfileSettingStorage profileSettingStorage;
 
   protected ProfileSearchConnector mockProfileSearch = Mockito.mock(ProfileSearchConnector.class);
 
@@ -91,6 +93,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     identityManager = getService(IdentityManager.class);
     activityManager =  getService(ActivityManager.class);
     activityStorage = getService(ActivityStorage.class);
+    profileSettingStorage = getService(ProfileSettingStorage.class);
     relationshipManager = getService(RelationshipManager.class);
     spaceService = getService(SpaceService.class);
 
@@ -98,6 +101,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     deleteAllSpaces();
     deleteAllIdentitiesWithActivities();
     deleteAllActivities();
+    deleteAllProfileSettings();
   }
 
   @Override
@@ -108,7 +112,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     deleteAllSpaces();
     deleteAllIdentitiesWithActivities();
     deleteAllActivities();
-
+    deleteAllProfileSettings();
     //
     end();
   }  
@@ -319,6 +323,11 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     ActivityDAO activityDAO = getService(ActivityDAO.class);
     activityDAO.deleteAll();
   }
+
+    protected void deleteAllProfileSettings() throws Exception {
+        ProfilePropertySettingDAO profilePropertySettingDAO = getService(ProfilePropertySettingDAO.class);
+        profilePropertySettingDAO.deleteAll();
+    }
 
   public static void persist() {
     RequestLifeCycle.end();
