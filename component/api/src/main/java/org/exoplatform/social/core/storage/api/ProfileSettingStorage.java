@@ -18,7 +18,7 @@ package org.exoplatform.social.core.storage.api;
 
 import java.util.List;
 
-import org.exoplatform.social.core.profilepropertysetting.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
 
 public interface ProfileSettingStorage {

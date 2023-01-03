@@ -14,7 +14,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-package org.exoplatform.social.core.profilepropertysetting.model;
+package org.exoplatform.social.core.profileproperty.model;
 
 public class  ProfilePropertySetting {
   String       propertyName;
