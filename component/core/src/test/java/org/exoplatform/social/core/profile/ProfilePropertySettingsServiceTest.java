@@ -138,7 +138,6 @@ public class ProfilePropertySettingsServiceTest extends AbstractCoreTest {
     profilePropertySetting.setPropertyName(propertyName);
     profilePropertySetting.setGroupSynchronized(false);
     profilePropertySetting.setSystemProperty(false);
-    profilePropertySetting.setLdapAttribute("");
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
     return profilePropertySetting;

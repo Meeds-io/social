@@ -61,9 +61,6 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "SYSTEM_PROPERTY")
   private boolean           isSystemProperty;
 
-  @Column(name = "LDAP_ATTRIBUTE")
-  private String            ldapAttribute;
-
   @Column(name = "GROUP_SYNCHRONIZED")
   private boolean           isGroupSynchronized;
 
@@ -124,14 +121,6 @@ public class ProfilePropertySettingEntity implements Serializable {
     isActive = active;
   }
 
-  public String getLdapAttribute() {
-    return ldapAttribute;
-  }
-
-  public void setLdapAttribute(String ldapAttribute) {
-    this.ldapAttribute = ldapAttribute;
-  }
-
   public boolean isGroupSynchronized() {
     return isGroupSynchronized;
   }
@@ -156,7 +145,6 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(isActive());
     builder.append(":").append(isVisible());
     builder.append(":").append(getOrder());
-    builder.append(":").append(getLdapAttribute());
     builder.append(":").append(isGroupSynchronized());
     builder.append(":").append(getParentId());
     return builder.toString();

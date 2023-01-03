@@ -23,7 +23,6 @@ public class  ProfilePropertySetting {
   Long         parentId;
   Long          order;
   boolean      isActive;
-  String       ldapAttribute;
   boolean      isGroupSynchronized;
   boolean      isSystemProperty;
   private Long id;
@@ -82,14 +81,6 @@ public class  ProfilePropertySetting {
 
   public void setActive(boolean active) {
     isActive = active;
-  }
-
-  public String getLdapAttribute() {
-    return ldapAttribute;
-  }
-
-  public void setLdapAttribute(String ldapAttribute) {
-    this.ldapAttribute = ldapAttribute;
   }
 
   public boolean isGroupSynchronized() {

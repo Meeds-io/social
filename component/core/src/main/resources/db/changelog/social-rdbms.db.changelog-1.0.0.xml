@@ -849,7 +849,6 @@
             <column name="ACTIVE" type="BOOLEAN"/>
             <column name="GROUP_SYNCHRONIZED" type="BOOLEAN"/>
             <column name="SYSTEM_PROPERTY" type="BOOLEAN"/>
-            <column name="LDAP_ATTRIBUTE" type="NVARCHAR(550)"/>
             <column name="ORDER" type="BIGINT"/>
             <column name="PARENT_ID" type="BIGINT"/>
         </createTable>

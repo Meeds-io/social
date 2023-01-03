@@ -101,19 +101,6 @@
       </v-list-item-action>
     </v-list-item>
 
-        <v-card-text class="d-flex ldapAttributeNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileSettings.label.ldapAttributeName') }}*
-        </v-card-text>
-        <v-card-text class="d-flex ldapAttributeNameField py-0">
-          <input
-            ref="ldapAttributeNameInput"
-            v-model="setting.ldapAttribute"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000">
-        </v-card-text>
-
         <v-list-item class="pt-4">
       <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
         <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">

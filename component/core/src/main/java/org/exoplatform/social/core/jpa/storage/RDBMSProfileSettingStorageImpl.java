@@ -15,13 +15,12 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.exoplatform.social.core.jpa.storage.dao.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
+
+import java.util.List;
 
 public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
 
@@ -70,7 +69,6 @@ public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
     profilePropertySettingEntity.setParentId(profilePropertySetting.getParentId());
     profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
-    profilePropertySettingEntity.setLdapAttribute(profilePropertySetting.getLdapAttribute());
     profilePropertySettingEntity.setSystemProperty(profilePropertySetting.isSystemProperty());
     return profilePropertySettingEntity;
   }
@@ -86,7 +84,6 @@ public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
     profilePropertySetting.setParentId(profilePropertySettingEntity.getParentId());
     profilePropertySetting.setGroupSynchronized(profilePropertySettingEntity.isGroupSynchronized());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
-    profilePropertySetting.setLdapAttribute(profilePropertySettingEntity.getLdapAttribute());
     profilePropertySetting.setSystemProperty(profilePropertySettingEntity.isSystemProperty());
     return profilePropertySetting;
   }
