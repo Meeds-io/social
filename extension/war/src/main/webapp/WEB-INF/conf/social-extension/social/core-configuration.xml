@@ -137,11 +137,20 @@
     </component>
 
     <component>
+        <type>org.exoplatform.social.core.jpa.storage.dao.ProfilePropertySettingDAO</type>
+    </component>
+
+    <component>
       <type>org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataItemDAO</type>
     </component>
 
     <component>
       <type>org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO</type>
+    </component>
+
+    <component>
+        <key>org.exoplatform.social.core.storage.api.ProfileSettingStorage</key>
+        <type>org.exoplatform.social.core.jpa.storage.RDBMSProfileSettingStorageImpl</type>
     </component>
 
     <!--
@@ -708,6 +717,11 @@
                 </init-params>
             </component-plugin>
         </component-plugins>
+    </component>
+
+    <!-- ProfilePropertySettings service -->
+    <component>
+        <type>org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService</type>
     </component>
     
     <!-- GroupSpaceBinding service -->
