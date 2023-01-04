@@ -849,7 +849,7 @@
             <column name="ACTIVE" type="BOOLEAN"/>
             <column name="GROUP_SYNCHRONIZED" type="BOOLEAN"/>
             <column name="SYSTEM_PROPERTY" type="BOOLEAN"/>
-            <column name="ORDER" type="BIGINT"/>
+            <column name="PROPERTY_ORDER" type="BIGINT"/>
             <column name="PARENT_ID" type="BIGINT"/>
         </createTable>
         <modifySql dbms="mysql">
