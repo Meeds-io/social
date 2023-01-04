@@ -16,7 +16,6 @@
             :offset-x="true"
             :offset-y="false"
             popover
-            bold-title
             link-style />
         </div>
       </div>
