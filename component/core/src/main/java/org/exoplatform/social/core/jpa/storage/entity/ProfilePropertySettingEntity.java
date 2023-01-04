@@ -48,7 +48,9 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name="PARENT_ID")
   private Long parentId;
 
+
   @Column(name = "PROPERTY_ORDER")
+
   private Long            order;
 
   @Column(name = "ACTIVE")
