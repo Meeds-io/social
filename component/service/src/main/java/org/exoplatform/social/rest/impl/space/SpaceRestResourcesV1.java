@@ -528,16 +528,19 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       if (builder == null) {
         int[] dimension = Utils.parseDimension(size);
         try {
-          byte[] avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                          identity,
-                          dimension[0],
-                          dimension[1])
-                  .getAsByte();
+          byte[] avatarContent = null;
+          if(identityManager.getAvatarFile(identity) != null) {
+            avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+                                                                       identity,
+                                                                       dimension[0],
+                                                                       dimension[1])
+                                                 .getAsByte();
+          }
           if (avatarContent != null) {
             builder = Response.ok(avatarContent, "image/png");
           }
         } catch (Exception e) {
-          LOG.error("Error while resizing avatar, original Image will be returned", e);
+          LOG.error("Error while resizing avatar of space identity with Id {}, original Image will be returned", identity.getId(), e);
         }
       }
 
