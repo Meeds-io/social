@@ -2,17 +2,16 @@
   <div 
     v-if="popover"
     v-identity-popover="userIdentity"
-    class="profile-popover user-wrapper"
-    :class="extraClass">
+    class="profile-popover user-wrapper">
     <a 
       v-if="avatar"
       :id="id"
       :href="profileUrl"
-      class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
+      class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid justify-center"
       :class="avatarClass">
       <v-avatar
         :size="size"
-        :class="pullLeft"
+        :class="avatarStyle"
         class="ma-0">
         <img
           :src="avatarUrl"
@@ -293,6 +292,9 @@ export default {
     },
     pullLeft() {
       return this.isMobile && ' ' || 'pull-left';
+    },
+    avatarStyle() {
+      return `${this.pullLeft} ${this.extraClass}`;
     }
   },
   created() {
