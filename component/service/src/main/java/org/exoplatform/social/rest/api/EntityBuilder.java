@@ -55,8 +55,10 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.*;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
+import org.exoplatform.social.core.service.LabelService;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -1402,6 +1404,61 @@ public class EntityBuilder {
     operationReportEntity.setStartDate(startDate != null ? RestUtils.formatISO8601(startDate) : "null");
     operationReportEntity.setEndDate(endDate != null ? RestUtils.formatISO8601(endDate) : "null");
     return operationReportEntity;
+  }
+
+
+  /**
+   * Build rest ProfilePropertySettingEntity from ProfilePropertySetting object
+   *
+   * @param profilePropertySetting the ProfilePropertySetting object
+   * @return the ProfilePropertySettingEntity rest object
+   */
+  public static ProfilePropertySettingEntity buildEntityProfilePropertySetting(ProfilePropertySetting profilePropertySetting, LabelService labelService, String objectType) {
+    if (profilePropertySetting == null ) return null;
+    ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
+    profilePropertySettingEntity.setId(profilePropertySetting.getId());
+    profilePropertySettingEntity.setActive(profilePropertySetting.isActive());
+    profilePropertySettingEntity.setEditable(profilePropertySetting.isEditable());
+    profilePropertySettingEntity.setVisible(profilePropertySetting.isVisible());
+    profilePropertySettingEntity.setPropertyName(profilePropertySetting.getPropertyName());
+    profilePropertySettingEntity.setParentId(profilePropertySetting.getParentId());
+    profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
+    profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
+    profilePropertySettingEntity.setSystemProperty(profilePropertySetting.isSystemProperty());
+    profilePropertySettingEntity.setLabels(labelService.findLabelByObjectTypeAndObjectId(objectType, String.valueOf(profilePropertySetting.getId())));
+    return profilePropertySettingEntity;
+  }
+
+  /**
+   * Build rest ProfilePropertySettingEntity list from ProfilePropertySetting objects list
+   *
+   * @param profilePropertySettingList the ProfilePropertySetting objects list
+   * @return the ProfilePropertySettingEntity rest objects list
+   */
+  public static List<ProfilePropertySettingEntity> buildEntityProfilePropertySettingList (List<ProfilePropertySetting> profilePropertySettingList, LabelService labelService, String objectType) {
+    if(profilePropertySettingList.size()==0) return new ArrayList<>();
+    return profilePropertySettingList.stream().map(setting -> buildEntityProfilePropertySetting(setting,labelService, objectType)).collect(Collectors.toList());
+  }
+
+  /**
+   * Build ProfilePropertySetting from ProfilePropertySettingEntity object
+   *
+   * @param profilePropertySettingEntity the ProfilePropertySettingEntity object
+   * @return the ProfilePropertySetting  object
+   */
+  public static ProfilePropertySetting buildProfilePropertySettingFromEntity(ProfilePropertySettingEntity profilePropertySettingEntity) {
+    if (profilePropertySettingEntity == null ) return null;
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setId(profilePropertySettingEntity.getId());
+    profilePropertySetting.setActive(profilePropertySettingEntity.isActive());
+    profilePropertySetting.setEditable(profilePropertySettingEntity.isEditable());
+    profilePropertySetting.setVisible(profilePropertySettingEntity.isVisible());
+    profilePropertySetting.setPropertyName(profilePropertySettingEntity.getPropertyName());
+    profilePropertySetting.setParentId(profilePropertySettingEntity.getParentId());
+    profilePropertySetting.setGroupSynchronized(profilePropertySettingEntity.isGroupSynchronized());
+    profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
+    profilePropertySetting.setSystemProperty(profilePropertySettingEntity.isSystemProperty());
+    return profilePropertySetting;
   }
 
   public static final <T> T fromJsonString(String value, Class<T> resultClass) {
