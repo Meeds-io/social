@@ -250,5 +250,80 @@
         </object-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+        <name>Tools.portlets.registry</name>
+        <set-method>initListener</set-method>
+        <type>org.exoplatform.application.registry.ApplicationCategoriesPlugins</type>
+        <description>this listener init the portlets are registered in PortletRegister</description>
+        <init-params>
+          <value-param>
+            <name>system</name>
+            <value>true</value>
+          </value-param>
+          <object-param>
+            <name>tools</name>
+            <description>description</description>
+            <object type="org.exoplatform.application.registry.ApplicationCategory">
+              <field name="name"><string>Tools</string></field>
+              <field name="displayName"><string>Tools</string></field>
+              <field name="description"><string>Applications for tools</string></field>
+              <field name="accessPermissions">
+                <collection type="java.util.ArrayList" item-type="java.lang.String">
+                  <value><string>*:/platform/users</string></value>
+                </collection>
+              </field>
+              <field name="applications">
+                <collection type="java.util.ArrayList">
+                  <value>
+                    <object type="org.exoplatform.application.registry.Application">
+                      <field name="applicationName"><string>ExternalSpacesList</string></field>
+                      <field name="categoryName"><string>tools</string></field>
+                      <field name="displayName"><string>External Spaces list</string></field>
+                      <field name="description"><string>External Spaces List Portlet</string></field>
+                      <field name="type"><string>portlet</string></field>
+                      <field name="contentId"><string>social-portlet/ExternalSpacesList</string></field>
+                      <field name="accessPermissions">
+                        <collection type="java.util.ArrayList" item-type="java.lang.String">
+                          <value><string>*:/platform/users</string></value>
+                        </collection>
+                      </field>
+                    </object>
+                  </value>
+                  <value>
+                    <object type="org.exoplatform.application.registry.Application">
+                      <field name="applicationName"><string>SpaceMenuPortlet</string></field>
+                      <field name="categoryName"><string>tools</string></field>
+                      <field name="displayName"><string>Space Menu Portlet</string></field>
+                      <field name="description"><string>Space Menu Portlet</string></field>
+                      <field name="type"><string>portlet</string></field>
+                      <field name="contentId"><string>social-portlet/SpaceMenuPortlet</string></field>
+                      <field name="accessPermissions">
+                        <collection type="java.util.ArrayList" item-type="java.lang.String">
+                          <value><string>*:/platform/users</string></value>
+                        </collection>
+                      </field>
+                    </object>
+                  </value>
+                  <value>
+                    <object type="org.exoplatform.application.registry.Application">
+                      <field name="applicationName"><string>WhoIsOnLinePortlet</string></field>
+                      <field name="categoryName"><string>tools</string></field>
+                      <field name="displayName"><string>Who is on Line</string></field>
+                      <field name="description"><string>Who Is OnLine Portlet Portlet</string></field>
+                      <field name="type"><string>portlet</string></field>
+                      <field name="contentId"><string>social-portlet/WhoIsOnLinePortlet</string></field>
+                      <field name="accessPermissions">
+                        <collection type="java.util.ArrayList" item-type="java.lang.String">
+                          <value><string>*:/platform/users</string></value>
+                        </collection>
+                      </field>
+                    </object>
+                  </value>
+                </collection>
+              </field>
+            </object>
+          </object-param>
+        </init-params>
+      </component-plugin>
   </external-component-plugins>
 </configuration>
