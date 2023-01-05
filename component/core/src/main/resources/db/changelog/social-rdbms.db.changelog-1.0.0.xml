@@ -835,4 +835,22 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="social" id="1.0.0-85">
+        <createTable tableName="SOC_ACTIVITY_MENTIONS">
+            <column name="ACTIVITY_ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACTIVITY_TYPE" type="NVARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MENTIONED_ID" type="NVARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="ACTIVITY_ID" constraintName="PK_SOC_ACTIVITY_MENTIONS_01" tableName="SOC_ACTIVITY_MENTIONS"/>
+        <createIndex tableName="SOC_ACTIVITY_MENTIONS" indexName="IDX_SOC_ACTIVITY_MENTIONS_01">
+            <column name="ACTIVITY_ID"/>
+        </createIndex>
+    </changeSet>
+
 </databaseChangeLog>
