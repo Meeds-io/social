@@ -18,7 +18,7 @@ package org.exoplatform.social.core.profile;
 import static org.junit.Assert.assertThrows;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
-import org.exoplatform.social.core.jpa.storage.dao.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.test.AbstractCoreTest;
