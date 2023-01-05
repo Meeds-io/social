@@ -15,11 +15,10 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
-import org.exoplatform.social.core.jpa.storage.dao.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
-
 import java.util.List;
 
 public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
