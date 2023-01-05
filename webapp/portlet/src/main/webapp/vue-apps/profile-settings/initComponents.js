@@ -21,6 +21,8 @@ import ProfileSettingsTable from './components/ProfileSettingsTable.vue';
 import ProfileSettingsActionMenu from './components/menu/ProfileSettingsActionMenu.vue';
 import SettingsActionsCell from './components/cells/SettingsActionsCell.vue';
 import ProfileSettingFormDrawer from './components/drawers/ProfileSettingFormDrawer.vue';
+import ProfilePropertyLabels from './components/drawers/ProfilePropertyLabels.vue';
+import PropertyLabel from './components/drawers/PropertyLabel.vue';
 
 import * as ProfileSettingsService from '../common/js/ProfileSettingsService.js';
 
@@ -31,6 +33,8 @@ const components = {
   'profile-settings-action-menu': ProfileSettingsActionMenu,
   'profile-settings-actions-cell': SettingsActionsCell,
   'profile-setting-form-drawer': ProfileSettingFormDrawer,
+  'profile-property-labels': ProfilePropertyLabels,
+  'property-label': PropertyLabel,
 };
 
 for (const key in components) {
