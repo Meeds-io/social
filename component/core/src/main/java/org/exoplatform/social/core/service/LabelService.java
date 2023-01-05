@@ -82,8 +82,8 @@ public class LabelService {
     labelStorage.saveLabel(label, true);
   }
 
-  public void mergeLabels(List<Label> labels, String objectType, String ObjectId) {
-    List<Label> storedLabels = findLabelByObjectTypeAndObjectId(objectType, ObjectId);
+  public void mergeLabels(List<Label> labels, String objectType, String objectId) {
+    List<Label> storedLabels = findLabelByObjectTypeAndObjectId(objectType, objectId);
     List<Label> labelstoUpdate = new ArrayList<>();
     List<Label> labelstoDelete = new ArrayList<>();
     List<Label> labelstoCreate = new ArrayList<>();
@@ -111,7 +111,7 @@ public class LabelService {
             label.setObjectType(objectType);
           }
           if (StringUtils.isBlank(label.getObjectId())) {
-            label.setObjectId(ObjectId);
+            label.setObjectId(objectId);
           }
           createLabel(label);
         } catch (ObjectAlreadyExistsException e) {
