@@ -17,10 +17,8 @@
 
 package org.exoplatform.social.core.jpa.test;
 
-import junit.framework.AssertionFailedError;
 import org.apache.commons.lang.ArrayUtils;
 
-import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
 import org.exoplatform.commons.testing.BaseExoTestCase;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.component.test.ConfigurationUnit;
@@ -42,7 +40,8 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
-import org.exoplatform.social.core.jpa.storage.dao.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.LabelDAO;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
@@ -52,6 +51,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.api.LabelStorage;
 import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
 import org.mockito.Mockito;
 
@@ -82,6 +82,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   protected ActivityManager activityManager;
   protected ActivityStorage activityStorage;
   protected ProfileSettingStorage profileSettingStorage;
+  protected LabelStorage labelStorage;
 
   protected ProfileSearchConnector mockProfileSearch = Mockito.mock(ProfileSearchConnector.class);
 
@@ -94,6 +95,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     activityManager =  getService(ActivityManager.class);
     activityStorage = getService(ActivityStorage.class);
     profileSettingStorage = getService(ProfileSettingStorage.class);
+    labelStorage = getService(LabelStorage.class);
     relationshipManager = getService(RelationshipManager.class);
     spaceService = getService(SpaceService.class);
 
@@ -102,6 +104,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     deleteAllIdentitiesWithActivities();
     deleteAllActivities();
     deleteAllProfileSettings();
+    deleteAllLabels();
   }
 
   @Override
@@ -113,6 +116,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     deleteAllIdentitiesWithActivities();
     deleteAllActivities();
     deleteAllProfileSettings();
+    deleteAllLabels();
     //
     end();
   }  
@@ -327,6 +331,10 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     protected void deleteAllProfileSettings() throws Exception {
         ProfilePropertySettingDAO profilePropertySettingDAO = getService(ProfilePropertySettingDAO.class);
         profilePropertySettingDAO.deleteAll();
+    }
+    protected void deleteAllLabels() throws Exception {
+        LabelDAO labelDAO = getService(LabelDAO.class);
+        labelDAO.deleteAll();
     }
 
   public static void persist() {
