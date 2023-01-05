@@ -31,6 +31,9 @@
       disable-pagination
       disable-filtering
       class="settings-table data-table-light-border py-6">
+      <template slot="item.propertyName" slot-scope="{ item }">
+        {{getResolvedName(item)}}
+      </template>
       <template slot="item.actions" slot-scope="{ item }">
         <profile-settings-actions-cell :setting="item" :settings="settings"/>
         </template>
@@ -101,5 +104,15 @@ export default {
       }];
     },
   },
+  methods: {
+    getResolvedName(item){
+      const lang = eXo && eXo.env.portal.language || 'en';
+      const resolvedLabel = item.labels.find(v => v.language === lang);
+      if (resolvedLabel){
+        return resolvedLabel.label;
+      }
+      return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
+    }
+  }
 };
 </script>

@@ -28,8 +28,7 @@
       <v-form
         ref="settingForm"
         class="form-horizontal pt-0 pb-4"
-        flat
-        @submit="saveSetting">
+        flat>
         <v-card-text v-if="error" class="errorMessage">
           <v-alert type="error">
             {{ error }}
@@ -51,8 +50,15 @@
             required>
         </v-card-text>
 
+        <v-card-text class="d-flex settingLabelsLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          {{ $t('profileSettings.label.labels') }}
+        </v-card-text>
+        <v-card-text class="d-flex settingNameField py-0">
+          <profile-property-labels :propertylabels="setting.labels"/>
+        </v-card-text>
+
         <v-card-text class="d-flex parentLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileSettings.label.parent') }}*
+          {{ $t('profileSettings.label.parent') }}
         </v-card-text>
         <v-card-text class="d-flex parentField py-0">
           <input
@@ -69,7 +75,7 @@
       <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
         <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           <div>
-            {{ $t('profileSettings.label.visible') }}*
+            {{ $t('profileSettings.label.visible') }}
           </div>
         </v-list-item-title>
       </v-list-item-content>
@@ -87,7 +93,7 @@
       <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
         <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           <div>
-            {{ $t('profileSettings.label.editable') }}*
+            {{ $t('profileSettings.label.editable') }}
           </div>
         </v-list-item-title>
       </v-list-item-content>
@@ -105,7 +111,7 @@
       <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
         <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           <div>
-            {{ $t('profileSettings.label.groupSynchronized') }}*
+            {{ $t('profileSettings.label.groupSynchronized') }}
           </div>
         </v-list-item-title>
       </v-list-item-content>
@@ -123,7 +129,7 @@
       <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
         <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           <div>
-            {{ $t('profileSettings.label.active') }}*
+            {{ $t('profileSettings.label.active') }}
           </div>
         </v-list-item-title>
       </v-list-item-content>
@@ -180,9 +186,6 @@ export default {
     },
   },
   watch: {
-    confirmNewPassword() {
-      this.resetCustomValidity();
-    },
     saving() {
       if (this.saving) {
         this.$refs.profileSettingFormDrawer.startLoading();
@@ -208,14 +211,17 @@ export default {
       this.$refs.settingNameInput.setCustomValidity('');
     },
     addNewSetting() {
-      this.setting = {};
+      this.setting = {labels: [{language: 'en', label: ''}]};
       this.newSetting = true;
       this.drawer = true;
     },
     editSetting(setting) {
       this.setting = Object.assign({}, setting);
       this.newSetting = false;
-      this.drawer = true;
+      if (this.setting.labels.length === 0){
+        this.setting.labels.push( {language: 'en', label: ''});
+      }
+      this.drawer = true;     
     },
     saveSetting(event) {
       if (event) {
