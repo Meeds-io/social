@@ -70,6 +70,17 @@ public class Label {
   }
 
   @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder(getId().toString());
+    builder.append(":").append(getId());
+    builder.append(":").append(getObjectType());
+    builder.append(":").append(getObjectId());
+    builder.append(":").append(getLanguage());
+    builder.append(":").append(getLabel());
+    return builder.toString();
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (obj == null)
       return false;
@@ -77,5 +88,13 @@ public class Label {
       return false;
     Label other = (Label) obj;
     return id == other.getId() && objectType.equals(other.getObjectType()) && objectId.equals(other.getObjectId()) && label.equals(other.getLabel()) && language.equals(other.getLanguage());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
   }
 }

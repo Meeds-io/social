@@ -30,6 +30,7 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.service.LabelService;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
+
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -108,7 +109,7 @@ public class ProfileSettingsRest implements ResourceContainer {
     }
     try {
       ProfilePropertySetting newProfilePropertySetting = profilePropertySettingsService.createPropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
-      if (profilePropertySettingEntity.getLabels().size() > 0) {
+      if (!profilePropertySettingEntity.getLabels().isEmpty()) {
         labelService.createLabels(profilePropertySettingEntity.getLabels(), LABELS_OBJECT_TYPE, String.valueOf(newProfilePropertySetting.getId()));
       }
       return Response.ok().build();
@@ -180,7 +181,7 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(Status.BAD_REQUEST).entity("Profile property setting is null").build();
     }
     try {
-      if (profilePropertySettingEntity.getLabels().size() > 0) {
+      if (!profilePropertySettingEntity.getLabels().isEmpty()) {
         labelService.deleteLabels(profilePropertySettingEntity.getLabels());
       }
       profilePropertySettingsService.deleteProfilePropertySetting(profilePropertySettingEntity.getId());

@@ -20,7 +20,6 @@ import org.exoplatform.social.core.jpa.storage.entity.LabelEntity;
 import org.exoplatform.social.core.model.Label;
 import org.exoplatform.social.core.storage.api.LabelStorage;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RDBMSLabelStorageImpl implements LabelStorage {
 
@@ -39,8 +38,7 @@ public class RDBMSLabelStorageImpl implements LabelStorage {
   public List<Label> findLabelByObjectTypeAndObjectId(String objectType, String objectId) {
     return labelDAO.findLabelByObjectTypeAndObjectId(objectType, objectId)
             .stream()
-            .map(this::convertFromEntity)
-            .collect(Collectors.toList());
+            .map(this::convertFromEntity).toList();
   }
 
   @Override

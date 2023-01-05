@@ -18,8 +18,8 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.LabelEntity;
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LabelDAO extends GenericDAOJPAImpl<LabelEntity, Long> {
@@ -32,8 +32,6 @@ public class LabelDAO extends GenericDAOJPAImpl<LabelEntity, Long> {
             .setParameter("language", language);
     try {
       return query.getSingleResult();
-    } catch (NoResultException e) {
-      return null;
     } catch (Exception e) {
       return null;
     }
@@ -48,10 +46,8 @@ public class LabelDAO extends GenericDAOJPAImpl<LabelEntity, Long> {
             .setParameter("objectId", objectId);
     try {
       return query.getResultList();
-    } catch (NoResultException e) {
-      return null;
     } catch (Exception e) {
-      return null;
+      return new ArrayList<>();
     }
 
   }

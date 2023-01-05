@@ -15,10 +15,7 @@
  */
 
 package org.exoplatform.social.core.jpa.storage.entity;
-
 import org.exoplatform.commons.api.persistence.ExoEntity;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -26,16 +23,11 @@ import java.io.Serializable;
 @ExoEntity
 @Table(name = "SOC_LABELS ")
 
-@NamedQueries({@NamedQuery(name = "SocLabelEntity.findLabelByObjectTypeAndObjectIdAndLang",
-        query = "SELECT c FROM SocLabelEntity c WHERE objectType = :objectType and objectId = :objectId and language = :language"),
-        @NamedQuery(name = "SocLabelEntity.findLabelByObjectTypeAndObjectId",
-                query = "SELECT c FROM SocLabelEntity c WHERE objectType = :objectType and objectId = :objectId"),
-})
+@NamedQuery(name = "SocLabelEntity.findLabelByObjectTypeAndObjectIdAndLang", query = "SELECT c FROM SocLabelEntity c WHERE objectType = :objectType and objectId = :objectId and language = :language")
+@NamedQuery(name = "SocLabelEntity.findLabelByObjectTypeAndObjectId", query = "SELECT c FROM SocLabelEntity c WHERE objectType = :objectType and objectId = :objectId")
+
 
 public class LabelEntity implements Serializable {
-
-
-  private static final Log LOG = ExoLogger.getLogger(LabelEntity.class);
 
   @Id
   @SequenceGenerator(name = "SEQ_SOC_LABELS_ID", sequenceName = "SEQ_SOC_LABELS_ID", allocationSize = 1)

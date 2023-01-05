@@ -39,7 +39,7 @@ public class ProfilePropertySettingEntity {
 
   private String ldapAttribute;
 
-  private boolean IsGroupSynchronized;
+  private boolean isGroupSynchronized;
 
   private boolean isSystemProperty;
 
@@ -118,11 +118,11 @@ public class ProfilePropertySettingEntity {
   }
 
   public boolean isGroupSynchronized() {
-    return IsGroupSynchronized;
+    return isGroupSynchronized;
   }
 
   public void setGroupSynchronized(boolean groupSynchronized) {
-    IsGroupSynchronized = groupSynchronized;
+    isGroupSynchronized = groupSynchronized;
   }
 
   public boolean isSystemProperty() {
