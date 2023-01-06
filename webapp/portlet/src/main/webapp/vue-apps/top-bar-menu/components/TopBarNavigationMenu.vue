@@ -1,0 +1,145 @@
+<!--
+  This file is part of the Meeds project (https://meeds.io/).
+  Copyright (C) 2022 Meeds Association
+  contact@meeds.io
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+<template>
+  <v-app>
+    <v-footer
+      v-if="isMobile"
+      class="white pt-0 pr-0 pl-0 elevation-2"
+      inset
+      fixed>
+      <v-tabs
+        class="navigation-mobile-menu"
+        v-model="tab"
+        optional
+        height="56"
+        slider-size="4">
+        <navigation-mobile-menu-item
+          v-for="(navigation, index) in mobileNavigations"
+          :key="navigation.id"
+          :navigation="navigation"
+          :base-site-uri="getNavigationBaseUri(index)"
+          @update-navigation-state="updateNavigationState" />
+      </v-tabs>
+    </v-footer>
+    <v-tabs
+      v-else
+      v-model="tab"
+      show-arrows
+      center-active
+      optional
+      height="56"
+      slider-size="4">
+      <navigation-menu-item
+        v-for="(navigation, index) in navigations"
+        :key="navigation.id"
+        :navigation="navigation"
+        :base-site-uri="getNavigationBaseUri(index)"
+        @update-navigation-state="updateNavigationState" />
+    </v-tabs>
+  </v-app>
+</template>
+
+<script>
+export default {
+  data: () => ({
+    BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
+    navigations: [],
+    mobileNavigations: [],
+    scope: 'ALL',
+    globalScope: 'children',
+    visibility: 'displayed',
+    siteType: 'PORTAL',
+    exclude: 'global',
+    tab: null,
+    navigationTabState: 'topNavigationTabState'
+  }),
+  created() {
+    this.getNavigations();
+    this.getActiveTab();
+  },
+  watch: {
+    isMobile(mobile) {
+      if (mobile) {
+        this.refreshMobileNavigations();
+      }
+    },
+  },
+  computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+    },
+  },
+  methods: {
+    getNavigationBaseUri(index) {
+      const navigationBaseUri = `${this.BASE_SITE_URI}${this.navigations[0].name}`;
+      return index && `${navigationBaseUri}/` || navigationBaseUri;
+    },
+    getNavigations() {
+      const siteName = eXo.env.portal.portalName;
+      return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility, this.exclude)
+        .then(navigations => {
+          if (navigations.length) {
+            const homeNavigation = navigations[0];
+            return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id)
+              .then(navigations => {
+                this.navigations = navigations || [];
+                this.constructNavigations();
+              });
+          }
+        });
+    },
+    updateNavigationState(value) {
+      sessionStorage.setItem(this.navigationTabState,  value);
+    },
+    constructNavigations() {
+      if (this.navigations.length && this.navigations[0].children?.length) {
+        this.navigations.push(...this.navigations[0].children);
+        this.navigations[0].children = [];
+      }
+      if (this.isMobile) {
+        this.refreshMobileNavigations();
+      }
+    },
+    refreshMobileNavigations() {
+      if (this.navigations.length > 3) {
+        this.mobileNavigations = [];
+        const children = this.navigations.slice(2, this.navigations.length);
+        this.mobileNavigations.push(...this.navigations.slice(0, 2));
+        this.mobileNavigations.push({
+          id: 0,
+          name: 'more',
+          label: this.$t('topBar.navigation.label.more'),
+          children: children
+        });
+      } else {
+        this.mobileNavigations = this.navigations;
+      }
+    },
+    getActiveTab() {
+      const siteName = eXo.env.portal.portalName;
+      if (location.pathname.endsWith(siteName)) {
+        this.updateNavigationState(`${location.pathname}/home`);
+      }
+      this.tab = sessionStorage.getItem(this.navigationTabState);
+      if (location.pathname !== this.tab && !location.pathname.startsWith(this.tab)
+          && !location.pathname.endsWith(siteName)) {
+        this.tab = location.pathname;
+      }
+    }
+  }
+};
+</script>
