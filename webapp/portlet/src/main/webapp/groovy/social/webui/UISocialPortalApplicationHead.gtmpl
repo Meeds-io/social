@@ -37,6 +37,7 @@
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
+     eXo.env.portal.isExternal = "<%=Utils.isExternal(Utils.getViewerIdentity())%>" ;
      eXo.env.portal.timezone = "<%=timezone.getID()%>" ;
      eXo.env.portal.timezoneOffset = <%=timezone.getRawOffset()%> ;
      eXo.env.portal.timezoneDSTSavings = <%=Utils.getViewerTimezoneDSTSavings()%> ;
