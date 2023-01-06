@@ -444,4 +444,68 @@
       </container>
     </container>
   </page>
+
+  <page>
+    <name>externalStream</name>
+    <title>externalStream</title>
+    <access-permissions>*:/platform/externals</access-permissions>
+    <edit-permission>manager:/platform/administrators</edit-permission>
+    <container id="StreamPage" template="system:/groovy/portal/webui/container/UIMobileSwipeContainer.gtmpl">
+      <access-permissions>*:/platform/externals</access-permissions>
+      <container id="StreamMainContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>*:/platform/externals</access-permissions>
+        <portlet-application>
+          <portlet>
+            <application-ref>social-portlet</application-ref>
+            <portlet-ref>UserActivityStreamPortlet</portlet-ref>
+          </portlet>
+          <title>User Activity Stream</title>
+          <access-permissions>*:/platform/externals</access-permissions>
+          <show-info-bar>false</show-info-bar>
+          <show-application-state>true</show-application-state>
+        </portlet-application>
+      </container>
+      <container id="StreamRightContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <access-permissions>*:/platform/externals</access-permissions>
+        <container id="GettingStartedContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+          <access-permissions>*:/platform/externals</access-permissions>
+          <portlet-application>
+            <portlet>
+              <application-ref>social-portlet</application-ref>
+              <portlet-ref>GettingStarted</portlet-ref>
+            </portlet>
+            <title>Getting Started</title>
+            <access-permissions>*:/platform/externals</access-permissions>
+            <show-info-bar>false</show-info-bar>
+            <show-application-state>true</show-application-state>
+          </portlet-application>
+        </container>
+        <container id="ExternalSpacesListContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+          <access-permissions>*:/platform/externals</access-permissions>
+          <portlet-application>
+            <portlet>
+              <application-ref>social-portlet</application-ref>
+              <portlet-ref>ExternalSpacesList</portlet-ref>
+            </portlet>
+            <title>External spaces list</title>
+            <access-permissions>*:/platform/externals</access-permissions>
+            <show-info-bar>false</show-info-bar>
+          </portlet-application>
+        </container>
+        <container id="MyTasksContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl" profiles="task">
+          <access-permissions>*:/platform/externals</access-permissions>
+          <portlet-application>
+            <portlet>
+              <application-ref>task-management</application-ref>
+              <portlet-ref>tasks</portlet-ref>
+            </portlet>
+            <title>Tasks</title>
+            <access-permissions>*:/platform/externals</access-permissions>
+            <show-info-bar>false</show-info-bar>
+          </portlet-application>
+        </container>
+      </container>
+    </container>
+  </page>
+
 </page-set>
