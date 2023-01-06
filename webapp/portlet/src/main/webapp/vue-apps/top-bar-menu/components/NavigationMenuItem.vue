@@ -1,0 +1,124 @@
+<!--
+  This file is part of the Meeds project (https://meeds.io/).
+  Copyright (C) 2022 Meeds Association
+  contact@meeds.io
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+<template>
+  <v-menu
+    v-model="showMenu"
+    rounded
+    content-class="topBar-navigation-drop-menu"
+    :left="$vuetify.rtl"
+    offset-y>
+    <template #activator="{ attrs }">
+      <v-tab
+        class="mx-auto text-caption text-break"
+        v-bind="attrs"
+        :href="`${baseSiteUri}${navigation.uri}`"
+        :disabled="!hasPage && !hasChildren"
+        :link="hasPage"
+        @click.stop="checkLink(navigation, $event)"
+        @change="updateNavigationState(navigation.uri)">
+        <span
+          class="text-truncate-3">
+          {{ navigation.label }}
+        </span>
+        <v-btn
+          v-if="hasPage && hasChildren"
+          icon
+          @click.stop.prevent="openDropMenu">
+          <v-icon size="20">
+            fa-angle-down
+          </v-icon>
+        </v-btn>
+        <v-icon
+          class="pa-3"
+          v-else-if="hasChildren"
+          size="20">
+          fa-angle-down
+        </v-icon>
+      </v-tab>
+    </template>
+    <navigation-menu-sub-item
+      :navigation="navigation.children"
+      :base-site-uri="baseSiteUri"
+      :parent-navigation-uri="navigation.uri"
+      @update-navigation-state="updateNavigationState" />
+  </v-menu>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      showMenu: false,
+    };
+  },
+  props: {
+    navigation: {
+      type: Object,
+      default: null,
+    },
+    baseSiteUri: {
+      type: String,
+      default: null
+    }
+  },
+  created() {
+    document.addEventListener('click', this.handleCloseMenu);
+    this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  },
+  computed: {
+    hasChildren() {
+      return this.navigation?.children?.length;
+    },
+    hasPage() {
+      return !!this.navigation?.pageKey;
+    }
+  },
+  methods: {
+    updateNavigationState(value) {
+      this.$emit('update-navigation-state', `${this.baseSiteUri}${value}`);
+    },
+    checkLink(navigation, e) {
+      if (!navigation.pageKey) {
+        e.preventDefault();
+      }
+      if (navigation.children) {
+        this.openDropMenu();
+      }
+    },
+    openDropMenu(persist) {
+      if (!persist && this.showMenu) {
+        this.showMenu = false;
+      } else if (!this.showMenu) {
+        this.showMenu = true;
+        this.$root.$emit('close-sibling-drop-menus', this);
+      }
+    },
+    handleCloseSiblingMenus(emitter) {
+      if (this !== emitter && this.showMenu) {
+        this.showMenu = false;
+      }
+    },
+    handleCloseMenu() {
+      if (this.showMenu) {
+        setTimeout(() => {
+          this.showMenu = false;
+        }, 100);
+      }
+    }
+  }
+};
+</script>
