@@ -16,7 +16,7 @@
         v-else
         size="24" 
         class="primary--text">
-        fas fa-feather-alt
+        fas fa-stream
       </v-icon> 
     </v-list-item-icon>
 
