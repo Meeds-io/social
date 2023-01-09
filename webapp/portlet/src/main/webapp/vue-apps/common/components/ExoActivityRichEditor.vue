@@ -242,6 +242,7 @@ export default {
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
         startupFocus: 'end',
+        pasteFilter: 'p; a[!href]; strong; i', 
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
