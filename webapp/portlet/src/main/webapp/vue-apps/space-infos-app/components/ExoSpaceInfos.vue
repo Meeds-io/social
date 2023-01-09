@@ -33,7 +33,8 @@
             :size="30"
             :extra-class="'my-2'"
             :popover-left-position="true"
-            popover />
+            popover
+            link-style />
         </div>
       </div>
     </div>
