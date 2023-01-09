@@ -45,6 +45,7 @@
           <v-text-field
             id="username"
             v-model="username"
+            :title="$t('portal.login.Username')"
             :placeholder="$t('portal.login.Username')"
             name="username"
             prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
@@ -58,6 +59,7 @@
           <v-text-field
             id="password"
             v-model="password"
+            :title="$t('forgotPassword.NewPassword')"
             :placeholder="$t('forgotPassword.NewPassword')"
             :type="passwordType"
             :append-icon="showPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"
@@ -74,6 +76,7 @@
           <v-text-field
             id="password2"
             v-model="confirmPassword"
+            :title="$t('forgotPassword.ConfirmNewPassword')"
             :placeholder="$t('forgotPassword.ConfirmNewPassword')"
             :type="passwordConfirmType"
             :append-icon="showConfirmPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"

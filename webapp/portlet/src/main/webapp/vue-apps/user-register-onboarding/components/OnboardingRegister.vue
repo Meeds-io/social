@@ -30,6 +30,7 @@
         <v-text-field
           id="email"
           v-model="email"
+          :title="$t('onboarding.emailPlaceholder')"
           :placeholder="$t('onboarding.emailPlaceholder')"
           name="email"
           prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
@@ -56,6 +57,7 @@
           <v-text-field
             id="captcha"
             v-model="captcha"
+            :title="$t('onboarding.captchaPlaceholder')"
             :placeholder="$t('onboarding.captchaPlaceholder')"
             name="captcha"
             class="login-username border-box-sizing pa-0 mt-1"
