@@ -242,6 +242,7 @@ export default {
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
         startupFocus: 'end',
+        pasteFilter: 'p; a[!href]; strong; i', 
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorType];
@@ -271,9 +272,6 @@ export default {
             if (!self.activityId && self.useDraftManagement && self.contextName) {
               localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
             }
-          },
-          paste: function (evt) {
-            evt.data.dataValue = evt.data.dataValue.replace(/<\/?h[1-6][^>]*>/g,'');
           },
           destroy: function () {
             self.inputVal = '';
