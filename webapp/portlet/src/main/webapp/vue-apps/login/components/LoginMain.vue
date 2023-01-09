@@ -60,6 +60,7 @@
           <v-text-field
             id="username"
             v-model="username"
+            :title="$t('portal.login.Username')"
             :placeholder="$t('portal.login.Username')"
             :readonly="disabled"
             :autofocus="!disabled && 'autofocus'"
@@ -77,6 +78,7 @@
           <v-text-field
             id="password"
             v-model="password"
+            :title="$t('portal.login.Password')"
             :placeholder="$t('portal.login.Password')"
             :type="passwordType"
             :append-icon="showPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"

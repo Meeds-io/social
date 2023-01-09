@@ -55,6 +55,7 @@
             <v-text-field
               id="email"
               v-model="email"
+              :title="$t('onboarding.emailPlaceholder')"
               :readonly="isEmailReadOnly"
               :tabindex="!isEmailReadOnly && '0'"
               :autofocus="!isEmailReadOnly && 'autofocus'"
@@ -70,6 +71,7 @@
             <v-text-field
               id="firstName"
               v-model="firstName"
+              :title="$t('onboarding.firstName')"
               :placeholder="$t('onboarding.firstName')"
               :tabindex="isEmailReadOnly && '0'"
               :autofocus="isEmailReadOnly && 'autofocus'"
@@ -85,6 +87,7 @@
             <v-text-field
               id="lastName"
               v-model="lastName"
+              :title="$t('onboarding.lastName')"
               :placeholder="$t('onboarding.lastName')"
               name="lastName"
               class="login-username border-box-sizing"
@@ -105,6 +108,7 @@
             <v-text-field
               id="password"
               v-model="password"
+              :title="$t('onboarding.NewPassword')"
               :placeholder="$t('onboarding.NewPassword')"
               :type="passwordType"
               :append-icon="showPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"
@@ -122,6 +126,7 @@
             <v-text-field
               id="password2"
               v-model="confirmPassword"
+              :title="$t('onboarding.ConfirmNewPassword')"
               :placeholder="$t('onboarding.ConfirmNewPassword')"
               :type="passwordConfirmType"
               :append-icon="showConfirmPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"
@@ -149,6 +154,7 @@
             <v-text-field
               id="captcha"
               v-model="captcha"
+              :title="$t('onboarding.captchaPlaceholder')"
               :placeholder="$t('onboarding.captchaPlaceholder')"
               name="captcha"
               class="login-username border-box-sizing pa-0 mt-1"
