@@ -542,13 +542,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           int[] dimension = Utils.parseDimension(size);
           byte[] avatarContent = null;
           try {
-            avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                                                                       identity,
-                                                                       dimension[0],
-                                                                       dimension[1])
-                                                 .getAsByte();
+            if(identityManager.getAvatarFile(identity) != null) {
+              avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+                              identity,
+                              dimension[0],
+                              dimension[1])
+                      .getAsByte();
+            }
           } catch (Exception e) {
-            LOG.error("Error while resizing avatar, original Image will be returned", e);
+            LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned", identity.getId(), e);
           }
           if (avatarContent != null) {
             builder = Response.ok(avatarContent, "image/png");
