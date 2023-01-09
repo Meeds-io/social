@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -776,7 +775,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
     spaceMembers = spaceMembers.stream()
         .filter(username -> !excludedMembers.contains(username))
-        .collect(Collectors.toList());
+        .toList();
     if (profileFilter != null && profileFilter.getExcludedIdentityList() != null) {
       for (Identity identity : profileFilter.getExcludedIdentityList()) {
         spaceMembers.remove(identity.getRemoteId());
@@ -833,7 +832,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
         spaceMembers = Arrays.stream(space.getInvitedUsers())
             .filter(username -> !excludedMembers.contains(username))
-            .collect(Collectors.toList());
+            .toList();
         break;
       case PENDING:
         if(space.getPendingUsers() == null || space.getPendingUsers().length == 0) {
@@ -841,7 +840,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
         spaceMembers = Arrays.stream(space.getPendingUsers())
             .filter(username -> !excludedMembers.contains(username))
-            .collect(Collectors.toList());
+            .toList();
         break;
       case MANAGER:
         if(space.getManagers() == null || space.getManagers().length == 0) {
@@ -849,7 +848,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
         spaceMembers = Arrays.stream(space.getManagers())
             .filter(username -> !excludedMembers.contains(username))
-            .collect(Collectors.toList());
+            .toList();
         break;
       case REDACTOR:
         if(space.getRedactors() == null || space.getRedactors().length == 0) {
@@ -857,7 +856,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
         spaceMembers = Arrays.stream(space.getRedactors())
             .filter(username -> !excludedMembers.contains(username))
-            .collect(Collectors.toList());
+            .toList();
         break;
       case PUBLISHER:
         if(space.getPublishers() == null || space.getPublishers().length == 0) {
@@ -865,7 +864,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
         spaceMembers = Arrays.stream(space.getPublishers())
             .filter(username -> !excludedMembers.contains(username))
-            .collect(Collectors.toList());
+            .toList();
         break;
       default:
         if(space.getMembers() == null || space.getMembers().length == 0) {
@@ -873,7 +872,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
         spaceMembers = Arrays.stream(space.getMembers())
                              .filter(username -> !excludedMembers.contains(username))
-                             .collect(Collectors.toList());
+                             .toList();
         break;
     }
     if (profileFilter == null || profileFilter.isEmpty()) {
