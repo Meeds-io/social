@@ -23,8 +23,9 @@
             class="pe-3 logoContainer">
             <img
               :src="logoPath"
+              :alt="logoTitle"
               class="spaceAvatar"
-              :alt="logoTitle">
+              width="30px">
           </a>
           <a
             :href="portalPath"
