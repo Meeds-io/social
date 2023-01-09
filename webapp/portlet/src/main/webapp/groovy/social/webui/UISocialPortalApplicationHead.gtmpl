@@ -37,6 +37,7 @@
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
+     eXo.env.portal.isExternal = "<%=Utils.isExternal(Utils.getViewerIdentity())%>" ;
      eXo.env.portal.timezone = "<%=timezone.getID()%>" ;
      eXo.env.portal.timezoneOffset = <%=timezone.getRawOffset()%> ;
      eXo.env.portal.timezoneDSTSavings = <%=Utils.getViewerTimezoneDSTSavings()%> ;
@@ -65,4 +66,5 @@
      eXo.env.portal.StreamFilterEnabled = <%=featureService.isFeatureActiveForUser("StreamFilter", userName)%>;
      eXo.env.portal.PinActivityEnabled = <%=featureService.isFeatureActiveForUser("PinActivity", userName)%>;
      eXo.env.portal.SpaceWebNotificationsEnabled = <%=featureService.isFeatureActiveForUser("SpaceWebNotifications", userName)%>;
+     eXo.env.portal.topBarNavigationEnabled = <%=featureService.isFeatureActiveForUser("navigationPortlet", userName)%>;
 </script>
