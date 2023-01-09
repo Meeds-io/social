@@ -27,8 +27,7 @@ export function init() {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<space-settings
-                  class="singlePageApplication" />`,
+      template: `<space-settings />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'Space Settings');
