@@ -267,11 +267,13 @@ export default {
           },
           change: function (evt) {
             const newData = evt.editor.getData();
-            const newDataVal = newData.replace(/<\/?h1[^>]*>/g,'');
-            self.inputVal = newDataVal;
+            self.inputVal = newData;
             if (!self.activityId && self.useDraftManagement && self.contextName) {
-              localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newDataVal}));
+              localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
             }
+          },
+          paste: function (evt) {
+            evt.data.dataValue = evt.data.dataValue.replace(/<\/?h[1-6][^>]*>/g,'');
           },
           destroy: function () {
             self.inputVal = '';
