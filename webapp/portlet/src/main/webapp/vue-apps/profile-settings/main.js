@@ -37,11 +37,14 @@ const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 const appId = 'profileSettings';
 
-export function init() {
+export function init(languages) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale resources are ready
     Vue.createApp({
-      template: `<profile-settings id="${appId}" />`,
+      data: {
+        languages: languages,
+      },
+      template: `<profile-settings id="${appId}" :languages="languages"/>`,
       vuetify,
       i18n
     }, `#${appId}`, 'Profile settings');
