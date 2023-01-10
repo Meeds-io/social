@@ -30,7 +30,7 @@
       id="filterSettingsSelect"
       v-model="filter"
       name="documentsFilter"
-      class="selectPrimaryFilter input-block-level ignore-vuetify-classes  pa-0 my-auto ml-2"
+      class="selectPrimaryFilter input-block-level ignore-vuetify-classes  pa-2 my-auto ml-2"
       @change="changeSettingsFilter">
       <option
         v-for="item in filterSettings"
