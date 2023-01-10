@@ -5,7 +5,7 @@
         {{ error }}
       </v-alert>
     </v-card-text>
-    <v-card class="d-flex flex py-4" flat>
+    <v-card class="d-flex flex py-2" flat>
       <v-flex class="sm12 md4" flat>
         <groups-management-tree-toolbar />
         <groups-management-tree />
