@@ -23,7 +23,7 @@
     bannerTitle = preferences.getValue("bannerTitle", "");
     if (bannerTitle == null || bannerTitle.isEmpty()) {
       titleClass = "";
-      bannerTitle = "gamification.overview.overviewBanner.title";
+      bannerTitle = "overview.overviewBanner.titlePlaceHolder";
     }
   }
   String bannerCaption = renderRequest.getParameter("bannerCaption");
@@ -31,7 +31,7 @@
     bannerCaption = preferences.getValue("bannerCaption", "");
     if (bannerCaption == null || bannerCaption.isEmpty()) {
       captionClass = "";
-      bannerCaption = "gamification.overview.overviewBanner.caption";
+      bannerCaption = "overview.overviewBanner.descriptionPlaceHolder";
     }
   }
   ResourceBundle bundle;
