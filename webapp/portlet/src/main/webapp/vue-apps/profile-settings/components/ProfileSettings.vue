@@ -53,6 +53,7 @@ export default {
     this.$root.$on('move-up-setting', this.moveUpSetting);
     this.$root.$on('move-down-setting', this.moveDownSetting);
     this.$root.$on('settings-set-filter', this.setFilter);
+    this.$root.$on('cancel-edit-add', this.displayNoChangeWarning);
     this.languages = this.languages.sort((a, b) => a.value.localeCompare(b.value));
     this.getSettings();
   },
@@ -115,6 +116,9 @@ export default {
     },
     moveDownSetting(setting) {
       this.moveSetting(setting, 'down');
+    },
+    displayNoChangeWarning() {
+      this.displayMessage({type: 'warning', message: this.$t('profileSettings.nochange.warning.message')});
     },
     moveSetting(setting, direction) {
       this.settings.sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
