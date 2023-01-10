@@ -24,8 +24,11 @@
     max-width="100%"
     class="mx-auto px-4"
     flat>
+    <portal-external-onboarding-already-authenticated
+      v-if="authenticated"
+      :params="params" />
     <portal-external-onboarding-expired
-      v-if="action === 'expired'"
+      v-else-if="action === 'expired'"
       :params="params" />
     <portal-external-onboarding-create-user-form
       v-else
@@ -43,6 +46,9 @@ export default {
   computed: {
     action() {
       return this.params?.action;
+    },
+    authenticated() {
+      return this.params?.authenticated;
     },
   },
 };
