@@ -19,20 +19,28 @@
 
 -->
 <template>
-  <v-card
-    width="600px"
-    max-width="100%"
-    class="mx-auto px-4"
-    flat>
-    <portal-external-onboarding-already-authenticated
-      v-if="authenticated"
-      :params="params" />
-    <portal-external-onboarding-expired
-      v-else-if="action === 'expired'"
-      :params="params" />
-    <portal-external-onboarding-create-user-form
-      v-else
-      :params="params" />
+  <v-card flat>
+    <v-card-title class="primary--text subtitle-1 px-0">
+      <span class="mx-auto text-center">{{ $t('onboarding.alreadyLoggedInPart1') }}</span>
+      <span class="mx-auto text-center mt-4">{{ $t('onboarding.alreadyLoggedInPart2') }}</span>
+    </v-card-title>
+    <div class="d-flex ma-0 flex-column">
+      <div class="pa-0">
+        <v-row class="mx-0 mt-8 pa-0">
+          <v-btn
+            :aria-label="$t('forgotpassword.backToLogin')"
+            href="/portal/login"
+            color="primary"
+            width="222"
+            max-width="100%"
+            tabindex="0"
+            class="mx-auto login-button text-none"
+            elevation="0">
+            {{ $t('forgotpassword.go') }}
+          </v-btn>
+        </v-row>
+      </div>
+    </div>
   </v-card>
 </template>
 <script>
@@ -44,11 +52,8 @@ export default {
     },
   },
   computed: {
-    action() {
-      return this.params?.action;
-    },
-    authenticated() {
-      return this.params?.authenticated;
+    formUrl() {
+      return window.location.pathname;
     },
   },
 };
