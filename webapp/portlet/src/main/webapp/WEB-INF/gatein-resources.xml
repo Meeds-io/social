@@ -25,10 +25,122 @@
   <portlet>
     <name>Login</name>
     <module>
+      <load-group>login-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/login.bundle.js</path>
       </script>
+      <depends>
+        <module>loginCommon</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>vueEllipsis</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>ForgotPassword</name>
+    <module>
+      <load-group>forgot-password-extensions</load-group>
+      <script>
+        <minify>false</minify>
+        <path>/js/forgotPassword.bundle.js</path>
+      </script>
+      <depends>
+        <module>loginCommon</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>vueEllipsis</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>InternalOnboarding</name>
+    <load-group>internal-onboarding-extensions</load-group>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/internalOnboarding.bundle.js</path>
+      </script>
+      <depends>
+        <module>loginCommon</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>vueEllipsis</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>ExternalOnboarding</name>
+    <module>
+      <load-group>external-onboarding-extensions</load-group>
+      <script>
+        <minify>false</minify>
+        <path>/js/externalOnboarding.bundle.js</path>
+      </script>
+      <depends>
+        <module>loginCommon</module>
+      </depends>
       <depends>
         <module>commonVueComponents</module>
       </depends>
@@ -57,6 +169,7 @@
   <portlet>
     <name>Register</name>
     <module>
+      <load-group>register-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/register.bundle.js</path>
@@ -89,6 +202,7 @@
   <portlet>
     <name>OnboardingRegisterExtension</name>
     <module>
+      <load-group>register-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/registerOnboarding.bundle.js</path>
@@ -1427,6 +1541,25 @@
   </module>
 
   <module>
+    <name>loginCommon</name>
+    <script>
+      <path>/js/loginCommon.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
     <name>spacesListComponents</name>
     <script>
       <minify>false</minify>
@@ -1715,28 +1848,6 @@
     <depends>
       <module>jquery</module>
       <as>jQuery</as>
-    </depends>
-  </module>
-
-  <module>
-    <name>oAuthLoginExtension</name>
-    <script>
-      <path>/js/oAuthLoginExtension.bundle.js</path>
-    </script>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
     </depends>
   </module>
 

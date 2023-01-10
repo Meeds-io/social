@@ -16,12 +16,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import LoginOAuthProviders from './components/LoginOAuthProviders.vue';
-import LoginOAuthProviderLink from './components/LoginOAuthProviderLink.vue';
+import BrandingImage from './components/BrandingImage.vue';
+import Introduction from './components/Introduction.vue';
+import PageTemplate from './components/PageTemplate.vue';
 
 const components = {
-  'portal-login-oauth-providers': LoginOAuthProviders,
-  'portal-login-oauth-provider-link': LoginOAuthProviderLink,
+  'portal-login-template': PageTemplate,
+  'portal-login-introduction': Introduction,
+  'portal-login-branding-image': BrandingImage,
 };
 
 for (const key in components) {

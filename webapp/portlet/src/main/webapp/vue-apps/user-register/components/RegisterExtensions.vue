@@ -19,15 +19,16 @@
 
 -->
 <template>
-  <div v-if="oAuthEnabled" id="social-pane">
-    <div id="social-login">
-      <portal-login-oauth-provider-link
-        v-for="oAuthProvider in oAuthProviders"
-        :key="oAuthProvider.key"
-        :provider="oAuthProvider"
-        :rememberme="rememberme" />
-    </div>
-  </div>
+  <extension-registry-components
+    :params="{params}"
+    name="Register"
+    type="register-extension"
+    parent-element="div"
+    element="div">
+    <template #separator>
+      <portal-register-separator class="my-5" />
+    </template>
+  </extension-registry-components>
 </template>
 <script>
 export default {
@@ -35,24 +36,6 @@ export default {
     params: {
       type: Object,
       default: null,
-    },
-    rememberme: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    oAuthEnabled() {
-      return this.params && this.params.oAuthEnabled;
-    },
-    oAuthProviderTypes() {
-      return this.params && this.params.oAuthProviderTypes || [];
-    },
-    oAuthProviders() {
-      return this.params && this.params.oAuthProviderTypes && this.params.oAuthProviderTypes.map(key => ({
-        key,
-        url: this.params[`oAuthInitURL-${key}`],
-      })) || [];
     },
   },
 };

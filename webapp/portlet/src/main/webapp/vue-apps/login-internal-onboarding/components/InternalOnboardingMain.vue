@@ -1,9 +1,9 @@
 <!--
 
  This file is part of the Meeds project (https://meeds.io/).
-
+ 
  Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
-
+ 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -12,19 +12,25 @@
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  Lesser General Public License for more details.
-
+ 
  You should have received a copy of the GNU Lesser General Public License
  along with this program; if not, write to the Free Software Foundation,
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <template>
-  <portal-login-template
-    :params="params"
-    branding-image
-    center>
-    <portal-login-main :params="params" />
-  </portal-login-template>
+  <v-card
+    width="600px"
+    max-width="100%"
+    class="mx-auto px-4"
+    flat>
+    <portal-internal-onboarding-expired
+      v-if="action === 'expired'"
+      :params="params" />
+    <portal-internal-onboarding-reset-form
+      v-else
+      :params="params" />
+  </v-card>
 </template>
 <script>
 export default {
@@ -34,11 +40,10 @@ export default {
       default: null,
     },
   },
-  created() {
-    document.title = this.$t('UILoginForm.label.login');
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
+  computed: {
+    action() {
+      return this.params?.action;
+    },
   },
 };
 </script>

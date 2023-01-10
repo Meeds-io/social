@@ -23,7 +23,7 @@
     :params="params"
     branding-image
     center>
-    <portal-login-main :params="params" />
+    <portal-forgot-password-main :params="params" />
   </portal-login-template>
 </template>
 <script>
@@ -35,7 +35,7 @@ export default {
     },
   },
   created() {
-    document.title = this.$t('UILoginForm.label.login');
+    document.title = this.$t('forgotpassword.pagetitle');
   },
   mounted() {
     this.$root.$applicationLoaded();

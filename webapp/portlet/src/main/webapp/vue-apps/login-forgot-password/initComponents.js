@@ -16,9 +16,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-extensionRegistry.registerComponent('LoginFooter', 'login-footer', {
-  id: 'oauth-providers',
-  vueComponent: Vue.options.components['portal-login-oauth-providers'],
-  isEnabled: params => params && params.params && params.params.oAuthEnabled,
-  rank: 10,
-});
+
+import ForgotPassword from './components/ForgotPassword.vue';
+import ForgotPasswordMain from './components/ForgotPasswordMain.vue';
+import ForgotPasswordEmailForm from './components/ForgotPasswordEmailForm.vue';
+import ForgotPasswordExpired from './components/ForgotPasswordExpired.vue';
+import ForgotPasswordResetForm from './components/ForgotPasswordResetForm.vue';
+
+const components = {
+  'portal-forgot-password': ForgotPassword,
+  'portal-forgot-password-main': ForgotPasswordMain,
+  'portal-forgot-password-expired': ForgotPasswordExpired,
+  'portal-forgot-password-email-form': ForgotPasswordEmailForm,
+  'portal-forgot-password-reset-form': ForgotPasswordResetForm,
+};
+
+for (const key in components) {
+  Vue.component(key, components[key]);
+}

@@ -16,6 +16,8 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 --%>
+<%@page import="java.util.ResourceBundle"%>
+<%@page import="org.exoplatform.services.resources.ResourceBundleService"%>
 <%@ page language="java"%>
 <%@ page import="java.util.Set"%>
 <%@ page import="java.util.List"%>
@@ -47,6 +49,10 @@
   String browserLanguage = localeConfig.getLocale().getLanguage();
   Orientation orientation = localeConfig.getOrientation();
   String direction = orientation.isLT() ? "ltr" : "rtl";
+
+  PortalContainer portalContainer = PortalContainer.getInstance();
+  ResourceBundleService resourceBundleService = portalContainer.getComponentInstanceOfType(ResourceBundleService.class);
+  ResourceBundle res = resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), localeConfig.getLocale());
 %>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -55,7 +61,7 @@
   dir="<%=direction%>">
 <head>
   <%-- Embedded Title that will change once page loaded --%>
-  <title>Login</title>
+  <title><%=res.getString("external.registration.title")%></title>
   <!-- Metadatas -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -111,7 +117,7 @@
 </head>
 <body>
   <div class="VuetifyApp">
-    <div id="loginApplication"></div>
+    <div id="externalRegisterApplication"></div>
   </div>
 </body>
 </html>

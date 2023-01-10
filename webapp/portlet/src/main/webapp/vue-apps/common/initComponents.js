@@ -22,6 +22,7 @@ import ActivityShareDrawer from './components/ActivityShareDrawer.vue';
 import FavoriteButton from './components/FavoriteButton.vue';
 import ChangesReminder from './components/ChangesReminder.vue';
 import UnreadBadge from './components/UnreadBadge.vue';
+import Notifications from './components/Notifications.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -48,6 +49,7 @@ const components = {
   'favorite-button': FavoriteButton,
   'changes-reminder': ChangesReminder,
   'unread-badge': UnreadBadge,
+  'alert-notifications': Notifications,
 };
 
 for (const key in components) {

@@ -19,14 +19,14 @@
 import './initComponents.js';
 
 // get overrided components if exists
-const components = extensionRegistry.loadComponents('Login');
+const components = extensionRegistry.loadComponents('ForgotPassword');
 if (components && components.length > 0) {
   components.forEach(cmp => {
     Vue.component(cmp.componentName, cmp.componentOptions);
   });
 }
 
-const appId = 'loginApplication';
+const appId = 'internalOnboardingApplication';
 
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -44,14 +44,9 @@ export function init(params) {
       data: {
         params: params,
       },
-      template: `<portal-login id="${appId}" :params="params" />`,
+      template: `<portal-internal-onboarding id="${appId}" :params="params" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
-    }, `#${appId}`, 'Login');
+    }, `#${appId}`, 'Internal Onboarding');
   });
-  Object.keys(window.requirejs?.s?.contexts?._?.registry)
-    .filter(definedMofule => definedMofule.includes('LoginExtension'))
-    .forEach(module => {
-      window.require([module], app => app.init && app.init());
-    });
 }

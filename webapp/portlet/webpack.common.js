@@ -20,9 +20,12 @@ let config = {
   entry: {
     commonVueComponents: './src/main/webapp/vue-apps/common/main.js',
     login: './src/main/webapp/vue-apps/login/main.js',
+    loginCommon: './src/main/webapp/vue-apps/login-common/main.js',
+    forgotPassword: './src/main/webapp/vue-apps/login-forgot-password/main.js',
+    internalOnboarding: './src/main/webapp/vue-apps/login-internal-onboarding/main.js',
+    externalOnboarding: './src/main/webapp/vue-apps/login-external-onboarding/main.js',
     register: './src/main/webapp/vue-apps/user-register/main.js',
     registerOnboarding: './src/main/webapp/vue-apps/user-register-onboarding/main.js',
-    oAuthLoginExtension: './src/main/webapp/vue-apps/login-oauth/main.js',
     spacesAdministration: './src/main/webapp/vue-apps/spaces-administration/main.js',
     hamburgerMenu: './src/main/webapp/vue-apps/hamburger-menu/main.js',
     administrationHamburgerMenu: './src/main/webapp/vue-apps/administration-navigation/main.js',

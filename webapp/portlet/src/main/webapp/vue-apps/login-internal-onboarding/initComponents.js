@@ -16,16 +16,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Register from './components/Register.vue';
-import RegisterMain from './components/RegisterMain.vue';
-import RegisterExtensions from './components/RegisterExtensions.vue';
-import RegisterSeparator from './components/RegisterSeparator.vue';
+
+import InternalOnboarding from './components/InternalOnboarding.vue';
+import InternalOnboardingMain from './components/InternalOnboardingMain.vue';
+import InternalOnboardingExpired from './components/InternalOnboardingExpired.vue';
+import InternalOnboardingResetForm from './components/InternalOnboardingResetForm.vue';
 
 const components = {
-  'portal-register': Register,
-  'portal-register-main': RegisterMain,
-  'portal-register-extensions': RegisterExtensions,
-  'portal-register-separator': RegisterSeparator,
+  'portal-internal-onboarding': InternalOnboarding,
+  'portal-internal-onboarding-main': InternalOnboardingMain,
+  'portal-internal-onboarding-expired': InternalOnboardingExpired,
+  'portal-internal-onboarding-reset-form': InternalOnboardingResetForm,
 };
 
 for (const key in components) {
