@@ -22,7 +22,7 @@
     v-for="propertylabel in propertylabels"
           :key="propertylabel.id"
     >
-      <property-label :propertylabel="propertylabel" :languages="languages" @delete-label="deleteLabel" />
+      <property-label :propertylabel="propertylabel" :languages="filtredLanguages" @delete-label="deleteLabel" />
      
     </v-list-item>
   </v-list>
@@ -46,15 +46,21 @@ export default {
     propertylabels: {
       type: Object,
       default: null,
-    }
+    },
+    languages: {
+      type: Object,
+      default: null
+    },
   },
-  data: () => ({
-    languages: [{name: 'FR'},{name: 'EN'},{name: 'IT'},{name: 'AR'},{name: 'DE'}],
-  }),
+
   computed: {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
     },
+    filtredLanguages(){
+      const result = this.propertylabels.map(a => a.language);
+      return this.languages.filter(lang => !result.includes(lang.value));
+    }
   },
 
   methods: {
