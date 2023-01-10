@@ -20,12 +20,14 @@
 import ExternalOnboarding from './components/ExternalOnboarding.vue';
 import ExternalOnboardingMain from './components/ExternalOnboardingMain.vue';
 import ExternalOnboardingExpired from './components/ExternalOnboardingExpired.vue';
+import ExternalOnboardingAlreadyAuthenticated from './components/ExternalOnboardingAlreadyAuthenticated.vue';
 import ExternalOnboardingCreateUserForm from './components/ExternalOnboardingCreateUserForm.vue';
 
 const components = {
   'portal-external-onboarding': ExternalOnboarding,
   'portal-external-onboarding-main': ExternalOnboardingMain,
   'portal-external-onboarding-expired': ExternalOnboardingExpired,
+  'portal-external-onboarding-already-authenticated': ExternalOnboardingAlreadyAuthenticated,
   'portal-external-onboarding-create-user-form': ExternalOnboardingCreateUserForm,
 };
 
