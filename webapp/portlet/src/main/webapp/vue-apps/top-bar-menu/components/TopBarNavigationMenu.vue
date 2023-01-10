@@ -17,7 +17,7 @@
 <template>
   <v-app>
     <v-footer
-      v-if="isMobile"
+      v-if="isMobile && this.mobileNavigations.length"
       class="white pt-0 pr-0 pl-0 elevation-2"
       inset
       fixed>
@@ -109,6 +109,8 @@ export default {
       if (this.navigations.length && this.navigations[0].children?.length) {
         this.navigations.push(...this.navigations[0].children);
         this.navigations[0].children = [];
+      } else {
+        this.navigations = [];
       }
       if (this.isMobile) {
         this.refreshMobileNavigations();
