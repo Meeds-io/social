@@ -20,7 +20,7 @@
     id="profileSettingFormDrawer"
     ref="profileSettingFormDrawer"
     right
-    @closed="drawer = false">
+    @closed="cancel">
     <template slot="title">
       {{ title }}
     </template>
@@ -191,6 +191,7 @@ export default {
     saving: false,
     confirmNewPassword: null,
     setting: {},
+    changes: false
   }),
   computed: {
     title() {
@@ -241,6 +242,7 @@ export default {
     addNewSetting() {
       this.setting = {labels: [{language: 'en', label: ''}], visible: true, editable: true, groupSynchronized: false, active: true};
       this.newSetting = true;
+      this.changes= false;
       this.drawer = true;
     },
     editSetting(setting) {
@@ -249,9 +251,11 @@ export default {
       if (this.setting.labels.length === 0){
         this.setting.labels.push( {language: 'en', label: ''});
       }
+      this.changes= false;
       this.drawer = true;     
     },
     saveSetting(event) {
+      this.changes=true;
       if (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -276,6 +280,10 @@ export default {
     },
     cancel() {
       this.drawer = false;
+      if (!this.changes){
+        this.$root.$emit('cancel-edit-add');
+        this.changes= false;
+      } 
     },
   },
 };
