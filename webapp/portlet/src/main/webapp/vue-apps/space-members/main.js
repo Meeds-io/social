@@ -31,8 +31,7 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
                   :is-manager="${isManager}"
                   :is-external-feature-enabled="${isExternalFeatureEnabled}"
                   filter="${filter || 'member'}"
-                  space-id="${eXo.env.portal.spaceId}"
-                  class="singlePageApplication" />`,
+                  space-id="${eXo.env.portal.spaceId}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'Space Members');
