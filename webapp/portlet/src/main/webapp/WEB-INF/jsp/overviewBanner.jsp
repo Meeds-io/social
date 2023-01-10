@@ -23,7 +23,7 @@
     bannerTitle = preferences.getValue("bannerTitle", "");
     if (bannerTitle == null || bannerTitle.isEmpty()) {
       titleClass = "";
-      bannerTitle = "portal.meeds.overview.titlePlaceHolder";
+      bannerTitle = "overview.overviewBanner.titlePlaceHolder";
     }
   }
   String bannerCaption = renderRequest.getParameter("bannerCaption");
@@ -31,7 +31,7 @@
     bannerCaption = preferences.getValue("bannerCaption", "");
     if (bannerCaption == null || bannerCaption.isEmpty()) {
       captionClass = "";
-      bannerCaption = "portal.meeds.overview.descriptionPlaceHolder";
+      bannerCaption = "overview.overviewBanner.descriptionPlaceHolder";
     }
   }
   ResourceBundle bundle;
@@ -39,12 +39,12 @@
   String caption = "";
   try {
     bundle = ExoContainerContext.getService(ResourceBundleService.class)
-                                .getResourceBundle("locale.navigation.portal.meeds", request.getLocale());
+                                .getResourceBundle("locale.portlet.Portlets", request.getLocale());
     title = bundle.getString(bannerTitle);
     caption = bundle.getString(bannerCaption);
   } catch (Exception e) {
     bundle = ExoContainerContext.getService(ResourceBundleService.class)
-                                .getResourceBundle("locale.navigation.portal.meeds", Locale.ENGLISH);
+                                .getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
     title = bundle.getString(bannerTitle);
     caption = bundle.getString(bannerCaption);
   }
