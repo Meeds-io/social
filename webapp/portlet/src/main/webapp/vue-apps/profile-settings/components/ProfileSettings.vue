@@ -19,7 +19,7 @@
     <div class="py-3 pe-6 ps-3">
       <profile-settings-header :filter="filter"/>
       <profile-settings-table :settings="filteredSettings"/>
-      <profile-setting-form-drawer/>
+      <profile-setting-form-drawer :settings="settings" :languages="languages"/>
       <v-alert
         :icon="type === 'warning' ? 'mdi-alert-circle' : ''"
         v-model="alert"
@@ -33,6 +33,13 @@
 
 <script>
 export default {
+  props: {
+    languages: {
+      type: Array,
+      default: null,
+    },
+  },
+
   data: () => ({
     alert: false,
     type: '',
@@ -46,6 +53,7 @@ export default {
     this.$root.$on('move-up-setting', this.moveUpSetting);
     this.$root.$on('move-down-setting', this.moveDownSetting);
     this.$root.$on('settings-set-filter', this.setFilter);
+    this.languages = this.languages.sort((a, b) => a.value.localeCompare(b.value));
     this.getSettings();
   },
   computed: {
