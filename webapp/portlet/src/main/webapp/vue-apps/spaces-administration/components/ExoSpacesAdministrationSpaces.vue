@@ -2,63 +2,71 @@
   <v-app
     class="spacesAdministration"
     flat>
-    <div class="uiTabAdvanced uiTabInPage">
-      <ul class="nav nav-tabs">
-        <li :class="{active: activeTab === 1}" @click="activeTab=1">
-          <a href="#manage" data-toggle="tab">{{ $t('social.spaces.administration.manageSpaces') }}</a>
-        </li>
-        <li
-          v-show="canChangePermissions"
-          :class="{active: activeTab === 2}"
-          @click="activeTab=2">
-          <a href="#permissions" data-toggle="tab">{{ $t('social.spaces.administration.permissions') }}</a>
-        </li>
-        <li :class="{active: activeTab === 3}" @click="activeTab=3">
-          <a href="#spaceApplications" data-toggle="tab">{{ $t('social.spaces.applications') }}</a>
-        </li>
-        <li :class="{active: activeTab === 4}" @click="activeTab=4">
-          <a href="#spaceTemplates" data-toggle="tab">{{ $t('social.spaces.templates') }}</a>
-        </li>
-        <li
-          v-show="canChangePermissions"
-          :class="{active: activeTab === 5}"
-          @click="activeTab=5">
-          <a href="#bindingReports" data-toggle="tab">{{ $t('social.spaces.administration.bindingReports') }}</a>
-        </li>
-      </ul>
-      <div class="tab-content">
-        <div
-          v-if="showManageSpaces"
-          id="manage"
-          class="tab-pane fade in active">
-          <exo-spaces-administration-manage-spaces :can-bind-groups-and-spaces="canChangePermissions" @bindingReports="activeTab = 5" />
-        </div>
-        <div
-          v-else-if="showPermissions"
-          id="permissions"
-          class="tab-pane fade in active">
-          <exo-spaces-administration-manage-permissions />
-        </div>
-        <div
-          v-else-if="showSpaceApplications"
-          id="spaceApplications"
-          class="tab-pane fade in active">
-          <exo-space-applications :applications-by-category="applicationsByCategory" />
-        </div>
-        <div
-          v-else-if="showSpaceTemplates"
-          id="spaceTemplates"
-          class="tab-pane fade in active">
-          <exo-space-templates-spaces />
-        </div>
-        <div
-          v-else-if="showBindingReports"
-          id="bindingReports"
-          class="tab-pane fade in active">
-          <exo-spaces-administration-binding-reports />
-        </div>
-      </div>
-    </div>
+    <main>
+      <v-layout>
+        <v-flex>
+          <v-tabs
+            v-model="selectedTab"
+            slider-size="4">
+            <v-tab key="manage" href="#manage">
+              {{ $t('social.spaces.administration.manageSpaces') }}
+            </v-tab>
+            <v-tab
+              v-if="canChangePermissions"
+              key="permissions"
+              href="#permissions">
+              {{ $t('social.spaces.administration.permissions') }}
+            </v-tab>
+            <v-tab key="spaceApplications" href="#spaceApplications">
+              {{ $t('social.spaces.applications') }}
+            </v-tab>
+            <v-tab key="spaceTemplates" href="#spaceTemplates">
+              {{ $t('social.spaces.templates') }}
+            </v-tab>
+            <v-tab
+              v-if="canChangePermissions"
+              key="bindingReports"
+              href="#bindingReports">
+              {{ $t('social.spaces.administration.bindingReports') }}
+            </v-tab>
+          </v-tabs>
+
+          <v-tabs-items v-model="selectedTab" class="mt-2">
+            <v-tab-item
+              id="manage"
+              value="manage"
+              class="px-4 py-2">
+              <exo-spaces-administration-manage-spaces :can-bind-groups-and-spaces="canChangePermissions" @bindingReports="activeTab = 5" />
+            </v-tab-item>
+            <v-tab-item
+              v-if="canChangePermissions"
+              id="permissions"
+              value="permissions"
+              class="px-4 py-2">
+              <exo-spaces-administration-manage-permissions />
+            </v-tab-item>
+            <v-tab-item
+              id="spaceApplications"
+              value="spaceApplications"
+              class="px-4 py-2">
+              <exo-space-applications :applications-by-category="applicationsByCategory" />
+            </v-tab-item>
+            <v-tab-item
+              id="spaceTemplates"
+              value="spaceTemplates">
+              <exo-space-templates-spaces />
+            </v-tab-item>
+            <v-tab-item
+              v-if="canChangePermissions"
+              id="bindingReports"
+              value="bindingReports"
+              class="px-4 py-2">
+              <exo-spaces-administration-binding-reports />
+            </v-tab-item>
+          </v-tabs-items>
+        </v-flex>
+      </v-layout>
+    </main>
   </v-app>
 </template>
 
@@ -74,6 +82,7 @@ export default {
   },
   data() { 
     return {
+      selectedTab: 'applications',
       activeTab: 1,
       canChangePermissions: false
     };
