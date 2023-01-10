@@ -1,7 +1,6 @@
 <template>
   <v-card
     v-if="settings"
-    class="ma-4"
     flat>
     <v-toolbar
       class="border-box-sizing"
