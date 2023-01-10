@@ -1,6 +1,6 @@
 <template>
   <v-app v-if="displayed">
-    <v-card class="ma-4 border-radius" flat>
+    <v-card class="my-3 border-radius" flat>
       <v-list two-line>
         <v-list-item>
           <v-list-item-content>
