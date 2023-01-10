@@ -44,6 +44,7 @@
             v-model="setting.propertyName"
             :disabled="saving || !newSetting"
             :autofocus="drawer"
+            :placeholder="$t('profileSettings.placeholder.name')"
             type="text"
             class="ignore-vuetify-classes flex-grow-1"
             maxlength="2000"
@@ -54,24 +55,29 @@
           {{ $t('profileSettings.label.labels') }}
         </v-card-text>
         <v-card-text class="d-flex settingNameField py-0">
-          <profile-property-labels :propertylabels="setting.labels"/>
+          <profile-property-labels :propertylabels="setting.labels" :languages="languages"/>
         </v-card-text>
 
         <v-card-text class="d-flex parentLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileSettings.label.parent') }}
         </v-card-text>
-        <v-card-text class="d-flex parentField py-0">
-          <input
-            ref="parentInput"
-            v-model="setting.parentId"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000"
-            >
+        <v-card-text class="d-flex settingParentField py-0 pl-0 pr-7">
+          <v-autocomplete
+              ref="settingParentField"
+              id="settingParentField" 
+              v-model="setting.parentId"
+              :items="settings"
+              :placeholder="$t('profileSettings.placeholder.parent')"
+              class="d-flex pa-4 ignore-vuetify-classes flex-grow-1"
+              outlined
+              dense
+              width="100%"
+              max-width="100%"
+              item-text="propertyName"
+              item-value="id"
+              @blur="blurAutocomplete()" />  
         </v-card-text>
-
-        <v-list-item class="pt-4">
+      <v-list-item class="pt-4">
       <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
         <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           <div>
@@ -107,7 +113,7 @@
       </v-list-item-action>
     </v-list-item>
 
-        <v-list-item class="pt-4">
+        <v-list-item>
       <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
         <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           <div>
@@ -167,6 +173,16 @@
 
 <script>
 export default {
+  props: {
+    settings: {
+      type: Object,
+      default: null
+    },
+    languages: {
+      type: Object,
+      default: null
+    },
+  },
   data: () => ({
     error: null,
     fieldError: false,
@@ -207,11 +223,23 @@ export default {
     this.$root.$on('close-settings-form-drawer', this.cancel);
   },
   methods: {
+    blurAutocomplete() {
+      this.$refs.settingParentField.isFocused = false;
+      this.$refs.settingParentField.isMenuActive = false;
+    },
+    getResolvedName(item){
+      const lang = eXo && eXo.env.portal.language || 'en';
+      const resolvedLabel = item.labels.find(v => v.language === lang);
+      if (resolvedLabel){
+        return resolvedLabel.label;
+      }
+      return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
+    },
     resetCustomValidity() {
       this.$refs.settingNameInput.setCustomValidity('');
     },
     addNewSetting() {
-      this.setting = {labels: [{language: 'en', label: ''}]};
+      this.setting = {labels: [{language: 'en', label: ''}], visible: true, editable: true, groupSynchronized: false, active: true};
       this.newSetting = true;
       this.drawer = true;
     },
