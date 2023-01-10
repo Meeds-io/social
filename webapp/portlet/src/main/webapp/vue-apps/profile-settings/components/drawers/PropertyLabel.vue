@@ -23,20 +23,20 @@
       class="selectLanguageFilter input-block-level ignore-vuetify-classes  pa-2"
       @change="changeSettingsFilter">
       <option
-        v-for="item in languages"
-        :key="item.name"
-        :value="item.name.toLowerCase()">
-        {{ item.name }}
+        v-for="item in langArray"
+        :key="item.value"
+        :value="item.value">
+        {{ item.value.toUpperCase().split('_')[0] }}
       </option>
     </select>
     <input
       v-model="propertylabel.label"
+      :placeholder="$t('profileSettings.placeholder.label')"
       type="text"
       class="ignore-vuetify-classes flex-grow-1 pa-3 ms-1"
       maxlength="2000"
       required
     >
-
       <v-icon
           size="16" class="removeIcon pa-1" @click="deleteLabel">
           fas fa-trash-alt
@@ -62,6 +62,13 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
     },
+    langArray() {
+      const langArray = Object.assign([], this.languages);
+      if (this.propertylabel.language){
+        langArray.unshift({value: this.propertylabel.language});
+      }
+      return langArray;
+    }
   },
 
   methods: {
