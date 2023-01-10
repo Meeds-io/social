@@ -95,9 +95,10 @@
           <v-checkbox
             v-model="rememberme"
             id="rememberme"
+            :label="$t('portal.login.RememberOnComputer')"
+            :value="rememberme"
             name="rememberme"
             on-icon="fas fa-check-square"
-            :label="$t('portal.login.RememberOnComputer')"
             class="mx-0 my-3 my-sm-0"
             dense />
           <v-spacer />
