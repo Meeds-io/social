@@ -5,7 +5,10 @@ import * as spacesAdministrationDirectives from './spacesAdministrationDirective
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 // should expose the locale ressources as REST API 
-const url = `${Vue.prototype.$spacesConstants.PORTAL}/${Vue.prototype.$spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.social.SpacesAdministrationPortlet-${lang}.json`;
+const urls = [
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.SpacesAdministrationPortlet-${lang}.json`,
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portal.webui-${lang}.json`,
+];
 
 Vue.directive('exo-tooltip', spacesAdministrationDirectives.tooltip);
 
@@ -23,7 +26,7 @@ const appId = 'spacesAdministration';
 
 // getting locale ressources
 export function init(applicationsByCategory) {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
