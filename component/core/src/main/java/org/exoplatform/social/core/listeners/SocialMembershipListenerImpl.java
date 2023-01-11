@@ -34,6 +34,8 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
 /**
  * SocialMembershipListenerImpl is registered to OrganizationService to handle membership operation associated
@@ -48,8 +50,14 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
   
   private static final String PLATFORM_EXTERNALS_GROUP  = "/platform/externals";
   
-  public SocialMembershipListenerImpl() {
-    
+  private CachedSpaceStorage cachedSpaceStorage;
+
+  public SocialMembershipListenerImpl(SpaceStorage spaceStorage) {
+
+    if (spaceStorage instanceof CachedSpaceStorage) {
+      this.cachedSpaceStorage = (CachedSpaceStorage) spaceStorage;
+    }
+
   }
   
   @Override
@@ -100,6 +108,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
           spaceService.removePublisher(space, m.getUserName());
         }
         SpaceUtils.refreshNavigation();
+        clearSpaceCache(space.getId());
       }
     }
     else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
@@ -182,5 +191,11 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
     
     //clear caching for identity
     storage.updateIdentityMembership(null);
+  }
+
+  private void clearSpaceCache(String spaceId) {
+    if (cachedSpaceStorage != null) {
+      cachedSpaceStorage.clearSpaceCached(spaceId);
+    }
   }
 }
