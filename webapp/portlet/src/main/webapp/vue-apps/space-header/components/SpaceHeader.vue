@@ -1,57 +1,60 @@
 <template>
-  <v-app
-    :class="hasNavigations && 'hasNavigations' | ''"
-    class="spaceMenuParent white">
-    <v-hover>
-      <v-img
-        slot-scope="{ hover }"
-        :lazy-src="bannerUrl || ''"
-        :src="bannerUrl || ''"
-        :height="height"
-        :min-height="height"
-        :max-height="height"
-        class="spaceBannerImg d-flex"
-        eager>
-        <v-flex fill-height column>
-          <v-layout>
-            <v-flex class="d-flex spaceHeaderTitle">
-              <div class="flex-grow-1"></div>
-              <div class="d-flex flex-grow-0 justify-end pe-4">
-                <exo-confirm-dialog
-                  ref="errorUploadDialog"
-                  :message="errorMessage"
-                  :title="$t('spaceHeader.title.errorUploadingImage')"
-                  :ok-label="$t('spaceHeader.label.ok')" />
-                <space-header-banner-button
-                  v-if="admin"
-                  :max-upload-size="maxUploadSizeInBytes"
-                  :hover="hover"
-                  @refresh="refresh"
-                  @error="handleError" />
-              </div>
-            </v-flex>
-          </v-layout>
-        </v-flex>
-      </v-img>
-    </v-hover>
-    <v-tabs
-      v-if="hasNavigations"
-      :value="selectedNavigationUri"
-      active-class="SelectedTab"
-      class="mx-auto"
-      show-arrows
-      center-active
-      slider-size="4"
-      @change="$root.$emit('application-cache')">
-      <v-tab
-        v-for="nav in navigations"
-        :key="nav.id"
-        :value="nav.id"
-        :href="nav.uri"
-        class="spaceNavigationTab">
-        {{ nav.label }}
-      </v-tab>
-    </v-tabs>
+  <v-app :class="hasNavigations && 'hasNavigations' | ''">
+    <v-card
+      color="transparent"
+      class="mb-6"
+      flat>
+      <v-hover>
+        <v-img
+          slot-scope="{ hover }"
+          :lazy-src="bannerUrl || ''"
+          :src="bannerUrl || ''"
+          :height="height"
+          :min-height="height"
+          :max-height="height"
+          class="spaceBannerImg d-flex"
+          eager>
+          <v-flex fill-height column>
+            <v-layout>
+              <v-flex class="d-flex spaceHeaderTitle">
+                <div class="flex-grow-1"></div>
+                <div class="d-flex flex-grow-0 justify-end pe-4">
+                  <exo-confirm-dialog
+                    ref="errorUploadDialog"
+                    :message="errorMessage"
+                    :title="$t('spaceHeader.title.errorUploadingImage')"
+                    :ok-label="$t('spaceHeader.label.ok')" />
+                  <space-header-banner-button
+                    v-if="admin"
+                    :max-upload-size="maxUploadSizeInBytes"
+                    :hover="hover"
+                    @refresh="refresh"
+                    @error="handleError" />
+                </div>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-img>
+      </v-hover>
+      <v-tabs
+        v-if="hasNavigations"
+        :value="selectedNavigationUri"
+        active-class="SelectedTab"
+        class="mx-auto"
+        show-arrows
+        center-active
+        slider-size="4"
+        @change="$root.$emit('application-cache')">
+        <v-tab
+          v-for="nav in navigations"
+          :key="nav.id"
+          :value="nav.id"
+          :href="nav.uri"
+          class="spaceNavigationTab">
+          {{ nav.label }}
+        </v-tab>
+      </v-tabs>
+    </v-card>
   </v-app>
 </template>
 
@@ -90,7 +93,11 @@ export default {
       return this.maxUploadSize * ONE_KB * ONE_KB;
     },
     height() {
-      return this.hasNavigations ? '208px' : '240px';
+      let height = this.hasNavigations ? 143 : 175;
+      if (this.isMobile) {
+        height -= 50;
+      }
+      return height;
     },
     hasNavigations() {
       return this.navigations && this.navigations.length;
