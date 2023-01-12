@@ -1,7 +1,7 @@
 <template>
   <div class="spaceTemplates">
-    <table class="uiGrid table table-hover table-striped">
-      <tr>
+    <table class="uiGrid table table-hover table-striped text-break">
+      <tr class="text-no-wrap">
         <th width="14%">
           {{ $t('social.spaces.templates.template') }}
         </th>

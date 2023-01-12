@@ -1,7 +1,5 @@
 <template>
-  <v-card
-    class="ma-4"
-    flat>
+  <v-card flat>
     <v-toolbar
       class="border-box-sizing"
       flat>

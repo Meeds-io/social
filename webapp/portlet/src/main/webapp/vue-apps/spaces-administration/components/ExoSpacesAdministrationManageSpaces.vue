@@ -78,8 +78,8 @@
         </td>
       </tr>
     </table> 
-    <div v-if="totalPages > 1" class="pagination uiPageIterator">
-      <ul class="pull-right">
+    <div v-if="totalPages > 1" class="pagination uiPageIterator d-flex">
+      <ul class="ms-auto">
         <li :class="{'disabled': currentPage === 1}">
           <a
             v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.pagination.previous')"
