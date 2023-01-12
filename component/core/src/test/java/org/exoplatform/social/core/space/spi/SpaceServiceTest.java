@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,9 +28,16 @@ import org.apache.commons.lang.ArrayUtils;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.model.ApplicationType;
+import org.exoplatform.portal.config.model.ModelObject;
+import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
+import org.exoplatform.portal.mop.navigation.NavigationService;
 import org.exoplatform.portal.mop.navigation.NodeContext;
+import org.exoplatform.portal.mop.navigation.NodeModel;
+import org.exoplatform.portal.mop.navigation.Scope;
+import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -50,6 +59,7 @@ import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceListAccess;
+import org.exoplatform.social.core.space.SpaceTemplate;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
@@ -3661,4 +3671,74 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(space5,testSpace5);
 
   }
+
+  public void testRestoreSpacePageLayout() throws Exception {
+    org.exoplatform.services.security.Identity rootACLIdentity = new org.exoplatform.services.security.Identity("root");
+    ConversationState.setCurrent(new ConversationState(rootACLIdentity));
+
+    Space space = new Space();
+    space.setDisplayName("testSpaceHomeLayout");
+    space.setDescription("Space Description for Testing");
+    String shortName = SpaceUtils.cleanString(space.getDisplayName());
+    space.setGroupId("/spaces/" + shortName);
+    String[] managers = new String[] {
+      rootACLIdentity.getUserId()
+    };
+    space.setManagers(managers);
+    space.setPrettyName(space.getDisplayName());
+    space.setPriority("3");
+    space.setRegistration("validation");
+    space.setTag("Space Tag for Testing");
+    String template = "classic";
+    space.setTemplate(template);
+    space.setUrl(shortName);
+    space.setVisibility("public");
+    space = spaceService.createSpace(space, rootACLIdentity.getUserId());
+
+    SpaceTemplateService spaceTemplateService = getContainer().getComponentInstanceOfType(SpaceTemplateService.class);
+    String spaceTemplateName = space.getTemplate();
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplateByName(spaceTemplateName);
+    assertNotNull(spaceTemplate);
+    assertEquals(template, spaceTemplate.getName());
+
+    NavigationService navService = getContainer().getComponentInstanceOfType(NavigationService.class);
+    NavigationContext navContext = SpaceUtils.getGroupNavigationContext(space.getGroupId());
+    assertNotNull(navContext);
+    NodeContext<NodeContext<?>> parentNodeCtx = navService.loadNode(NodeModel.SELF_MODEL, navContext, Scope.CHILDREN, null);
+    assertNotNull(parentNodeCtx);
+
+    NodeContext<NodeContext<?>> homeNodeContext = parentNodeCtx.get(0);
+    assertNotNull(homeNodeContext);
+
+    PageKey homePageKey = homeNodeContext.getState().getPageRef();
+    assertNotNull(homePageKey);
+
+    DataStorage dataStorage = getContainer().getComponentInstanceOfType(DataStorage.class);
+    Page page = dataStorage.getPage(homePageKey.format());
+    assertNotNull(page);
+    assertEquals(5, countPageApplications(page.getChildren(), 0));
+
+    space.setTemplate("meeds");
+    space = spaceService.updateSpace(space);
+
+    String spaceId = space.getId();
+    assertThrows(IllegalAccessException.class, () -> spaceService.restoreSpacePageLayout(spaceId, "home", new org.exoplatform.services.security.Identity("demo")));
+
+    spaceService.restoreSpacePageLayout(spaceId, "home", rootACLIdentity);
+    page = dataStorage.getPage(homePageKey.format());
+    assertNotNull(page);
+    assertEquals(2, countPageApplications(page.getChildren(), 0));
+  }
+
+  private int countPageApplications(ArrayList<ModelObject> children, int size) {
+    for (ModelObject modelObject : children) {
+      if (modelObject instanceof org.exoplatform.portal.config.model.Application) {
+        size++;
+      } else if (modelObject instanceof org.exoplatform.portal.config.model.Container container) {
+        size = countPageApplications(container.getChildren(), size);
+      }
+    }
+    return size;
+  }
+
 }

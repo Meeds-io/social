@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.space.spi;
 
 import org.exoplatform.container.component.ComponentPlugin;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
 import org.exoplatform.social.core.space.SpaceTemplate;
 import org.exoplatform.social.core.space.SpaceTemplateConfigPlugin;
@@ -121,6 +122,17 @@ public interface SpaceApplicationHandler extends ComponentPlugin {
    * @throws Exception when error saving moved node
    */
   default void moveApplication(Space space, String appId, int transition) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Restores a page layout to its default associated to Space Template
+   * 
+   * @param space {@link Space} to change its layout
+   * @param appId Id of the installed application or can be 'home' to designate the space home page
+   * @throws Exception when error saving moved node
+   */
+  default void restoreApplicationLayout(Space space, String appId) throws Exception { // NOSONAR
     throw new UnsupportedOperationException();
   }
 
