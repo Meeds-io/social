@@ -40,7 +40,7 @@ public class ProfilePropertySettingsService implements Startable {
   private final SettingService    settingService;
 
   private static final String CREATE_PROFILE_DEFAULT_SETTING_KEY = "social.profile.default.settings";
-  private final List<String> predifinedSystemProperties = Arrays.asList(Profile.FULL_NAME,Profile.EMAIL,Profile.POSITION,Profile.COMPANY,Profile.LOCATION,Profile.DEPARTMENT,Profile.TEAM,Profile.PROFESSION,Profile.COUNTRY,Profile.CITY,Profile.CONTACT_PHONES,"phone.work","phone.home","phone.other",Profile.CONTACT_IMS,"im.facebook","im.msn","im.jitsi","im.skype","im.other",Profile.URL_POSTFIX);
+  private final List<String> predifinedSystemProperties = Arrays.asList(Profile.FIRST_NAME,Profile.LAST_NAME,Profile.EMAIL,Profile.POSITION,Profile.COMPANY,Profile.LOCATION,Profile.DEPARTMENT,Profile.TEAM,Profile.PROFESSION,Profile.COUNTRY,Profile.CITY,Profile.CONTACT_PHONES,"phones.work","phones.home","phones.other",Profile.CONTACT_IMS,"ims.facebook","ims.msn","ims.jitsi","ims.skype","ims.other",Profile.CONTACT_URLS);
 
   public ProfilePropertySettingsService(ProfileSettingStorage profileSettingStorage, SettingService settingService) {
     this.profileSettingStorage = profileSettingStorage;

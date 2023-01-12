@@ -220,7 +220,7 @@ export default {
       if (this.userToSave.urls.length) {
         if (this.userToSave.urls.some(urlDiv => urlDiv.url && urlDiv.url.length > 100)) {
           this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
-            0: this.$t('profileContactInformation.url'),
+            0: this.$t('profileContactInformation.urls'),
             1: 10,
             2: 100,
           }));
