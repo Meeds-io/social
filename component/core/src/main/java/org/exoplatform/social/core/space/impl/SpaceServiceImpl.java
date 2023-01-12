@@ -916,6 +916,22 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public void restoreSpacePageLayout(String spaceId, String appId, org.exoplatform.services.security.Identity identity) throws IllegalAccessException, SpaceException {
+    if (identity == null || !isSuperManager(identity.getUserId())) {
+      throw new IllegalAccessException("User is not allowed to change page layout of spaces");
+    }
+    Space space = getSpaceById(spaceId);
+    SpaceApplicationHandler appHandler = getSpaceApplicationHandler(space);
+    try {
+      appHandler.restoreApplicationLayout(space, appId);
+    } catch (SpaceException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new SpaceException(Code.UNABLE_TO_RESTORE_APPLICATION_LAYOUT, e);
+    }
+  }
+
+  @Override
   public void moveApplication(String spaceId, String appId, int transition) throws SpaceException {
     Space space = getSpaceById(spaceId);
     SpaceApplicationHandler appHandler = getSpaceApplicationHandler(space);

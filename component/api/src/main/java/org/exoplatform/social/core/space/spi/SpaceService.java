@@ -1173,6 +1173,19 @@ public interface SpaceService {
   void installApplication(String spaceId, String appId) throws SpaceException;
 
   /**
+   * Restores a page layout to its default associated to Space Template
+   * 
+   * @param spaceId {@link Space} technical identifier
+   * @param appId Id of the installed application or can be 'home' to designate the space home page
+   * @param identity user {@link Identity} making the change
+   * @throws IllegalAccessException when current user doesn't have permission to manage spaces
+   * @throws SpaceException when error reading Space identified by its id
+   */
+  default void restoreSpacePageLayout(String spaceId, String appId, org.exoplatform.services.security.Identity identity) throws IllegalAccessException, SpaceException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Installs an application in a space.
    *
    * @param space The space that the application is installed.

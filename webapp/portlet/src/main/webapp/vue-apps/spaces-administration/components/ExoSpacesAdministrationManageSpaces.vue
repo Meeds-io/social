@@ -69,6 +69,14 @@
             target="_blank">
             <i class="uiIconEdit uiIconLightGray"></i>
           </a>
+          <v-btn
+            v-if="resetSpaceHomeLayoutEnabled"
+            :title="$t('social.spaces.administration.manageSpaces.actions.resetHomeLayout')"
+            :loading="restoringHomeLayout === space.id"
+            icon
+            @click="openRestoreLayoutConfirm(space)">
+            <v-icon color="primary" size="18">fas fa-undo</v-icon>
+          </v-btn>
           <a
             v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.delete')"
             class="actionIcon"
@@ -130,6 +138,8 @@
         <div class="btn" @click="closeModal">{{ $t('social.spaces.administration.delete.spaces.button.cancel') }}</div>
       </div>
     </exo-spaces-administration-modal>
+    <spaces-administration-home-layout-confirm
+      v-if="resetSpaceHomeLayoutEnabled" />
     <v-navigation-drawer
       id="GroupBindingDrawer"        
       v-model="showGroupBindingForm"
@@ -188,6 +198,8 @@ export default {
     return {
       showGroupBindingForm: false,
       showConfirmMessageModal: false,
+      restoringHomeLayout: null,
+      resetSpaceHomeLayoutEnabled: eXo.env.portal.SpaceHomeLayoutResetEnabled,
       spaces: [],
       spaceName: '',
       spaceToBind: null,
@@ -358,7 +370,25 @@ export default {
     },
     forceRerender() {
       this.groupBindingDrawerKey += 1;
-    }
+    },
+    openRestoreLayoutConfirm(space) {
+      this.$root.$emit('close-alert-message');
+      this.$root.$emit('spaces-administration-retore-home-layout-confirm', {
+        title: 'social.spaces.administration.restore.spaceHomeLayout.confirm.title',
+        message: 'social.spaces.administration.restore.spaceHomeLayout.confirm.message',
+        ok: 'social.spaces.administration.restore.spaceHomeLayout.button.confirm',
+        cancel: 'social.spaces.administration.restore.spaceHomeLayout.button.cancel',
+        callback: () => this.restoreLayoutConfirm(space.id),
+      });
+    },
+    restoreLayoutConfirm(spaceId) {
+      this.$root.$emit('close-alert-message');
+      this.restoringHomeLayout = spaceId;
+      return this.$spaceService.restoreSpaceHomeLayout(spaceId)
+        .then(() => this.$root.$emit('alert-message', this.$t('social.spaces.administration.restore.spaceHomeLayout.confimed'), 'success'))
+        .catch(() => this.$root.$emit('alert-message', this.$t('social.spaces.administration.restore.spaceHomeLayout.error'), 'error'))
+        .finally(() => this.restoringHomeLayout = null);
+    },
   }
 };
 </script>
