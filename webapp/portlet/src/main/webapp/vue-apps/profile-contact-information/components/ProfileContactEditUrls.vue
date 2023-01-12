@@ -1,7 +1,7 @@
 <template>
   <profile-contact-edit-multi-field
     :values="value"
-    :title="$t('profileContactInformation.url')"
+    :title="$t('profileContactInformation.urls')"
     item-value="url" />
 </template>
 

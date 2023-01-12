@@ -13,7 +13,7 @@
           :title="iM.imId"
           class="text-no-wrap text-truncate profileContactIm">
           <span class="pe-1 text-capitalize">
-            {{ getLabel(`profileContactInformation.phone.${iM.imType}`, iM.imType) }}:
+            {{ getLabel(`profileContactInformation.ims.${iM.imType}`, iM.imType) }}:
           </span>
           {{ iM.imId }}
         </div>

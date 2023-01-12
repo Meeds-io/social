@@ -3,7 +3,7 @@
     <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div class="align-start text-no-wrap font-weight-bold me-3">
-        {{ $t('profileContactInformation.url') }}
+        {{ $t('profileContactInformation.urls') }}
       </div>
       <div v-if="user.urls && user.urls.length" class="align-end flex-grow-1 text-truncate text-end">
         <div

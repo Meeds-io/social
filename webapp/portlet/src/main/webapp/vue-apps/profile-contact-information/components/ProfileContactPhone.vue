@@ -12,7 +12,7 @@
           :title="phone.phoneNumber"
           class="text-no-wrap text-truncate profileContactPhone">
           <span class="pe-1 text-capitalize">
-            {{ getLabel(`profileContactInformation.phone.${phone.phoneType}`, phone.phoneType) }}:
+            {{ getLabel(`profileContactInformation.phones.${phone.phoneType}`, phone.phoneType) }}:
           </span>
           <span v-autolinker="phone.phoneNumber"></span>
         </div>
