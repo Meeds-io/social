@@ -16,15 +16,15 @@
           v-on="on"
           v-bind="attrs"
           class="d-inline-flex">
-          <a
-            v-if="logoPath"
-            id="UserHomePortalLink"
-            :href="portalPath"
-            class="pe-3 logoContainer">
-            <img
-              :src="logoPath"
-              class="spaceAvatar"
-              :alt="logoTitle">
+          <a href="portalPath">
+            <v-list-item-avatar 
+              v-if="logoPath"
+              id="UserHomePortalLink"
+              size="30"
+              class="tile my-0 spaceAvatar ms-0 me-3"
+              tile>
+              <v-img :src="logoPath" :alt="logoTitle" />
+            </v-list-item-avatar>
           </a>
           <a
             :href="portalPath"
