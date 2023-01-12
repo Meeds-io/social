@@ -1,6 +1,7 @@
 package org.exoplatform.social.core.space;
 
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.core.space.model.Space;
 
 import java.util.List;
 

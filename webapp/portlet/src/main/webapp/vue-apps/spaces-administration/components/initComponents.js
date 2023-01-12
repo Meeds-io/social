@@ -1,4 +1,5 @@
 import ExoSpacesAdministrationModal from './modal/ExoSpacesAdministrationModal.vue';
+import SpaceHomeLayoutResetConfirm from './modal/SpaceHomeLayoutResetConfirm.vue';
 import ExoSpacesAdministrationManageSpaces from './ExoSpacesAdministrationManageSpaces.vue';
 import ExoSpacesAdministrationSpacesPermissions from './ExoSpacesAdministrationSpacesPermissions.vue';
 import ExoSpacesAdministrationSpaces  from './ExoSpacesAdministrationSpaces.vue';
@@ -17,6 +18,7 @@ const components = {
   'exo-spaces-administration-manage-permissions': ExoSpacesAdministrationSpacesPermissions,
   'exo-spaces-administration-spaces': ExoSpacesAdministrationSpaces,
   'exo-spaces-administration-modal': ExoSpacesAdministrationModal,
+  'spaces-administration-home-layout-confirm': SpaceHomeLayoutResetConfirm,
   'exo-group-binding-drawer': ExoGroupBindingDrawer,
   'exo-group-binding-second-level-drawer': ExoGroupBindingSecondLevelDrawer,
   'exo-spaces-administration-binding-reports': ExoSpacesAdministrationBindingReports,

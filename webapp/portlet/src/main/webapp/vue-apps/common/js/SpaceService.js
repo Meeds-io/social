@@ -190,6 +190,13 @@ export function addSpacesApplication(application) {
   });
 }
 
+export function restoreSpaceHomeLayout(spaceId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/layout/home/${spaceId}`, {
+    credentials: 'include',
+    method: 'PUT',
+  });
+}
+
 export function getSpaceNavigations(spaceId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/navigations`, {
     method: 'GET',
