@@ -128,11 +128,11 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     objParam.setObject(spaceTemplate);
     params.addParameter(objParam);
     // Given
-    assertEquals(1, spaceTemplateService.getSpaceTemplates().size());
+    int initialSize = spaceTemplateService.getSpaceTemplates().size();
     // when
     spaceTemplateService.registerSpaceTemplatePlugin(new SpaceTemplateConfigPlugin(params));
     // Then
-    assertEquals(2, spaceTemplateService.getSpaceTemplates().size());
+    assertEquals(initialSize + 1, spaceTemplateService.getSpaceTemplates().size());
   }
 
   /**
@@ -191,7 +191,7 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
   public void testRegisterSpaceApplicationHandler() {
     // Given
     Map<String, SpaceApplicationHandler> handlerMap = spaceTemplateService.getSpaceApplicationHandlers();
-    assertEquals(1, handlerMap.size());
+    int initialSize = handlerMap.size();
     InitParams params = new InitParams();
     ValueParam valueParam = new ValueParam();
     valueParam.setName("templateName");
@@ -202,7 +202,7 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     spaceTemplateService.registerSpaceApplicationHandler(applicationHandler);
     // then
     handlerMap = spaceTemplateService.getSpaceApplicationHandlers();
-    assertEquals(2, handlerMap.size());
+    assertEquals(initialSize + 1, handlerMap.size());
   }
 
   /**

@@ -1132,6 +1132,35 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     return Response.noContent().build();
   }
 
+  @PUT
+  @Path("layout/{appId}/{spaceId}")
+  @RolesAllowed("users")
+  @Operation(
+    summary = "Restores space Page Layout switch associated space template",
+    method = "PUT",
+    description = "This operation will restores the default page layout of a designated space switch its space template as if it was a new space creation."
+        + "The applications data will not be change, only the layout definition and structure of the page."
+        + "This endpoint is accessible only for spaces managers."
+  )
+  @ApiResponses(value = { 
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
+          @ApiResponse (responseCode = "500", description = "Internal server error") })
+  public Response restoreSpacePageLayout(@Context UriInfo uriInfo,
+                                         @Parameter(description = "Space application identifier to reset. Can be 'home' or any page name.", required = true)
+                                         @PathParam("appId") String appId,
+                                         @Parameter(description = "Space technical identifier", required = true)
+                                         @PathParam("spaceId") String spaceId) {
+    try {
+      spaceService.restoreSpacePageLayout(spaceId, appId, ConversationState.getCurrent().getIdentity());
+      return Response.ok().build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    } catch (SpaceException e) {
+      return Response.serverError().entity(e.getLocalizedMessage()).build();
+    }
+  }
+
   /**
    * {@inheritDoc}
    */

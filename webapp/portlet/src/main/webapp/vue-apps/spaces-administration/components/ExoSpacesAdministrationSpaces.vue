@@ -66,6 +66,7 @@
           </v-tabs-items>
         </v-flex>
       </v-layout>
+      <alert-notifications />
     </main>
   </v-app>
 </template>
