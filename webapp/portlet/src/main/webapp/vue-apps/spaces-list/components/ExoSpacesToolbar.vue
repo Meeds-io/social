@@ -1,8 +1,17 @@
 <template>
   <v-toolbar id="spacesListToolbar" flat>
     <v-toolbar-title v-if="canCreateSpace">
+      <v-icon
+        v-if="menuHeaderChanged"
+        @click="changeHeaderMenu">
+        fas fa-arrow-left
+      </v-icon>
       <v-btn
-        class="btn btn-primary pe-2 ps-0 addNewSpaceButton"
+        v-else
+        class="btn btn-primary px-0"
+        :height="isMobile && '40' || '40'"
+        :width="isMobile && '40' || '120'"
+        :x-small="isMobile"
         @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
         <span class="d-none d-sm-inline">
@@ -14,14 +23,22 @@
       class="text-sub-title ms-3 d-none d-sm-flex">
       {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
     </div>
-    <v-spacer />
-    <v-scale-transition>
+    <v-spacer v-if="!isMobile" />
+    <div>
       <v-text-field
+        v-if="!isMobile"
         v-model="keyword"
         :placeholder="$t('spacesList.label.filterSpaces')"
         prepend-inner-icon="fa-filter"
         class="inputSpacesFilter pa-0 me-3 my-auto" />
-    </v-scale-transition>
+      <v-text-field
+        v-else-if="isMobile && menuHeaderChanged"
+        v-model="keyword"
+        :placeholder="$t('spacesList.label.filterSpacesByName')"
+        prepend-inner-icon="fa-filter"
+        class="inputSpacesFilter pa-0 ms-3 my-auto" />
+    </div>
+    <v-spacer v-if="isMobile" />
     <v-scale-transition>
       <select
         v-model="filter"
@@ -34,13 +51,20 @@
         </option>
       </select>
     </v-scale-transition>
-    <v-icon
-      class="d-sm-none"
-      @click="openBottomMenu">
-      fa-filter
-    </v-icon>
+    <div class="d-sm-none">
+      <v-icon
+        v-if="!menuHeaderChanged"
+        @click="changeHeaderMenu">
+        fa-filter
+      </v-icon>
+      <v-icon
+        v-else
+        @click="openBottomMenu">
+        fa-sliders-h
+      </v-icon>
+    </div>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-      <v-sheet class="text-center" height="169px">
+      <v-sheet class="text-center" height="210px">
         <v-toolbar
           color="primary"
           dark
@@ -104,6 +128,7 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
+    menuHeaderChanged: false,
   }),
   computed: {
     spaceFilters() {
@@ -118,6 +143,9 @@ export default {
         value: 'favorite',
       }];
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.mdAndDown;
+    }
   },
   watch: {
     keyword() {
@@ -135,7 +163,11 @@ export default {
     changeFilterSelection() {
       this.bottomMenu = false;
       this.filter = this.filterToChange;
+      this.changeHeaderMenu();
     },
+    changeHeaderMenu() {
+      this.menuHeaderChanged = !this.menuHeaderChanged;
+    }
   }
 };
 </script>
