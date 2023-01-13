@@ -1117,11 +1117,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceKey cacheKey = new SpaceKey(spaceId);
     SpaceData cachedSpace = exoSpaceCache.get(cacheKey);
     if (cachedSpace != null) {
-      cachedIdentityStorage = this.getCachedIdentityStorage();
       Space space = cachedSpace.build();
       exoSpaceSimpleCache.remove(cacheKey);
       exoSpaceCache.remove(cacheKey);
-      cachedIdentityStorage.clearIdentityCache(SpaceIdentityProvider.NAME, cachedSpace.getPrettyName(), false);
       cleanRef(space);
     }
     clearSpaceCache();
