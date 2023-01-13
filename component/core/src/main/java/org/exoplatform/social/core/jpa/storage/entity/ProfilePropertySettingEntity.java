@@ -16,9 +16,10 @@
 
 package org.exoplatform.social.core.jpa.storage.entity;
 
-import java.io.Serializable;
-import javax.persistence.*;
 import org.exoplatform.commons.api.persistence.ExoEntity;
+
+import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity(name = "SocProfileSettingEntity")
 @ExoEntity
@@ -45,20 +46,23 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "EDITABLE")
   private boolean           isEditable;
 
-  @Column(name="PARENT_ID")
+  @Column(name = "PARENT_ID")
   private Long parentId;
 
   @Column(name = "PROPERTY_ORDER")
-  private Long            order;
+  private Long order;
 
   @Column(name = "ACTIVE")
-  private boolean           isActive;
+  private boolean isActive;
+
+  @Column(name = "REQUIRED_PROPERTY")
+  private boolean isRequired;
 
   @Column(name = "SYSTEM_PROPERTY")
-  private boolean           isSystemProperty;
+  private boolean isSystemProperty;
 
   @Column(name = "GROUP_SYNCHRONIZED")
-  private boolean           isGroupSynchronized;
+  private boolean isGroupSynchronized;
 
 
   public Long getId() {
@@ -133,6 +137,14 @@ public class ProfilePropertySettingEntity implements Serializable {
     isSystemProperty = systemProperty;
   }
 
+  public boolean isRequired() {
+    return isRequired;
+  }
+
+  public void setRequired(boolean required) {
+    isRequired = required;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder(getId().toString());
@@ -141,6 +153,8 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(isActive());
     builder.append(":").append(isVisible());
     builder.append(":").append(getOrder());
+    builder.append(":").append(isSystemProperty());
+    builder.append(":").append(isRequired());
     builder.append(":").append(isGroupSynchronized());
     builder.append(":").append(getParentId());
     return builder.toString();
