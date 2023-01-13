@@ -781,11 +781,11 @@
   </portlet>
 
   <portlet>
-    <portlet-name>Branding</portlet-name>
+    <portlet-name>GeneralSettings</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/html/companyBranding.html</value>
+        <value>/html/generalSettings.html</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -793,9 +793,9 @@
       <mime-type>text/html</mime-type>
     </supports>
     <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.Branding</resource-bundle>
+    <resource-bundle>locale.portlet.GeneralSettings</resource-bundle>
     <portlet-info>
-      <title>Company Branding</title>
+      <title>General Settings</title>
     </portlet-info>
   </portlet>
 
