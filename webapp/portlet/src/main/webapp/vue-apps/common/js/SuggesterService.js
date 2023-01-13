@@ -63,7 +63,7 @@ function searchGroups(filter, groupMember, groupType, items, allGroupsForAdmin, 
   formData.append('groupMember', groupMember);
   formData.append('groupType', groupType);
   formData.append('allGroupsForAdmin', allGroupsForAdmin);
-  formData.append('excludeParentGroup', '/space');
+  formData.append('excludeParentGroup', '/spaces');
   formData.append('excludeParentGroup', '/');
   const params = new URLSearchParams(formData).toString();
 
