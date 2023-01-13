@@ -165,8 +165,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
    * Populates the list of identities by specifying the number of items and to indicate if they are added to
    * the tear-down list.
    *
-   * @param numberOfItems
-   * @param addedToTearDownList
+   * @param identity
    */
   private Identity populateProfile(Identity identity) throws Exception {
     RequestLifeCycle.begin(PortalContainer.getInstance());
@@ -244,5 +243,16 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     identity.setProfile(profile);
     return identity;
 
+  }
+
+  public void testSynchronizeGateinProfileToSocialProfile() throws Exception {
+    String raulRemoteId = "raul";
+    UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(raulRemoteId);
+    userProfile.setAttribute("postalCode", "2100");
+    organizationService.getUserProfileHandler().saveUserProfile(userProfile, true);
+
+    Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, raulRemoteId).getProfile();
+    assertNotNull(profile);
+    assertEquals("2100", profile.getProperty("postalCode"));
   }
 }
