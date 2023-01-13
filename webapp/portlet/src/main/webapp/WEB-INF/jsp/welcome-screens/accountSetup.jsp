@@ -5,6 +5,7 @@
 <%@ page import="org.exoplatform.portal.resource.SkinService"%>
 <%@ page import="org.gatein.portal.controller.resource.ResourceRequestHandler" %>
 <%@ page import="org.exoplatform.portal.resource.SkinConfig" %>
+<%@ page import="org.exoplatform.portal.branding.Utils"%>
 
 <%
     /**
@@ -66,7 +67,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="shortcut icon" type="image/x-icon"  href="/portal/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon"  href="<%= Utils.getFaviconPath() %>" />
     <link id="brandingSkin" rel="stylesheet" type="text/css" href="/rest/v1/platform/branding/css">
     <link href="/commons-extension/css/welcome-screens/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
     <link href="<%=cssPath%>" rel="stylesheet" type="text/css" />
