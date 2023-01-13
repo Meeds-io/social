@@ -24,7 +24,7 @@
       {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
     </div>
     <v-spacer v-if="!isMobile" />
-    <v-scale-transition>
+    <div>
       <v-text-field
         v-if="!isMobile"
         v-model="keyword"
@@ -37,7 +37,7 @@
         :placeholder="$t('spacesList.label.filterSpacesByName')"
         prepend-inner-icon="fa-filter"
         class="inputSpacesFilter pa-0 ms-3 my-auto" />
-    </v-scale-transition>
+    </div>
     <v-spacer v-if="isMobile" />
     <v-scale-transition>
       <select
