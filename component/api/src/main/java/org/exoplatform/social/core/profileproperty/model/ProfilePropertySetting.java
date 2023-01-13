@@ -24,6 +24,7 @@ public class  ProfilePropertySetting {
   Long          order;
   boolean      isActive;
   boolean      isGroupSynchronized;
+  boolean      isRequired;
   boolean      isSystemProperty;
   private Long id;
 
@@ -85,6 +86,14 @@ public class  ProfilePropertySetting {
 
   public boolean isGroupSynchronized() {
     return isGroupSynchronized;
+  }
+
+  public boolean isRequired() {
+    return isRequired;
+  }
+
+  public void setRequired(boolean required) {
+    isRequired = required;
   }
 
   public void setGroupSynchronized(boolean groupSynchronized) {
