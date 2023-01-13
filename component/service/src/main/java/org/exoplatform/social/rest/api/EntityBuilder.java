@@ -1434,6 +1434,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setPropertyName(profilePropertySetting.getPropertyName());
     profilePropertySettingEntity.setParentId(profilePropertySetting.getParentId());
     profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
+    profilePropertySettingEntity.setRequired(profilePropertySetting.isRequired());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setSystemProperty(profilePropertySetting.isSystemProperty());
     profilePropertySettingEntity.setLabels(labelService.findLabelByObjectTypeAndObjectId(objectType, String.valueOf(profilePropertySetting.getId())));
@@ -1467,6 +1468,7 @@ public class EntityBuilder {
     profilePropertySetting.setPropertyName(profilePropertySettingEntity.getPropertyName());
     profilePropertySetting.setParentId(profilePropertySettingEntity.getParentId());
     profilePropertySetting.setGroupSynchronized(profilePropertySettingEntity.isGroupSynchronized());
+    profilePropertySetting.setRequired(profilePropertySettingEntity.isRequired());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
     profilePropertySetting.setSystemProperty(profilePropertySettingEntity.isSystemProperty());
     return profilePropertySetting;
