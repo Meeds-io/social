@@ -138,6 +138,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
           }
         } else if (SpaceUtils.MEMBER.equalsIgnoreCase(m.getMembershipType())) {
           if (spaceService.isMember(space, userName)) {
+            clearSpaceCache(space.getId());
             return;
           }
           spaceService.addMember(space, userName);
