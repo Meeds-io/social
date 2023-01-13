@@ -79,7 +79,7 @@ export default {
     faviconSrc: null,
     uploadInProgress: false,
     uploadProgress: 0,
-    maxFileSize: 3072,
+    maxFileSize: 10240,
     resetInput: false,
   }),
   computed: {
