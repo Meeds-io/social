@@ -41,6 +41,8 @@ public class ProfilePropertySettingEntity {
 
   private boolean isGroupSynchronized;
 
+  private boolean isRequired;
+
   private boolean isSystemProperty;
 
   private List<Label> labels;
@@ -139,5 +141,13 @@ public class ProfilePropertySettingEntity {
 
   public void setLabels(List<Label> labels) {
     this.labels = labels;
+  }
+
+  public boolean isRequired() {
+    return isRequired;
+  }
+
+  public void setRequired(boolean required) {
+    isRequired = required;
   }
 }

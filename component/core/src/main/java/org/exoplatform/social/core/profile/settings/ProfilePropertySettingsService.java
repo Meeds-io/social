@@ -103,6 +103,8 @@ public class ProfilePropertySettingsService implements Startable {
             profilePropertySetting.setEditable(true);
             profilePropertySetting.setOrder(Long.valueOf(index));
             profilePropertySetting.setVisible(true);
+            profilePropertySetting.setGroupSynchronized(false);
+            profilePropertySetting.setRequired(false);
             profilePropertySetting.setParentId(parentId);
             createPropertySetting(profilePropertySetting);
             numCreated++;
