@@ -76,7 +76,7 @@
   <link rel="preload" href= "<%=url%>" as="script" type="text/javascript" />
   <% } %>
   <!-- Styles -->
-  <link rel="shortcut icon" type="image/x-icon" href="<%=contextPath%>/favicon.ico" />
+  <link rel="shortcut icon" type="image/x-icon" href="<%= request.getAttribute("brandingFavicon") %>" />
   <link id="brandingSkin" rel="stylesheet" type="text/css" href="<%=brandingThemeUrl%>" />
   <% for(String skinUrl : skinUrls) { %>
   <link rel="stylesheet" type="text/css" href="<%=skinUrl%>" />
