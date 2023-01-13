@@ -43,7 +43,7 @@
               :class="mobile && 'text-wrap text-break' || 'text-no-wrap'">
               <slot name="title"></slot>
             </span>
-            <v-card-subtitle v-if="$slots.subtitle" class="title text-wrap white--text">
+            <v-card-subtitle v-if="$slots.subtitle" class="title text-wrap text-break white--text">
               <slot name="subtitle"></slot>
             </v-card-subtitle>
           </v-card-title>
