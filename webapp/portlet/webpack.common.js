@@ -72,6 +72,8 @@ let config = {
     versionHistoryDrawer: './src/main/webapp/vue-apps/version-history-drawer/main.js',
     topBarMenu: './src/main/webapp/vue-apps/top-bar-menu/main.js',
     generalSettings: './src/main/webapp/vue-apps/general-settings/main.js',
+    imageCropper: './src/main/webapp/vue-apps/component-image-crop/main.js',
+    translationField: './src/main/webapp/vue-apps/component-translation-field/main.js',
   },
   module: {
     rules: [
