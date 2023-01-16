@@ -12,7 +12,6 @@
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%@ page import="org.exoplatform.portal.branding.BrandingService"%>
 <%@ page import="org.exoplatform.portal.branding.model.Branding"%>
-<%@ page import="org.exoplatform.portal.branding.model.Logo"%>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="org.exoplatform.social.core.identity.model.Profile" %>
 <%@ page import="java.util.ArrayList" %>
