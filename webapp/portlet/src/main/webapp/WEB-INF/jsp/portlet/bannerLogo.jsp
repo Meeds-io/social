@@ -11,8 +11,8 @@
 <%@ page import="org.exoplatform.web.application.RequestContext"%>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%@ page import="org.exoplatform.portal.branding.BrandingService"%>
-<%@ page import="org.exoplatform.portal.branding.Branding"%>
-<%@ page import="org.exoplatform.portal.branding.Logo"%>
+<%@ page import="org.exoplatform.portal.branding.model.Branding"%>
+<%@ page import="org.exoplatform.portal.branding.model.Logo"%>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="org.exoplatform.social.core.identity.model.Profile" %>
 <%@ page import="java.util.ArrayList" %>
@@ -43,8 +43,7 @@
   if (space == null) {
     BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
     Branding branding = brandingService.getBrandingInformation();
-    Logo logo = branding.getLogo();
-    logoPath = logo == null ? null : "/portal/rest/v1/platform/branding/logo?lastModified=" + logo.getUpdatedDate();
+    logoPath = brandingService.getLogoPath();
     logoTitle = branding.getCompanyName();
 
     portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());

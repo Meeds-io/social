@@ -12,6 +12,7 @@
     "socialUIProfile": true,
     "QRCode": true,
     "ExtendedDomPurify": true,
+    "Cropper": true,
     "cCometd": true
   }
 }

@@ -14,6 +14,7 @@ import * as tagService from './js/TagService.js';
 import * as socialWebSocket from './js/WebSocket.js';
 import {spacesConstants} from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
+import * as brandingService from './js/brandingService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -73,6 +74,9 @@ window.Object.defineProperty(Vue.prototype, '$utils', {
 });
 window.Object.defineProperty(Vue.prototype, '$spacesConstants', {
   value: spacesConstants,
+});
+window.Object.defineProperty(Vue.prototype, '$brandingService', {
+  value: brandingService,
 });
 
 if (eXo.env.portal.userIdentityId) {
