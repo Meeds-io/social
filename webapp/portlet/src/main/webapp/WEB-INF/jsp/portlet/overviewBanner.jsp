@@ -1,11 +1,13 @@
 <%@ page import="javax.portlet.PortletPreferences" %>
-<%@ page import="java.util.Locale"%>
 <%@ page import="java.util.ResourceBundle"%>
 <%@ page import="org.exoplatform.container.ExoContainerContext"%>
 <%@ page import="org.exoplatform.services.resources.ResourceBundleService"%>
+<%@ page import="org.exoplatform.services.log.ExoLogger" %>
+<%@ page import="org.exoplatform.services.log.Log" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects /> 
 <%
+  Log log = ExoLogger.getLogger(getClass());
   PortletPreferences preferences = renderRequest.getPreferences();
   String bannerUrl = renderRequest.getParameter("bannerUrl");
   String captionClass = "white--text";
@@ -41,12 +43,17 @@
     bundle = ExoContainerContext.getService(ResourceBundleService.class)
                                 .getResourceBundle("locale.portlet.Portlets", request.getLocale());
     title = bundle.getString(bannerTitle);
+  } catch (Exception e) {
+    log.warn("provided title technical label of overview banner is not found: ", e);
+    title = bannerTitle;
+  }
+  try {
+    bundle = ExoContainerContext.getService(ResourceBundleService.class)
+                                .getResourceBundle("locale.portlet.Portlets", request.getLocale());
     caption = bundle.getString(bannerCaption);
   } catch (Exception e) {
-    bundle = ExoContainerContext.getService(ResourceBundleService.class)
-                                .getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
-    title = bundle.getString(bannerTitle);
-    caption = bundle.getString(bannerCaption);
+    log.warn("provided caption technical label of overview banner is not found: ", e);
+    caption = bannerCaption;
   }
 %>
 <div class="VuetifyApp">
