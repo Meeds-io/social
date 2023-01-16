@@ -2,12 +2,9 @@
 <%@ page import="java.util.ResourceBundle"%>
 <%@ page import="org.exoplatform.container.ExoContainerContext"%>
 <%@ page import="org.exoplatform.services.resources.ResourceBundleService"%>
-<%@ page import="org.exoplatform.services.log.ExoLogger" %>
-<%@ page import="org.exoplatform.services.log.Log" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects /> 
 <%
-  Log log = ExoLogger.getLogger(getClass());
   PortletPreferences preferences = renderRequest.getPreferences();
   String bannerUrl = renderRequest.getParameter("bannerUrl");
   String captionClass = "white--text";
@@ -44,7 +41,7 @@
                                 .getResourceBundle("locale.portlet.Portlets", request.getLocale());
     title = bundle.getString(bannerTitle);
   } catch (Exception e) {
-    log.warn("provided title technical label of overview banner is not found: ", e);
+    //Expected, when the title isn't translated to user locale
     title = bannerTitle;
   }
   try {
@@ -52,7 +49,7 @@
                                 .getResourceBundle("locale.portlet.Portlets", request.getLocale());
     caption = bundle.getString(bannerCaption);
   } catch (Exception e) {
-    log.warn("provided caption technical label of overview banner is not found: ", e);
+    //Expected, when the caption isn't translated to user locale 
     caption = bannerCaption;
   }
 %>
