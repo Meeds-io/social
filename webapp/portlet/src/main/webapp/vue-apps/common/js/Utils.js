@@ -14,3 +14,13 @@ export function trim(text) {
   return text && text.trim().replace(/(<p>(&nbsp;)*(\\n\\r\\t)*<\/p>)*(<div>(&nbsp;)*( \\n\\r\\t)*<\/div>)*(\\r)*(\\n)*(\\t)*/g, '') || '';
 }
 
+export function convertImageDataAsSrc(imageData) {
+  if (Array.isArray(imageData)) {
+    let binary = '';
+    const bytes = new Uint8Array(imageData);
+    bytes.forEach(byte => binary += String.fromCharCode(byte));
+    return `data:image/png;base64,${btoa(binary)}`;
+  } else {
+    return imageData;
+  }
+}
