@@ -17,11 +17,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
-import * as brandingService from './js/brandingService.js';
-
-window.Object.defineProperty(Vue.prototype, '$brandingService', {
-  value: brandingService,
-});
 
 // get overrided components if exists
 const components = extensionRegistry.loadComponents('GeneralSettings');
@@ -36,6 +31,8 @@ const lang = window.eXo?.env?.portal?.language || 'en';
 
 // Should expose the locale ressources as REST API 
 const urls = [
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Login-${lang}.json`,
+  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portal.login-${lang}.json`,
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.GeneralSettings-${lang}.json`,
 ];

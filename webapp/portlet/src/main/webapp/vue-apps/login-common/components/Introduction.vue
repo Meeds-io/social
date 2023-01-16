@@ -24,7 +24,8 @@
     :max-width="maxWidth"
     :height="height"
     :max-height="maxHeight"
-    class="border-box-sizing d-flex primary"
+    :color="color"
+    class="border-box-sizing d-flex"
     tile
     flat>
     <v-row
@@ -39,13 +40,15 @@
           dark>
           <v-card-title class="d-flex flex-column">
             <span
-              class="display-1 font-weight-bold mx-auto"
-              :class="mobile && 'text-wrap text-break' || 'text-no-wrap'">
+              v-if="$slots.title"
+              class="display-1 font-weight-bold mx-auto text-wrap text-break">
               <slot name="title"></slot>
             </span>
-            <v-card-subtitle v-if="$slots.subtitle" class="title text-wrap text-break white--text">
+            <span
+              v-if="$slots.subtitle"
+              class="text-h6 pa-4 text-wrap mx-auto text-break">
               <slot name="subtitle"></slot>
-            </v-card-subtitle>
+            </span>
           </v-card-title>
         </v-card>
       </v-col>
@@ -70,6 +73,10 @@ export default {
     maxHeight: {
       type: String,
       default: () => '100%',
+    },
+    color: {
+      type: String,
+      default: () => 'primary',
     },
   },
   computed: {

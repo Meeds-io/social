@@ -86,26 +86,11 @@ export default {
     isDefaultSrc() {
       return !this.logoSrc;
     },
-    defaultLogoSrc() {
-      if (!this.branding?.logo?.data) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/logo`;
-      }
-
-      if (Array.isArray(this.branding.logo.data)) {
-        return this.convertImageDataAsSrc(this.branding.logo.data);
-      } else {
-        return this.branding.logo.data;
-      }
-    },
     logoPreviewSrc() {
-      if (!this.logoSrc) {
-        return this.defaultLogoSrc;
-      }
-
-      if (Array.isArray(this.logoSrc)) {
-        return this.convertImageDataAsSrc(this.logoSrc);
+      if (this.logoSrc) {
+        return this.$utils.convertImageDataAsSrc(this.logoSrc);
       } else {
-        return this.logoSrc;
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/logo?v=${Math.random()}`;
       }
     },
   },
@@ -158,12 +143,6 @@ export default {
           .catch(error => this.$root.$emit('alert-message', this.$t(String(error)), 'error'))
           .finally(() => this.sendingImage = false);
       }
-    },
-    convertImageDataAsSrc(imageData) {
-      let binary = '';
-      const bytes = new Uint8Array(imageData);
-      bytes.forEach(byte => binary += String.fromCharCode(byte));
-      return `data:image/png;base64,${btoa(binary)}`;
     },
   },
 };
