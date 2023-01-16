@@ -1,5 +1,4 @@
 <%@ page import="javax.portlet.PortletPreferences" %>
-<%@ page import="java.util.Locale"%>
 <%@ page import="java.util.ResourceBundle"%>
 <%@ page import="org.exoplatform.container.ExoContainerContext"%>
 <%@ page import="org.exoplatform.services.resources.ResourceBundleService"%>
@@ -41,12 +40,17 @@
     bundle = ExoContainerContext.getService(ResourceBundleService.class)
                                 .getResourceBundle("locale.portlet.Portlets", request.getLocale());
     title = bundle.getString(bannerTitle);
+  } catch (Exception e) {
+    //Expected, when the title isn't translated to user locale
+    title = bannerTitle;
+  }
+  try {
+    bundle = ExoContainerContext.getService(ResourceBundleService.class)
+                                .getResourceBundle("locale.portlet.Portlets", request.getLocale());
     caption = bundle.getString(bannerCaption);
   } catch (Exception e) {
-    bundle = ExoContainerContext.getService(ResourceBundleService.class)
-                                .getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
-    title = bundle.getString(bannerTitle);
-    caption = bundle.getString(bannerCaption);
+    //Expected, when the caption isn't translated to user locale 
+    caption = bannerCaption;
   }
 %>
 <div class="VuetifyApp">
