@@ -87,25 +87,17 @@ export default {
       return !this.faviconSrc;
     },
     defaultFaviconSrc() {
-      if (!this.branding?.favicon?.data) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/favicon`;
-      }
-
-      if (Array.isArray(this.branding.favicon.data)) {
-        return this.convertImageDataAsSrc(this.branding.favicon.data);
+      if (this.branding?.favicon?.data) {
+        return this.$utils.convertImageDataAsSrc(this.branding.favicon.data);
       } else {
-        return this.branding.favicon.data;
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/favicon`;
       }
     },
     faviconPreviewSrc() {
-      if (!this.faviconSrc) {
-        return this.defaultFaviconSrc;
-      }
-
-      if (Array.isArray(this.faviconSrc)) {
-        return this.convertImageDataAsSrc(this.faviconSrc);
+      if (this.faviconSrc) {
+        return this.$utils.convertImageDataAsSrc(this.faviconSrc);
       } else {
-        return this.faviconSrc;
+        return this.defaultFaviconSrc;
       }
     },
   },
@@ -158,12 +150,6 @@ export default {
           .catch(error => this.$root.$emit('alert-message', this.$t(String(error)), 'error'))
           .finally(() => this.sendingImage = false);
       }
-    },
-    convertImageDataAsSrc(imageData) {
-      let binary = '';
-      const bytes = new Uint8Array(imageData);
-      bytes.forEach(byte => binary += String.fromCharCode(byte));
-      return `data:image/png;base64,${btoa(binary)}`;
     },
   },
 };

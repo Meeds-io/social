@@ -21,12 +21,21 @@
 <template>
   <v-app>
     <v-main>
-      <v-card color="white" class="px-4 py-6 mb-12 mb-sm-0" flat>
+      <v-card
+        color="white"
+        class="px-4 py-6 mb-12 mb-sm-0"
+        flat>
         <h3 class="font-weight-bold">{{ $t('generalSettings.title') }}</h3>
-        <portal-general-settings-branding
+        <portal-general-settings-branding-site
           ref="brandingSettings"
           :branding="branding"
           @validity-check="validBranding = $event"
+          @changed="changed = $event" />
+
+        <portal-general-settings-branding-login
+          ref="loginSettings"
+          :branding="branding"
+          @validity-check="validLogin = $event"
           @changed="changed = $event" />
 
         <div class="d-flex mt-12 justify-end">
@@ -56,10 +65,11 @@ export default {
     loading: false,
     changed: false,
     validBranding: false,
+    validLogin: false,
   }),
   computed: {
     validForm() {
-      return this.changed && this.validBranding;
+      return this.changed && this.validBranding && this.validLogin;
     },
   },
   watch: {
@@ -78,23 +88,28 @@ export default {
       }
     },
   },
-  created() {
+  mounted() {
     this.init()
       .finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     init() {
       return this.$brandingService.getBrandingInformation()
-        .then(data => this.branding = data);
+        .then(data => this.branding = data)
+        .then(() => this.$refs.brandingSettings.init())
+        .then(() => this.$refs.loginSettings.init());
     },
     save() {
       this.errorMessage = null;
 
       const branding = Object.assign({}, this.branding);
       this.$refs.brandingSettings.preSave(branding);
+      this.$refs.loginSettings.preSave(branding);
 
       this.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
+        .then(() => this.init())
+        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
         .catch(e => this.errorMessage = String(e))
         .finally(() => this.loading = false);
     },

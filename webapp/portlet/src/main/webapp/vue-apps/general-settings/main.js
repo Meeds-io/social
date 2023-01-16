@@ -17,11 +17,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
-import * as brandingService from './js/brandingService.js';
-
-window.Object.defineProperty(Vue.prototype, '$brandingService', {
-  value: brandingService,
-});
 
 // get overrided components if exists
 const components = extensionRegistry.loadComponents('GeneralSettings');
