@@ -1,215 +1,189 @@
 <template>
-  <v-card
-    :id="spaceMenuParentId"
-    class="spaceCardItem d-block d-sm-flex"
-    flat>
-    <v-img
-      :src="spaceBannerUrl"
-      transition="none"
-      height="80px"
-      min-height="80px"
-      max-height="80px"
-      min-width="100%"
-      class="white--text align-start d-block spaceBannerImg"
-      eager />
+  <v-hover v-slot="{ hover }">
+    <v-card
+      :id="spaceMenuParentId"
+      :elevation="hover && 4 || 0"
+      class="spaceCardItem d-block d-sm-flex"
+      outlined>
+      <v-img
+        :src="spaceBannerUrl"
+        transition="none"
+        height="80px"
+        min-height="80px"
+        max-height="80px"
+        min-width="100%"
+        class="white--text align-start d-block spaceBannerImg"
+        eager />
 
-    <div class="spaceToolbarIcons px-2">
-      <v-btn
-        :title="$t('spaceList.label.openSpaceInfo')"
-        icon
-        small
-        class="spaceInfoIcon d-flex"
-        @click="$emit('flip')">
-        <v-icon size="12">fa-info</v-icon>
-      </v-btn>
-      <v-spacer />
-      <exo-space-favorite-action
-        v-if="space.isMember && favoritesSpaceEnabled"
-        :is-favorite="space.isFavorite"
-        :space-id="space.id" />
-      <template v-if="canUseActionsMenu">
+      <div class="spaceToolbarIcons px-2">
         <v-btn
-          v-if="space.canEdit"
-          :title="$t('spaceList.label.openSpaceActionMenu')"
+          :title="$t('spaceList.label.openSpaceInfo')"
           icon
-          text
-          class="spaceActionIcon spaceEditIcon d-none"
-          @click="editSpace">
-          <i class="uiIcon uiIconEdit"></i>
+          small
+          class="spaceInfoIcon d-flex"
+          @click="$emit('flip')">
+          <v-icon size="12">fa-info</v-icon>
         </v-btn>
-        <v-btn
-          :title="$t('spaceList.label.openSpaceMenu')"
-          icon
-          text
-          class="spaceMenuIcon d-block"
-          @click="displayActionMenu = true">
-          <v-icon size="21">mdi-dots-vertical</v-icon>
-        </v-btn>
-        <v-menu
-          ref="actionMenu"
-          v-model="displayActionMenu"
-          :attach="`#${spaceMenuParentId}`"
-          transition="slide-x-reverse-transition"
-          content-class="spaceActionMenu"
-          offset-y>
-          <v-list class="pa-0" dense>
-            <template v-if="space.canEdit">
-              <v-list-item @click="editSpace">
-                <v-list-item-title class="subtitle-2">
-                  <i class="uiIcon uiIconEdit"></i>
-                  {{ $t('spacesList.button.edit') }}
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item @click="removeSpaceConfirm">
-                <v-list-item-title class="subtitle-2">
-                  <i class="uiIcon uiIconTrash"></i>
-                  {{ $t('spacesList.button.remove') }}
-                </v-list-item-title>
-              </v-list-item>
-            </template>
-            <v-list-item
-              v-for="(extension, i) in enabledProfileActionExtensions"
-              :key="i"
-              @click="extension.click(space)">
-              <v-list-item-title>
-                <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon "></i>
-                {{ extension.title }}
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </template>
-    </div>
-
-    <div class="spaceAvatar">
-      <a :href="url">
-        <v-img
-          :src="`${spaceAvatarUrl}&size=75x75`"
-          transition="none"
-          class="mx-auto"
-          height="75px"
-          width="75px"
-          max-height="75px"
-          max-width="75px"
-          eager />
-      </a>
-    </div>
-
-    <v-card-text class="spaceCardBody align-center pt-2 pb-1">
-      <a
-        :href="url"
-        :title="space.displayName"
-        class="spaceDisplayName text-truncate d-block">
-        {{ space.displayName }}
-      </a>
-      <v-card-subtitle
-        class="spaceMembersLabel py-0">
-        {{ $t('spacesList.label.members', {0: space.membersCount}) }}
-      </v-card-subtitle>
-    </v-card-text>
-
-    <v-card-actions class="spaceCardActions">
-      <exo-confirm-dialog
-        ref="confirmDialog"
-        :title="confirmTitle"
-        :message="confirmMessage"
-        :ok-label="$t('spacesList.label.ok')"
-        :cancel-label="okMethod && $t('spacesList.label.cancel')"
-        @ok="okConfirmDialog"
-        @dialog-closed="closeConfirmDialog" />
-      <v-btn
-        v-if="space.isMember"
-        :loading="sendingAction"
-        :disabled="sendingAction || space.isUserBound"
-        class="btn mx-auto spaceMembershipButton leaveSpaceButton"
-        depressed
-        block
-        @click="leaveConfirm">
-        <v-icon>mdi-minus</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.leave') }}
-        </span>
-      </v-btn>
-      <div v-else-if="space.isInvited" class="invitationButtons">
-        <div class="acceptToJoinSpaceButtonParent">
+        <v-spacer />
+        <exo-space-favorite-action
+          v-if="space.isMember && favoritesSpaceEnabled"
+          :is-favorite="space.isFavorite"
+          :space-id="space.id" />
+        <template v-if="canUseActionsMenu">
           <v-btn
-            :loading="sendingAction"
-            :disabled="sendingAction"
-            class="btn mx-auto spaceMembershipButton acceptToJoinSpaceButton"
-            depressed
-            @click="acceptToJoin">
-            <v-icon>mdi-check</v-icon>
-            <span class="d-flex">
-              {{ $t('spacesList.button.acceptToJoin') }}
-            </span>
+            v-if="space.canEdit"
+            :title="$t('spaceList.label.openSpaceActionMenu')"
+            icon
+            text
+            class="spaceActionIcon spaceEditIcon d-none"
+            @click="editSpace">
+            <i class="uiIcon uiIconEdit"></i>
           </v-btn>
           <v-btn
-            class="btn spaceButtonMenu d-inline"
+            :title="$t('spaceList.label.openSpaceMenu')"
+            icon
+            text
+            class="spaceMenuIcon d-block"
+            @click="displayActionMenu = true">
+            <v-icon size="21">mdi-dots-vertical</v-icon>
+          </v-btn>
+          <v-menu
+            ref="actionMenu"
+            v-model="displayActionMenu"
+            :attach="`#${spaceMenuParentId}`"
+            transition="slide-x-reverse-transition"
+            content-class="spaceActionMenu"
+            offset-y>
+            <v-list class="pa-0" dense>
+              <template v-if="space.canEdit">
+                <v-list-item @click="editSpace">
+                  <v-list-item-title class="subtitle-2">
+                    <i class="uiIcon uiIconEdit"></i>
+                    {{ $t('spacesList.button.edit') }}
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="removeSpaceConfirm">
+                  <v-list-item-title class="subtitle-2">
+                    <i class="uiIcon uiIconTrash"></i>
+                    {{ $t('spacesList.button.remove') }}
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+              <v-list-item
+                v-for="(extension, i) in enabledProfileActionExtensions"
+                :key="i"
+                @click="extension.click(space)">
+                <v-list-item-title>
+                  <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon "></i>
+                  {{ extension.title }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+      </div>
+
+      <div class="spaceAvatar">
+        <a :href="url">
+          <v-img
+            :src="`${spaceAvatarUrl}&size=75x75`"
+            transition="none"
+            class="mx-auto"
+            height="75px"
+            width="75px"
+            max-height="75px"
+            max-width="75px"
+            eager />
+        </a>
+      </div>
+
+      <v-card-text class="spaceCardBody align-center pt-2 pb-1">
+        <a
+          :href="url"
+          :title="space.displayName"
+          class="spaceDisplayName text-truncate d-block">
+          {{ space.displayName }}
+        </a>
+        <v-card-subtitle
+          class="spaceMembersLabel py-0">
+          {{ $t('spacesList.label.members', {0: space.membersCount}) }}
+        </v-card-subtitle>
+      </v-card-text>
+
+      <v-card-actions class="spaceCardActions">
+        <exo-confirm-dialog
+          ref="confirmDialog"
+          :title="confirmTitle"
+          :message="confirmMessage"
+          :ok-label="$t('spacesList.label.ok')"
+          :cancel-label="okMethod && $t('spacesList.label.cancel')"
+          @ok="okConfirmDialog"
+          @dialog-closed="closeConfirmDialog" />
+        <v-btn
+          v-if="space.isMember"
+          :loading="sendingAction"
+          :disabled="sendingAction || space.isUserBound"
+          class="btn mx-auto spaceMembershipButton leaveSpaceButton"
+          depressed
+          block
+          @click="leaveConfirm">
+          <v-icon>mdi-minus</v-icon>
+          <span class="spaceMembershipButtonText d-inline">
+            {{ $t('spacesList.button.leave') }}
+          </span>
+        </v-btn>
+        <div v-else-if="space.isInvited" class="invitationButtons">
+          <div class="acceptToJoinSpaceButtonParent">
+            <v-btn
+              :loading="sendingAction"
+              :disabled="sendingAction"
+              class="btn mx-auto spaceMembershipButton acceptToJoinSpaceButton"
+              depressed
+              @click="acceptToJoin">
+              <v-icon>mdi-check</v-icon>
+              <span class="d-flex">
+                {{ $t('spacesList.button.acceptToJoin') }}
+              </span>
+            </v-btn>
+            <v-btn
+              class="btn spaceButtonMenu d-inline"
+              depressed
+              x-small
+              @click="displaySecondButton = !displaySecondButton">
+              <v-icon>mdi-menu-down</v-icon>
+            </v-btn>
+          </div>
+          <v-btn
+            v-show="displaySecondButton"
+            :loading="sendingSecondAction"
+            :disabled="sendingSecondAction"
+            class="btn mx-auto spaceMembershipButton refuseToJoinSpaceButton"
             depressed
-            x-small
-            @click="displaySecondButton = !displaySecondButton">
-            <v-icon>mdi-menu-down</v-icon>
+            block
+            @click="refuseToJoin">
+            <v-icon>mdi-close</v-icon>
+            <span class="d-flex">
+              {{ $t('spacesList.button.refuseToJoin') }}
+            </span>
           </v-btn>
         </div>
         <v-btn
-          v-show="displaySecondButton"
-          :loading="sendingSecondAction"
-          :disabled="sendingSecondAction"
-          class="btn mx-auto spaceMembershipButton refuseToJoinSpaceButton"
+          v-else-if="space.isPending"
+          :loading="sendingAction"
+          :disabled="sendingAction"
+          class="btn mx-auto spaceMembershipButton cancelRequestToJoinSpaceButton"
           depressed
           block
-          @click="refuseToJoin">
+          @click="cancelRequest">
           <v-icon>mdi-close</v-icon>
-          <span class="d-flex">
-            {{ $t('spacesList.button.refuseToJoin') }}
+          <span class="spaceMembershipButtonText d-inline">
+            {{ $t('spacesList.button.cancelRequest') }}
           </span>
         </v-btn>
-      </div>
-      <v-btn
-        v-else-if="space.isPending"
-        :loading="sendingAction"
-        :disabled="sendingAction"
-        class="btn mx-auto spaceMembershipButton cancelRequestToJoinSpaceButton"
-        depressed
-        block
-        @click="cancelRequest">
-        <v-icon>mdi-close</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.cancelRequest') }}
-        </span>
-      </v-btn>
-      <v-btn
-        v-else-if="space.subscription === 'open'"
-        :loading="sendingAction"
-        :disabled="sendingAction"
-        class="btn mx-auto spaceMembershipButton joinSpaceButton"
-        depressed
-        block
-        @click="join">
-        <v-icon>mdi-plus</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.join') }}
-        </span>
-      </v-btn>
-      <v-btn
-        v-else-if="space.subscription === 'validation'"
-        :loading="sendingAction"
-        :disabled="sendingAction"
-        class="btn mx-auto spaceMembershipButton joinSpaceButton"
-        depressed
-        block
-        @click="requestJoin">
-        <v-icon>mdi-plus</v-icon>
-        <span class="spaceMembershipButtonText d-inline">
-          {{ $t('spacesList.button.requestJoin') }}
-        </span>
-      </v-btn>
-      <div
-        v-else
-        :title="$t('spacesList.label.closedSpace')"
-        class="joinSpaceDisabledLabel">
         <v-btn
-          disabled
+          v-else-if="space.subscription === 'open'"
+          :loading="sendingAction"
+          :disabled="sendingAction"
           class="btn mx-auto spaceMembershipButton joinSpaceButton"
           depressed
           block
@@ -219,9 +193,38 @@
             {{ $t('spacesList.button.join') }}
           </span>
         </v-btn>
-      </div>
-    </v-card-actions>
-  </v-card>
+        <v-btn
+          v-else-if="space.subscription === 'validation'"
+          :loading="sendingAction"
+          :disabled="sendingAction"
+          class="btn mx-auto spaceMembershipButton joinSpaceButton"
+          depressed
+          block
+          @click="requestJoin">
+          <v-icon>mdi-plus</v-icon>
+          <span class="spaceMembershipButtonText d-inline">
+            {{ $t('spacesList.button.requestJoin') }}
+          </span>
+        </v-btn>
+        <div
+          v-else
+          :title="$t('spacesList.label.closedSpace')"
+          class="joinSpaceDisabledLabel">
+          <v-btn
+            disabled
+            class="btn mx-auto spaceMembershipButton joinSpaceButton"
+            depressed
+            block
+            @click="join">
+            <v-icon>mdi-plus</v-icon>
+            <span class="spaceMembershipButtonText d-inline">
+              {{ $t('spacesList.button.join') }}
+            </span>
+          </v-btn>
+        </div>
+      </v-card-actions>
+    </v-card>
+  </v-hover>
 </template>
 
 <script>
