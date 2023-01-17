@@ -16,7 +16,7 @@
           v-on="on"
           v-bind="attrs"
           class="d-inline-flex">
-          <a href="portalPath">
+          <a :href="portalPath">
             <v-list-item-avatar 
               v-if="logoPath"
               id="UserHomePortalLink"
