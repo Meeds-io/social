@@ -12,17 +12,21 @@
       </span>
     </template>
     <template #content>
-      <v-card class="pa-4" flat>
+      <v-card
+        ref="imageCropperCanvasParent"
+        v-resize="onCanvasResize"
+        class="pa-4 content-box-sizing"
+        flat>
         <v-card
-          :min-width="width"
-          :width="width"
           :height="height"
+          :width="width"
+          :max-width="maxWidth"
           class="border-color mx-auto primary position-relative"
           flat>
           <img
-            v-if="dataImageSrc"
+            v-if="imageData"
             ref="imageCrop"
-            :src="dataImageSrc"
+            :src="imageData"
             :width="`${width}px`"
             :height="`${height}px`"
             alt="Picture to crop">
@@ -169,24 +173,22 @@ export default {
     stepZoom: 0.1,
     minZoom: 1,
     maxZoom: 2,
-    width: 380,
-    height: 200,
+    maxWidth: 850,
+    width: 388,
+    height: 218,
     cropper: null,
-    data: null,
+    cropperReady: false,
+    imageData: null,
     resetInput: false,
     sendingImage: false,
+    resizeTimeout: null,
   }),
-  computed: {
-    dataImageSrc() {
-      return this.data || this.src;
-    },
-  },
   watch: {
-    dataImageSrc() {
-      this.init();
-    },
-    drawer() {
-      this.init();
+    imageData() {
+      if (this.drawer) {
+        this.resetCropper();
+        this.init();
+      }
     },
     sendingImage() {
       if (this.sendingImage) {
@@ -196,62 +198,106 @@ export default {
       }
     },
     zoom(newVal, oldVal) {
-      if (this.cropper && newVal !== oldVal) {
+      if (newVal !== oldVal) {
         this.zoomOut(newVal - oldVal);
+      }
+    },
+    width(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        if (this.resizeTimeout) {
+          window.clearTimeout(this.resizeTimeout);
+        }
+        this.height = parseInt(this.width * 9 / 16) - 32;
+        this.resizeTimeout = window.setTimeout(() => {
+          this.resizeTimeout = null;
+          this.init(true);
+        }, 500);
       }
     },
   },
   methods: {
     open() {
       this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
-      this.$refs.drawer.open();
-      this.$nextTick().then(() => this.init());
+      this.imageData = this.src || null;
+      this.$nextTick().then(() => {
+        this.$refs.drawer.open();
+        window.setTimeout(() => {
+          this.init();
+        }, 200);
+      });
     },
     close() {
       this.$refs.drawer.close();
-      this.data = null;
+      this.$nextTick().then(() => this.resetCropper());
     },
-    init() {
-      if (this.dataImageSrc && this.drawer) {
+    onCanvasResize() {
+      window.setTimeout(() => {
+        this.computeWidthSize();
+      }, 200); // Wait for animation to finish to compute real width
+    },
+    init(avoidChangingWidth) {
+      if (this.imageData && this.drawer) {
+        if (!avoidChangingWidth) {
+          this.computeWidthSize();
+        }
+        this.cropperReady = false;
         this.$nextTick()
           .then(() => {
             if (this.cropper) {
-              this.cropper.destroy();
+              this.cropper.minCropBoxWidth = this.width;
+              this.cropper.minCropBoxHeight = this.height;
+              this.cropper.onResize();
+              this.cropperReady = true;
+            } else {
+              this.zoom = 1;
+              this.cropper = new Cropper(this.$refs.imageCrop, Object.assign({
+                minCropBoxWidth: this.width,
+                minCropBoxHeight: this.height,
+                autoCropArea: 1,
+                ready: () => {
+                  this.cropperReady = true;
+                },
+              }, this.cropOptions));
             }
-            this.zoom = 1;
-            this.cropper = new Cropper(this.$refs.imageCrop, Object.assign({
-              minCropBoxWidth: this.width,
-              minCropBoxHeight: this.height,
-              autoCropArea: 1,
-            }, this.cropOptions));
           });
       } else {
-        if (this.cropper) {
-          this.cropper.destroy();
-        }
-        this.data = null;
-        this.zoom = 1;
-        this.resetInput = true;
-        this.$nextTick().then(() => this.resetInput = false);
+        this.resetCropper();
+      }
+    },
+    resetCropper() {
+      this.cropperReady = false;
+      if (this.cropper) {
+        this.cropper.destroy();
+        this.cropper = null;
+      }
+      this.zoom = 1;
+      this.resetInput = true;
+      this.$nextTick().then(() => this.resetInput = false);
+    },
+    computeWidthSize() {
+      if (this.$refs.imageCropperCanvasParent) {
+        this.width = Math.min(this.$refs.imageCropperCanvasParent.$el.clientWidth, this.maxWidth) - 32;
       }
     },
     rotateRight() {
-      if (this.cropper) {
+      if (this.cropperReady) {
         this.cropper.rotate(45);
       }
     },
     rotateLeft() {
-      if (this.cropper) {
+      if (this.cropperReady) {
         this.cropper.rotate(-45);
       }
     },
     move(x, y) {
-      if (this.cropper) {
+      if (this.cropperReady) {
         this.cropper.move(x, y);
       }
     },
     zoomOut(value) {
-      this.cropper.zoom(value);
+      if (this.cropperReady) {
+        this.cropper.zoom(value);
+      }
     },
     apply() {
       this.uploadCroppedImage()
@@ -271,12 +317,12 @@ export default {
               }), 'error');
             } else if (this.maxFileSize < (1024 * 1024)) {
               this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.kilobytes.label', {
-                0: parseInt(blob.size / 1024),
+                0: Number.parseFloat(blob.size / 1024).toFixed(2).replace('.00', ''),
                 1: parseInt(this.maxFileSize / 1024),
               }), 'error');
             } else {
               this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.megabytes.label', {
-                0: parseInt(blob.size / 1024 / 1024),
+                0: Number.parseFloat(blob.size / 1024 / 1024).toFixed(2).replace('.00', ''),
                 1: parseInt(this.maxFileSize / 1024 / 1024),
               }), 'error');
             }
@@ -288,8 +334,7 @@ export default {
               if (uploadId) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                  self.data = e.target.result;
-                  self.$emit('data', self.data);
+                  self.$emit('data', e.target.result);
                   self.$forceUpdate();
                 };
                 reader.readAsDataURL(blob);
@@ -318,8 +363,8 @@ export default {
         const self = this;
         const reader = new FileReader();
         this.sendingImage = true;
-        reader.onload = (e) => {
-          self.data = e.target.result;
+        reader.onload = e => {
+          self.imageData = e.target.result;
           this.sendingImage = false;
           self.$forceUpdate();
         };
