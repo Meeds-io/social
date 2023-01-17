@@ -103,6 +103,13 @@ public class ProfileSettingStorageTest extends AbstractCoreTest {
     }
   }
 
+  public void testGetSynchronizedProperties() {
+    ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("testProp");
+    profilePropertySetting.setGroupSynchronized(true);
+    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
+    assertEquals(1, profileSettingStorage.getSynchronizedPropertySettings().size());
+  }
+
   private ProfilePropertySetting createProfileSettingInstance(String propertyName) {
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
     profilePropertySetting.setActive(true);
