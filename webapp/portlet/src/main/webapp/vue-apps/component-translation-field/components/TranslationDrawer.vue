@@ -21,6 +21,7 @@
           <v-text-field
             :name="`${language}-translation-value`"
             :value="translations[language]"
+            :autofocus="language === defaultLanguage && 'autofocus'"
             class="border-box-sizing pt-0"
             type="text"
             outlined
