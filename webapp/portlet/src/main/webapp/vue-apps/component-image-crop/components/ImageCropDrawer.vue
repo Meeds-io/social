@@ -15,11 +15,13 @@
       <v-card
         ref="imageCropperCanvasParent"
         v-resize="onCanvasResize"
-        class="pa-4 content-box-sizing"
+        max-width="100%"
+        class="pa-4 content-box-sizing overflow-hidden"
         flat>
         <v-card
           :height="height"
           :width="width"
+          :max-height="height"
           :max-width="maxWidth"
           class="border-color mx-auto primary position-relative"
           flat>
@@ -109,8 +111,7 @@
               :step="stepZoom"
               :min="minZoom"
               :max="maxZoom"
-              class="mx-n1"
-              dense />
+              class="mx-n1" />
             <v-btn
               :title="$t('imageCropDrawer.zoomIn')"
               icon
@@ -175,14 +176,17 @@ export default {
     maxZoom: 2,
     maxWidth: 850,
     width: 388,
-    height: 218,
     cropper: null,
     cropperReady: false,
     imageData: null,
     resetInput: false,
     sendingImage: false,
-    resizeTimeout: null,
   }),
+  computed: {
+    height() {
+      return parseInt(this.width * 9 / 16) - 32;
+    },
+  },
   watch: {
     imageData() {
       if (this.drawer) {
@@ -204,14 +208,7 @@ export default {
     },
     width(newVal, oldVal) {
       if (newVal !== oldVal) {
-        if (this.resizeTimeout) {
-          window.clearTimeout(this.resizeTimeout);
-        }
-        this.height = parseInt(this.width * 9 / 16) - 32;
-        this.resizeTimeout = window.setTimeout(() => {
-          this.resizeTimeout = null;
-          this.init(true);
-        }, 500);
+        this.$nextTick().then(() => this.init(true));
       }
     },
   },
@@ -223,7 +220,7 @@ export default {
         this.$refs.drawer.open();
         window.setTimeout(() => {
           this.init();
-        }, 200);
+        }, 50);
       });
     },
     close() {
