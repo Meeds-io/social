@@ -28,7 +28,7 @@
       @click="openBottomMenu">
       fa-filter
     </v-icon>
-    <v-scale-transition>
+    <v-scale-transition v-if="peopleAdvancedFilterFeatureEnabled">
       <v-btn
           class="btn px-2 btn-primary"
           elevation="5"
@@ -102,7 +102,12 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
+    peopleAdvancedFilterFeatureEnabled: false,
   }),
+  created() {
+    this.$featureService.isFeatureEnabled('peopleAdvancedFilter')
+        .then(enabled => this.peopleAdvancedFilterFeatureEnabled = enabled);
+  },
   computed: {
     peopleFilters() {
       return [{
