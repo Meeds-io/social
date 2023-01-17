@@ -35,6 +35,11 @@ public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
   }
 
   @Override
+  public List<ProfilePropertySetting> getSynchronizedPropertySettings() {
+    return profilePropertySettingDAO.findSynchronizedSettings().stream().map(this::convertFromEntity).toList();
+  }
+
+  @Override
   public ProfilePropertySetting findProfileSettingByName(String name) {
     return convertFromEntity(profilePropertySettingDAO.findProfileSettingByName(name));
   }

@@ -130,6 +130,13 @@ public class ProfilePropertySettingsServiceTest extends AbstractCoreTest {
     }
   }
 
+  public void testGetSynchronizedProperties() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("postalCode");
+    profilePropertySetting.setGroupSynchronized(true);
+    profilePropertySettingsService.createPropertySetting(profilePropertySetting);
+    assertEquals(1, profilePropertySettingsService.getSynchronizedPropertySettings().size());
+  }
+
   private ProfilePropertySetting createProfileSettingInstance(String propertyName) {
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
     profilePropertySetting.setActive(true);
@@ -142,4 +149,5 @@ public class ProfilePropertySettingsServiceTest extends AbstractCoreTest {
     profilePropertySetting.setOrder(0L);
     return profilePropertySetting;
   }
+
 }
