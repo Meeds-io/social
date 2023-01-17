@@ -7,12 +7,20 @@
       :placeholder="placeholder"
       :required="required"
       :aria-required="required"
-      append-icon="fas fa-language primary--text"
       class="border-box-sizing pt-0"
       type="text"
       outlined
-      dense
-      @click:append="openDrawer" />
+      dense>
+      <template #append>
+        <v-btn
+          :title="iconTitle"
+          class="mt-n2 pt-2px"
+          icon
+          @click="openDrawer">
+          <v-icon :color="iconColor">fas fa-language</v-icon>
+        </v-btn>
+      </template>
+    </v-text-field>
     <translation-drawer
       ref="translationDrawer"
       v-model="valuesPerLanguage"
@@ -58,6 +66,17 @@ export default {
     defaultLanguageValue: null,
     valuesPerLanguage: {},
   }),
+  computed: {
+    translationsCount() {
+      return Object.keys(this.valuesPerLanguage).length;
+    },
+    iconColor() {
+      return this.translationsCount > 1 ? 'primary' : '';
+    },
+    iconTitle() {
+      return this.translationsCount > 1 ? this.$t('translationDrawer.existingTranslationsTooltip', {0: this.translationsCount - 1}) : this.$t('translationDrawer.noTranslationsTooltip');
+    },
+  },
   watch: {
     value: {
       immediate: true,
