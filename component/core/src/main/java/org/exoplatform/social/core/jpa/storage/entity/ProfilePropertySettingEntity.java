@@ -26,6 +26,7 @@ import java.io.Serializable;
 @Table(name = "SOC_PROFILE_PROPERTY_SETTING ")
 
 @NamedQuery(name = "SocProfileSettingEntity.findProfileSettingByName", query = "SELECT c FROM SocProfileSettingEntity c WHERE propertyName = :name")
+@NamedQuery(name = "SocProfileSettingEntity.findSynchronizedSettings", query = "SELECT c FROM SocProfileSettingEntity c WHERE isGroupSynchronized = true")
 
 public class ProfilePropertySettingEntity implements Serializable {
 
