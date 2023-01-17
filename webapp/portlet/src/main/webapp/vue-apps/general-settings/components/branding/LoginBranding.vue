@@ -101,8 +101,7 @@
               :placeholder="$t('generalSettings.loginTitle.placeholder')"
               :default-language="defaultLanguage"
               :supported-languages="supportedLanguages"
-              drawer-title="generalSettings.translateTitle"
-              required />
+              drawer-title="generalSettings.translateTitle" />
           </v-card>
           <h4 class="mb-0 mt-4">
             {{ $t('generalSettings.loginSubtitle.title') }}
@@ -117,8 +116,7 @@
               :placeholder="$t('generalSettings.loginSubtitle.placeholder')"
               :default-language="defaultLanguage"
               :supported-languages="supportedLanguages"
-              drawer-title="generalSettings.translateSubtitle"
-              required />
+              drawer-title="generalSettings.translateSubtitle" />
           </v-card>
           <h4 class="mb-0 mt-4">
             {{ $t('generalSettings.loginBackground.title') }}
