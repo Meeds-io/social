@@ -168,6 +168,9 @@ export default {
         this.close();
       }
     },
+    expand() {
+      this.$emit('expand-updated', this.expand);
+    },
     drawer() {
       if (this.drawer) {
         document.dispatchEvent(new CustomEvent('drawerOpened'));

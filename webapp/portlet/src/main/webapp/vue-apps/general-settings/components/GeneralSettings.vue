@@ -94,10 +94,14 @@ export default {
   },
   methods: {
     init() {
+      this.loading = true;
       return this.$brandingService.getBrandingInformation()
         .then(data => this.branding = data)
+        .then(() => this.$nextTick())
         .then(() => this.$refs.brandingSettings.init())
-        .then(() => this.$refs.loginSettings.init());
+        .then(() => this.$refs.loginSettings.init())
+        .then(() => this.$nextTick())
+        .finally(() => this.loading = false);
     },
     save() {
       this.errorMessage = null;
