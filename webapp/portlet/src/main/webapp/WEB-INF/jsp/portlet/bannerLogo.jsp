@@ -11,8 +11,6 @@
 <%@ page import="org.exoplatform.web.application.RequestContext"%>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%@ page import="org.exoplatform.portal.branding.BrandingService"%>
-<%@ page import="org.exoplatform.portal.branding.model.Branding"%>
-<%@ page import="org.exoplatform.portal.branding.model.Logo"%>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="org.exoplatform.social.core.identity.model.Profile" %>
 <%@ page import="java.util.ArrayList" %>
@@ -42,9 +40,8 @@
   defaultHomePath = "/portal/" + requestContext.getPortalOwner();
   if (space == null) {
     BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
-    Branding branding = brandingService.getBrandingInformation();
     logoPath = brandingService.getLogoPath();
-    logoTitle = branding.getCompanyName();
+    logoTitle = brandingService.getCompanyName();
 
     portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     if (portalPath == null) {
