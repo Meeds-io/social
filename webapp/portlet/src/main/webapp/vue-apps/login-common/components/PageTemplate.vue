@@ -26,7 +26,7 @@
         :min-width="!background && '33%'"
         :max-width="background && '50%'"
         height="100%"
-        class="d-none d-sm-flex full-height position-relative"
+        class="d-none d-sm-flex flex-shrink-0 full-height position-relative"
         flat
         tile>
         <img
