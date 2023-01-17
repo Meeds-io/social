@@ -54,14 +54,14 @@ export default {
       default: () => 16 / 9,
     },
     defaultData: {
-      type: Array,
+      type: String,
       default: null,
     },
   },
   data: () => ({
     loginBackgroundData: null,
     loginBackgroundUploadId: null,
-    loginBackgroundTextColor: '#fff',
+    loginBackgroundTextColor: '#FFFFFF',
     uploadInProgress: false,
     uploadProgress: 0,
     maxFileSize: 2097152,
@@ -78,18 +78,11 @@ export default {
     hasImage() {
       return this.loginBackgroundData;
     },
-    defaultLoginBackgroundSrc() {
-      if (this.defaultData) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/loginBackground`;
-      } else {
-        return null;
-      }
-    },
     loginBackgroundPreviewSrc() {
       if (this.loginBackgroundData) {
         return this.$utils.convertImageDataAsSrc(this.loginBackgroundData);
       } else {
-        return this.defaultLoginBackgroundSrc;
+        return this.defaultData;
       }
     },
   },
@@ -108,7 +101,7 @@ export default {
     init(defaultData, defaultTextColor, defaultUploadId) {
       this.loginBackgroundUploadId = defaultUploadId || null;
       this.loginBackgroundData = defaultData;
-      this.loginBackgroundTextColor = defaultTextColor || '#fff';
+      this.loginBackgroundTextColor = defaultTextColor || '#FFFFFF';
       if (this.$refs.imageCropDrawer) {
         this.$refs.imageCropDrawer.init();
       }
