@@ -51,6 +51,10 @@ public class ProfilePropertySettingsService implements Startable {
     return profileSettingStorage.getPropertySettings();
   }
 
+  public List<ProfilePropertySetting> getSynchronizedPropertySettings() {
+    return profileSettingStorage.getSynchronizedPropertySettings();
+  }
+
   public ProfilePropertySetting getProfileSettingByName(String name) {
     return profileSettingStorage.findProfileSettingByName(name);
   }

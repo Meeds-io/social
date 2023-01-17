@@ -24,12 +24,19 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 public interface ProfileSettingStorage {
 
   /**
-   * Gets a space by its display name.
+   * Gets a list of available profile settings.
    *
    * @return the list of profile settings.
    */
 
   public List<ProfilePropertySetting> getPropertySettings();
+
+  /**
+   * Gets a list of available synchronized settings
+   *
+   * @return {@link List} of {@link ProfilePropertySetting}
+   */
+  List<ProfilePropertySetting> getSynchronizedPropertySettings();
 
   ProfilePropertySetting findProfileSettingByName(String name);
 

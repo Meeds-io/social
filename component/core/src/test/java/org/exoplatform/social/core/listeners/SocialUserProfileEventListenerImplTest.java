@@ -18,12 +18,16 @@ package org.exoplatform.social.core.listeners;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+import com.ibm.icu.impl.coll.Collation;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
@@ -33,6 +37,8 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
@@ -46,7 +52,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
 
   private OrganizationService organizationService;
   private SocialStorageCacheService cacheService;
-
+  private ProfilePropertySettingsService profilePropertySettingsService;
   private Identity paul;
   private Identity raul;
   private boolean alreadyAddedPlugins = false;
@@ -59,6 +65,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     super.setUp();
     identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     organizationService = (OrganizationService) getContainer().getComponentInstanceOfType(OrganizationService.class);
+    profilePropertySettingsService = getContainer().getComponentInstanceOfType(ProfilePropertySettingsService.class);
     fakePlugins();
     cacheService = getContainer().getComponentInstanceOfType(SocialStorageCacheService.class);
     cacheService.getIdentityCache().clearCache();
@@ -76,7 +83,9 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
   private void fakePlugins() throws Exception {
     if (alreadyAddedPlugins == false) {
       organizationService.addListenerPlugin(new SocialUserEventListenerImpl());
-      organizationService.addListenerPlugin(new SocialUserProfileEventListenerImpl());
+      organizationService.addListenerPlugin(new SocialUserProfileEventListenerImpl(identityManager,
+                                                                                   profilePropertySettingsService,
+                                                                                   organizationService));
       alreadyAddedPlugins = true;
     }
     
@@ -246,6 +255,19 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
   }
 
   public void testSynchronizeGateinProfileToSocialProfile() throws Exception {
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setActive(true);
+    profilePropertySetting.setEditable(true);
+    profilePropertySetting.setVisible(true);
+    profilePropertySetting.setPropertyName("postalCode");
+    profilePropertySetting.setGroupSynchronized(true);
+    profilePropertySetting.setSystemProperty(false);
+    profilePropertySetting.setParentId(0L);
+    profilePropertySetting.setOrder(0L);
+    profilePropertySettingsService.createPropertySetting(profilePropertySetting);
+    profilePropertySetting.setPropertyName("street");
+    profilePropertySettingsService.createPropertySetting(profilePropertySetting);
+
     String raulRemoteId = "raul";
     UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(raulRemoteId);
     userProfile.setAttribute("postalCode", "2100");
@@ -254,5 +276,11 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, raulRemoteId).getProfile();
     assertNotNull(profile);
     assertEquals("2100", profile.getProperty("postalCode"));
+    Group group = organizationService.getGroupHandler().findGroupById("/platform/profile/postalCode/2100");
+    assertNotNull(group);
+    Collection<Group> groups = organizationService.getGroupHandler().findGroupByMembership(raulRemoteId, "member");
+    assertTrue(groups.contains(group));
+    Group group1 = organizationService.getGroupHandler().findGroupById("/platform/profile/street");
+    assertNull(group1);
   }
 }
