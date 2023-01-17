@@ -19,6 +19,8 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
 import javax.persistence.TypedQuery;
+import java.util.Collections;
+import java.util.List;
 
 public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfilePropertySettingEntity, Long> {
     public ProfilePropertySettingEntity findProfileSettingByName(String name) {
@@ -30,5 +32,16 @@ public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfileProperty
             return null;
         }
 
+    }
+
+    public List<ProfilePropertySettingEntity> findSynchronizedSettings() {
+      TypedQuery<ProfilePropertySettingEntity> query =
+                                                     getEntityManager().createNamedQuery("SocProfileSettingEntity.findSynchronizedSettings",
+                                                                                         ProfilePropertySettingEntity.class);
+      try {
+        return query.getResultList();
+      } catch (Exception e) {
+        return Collections.emptyList();
+      }
     }
 }
