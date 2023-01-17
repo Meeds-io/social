@@ -106,7 +106,7 @@ export default {
   }),
   created() {
     this.$featureService.isFeatureEnabled('peopleAdvancedFilter')
-        .then(enabled => this.peopleAdvancedFilterFeatureEnabled = enabled);
+      .then(enabled => this.peopleAdvancedFilterFeatureEnabled = enabled);
   },
   computed: {
     peopleFilters() {
