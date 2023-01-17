@@ -32,10 +32,13 @@
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyNameTitle') }}
       </h4>
-      <h6 class="text-subtitle grey--text">
+      <h6 class="text-subtitle grey--text me-2">
         {{ $t('generalSettings.companyNameSubtitle') }}
       </h6>
-      <v-card max-width="350px" flat>
+      <v-card
+        max-width="350px"
+        class="me-2"
+        flat>
         <v-text-field
           id="companyName"
           v-model="companyName"
@@ -57,7 +60,7 @@
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyLogoTitle') }}
       </h4>
-      <h6 class="text-subtitle grey--text">
+      <h6 class="text-subtitle grey--text me-2">
         {{ $t('generalSettings.companyLogoSubtitle') }}
       </h6>
       <portal-general-settings-company-logo
@@ -73,35 +76,26 @@
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.themeColorsTitle') }}
       </h4>
-      <h6 class="text-subtitle grey--text">
+      <h6 class="text-subtitle grey--text me-2">
         {{ $t('generalSettings.themeColorsSubtitle') }}
       </h6>
-      <v-row class="d-flex flex-wrap mx-0 mt-n2">
-        <v-col
-          cols="6"
-          md="4"
-          class="pa-0">
+      <div class="d-flex flex-wrap mt-n2">
+        <div>
           <portal-general-settings-color-picker
             v-model="primaryColor"
             :label="$t('generalSettings.primaryColor.label')" />
-        </v-col>
-        <v-col
-          cols="6"
-          md="4"
-          class="pa-0">
+        </div>
+        <div>
           <portal-general-settings-color-picker
             v-model="secondaryColor"
             :label="$t('generalSettings.secondaryColor.label')" />
-        </v-col>
-        <v-col
-          cols="6"
-          md="4"
-          class="pa-0">
+        </div>
+        <div>
           <portal-general-settings-color-picker
             v-model="tertiaryColor"
             :label="$t('generalSettings.tertiaryColor.label')" />
-        </v-col>
-      </v-row>
+        </div>
+      </div>
     </v-col>
     <v-col
       cols="12"
@@ -110,7 +104,7 @@
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyFaviconTitle') }}
       </h4>
-      <h6 class="text-subtitle grey--text mb-3">
+      <h6 class="text-subtitle grey--text me-2 mb-3">
         {{ $t('generalSettings.companyFaviconSubtitle') }}
       </h6>
       <portal-general-settings-company-favicon

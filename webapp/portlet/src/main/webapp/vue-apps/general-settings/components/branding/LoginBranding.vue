@@ -26,14 +26,14 @@
       </h4>
     </v-col>
     <v-col cols="12" class="pa-0">
-      <div class="d-flex flex-wrap">
+      <div class="d-flex flex-wrap-reverse">
         <v-card
           color="transparent"
           :min-width="hasImage && 'auto' || width"
           :width="hasImage && 'auto' || width"
           :min-height="height"
           :height="height"
-          class="position-relative me-4 mb-4"
+          class="position-relative mx-auto me-md-4 ms-md-0 mb-4"
           flat
           tile>
           <v-btn
@@ -91,7 +91,7 @@
           <h4 class="my-0">
             {{ $t('generalSettings.loginTitle.title') }}
           </h4>
-          <h6 class="text-subtitle grey--text">
+          <h6 class="text-subtitle grey--text me-2">
             {{ $t('generalSettings.loginTitle.subtitle') }}
           </h6>
           <v-card max-width="350px" flat>
@@ -101,13 +101,12 @@
               :placeholder="$t('generalSettings.loginTitle.placeholder')"
               :default-language="defaultLanguage"
               :supported-languages="supportedLanguages"
-              drawer-title="generalSettings.translateTitle"
-              required />
+              drawer-title="generalSettings.translateTitle" />
           </v-card>
           <h4 class="mb-0 mt-4">
             {{ $t('generalSettings.loginSubtitle.title') }}
           </h4>
-          <h6 class="text-subtitle grey--text">
+          <h6 class="text-subtitle grey--text me-2">
             {{ $t('generalSettings.loginSubtitle.subtitle') }}
           </h6>
           <v-card max-width="350px" flat>
@@ -117,13 +116,12 @@
               :placeholder="$t('generalSettings.loginSubtitle.placeholder')"
               :default-language="defaultLanguage"
               :supported-languages="supportedLanguages"
-              drawer-title="generalSettings.translateSubtitle"
-              required />
+              drawer-title="generalSettings.translateSubtitle" />
           </v-card>
           <h4 class="mb-0 mt-4">
             {{ $t('generalSettings.loginBackground.title') }}
           </h4>
-          <h6 class="text-subtitle grey--text">
+          <h6 class="text-subtitle grey--text me-2">
             {{ $t('generalSettings.loginBackground.subtitle') }}
           </h6>
           <portal-general-settings-login-background-selector
