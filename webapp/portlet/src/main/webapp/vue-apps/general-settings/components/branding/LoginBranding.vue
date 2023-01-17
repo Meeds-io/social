@@ -29,8 +29,8 @@
       <div class="d-flex flex-wrap">
         <v-card
           color="transparent"
-          :min-width="width"
-          :width="width"
+          :min-width="hasImage && 'auto' || width"
+          :width="hasImage && 'auto' || width"
           :min-height="height"
           :height="height"
           class="position-relative me-4 mb-4"
@@ -49,7 +49,7 @@
             <v-icon size="18">fas fa-undo</v-icon>
           </v-btn>
           <v-btn
-            v-else-if="defaultLoginBackgroundData"
+            v-else-if="canDeleteDefaultBackground"
             :title="$t('generalSettings.loginBackgroundRestoreDefaultBackground')"
             :loading="deleting"
             color="error"
@@ -64,7 +64,8 @@
             v-if="hasImage"
             :src="loginBackgroundSrc"
             style="height: 100%;"
-            alt="">
+            alt=""
+            lazy>
           <v-card
             :class="hasImage && 'position-absolute t-0'"
             min-width="100%"
@@ -128,7 +129,7 @@
           <portal-general-settings-login-background-selector
             ref="loginBackground"
             v-model="loginBackgroundUploadId"
-            :default-data="defaultLoginBackgroundData"
+            :default-data="defaultLoginBackgroundSrc"
             :aspect-ratio="aspectRatio"
             @data-updated="updateLoginBackgroundData"
             @text-color-updated="loginBackgroundTextColor = $event" />
@@ -155,10 +156,20 @@ export default {
     aspectRatio: 16 / 9 / 2.5,
     height: 400,
     deleting: false,
+    refreshImageIndex: Date.now(),
   }),
   computed: {
+    isDefaultBackgroundDeleted() {
+      return this.loginBackgroundUploadId === '0';
+    },
+    hasCustomBackground() {
+      return this.loginBackgroundUploadId && !this.isDefaultBackgroundDeleted;
+    },
+    hasDefaultBackground() {
+      return this.branding?.loginBackground?.size && !this.isDefaultBackgroundDeleted;
+    },
     hasImage() {
-      return this.loginBackgroundData;
+      return this.hasCustomBackground || this.hasDefaultBackground;
     },
     width() {
       return this.height * this.aspectRatio;
@@ -175,14 +186,17 @@ export default {
     defaultLoginSubtitle() {
       return this.branding?.loginSubtitle || {};
     },
-    defaultLoginBackgroundData() {
-      return this.loginBackgroundData && this.branding?.loginBackground?.data || null;
+    defaultLoginBackgroundSrc() {
+      return this.hasDefaultBackground && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/loginBackground?v=${this.refreshImageIndex}` || null;
+    },
+    canDeleteDefaultBackground() {
+      return this.branding?.loginBackground?.fileId && !this.isDefaultBackgroundDeleted;
     },
     loginBackgroundSrc() {
-      if (this.defaultLoginBackgroundData && !this.loginBackgroundUploadId) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/loginBackground?v=${Math.random()}`;
-      } else if (this.loginBackgroundData && this.loginBackgroundUploadId !== '0') {
+      if (this.hasCustomBackground) {
         return this.$utils.convertImageDataAsSrc(this.loginBackgroundData);
+      } else if (this.hasDefaultBackground) {
+        return this.defaultLoginBackgroundSrc;
       } else {
         return null;
       }
@@ -231,11 +245,12 @@ export default {
   },
   methods: {
     init() {
+      this.loginBackgroundUploadId = null;
+      this.refreshImageIndex = Date.now();
       this.loginTitle = this.defaultLoginTitle && JSON.parse(JSON.stringify(this.defaultLoginTitle)) || {};
       this.loginSubtitle = this.defaultLoginSubtitle && JSON.parse(JSON.stringify(this.defaultLoginSubtitle)) || {};
       this.loginBackgroundTextColor = this.branding?.loginBackgroundTextColor;
-      this.loginBackgroundData = this.branding?.loginBackground?.data;
-      this.loginBackgroundUploadId = null;
+      this.loginBackgroundData = this.defaultLoginBackgroundSrc;
       this.$refs.loginBackground.init(this.loginBackgroundData, this.loginBackgroundTextColor);
     },
     preSave(branding) {
@@ -256,7 +271,7 @@ export default {
     deleteBackground() {
       this.deleting = true;
       window.setTimeout(() => {
-        this.loginBackgroundData = this.branding?.loginBackground?.data;
+        this.loginBackgroundData = this.defaultLoginBackgroundSrc;
         this.loginBackgroundUploadId = null;
         this.$refs.loginBackground.init(this.loginBackgroundData, this.loginBackgroundTextColor);
         this.$nextTick(() => this.deleting = false);
@@ -266,7 +281,7 @@ export default {
       if (imageData) {
         this.loginBackgroundData = imageData;
       } else if (this.loginBackgroundUploadId !== '0') {
-        this.loginBackgroundData = this.branding?.loginBackground?.data;
+        this.loginBackgroundData = this.defaultLoginBackgroundSrc;
       }
     },
   }
