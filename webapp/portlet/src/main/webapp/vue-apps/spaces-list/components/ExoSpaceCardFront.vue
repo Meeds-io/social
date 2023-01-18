@@ -2,9 +2,9 @@
   <v-hover v-slot="{ hover }">
     <v-card
       :id="spaceMenuParentId"
-      :elevation="hover && 4 || 0"
+      :elevation="hover && !isMobile && 4 || 0"
       class="spaceCardItem d-block d-sm-flex"
-      outlined>
+      :outlined="!isMobile">
       <v-img
         :src="spaceBannerUrl"
         transition="none"
@@ -26,19 +26,89 @@
         </v-btn>
         <v-spacer />
         <exo-space-favorite-action
-          v-if="space.isMember && favoritesSpaceEnabled"
+          v-if="space.isMember && favoritesSpaceEnabled && !isMobile"
           :is-favorite="space.isFavorite"
           :space-id="space.id" />
+        <div v-else-if="isMobile">
+          <v-icon 
+            size="14" 
+            class="my-3" 
+            @click="openBottomMenu">
+            fa-ellipsis-v
+          </v-icon>
+          <v-bottom-sheet v-model="bottomMenu" class="pa-0">
+            <v-sheet class="text-center" height="210px">
+              <v-list>
+                <v-list-item 
+                  v-if="space.isMember"
+                  @click="leaveConfirm">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-icon class="mx-4" size="16">mdi-minus</v-icon>
+                    <span class="mx-2">
+                      {{ $t('spacesList.button.leave') }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item 
+                  v-else-if="space.isInvited">
+                  <v-list-item-title class="align-center d-flex">
+                    <div @click="acceptToJoin">
+                      <v-icon class="mx-4" size="16">mdi-check</v-icon>
+                      <span class="mx-2">
+                        {{ $t('spacesList.button.acceptToJoin') }}
+                      </span>
+                    </div>
+                    <v-divider
+                      vertical />
+                    <div @click="refuseToJoin">
+                      <v-icon class="mx-4" size="16">mdi-close</v-icon>
+                      <span class="mx-2">
+                        {{ $t('spacesList.button.refuseToJoin') }}
+                      </span>
+                    </div>
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item 
+                  v-else-if="space.subscription === 'open' && !space.isMember"
+                  @click="join">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-icon class="mx-4" size="16">mdi-plus</v-icon>
+                    <span class="mx-2">
+                      {{ $t('spacesList.button.join') }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item 
+                  v-if="space.isManager"
+                  @click="editSpace">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-icon class="mx-4" size="16">fa-edit</v-icon>
+                    <span class="mx-2">
+                      {{ $t('spacesList.button.edit') }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item 
+                  v-if="space.isManager">
+                  <v-list-item-title class="align-center d-flex">
+                    <exo-space-favorite-action
+                      v-if="space.isMember && favoritesSpaceEnabled"
+                      :is-favorite="space.isFavorite"
+                      :space-id="space.id"
+                      class="ms-1 me-2" />
+                    <span v-if="!space.isFavorite" class="mx-2">
+                      {{ $t('spacesList.button.bookmark') }}
+                    </span>
+                    <span v-else class="mx-2">
+                      {{ $t('spacesList.button.removeBookmark') }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-sheet>
+          </v-bottom-sheet>
+        </div>
         <template v-if="canUseActionsMenu">
-          <v-btn
-            v-if="space.canEdit"
-            :title="$t('spaceList.label.openSpaceActionMenu')"
-            icon
-            text
-            class="spaceActionIcon spaceEditIcon d-none"
-            @click="editSpace">
-            <i class="uiIcon uiIconEdit"></i>
-          </v-btn>
           <v-btn
             :title="$t('spaceList.label.openSpaceMenu')"
             icon
@@ -97,20 +167,23 @@
         </a>
       </div>
 
-      <v-card-text class="spaceCardBody align-center pt-2 pb-1">
+      <v-card-text 
+        class="spaceCardBody align-center"
+        :class="!isMobile && 'pt-2 pb-1'">
         <a
           :href="url"
           :title="space.displayName"
-          class="spaceDisplayName text-truncate d-block">
+          :class="isMobile && 'text-truncate-2 mt-0' || 'text-truncate d-block'"
+          class="spaceDisplayName">
           {{ space.displayName }}
         </a>
         <v-card-subtitle
-          class="spaceMembersLabel py-0">
+          class="spaceMembersLabel py-0"
+          :class="isMobile && 'my-0'">
           {{ $t('spacesList.label.members', {0: space.membersCount}) }}
         </v-card-subtitle>
       </v-card-text>
-
-      <v-card-actions class="spaceCardActions">
+      <v-card-actions v-if="!isMobile" class="spaceCardActions">
         <exo-confirm-dialog
           ref="confirmDialog"
           :title="confirmTitle"
@@ -249,6 +322,7 @@ export default {
     okMethod: null,
     displaySecondButton: false,
     favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
+    bottomMenu: false,
   }),
   computed: {
     spaceAvatarUrl() {
@@ -276,6 +350,9 @@ export default {
       } else {
         return '#';
       }
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.mdAndDown;
     },
   },
   created() {
@@ -414,6 +491,9 @@ export default {
       this.confirmTitle = '';
       this.confirmMessage = '';
       this.okMethod = null;
+    },
+    openBottomMenu() {
+      this.bottomMenu = true;
     },
   },
 };
