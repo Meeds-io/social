@@ -43,8 +43,6 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
 
   private final List<String>                   exlcudedAttributeList = List.of("authenticationAttempts");
 
-  private static final String                  PLATFORM_GROUP_ID     = "/platform";
-
   private static final String                  PROFILE_GROUP_NAME    = "profile";
 
   private static final String                  MEMBER                = "member";
@@ -117,8 +115,7 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
                                          User user,
                                          ProfilePropertySettingsService profilePropertySettingsService,
                                          OrganizationService organizationService) throws Exception {
-    Group platformGroup = organizationService.getGroupHandler().findGroupById(PLATFORM_GROUP_ID);
-    Group profileGroup = createGroup(PROFILE_GROUP_NAME, platformGroup, organizationService);
+    Group profileGroup = createGroup(PROFILE_GROUP_NAME, null, organizationService);
     if (profileGroup != null) {
       List<String> synchronizedProperties = profilePropertySettingsService.getSynchronizedPropertySettings()
                                                                           .stream()
@@ -167,7 +164,7 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
 
   private Group createGroup(String groupName, Group parentGroup, OrganizationService organizationService) {
     try {
-      Group group = getGroup(buildGroupId(parentGroup.getId(), groupName), organizationService);
+      Group group = getGroup(buildGroupId(parentGroup, groupName), organizationService);
       if (group != null) {
         return group;
       }
@@ -177,7 +174,7 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
       newGroup.setLabel(StringUtils.capitalize(groupName));
       newGroup.setDescription(groupName + " group");
       groupHandler.addChild(parentGroup, newGroup, true);
-      return getGroup(buildGroupId(parentGroup.getId(), groupName), organizationService);
+      return getGroup(buildGroupId(parentGroup, groupName), organizationService);
     } catch (Exception e) {
       return null;
     }
@@ -195,7 +192,10 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
     }
   }
 
-  private String buildGroupId(String parentGroupId, String groupName) {
-    return parentGroupId + "/" + groupName.toLowerCase();
+  private String buildGroupId(Group parentGroup, String groupName) {
+    if (parentGroup == null) {
+      return "/" + groupName.toLowerCase();
+    }
+    return parentGroup.getId() + "/" + groupName.toLowerCase();
   }
 }
