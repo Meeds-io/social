@@ -166,7 +166,7 @@
 											<string>Profile group</string>
 										</field>
 										<field name="parentId">
-											<string>/platform</string>
+											<string />
 										</field>
 									</object>
 								</value>
