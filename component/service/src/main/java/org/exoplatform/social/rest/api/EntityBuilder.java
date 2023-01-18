@@ -353,7 +353,7 @@ public class EntityBuilder {
       if(property.getParentId()!=null && property.getParentId()!=0L){
         subProperties.add(property);
       } else {
-        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,profilePropertySettingsService.LABELS_OBJECT_TYPE);
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
         try {
           profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
         } catch (ClassCastException e) {
@@ -369,7 +369,7 @@ public class EntityBuilder {
                     propertySetting = profilePropertySettingsService.getProfileSettingByName(subProperty.get("key"));
                   }
                   if(propertySetting!=null){
-                    subProfilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,labelService,profilePropertySettingsService.LABELS_OBJECT_TYPE);
+                    subProfilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
                   } else {
                     subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
                   }
@@ -387,7 +387,7 @@ public class EntityBuilder {
     }
     for (ProfilePropertySetting property : subProperties){
       if(!parents.contains(property.getParentId())){
-        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,profilePropertySettingsService.LABELS_OBJECT_TYPE);
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
         profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
         ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId() );
         List<ProfilePropertySettingEntity> children = parentProperty.getChildren();
