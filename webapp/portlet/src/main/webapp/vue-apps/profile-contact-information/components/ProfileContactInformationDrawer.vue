@@ -189,7 +189,7 @@
       :crop-options="cropOptions"
       :max-file-size="maxUploadSizeInBytes"
       :src="avatarData || `${user.avatar}&size=0`"
-      drawer-title="profileContactInformation.changeAvatar"
+      drawer-title="UIChangeAvatarContainer.label.ChangeAvatar"
       circle
       @data="avatarData = $event" />
     <alert-notifications v-if="drawer" />
