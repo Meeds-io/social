@@ -261,7 +261,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     profilePropertySetting.setVisible(true);
     profilePropertySetting.setPropertyName("postalCode");
     profilePropertySetting.setGroupSynchronized(true);
-    profilePropertySetting.setSystemProperty(false);
+    profilePropertySetting.setMultiValued(false);
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
     profilePropertySettingsService.createPropertySetting(profilePropertySetting);

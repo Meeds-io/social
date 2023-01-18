@@ -40,7 +40,7 @@ public class ProfilePropertySettingsService implements Startable {
   private final SettingService    settingService;
 
   private static final String CREATE_PROFILE_DEFAULT_SETTING_KEY = "social.profile.default.settings";
-  private final List<String> predifinedSystemProperties = Arrays.asList(Profile.FIRST_NAME,Profile.LAST_NAME,Profile.EMAIL,Profile.POSITION,Profile.COMPANY,Profile.LOCATION,Profile.DEPARTMENT,Profile.TEAM,Profile.PROFESSION,Profile.COUNTRY,Profile.CITY,Profile.CONTACT_PHONES,"phones.work","phones.home","phones.other",Profile.CONTACT_IMS,"ims.facebook","ims.msn","ims.jitsi","ims.skype","ims.other",Profile.CONTACT_URLS);
+  private final List<String> predifinedSystemProperties = Arrays.asList(Profile.FULL_NAME,Profile.FIRST_NAME,Profile.LAST_NAME,Profile.EMAIL,Profile.POSITION,Profile.COMPANY,Profile.LOCATION,Profile.DEPARTMENT,Profile.TEAM,Profile.PROFESSION,Profile.COUNTRY,Profile.CITY,Profile.CONTACT_PHONES,"phones.work","phones.home","phones.other",Profile.CONTACT_IMS,"ims.facebook","ims.msn","ims.jitsi","ims.skype","ims.other",Profile.CONTACT_URLS);
 
   public ProfilePropertySettingsService(ProfileSettingStorage profileSettingStorage, SettingService settingService) {
     this.profileSettingStorage = profileSettingStorage;
@@ -102,13 +102,29 @@ public class ProfilePropertySettingsService implements Startable {
             }
             ProfilePropertySetting profilePropertySetting =  new ProfilePropertySetting();
             profilePropertySetting.setPropertyName(propertyName);
-            profilePropertySetting.setSystemProperty(true);
+            if (propertyName.equals(Profile.CONTACT_URLS)) {
+              profilePropertySetting.setMultiValued(true);
+            } else {
+              profilePropertySetting.setMultiValued(false);
+            }
             profilePropertySetting.setActive(true);
-            profilePropertySetting.setEditable(true);
+            if (propertyName.equals(Profile.FULL_NAME)) {
+              profilePropertySetting.setEditable(false);
+            } else {
+              profilePropertySetting.setEditable(true);
+            }
             profilePropertySetting.setOrder(Long.valueOf(index));
-            profilePropertySetting.setVisible(true);
+            if (propertyName.equals(Profile.FIRST_NAME) || propertyName.equals(Profile.LAST_NAME)) {
+              profilePropertySetting.setVisible(false);
+            } else {
+              profilePropertySetting.setVisible(true);
+            }
             profilePropertySetting.setGroupSynchronized(false);
-            profilePropertySetting.setRequired(false);
+            if (propertyName.equals(Profile.FIRST_NAME) || propertyName.equals(Profile.LAST_NAME) || propertyName.equals(Profile.EMAIL) || propertyName.equals(Profile.POSITION)) {
+              profilePropertySetting.setVisible(true);
+            } else {
+              profilePropertySetting.setRequired(false);
+            }
             profilePropertySetting.setParentId(parentId);
             createPropertySetting(profilePropertySetting);
             numCreated++;

@@ -130,6 +130,23 @@
                 class="requiredSwitcher my-auto" />
       </v-list-item-action>
     </v-list-item>
+        <v-list-item>
+      <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
+        <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+          <div>
+            {{ $t('profileSettings.label.multiValued') }}
+          </div>
+        </v-list-item-title>
+      </v-list-item-content>
+      <v-list-item-action>
+        <v-switch
+                v-model="setting.multiValued"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="requiredSwitcher my-auto" />
+      </v-list-item-action>
+    </v-list-item>
 
         <v-list-item>
       <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
