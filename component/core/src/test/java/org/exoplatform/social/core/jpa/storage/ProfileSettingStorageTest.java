@@ -117,7 +117,7 @@ public class ProfileSettingStorageTest extends AbstractCoreTest {
     profilePropertySetting.setVisible(true);
     profilePropertySetting.setPropertyName(propertyName);
     profilePropertySetting.setGroupSynchronized(false);
-    profilePropertySetting.setSystemProperty(false);
+    profilePropertySetting.setMultiValued(false);
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
     return profilePropertySetting;
