@@ -349,6 +349,16 @@ public class EntityBuilder {
     List<ProfilePropertySetting> settings = profilePropertySettingsService.getPropertySettings();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
+    boolean internal = false;
+    try {
+      OrganizationService organizationService = getOrganizationService();
+      User user = organizationService.getUserHandler().findUserByName(profile.getIdentity().getRemoteId(), UserStatus.ANY);
+      if (user != null) {
+        internal = user.isInternalStore();
+       }
+    } catch (Exception e) {
+      LOG.warn("Error when getting user {}", profile.getIdentity().getRemoteId(), e);
+    }
     for (ProfilePropertySetting property : settings){
       if(property.getParentId()!=null && property.getParentId()!=0L){
         subProperties.add(property);
@@ -356,6 +366,7 @@ public class EntityBuilder {
         ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
         try {
           profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
+          profilePropertySettingEntity.setInternal(internal);
         } catch (ClassCastException e) {
           List<Map<String, String>> multiValues = (List<Map<String, String>>)  profile.getProperty(property.getPropertyName());
           if (!multiValues.isEmpty()){
@@ -389,6 +400,7 @@ public class EntityBuilder {
       if(!parents.contains(property.getParentId())){
         ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
         profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
+        profilePropertySettingEntity.setInternal(internal);
         ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId() );
         List<ProfilePropertySettingEntity> children = parentProperty.getChildren();
         children.add(profilePropertySettingEntity);

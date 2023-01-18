@@ -381,6 +381,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals("john", userEntity.getUsername());
   }
 
+  public void testGetUserProfilePropertiesById() throws Exception {
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ArrayList collections = (ArrayList) response.getEntity();
+    assertEquals(15, collections.size());
+  }
+
   public void testGetUserAvatarForAnonymous() throws Exception {
     String user = "john";
 
