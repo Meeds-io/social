@@ -134,11 +134,8 @@ export default {
         this.searchPeople();
         return;
       }
-      this.startTypingKeywordTimeout = Date.now();
-      if (!this.loadingPeople) {
-        this.loadingPeople = true;
-        this.waitForEndTyping();
-      }
+      this.searchPeople();
+
     },
     limitToFetch() {
       this.searchPeople();
@@ -216,15 +213,6 @@ export default {
     },
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
-          this.searchPeople();
-        } else {
-          this.waitForEndTyping();
-        }
-      }, this.endTypingKeywordTimeout);
     },
   }
 };
