@@ -9,17 +9,16 @@
       transition="none"
       eager
       role="presentation" />
-    <template v-if="owner">
-      <v-btn
-        v-show="hover"
-        ref="avatarInput"
-        class="changeAvatarButton"
-        icon
-        dark
-        @click="$emit('edit')">
-        <v-icon size="18">fas fa-camera</v-icon>
-      </v-btn>
-    </template>
+    <v-btn
+      v-if="owner"
+      v-show="hover"
+      ref="avatarInput"
+      class="changeAvatarButton"
+      icon
+      dark
+      @click="$emit('edit')">
+      <v-icon size="18">fas fa-camera</v-icon>
+    </v-btn>
   </v-avatar>
 </template>
 
