@@ -67,7 +67,7 @@
       :crop-options="cropOptions"
       :max-file-size="maxUploadSizeInBytes"
       :src="avatarData || (user && `${user.avatar}&size=0`)"
-      drawer-title="profileHeader.button.changeAvatar"
+      drawer-title="UIChangeAvatarContainer.label.ChangeAvatar"
       circle
       @data="avatarData = $event"
       @input="uploadAvatar" />
