@@ -31,8 +31,6 @@
     <v-scale-transition v-if="peopleAdvancedFilterFeatureEnabled">
       <v-btn
           class="btn px-2 btn-primary"
-          elevation="5"
-          small
           outlined
       >
         <i class="uiIcon uiIcon24x24 settingsIcon primary--text mr-1"></i>
