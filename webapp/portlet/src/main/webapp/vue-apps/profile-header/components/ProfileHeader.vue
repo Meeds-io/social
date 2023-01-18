@@ -27,9 +27,8 @@
                   :max-upload-size="maxUploadSizeInBytes"
                   :owner="owner"
                   :hover="hover || profileHover"
-                  save
-                  @refresh="avatarUpdated"
-                  @error="handleError" />
+                  :avatar-data="avatarData"
+                  @edit="$refs.imageCropDrawer.open()" />
               </v-hover>
               <div class="profileHeader">
                 <div class="profileHeaderText align-start d-flex flex-grow-0">
@@ -62,6 +61,17 @@
         </v-flex>
       </v-img>
     </v-hover>
+    <image-crop-drawer
+      v-if="owner"
+      ref="imageCropDrawer"
+      :crop-options="cropOptions"
+      :max-file-size="maxUploadSizeInBytes"
+      :src="avatarData || (user && `${user.avatar}&size=0`)"
+      drawer-title="profileHeader.button.changeAvatar"
+      circle
+      @data="avatarData = $event"
+      @input="uploadAvatar" />
+    <alert-notifications v-if="owner" />
   </v-app>    
 </template>
 
@@ -76,7 +86,12 @@ export default {
   data: () => ({
     user: null,
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+    avatarData: null,
     errorMessage: null,
+    cropOptions: {
+      aspectRatio: 1,
+      viewMode: 1,
+    },
   }),
   computed: {
     mobile() {
@@ -96,10 +111,19 @@ export default {
     });
   },
   methods: {
+    uploadAvatar(uploadId) {
+      if (uploadId) {
+        return this.$userService.updateProfileField(eXo.env.portal.userName, 'avatar', uploadId)
+          .then(() => this.avatarUpdated())
+          .catch(this.handleError);
+      }
+    },
     avatarUpdated() {
-      this.refresh().then(() => {
-        document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));
-      });
+      return this.refresh()
+        .then(() => {
+          this.avatarData = null;
+          document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));
+        });
     },
     refresh() {
       return this.$userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')

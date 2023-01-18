@@ -913,6 +913,9 @@
         <module>eXoVueI18n</module>
       </depends>
       <depends>
+        <module>imageCropper</module>
+      </depends>
+      <depends>
         <module>jquery</module>
         <as>$</as>
       </depends>
@@ -1014,6 +1017,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>imageCropper</module>
       </depends>
     </module>
   </portlet>
