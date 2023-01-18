@@ -25,7 +25,7 @@ public class  ProfilePropertySetting {
   boolean      isActive;
   boolean      isGroupSynchronized;
   boolean      isRequired;
-  boolean      isSystemProperty;
+  boolean      isMultiValued;
   private Long id;
 
   public Long getId() {
@@ -100,11 +100,11 @@ public class  ProfilePropertySetting {
     isGroupSynchronized = groupSynchronized;
   }
 
-  public boolean isSystemProperty() {
-    return isSystemProperty;
+  public boolean isMultiValued() {
+    return isMultiValued;
   }
 
-  public void setSystemProperty(boolean systemProperty) {
-    isSystemProperty = systemProperty;
+  public void setMultiValued(boolean multiValued) {
+    isMultiValued = multiValued;
   }
 }

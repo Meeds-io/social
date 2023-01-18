@@ -49,6 +49,7 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
+import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
@@ -338,6 +339,64 @@ public class EntityBuilder {
       }
     }
     return userEntity;
+  }
+
+  public static List <ProfilePropertySettingEntity> buildProperties(Profile profile){
+
+    Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
+    ProfilePropertySettingsService profilePropertySettingsService = CommonsUtils.getService(ProfilePropertySettingsService.class);
+    LabelService labelService = CommonsUtils.getService(LabelService.class);
+    List<ProfilePropertySetting> settings = profilePropertySettingsService.getPropertySettings();
+    List<ProfilePropertySetting> subProperties = new ArrayList<>();
+    List<Long> parents = new ArrayList<>();
+    for (ProfilePropertySetting property : settings){
+      if(property.getParentId()!=null && property.getParentId()!=0L){
+        subProperties.add(property);
+      } else {
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
+        try {
+          profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
+        } catch (ClassCastException e) {
+          List<Map<String, String>> multiValues = (List<Map<String, String>>)  profile.getProperty(property.getPropertyName());
+          if (!multiValues.isEmpty()){
+            List<ProfilePropertySettingEntity> children = new ArrayList<>();
+            for (Map<String, String> subProperty : multiValues) {
+              if(StringUtils.isNotEmpty(subProperty.get("value"))){
+                ProfilePropertySettingEntity subProfilePropertySettingEntity = new ProfilePropertySettingEntity();
+                if(StringUtils.isNotEmpty(subProperty.get("key"))){
+                  ProfilePropertySetting propertySetting = profilePropertySettingsService.getProfileSettingByName(property.getPropertyName()+"."+subProperty.get("key"));
+                  if (propertySetting==null) {
+                    propertySetting = profilePropertySettingsService.getProfileSettingByName(subProperty.get("key"));
+                  }
+                  if(propertySetting!=null){
+                    subProfilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
+                  } else {
+                    subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
+                  }
+                }
+                subProfilePropertySettingEntity.setValue(subProperty.get("value"));
+                children.add(subProfilePropertySettingEntity);
+              }
+            }
+            profilePropertySettingEntity.setChildren(children);
+            parents.add(profilePropertySettingEntity.getId());
+          }
+        }
+        properties.put(profilePropertySettingEntity.getId(),profilePropertySettingEntity);
+      }
+    }
+    for (ProfilePropertySetting property : subProperties){
+      if(!parents.contains(property.getParentId())){
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
+        profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
+        ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId() );
+        List<ProfilePropertySettingEntity> children = parentProperty.getChildren();
+        children.add(profilePropertySettingEntity);
+        parentProperty.setChildren(children);
+        properties.put(parentProperty.getId(),parentProperty);
+      }
+    }
+    return new ArrayList<>(properties.values());
   }
 
   public static void buildPhoneEntities(Profile profile, ProfileEntity userEntity) {
@@ -1436,7 +1495,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
     profilePropertySettingEntity.setRequired(profilePropertySetting.isRequired());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
-    profilePropertySettingEntity.setSystemProperty(profilePropertySetting.isSystemProperty());
+    profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setLabels(labelService.findLabelByObjectTypeAndObjectId(objectType, String.valueOf(profilePropertySetting.getId())));
     return profilePropertySettingEntity;
   }
@@ -1470,7 +1529,7 @@ public class EntityBuilder {
     profilePropertySetting.setGroupSynchronized(profilePropertySettingEntity.isGroupSynchronized());
     profilePropertySetting.setRequired(profilePropertySettingEntity.isRequired());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
-    profilePropertySetting.setSystemProperty(profilePropertySettingEntity.isSystemProperty());
+    profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     return profilePropertySetting;
   }
 

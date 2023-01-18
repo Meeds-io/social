@@ -74,7 +74,7 @@ public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
     profilePropertySettingEntity.setRequired(profilePropertySetting.isRequired());
     profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
-    profilePropertySettingEntity.setSystemProperty(profilePropertySetting.isSystemProperty());
+    profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     return profilePropertySettingEntity;
   }
 
@@ -90,7 +90,7 @@ public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
     profilePropertySetting.setRequired(profilePropertySettingEntity.isRequired());
     profilePropertySetting.setGroupSynchronized(profilePropertySettingEntity.isGroupSynchronized());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
-    profilePropertySetting.setSystemProperty(profilePropertySettingEntity.isSystemProperty());
+    profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     return profilePropertySetting;
   }
 }
