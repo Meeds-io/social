@@ -59,8 +59,8 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "REQUIRED_PROPERTY")
   private boolean isRequired;
 
-  @Column(name = "SYSTEM_PROPERTY")
-  private boolean isSystemProperty;
+  @Column(name = "MULTI_VALUED")
+  private boolean isMultiValued;
 
   @Column(name = "GROUP_SYNCHRONIZED")
   private boolean isGroupSynchronized;
@@ -130,12 +130,12 @@ public class ProfilePropertySettingEntity implements Serializable {
     isGroupSynchronized = groupSynchronized;
   }
 
-  public boolean isSystemProperty() {
-    return isSystemProperty;
+  public boolean isMultiValued() {
+    return isMultiValued;
   }
 
-  public void setSystemProperty(boolean systemProperty) {
-    isSystemProperty = systemProperty;
+  public void setMultiValued(boolean multiValued) {
+    isMultiValued = multiValued;
   }
 
   public boolean isRequired() {
@@ -154,7 +154,7 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(isActive());
     builder.append(":").append(isVisible());
     builder.append(":").append(getOrder());
-    builder.append(":").append(isSystemProperty());
+    builder.append(":").append(isMultiValued());
     builder.append(":").append(isRequired());
     builder.append(":").append(isGroupSynchronized());
     builder.append(":").append(getParentId());

@@ -140,7 +140,7 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
     if (propertySetting == null) {
       ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
       profilePropertySetting.setPropertyName(propertyName);
-      profilePropertySetting.setSystemProperty(false);
+      profilePropertySetting.setMultiValued(false);
       profilePropertySetting.setActive(true);
       profilePropertySetting.setEditable(false);
       profilePropertySetting.setVisible(true);
