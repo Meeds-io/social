@@ -23,7 +23,7 @@
           :width="width"
           :max-height="height"
           :max-width="maxWidth"
-          :class="circle && 'cropper-circle'"
+          :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
           class="border-color mx-auto primary position-relative"
           flat>
           <img
@@ -162,6 +162,10 @@ export default {
       default: () => 102400,
     },
     circle: {
+      type: Boolean,
+      default: false,
+    },
+    rounded: {
       type: Boolean,
       default: false,
     },
