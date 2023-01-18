@@ -47,6 +47,8 @@ public class ProfilePropertySettingEntity {
 
   private boolean isMultiValued;
 
+  private boolean isInternal;
+
   private List<Label> labels;
 
   private List<ProfilePropertySettingEntity> children;
@@ -153,6 +155,14 @@ public class ProfilePropertySettingEntity {
 
   public void setRequired(boolean required) {
     isRequired = required;
+  }
+
+  public boolean isInternal() {
+    return isInternal;
+  }
+
+  public void setInternal(boolean internal) {
+    isInternal = internal;
   }
 
   public List<ProfilePropertySettingEntity> getChildren() {

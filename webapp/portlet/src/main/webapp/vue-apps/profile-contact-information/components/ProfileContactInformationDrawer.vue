@@ -12,154 +12,33 @@
         ref="profileContactForm"
         class="form-horizontal"
         flat>
-        <v-flex class="d-flex justify-center">
-          <profile-header-avatar
-            ref="avatar"
-            v-model="userToSave.avatarUploadId"
-            :user="userToSave"
-            :max-upload-size="maxUploadSizeInBytes"
-            :size="150"
-            owner
-            hover
-            @error="handleImageUploadError" />
-        </v-flex>
         <v-card-text v-if="error" class="errorMessage">
           <v-alert type="error">
             {{ error }}
           </v-alert>
-        </v-card-text>
-        <v-card-text class="d-flex fullnameLabels text-color pb-2">
-          <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold me-3">
-            {{ $t('profileContactInformation.firstName') }}*
+        </v-card-text>   
+        <div v-for="property in properties" :key="property.id" >
+          <profile-contact-edit-multi-field v-if="property.editable && (property.multiValued || (property.children && property.children.length))" :property="property" @propertyUpdated="propertyUpdated"/>
+          <div v-else-if="property.editable">
+            <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              {{ getResolvedName(property)}}<span v-if="property.required">*</span>
+            </v-card-text>
+            <v-card-text class="d-flex py-0">
+              <v-card-text v-exo-tooltip.bottom.body="disabledField(property) ? $t('profileContactInformation.synchronizedUser.tooltip') :$t('profileContactInformation.'+property.propertyName)" class="d-flex pa-0">
+                <input
+                  v-model="property.value"
+                  :disabled="saving || disabledField(property)"
+                  :type="property.propertyName==='email' ? 'email' : 'text'"
+                  class="ignore-vuetify-classes"
+                  maxlength="2000"
+                  :required="property.required"
+                  :ref="`${property.propertyName}Input`" 
+                  @change="propertyUpdated(property)">
+              </v-card-text>
+            </v-card-text>
           </div>
-          <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold px-3">
-            {{ $t('profileContactInformation.lastName') }}*
-          </div>
-        </v-card-text>
-        <v-card-text class="d-flex fullnameFields py-0">
-          <div v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.firstName') : $t('profileContactInformation.synchronizedUser.tooltip')" class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold me-3">
-            <input
-              v-model="userToSave.firstname"
-              :disabled="saving || !userToSave.isInternal"
-              type="text"
-              class="ignore-vuetify-classes"
-              maxlength="2000"
-              required>
-          </div>
-          <div v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.lastName') : $t('profileContactInformation.synchronizedUser.tooltip')" class="align-end flex-grow-0 text-no-wrap text-left font-weight-bold">
-            <input
-              v-model="userToSave.lastname"
-              :disabled="saving || !userToSave.isInternal"
-              type="text"
-              class="ignore-vuetify-classes"
-              maxlength="2000"
-              required>
-          </div>
-        </v-card-text>
-        <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.email') }}*
-        </v-card-text>
-        <v-card-text v-exo-tooltip.bottom.body="userToSave.isInternal ? $t('profileContactInformation.email') : $t('profileContactInformation.synchronizedUser.tooltip')" class="d-flex emailField py-0">
-          <input
-            v-model="userToSave.email"
-            :disabled="saving || !userToSave.isInternal"
-            type="email"
-            class="ignore-vuetify-classes"
-            maxlength="2000"
-            required>
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.jobTitle') }}*
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.position"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000"
-            required>
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.company') }}
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.company"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000">
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.location') }}
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.location"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000">
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.department') }}
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.department"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000">
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.team') }}
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.team"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000">
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.profession') }}
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.profession"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000">
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.country') }}
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.country"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000">
-        </v-card-text>
-        <v-card-text class="d-flex positionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileContactInformation.city') }}
-        </v-card-text>
-        <v-card-text class="d-flex positionField py-0">
-          <input
-            v-model="userToSave.city"
-            :disabled="saving"
-            type="text"
-            class="ignore-vuetify-classes"
-            maxlength="2000">
-        </v-card-text>
-        <profile-contact-edit-phone v-model="userToSave.phones" />
-        <profile-contact-edit-ims v-model="userToSave.ims" />
-        <profile-contact-edit-urls v-model="userToSave.urls" />
+        </div>
+
       </v-form>
     </template>
     <template slot="footer">
@@ -186,39 +65,37 @@
 <script>
 export default {
   props: {
-    user: {
-      type: Object,
+    properties: {
+      type: Array,
       default: () => null,
-    },
-    uploadLimit: {
-      type: Number,
-      default: () => 0,
-    },
+    }
   },
   data: () => ({
-    userToSave: {},
+    propertiesToSave: [],
     error: null,
     saving: null,
     fieldError: false,
   }),
-  computed: {
-    maxUploadSizeInBytes() {
-      return this.uploadLimit * 1024 *1024;
-    },
-  },
   methods: {
+    
     resetCustomValidity() {
-      this.$refs.profileContactForm.$el[3].setCustomValidity('');
-      this.$refs.profileContactForm.$el[4].setCustomValidity('');
-      this.$refs.profileContactForm.$el[5].setCustomValidity('');
+      if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity('');}
+      if (this.$refs.firstNameInput) { this.$refs.firstNameInput[0].setCustomValidity('');}
+      if (this.$refs.lastNameInput) { this.$refs.lastNameInput[0].setCustomValidity('');}
     },
+
+    disabledField(property){
+      return !property.internal && (property.propertyName==='firstName' || property.propertyName==='lastName' || property.propertyName==='email');
+    },
+    
     save() {
       this.error = null;
       this.fieldError = false;
-      this.resetCustomValidity();
       
-      if (this.userToSave.urls.length) {
-        if (this.userToSave.urls.some(urlDiv => urlDiv.url && urlDiv.url.length > 100)) {
+      this.resetCustomValidity();
+      let proptocheck = this.propertiesToSave.find(property => property.propertyName === 'urls');
+      if (proptocheck && proptocheck.children.length > 0) {
+        if (proptocheck.children.some(property => property.value.length > 100 || property.value.length < 10)){
           this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
             0: this.$t('profileContactInformation.urls'),
             1: 10,
@@ -226,16 +103,21 @@ export default {
           }));
           return;
         }
-        if (this.userToSave.email.length > 100 || this.userToSave.email.length < 10) {
-          this.$refs.profileContactForm.$el[5].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
+      }
+
+      proptocheck = this.propertiesToSave.find(property => property.propertyName === 'email');
+      if (proptocheck){
+        if ((proptocheck.value && (proptocheck.value.length > 100 || proptocheck.value.length  < 10)) || !proptocheck.value) {
+          this.$refs.emailInput[0].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
             0: this.$t('profileContactInformation.email'),
             1: 10,
             2: 100,
           }));
         } else {
-          this.$refs.profileContactForm.$el[5].setCustomValidity('');
+          this.$refs.emailInput[0].setCustomValidity('');
         }
-      }
+      } 
+      
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
           || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
@@ -244,46 +126,15 @@ export default {
 
       this.$refs.profileContactInformationDrawer.startLoading();
       this.saving = true;
-      if (this.userToSave.avatarUploadId) {
-        this.userToSave.avatar = this.userToSave.avatarUploadId;
-      } else {
-        this.userToSave.avatar = null;
-      }
-      if (this.userToSave.firstname !== this.user.firstname || this.userToSave.lastname !== this.user.lastname) {
-        this.userToSave.fullname = `${this.userToSave.firstname} ${this.userToSave.lastname}`;
-      }
-
-      const fields = [
-        'avatar',
-        'firstname',
-        'lastname',
-        'fullname',
-        'email',
-        'position',
-        'company',
-        'location',
-        'department',
-        'team',
-        'profession',
-        'country',
-        'city',
-        'phones',
-        'ims',
-        'urls'
-      ];
-      const objectToSend = {};
-      for (const i in fields) {
-        objectToSend[fields[i]] = this.userToSave[fields[i]];
-      }
-
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/profile`, {
+     
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/profile/properties`, {
         method: 'PATCH',
         credentials: 'include',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(objectToSend),
+        body: JSON.stringify(this.propertiesToSave),
       }).then(resp => {
         if (!resp || !resp.ok) {
           if (resp.status === 400) {
@@ -303,19 +154,7 @@ export default {
           this.$refs.profileContactInformationDrawer.endLoading();
         });
     },
-    handleImageUploadError(error) {
-      if (error) {
-        if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
-          this.error = this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.uploadLimit});
-        } else {
-          this.error = String(error);
-        }
 
-        window.setTimeout(() => {
-          this.error = null;
-        }, 5000);
-      }
-    },
     handleError(error) {
       this.resetCustomValidity();
       
@@ -324,16 +163,16 @@ export default {
           this.error = this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.uploadLimit});
         } else if (this.fieldError && this.fieldError.indexOf('FIRSTNAME:') === 0) {
           const firstNameError = this.fieldError.replace('FIRSTNAME:', '');
-          this.$refs.profileContactForm.$el[3].setCustomValidity(firstNameError);
+          if (this.$refs.firstNameInput) { this.$refs.firstNameInput[0].setCustomValidity(firstNameError);}
         } else if (this.fieldError && this.fieldError.indexOf('LASTNAME:') === 0) {
           const lastNameError = this.fieldError.replace('LASTNAME:', '');
-          this.$refs.profileContactForm.$el[4].setCustomValidity(lastNameError);
+          if (this.$refs.lastNameInput) { this.$refs.lastNameInput[0].setCustomValidity(lastNameError);}
         } else if (this.fieldError && this.fieldError.indexOf('EMAIL:') === 0) {
           if (this.fieldError === 'EMAIL:ALREADY_EXISTS') {
-            this.$refs.profileContactForm.$el[5].setCustomValidity(this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'));
+            if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity(this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'));}
           } else {
             const emailError = this.fieldError.replace('EMAIL:', '');
-            this.$refs.profileContactForm.$el[5].setCustomValidity(emailError);
+            if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity(emailError); }
           }
         } else {
           error = error.message || String(error);
@@ -359,39 +198,28 @@ export default {
       }
     },
     refresh() {
-      return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
-        .then(user => {
-          this.user = user;
-
-          document.dispatchEvent(new CustomEvent('userModified', {detail: user}));
-        })
-        .catch((e) => {
-          console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
-        });
-    },
+      document.dispatchEvent(new CustomEvent('userModified'));
+    }, 
     cancel() {
       this.$refs.profileContactInformationDrawer.close();
     },
     open() {
       this.error = null;
-
-      if (this.$refs.avatar) {
-        this.$refs.avatar.reset();
-      }
-
-      // Avoid to change on original user
-      this.userToSave = JSON.parse(JSON.stringify(this.user));
-      if (!this.userToSave.phones || !this.userToSave.phones.length) {
-        this.userToSave.phones =  [{}];
-      }
-      if (!this.userToSave.ims || !this.userToSave.ims.length) {
-        this.userToSave.ims =  [{}];
-      }
-      if (!this.userToSave.urls || !this.userToSave.urls.length) {
-        this.userToSave.urls =  [{}];
-      }
       this.$refs.profileContactInformationDrawer.open();
     },
+    propertyUpdated(item){
+      if (!this.propertiesToSave.some(e => e.id === item.id)) {
+        this.propertiesToSave.push(item);
+      }    
+    },
+    getResolvedName(item){
+      const lang = eXo && eXo.env.portal.language || 'en';
+      const resolvedLabel = item.labels.find(v => v.language === lang);
+      if (resolvedLabel){
+        return resolvedLabel.label;
+      }
+      return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
+    }
   },
 };
 </script>
