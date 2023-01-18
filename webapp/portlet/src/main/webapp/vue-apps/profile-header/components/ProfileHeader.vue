@@ -123,6 +123,7 @@ export default {
         .then(() => {
           this.avatarData = null;
           document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));
+          this.$root.$emit('alert-message', this.$t('UIChangeAvatarContainer.label.AvatarUpdated') ,'success');
         });
     },
     refresh() {

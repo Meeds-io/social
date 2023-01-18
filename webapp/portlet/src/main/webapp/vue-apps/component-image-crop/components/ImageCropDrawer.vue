@@ -5,7 +5,8 @@
     id="translationDrawer"
     allow-expand
     right
-    disable-pull-to-refresh>
+    disable-pull-to-refresh
+    @closed="resetCropper">
     <template #title>
       <span class="text-capitalize-first-letter">
         {{ $t(title) }}
@@ -237,7 +238,6 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
-      this.$nextTick().then(() => this.resetCropper());
     },
     onCanvasResize() {
       window.setTimeout(() => {
