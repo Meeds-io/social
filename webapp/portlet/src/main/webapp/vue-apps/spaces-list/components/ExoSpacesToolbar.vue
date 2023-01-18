@@ -8,9 +8,10 @@
       </v-icon>
       <v-btn
         v-else
-        class="btn btn-primary px-0"
+        id="addNewSpaceButton"
+        class="btn btn-primary px-0 addNewSpaceButton"
         :height="isMobile && '40' || '40'"
-        :width="isMobile && '40' || '120'"
+        :width="isMobile && '40' || ''"
         :x-small="isMobile"
         @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
