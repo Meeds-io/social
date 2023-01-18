@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import _ from 'lodash';
+
 export default {
   props: {
     keyword: {
@@ -118,9 +118,9 @@ export default {
     },
   },
   watch: {
-    keyword: _.debounce(function () {
+    keyword() {
       this.$emit('keyword-changed', this.keyword);
-    }, 600 ),
+    },
     filter() {
       this.$emit('filter-changed', this.filter);
     },
