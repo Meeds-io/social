@@ -43,8 +43,6 @@ public class ProfileSettingsRest implements ResourceContainer {
 
   private static final Log LOG = ExoLogger.getLogger(ProfileSettingsRest.class);
 
-  private static final String LABELS_OBJECT_TYPE = "profileProperty";
-
   private final ProfilePropertySettingsService profilePropertySettingsService;
   private final LabelService labelService;
 
@@ -75,7 +73,7 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
     try {
-      return Response.ok(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertySettingsService.getPropertySettings(), labelService, LABELS_OBJECT_TYPE)).build();
+      return Response.ok(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertySettingsService.getPropertySettings(), labelService, profilePropertySettingsService.LABELS_OBJECT_TYPE)).build();
     }catch (Exception e) {
       LOG.error("An error occurred while getting list of settings", e);
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();
@@ -110,7 +108,7 @@ public class ProfileSettingsRest implements ResourceContainer {
     try {
       ProfilePropertySetting newProfilePropertySetting = profilePropertySettingsService.createPropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
       if (!profilePropertySettingEntity.getLabels().isEmpty()) {
-        labelService.createLabels(profilePropertySettingEntity.getLabels(), LABELS_OBJECT_TYPE, String.valueOf(newProfilePropertySetting.getId()));
+        labelService.createLabels(profilePropertySettingEntity.getLabels(), profilePropertySettingsService.LABELS_OBJECT_TYPE, String.valueOf(newProfilePropertySetting.getId()));
       }
       return Response.ok().build();
     } catch (ObjectAlreadyExistsException ex) {
@@ -148,7 +146,7 @@ public class ProfileSettingsRest implements ResourceContainer {
     }
     try {
       profilePropertySettingsService.updatePropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
-      labelService.mergeLabels(profilePropertySettingEntity.getLabels(), LABELS_OBJECT_TYPE, String.valueOf(profilePropertySettingEntity.getId()));
+      labelService.mergeLabels(profilePropertySettingEntity.getLabels(), profilePropertySettingsService.LABELS_OBJECT_TYPE, String.valueOf(profilePropertySettingEntity.getId()));
       return Response.ok().build();
     } catch (Exception ex) {
       LOG.warn("Failed to update the Property setting", ex);

@@ -159,7 +159,7 @@ public class ProfilePropertySettingEntity {
     if (children!=null){
       return children;
     }
-    return new ArrayList<ProfilePropertySettingEntity>();
+    return new ArrayList<>();
   }
 
   public void setChildren(List<ProfilePropertySettingEntity> children) {
