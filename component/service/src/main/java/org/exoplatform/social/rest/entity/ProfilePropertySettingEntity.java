@@ -18,12 +18,16 @@
 package org.exoplatform.social.rest.entity;
 
 import org.exoplatform.social.core.model.Label;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProfilePropertySettingEntity {
   private Long id;
 
   private String propertyName;
+
+  private String value;
 
   private String resolvedLabel;
 
@@ -37,15 +41,15 @@ public class ProfilePropertySettingEntity {
 
   private boolean isActive;
 
-  private String ldapAttribute;
-
   private boolean isGroupSynchronized;
 
   private boolean isRequired;
 
-  private boolean isSystemProperty;
+  private boolean isMultiValued;
 
   private List<Label> labels;
+
+  private List<ProfilePropertySettingEntity> children;
 
   public Long getId() {
     return id;
@@ -61,6 +65,14 @@ public class ProfilePropertySettingEntity {
 
   public void setPropertyName(String propertyName) {
     this.propertyName = propertyName;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public void setValue(String value) {
+    this.value = value;
   }
 
   public String getResolvedLabel() {
@@ -111,14 +123,6 @@ public class ProfilePropertySettingEntity {
     isActive = active;
   }
 
-  public String getLdapAttribute() {
-    return ldapAttribute;
-  }
-
-  public void setLdapAttribute(String ldapAttribute) {
-    this.ldapAttribute = ldapAttribute;
-  }
-
   public boolean isGroupSynchronized() {
     return isGroupSynchronized;
   }
@@ -127,12 +131,12 @@ public class ProfilePropertySettingEntity {
     isGroupSynchronized = groupSynchronized;
   }
 
-  public boolean isSystemProperty() {
-    return isSystemProperty;
+  public boolean isMultiValued() {
+    return isMultiValued;
   }
 
-  public void setSystemProperty(boolean systemProperty) {
-    isSystemProperty = systemProperty;
+  public void setMultiValued(boolean multiValued) {
+    isMultiValued = multiValued;
   }
 
   public List<Label> getLabels() {
@@ -149,5 +153,16 @@ public class ProfilePropertySettingEntity {
 
   public void setRequired(boolean required) {
     isRequired = required;
+  }
+
+  public List<ProfilePropertySettingEntity> getChildren() {
+    if (children!=null){
+      return children;
+    }
+    return new ArrayList<>();
+  }
+
+  public void setChildren(List<ProfilePropertySettingEntity> children) {
+    this.children = children;
   }
 }
