@@ -9,33 +9,43 @@
           slot-scope="{ hover }"
           :lazy-src="bannerUrl || ''"
           :src="bannerUrl || ''"
-          :height="height"
-          :min-height="height"
           :max-height="height"
-          class="spaceBannerImg d-flex"
+          height="auto"
+          min-width="100%"
+          class="d-flex"
           eager>
           <v-flex fill-height column>
             <v-layout>
               <v-flex class="d-flex spaceHeaderTitle">
                 <div class="flex-grow-1"></div>
                 <div class="d-flex flex-grow-0 justify-end pe-4">
-                  <exo-confirm-dialog
-                    ref="errorUploadDialog"
-                    :message="errorMessage"
-                    :title="$t('spaceHeader.title.errorUploadingImage')"
-                    :ok-label="$t('spaceHeader.label.ok')" />
-                  <space-header-banner-button
+                  <v-btn
                     v-if="admin"
-                    :max-upload-size="maxUploadSizeInBytes"
-                    :hover="hover"
-                    @refresh="refresh"
-                    @error="handleError" />
+                    v-show="hover"
+                    ref="bannerInput"
+                    class="changeBannerButton border-color me-4"
+                    icon
+                    outlined
+                    dark
+                    @click="$refs.imageCropDrawer.open()">
+                    <v-icon size="18">fas fa-file-image</v-icon>
+                  </v-btn>
                 </div>
               </v-flex>
             </v-layout>
           </v-flex>
         </v-img>
       </v-hover>
+      <image-crop-drawer
+        v-if="admin"
+        ref="imageCropDrawer"
+        :crop-options="cropOptions"
+        :max-file-size="maxUploadSizeInBytes"
+        :src="bannerData || bannerUrl"
+        drawer-title="UIPopupBannerUploader.title.ChangeBanner"
+        @data="bannerData = $event"
+        @input="uploadBanner" />
+      <alert-notifications v-if="admin" />
       <v-tabs
         v-if="hasNavigations"
         :value="selectedNavigationUri"
@@ -87,6 +97,11 @@ export default {
   },
   data: () => ({
     errorMessage: null,
+    bannerData: null,
+    cropOptions: {
+      aspectRatio: 1280 / 175,
+      viewMode: 1,
+    },
   }),
   computed: {
     maxUploadSizeInBytes() {
@@ -104,6 +119,13 @@ export default {
     },
     isMobile() {
       return this.$vuetify.breakpoint.xs;
+    },
+  },
+  watch: {
+    errorMessage() {
+      if (this.errorMessage) {
+        this.$root.$emit('alert-message', this.errorMessage, 'error');
+      }
     },
   },
   created() {
@@ -135,6 +157,17 @@ export default {
       // Force refresh by using random query param 'updated'
       this.bannerUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${eXo.env.portal.spaceName}/banner?updated=${Math.random()}`;
       this.$nextTick().then(() => this.$root.$emit('application-cache'));
+    },
+    uploadBanner(uploadId) {
+      return this.$spaceService.updateSpace({
+        id: eXo.env.portal.spaceId,
+        bannerId: uploadId,
+      })
+        .then(() => {
+          this.refresh();
+          this.$root.$emit('alert-message', this.$t('UIPopupBannerUploader.title.BannerUpdated'), 'success');
+        })
+        .catch(this.handleError);
     },
     handleError(error) {
       if (error) {
