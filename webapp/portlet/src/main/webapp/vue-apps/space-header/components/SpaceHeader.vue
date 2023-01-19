@@ -38,6 +38,7 @@
         :crop-options="cropOptions"
         :max-file-size="maxUploadSizeInBytes"
         :src="bannerData || bannerUrl"
+        max-image-width="1280"
         drawer-title="UIPopupBannerUploader.title.ChangeBanner"
         @data="bannerData = $event"
         @input="uploadBanner" />

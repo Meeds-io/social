@@ -154,6 +154,10 @@ export default {
       type: Object,
       default: null,
     },
+    maxImageWidth: {
+      type: Number,
+      default: () => 1280,
+    },
     drawerTitle: {
       type: String,
       default: null,
@@ -195,6 +199,9 @@ export default {
   computed: {
     aspectRatio() {
       return this.cropOptions?.aspectRatio || 1;
+    },
+    maxImageHeight() {
+      return this.maxImageWidth && this.aspectRatio * this.maxImageWidth;
     },
     height() {
       return parseInt((this.width + 32) * 9 / 16) - 32;
@@ -367,7 +374,10 @@ export default {
     },
     getCroppedCanvas() {
       if (this.circle) {
-        const croppedCanvas = this.cropper.getCroppedCanvas();
+        const croppedCanvas = this.cropper.getCroppedCanvas(this.maxImageWidth && {
+          maxWidth: this.maxImageWidth * 2,
+          maxHeight: this.maxImageHeight * 2,
+        });
         const width = croppedCanvas.width;
         const height = croppedCanvas.height;
 
@@ -384,7 +394,10 @@ export default {
         context.fill();
         return canvas;
       } else {
-        return this.cropper.getCroppedCanvas();
+        return this.cropper.getCroppedCanvas(this.maxImageWidth && {
+          maxWidth: this.maxImageWidth,
+          maxHeight: this.maxImageHeight,
+        });
       }
     },
     uploadFile(file) {

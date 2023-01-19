@@ -138,6 +138,7 @@
       :crop-options="cropOptions"
       :max-file-size="maxUploadSizeInBytes"
       :src="avatarData || `${space.avatarUrl}&size=0`"
+      max-image-width="350"
       drawer-title="UIChangeAvatarContainer.label.ChangeAvatar"
       rounded
       @data="avatarData = $event" />

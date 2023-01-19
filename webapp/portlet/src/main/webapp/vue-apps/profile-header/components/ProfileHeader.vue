@@ -46,7 +46,7 @@
           tile>
           <v-card
             :width="imageSize"
-            max-width="165"
+            max-width="350"
             class="d-flex flex-row ms-4 flex-shrink-0"
             color="white"
             flat
@@ -74,6 +74,7 @@
       :crop-options="imageCropperOptions"
       :drawer-title="imageCropperDrawerTitle"
       :max-file-size="maxUploadSizeInBytes"
+      :max-image-width="maxImageWidth"
       @input="uploadImage" />
     <alert-notifications v-if="owner" />
   </v-app>    
@@ -117,6 +118,9 @@ export default {
         aspectRatio: 1280 / 175,
         viewMode: 1,
       };
+    },
+    maxImageWidth() {
+      return this.imageType === 'avatar' && 350 || 1280;
     },
   },
   watch: {
