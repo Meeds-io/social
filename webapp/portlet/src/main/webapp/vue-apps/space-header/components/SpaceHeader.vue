@@ -176,7 +176,6 @@ export default {
         } else {
           this.errorMessage = String(error);
         }
-        this.$refs.errorUploadDialog.open();
       }
     },
   },

@@ -1,25 +1,36 @@
 <template>
-  <v-avatar
-    :class="owner && hover && 'profileHeaderAvatarHoverEdit'"
-    :size="size"
-    class="align-start flex-grow-0 ms-3 my-3 profileHeaderAvatar">
-    <v-img
-      :lazy-src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
-      :src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
-      transition="none"
-      eager
-      role="presentation" />
-    <v-btn
-      v-if="owner"
-      v-show="hover"
-      ref="avatarInput"
-      class="changeAvatarButton"
-      icon
-      dark
-      @click="$emit('edit')">
-      <v-icon size="18">fas fa-camera</v-icon>
-    </v-btn>
-  </v-avatar>
+  <div class="d-flex">
+    <v-avatar
+      :class="owner && hover && 'profileHeaderAvatarHoverEdit'"
+      :size="size"
+      min-width="auto"
+      min-height="auto"
+      max-width="165"
+      max-height="165"
+      class="align-start flex-grow-0 border-color ms-3 profileHeaderAvatar">
+      <v-img
+        :lazy-src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
+        :src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
+        transition="none"
+        max-width="165"
+        max-height="165"
+        eager
+        role="presentation" />
+      <v-btn
+        v-if="owner"
+        v-show="hover"
+        ref="avatarInput"
+        :title="$t('UIChangeAvatarContainer.label.ChangeAvatar')"
+        class="changeAvatarButton"
+        icon
+        outlined
+        dark
+        @click="$emit('edit')">
+        <v-icon size="18">fas fa-camera</v-icon>
+      </v-btn>
+    </v-avatar>
+    <slot></slot>
+  </div>
 </template>
 
 <script>
