@@ -73,8 +73,7 @@ export default {
     getSettings() {
       return this.$profileSettingsService.getSettings()
         .then(settings => {
-          const notAlowedProps = ['ims.skype','ims.jitsi','ims.msn','ims.facebook','ims','phones.other','phones.work','phones.home','ims.other'];
-          this.settings =  settings.filter((e) => e.active && !notAlowedProps.includes(e.propertyName) ).map(obj => ({ ...obj, valueToSearch: '' })) || [];
+          this.settings =  settings.filter((e) => e.active ).map(obj => ({ ...obj, valueToSearch: '' })) || [];
         });
     },
     getResolvedName(item){
