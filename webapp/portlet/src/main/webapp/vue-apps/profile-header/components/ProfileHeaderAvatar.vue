@@ -7,7 +7,7 @@
       min-height="auto"
       max-width="165"
       max-height="165"
-      class="align-start flex-grow-0 border-color ms-3 profileHeaderAvatar">
+      class="align-start flex-grow-0 border-color profileHeaderAvatar">
       <v-img
         :lazy-src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
         :src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
