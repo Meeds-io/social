@@ -516,9 +516,6 @@ public class ProfileSearchConnector {
       }
       if (keys.length > 1) {
         // We will not search on username because it doesn't contain a space character
-        if (filter.isSearchEmail()) {
-          esExp.append("(");
-        }
         esExp.append("(");
         for (int i = 0; i < keys.length; i++) {
           if (i != 0 ) {
@@ -527,52 +524,12 @@ public class ProfileSearchConnector {
           esExp.append(" name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
         }
         esExp.append(")");
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR ( ");
-          for (int i = 0; i < keys.length; i++) {
-            if (i != 0 ) {
-              esExp.append(" AND ") ;
-            }
-            esExp.append(" email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
-          }
-          esExp.append(") )");
-        }
       } else if (StringUtils.isNotBlank(newInputName)) {
         esExp.append("name:").append(removeAccents(newInputName));
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR email:").append(removeAccents(newInputName));
-        }
-        esExp.append(" OR userName:").append(removeAccents(newInputName));
       } else {
         esExp.append("( name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
-        }
-        esExp.append(" OR userName:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR).append(")");
+        esExp.append(")");
       }
-    }
-
-    //skills
-    String skills = StringUtils.isBlank(filter.getSkills()) ? null : filter.getSkills().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-
-    if (StringUtils.isNotBlank(skills)) {
-      skills = skills.startsWith("\"") && skills.endsWith("\"")  ? skills.replace("\"", "") : skills;
-      if (esExp.length() > 0) {
-        esExp.append(" OR ");
-      }
-      //
-      esExp.append("skills:").append(StorageUtils.ASTERISK_STR).append(removeAccents(skills)).append(StorageUtils.ASTERISK_STR);
-    }
-
-    //position
-    String position = StringUtils.isBlank(filter.getPosition()) ? null : filter.getPosition().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-
-    if (StringUtils.isNotBlank(position)) {
-      position = position.startsWith("\"") && position.endsWith("\"") ? position.replace("\"", "") : position;
-      if (esExp.length() > 0) {
-        esExp.append(" OR ");
-      }
-      esExp.append("position:").append(StorageUtils.ASTERISK_STR).append(removeAccents(position)).append(StorageUtils.ASTERISK_STR);
     }
     return esExp.toString();
   }
