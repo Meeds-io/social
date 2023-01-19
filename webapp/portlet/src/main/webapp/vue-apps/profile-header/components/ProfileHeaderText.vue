@@ -1,12 +1,12 @@
 <template>
-  <v-flex>
-    <v-card-title class="headline white--text">
+  <div class="d-flex flex-column">
+    <v-card-title class="py-2">
       {{ user && user.fullname }}{{ external }}{{ disabled }}
     </v-card-title>
-    <v-card-subtitle class="subtitle white--text" dark>
+    <v-card-subtitle class="py-2">
       {{ user && user.position || '' }}
     </v-card-subtitle>
-  </v-flex>
+  </div>
 </template>
 
 <script>
