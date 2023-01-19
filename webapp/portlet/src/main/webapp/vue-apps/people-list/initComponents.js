@@ -35,4 +35,3 @@ if (extensionRegistry) {
     });
   }
 }
-
