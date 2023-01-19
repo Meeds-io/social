@@ -70,6 +70,14 @@ export default {
     close() {
       this.$refs.peopleAdvancedFilterDrawer.close();
     },
+    cancel() {
+      this.settings.forEach((element) => {
+        if (element && element.valueToSearch) {
+          element.valueToSearch = '';
+        }
+      });
+      this.$refs.peopleAdvancedFilterDrawer.close();
+    },
     getSettings() {
       return this.$profileSettingsService.getSettings()
         .then(settings => {
