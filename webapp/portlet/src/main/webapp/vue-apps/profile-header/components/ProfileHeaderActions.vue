@@ -1,21 +1,22 @@
 <template>
-  <div
+  <v-card
     id="profileHeaderActions"
-    :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
-    class="d-flex my-auto justify-end flex-wrap">
-    <template v-if="!owner || skeleton">
-      <template v-if="!skeleton">
-        <v-btn
-          v-for="(extension, i) in enabledProfileActionExtensions"
-          :key="i"
-          class="btn ma-2 mb-0"
-          @click="extension.click(user)">
-          <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
-          <span class="buttonText">
-            {{ extension.title }}
-          </span>
-        </v-btn>
-      </template>
+    class="profileHeaderOtherActions mt-auto d-flex"
+    min-height="70"
+    max-height="70"
+    flat
+    tile>
+    <div class="d-flex justify-end flex-wrap my-auto">
+      <v-btn
+        v-for="(extension, i) in enabledProfileActionExtensions"
+        :key="i"
+        class="btn ma-2 mb-0"
+        @click="extension.click(user)">
+        <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
+        <span class="buttonText">
+          {{ extension.title }}
+        </span>
+      </v-btn>
       <div v-if="invited" class="invitationButtons d-inline">
         <v-dialog
           v-model="mobileAcceptRefuseConnectionDialog"
@@ -89,9 +90,8 @@
       <v-btn
         v-else-if="disconnected"
         :loading="sendingAction"
-        :disabled="sendingAction || skeleton"
-        :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
-        class="btn ma-1 mb-0 connectUserButton"
+        :disabled="sendingAction"
+        class="btn ma-1 mb-0 btn-primary connectUserButton"
         @click="connect">
         <i class="uiIconSocConnectUser"></i>
         <span class="buttonText">
@@ -117,8 +117,8 @@
           {{ initTitleActionComponent(action) }}
         </div>
       </div>
-    </template>
-  </div>
+    </div>
+  </v-card>
 </template>
 
 <script>
@@ -129,10 +129,6 @@ export default {
     user: {
       type: Object,
       default: () => null,
-    },
-    owner: {
-      type: Boolean,
-      default: () => true,
     },
     hover: {
       type: Boolean,

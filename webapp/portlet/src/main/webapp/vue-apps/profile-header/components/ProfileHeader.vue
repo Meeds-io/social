@@ -2,8 +2,21 @@
   <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover>
       <div slot-scope="{ hover }">
+        <div class="d-flex flex-column full-height position-absolute z-index-two">
+          <profile-header-avatar
+            :user="user"
+            :owner="owner"
+            :hover="hover"
+            :size="imageSize"
+            class="mt-4 mt-sm-auto ms-4"
+            @edit="editAvatar" />
+          <v-card
+            color="transparent"
+            min-height="35px"
+            flat />
+        </div>
         <v-card
-          max-height="240"
+          max-height="175"
           class="d-flex"
           tile
           flat>
@@ -15,45 +28,37 @@
             height="auto"
             min-width="100%"
             eager>
-            <v-card
-              height="100%"
-              min-height="100%"
-              color="transparent"
-              class="d-flex flex-row"
-              flat>
-              <v-hover>
-                <profile-header-avatar
-                  slot-scope="{ profileHover }"
-                  :user="user"
-                  :owner="owner"
-                  :hover="hover || profileHover"
-                  size="15vw"
-                  class="my-auto"
-                  @edit="editAvatar" />
-              </v-hover>
-              <profile-header-banner-button
-                v-if="owner"
-                :user="user"
-                :hover="hover"
-                class="ms-auto me-2 mt-2 me-sm-4 mt-sm-4"
-                @edit="editBanner"
-                @refresh="refresh" />
-            </v-card>
+            <profile-header-banner-button
+              v-if="owner"
+              :user="user"
+              :hover="hover"
+              class="justify-end me-2 mt-2 me-sm-4 mt-sm-4"
+              @edit="editBanner"
+              @refresh="refresh" />
           </v-img>
         </v-card>
         <v-card
+          class="d-flex flex-row"
           color="white"
           min-height="70"
-          class="d-flex flex-row"
-          flat>
+          flat
+          tile>
+          <v-card
+            :width="imageSize"
+            max-width="165"
+            class="d-flex flex-row ms-4 flex-grow-1 flex-shrink-0"
+            color="white"
+            flat
+            tile />
           <div class="d-flex flex-grow-0 text-truncate">
-            <profile-header-text :user="user" class="my-auto" />
+            <profile-header-text
+              :user="user"
+              class="mt-auto" />
           </div>
-          <div class="flex-grow-1 d-flex flex-row justify-end pe-6 profileHeader">
+          <div class="flex-grow-1 flex-shrink-0 d-flex flex-row justify-end pe-2 profileHeader">
             <profile-header-actions
               v-if="!owner"
               :user="user"
-              :owner="owner"
               :hover="hover"
               @refresh="refresh" />
           </div>
@@ -85,6 +90,7 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     errorMessage: null,
     imageType: null,
+    imageSize: '15vw',
   }),
   computed: {
     mobile() {
@@ -107,7 +113,7 @@ export default {
         aspectRatio: 1,
         viewMode: 1,
       } || {
-        aspectRatio: 1280 / 240,
+        aspectRatio: 1280 / 175,
         viewMode: 1,
       };
     },
