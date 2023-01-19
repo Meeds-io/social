@@ -93,9 +93,6 @@ export default {
   data: () => ({
     profileExtensions: [],
     spaceMemberExtensions: [],
-    startSearchAfterInMilliseconds: 600,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
     fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
     userType: 'internal',
     initialized: false,
@@ -134,11 +131,8 @@ export default {
         this.searchPeople();
         return;
       }
-      this.startTypingKeywordTimeout = Date.now();
-      if (!this.loadingPeople) {
-        this.loadingPeople = true;
-        this.waitForEndTyping();
-      }
+      this.searchPeople();
+
     },
     limitToFetch() {
       this.searchPeople();
@@ -156,6 +150,9 @@ export default {
 
     // To broadcast event about current page supporting profile extensions
     document.dispatchEvent(new CustomEvent('profile-extension-init'));
+    this.$root.$on('reset-advanced-filter', this.searchPeople);
+
+    this.$root.$on('advanced-filter', profileSettings => this.getUsersByadvancedfilter(profileSettings));
 
     this.refreshExtensions();
   },
@@ -217,15 +214,44 @@ export default {
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
     },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
-          this.searchPeople();
-        } else {
-          this.waitForEndTyping();
+    getUsersByadvancedfilter(profileSettings) {
+
+      this.loadingPeople = true;
+      // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
+      // to finally let only 'limitToFetch' users
+      let filterUsersFunction;
+      if (this.filter) {
+        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter);
+      }
+      return filterUsersFunction.then(data => {
+        let users = data && data.users || [];
+        if (this.filter === 'all') {
+          users = users.filter(user => user && user.username !== eXo.env.portal.userName);
         }
-      }, this.endTypingKeywordTimeout);
-    },
+        users = users.slice(0, this.limitToFetch);
+        this.users = users;
+        this.peopleCount = data && data.size && data.size || 0;
+        if (this.peopleCount > 0 && this.filter === 'all' && !this.keyword) {
+          this.peopleCount = this.peopleCount - 1;
+        }
+        this.hasPeople = this.hasPeople || this.peopleCount > 0;
+        this.$emit('loaded', this.peopleCount);
+        return this.$nextTick();
+      })
+        .then(() => {
+          if ( this.filteredPeople.length < this.originalLimitToFetch && this.users.length >= this.limitToFetch) {
+            this.limitToFetch += this.pageSize;
+          }
+        })
+        .finally(() => {
+          if (!this.initialized) {
+            this.$root.$applicationLoaded();
+          }
+          this.loadingPeople = false;
+          this.initialized = true;
+        });
+
+    }
   }
 };
 </script>

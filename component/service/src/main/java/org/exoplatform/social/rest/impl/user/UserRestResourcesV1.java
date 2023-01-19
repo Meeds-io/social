@@ -310,10 +310,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     } else {
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
-      filter.setPosition(q == null || q.isEmpty() ? "" : q);
-      filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setEnabled(!isDisabled);
-      filter.setSearchEmail(true);
       if (!isDisabled) {
         filter.setUserType(userType);
         filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
@@ -361,13 +358,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       } else if (isDisabled && q != null && !q.isEmpty()) {
         ListAccess<User> usersListAccess;
         User[] users;
-        if(q.contains("@")) {
-          Query query = new Query();
-          query.setEmail(q);
-          usersListAccess = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.DISABLED);
-        } else {
-          usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
-        }
+        usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
         totalSize = usersListAccess.getSize();
         int limitToFetch = limit;
         if (totalSize < (offset + limitToFetch)) {
@@ -390,6 +381,79 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
     }
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();
+    for (Identity identity : identities) {
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      //
+      profileInfos.add(profileInfo.getDataEntity());
+    }
+    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+    if (returnSize) {
+      collectionUser.setSize(totalSize);
+    }
+
+    return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+  }
+
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/advancedfilter")
+  @RolesAllowed("users")
+  @Operation(
+      summary = "Gets all users or connections by advanced filter",
+      method = "POST",
+      description = "")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse (responseCode = "404", description = "Resource not found"),
+      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+      @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response getUsersOrConnectionsByAdvancedFilter(@Context UriInfo uriInfo,
+                           @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
+                           @Parameter(description = "Filter type to filter , ex all , connection") @DefaultValue("all") @QueryParam("filterType") String filterType,
+                           @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
+                           @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                           @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                           @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                           @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings) throws Exception {
+
+    String userId;
+    try {
+      userId = ConversationState.getCurrent().getIdentity().getUserId();
+    } catch (Exception e) {
+      return Response.status(HTTPStatus.UNAUTHORIZED).build();
+    }
+    if (StringUtils.isBlank(userId)) {
+      return Response.status(HTTPStatus.UNAUTHORIZED).build();
+    }
+
+    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
+    if (target == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+
+    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
+    }
+
+    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
+    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+    Identity[] identities;
+    int totalSize = 0;
+      ProfileFilter filter = new ProfileFilter();
+      if (filterType.equals("all")) {
+        filter.setEnabled(!isDisabled);
+        if (!isDisabled) {
+          filter.setUserType(userType);
+        }
+      }
+      filter.setProfileSettings(settings);
+        ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
+        identities = list.load(offset, limit);
+        if(returnSize) {
+          totalSize = list.getSize();
+        }
+    List<DataEntity> profileInfos = new ArrayList<>();
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
       //

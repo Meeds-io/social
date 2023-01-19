@@ -3,14 +3,18 @@
     <div class="showingPeopleText text-sub-title ms-3 d-none d-sm-flex">
       {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
+    <span>
+      <v-icon v-if="showMobileFilter && isMobile" left size="20" @click="mobileFilter">fa-arrow-left</v-icon>
+    </span>
     <v-spacer class="d-none d-sm-flex" />
-    <v-scale-transition>
+    <v-col>
       <v-text-field
-        v-model="keyword"
+          v-show="isMobile && showMobileFilter || !isMobile"
+          v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
-        class="inputPeopleFilter pa-0 me-3 my-auto" />
-    </v-scale-transition>
+        class="inputPeopleFilter pa-0 my-auto" />
+    </v-col>
     <v-scale-transition>
       <select
         v-model="filter"
@@ -23,49 +27,27 @@
         </option>
       </select>
     </v-scale-transition>
+    <v-scale-transition >
+      <v-btn
+          v-show="isMobile && showMobileFilter || !isMobile"
+          class="btn px-2 btn-primary"
+          outlined
+          @click="openPeopleAdvancedFilterDrawer()"
+      >
+        <i class="uiIcon uiIcon24x24 settingsIcon primary--text mr-1"></i>
+        <span class="d-none font-weight-regular caption d-sm-inline mr-1">
+            {{ $t('profile.label.search.openSearch') }}
+            <span v-if="advancedFilterCountDisplay > 0">{{`(${advancedFilterCountDisplay})`}}</span>
+          </span>
+      </v-btn>
+    </v-scale-transition>
     <v-icon
-      class="d-sm-none"
-      @click="openBottomMenu">
-      fa-filter
+        size="24"
+        class="text-sub-title pa-1 my-auto mt-2 ml-auto"
+        v-show="isMobile && !showMobileFilter"
+        @click="mobileFilter()">
+        mdi-filter-outline
     </v-icon>
-    <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-      <v-sheet class="text-center" height="169px">
-        <v-toolbar
-          color="primary"
-          dark
-          class="border-box-sizing">
-          <v-btn text @click="bottomMenu = false">
-            {{ $t('peopleList.label.cancel') }}
-          </v-btn>
-          <v-spacer />
-          <v-toolbar-title>
-            <v-icon>fa-filter</v-icon>
-            {{ $t('peopleList.label.filter') }}
-          </v-toolbar-title>
-          <v-spacer />
-          <v-btn text @click="changeFilterSelection">
-            {{ $t('peopleList.label.confirm') }}
-          </v-btn>
-        </v-toolbar>
-        <v-list>
-          <v-list-item
-            v-for="peopleFilter in peopleFilters"
-            :key="peopleFilter"
-            @click="filterToChange = peopleFilter.value">
-            <v-list-item-title class="align-center d-flex">
-              <v-icon v-if="filterToChange === peopleFilter.value">fa-check</v-icon>
-              <span v-else class="me-6"></span>
-              <v-spacer />
-              <div>
-                {{ peopleFilter.text }}
-              </div>
-              <v-spacer />
-              <span class="me-6"></span>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-sheet>
-    </v-bottom-sheet>
   </v-toolbar>
 </template>
 
@@ -89,7 +71,20 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
+    startSearchAfterInMilliseconds: 300,
+    endTypingKeywordTimeout: 50,
+    startTypingKeywordTimeout: 0,
+    typing: false,
+    advancedFilterCount: 0,
+    showMobileFilter: false,
   }),
+  created() {
+    this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount );
+    this.$root.$on('reset-advanced-filter-count', () => {
+      this.advancedFilterCount = 0;
+      this.advancedFilterCountDisplay();
+    });
+  },
   computed: {
     peopleFilters() {
       return [{
@@ -100,10 +95,20 @@ export default {
         value: 'connections',
       }];
     },
+    advancedFilterCountDisplay() {
+      return this.advancedFilterCount || 0;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.width < 768;
+    },
   },
   watch: {
     keyword() {
-      this.$emit('keyword-changed', this.keyword);
+      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
+      if (!this.typing) {
+        this.typing = true;
+        this.waitForEndTyping();
+      }
     },
     filter() {
       this.$emit('filter-changed', this.filter);
@@ -118,6 +123,22 @@ export default {
       this.bottomMenu = false;
       this.filter = this.filterToChange;
     },
+    openPeopleAdvancedFilterDrawer() {
+      this.$root.$emit('open-people-advanced-filter-drawer');
+    },
+    waitForEndTyping() {
+      window.setTimeout(() => {
+        if (Date.now() > this.startTypingKeywordTimeout) {
+          this.typing = false;
+          this.$emit('keyword-changed', this.keyword);
+        } else {
+          this.waitForEndTyping();
+        }
+      }, this.endTypingKeywordTimeout);
+    },
+    mobileFilter() {
+      this.showMobileFilter = !this.showMobileFilter;
+    }
   }
 };
 </script>
