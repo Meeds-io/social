@@ -93,9 +93,6 @@ export default {
   data: () => ({
     profileExtensions: [],
     spaceMemberExtensions: [],
-    startSearchAfterInMilliseconds: 600,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
     fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
     userType: 'internal',
     initialized: false,
