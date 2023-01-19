@@ -189,8 +189,7 @@ export default {
     },
   },
   created() {
-    this.$featureService.isFeatureEnabled('publisherRolePromotion')
-      .then(enabled => this.publisherRolePromotionFeatureEnabled = enabled);
+    this.publisherRolePromotionFeatureEnabled = eXo.env.portal.PublisherRolePromotionFeatureEnabled;
   },
   methods: {
     openBottomMenu() {
