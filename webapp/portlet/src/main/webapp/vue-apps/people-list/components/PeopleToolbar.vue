@@ -104,7 +104,6 @@ export default {
     startSearchAfterInMilliseconds: 300,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
-    term: null,
     typing: false,
   }),
   created() {
