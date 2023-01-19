@@ -46,7 +46,7 @@
           tile>
           <v-card
             :width="imageSize"
-            max-width="350"
+            max-width="165"
             class="d-flex flex-row ms-4 flex-shrink-0"
             color="white"
             flat
