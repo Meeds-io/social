@@ -2,7 +2,7 @@
   <div
     id="profileHeaderActions"
     :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
-    class="d-flex mt-auto justify-end flex-wrap">
+    class="d-flex my-auto justify-end flex-wrap">
     <template v-if="!owner || skeleton">
       <template v-if="!skeleton">
         <v-btn
@@ -19,22 +19,23 @@
       <div v-if="invited" class="invitationButtons d-inline">
         <v-dialog
           v-model="mobileAcceptRefuseConnectionDialog"
-          width="200"
-          max-width="100vw">
-          <v-card class="pa-0">
+          content-class="border-box-sizing width-auto"
+          width="auto">
+          <v-card color="white" class="d-flex flex-column pa-0">
             <v-btn
               :disabled="loading"
               :loading="loading"
+              class="white no-border-radius success--text"
               block
-              class="white no-border-radius"
               @click="acceptToConnect">
               {{ $t('profileHeader.button.acceptToConnect') }}
             </v-btn>
             <v-btn
               :disabled="loading"
               :loading="loading"
+              class="white no-border-radius error--text"
               block
-              class="white no-border-radius"
+              outlined
               @click="refuseToConnect">
               {{ $t('profileHeader.button.refuseToConnect') }}
             </v-btn>
