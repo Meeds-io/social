@@ -16,7 +16,8 @@
             flat />
         </div>
         <v-card
-          max-height="175"
+          max-height="calc(16.6vw - 40px)"
+          min-height="88"
           class="d-flex"
           tile
           flat>
@@ -46,7 +47,7 @@
           <v-card
             :width="imageSize"
             max-width="165"
-            class="d-flex flex-row ms-4 flex-grow-1 flex-shrink-0"
+            class="d-flex flex-row ms-4 flex-shrink-0"
             color="white"
             flat
             tile />
