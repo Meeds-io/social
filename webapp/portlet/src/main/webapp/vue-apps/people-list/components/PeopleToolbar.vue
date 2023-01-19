@@ -28,6 +28,17 @@
       @click="openBottomMenu">
       fa-filter
     </v-icon>
+    <v-scale-transition>
+      <v-btn
+          class="btn px-2 btn-primary"
+          outlined
+      >
+        <i class="uiIcon uiIcon24x24 settingsIcon primary--text mr-1"></i>
+        <span class="d-none font-weight-regular caption d-sm-inline mr-1">
+            {{ $t('profile.label.search.openSearch') }}
+          </span>
+      </v-btn>
+    </v-scale-transition>
     <v-bottom-sheet v-model="bottomMenu" class="pa-0">
       <v-sheet class="text-center" height="169px">
         <v-toolbar
