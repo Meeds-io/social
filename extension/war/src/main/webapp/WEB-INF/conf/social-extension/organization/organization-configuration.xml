@@ -180,7 +180,7 @@
 											<string>${exo.super.user}</string>
 										</field>
 										<field name="groups">
-											<string>*:/platform/profile</string>
+											<string>*:/profile</string>
 										</field>
 									</object>
 								</value>
