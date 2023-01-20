@@ -1,5 +1,8 @@
 <template>
-  <v-card class="peopleCardItem d-flex flex-column" flat>
+  <v-card 
+    class="peopleCardItem d-flex flex-column" 
+    flat
+    :outlined="!isMobile">
     <v-btn
       absolute
       small
@@ -52,6 +55,11 @@ export default {
       default: null,
     },
   },
+  computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.mdAndDown;
+    },
+  }
 };
 </script>
 
