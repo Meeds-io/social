@@ -311,10 +311,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     } else {
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
-      filter.setPosition(q == null || q.isEmpty() ? "" : q);
-      filter.setSkills(q == null || q.isEmpty() ? "" : q);
       filter.setEnabled(!isDisabled);
-      filter.setSearchEmail(true);
       if (!isDisabled) {
         filter.setUserType(userType);
         filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
@@ -362,13 +359,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       } else if (isDisabled && q != null && !q.isEmpty()) {
         ListAccess<User> usersListAccess;
         User[] users;
-        if(q.contains("@")) {
-          Query query = new Query();
-          query.setEmail(q);
-          usersListAccess = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.DISABLED);
-        } else {
-          usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
-        }
+        usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
         totalSize = usersListAccess.getSize();
         int limitToFetch = limit;
         if (totalSize < (offset + limitToFetch)) {
