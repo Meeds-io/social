@@ -1,12 +1,19 @@
 <template>
-  <v-flex>
-    <v-card-title class="headline white--text">
-      {{ user && user.fullname }}{{ external }}{{ disabled }}
-    </v-card-title>
-    <v-card-subtitle class="subtitle white--text" dark>
-      {{ user && user.position || '' }}
-    </v-card-subtitle>
-  </v-flex>
+  <v-card
+    class="d-flex"
+    color="transparent"
+    min-height="70"
+    flat
+    tile>
+    <div class="d-flex flex-column my-auto">
+      <div class="title text-break text-wrap">
+        {{ userFullname }}
+      </div>
+      <div v-if="userPosition" class="subtitle text-sub-title text-break text-wrap">
+        {{ userPosition || '' }}
+      </div>
+    </div>
+  </v-card>
 </template>
 
 <script>
@@ -18,7 +25,13 @@ export default {
     },
   },
   computed: {
-    external(){
+    userFullname() {
+      return this.user?.fullname && `${this.user.fullname}${this.external}${this.disabled}`;
+    },
+    userPosition() {
+      return this.user?.position;
+    },
+    external() {
       if (this.user && this.user.external === 'true') {
         const external = this.$t('profileHeader.label.external') ;
         return ` (${external}) `;
@@ -26,7 +39,7 @@ export default {
         return '';
       }
     },
-    disabled(){
+    disabled() {
       if (this.user && !this.user.enabled) {
         const disabled = this.$t('profileHeader.label.disabled') ;
         return ` (${disabled}) `;

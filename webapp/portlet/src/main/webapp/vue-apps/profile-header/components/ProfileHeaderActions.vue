@@ -1,40 +1,41 @@
 <template>
-  <div
+  <v-card
     id="profileHeaderActions"
-    :class="owner && 'profileHeaderOwnerActions' || 'profileHeaderOtherActions'"
-    class="d-flex mt-auto justify-end flex-wrap">
-    <template v-if="!owner || skeleton">
-      <template v-if="!skeleton">
-        <v-btn
-          v-for="(extension, i) in enabledProfileActionExtensions"
-          :key="i"
-          class="btn ma-2 mb-0"
-          @click="extension.click(user)">
-          <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
-          <span class="buttonText">
-            {{ extension.title }}
-          </span>
-        </v-btn>
-      </template>
+    class="profileHeaderOtherActions d-flex"
+    max-height="70"
+    flat
+    tile>
+    <div class="d-flex justify-end flex-wrap my-auto">
+      <v-btn
+        v-for="(extension, i) in enabledProfileActionExtensions"
+        :key="i"
+        class="btn ma-2 mb-0"
+        @click="extension.click(user)">
+        <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
+        <span class="buttonText">
+          {{ extension.title }}
+        </span>
+      </v-btn>
       <div v-if="invited" class="invitationButtons d-inline">
         <v-dialog
           v-model="mobileAcceptRefuseConnectionDialog"
-          width="200"
-          max-width="100vw">
-          <v-card class="pa-0">
+          content-class="border-box-sizing width-auto"
+          width="auto">
+          <v-card color="white" class="d-flex flex-column pa-0">
             <v-btn
               :disabled="loading"
               :loading="loading"
+              class="white no-border-radius success--text"
               block
-              class="white no-border-radius"
               @click="acceptToConnect">
               {{ $t('profileHeader.button.acceptToConnect') }}
             </v-btn>
             <v-btn
               :disabled="loading"
               :loading="loading"
+              class="white no-border-radius error--text"
               block
-              class="white no-border-radius"
+              outlined
               @click="refuseToConnect">
               {{ $t('profileHeader.button.refuseToConnect') }}
             </v-btn>
@@ -88,16 +89,15 @@
       <v-btn
         v-else-if="disconnected"
         :loading="sendingAction"
-        :disabled="sendingAction || skeleton"
-        :class="skeleton && 'skeleton-background skeleton-text' || 'btn-primary'"
-        class="btn ma-1 mb-0 connectUserButton"
+        :disabled="sendingAction"
+        class="btn ma-1 mb-0 btn-primary connectUserButton"
         @click="connect">
         <i class="uiIconSocConnectUser"></i>
         <span class="buttonText">
           {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
-      <div class="profileHeaderActionComponents order-first mb-0" :class="`${isMobile ? 'ma-0 mt-0 mr-n2' : 'ma-2'}`">
+      <div class="profileHeaderActionComponents order-first mb-0">
         <div
           v-for="action in enabledProfileHeaderActionComponents"
           :key="action.key"
@@ -116,8 +116,8 @@
           {{ initTitleActionComponent(action) }}
         </div>
       </div>
-    </template>
-  </div>
+    </div>
+  </v-card>
 </template>
 
 <script>
@@ -128,10 +128,6 @@ export default {
     user: {
       type: Object,
       default: () => null,
-    },
-    owner: {
-      type: Boolean,
-      default: () => true,
     },
     hover: {
       type: Boolean,

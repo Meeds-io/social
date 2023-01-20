@@ -5,7 +5,8 @@
     id="translationDrawer"
     allow-expand
     right
-    disable-pull-to-refresh>
+    disable-pull-to-refresh
+    @closed="resetCropper">
     <template #title>
       <span class="text-capitalize-first-letter">
         {{ $t(title) }}
@@ -23,6 +24,7 @@
           :width="width"
           :max-height="height"
           :max-width="maxWidth"
+          :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
           class="border-color mx-auto primary position-relative"
           flat>
           <img
@@ -152,6 +154,10 @@ export default {
       type: Object,
       default: null,
     },
+    maxImageWidth: {
+      type: Number,
+      default: () => 1280,
+    },
     drawerTitle: {
       type: String,
       default: null,
@@ -159,6 +165,14 @@ export default {
     maxFileSize: {
       type: Number,
       default: () => 102400,
+    },
+    circle: {
+      type: Boolean,
+      default: false,
+    },
+    rounded: {
+      type: Boolean,
+      default: false,
     },
     cropOptions: {
       type: Object,
@@ -183,8 +197,14 @@ export default {
     sendingImage: false,
   }),
   computed: {
+    aspectRatio() {
+      return this.cropOptions?.aspectRatio || 1;
+    },
+    maxImageHeight() {
+      return this.maxImageWidth && this.aspectRatio * this.maxImageWidth;
+    },
     height() {
-      return parseInt(this.width * 9 / 16) - 32;
+      return parseInt((this.width + 32) * 9 / 16) - 32;
     },
   },
   watch: {
@@ -225,7 +245,6 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
-      this.$nextTick().then(() => this.resetCropper());
     },
     onCanvasResize() {
       window.setTimeout(() => {
@@ -243,7 +262,9 @@ export default {
             if (this.cropper) {
               this.cropper.minCropBoxWidth = this.width;
               this.cropper.minCropBoxHeight = this.height;
-              this.cropper.onResize();
+              if (this.cropper.onResize) {
+                this.cropper.onResize();
+              }
               this.cropperReady = true;
             } else {
               this.zoom = 1;
@@ -305,50 +326,79 @@ export default {
       this.sendingImage = true;
       const self = this;
       return new Promise((resolve, reject) => {
-        this.cropper.getCroppedCanvas().toBlob((blob) => {
-          if (blob.size > this.maxFileSize) {
-            if (this.maxFileSize < 1024) {
-              this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.bytes.label', {
-                0: blob.size,
-                1: this.maxFileSize,
-              }), 'error');
-            } else if (this.maxFileSize < (1024 * 1024)) {
-              this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.kilobytes.label', {
-                0: Number.parseFloat(blob.size / 1024).toFixed(2).replace('.00', ''),
-                1: parseInt(this.maxFileSize / 1024),
-              }), 'error');
-            } else {
-              this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.megabytes.label', {
-                0: Number.parseFloat(blob.size / 1024 / 1024).toFixed(2).replace('.00', ''),
-                1: parseInt(this.maxFileSize / 1024 / 1024),
-              }), 'error');
-            }
-            this.sendingImage = false;
-            return;
-          }
-          this.$uploadService.upload(blob)
-            .then(uploadId => {
-              if (uploadId) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  self.$emit('data', e.target.result);
-                  self.$forceUpdate();
-                };
-                reader.readAsDataURL(blob);
-                this.$emit('input', uploadId);
-                resolve(uploadId);
+        this.getCroppedCanvas()
+          .toBlob((blob) => {
+            if (blob.size > this.maxFileSize) {
+              if (this.maxFileSize < 1024) {
+                this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.bytes.label', {
+                  0: blob.size,
+                  1: this.maxFileSize,
+                }), 'error');
+              } else if (this.maxFileSize < (1024 * 1024)) {
+                this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.kilobytes.label', {
+                  0: Number.parseFloat(blob.size / 1024).toFixed(2).replace('.00', ''),
+                  1: parseInt(this.maxFileSize / 1024),
+                }), 'error');
               } else {
-                this.$root.$emit('alert-message', this.$t('imageCropDrawer.uploadingError'), 'error');
-                reject(this.$t('imageCropDrawer.uploadingError'));
+                this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.megabytes.label', {
+                  0: Number.parseFloat(blob.size / 1024 / 1024).toFixed(2).replace('.00', ''),
+                  1: parseInt(this.maxFileSize / 1024 / 1024),
+                }), 'error');
               }
-            })
-            .catch(error => {
-              this.$root.$emit('alert-message', this.$t(String(error)), 'error');
-              reject(error);
-            })
-            .finally(() => this.sendingImage = false);
-        });
+              this.sendingImage = false;
+              return;
+            }
+            this.$uploadService.upload(blob)
+              .then(uploadId => {
+                if (uploadId) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    self.$emit('data', e.target.result);
+                    self.$forceUpdate();
+                  };
+                  reader.readAsDataURL(blob);
+                  this.$emit('input', uploadId);
+                  resolve(uploadId);
+                } else {
+                  this.$root.$emit('alert-message', this.$t('imageCropDrawer.uploadingError'), 'error');
+                  reject(this.$t('imageCropDrawer.uploadingError'));
+                }
+              })
+              .catch(error => {
+                this.$root.$emit('alert-message', this.$t(String(error)), 'error');
+                reject(error);
+              })
+              .finally(() => this.sendingImage = false);
+          });
       });
+    },
+    getCroppedCanvas() {
+      if (this.circle) {
+        const croppedCanvas = this.cropper.getCroppedCanvas(this.maxImageWidth && {
+          maxWidth: this.maxImageWidth * 2,
+          maxHeight: this.maxImageHeight * 2,
+        });
+        const width = croppedCanvas.width;
+        const height = croppedCanvas.height;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext('2d');
+        context.imageSmoothingEnabled = true;
+        context.drawImage(croppedCanvas, 0, 0, width, height);
+        context.globalCompositeOperation = 'destination-in';
+        context.beginPath();
+        context.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
+        context.fill();
+        return canvas;
+      } else {
+        return this.cropper.getCroppedCanvas(this.maxImageWidth && {
+          maxWidth: this.maxImageWidth,
+          maxHeight: this.maxImageHeight,
+        });
+      }
     },
     uploadFile(file) {
       this.$root.$emit('close-alert-message');
