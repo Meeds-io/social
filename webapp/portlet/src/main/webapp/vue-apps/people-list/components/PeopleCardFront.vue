@@ -1,6 +1,7 @@
 <template>
   <v-card
     :id="userMenuParentId"
+    :outlined="!isMobile"
     class="peopleCardItem d-block d-sm-flex"
     flat>
     <v-img
@@ -61,6 +62,80 @@
         <span class="d-flex uiIconPLFFont uiIconGroup"></span>
       </v-btn>
       <v-spacer />
+      <div v-if="isMobile && !isSameUser">
+        <v-icon 
+          size="14" 
+          class="my-3" 
+          @click="openBottomMenu">
+          fas fa-ellipsis-v
+        </v-icon>
+        <v-bottom-sheet v-model="bottomMenu" class="pa-0">
+          <v-sheet class="text-center" height="100">
+            <v-list>
+              <v-list-item 
+                v-if="confirmedUser"
+                @click="disconnect">
+                <v-list-item-title class="align-center d-flex">
+                  <v-icon class="mx-4" size="16">fas fa-minus-circle</v-icon>
+                  <span class="mx-2">
+                    {{ $t('peopleList.button.disconnect') }}
+                  </span>
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item 
+                v-else-if="incomingUser">
+                <v-list-item-title class="align-center d-flex">
+                  <div @click="acceptToConnect">
+                    <v-icon class="mx-4" size="16">mdi-check</v-icon>
+                    <span class="mx-2">
+                      {{ $t('peopleList.button.acceptToConnect') }}
+                    </span>
+                  </div>
+                  <v-divider
+                    vertical />
+                  <div @click="refuseToConnect">
+                    <v-icon class="mx-4" size="16">mdi-close</v-icon>
+                    <span class="mx-2">
+                      {{ $t('peopleList.button.refuseToConnect') }}
+                    </span>
+                  </div>
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item 
+                v-else-if="outgoingUser"
+                @click="cancelRequest">
+                <v-list-item-title class="align-center d-flex">
+                  <v-icon class="mx-4" size="16">mdi-close</v-icon>
+                  <span class="mx-2">
+                    {{ $t('peopleList.button.cancelRequest') }}
+                  </span>
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item 
+                v-else
+                @click="connect">
+                <v-list-item-title class="align-center d-flex">
+                  <v-icon class="mx-4" size="16">fas fa-plus-circle</v-icon>
+                  <span class="mx-2">
+                    {{ $t('peopleList.button.connect') }}
+                  </span>
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                v-for="(extension, i) in enabledProfileActionExtensions"
+                :key="i"
+                @click="extensionClick(extension)">
+                <v-list-item-title class="align-center d-flex">
+                  <v-icon class="mx-4" size="20">{{ extension.class }}</v-icon>
+                  <span class="mx-2">
+                    {{ extension.title }}
+                  </span>
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-sheet>
+        </v-bottom-sheet>
+      </div>
       <template v-if="canUseActionsMenu">
         <v-btn
           :title="$t('peopleList.label.openUserMenu')"
@@ -107,23 +182,25 @@
       </a>
     </div>
 
-    <v-card-text class="peopleCardBody align-center pt-2 pb-1">
+    <v-card-text class="peopleCardBody align-center py-1">
       <a
         :href="url"
         :title="user.fullname"
-        :class="(!user.enabled || user.deleted) && 'text-sub-title' || 'text-color'"
-        class="userFullname text-truncate font-weight-bold d-block">
+        :class="usernameClass"
+        class="userFullname font-weight-bold">
         {{ user.fullname }}
         <span v-if="user.external == 'true' " class="externalFlagClass">
           {{ $t('peopleList.label.external') }}
         </span>
       </a>
-      <v-card-subtitle class="userPositionLabel text-truncate py-0">
+      <v-card-subtitle 
+        class="userPositionLabel text-truncate py-0"
+        :class="isMobile && 'mt-0'">
         {{ user.position || '&nbsp;' }}
       </v-card-subtitle>
     </v-card-text>
 
-    <v-card-actions v-if="!isSameUser" class="peopleCardActions">
+    <v-card-actions v-if="!isSameUser && !isMobile" class="peopleCardActions">
       <exo-confirm-dialog
         ref="confirmDialog"
         :title="confirmTitle"
@@ -147,7 +224,7 @@
         <v-icon class="d-none peopleDeleteButtonMinus">mdi-minus</v-icon>
       </v-btn>
       <v-btn
-        v-else-if="user.relationshipStatus === 'CONFIRMED'"
+        v-else-if="confirmedUser"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn mx-auto peopleRelationshipButton disconnectUserButton"
@@ -160,7 +237,7 @@
         </span>
         <v-icon class="d-none relationshipButtonMinus">mdi-minus</v-icon>
       </v-btn>
-      <div v-else-if="user.relationshipStatus === 'INCOMING'" class="invitationButtons">
+      <div v-else-if="incomingUser" class="invitationButtons">
         <div class="acceptToConnectButtonParent">
           <v-btn
             :loading="sendingAction"
@@ -198,7 +275,7 @@
         </v-btn>
       </div>
       <v-btn
-        v-else-if="user.relationshipStatus === 'OUTGOING'"
+        v-else-if="outgoingUser"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn mx-auto peopleRelationshipButton cancelRequestButton"
@@ -254,7 +331,8 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    publisherRolePromotionFeatureEnabled: false
+    publisherRolePromotionFeatureEnabled: false,
+    bottomMenu: false
   }),
   computed: {
     isSameUser() {
@@ -296,6 +374,21 @@ export default {
         return '#';
       }
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.mdAndDown;
+    },
+    usernameClass() {
+      return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color'} ${this.isMobile && 'text-truncate-2 mt-0' || 'text-truncate pt-1 d-block'}`;
+    },
+    confirmedUser() {
+      return this.user?.relationshipStatus === 'CONFIRMED';
+    },
+    incomingUser() {
+      return this.user?.relationshipStatus === 'INCOMING';
+    },
+    outgoingUser() {
+      return this.user?.relationshipStatus === 'OUTGOING';
+    }
   },
   created() {
     $(document).on('mousedown', () => {
@@ -395,6 +488,15 @@ export default {
       this.confirmMessage = '';
       this.okMethod = null;
     },
+    openBottomMenu() {
+      if (!this.isSameUser) {
+        this.bottomMenu = true;
+      }
+    },
+    extensionClick(extension) {
+      extension.click(this.user);
+      this.bottomMenu = false;
+    }
   },
 };
 </script>
