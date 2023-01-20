@@ -94,12 +94,9 @@
                       v-if="favoritesSpaceEnabled"
                       :is-favorite="space.isFavorite"
                       :space-id="space.id"
-                      class="ms-1 me-2" />
-                    <span v-show="!space.isFavorite" class="mx-2">
-                      {{ $t('spacesList.button.bookmark') }}
-                    </span>
-                    <span v-show="space.isFavorite" class="mx-2">
-                      {{ $t('spacesList.button.removeBookmark') }}
+                      class="ms-1 me-2 mb-1" />
+                    <span class="mx-2">
+                      {{ favoriteTitleToDisplay }}
                     </span>
                   </v-list-item-title>
                 </v-list-item>
@@ -354,6 +351,12 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.mdAndDown;
     },
+    isFavorite() {
+      return this.space?.isFavorite === 'true';
+    },
+    favoriteTitleToDisplay() {
+      return this.isFavorite && this.$t('spacesList.button.removeBookmark') || this.$t('spacesList.button.bookmark') ;
+    }
   },
   created() {
     $(document).on('mousedown', () => {
