@@ -41,9 +41,9 @@
               <v-list>
                 <v-list-item 
                   v-if="space.isMember"
-                  @click="leaveConfirm">
+                  @click="leave">
                   <v-list-item-title class="align-center d-flex">
-                    <v-icon class="mx-4" size="16">mdi-minus</v-icon>
+                    <v-icon class="mx-4" size="16">fas fa-minus-circle</v-icon>
                     <span class="mx-2">
                       {{ $t('spacesList.button.leave') }}
                     </span>
@@ -72,7 +72,7 @@
                   v-else-if="space.subscription === 'open' && !space.isMember"
                   @click="join">
                   <v-list-item-title class="align-center d-flex">
-                    <v-icon class="mx-4" size="16">mdi-plus</v-icon>
+                    <v-icon class="mx-4" size="16">fas fa-plus-circle</v-icon>
                     <span class="mx-2">
                       {{ $t('spacesList.button.join') }}
                     </span>
@@ -88,19 +88,15 @@
                     </span>
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item 
-                  v-if="space.isManager">
+                <v-list-item v-if="space.isMember">
                   <v-list-item-title class="align-center d-flex">
                     <exo-space-favorite-action
-                      v-if="space.isMember && favoritesSpaceEnabled"
+                      v-if="favoritesSpaceEnabled"
                       :is-favorite="space.isFavorite"
                       :space-id="space.id"
-                      class="ms-1 me-2" />
-                    <span v-if="!space.isFavorite" class="mx-2">
-                      {{ $t('spacesList.button.bookmark') }}
-                    </span>
-                    <span v-else class="mx-2">
-                      {{ $t('spacesList.button.removeBookmark') }}
+                      class="ms-1 me-2 mb-1" />
+                    <span class="mx-2">
+                      {{ favoriteTitleToDisplay }}
                     </span>
                   </v-list-item-title>
                 </v-list-item>
@@ -177,11 +173,12 @@
           class="spaceDisplayName">
           {{ space.displayName }}
         </a>
-        <v-card-subtitle
-          class="spaceMembersLabel py-0"
-          :class="isMobile && 'my-0'">
+        <a 
+          :href="url"
+          :class="isMobile && 'my-0'"
+          class="spaceMembersLabel py-0">
           {{ $t('spacesList.label.members', {0: space.membersCount}) }}
-        </v-card-subtitle>
+        </a>
       </v-card-text>
       <v-card-actions v-if="!isMobile" class="spaceCardActions">
         <exo-confirm-dialog
@@ -354,6 +351,12 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.mdAndDown;
     },
+    isFavorite() {
+      return this.space?.isFavorite === 'true';
+    },
+    favoriteTitleToDisplay() {
+      return this.isFavorite && this.$t('spacesList.button.removeBookmark') || this.$t('spacesList.button.bookmark') ;
+    }
   },
   created() {
     $(document).on('mousedown', () => {
