@@ -1,8 +1,7 @@
 <template>
   <v-card
     id="profileHeaderActions"
-    class="profileHeaderOtherActions mt-auto d-flex"
-    min-height="70"
+    class="profileHeaderOtherActions d-flex"
     max-height="70"
     flat
     tile>
@@ -98,7 +97,7 @@
           {{ $t('profileHeader.button.connect') }}
         </span>
       </v-btn>
-      <div class="profileHeaderActionComponents order-first mb-0" :class="`${isMobile ? 'ma-0 mt-0 mr-n2' : 'ma-2'}`">
+      <div class="profileHeaderActionComponents order-first mb-0">
         <div
           v-for="action in enabledProfileHeaderActionComponents"
           :key="action.key"

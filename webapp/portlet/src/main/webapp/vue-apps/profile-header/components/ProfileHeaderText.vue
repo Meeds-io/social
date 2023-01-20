@@ -1,16 +1,18 @@
 <template>
   <v-card
-    class="d-flex flex-column"
+    class="d-flex"
     color="transparent"
     min-height="70"
     flat
     tile>
-    <v-card-title class="ps-2 py-0 text-break my-auto">
-      {{ userFullname }}
-    </v-card-title>
-    <v-card-subtitle v-if="userPosition" class="pb-0 pt-2 ps-2 text-break mb-auto">
-      {{ userPosition || '' }}
-    </v-card-subtitle>
+    <div class="d-flex flex-column my-auto">
+      <div class="title text-break text-wrap">
+        {{ userFullname }}
+      </div>
+      <div v-if="userPosition" class="subtitle text-sub-title text-break text-wrap">
+        {{ userPosition || '' }}
+      </div>
+    </div>
   </v-card>
 </template>
 

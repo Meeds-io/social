@@ -1,70 +1,66 @@
 <template>
   <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover>
-      <div slot-scope="{ hover }">
-        <div class="d-flex flex-column full-height position-absolute z-index-two">
-          <profile-header-avatar
-            :user="user"
-            :owner="owner"
-            :hover="hover"
-            :size="imageSize"
-            class="mt-4 mt-sm-auto ms-4"
-            @edit="editAvatar" />
-          <v-card
-            class="d-none d-sm-flex"
-            color="transparent"
-            min-height="35px"
-            flat />
-        </div>
+      <div slot-scope="{ hover }" class="white">
         <v-card
-          :max-height="maxImageViewHeight"
-          min-height="88"
+          max-height="175"
           class="d-flex"
           tile
           flat>
-          <v-img
-            :lazy-src="user && user.banner"
+          <img
             :src="user && user.banner"
-            transition="none"
-            class="profileBannerImg d-flex white"
+            alt=""
+            width="100%"
             height="auto"
-            min-width="100%"
-            eager>
-            <profile-header-banner-button
-              v-if="owner"
-              :user="user"
-              :hover="hover"
-              class="justify-end me-2 mt-2 me-sm-4 mt-sm-4"
-              @edit="editBanner"
-              @refresh="refresh" />
-          </v-img>
+            class="profileBannerImg"
+            lazy>
+          <profile-header-banner-button
+            v-if="owner"
+            :user="user"
+            :hover="hover"
+            class="justify-end me-2 mt-2 me-sm-4 mt-sm-4"
+            @edit="editBanner"
+            @refresh="refresh" />
         </v-card>
-        <v-card
-          class="d-flex flex-row"
-          color="white"
-          min-height="70"
-          flat
-          tile>
+        <div class="d-flex flex-column flex-md-row mx-4">
           <v-card
             :width="imageSize"
-            max-width="165"
-            class="d-none d-sm-flex flex-row ms-4 flex-shrink-0"
-            color="white"
+            :max-width="165"
+            max-height="70"
+            height="11vw"
+            class="flex-shrink-0 position-relative me-2"
             flat
-            tile />
-          <div class="d-flex flex-grow-0 text-truncate">
+            tile>
+            <v-card
+              min-height="11vw"
+              class="position-absolute z-index-two b-0 mb-2 mb-md-2"
+              color="transparent"
+              flat
+              tile>
+              <profile-header-avatar
+                :user="user"
+                :owner="owner"
+                :hover="hover"
+                :size="imageSize"
+                @edit="editAvatar" />
+            </v-card>
+          </v-card>
+          <v-card
+            min-height="70"
+            class="d-flex flex-column flex-sm-row flex-grow-1"
+            flat
+            tile>
             <profile-header-text
               :user="user"
-              class="mt-auto" />
-          </div>
-          <div class="flex-grow-1 flex-shrink-0 d-flex flex-row justify-end pe-2 profileHeader">
+              class="d-flex flex-grow-0 text-truncate" />
             <profile-header-actions
               v-if="!owner"
               :user="user"
               :hover="hover"
+              class="profileHeader flex-grow-1 flex-shrink-0 d-flex flex-row justify-start justify-sm-end my-auto"
               @refresh="refresh" />
-          </div>
-        </v-card>
+          </v-card>
+        </div>
       </div>
     </v-hover>
     <image-crop-drawer
@@ -95,20 +91,20 @@ export default {
     imageType: null,
   }),
   computed: {
-    mobile() {
-      return this.$vuetify.breakpoint.name === 'xs';
-    },
     small() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'md';
+      return this.$vuetify.breakpoint.mdAndDown;
     },
     large() {
-      return this.$vuetify.breakpoint.name === 'lg' || this.$vuetify.breakpoint.name === 'xl';
+      return this.$vuetify.breakpoint.lgAndUp;
+    },
+    xlarge() {
+      return this.$vuetify.breakpoint.xlAndUp;
     },
     imageSize() {
-      return this.small && '8vw' || '15vw';
+      return '15vw';
     },
     maxImageViewHeight() {
-      return this.large && '175' || 'calc(16.6vw - 40px)';
+      return this.large && '175px' || 'calc(16.6vw - 40px)';
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * 1024 * 1024;
