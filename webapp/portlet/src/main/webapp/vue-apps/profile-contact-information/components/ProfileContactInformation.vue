@@ -8,7 +8,7 @@
       class="border-box-sizing">
       <div
         class="text-header-title text-sub-title">
-        {{ $t('profileContactInformation.contactInformation') }}
+        {{ title }}
       </div>
       <v-spacer />
       <v-btn
@@ -162,6 +162,11 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     user: null,
   }),
+  computed: {
+    title() {
+      return this.owner && this.$t('profileContactInformation.yourContactInformation') || this.$t('profileContactInformation.contactInformation');
+    },
+  },
   created() {
     return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
       .then(user => this.refresh(user))

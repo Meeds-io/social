@@ -90,20 +90,6 @@
     </node>
 
     <node>
-      <name>profile</name>
-      <label>#{portal.global.profile}</label>
-      <visibility>SYSTEM</visibility>
-      <page-reference>portal::global::profile</page-reference>
-    </node>
-
-    <node>
-      <name>edit-profile</name>
-      <label>#{portal.global.edit-profile}</label>
-      <visibility>SYSTEM</visibility>
-      <page-reference>portal::global::profile</page-reference>
-    </node>
-
-    <node>
       <name>allNotifications</name>
       <label>#{portal.global.allNotifications}</label>
       <visibility>SYSTEM</visibility>
