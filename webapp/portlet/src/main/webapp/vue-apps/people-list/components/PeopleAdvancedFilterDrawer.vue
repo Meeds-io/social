@@ -12,7 +12,7 @@
       <div class="d-flex flex-column flex-grow-1">
       <div class="d-flex flex-row" v-for="item in settings" :key="item">
         <input
-            v-model="item.valueToSearch"
+            v-model="item.value"
             :placeholder="getResolvedName(item)"
             type="text"
             class="input-block-level ignore-vuetify-classes my-3">
@@ -72,8 +72,8 @@ export default {
     },
     cancel() {
       this.settings.forEach((element) => {
-        if (element && element.valueToSearch) {
-          element.valueToSearch = '';
+        if (element && element.value) {
+          element.value = '';
         }
       });
       this.$refs.peopleAdvancedFilterDrawer.close();
@@ -81,7 +81,7 @@ export default {
     getSettings() {
       return this.$profileSettingsService.getSettings()
         .then(settings => {
-          this.settings =  settings.filter((e) => e.active ).map(obj => ({ ...obj, valueToSearch: '' })) || [];
+          this.settings =  settings.filter((e) => e.active ) || [];
         });
     },
     getResolvedName(item){
