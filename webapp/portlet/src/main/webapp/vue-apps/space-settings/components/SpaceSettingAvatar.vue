@@ -4,15 +4,15 @@
     :size="size"
     class="spaceAvatar">
     <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
-    <v-file-input
-      v-if="!sendingImage"
+    <v-btn
       v-show="hover"
       ref="avatarInput"
-      prepend-icon="mdi-camera"
       class="changeAvatarButton mb-1"
-      accept="image/*"
-      clearable
-      @change="uploadAvatar" />
+      icon
+      dark
+      @click="$emit('edit')">
+      <v-icon size="18">fas fa-camera</v-icon>
+    </v-btn>
   </v-avatar>
 </template>
 
@@ -21,80 +21,19 @@ export default {
   props: {
     avatarUrl: {
       type: Object,
-      default: () => null,
+      default: null,
     },
-    maxUploadSize: {
-      type: Number,
-      default: () => 0,
-    },
-    save: {
-      type: Boolean,
-      default: () => false,
+    avatarData: {
+      type: Array,
+      default: null,
     },
     hover: {
       type: Boolean,
-      default: () => false,
+      default: false,
     },
     size: {
       type: Number,
       default: () => 165,
-    },
-    value: {
-      type: String,
-      default: () => null,
-    },
-  },
-  data: () => ({
-    sendingImage: false,
-    avatarData: null,
-  }),
-  computed: {
-    maxUploadSizeInBytes() {
-      return Number(this.maxUploadSize) * 1024 *1024;
-    },
-  },
-  watch: {
-    sendingImage() {
-      if (this.sendingImage) {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-      } else {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      }
-    },
-  },
-  methods: {
-    reset() {
-      this.avatarData = null;
-      this.sendingImage = false;
-    },
-    uploadAvatar(file) {
-      if (file && file.size) {
-        if (file.type && file.type.indexOf('image/') !== 0) {
-          this.$emit('error', this.$t('profile.warning.message.fileType'));
-          return;
-        }
-        if (file.size > this.maxUploadSizeInBytes) {
-          this.$emit('error', this.$uploadService.avatarExcceedsLimitError);
-          return;
-        }
-        this.sendingImage = true;
-        const thiss = this;
-        return this.$uploadService.upload(file)
-          .then(uploadId => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              thiss.avatarData = e.target.result;
-              thiss.$forceUpdate();
-            };
-            reader.readAsDataURL(file);
-            this.$emit('input', uploadId);
-          })
-          .then(() => this.$emit('refresh'))
-          .catch(error => this.$emit('error', error))
-          .finally(() => {
-            this.sendingImage = false;
-          });
-      }
     },
   },
 };
