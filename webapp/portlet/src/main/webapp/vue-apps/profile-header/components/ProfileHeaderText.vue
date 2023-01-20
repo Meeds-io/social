@@ -5,10 +5,10 @@
     min-height="70"
     flat
     tile>
-    <v-card-title class="ps-2 py-0 my-auto">
+    <v-card-title class="ps-2 py-0 text-break my-auto">
       {{ userFullname }}
     </v-card-title>
-    <v-card-subtitle v-if="userPosition" class="pb-0 pt-2 ps-2 mb-auto">
+    <v-card-subtitle v-if="userPosition" class="pb-0 pt-2 ps-2 text-break mb-auto">
       {{ userPosition || '' }}
     </v-card-subtitle>
   </v-card>
