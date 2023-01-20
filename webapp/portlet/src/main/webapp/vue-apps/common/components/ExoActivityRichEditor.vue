@@ -80,7 +80,11 @@ export default {
     contextName: {
       type: String,
       default: null
-    }
+    },
+    tagEnabled: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {
@@ -188,11 +192,11 @@ export default {
         extraPlugins = 'simpleLink';
       }
       if (this.templateParams) {
-        extraPlugins = `${extraPlugins},embedsemantic,tagSuggester`;
+        extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
       }
-      if (eXo.env.portal.activityTagsEnabled) {
+      if (eXo.env.portal.activityTagsEnabled && this.tagEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
       } else {
         removePlugins = `${removePlugins},tagSuggester`;
@@ -200,7 +204,7 @@ export default {
 
       if (this.newEditorToolbarEnabled) {
         extraPlugins = `${extraPlugins},emoji,formatOption`;
-        if (this.tagSuggesterEnabled) {
+        if (this.tagSuggesterEnabled && this.tagEnabled) {
           toolbar[0].push('tagSuggester');
         }
         if (!this.isMobile) {
