@@ -11,12 +11,13 @@
             class="mt-4 mt-sm-auto ms-4"
             @edit="editAvatar" />
           <v-card
+            class="d-none d-sm-flex"
             color="transparent"
             min-height="35px"
             flat />
         </div>
         <v-card
-          max-height="calc(16.6vw - 40px)"
+          :max-height="maxImageViewHeight"
           min-height="88"
           class="d-flex"
           tile
@@ -47,7 +48,7 @@
           <v-card
             :width="imageSize"
             max-width="165"
-            class="d-flex flex-row ms-4 flex-shrink-0"
+            class="d-none d-sm-flex flex-row ms-4 flex-shrink-0"
             color="white"
             flat
             tile />
@@ -92,11 +93,22 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     errorMessage: null,
     imageType: null,
-    imageSize: '15vw',
   }),
   computed: {
     mobile() {
       return this.$vuetify.breakpoint.name === 'xs';
+    },
+    small() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'md';
+    },
+    large() {
+      return this.$vuetify.breakpoint.name === 'lg' || this.$vuetify.breakpoint.name === 'xl';
+    },
+    imageSize() {
+      return this.small && '8vw' || '15vw';
+    },
+    maxImageViewHeight() {
+      return this.large && '175' || 'calc(16.6vw - 40px)';
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * 1024 * 1024;

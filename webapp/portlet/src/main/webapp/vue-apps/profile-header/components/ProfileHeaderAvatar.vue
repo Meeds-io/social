@@ -3,8 +3,8 @@
     <v-avatar
       :class="owner && hover && 'profileHeaderAvatarHoverEdit'"
       :size="size"
-      min-width="auto"
-      min-height="auto"
+      min-width="44"
+      min-height="44"
       max-width="165"
       max-height="165"
       class="align-start flex-grow-0 border-color profileHeaderAvatar">
@@ -12,6 +12,8 @@
         :lazy-src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
         :src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
         transition="none"
+        min-width="44"
+        min-height="44"
         max-width="165"
         max-height="165"
         eager
