@@ -67,23 +67,23 @@
           size="14" 
           class="my-3" 
           @click="openBottomMenu">
-          fa-ellipsis-v
+          fas fa-ellipsis-v
         </v-icon>
         <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-          <v-sheet class="text-center" height="100px">
+          <v-sheet class="text-center" height="100">
             <v-list>
               <v-list-item 
-                v-if="user.relationshipStatus === 'CONFIRMED'"
+                v-if="confirmedUser"
                 @click="disconnect">
                 <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">fa-minus-circle</v-icon>
+                  <v-icon class="mx-4" size="16">fas fa-minus-circle</v-icon>
                   <span class="mx-2">
                     {{ $t('peopleList.button.disconnect') }}
                   </span>
                 </v-list-item-title>
               </v-list-item>
               <v-list-item 
-                v-else-if="user.relationshipStatus === 'INCOMING'">
+                v-else-if="incomingUser">
                 <v-list-item-title class="align-center d-flex">
                   <div @click="acceptToConnect">
                     <v-icon class="mx-4" size="16">mdi-check</v-icon>
@@ -102,7 +102,7 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item 
-                v-else-if="user.relationshipStatus === 'OUTGOING'"
+                v-else-if="outgoingUser"
                 @click="cancelRequest">
                 <v-list-item-title class="align-center d-flex">
                   <v-icon class="mx-4" size="16">mdi-close</v-icon>
@@ -115,7 +115,7 @@
                 v-else
                 @click="connect">
                 <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">fa-plus-circle</v-icon>
+                  <v-icon class="mx-4" size="16">fas fa-plus-circle</v-icon>
                   <span class="mx-2">
                     {{ $t('peopleList.button.connect') }}
                   </span>
@@ -224,7 +224,7 @@
         <v-icon class="d-none peopleDeleteButtonMinus">mdi-minus</v-icon>
       </v-btn>
       <v-btn
-        v-else-if="user.relationshipStatus === 'CONFIRMED'"
+        v-else-if="confirmedUser"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn mx-auto peopleRelationshipButton disconnectUserButton"
@@ -237,7 +237,7 @@
         </span>
         <v-icon class="d-none relationshipButtonMinus">mdi-minus</v-icon>
       </v-btn>
-      <div v-else-if="user.relationshipStatus === 'INCOMING'" class="invitationButtons">
+      <div v-else-if="incomingUser" class="invitationButtons">
         <div class="acceptToConnectButtonParent">
           <v-btn
             :loading="sendingAction"
@@ -275,7 +275,7 @@
         </v-btn>
       </div>
       <v-btn
-        v-else-if="user.relationshipStatus === 'OUTGOING'"
+        v-else-if="outgoingUser"
         :loading="sendingAction"
         :disabled="sendingAction"
         class="btn mx-auto peopleRelationshipButton cancelRequestButton"
@@ -372,6 +372,15 @@ export default {
     },
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color'} ${this.isMobile && 'text-truncate-2 mt-0' || 'text-truncate pt-1 d-block'}`;
+    },
+    confirmedUser() {
+      return this.user?.relationshipStatus === 'CONFIRMED';
+    },
+    incomingUser() {
+      return this.user?.relationshipStatus === 'INCOMING';
+    },
+    outgoingUser() {
+      return this.user?.relationshipStatus === 'OUTGOING';
     }
   },
   created() {
