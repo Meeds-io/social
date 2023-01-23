@@ -31,6 +31,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    streamFilter: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     updatedActivities: new Set(),
@@ -38,7 +42,7 @@ export default {
   }),
   computed: {
     hasNewActivity() {
-      return this.newerActivitiesCount > 0;
+      return this.newerActivitiesCount > 0 && this.streamFilter === 'all_stream';
     },
   },
   created() {

@@ -8,6 +8,7 @@
       :space-id="spaceId"
       :activities="activities"
       :standalone="!!activityId"
+      :stream-filter="streamFilter"
       @loadActivities="loadActivities" />
     <template v-if="activitiesToDisplay.length">
       <activity-stream-loader
