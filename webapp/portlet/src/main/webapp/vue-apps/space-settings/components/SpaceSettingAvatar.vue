@@ -6,6 +6,7 @@
     <v-img :src="avatarData || avatarUrl || ''" role="presentation" />
     <v-btn
       v-show="hover"
+      id="SpaceBannerEditButton"
       ref="avatarInput"
       class="changeAvatarButton mb-1"
       icon
