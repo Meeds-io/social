@@ -181,6 +181,7 @@ public class ProfileSearchConnector {
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
     String expEs = buildExpression(filter);
+    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty()? buildAdvancedExpression(filter) : null;
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     esQuery.append("   \"from\" : " + offset + ", \"size\" : " + limit + ",\n");
@@ -217,22 +218,16 @@ public class ProfileSearchConnector {
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
     //filter by profile settings
-      if (!filter.getProfileSettings().isEmpty()) {
-        Map<String,String> settings = new HashMap<>();
-        settings = filter.getProfileSettings();
-        esSubQuery.append("      \"filter\" : [\n");
-        int i = 0 ;
-        for (Map.Entry<String, String> entry : settings.entrySet()){
-          esSubQuery.append("        {\n");
-          esSubQuery.append("          \"match_phrase\" :{\n");
-          esSubQuery.append("           \"" + entry.getKey() + "\" : \"" + entry.getValue() +"\"\n" );
-          esSubQuery.append("          } \n");
-          if (i == settings.size()-1) {
-            esSubQuery.append("        } \n");
-          }else esSubQuery.append("        }, \n");
-          i += 1 ;
-        }
-        esSubQuery.append("     ], \n");
+      if (expEsForAdvancedFilter != null) {
+
+        esSubQuery.append("    \"filter\": [\n");
+        esSubQuery.append("      {");
+        esSubQuery.append("          \"query_string\": {\n");
+        esSubQuery.append("            \"query\": \"" + expEsForAdvancedFilter + "\"\n");
+        esSubQuery.append("          }\n");
+        esSubQuery.append("      }\n");
+        esSubQuery.append("    ],\n");
+
       }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
@@ -547,6 +542,45 @@ public class ProfileSearchConnector {
         esExp.append(")");
       }
     }
+    return esExp.toString();
+  }
+
+  private String buildAdvancedExpression(ProfileFilter filter) {
+    StringBuilder esExp = new StringBuilder();
+    esExp.append("( ");
+    Map<String,String> settings = new HashMap<>();
+    settings = filter.getProfileSettings();
+
+    int index = 0 ;
+    String[]  splitedValue = new String[0];
+
+    for (Map.Entry<String, String> entry : settings.entrySet()){
+
+      String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
+
+      if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
+        inputValue = inputValue.replace("\"", "");
+      }
+
+      splitedValue = inputValue.split(" ");
+
+      if (splitedValue.length > 1) {
+        esExp.append("(");
+        for (int i = 0; i < splitedValue.length; i++) {
+          if (i != 0 ) {
+            esExp.append(" AND ") ;
+          }
+          esExp.append(entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splitedValue[i])).append(StorageUtils.ASTERISK_STR);
+        }
+        esExp.append(")");
+      } else {
+        esExp.append("( "+entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
+        esExp.append(")");
+      }
+      if ( index != settings.size()- 1 ) esExp.append(" AND ") ;
+      index += 1 ;
+    }
+    esExp.append(" )");
     return esExp.toString();
   }
 
