@@ -10,6 +10,7 @@
         v-else
         id="addNewSpaceButton"
         class="btn btn-primary px-0 addNewSpaceButton"
+        :class="isMobile && 'mx-2'"
         :height="isMobile && '40' || '40'"
         :width="isMobile && '40' || ''"
         :x-small="isMobile"
@@ -37,7 +38,8 @@
         v-model="keyword"
         :placeholder="$t('spacesList.label.filterSpacesByName')"
         prepend-inner-icon="fa-filter"
-        class="inputSpacesFilter pa-0 ms-3 my-auto" />
+        class="inputSpacesFilter pa-0 ms-3 my-auto"
+        clearable />
     </div>
     <v-spacer v-if="isMobile" />
     <v-scale-transition>
