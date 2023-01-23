@@ -17,7 +17,9 @@
 package org.exoplatform.social.core.profile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -76,6 +78,8 @@ public class ProfileFilter implements Cloneable {
   private Sorting sorting;
 
   private String firstCharFieldName = null;
+
+  private Map<String, String> profileSettings ;
   
   private boolean isEnabled = true;
 
@@ -88,6 +92,7 @@ public class ProfileFilter implements Cloneable {
     this.excludedIdentityList = new ArrayList<Identity>();
     this.onlineRemoteIds = new ArrayList<String>();
     this.all = "";
+    this.profileSettings = new HashMap<>();
   }
 
   /**
@@ -322,12 +327,21 @@ public class ProfileFilter implements Cloneable {
     this.isEnabled = isEnabled;
   }
 
+  public Map<String, String> getProfileSettings() {
+    return profileSettings;
+  }
+
+  public void setProfileSettings(Map<String, String> profileSettings) {
+    this.profileSettings.putAll(profileSettings);
+  }
+
   public boolean isEmpty() {
     return StringUtils.isBlank(this.all)
         && StringUtils.isBlank(this.name)
         && StringUtils.isBlank(this.company)
         && StringUtils.isBlank(this.position)
         && StringUtils.isBlank(this.skills)
+        && this.profileSettings.isEmpty()
         && (this.remoteIds == null || this.remoteIds.isEmpty())
         && (this.excludedIdentityList == null || this.excludedIdentityList.isEmpty() || (this.excludedIdentityList.size() == 1 && this.viewerIdentity != null && this.excludedIdentityList.contains(this.viewerIdentity)));
   }

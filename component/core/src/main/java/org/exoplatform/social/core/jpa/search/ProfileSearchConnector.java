@@ -17,10 +17,7 @@
 package org.exoplatform.social.core.jpa.search;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
@@ -219,6 +216,24 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
+    //filter by profile settings
+      if (!filter.getProfileSettings().isEmpty()) {
+        Map<String,String> settings = new HashMap<>();
+        settings = filter.getProfileSettings();
+        esSubQuery.append("      \"filter\" : [\n");
+        int i = 0 ;
+        for (Map.Entry<String, String> entry : settings.entrySet()){
+          esSubQuery.append("        {\n");
+          esSubQuery.append("          \"match_phrase\" :{\n");
+          esSubQuery.append("           \"" + entry.getKey() + "\" : \"" + entry.getValue() +"\"\n" );
+          esSubQuery.append("          } \n");
+          if (i == settings.size()-1) {
+            esSubQuery.append("        } \n");
+          }else esSubQuery.append("        }, \n");
+          i += 1 ;
+        }
+        esSubQuery.append("     ], \n");
+      }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
@@ -354,7 +369,6 @@ public class ProfileSearchConnector {
           break;
       }
     }
-
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
       StringBuilder remoteIds = new StringBuilder();
       for (String remoteId : filter.getRemoteIds()) {
@@ -368,8 +382,10 @@ public class ProfileSearchConnector {
       esSubQuery.append("          \"userName\" : [" + remoteIds.toString() + "]\n");
       esSubQuery.append("        } \n");
       esSubQuery.append("      },\n");
+
       subQueryEmpty = false;
     }
+
     if (identity != null && type != null) {
       esSubQuery.append("      \"must\" : {\n");
       esSubQuery.append("        \"query_string\" : {\n");
