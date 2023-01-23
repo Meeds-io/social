@@ -11,6 +11,7 @@
           :src="bannerUrl || ''"
           :min-height="36"
           :max-height="height"
+          id="spaceAvatarImg"
           height="auto"
           min-width="100%"
           class="d-flex"
@@ -22,6 +23,7 @@
             <v-btn
               v-show="hover"
               ref="bannerInput"
+              id="spaceBannerEditButton"
               class="changeBannerButton border-color me-2 ms-auto my-auto mt-sm-2 mb-sm-0"
               icon
               outlined

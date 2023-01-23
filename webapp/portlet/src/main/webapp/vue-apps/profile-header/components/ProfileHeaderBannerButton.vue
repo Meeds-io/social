@@ -5,6 +5,7 @@
       class="changeBannerButtonIcon me-2">
       <v-btn
         :title="$t('UIPopupBannerUploader.title.deleteBanner')"
+        id="profileBannerDeleteButton"
         class="border-color"
         outlined
         icon
@@ -18,6 +19,7 @@
       v-show="hover">
       <v-btn
         :title="$t('UIPopupBannerUploader.title.ChangeBanner')"
+        id="profileBannerEditButton"
         class="border-color"
         outlined
         icon
