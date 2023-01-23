@@ -91,8 +91,8 @@ const defaultActivityOptions = {
     return Vue.prototype.$utils.trim(window.decodeURIComponent(templateParams
       && templateParams.default_title
       && templateParams.default_title
-      || (activity.title && activity.title.replaceAll('%', '%25'))
-      || (activity.body && activity.title.replaceAll('%', '%25'))
+      || (activity?.title?.replaceAll('%', '%25'))
+      || (activity?.body?.replaceAll('%', '%25'))
       || ''));
   },
   canShare: () => true,
