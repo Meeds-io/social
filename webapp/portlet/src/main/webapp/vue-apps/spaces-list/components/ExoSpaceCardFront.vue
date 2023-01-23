@@ -367,6 +367,16 @@ export default {
         }, this.waitTimeUntilCloseMenu);
       }
     });
+    document.addEventListener('space-favorite-added', event => {
+      if (event && event.detail === this.space.id) {
+        this.space.isFavorite = 'true';
+      }
+    });
+    document.addEventListener('space-favorite-removed', event => {
+      if (event && event.detail === this.space.id) {
+        this.space.isFavorite = 'false';
+      }
+    });
   },
   methods: {
     editSpace() {
