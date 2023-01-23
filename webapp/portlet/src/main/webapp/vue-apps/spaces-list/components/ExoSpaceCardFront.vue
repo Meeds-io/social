@@ -164,8 +164,8 @@
       </div>
 
       <v-card-text 
-        class="spaceCardBody align-center"
-        :class="!isMobile && 'pt-2 pb-1'">
+        :class="!isMobile && 'pt-2 pb-1'"
+        class="spaceCardBody align-center">
         <a
           :href="url"
           :title="space.displayName"
@@ -175,8 +175,7 @@
         </a>
         <a 
           :href="url"
-          :class="isMobile && 'my-0'"
-          class="spaceMembersLabel py-0">
+          class="spaceMembersLabel py-0 my-0 my-sm-auto">
           {{ $t('spacesList.label.members', {0: space.membersCount}) }}
         </a>
       </v-card-text>
