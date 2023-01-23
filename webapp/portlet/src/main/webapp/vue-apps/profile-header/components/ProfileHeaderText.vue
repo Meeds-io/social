@@ -1,15 +1,19 @@
 <template>
   <v-card
+    id="profileHeaderText"
     class="d-flex"
     color="transparent"
     min-height="70"
     flat
     tile>
     <div class="d-flex flex-column my-auto">
-      <div class="title text-break text-wrap">
+      <div id="profileHeaderUserFullname" class="title text-break text-wrap">
         {{ userFullname }}
       </div>
-      <div v-if="userPosition" class="subtitle text-sub-title text-break text-wrap">
+      <div
+        id="profileHeaderUserPosition"
+        v-if="userPosition"
+        class="subtitle text-sub-title text-break text-wrap">
         {{ userPosition || '' }}
       </div>
     </div>
