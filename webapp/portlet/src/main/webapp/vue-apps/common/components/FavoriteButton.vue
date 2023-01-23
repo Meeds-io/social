@@ -35,7 +35,7 @@
             size="16">
             {{ favoriteIcon }}
           </v-icon>
-          <span class="text-color mt-1" :class="extraClass">{{ favoriteLabel }}</span>
+          <span :class="extraClass" class="text-color mt-1">{{ favoriteLabel }}</span>
         </v-list-item> 
       </template>
       <span>

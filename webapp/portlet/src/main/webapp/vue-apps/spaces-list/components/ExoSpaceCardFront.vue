@@ -94,8 +94,8 @@
                       v-if="favoritesSpaceEnabled"
                       :is-favorite="space.isFavorite"
                       :space-id="space.id"
-                      :extra-class="'ms-4'"
-                      displayLabel />
+                      extra-class="ms-4"
+                      display-label />
                   </v-list-item-title>
                 </v-list-item>
               </v-list>
