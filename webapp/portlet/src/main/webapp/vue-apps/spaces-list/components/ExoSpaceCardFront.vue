@@ -367,13 +367,13 @@ export default {
         }, this.waitTimeUntilCloseMenu);
       }
     });
-    document.addEventListener('favorite-added', event => {
-      if (event && event.detail) {
+    document.addEventListener('space-favorite-added', event => {
+      if (event && event.detail === this.space.id) {
         this.space.isFavorite = 'true';
       }
     });
-    document.addEventListener('favorite-removed', event => {
-      if (event && event.detail) {
+    document.addEventListener('space-favorite-removed', event => {
+      if (event && event.detail === this.space.id) {
         this.space.isFavorite = 'false';
       }
     });
