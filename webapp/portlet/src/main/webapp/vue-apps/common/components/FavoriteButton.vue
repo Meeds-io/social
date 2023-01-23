@@ -35,7 +35,7 @@
             size="16">
             {{ favoriteIcon }}
           </v-icon>
-          <span class="text-color mt-1">{{ favoriteLabel }}</span>
+          <span :class="extraClass" class="text-color mt-1">{{ favoriteLabel }}</span>
         </v-list-item> 
       </template>
       <span>
@@ -95,6 +95,10 @@ export default {
     displayLabel: {
       type: Boolean,
       default: false
+    },
+    extraClass: {
+      type: String,
+      default: () => '',
     }
   },
   data: () => ({
