@@ -194,8 +194,7 @@
         </span>
       </a>
       <v-card-subtitle 
-        class="userPositionLabel text-truncate py-0"
-        :class="isMobile && 'mt-0'">
+        class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto">
         {{ user.position || '&nbsp;' }}
       </v-card-subtitle>
     </v-card-text>

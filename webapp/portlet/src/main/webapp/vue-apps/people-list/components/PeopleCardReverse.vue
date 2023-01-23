@@ -1,8 +1,8 @@
 <template>
-  <v-card 
+  <v-card
+    :outlined="!isMobile" 
     class="peopleCardItem d-flex flex-column" 
-    flat
-    :outlined="!isMobile">
+    flat>
     <v-btn
       absolute
       small
