@@ -1,5 +1,6 @@
 <template>
   <v-app
+    v-if="displayApp"
     :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'"
     class="white">
     <v-toolbar
@@ -7,7 +8,7 @@
       flat
       class="border-box-sizing">
       <div class="text-header-title text-sub-title">
-        {{ $t('profileWorkExperiences.title') }}
+        {{ title }}
       </div>
       <v-spacer />
       <v-btn
@@ -52,10 +53,17 @@ export default {
     error: null,
     saving: null,
     workExperiencesDrawerKey: 0,
+    initialized: false,
   }),
   computed: {
     mobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
+    displayApp() {
+      return this.owner || !this.initialized || this.experiences?.length;
+    },
+    title() {
+      return this.owner && this.$t('profileYourWorkExperiences.title') || this.$t('profileWorkExperiences.title');
     },
   },
   created() {
@@ -70,15 +78,11 @@ export default {
   methods: {
     refresh() {
       return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
-        .then(user => {
-          this.setExperiences(user && user.experiences);
-          return this.$nextTick();
-        })
-        .catch((e) => {
-          console.warn('Error while retrieving user details', e); // eslint-disable-line no-console
-        })
+        .then(user => this.setExperiences(user && user.experiences))
+        .catch((e) => console.error('Error while retrieving user details', e))
         .finally(() => {
           this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+          this.initialized = true;
         });
     },
     setExperiences(experiences) {

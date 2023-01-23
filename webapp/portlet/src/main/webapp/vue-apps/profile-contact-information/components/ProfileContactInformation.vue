@@ -7,12 +7,13 @@
       flat
       class="border-box-sizing">
       <div
-        class="text-header-title text-sub-title">
-        {{ $t('profileContactInformation.contactInformation') }}
+        class="text-header-title text-sub-title profileContactTitle">
+        {{ title }}
       </div>
       <v-spacer />
       <v-btn
         v-if="owner"
+        id="profileContactEditButton"
         icon
         outlined
         small
@@ -28,6 +29,7 @@
         </div>
         <div
           :title="user.fullname"
+          id="profileContactUserFullname"
           class="align-end flex-grow-1 text-truncate text-end">
           {{ user.fullname }}
         </div>
@@ -37,7 +39,10 @@
         <div class="align-start text-no-wrap font-weight-bold me-3">
           {{ $t('profileContactInformation.email') }}
         </div>
-        <div :title="user.email" class="align-end flex-grow-1 text-truncate text-end">
+        <div
+          :title="user.email"
+          id="profileContactUserEmail"
+          class="align-end flex-grow-1 text-truncate text-end">
           <span v-autolinker="user.email"></span>
         </div>
       </v-flex>
@@ -46,7 +51,10 @@
         <div class="align-start text-no-wrap font-weight-bold me-3">
           {{ $t('profileContactInformation.jobTitle') }}
         </div>
-        <div :title="user.position || ''" class="align-end flex-grow-1 text-truncate text-end">
+        <div
+          :title="user.position || ''"
+          id="profileContactUserPosition"
+          class="align-end flex-grow-1 text-truncate text-end">
           {{ user.position || '' }}
         </div>
       </v-flex>
@@ -56,7 +64,10 @@
           <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.company') }}
           </div>
-          <div :title="user.company" class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.company"
+            id="profileContactUserCompany"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.company }}
           </div>
         </v-flex>
@@ -70,6 +81,7 @@
           <div
             v-autolinker="user.location"
             :title="user.location"
+            id="profileContactUserLocation"
             class="align-end flex-grow-1 text-truncate text-end">
           </div>
         </v-flex>
@@ -82,6 +94,7 @@
           </div>
           <div
             :title="user.department"
+            id="profileContactUserDepartment"
             class="align-end flex-grow-1 text-truncate text-end">
             {{ user.department }}
           </div>
@@ -95,6 +108,7 @@
           </div>
           <div
             :title="user.team"
+            id="profileContactUserTeam"
             class="align-end flex-grow-1 text-truncate text-end">
             {{ user.team }}
           </div>
@@ -108,6 +122,7 @@
           </div>
           <div
             :title="user.profession"
+            id="profileContactUserProfession"
             class="align-end flex-grow-1 text-truncate text-end">
             {{ user.profession }}
           </div>
@@ -119,7 +134,10 @@
           <div class="align-start text-no-wrap font-weight-bold me-3">
             {{ $t('profileContactInformation.country') }}
           </div>
-          <div :title="user.country" class="align-end flex-grow-1 text-truncate text-end">
+          <div
+            :title="user.country"
+            id="profileContactUserCountry"
+            class="align-end flex-grow-1 text-truncate text-end">
             {{ user.country }}
           </div>
         </v-flex>
@@ -132,6 +150,7 @@
           </div>
           <div
             :title="user.city"
+            id="profileContactUserCity"
             class="align-end flex-grow-1 text-truncate text-end">
             {{ user.city }}
           </div>
@@ -162,6 +181,11 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     user: null,
   }),
+  computed: {
+    title() {
+      return this.owner && this.$t('profileContactInformation.yourContactInformation') || this.$t('profileContactInformation.contactInformation');
+    },
+  },
   created() {
     return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
       .then(user => this.refresh(user))
