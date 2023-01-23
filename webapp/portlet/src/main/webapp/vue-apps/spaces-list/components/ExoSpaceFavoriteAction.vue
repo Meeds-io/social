@@ -10,6 +10,8 @@
     type="space"
     type-label="space"
     :entity-type="entityType"
+    :display-label="displayLabel"
+    :extra-class="extraClass"
     @removed="removed"
     @remove-error="removeError"
     @added="added"
@@ -42,6 +44,14 @@ export default {
     right: {
       type: Number,
       default: () => 0,
+    },
+    displayLabel: {
+      type: Boolean,
+      default: false,
+    },
+    extraClass: {
+      type: String,
+      default: () => '',
     },
   },
   data: () => ({

@@ -89,15 +89,13 @@
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item v-if="space.isMember">
-                  <v-list-item-title class="align-center d-flex">
+                  <v-list-item-title>
                     <exo-space-favorite-action
                       v-if="favoritesSpaceEnabled"
                       :is-favorite="space.isFavorite"
                       :space-id="space.id"
-                      class="ms-1 me-2 mb-1" />
-                    <span class="mx-2">
-                      {{ favoriteTitleToDisplay }}
-                    </span>
+                      extra-class="ms-4"
+                      display-label />
                   </v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -354,9 +352,6 @@ export default {
     isFavorite() {
       return this.space?.isFavorite === 'true';
     },
-    favoriteTitleToDisplay() {
-      return this.isFavorite && this.$t('spacesList.button.removeBookmark') || this.$t('spacesList.button.bookmark') ;
-    }
   },
   created() {
     $(document).on('mousedown', () => {
@@ -365,16 +360,6 @@ export default {
           this.displayActionMenu = false;
           this.displaySecondButton = false;
         }, this.waitTimeUntilCloseMenu);
-      }
-    });
-    document.addEventListener('space-favorite-added', event => {
-      if (event && event.detail === this.space.id) {
-        this.space.isFavorite = 'true';
-      }
-    });
-    document.addEventListener('space-favorite-removed', event => {
-      if (event && event.detail === this.space.id) {
-        this.space.isFavorite = 'false';
       }
     });
   },
