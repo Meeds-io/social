@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user.phones && user.phones.length">
+  <div v-if="user.phones && user.phones.length" id="profileContactPhones">
     <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div class="align-start text-no-wrap font-weight-bold me-3">
@@ -10,7 +10,7 @@
           v-for="(phone, i) in user.phones"
           :key="i"
           :title="phone.phoneNumber"
-          class="text-no-wrap text-truncate">
+          class="text-no-wrap text-truncate profileContactPhone">
           <span class="pe-1 text-capitalize">
             {{ getLabel(`profileContactInformation.phone.${phone.phoneType}`, phone.phoneType) }}:
           </span>

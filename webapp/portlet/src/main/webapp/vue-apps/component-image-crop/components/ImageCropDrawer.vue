@@ -72,6 +72,7 @@
           <div class="d-flex flex-grow-1 d-flex align-center justify-end">
             <v-btn
               :title="$t('imageCropDrawer.moveRight')"
+              id="moveImageToRight"
               icon
               outlined
               @click="move(-10, 0)">
@@ -79,6 +80,7 @@
             </v-btn>
             <v-btn
               :title="$t('imageCropDrawer.moveLeft')"
+              id="moveImageToLeft"
               icon
               outlined
               @click="move(10, 0)">
@@ -86,6 +88,7 @@
             </v-btn>
             <v-btn
               :title="$t('imageCropDrawer.moveUp')"
+              id="moveImageToUp"
               icon
               outlined
               @click="move(0, -10)">
@@ -93,6 +96,7 @@
             </v-btn>
             <v-btn
               :title="$t('imageCropDrawer.moveDown')"
+              id="moveImageToBottom"
               icon
               outlined
               @click="move(0, 10)">
@@ -100,6 +104,7 @@
             </v-btn>
             <v-btn
               :title="$t('imageCropDrawer.rotateRight')"
+              id="rotateImageToRight"
               icon
               outlined
               @click="rotateRight">
@@ -107,6 +112,7 @@
             </v-btn>
             <v-btn
               :title="$t('imageCropDrawer.rotateLeft')"
+              id="rotateImageToLeft"
               icon
               outlined
               @click="rotateLeft">
@@ -121,6 +127,7 @@
           <div class="flex-grow-1 d-flex">
             <v-btn
               :title="$t('imageCropDrawer.zoomOut')"
+              id="zoomImageOut"
               icon
               outlined
               @click="zoom -= stepZoom">
@@ -134,6 +141,7 @@
               class="mx-n1" />
             <v-btn
               :title="$t('imageCropDrawer.zoomIn')"
+              id="zoomImageIn"
               icon
               outlined
               @click="zoom += stepZoom">
@@ -147,12 +155,14 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
+          id="imageCropDrawerCancel"
           class="btn me-2"
           @click="close">
           {{ $t('imageCropDrawer.cancel') }}
         </v-btn>
         <v-btn
           :loading="sendingImage"
+          id="imageCropDrawerApply"
           class="btn btn-primary"
           @click="apply">
           {{ $t('imageCropDrawer.apply') }}

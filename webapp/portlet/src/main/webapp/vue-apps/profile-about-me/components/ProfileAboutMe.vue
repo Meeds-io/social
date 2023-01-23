@@ -1,5 +1,6 @@
 <template>
   <v-app
+    v-if="displayApp"
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'"
     class="white">
     <v-toolbar
@@ -8,11 +9,12 @@
       class="border-box-sizing">
       <div
         class="text-header-title text-sub-title">
-        {{ $t('profileAboutMe.title') }}
+        {{ title }}
       </div>
       <v-spacer />
       <v-btn
         v-if="owner"
+        id="aboutMeEditButton"
         icon
         outlined
         small
@@ -26,9 +28,11 @@
       <p
         v-autolinker="aboutMe"
         v-if="aboutMe || !owner"
+        id="aboutMeParagraph"
         class="paragraph text-color pt-0 pb-6 px-4"></p>
       <p
         v-else
+        id="aboutMeParagraph"
         class="paragraph text-color pt-0 pb-6 px-4"
         v-text="$t('profileAboutMe.emptyOwner')"></p>
     </v-card>
@@ -38,7 +42,7 @@
       class="aboutMeDrawer"
       right>
       <template slot="title">
-        {{ $t('profileAboutMe.title') }}
+        {{ title }}
       </template>
       <template slot="content">
         <v-card flat>
@@ -67,7 +71,6 @@
     </exo-drawer>
   </v-app>
 </template>
-
 <script>
 export default {
   data: () => ({
@@ -76,17 +79,27 @@ export default {
     error: null,
     saving: null,
     modifyingAboutMe: null,
-    aboutMeTextLength: 2000
+    aboutMeTextLength: 2000,
+    initialized: false,
   }),
   computed: {
     valid() {
       return !this.modifyingAboutMe || this.modifyingAboutMe.length <= this.aboutMeTextLength;
-    }
+    },
+    title() {
+      return this.owner && this.$t('profileAboutYouself.title') || this.$t('profileAboutMe.title');
+    },
+    displayApp() {
+      return this.owner || !this.initialized || this.aboutMe?.trim().length;
+    },
   },
   created() {
     this.$userService.getUser(eXo.env.portal.profileOwner)
       .then(user => this.refresh(user && user.aboutMe || ''))
-      .finally(() => this.$root.$applicationLoaded());
+      .finally(() => {
+        this.$root.$applicationLoaded();
+        this.initialized = true;
+      });
   },
   mounted() {
     if (this.aboutMe) {
