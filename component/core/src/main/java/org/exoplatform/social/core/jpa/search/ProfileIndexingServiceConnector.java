@@ -34,6 +34,7 @@ import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 
 /**
@@ -243,7 +244,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
     Date createdDate = new Date(profile.getCreatedTime());
 
-    for (String propertyName : profilePropertySettingsService.getPropertySettings().stream().map(profilePropertySetting -> profilePropertySetting.getPropertyName()).toList()) {
+    for (String propertyName : profilePropertySettingsService.getPropertySettings().stream().map(ProfilePropertySetting::getPropertyName).toList()) {
       if(!fields.containsKey(propertyName)){
         try {
           String value = (String) profile.getProperty(propertyName);

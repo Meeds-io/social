@@ -34,6 +34,7 @@ import org.exoplatform.social.core.identity.model.Profile.UpdateType;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.profile.*;
 import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -272,7 +273,7 @@ public class IdentityManagerImpl implements IdentityManager {
       }
       if (UserProfileComparator.hasChanged(specificProfile,
               existingProfile,
-              getProfilePropertySettingsService().getPropertySettings().stream().map(profilePropertySetting -> profilePropertySetting.getPropertyName()).toList())) {
+              getProfilePropertySettingsService().getPropertySettings().stream().map(ProfilePropertySetting::getPropertyName).toList())) {
         list.add(Profile.UpdateType.CONTACT);
       }
       if (UserProfileComparator.hasChanged(specificProfile, existingProfile, Profile.EXPERIENCES)) {
