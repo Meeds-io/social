@@ -41,6 +41,17 @@ public class UserProfileComparator {
     return false;
   }
 
+  public static boolean hasChanged(Profile profileToUpdate, Profile existingProfile, List<String> keys) {
+    if (keys != null && keys.size() > 0) {
+      for (String key : keys) {
+        if (hasChanged(profileToUpdate, existingProfile, key)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   @SuppressWarnings("unchecked")
   private static boolean hasChanged(Profile profileToUpdate, Profile existingProfile, String key) {
     Object newValue = profileToUpdate.getProperty(key);

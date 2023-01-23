@@ -16,27 +16,31 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.identity.*;
+import org.exoplatform.social.core.identity.IdentityProvider;
+import org.exoplatform.social.core.identity.IdentityProviderPlugin;
+import org.exoplatform.social.core.identity.ProfileFilterListAccess;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.model.Profile.UpdateType;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.profile.*;
+import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * Class IdentityManagerImpl implements IdentityManager without caching.
@@ -66,6 +70,9 @@ public class IdentityManagerImpl implements IdentityManager {
 
   /** The relationship manager */
   protected RelationshipManager              relationshipManager;
+
+  /** The profile Property Settings Service */
+  protected ProfilePropertySettingsService              profilePropertySettingsService;
 
   /** lifecycle for profile */
   protected ProfileLifeCycle                 profileLifeCycle  = new ProfileLifeCycle();
@@ -264,23 +271,14 @@ public class IdentityManagerImpl implements IdentityManager {
         list.add(Profile.UpdateType.ABOUT_ME);
       }
       if (UserProfileComparator.hasChanged(specificProfile,
-                                           existingProfile,
-                                           Profile.FIRST_NAME,
-                                           Profile.LAST_NAME,
-                                           Profile.EMAIL,
-                                           Profile.POSITION,
-                                           Profile.GENDER,
-                                           Profile.CONTACT_PHONES,
-                                           Profile.CONTACT_IMS,
-                                           Profile.CONTACT_URLS,
-                                           Profile.EXTERNAL,
-                                           Profile.LAST_LOGIN_TIME)) {
+              existingProfile,
+              getProfilePropertySettingsService().getPropertySettings().stream().map(profilePropertySetting -> profilePropertySetting.getPropertyName()).toList())) {
         list.add(Profile.UpdateType.CONTACT);
       }
       if (UserProfileComparator.hasChanged(specificProfile, existingProfile, Profile.EXPERIENCES)) {
         list.add(Profile.UpdateType.EXPERIENCES);
       }
-      if (specificProfile.getProperty(Profile.AVATAR) != null){
+      if (specificProfile.getProperty(Profile.AVATAR) != null) {
         list.add(UpdateType.AVATAR);
       }
       if (specificProfile.getProperty(Profile.BANNER) != null){
@@ -636,6 +634,18 @@ public class IdentityManagerImpl implements IdentityManager {
                                                                  .getComponentInstanceOfType(RelationshipManager.class);
     }
     return relationshipManager;
+  }
+
+  /**
+   * Gets profilePropertySettingsService.
+   *
+   * @return profilePropertySettingsService
+   */
+  public ProfilePropertySettingsService getProfilePropertySettingsService() {
+    if (profilePropertySettingsService == null) {
+      profilePropertySettingsService = CommonsUtils.getService(ProfilePropertySettingsService.class);
+    }
+    return profilePropertySettingsService;
   }
 
   /**

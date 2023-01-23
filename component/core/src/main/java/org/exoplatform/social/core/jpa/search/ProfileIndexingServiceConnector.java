@@ -18,6 +18,7 @@ package org.exoplatform.social.core.jpa.search;
 
 import java.text.Normalizer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -32,6 +33,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
 import org.exoplatform.social.core.relationship.model.Relationship;
 
 /**
@@ -50,14 +52,18 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   private final IdentityDAO     identityDAO;
 
+  private final ProfilePropertySettingsService profilePropertySettingsService;
+
   public ProfileIndexingServiceConnector(InitParams initParams,
                                          IdentityManager identityManager,
                                          IdentityDAO identityDAO,
-                                         ConnectionDAO connectionDAO) {
+                                         ConnectionDAO connectionDAO,
+                                         ProfilePropertySettingsService profilePropertySettingsService) {
     super(initParams);
     this.identityManager = identityManager;
     this.identityDAO = identityDAO;
     this.connectionDAO = connectionDAO;
+    this.profilePropertySettingsService = profilePropertySettingsService;
   }
 
   @Override
@@ -236,6 +242,23 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       fields.put("enrollmentDate", profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
     Date createdDate = new Date(profile.getCreatedTime());
+
+    for (String propertyName : profilePropertySettingsService.getPropertySettings().stream().map(profilePropertySetting -> profilePropertySetting.getPropertyName()).toList()) {
+      if(!fields.containsKey(propertyName)){
+        try {
+          String value = (String) profile.getProperty(propertyName);
+          if(!StringUtils.isEmpty(value)){
+            fields.put(propertyName, value);
+          }
+        } catch (ClassCastException e) {
+          List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(propertyName);
+          String value = multiValues.stream().filter(property -> property.get("value") != null).map(property -> property.get("value")).collect(Collectors.joining(",", "", ""));
+          if (!StringUtils.isEmpty(value)) {
+            fields.put(propertyName, removeAccents(value));
+          }
+        }
+      }
+    }
 
     // confirmed connections
     String connectionsStr = buildConnectionString(identity, Relationship.Type.CONFIRMED);
