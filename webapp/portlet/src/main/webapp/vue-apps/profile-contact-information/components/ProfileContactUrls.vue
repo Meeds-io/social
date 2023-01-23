@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user.urls && user.urls.length">
+  <div v-if="user.urls && user.urls.length" id="profileContactUrls">
     <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div class="align-start text-no-wrap font-weight-bold me-3">
@@ -10,7 +10,7 @@
           v-autolinker="url.url"
           v-for="(url, i) in user.urls"
           :key="i"
-          class="text-no-wrap text-truncate">
+          class="text-no-wrap text-truncate profileContactUrl">
         </div>
       </div>
     </v-flex>
