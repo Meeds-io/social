@@ -1,5 +1,5 @@
 <template>
-  <div v-if="user.ims && user.ims.length>0">
+  <div v-if="user.ims && user.ims.length > 0" id="profileContactIms">
     <v-divider class="my-4" />
     <v-flex class="d-flex">
       <div
@@ -11,7 +11,7 @@
           v-for="(iM, i) in user.ims"
           :key="i"
           :title="iM.imId"
-          class="text-no-wrap text-truncate">
+          class="text-no-wrap text-truncate profileContactIm">
           <span class="pe-1 text-capitalize">
             {{ getLabel(`profileContactInformation.phone.${iM.imType}`, iM.imType) }}:
           </span>

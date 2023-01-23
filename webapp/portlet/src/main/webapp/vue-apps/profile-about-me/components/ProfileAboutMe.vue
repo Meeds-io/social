@@ -14,6 +14,7 @@
       <v-spacer />
       <v-btn
         v-if="owner"
+        id="aboutMeEditButton"
         icon
         outlined
         small
@@ -27,9 +28,11 @@
       <p
         v-autolinker="aboutMe"
         v-if="aboutMe || !owner"
+        id="aboutMeParagraph"
         class="paragraph text-color pt-0 pb-6 px-4"></p>
       <p
         v-else
+        id="aboutMeParagraph"
         class="paragraph text-color pt-0 pb-6 px-4"
         v-text="$t('profileAboutMe.emptyOwner')"></p>
     </v-card>
