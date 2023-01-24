@@ -673,13 +673,6 @@
         <init-params>
           <properties-param>
             <name>SocialFeatureProperties</name>
-            <property name="exo.feature.NewEditorToolbar.enabled" value="${exo.feature.NewEditorToolbar.enabled:false}" />
-            <property name="exo.feature.ActivityTags.enabled" value="${exo.feature.ActivityTags.enabled:true}"/>
-            <property name="exo.feature.SpaceFavorites.enabled" value="${exo.feature.SpaceFavorites.enabled:true}" />
-            <property name="exo.feature.PinActivity.enabled" value="${exo.feature.PinActivity.enabled:true}" />
-            <property name="exo.feature.leftMenuReview.enabled" value="${exo.feature.leftMenuReview.enabled:true}" />
-            <property name="exo.feature.StreamFilter.enabled" value="${exo.feature.StreamFilter.enabled:false}" />
-            <property name="exo.feature.SpaceWebNotifications.enabled" value="${exo.feature.StreamFilter.enabled:true}" />
             <property name="exo.feature.SpaceHomeLayoutReset.enabled" value="${exo.feature.SpaceHomeLayoutReset.enabled:false}" />
             <property name="exo.feature.publisherRolePromotion.enabled" value="${exo.feature.publisherRolePromotion.enabled:false}" />
           </properties-param>

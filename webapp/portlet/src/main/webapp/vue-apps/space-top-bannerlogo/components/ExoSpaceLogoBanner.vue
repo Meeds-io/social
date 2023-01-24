@@ -121,7 +121,6 @@
             </v-list-item-content>
             <v-list-item-action class="space-logo-popover flex-row">
               <exo-space-favorite-action
-                v-if="favoriteActionEnabled"
                 :is-favorite="isFavorite"
                 :space-id="spaceId"
                 entity-type="SPACE_TOP_BAR_TIPTIP" />
@@ -200,17 +199,9 @@ export default {
       default: false
     },
   },
-  data: () => {
-    return {
-      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
-    };
-  },
   computed: {
     mangersToDisplay() {
       return this.managers;
-    },
-    favoriteActionEnabled() {
-      return this.isMember && this.favoritesSpaceEnabled;
     },
     params() {
       return {

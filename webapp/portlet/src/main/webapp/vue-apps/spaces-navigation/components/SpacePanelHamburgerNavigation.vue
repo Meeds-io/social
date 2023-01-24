@@ -97,7 +97,6 @@
           </span>
         </v-tooltip>
         <exo-space-favorite-action
-          v-if="favoriteActionEnabled"
           :is-favorite="isFavorite"
           :space-id="spaceId"
           entity-type="spaces_left_navigation" />
@@ -142,10 +141,8 @@ export default {
   },
   data: () => ({
     spaceNavigations: [],
-    favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
     externalExtensions: [],
     spaceUnreadItems: null,
-    spaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
   }),
   computed: {
     spaceId() {
@@ -168,9 +165,6 @@ export default {
     },
     isFavorite() {
       return this.space?.isFavorite;
-    },
-    favoriteActionEnabled() {
-      return this.favoritesSpaceEnabled;
     },
     isHomeLink() {
       return this.spaceURL === this.homeLink;
@@ -205,7 +199,7 @@ export default {
       return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) > 0;
     },
     markAsReadDisabled() {
-      return !this.spaceWebNotificationsEnabled || !this.hasUnreadItems;
+      return !this.hasUnreadItems;
     },
   },
   watch: {

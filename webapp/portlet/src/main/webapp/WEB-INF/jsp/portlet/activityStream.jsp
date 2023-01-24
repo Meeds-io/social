@@ -2,20 +2,17 @@
 <%@page import="org.exoplatform.social.core.space.model.Space"%>
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
-<%@page import="org.exoplatform.commons.api.settings.ExoFeatureService"%>
 <%@ page import="org.exoplatform.container.PortalContainer" %>
 <%
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
   PortalContainer portalContainer = PortalContainer.getCurrentInstance(session.getServletContext());
-  ExoFeatureService featureService = portalContainer.getComponentInstanceOfType(ExoFeatureService.class);
   String activityId = rcontext.getRequest().getParameter("id");
   Space space = SpaceUtils.getSpaceByContext();
   long limitToDisplay = 10;
   long initialLimit = limitToDisplay * 2;
   String activitiesLoadingURL;
-  boolean isStreamFilterEnabled = featureService.isActiveFeature("StreamFilter");
-  String streamType = isStreamFilterEnabled ? "&streamType=ALL_STREAM" : "";
+  String streamType = "&streamType=ALL_STREAM";
   if (activityId != null) {
     activitiesLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=identity,likes,shared,commentsPreview,subComments,favorite";
   } else if (space == null) {

@@ -331,7 +331,7 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    publisherRolePromotionFeatureEnabled: false,
+    publisherRolePromotionFeatureEnabled: eXo.env.portal.publisherRolePromotionEnabled,
     bottomMenu: false
   }),
   computed: {
@@ -392,8 +392,6 @@ export default {
         }, this.waitTimeUntilCloseMenu);
       }
     });
-    this.$featureService.isFeatureEnabled('publisherRolePromotion')
-      .then(enabled => this.publisherRolePromotionFeatureEnabled = enabled);
   },
   methods: {
     connect() {

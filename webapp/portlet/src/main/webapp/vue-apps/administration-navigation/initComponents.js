@@ -1,6 +1,5 @@
 // eslint-disable-next-line max-len
 import ExoAdministrationHamburgerNavigation from './components/ExoAdministrationHamburgerNavigation.vue';
-import LegacyExoAdministrationHamburgerNavigation from './components/legacy/ExoAdministrationHamburgerNavigation.vue';
 // eslint-disable-next-line max-len
 import ExoAdministrationMenuItem from './components/ExoAdministrationMenuItem.vue';
 import ExoAdministrationNavigations from './components/ExoAdministrationNavigations.vue';
@@ -9,13 +8,8 @@ const components = {
   // eslint-disable-next-line max-len
   'exo-administration-menu-item': ExoAdministrationMenuItem,
   'exo-administration-navigations': ExoAdministrationNavigations,
+  'exo-administration-hamburger-menu-navigation': ExoAdministrationHamburgerNavigation,
 };
-
-if (eXo.env.portal.leftMenuReviewEnabled) {
-  components['exo-administration-hamburger-menu-navigation'] = ExoAdministrationHamburgerNavigation;
-} else {
-  components['exo-administration-hamburger-menu-navigation'] = LegacyExoAdministrationHamburgerNavigation;
-}
 
 for (const key in components) {
   Vue.component(key, components[key]);
