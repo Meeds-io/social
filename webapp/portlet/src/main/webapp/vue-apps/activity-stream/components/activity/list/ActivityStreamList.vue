@@ -5,10 +5,10 @@
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
+      v-if="showStreamUpdater"
       :space-id="spaceId"
       :activities="activities"
       :standalone="!!activityId"
-      :stream-filter="streamFilter"
       @loadActivities="loadActivities" />
     <template v-if="activitiesToDisplay.length">
       <activity-stream-loader
@@ -101,6 +101,9 @@ export default {
     },
     pinActivityEnabled() {
       return eXo.env.portal.PinActivityEnabled && this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
+    },
+    showStreamUpdater() {
+      return this.streamFilter === 'all_stream' ;
     }
   },
   watch: {
