@@ -77,7 +77,6 @@
       :max-file-size="maxUploadSizeInBytes"
       :max-image-width="maxImageWidth"
       @input="uploadImage" />
-    <alert-notifications v-if="owner" />
   </v-app>    
 </template>
 <script>

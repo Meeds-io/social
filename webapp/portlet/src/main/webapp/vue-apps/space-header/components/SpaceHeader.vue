@@ -44,7 +44,6 @@
         drawer-title="UIPopupBannerUploader.title.ChangeBanner"
         @data="bannerData = $event"
         @input="uploadBanner" />
-      <alert-notifications v-if="admin" />
       <v-tabs
         v-if="hasNavigations"
         :value="selectedNavigationUri"
