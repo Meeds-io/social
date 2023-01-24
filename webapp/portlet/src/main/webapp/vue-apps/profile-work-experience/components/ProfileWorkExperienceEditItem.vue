@@ -15,9 +15,11 @@
       <v-card-text class="d-flex py-0">
         <input
           v-model="experience.company"
+          name="company"
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
-          maxlength="2000"
+          maxlength="250"
+          autofocus="autofocus"
           required>
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -26,9 +28,10 @@
       <v-card-text class="d-flex py-0">
         <input
           v-model="experience.position"
+          name="position"
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
-          maxlength="2000"
+          maxlength="250"
           required>
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -37,8 +40,9 @@
       <v-card-text class="d-flex py-0">
         <textarea
           v-model="experience.description"
+          name="description"
           class="ignore-vuetify-classes flex-grow-1"
-          maxlength="2000"></textarea>
+          maxlength="1500"></textarea>
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
         {{ $t('profileWorkExperiences.usedSkills') }}
@@ -46,6 +50,7 @@
       <v-card-text class="d-flex py-0">
         <input
           v-model="experience.skills"
+          name="skills"
           type="text"
           class="ignore-vuetify-classes flex-grow-1"
           maxlength="2000">

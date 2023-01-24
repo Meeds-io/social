@@ -53,7 +53,6 @@
           </v-btn>
         </div>
       </v-card>
-      <alert-notifications />
     </v-main>
   </v-app>
 </template>

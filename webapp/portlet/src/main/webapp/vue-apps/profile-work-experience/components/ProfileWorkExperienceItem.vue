@@ -1,49 +1,41 @@
 <template>
   <v-timeline-item
-    :class="mobile && 'caption' || ''"
-    :small="mobile"
     color="tertiary"
-    class="workExperienceTimeLineItem"
-    right>
-    <div
-      v-if="!mobile"
-      slot="opposite"
-      class="workExperienceTimeLineItemTime">
-      {{ displayedDate }}
-    </div>
-    <v-card>
-      <v-card-text v-if="experience" class="pb-3">
-        <div
-          v-if="mobile"
-          class="text-color font-weight-bold mb-2"
-          v-text="displayedDate">
+    class="workExperienceTimeLineItem">
+    <v-row class="ma-0">
+      <v-col cols="12" sm="3" class="px-0">
+        <div class="text-color font-weight-bold">
+          {{ experience.position }}
         </div>
-        <div
-          class="text-color"
-          v-text="experience.position">
+        <div>
+          {{ experience.company }}
         </div>
-        <div
-          class="text-sub-title"
-          v-text="experience.company">
+        <div v-if="displayedFromDate" class="workExperienceTimeLineItemTime text-sub-title">
+          {{ displayedFromDate }}
         </div>
-      </v-card-text>
-      <v-card-text class="pt-0">
-        <template v-if="empty">
-          <div class="text-color pt-2">
-            {{ $t('profileWorkExperiences.emptyExperienceDescription') }}
-          </div>
-        </template>
-        <template v-else>
-          <h6
-            v-autolinker="experience.description"
-            class="paragraph text-color font-weight-light pb-1 mt-0">
-          </h6>
-          <div class="text-color font-weight-bold">
-            {{ $t('profileWorkExperiences.appliedSkills') }} : {{ experience.skills }}
-          </div>
-        </template>
-      </v-card-text>
-    </v-card>
+        <div v-if="displayedToDate" class="workExperienceTimeLineItemTime text-sub-title">
+          {{ displayedToDate }}
+        </div>
+      </v-col>
+      <v-col class="px-0 px-sm-3">
+        <v-card flat tile>
+          <v-card-text class="pa-0">
+            <div
+              v-autolinker="experience.description"
+              class="text-color mb-4">
+            </div>
+            <template v-if="experience.skills">
+              <div class="text-color font-weight-bold">
+                {{ $t('profileWorkExperiences.appliedSkills') }} :
+              </div>
+              <div class="text-color">
+                {{ experience.skills }}
+              </div>
+            </template>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-timeline-item>
 </template>
 
@@ -54,10 +46,6 @@ export default {
       type: Object,
       default: () => null,
     },
-    empty: {
-      type: Boolean,
-      default: false,
-    },
   },
   data: () => ({
     dateFormat: {
@@ -67,13 +55,11 @@ export default {
     },
   }),
   computed: {
-    mobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
-    },
-    displayedDate() {
-      if (this.empty) {
-        return this.$t('profileWorkExperiences.date');
-      } else if (this.experience.isCurrent && this.experience.startDate) {
+    displayedFromDate() {
+      if (!this.experience.startDate) {
+        return null;
+      }
+      if (this.experience.isCurrent) {
         const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
         const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
         return this.$t('profileWorkExperiences.since', {
@@ -81,15 +67,22 @@ export default {
         });
       } else {
         const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
-        const endDateObject = this.$dateUtil.getDateObjectFromString(this.experience.endDate,true);
         const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
-        const endDate = this.$dateUtil.formatDateObjectToDisplay(endDateObject, this.dateFormat);
-        return this.$t('profileWorkExperiences.fromTo', {
+        return this.$t('profileWorkExperiences.from', {
           0: startDate,
-          1: endDate,
         });
       }
-    }
+    },
+    displayedToDate() {
+      if (!this.experience.endDate || this.experience.isCurrent) {
+        return null;
+      }
+      const endDateObject = this.$dateUtil.getDateObjectFromString(this.experience.endDate,true);
+      const endDate = this.$dateUtil.formatDateObjectToDisplay(endDateObject, this.dateFormat);
+      return this.$t('profileWorkExperiences.to', {
+        0: endDate,
+      });
+    },
   },
 };
 </script>

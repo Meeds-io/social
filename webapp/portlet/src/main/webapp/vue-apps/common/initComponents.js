@@ -96,6 +96,27 @@ Vue.createApp = function(params, el, appName) {
       time: Date.now(),
     }}));
     const vueApp = new Vue(params);
+    vueApp.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip) => {
+      document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+        alertType: type,
+        alertMessage: message,
+        alertLinkCallback: linkCallback,
+        alertLinkIcon: linkIcon,
+        alertLinkTooltip: linkTooltip,
+      }}));
+    });
+    vueApp.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip) => {
+      document.dispatchEvent(new CustomEvent('alert-message-html', {detail: {
+        alertType: type,
+        alertMessage: message,
+        alertLinkCallback: linkCallback,
+        alertLinkIcon: linkIcon,
+        alertLinkTooltip: linkTooltip,
+      }}));
+    });
+    vueApp.$root.$on('close-alert-message', () => {
+      document.dispatchEvent(new CustomEvent('close-alert-message'));
+    });
     vueApp.$mount(element);
     return vueApp;
   } else {
