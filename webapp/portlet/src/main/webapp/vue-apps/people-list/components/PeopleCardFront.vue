@@ -3,7 +3,8 @@
     :id="userMenuParentId"
     :outlined="!isMobile"
     class="peopleCardItem d-block d-sm-flex"
-    flat>
+    flat
+    hover>
     <v-img
       :lazy-src="userBannerUrl"
       :src="userBannerUrl"
