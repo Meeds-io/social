@@ -105,44 +105,58 @@ const urls = [
 ];
 
 exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-  const parentElement = document.querySelector('#MiddleToolBarChildren') || document.body;
-  let drawersOverlayElement = parentElement.querySelector('#drawers-overlay');
+  const parentDrawersOverlayElement = document.querySelector('#MiddleToolBarChildren') || document.body;
+  let drawersOverlayElement = parentDrawersOverlayElement.querySelector('#drawers-overlay');
   if (!drawersOverlayElement) {
     drawersOverlayElement = document.createElement('div');
     drawersOverlayElement.id = 'drawers-overlay';
     drawersOverlayElement.class = 'v-application v-application--is-ltr transparent theme--light';
-    parentElement.appendChild(drawersOverlayElement);
-    parentElement.classList.add('VuetifyApp');
+    parentDrawersOverlayElement.appendChild(drawersOverlayElement);
+    parentDrawersOverlayElement.classList.add('VuetifyApp');
+    new Vue({
+      created() {
+        this.$userPopupLabels = Vue.prototype.$userPopupLabels = {
+          CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
+          Confirm: this.$t('UserProfilePopup.label.Confirm'),
+          Connect: this.$t('UserProfilePopup.label.Connect'),
+          Ignore: this.$t('UserProfilePopup.label.Ignore'),
+          RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
+          StatusTitle: this.$t('UserProfilePopup.label.Loading'),
+          External: this.$t('UserProfilePopup.label.External'),
+          Disabled: this.$t('UserProfilePopup.label.Disabled'),
+          Loading: this.$t('UserProfilePopup.label.Loading'),
+        };
+        this.$spacePopupLabels = Vue.prototype.$spacePopupLabels = {
+          CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
+          Confirm: this.$t('UserProfilePopup.label.Confirm'),
+          Connect: this.$t('UserProfilePopup.label.Connect'),
+          Ignore: this.$t('UserProfilePopup.label.Ignore'),
+          RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
+          StatusTitle: this.$t('UserProfilePopup.label.Loading'),
+          External: this.$t('UserProfilePopup.label.External'),
+          join: this.$t('spacesList.button.join'),
+          leave: this.$t('spacesList.button.leave'),
+          members: this.$t('spacesList.label.SpaceMembers'),
+        };
+      },
+      template: '<drawers-overlay id="drawers-overlay" />',
+      vuetify: Vue.prototype.vuetifyOptions,
+      i18n,
+    }).$mount(drawersOverlayElement);
   }
+});
+
+const parentNotificationsElement = document.querySelector('#bottom-all-container') || document.body;
+let alertNotificationsElement = parentNotificationsElement.querySelector('#alert-notifications');
+if (!alertNotificationsElement) {
+  alertNotificationsElement = document.createElement('div');
+  alertNotificationsElement.id = 'alert-notifications';
+  alertNotificationsElement.class = 'v-application v-application--is-ltr transparent theme--light';
+  parentNotificationsElement.appendChild(alertNotificationsElement);
+  parentNotificationsElement.classList.add('VuetifyApp');
 
   new Vue({
-    created() {
-      this.$userPopupLabels = Vue.prototype.$userPopupLabels = {
-        CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
-        Confirm: this.$t('UserProfilePopup.label.Confirm'),
-        Connect: this.$t('UserProfilePopup.label.Connect'),
-        Ignore: this.$t('UserProfilePopup.label.Ignore'),
-        RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
-        StatusTitle: this.$t('UserProfilePopup.label.Loading'),
-        External: this.$t('UserProfilePopup.label.External'),
-        Disabled: this.$t('UserProfilePopup.label.Disabled'),
-        Loading: this.$t('UserProfilePopup.label.Loading'),
-      };
-      this.$spacePopupLabels = Vue.prototype.$spacePopupLabels = {
-        CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
-        Confirm: this.$t('UserProfilePopup.label.Confirm'),
-        Connect: this.$t('UserProfilePopup.label.Connect'),
-        Ignore: this.$t('UserProfilePopup.label.Ignore'),
-        RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
-        StatusTitle: this.$t('UserProfilePopup.label.Loading'),
-        External: this.$t('UserProfilePopup.label.External'),
-        join: this.$t('spacesList.button.join'),
-        leave: this.$t('spacesList.button.leave'),
-        members: this.$t('spacesList.label.SpaceMembers'),
-      };
-    },
-    template: '<drawers-overlay id="drawers-overlay" />',
+    template: '<v-app id="alert-notifications"><alert-notifications /></v-app>',
     vuetify: Vue.prototype.vuetifyOptions,
-    i18n,
-  }).$mount(drawersOverlayElement);
-});
+  }).$mount(alertNotificationsElement);
+}
