@@ -84,8 +84,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     if (alreadyAddedPlugins == false) {
       organizationService.addListenerPlugin(new SocialUserEventListenerImpl());
       organizationService.addListenerPlugin(new SocialUserProfileEventListenerImpl(identityManager,
-                                                                                   profilePropertySettingsService,
-                                                                                   organizationService));
+                                                                                   profilePropertySettingsService));
       alreadyAddedPlugins = true;
     }
     
@@ -265,8 +264,6 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
     profilePropertySettingsService.createPropertySetting(profilePropertySetting);
-    profilePropertySetting.setPropertyName("street");
-    profilePropertySettingsService.createPropertySetting(profilePropertySetting);
 
     String raulRemoteId = "raul";
     UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(raulRemoteId);
@@ -276,11 +273,5 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, raulRemoteId).getProfile();
     assertNotNull(profile);
     assertEquals("2100", profile.getProperty("postalCode"));
-    Group group = organizationService.getGroupHandler().findGroupById("/profile/postalCode/2100");
-    assertNotNull(group);
-    Collection<Group> groups = organizationService.getGroupHandler().findGroupByMembership(raulRemoteId, "member");
-    assertTrue(groups.contains(group));
-    Group group1 = organizationService.getGroupHandler().findGroupById("/profile/street");
-    assertNull(group1);
   }
 }
