@@ -67,4 +67,5 @@
      eXo.env.portal.PinActivityEnabled = <%=featureService.isFeatureActiveForUser("PinActivity", userName)%>;
      eXo.env.portal.SpaceWebNotificationsEnabled = <%=featureService.isFeatureActiveForUser("SpaceWebNotifications", userName)%>;
      eXo.env.portal.SpaceHomeLayoutResetEnabled = <%=featureService.isFeatureActiveForUser("SpaceHomeLayoutReset", userName)%>;
+	 eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
 </script>
