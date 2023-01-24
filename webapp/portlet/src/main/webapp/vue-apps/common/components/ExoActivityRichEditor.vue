@@ -1,5 +1,5 @@
 <template>
-  <div class="activityRichEditor" :class="newEditorToolbarEnabled && 'newEditorToolbar' || ''">
+  <div class="activityRichEditor newEditorToolbar">
     <div
       v-if="displayPlaceholder"
       @click="setFocus"
@@ -91,8 +91,6 @@ export default {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
       inputVal: null,
       editor: null,
-      newEditorToolbarEnabled: eXo.env.portal.editorToolbarEnabled,
-      tagSuggesterEnabled: eXo.env.portal.activityTagsEnabled,
       displayPlaceholder: true,
       baseUrl: eXo.env.server.portalBaseURL
     };
@@ -196,24 +194,20 @@ export default {
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
       }
-      if (eXo.env.portal.activityTagsEnabled && this.tagEnabled) {
+      if (this.tagEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
       } else {
         removePlugins = `${removePlugins},tagSuggester`;
       }
 
-      if (this.newEditorToolbarEnabled) {
-        extraPlugins = `${extraPlugins},emoji,formatOption`;
-        if (this.tagSuggesterEnabled && this.tagEnabled) {
-          toolbar[0].push('tagSuggester');
-        }
-        if (!this.isMobile) {
-          toolbar[0].push('emoji');
-        }
-        toolbar[0].unshift('formatOption');
-      } else {
-        removePlugins = `${removePlugins},emoji,formatOption`;
+      extraPlugins = `${extraPlugins},emoji,formatOption`;
+      if (this.tagEnabled) {
+        toolbar[0].push('tagSuggester');
       }
+      if (!this.isMobile) {
+        toolbar[0].push('emoji');
+      }
+      toolbar[0].unshift('formatOption');
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
       if (ckEditorExtensions && ckEditorExtensions.length && this.useExtraPlugins) {

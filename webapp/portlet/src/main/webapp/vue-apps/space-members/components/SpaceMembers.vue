@@ -56,10 +56,9 @@ export default {
     peopleCount: 0,
     loadingPeople: false,
     space: null,
-    publisherRolePromotionFeatureEnabled: false
+    publisherRolePromotionFeatureEnabled: eXo.env.portal.PublisherRolePromotionFeatureEnabled
   }),
   created() {
-    this.publisherRolePromotionFeatureEnabled = eXo.env.portal.PublisherRolePromotionFeatureEnabled;
     this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
       .then( space => {
         this.space = space;
