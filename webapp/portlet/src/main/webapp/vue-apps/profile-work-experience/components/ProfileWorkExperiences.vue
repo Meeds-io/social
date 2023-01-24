@@ -10,31 +10,39 @@
       <div class="text-header-title text-sub-title">
         {{ title }}
       </div>
-      <v-spacer />
-      <v-btn
-        v-if="owner"
-        icon
-        outlined
-        small
-        @click="editWorkExperiences">
-        <i class="uiIconEdit uiIconLightBlue pb-2"></i>
-      </v-btn>
+      <template v-if="owner">
+        <v-spacer />
+        <v-btn
+          icon
+          outlined
+          small
+          @click="addWorkExperience">
+          <v-icon size="18">fas fa-plus</v-icon>
+        </v-btn>
+        <v-btn
+          v-if="hasExperiences"
+          class="ms-2"
+          icon
+          outlined
+          small
+          @click="editWorkExperiences">
+          <i class="uiIconEdit uiIconLightBlue pb-1"></i>
+        </v-btn>
+      </template>
     </v-toolbar>
-    <div v-if="owner || (experiences && experiences.length)" class="px-4 pb-6 white">
+    <div class="px-4 pb-6 white">
       <v-timeline
-        :dense="mobile"
+        v-if="hasExperiences"
         class="workExperienceTimeLine"
-        align-top>
-        <template v-if="experiences && experiences.length">
-          <profile-work-experience-item
-            v-for="experience in experiences"
-            :key="experience.id"
-            :experience="experience" />
-        </template>
-        <template v-else-if="owner">
-          <profile-work-experience-item empty />
-        </template>
+        align-top
+        dense>
+        <profile-work-experience-item
+          v-for="experience in experiences"
+          :key="experience.id"
+          :experience="experience" />
       </v-timeline>
+      <!-- Must be v-html to preserve the href with javascript -->
+      <div v-else-if="owner" v-html="emptyExperiencesOwnerTitle"></div>
     </div>
     <profile-work-experience-drawer
       ref="profileWorkExperiencesDrawer"
@@ -49,6 +57,7 @@
 export default {
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+    addExperienceEventName: 'profile-add-experience',
     experiences: null,
     error: null,
     saving: null,
@@ -56,17 +65,27 @@ export default {
     initialized: false,
   }),
   computed: {
-    mobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    hasExperiences() {
+      return this.experiences?.length;
     },
     displayApp() {
-      return this.owner || !this.initialized || this.experiences?.length;
+      return this.owner || !this.initialized || this.hasExperiences;
     },
     title() {
       return this.owner && this.$t('profileYourWorkExperiences.title') || this.$t('profileWorkExperiences.title');
     },
+    emptyExperiencesOwnerTitle() {
+      return this.owner && this.$t('profileYourWorkExperiences.emptyTitle', {
+        0: `<a href="javascript:document.dispatchEvent(new CustomEvent('${this.addExperienceEventName}'))" class="primary--text font-weight-bold">`,
+        1: '</a>',
+      });
+    },
   },
   created() {
+    document.addEventListener(this.addExperienceEventName, () => {
+      this.addWorkExperience();
+    });
+
     this.refresh()
       .finally(() => this.$root.$applicationLoaded());
   },
@@ -116,6 +135,9 @@ export default {
     },
     editWorkExperiences() {
       this.$refs.profileWorkExperiencesDrawer.open();
+    },
+    addWorkExperience() {
+      this.$refs.profileWorkExperiencesDrawer.open(true);
     },
   },
 };
