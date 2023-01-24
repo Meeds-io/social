@@ -138,13 +138,14 @@ export default {
     },
     getActiveTab() {
       const siteName = eXo.env.portal.portalName;
-      if (location.pathname.endsWith(siteName)) {
-        this.updateNavigationState(`${location.pathname}/home`);
+      let pathname = location.pathname;
+      if (pathname === `${eXo.env.portal.context}/${siteName}/`) {
+        pathname = `${eXo.env.portal.context}/${siteName}/${eXo.env.portal.selectedNodeUri}`;
+        this.updateNavigationState(pathname);
       }
       this.tab = sessionStorage.getItem(this.navigationTabState);
-      if (location.pathname !== this.tab && !location.pathname.startsWith(this.tab)
-          && !location.pathname.endsWith(siteName)) {
-        this.tab = location.pathname;
+      if (pathname !== this.tab && !pathname.startsWith(this.tab)) {
+        this.tab = pathname;
       }
     }
   }
