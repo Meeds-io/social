@@ -155,7 +155,7 @@ public class CachedActivityStorage implements ActivityStorage {
   /**
    * Build the ids from the activity list.
    *
-   * @param activities activities
+   * @param ids  activities ids
    * @return ids
    */
   private ListActivitiesData buildActivityIds(List<String> ids) {
@@ -2161,4 +2161,7 @@ public class CachedActivityStorage implements ActivityStorage {
     }
   }
 
+  public void clearAllActivityCache() {
+    activityCache.clear();
+  }
 }

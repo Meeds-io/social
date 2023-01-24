@@ -51,18 +51,8 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
-import org.exoplatform.social.core.storage.cache.model.data.ActiveIdentitiesData;
-import org.exoplatform.social.core.storage.cache.model.data.IdentityData;
-import org.exoplatform.social.core.storage.cache.model.data.IntegerData;
-import org.exoplatform.social.core.storage.cache.model.data.ListIdentitiesData;
-import org.exoplatform.social.core.storage.cache.model.data.ProfileData;
-import org.exoplatform.social.core.storage.cache.model.key.ActiveIdentityKey;
-import org.exoplatform.social.core.storage.cache.model.key.IdentityCompositeKey;
-import org.exoplatform.social.core.storage.cache.model.key.IdentityFilterKey;
-import org.exoplatform.social.core.storage.cache.model.key.IdentityKey;
-import org.exoplatform.social.core.storage.cache.model.key.ListIdentitiesKey;
-import org.exoplatform.social.core.storage.cache.model.key.ListSpaceMembersKey;
-import org.exoplatform.social.core.storage.cache.model.key.SpaceKey;
+import org.exoplatform.social.core.storage.cache.model.data.*;
+import org.exoplatform.social.core.storage.cache.model.key.*;
 import org.exoplatform.social.core.storage.cache.selector.IdentityCacheSelector;
 
 /**
@@ -92,6 +82,9 @@ public class CachedIdentityStorage implements IdentityStorage {
 
   private final IdentityStorage storage;
   private CachedRelationshipStorage cachedRelationshipStorage;
+
+  private CachedActivityStorage cachedActivityStorage;
+
 
   void clearCache() {
 
@@ -424,7 +417,7 @@ public class CachedIdentityStorage implements IdentityStorage {
     IdentityKey key = new IdentityKey(new Identity(profile.getIdentity().getId()));
     exoIdentityCache.remove(key);
     exoProfileCache.remove(key);
-
+    getCachedActivityStorage().clearAllActivityCache();
     clearCache();
   }
 
@@ -802,5 +795,12 @@ public class CachedIdentityStorage implements IdentityStorage {
 
   public IdentityStorage getStorage() {
     return storage;
+  }
+  
+  public CachedActivityStorage getCachedActivityStorage() {
+    if (cachedActivityStorage == null) {
+      cachedActivityStorage = PortalContainer.getInstance().getComponentInstanceOfType(CachedActivityStorage.class);
+    }
+    return cachedActivityStorage;
   }
 }
