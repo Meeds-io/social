@@ -193,7 +193,6 @@
       drawer-title="UIChangeAvatarContainer.label.ChangeAvatar"
       circle
       @data="avatarData = $event" />
-    <alert-notifications v-if="drawer" />
   </div>
 </template>
 

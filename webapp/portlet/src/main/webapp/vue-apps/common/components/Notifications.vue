@@ -29,7 +29,7 @@
     <v-alert
       :type="alertType"
       :max-width="maxWidth"
-      class="white"
+      class="white position-relative"
       border="left"
       elevation="2"
       light
@@ -91,6 +91,24 @@ export default {
     },
   },
   created() {
+    document.addEventListener('alert-message', (event) => {
+      const alertObj = event?.detail;
+      if (alertObj) {
+        this.openAlert(alertObj);
+      }
+    });
+    document.addEventListener('alert-message-html', (event) => {
+      const alertObj = event?.detail && Object.assign({
+        useHtml: true,
+      }, event?.detail);
+      if (alertObj) {
+        this.openAlert(alertObj);
+      }
+    });
+    document.addEventListener('close-alert-message', () => {
+      this.closeAlert();
+    });
+
     this.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip) => {
       this.openAlert({
         alertType: type,
