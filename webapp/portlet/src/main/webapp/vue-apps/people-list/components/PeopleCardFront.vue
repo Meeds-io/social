@@ -195,8 +195,7 @@
         </span>
       </a>
       <v-card-subtitle 
-        class="userPositionLabel text-truncate py-0"
-        :class="isMobile && 'mt-0'">
+        class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto">
         {{ user.position || '&nbsp;' }}
       </v-card-subtitle>
     </v-card-text>
@@ -369,7 +368,7 @@ export default {
       }
     },
     isMobile() {
-      return this.$vuetify.breakpoint.mdAndDown;
+      return this.$vuetify.breakpoint.xs;
     },
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color'} ${this.isMobile && 'text-truncate-2 mt-0' || 'text-truncate pt-1 d-block'}`;
