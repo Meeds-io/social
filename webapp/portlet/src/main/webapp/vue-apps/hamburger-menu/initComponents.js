@@ -1,8 +1,10 @@
 import HamburgerMenuNavigation from './components/ExoHamburgerMenuNavigation.vue';
-import LegacyExoHamburgerMenuNavigation from './components/LegacyExoHamburgerMenuNavigation.vue';
 
-if (eXo.env.portal.leftMenuReviewEnabled) {
-  Vue.component('ExoHamburgerMenuNavigation', HamburgerMenuNavigation);
-} else {
-  Vue.component('ExoHamburgerMenuNavigation', LegacyExoHamburgerMenuNavigation);
+const components = {
+  // eslint-disable-next-line max-len
+  'ExoHamburgerMenuNavigation': HamburgerMenuNavigation,
+};
+
+for (const key in components) {
+  Vue.component(key, components[key]);
 }

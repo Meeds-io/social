@@ -104,7 +104,7 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
-    publisherRolePromotionFeatureEnabled: false
+    publisherRolePromotionFeatureEnabled: eXo.env.portal.publisherRolePromotionEnabled
   }),
   computed: {
     bottomNavigationHeight() {
@@ -187,9 +187,6 @@ export default {
     filter() {
       this.$emit('filter-changed', this.filter);
     },
-  },
-  created() {
-    this.publisherRolePromotionFeatureEnabled = eXo.env.portal.PublisherRolePromotionFeatureEnabled;
   },
   methods: {
     openBottomMenu() {

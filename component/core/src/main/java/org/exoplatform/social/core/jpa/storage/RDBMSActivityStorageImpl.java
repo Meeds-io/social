@@ -64,8 +64,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   public static final String                     COMMENT_PREFIX              = "comment";
 
-  public static final String                     PIN_ACTIVITY_ENABLED        = "exo.feature.PinActivity.enabled";
-  
   private final ActivityShareActionDAO           activityShareActionDAO;
 
   private final ActivityDAO                      activityDAO;
@@ -90,8 +88,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
    */
   private Map<String, ActivityFileStoragePlugin> activityFileStorageByDSName = new HashMap<>();
 
-  private boolean                                pinActivityEnabled          = true;
-
   public RDBMSActivityStorageImpl(IdentityStorage identityStorage,
                                   SpaceStorage spaceStorage,
                                   ActivityShareActionDAO activityShareActionDAO,
@@ -103,9 +99,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     this.activityShareActionDAO = activityShareActionDAO;
     this.connectionDAO = connectionDAO;
     this.spaceStorage = spaceStorage;
-    if (StringUtils.isNotBlank(PropertyManager.getProperty(PIN_ACTIVITY_ENABLED))) {
-      pinActivityEnabled = Boolean.parseBoolean(PropertyManager.getProperty(PIN_ACTIVITY_ENABLED));
-    }
   }
 
   private static Comparator<ActivityProcessor> processorComparator() {
@@ -529,7 +522,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      activityFilter.setShowPinned(pinActivityEnabled);
+      activityFilter.setShowPinned(true);
       break;
     default:
       throw new UnsupportedOperationException();
@@ -568,7 +561,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      activityFilter.setShowPinned(pinActivityEnabled);
+      activityFilter.setShowPinned(true);
       break;
 
     case PIN_STREAM:

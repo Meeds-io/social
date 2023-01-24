@@ -1,14 +1,8 @@
 import ExoSiteHamburgerNavigation from './components/ExoSiteHamburgerNavigation.vue';
-import ExoSiteHamburgerNavigationLegacy from './components/legacy/ExoSiteHamburgerNavigation.vue';
 
-const components = {};
-
-if (eXo.env.portal.leftMenuReviewEnabled) {
-  components['exo-site-hamburger-navigation'] = ExoSiteHamburgerNavigation;
-} else {
-  components['exo-site-hamburger-navigation'] = ExoSiteHamburgerNavigationLegacy;
-}
-
+const components = {
+  'exo-site-hamburger-navigation': ExoSiteHamburgerNavigation,
+};
 
 for (const key in components) {
   Vue.component(key, components[key]);

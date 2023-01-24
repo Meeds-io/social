@@ -84,7 +84,6 @@ export default {
   data() {
     return {
       externalExtensions: [],
-      favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
     };
   },
   computed: {
@@ -107,7 +106,7 @@ export default {
       };
     },
     favoriteActionEnabled() {
-      return this.space?.isMember && this.favoritesSpaceEnabled;
+      return this.space?.isMember;
     }
   },
   watch: {
