@@ -91,7 +91,6 @@
         </v-row>
       </v-main>
     </div>
-    <alert-notifications />
   </v-app>
 </template>
 <script>
