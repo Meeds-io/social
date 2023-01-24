@@ -9,11 +9,9 @@
       <v-btn
         v-else
         id="addNewSpaceButton"
-        class="btn btn-primary px-0 addNewSpaceButton"
-        :class="isMobile && 'mx-2'"
-        :height="isMobile && '40' || '40'"
-        :width="isMobile && '40' || ''"
-        :x-small="isMobile"
+        class="btn btn-primary px-0 mx-2 mx-sm-0  addNewSpaceButton"
+        :small="isMobile"
+        :large="!isMobile"
         @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
         <span class="d-none d-sm-inline">
@@ -147,7 +145,7 @@ export default {
       }];
     },
     isMobile() {
-      return this.$vuetify.breakpoint.mdAndDown;
+      return this.$vuetify.breakpoint.xs;
     }
   },
   watch: {

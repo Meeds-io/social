@@ -29,7 +29,7 @@
           v-if="space.isMember && favoritesSpaceEnabled && !isMobile"
           :is-favorite="space.isFavorite"
           :space-id="space.id" />
-        <div v-else-if="isMobile">
+        <div v-if="isMobile">
           <v-icon 
             size="14" 
             class="my-3" 
@@ -163,9 +163,8 @@
         </a>
       </div>
 
-      <v-card-text 
-        class="spaceCardBody align-center"
-        :class="!isMobile && 'pt-2 pb-1'">
+      <v-card-text
+        class="spaceCardBody align-center py-sm-2">
         <a
           :href="url"
           :title="space.displayName"
@@ -175,8 +174,7 @@
         </a>
         <a 
           :href="url"
-          :class="isMobile && 'my-0'"
-          class="spaceMembersLabel py-0">
+          class="spaceMembersLabel py-0 my-0 my-sm-auto">
           {{ $t('spacesList.label.members', {0: space.membersCount}) }}
         </a>
       </v-card-text>
@@ -349,7 +347,7 @@ export default {
       }
     },
     isMobile() {
-      return this.$vuetify.breakpoint.mdAndDown;
+      return this.$vuetify.breakpoint.xs;
     },
     isFavorite() {
       return this.space?.isFavorite === 'true';
