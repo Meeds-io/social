@@ -41,31 +41,22 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
   private static final Log                     LOG                   =
                                                    ExoLogger.getLogger(SocialUserProfileEventListenerImpl.class);
 
-  private final List<String>                   exlcudedAttributeList = List.of("authenticationAttempts");
-
-  private static final String                  PROFILE_GROUP_NAME    = "profile";
-
-  private static final String                  MEMBER                = "member";
+  private final List<String>                   exlcudedAttributeList = List.of("authenticationAttempts", "latestAuthFailureTime");
 
   private final IdentityManager                identityManager;
 
   private final ProfilePropertySettingsService profilePropertySettingsService;
 
-  private final OrganizationService            organizationService;
-
   public SocialUserProfileEventListenerImpl(IdentityManager identityManager,
-                                            ProfilePropertySettingsService profilePropertySettingsService,
-                                            OrganizationService organizationService) {
+                                            ProfilePropertySettingsService profilePropertySettingsService) {
     this.identityManager = identityManager;
     this.profilePropertySettingsService = profilePropertySettingsService;
-    this.organizationService = organizationService;
   }
 
   @Override
   public void postSave(UserProfile userProfile, boolean isNew) throws Exception {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userProfile.getUserName());
     Profile profile = identity.getProfile();
-    User user = organizationService.getUserHandler().findUserByName(identity.getRemoteId());
     String uGender = userProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[4]);// "user.gender"
     String uPosition = userProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]);// user.jobtitle
     String pGender = (String) profile.getProperty(Profile.GENDER);
@@ -108,31 +99,6 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
       IdentityStorage identityStorage = CommonsUtils.getService(IdentityStorage.class);
       identityStorage.updateProfile(profile);
     }
-    synchronizePropertyGroups(profile, user, profilePropertySettingsService, organizationService);
-  }
-
-  private void synchronizePropertyGroups(Profile profile,
-                                         User user,
-                                         ProfilePropertySettingsService profilePropertySettingsService,
-                                         OrganizationService organizationService) throws Exception {
-    Group profileGroup = createGroup(PROFILE_GROUP_NAME, null, organizationService);
-    if (profileGroup != null) {
-      List<String> synchronizedProperties = profilePropertySettingsService.getSynchronizedPropertySettings()
-                                                                          .stream()
-                                                                          .filter(ProfilePropertySetting::isActive)
-                                                                          .map(ProfilePropertySetting::getPropertyName)
-                                                                          .toList();
-      Set<Map.Entry<String, Object>> properties = profile.getProperties().entrySet();
-      properties.stream().filter(property -> synchronizedProperties.contains(property.getKey())).forEach(property -> {
-        String propertyName = property.getKey();
-        String propertyValue = (String) property.getValue();
-        Group newPropertyNameGroup = createGroup(propertyName, profileGroup, organizationService);
-        if (newPropertyNameGroup != null) {
-          Group newPropertyValueGroup = createGroup(propertyValue, newPropertyNameGroup, organizationService);
-          addUserToGroup(newPropertyValueGroup, user, organizationService);
-        }
-      });
-    }
   }
 
   private void updateProfilePropertySettings(String propertyName, ProfilePropertySettingsService profilePropertySettingsService) {
@@ -153,49 +119,4 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
     }
   }
 
-  private Group getGroup(String groupId, OrganizationService organizationService) {
-    try {
-      GroupHandler groupHandler = organizationService.getGroupHandler();
-      return groupHandler.findGroupById(groupId);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private Group createGroup(String groupName, Group parentGroup, OrganizationService organizationService) {
-    try {
-      Group group = getGroup(buildGroupId(parentGroup, groupName), organizationService);
-      if (group != null) {
-        return group;
-      }
-      GroupHandler groupHandler = organizationService.getGroupHandler();
-      Group newGroup = groupHandler.createGroupInstance();
-      newGroup.setGroupName(groupName.toLowerCase());
-      newGroup.setLabel(StringUtils.capitalize(groupName));
-      newGroup.setDescription(groupName + " group");
-      groupHandler.addChild(parentGroup, newGroup, true);
-      return getGroup(buildGroupId(parentGroup, groupName), organizationService);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private void addUserToGroup(Group group, User user, OrganizationService organizationService) {
-    if (group == null) {
-      return;
-    }
-    try {
-      MembershipType membershipType = organizationService.getMembershipTypeHandler().findMembershipType(MEMBER);
-      organizationService.getMembershipHandler().linkMembership(user, group, membershipType, true);
-    } catch (Exception e) {
-      LOG.error("Error while adding user to Group", e);
-    }
-  }
-
-  private String buildGroupId(Group parentGroup, String groupName) {
-    if (parentGroup == null) {
-      return "/" + groupName.toLowerCase();
-    }
-    return parentGroup.getId() + "/" + groupName.toLowerCase();
-  }
 }
