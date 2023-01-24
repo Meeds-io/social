@@ -368,7 +368,7 @@ export default {
       }
     },
     isMobile() {
-      return this.$vuetify?.breakpoint?.xs;
+      return this.$vuetify.breakpoint.xs;
     },
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color'} ${this.isMobile && 'text-truncate-2 mt-0' || 'text-truncate pt-1 d-block'}`;

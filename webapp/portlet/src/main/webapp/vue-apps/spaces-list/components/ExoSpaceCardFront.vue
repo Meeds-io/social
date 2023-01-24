@@ -162,7 +162,7 @@
       </div>
 
       <v-card-text
-        class="spaceCardBody align-center py-auto py-sm-2">
+        class="spaceCardBody align-center py-sm-2">
         <a
           :href="url"
           :title="space.displayName"
@@ -345,7 +345,7 @@ export default {
       }
     },
     isMobile() {
-      return this.$vuetify?.breakpoint?.xs;
+      return this.$vuetify.breakpoint.xs;
     },
     isFavorite() {
       return this.space?.isFavorite === 'true';
