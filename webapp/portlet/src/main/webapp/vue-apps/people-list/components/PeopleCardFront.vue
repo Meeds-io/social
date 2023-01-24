@@ -95,8 +95,8 @@
     <div class="peopleAvatar">
       <a :href="url">
         <v-img
-          :lazy-src="`${userAvatarUrl}&size=65x65`"
-          :src="`${userAvatarUrl}&size=65x65`"
+          :lazy-src="`${userAvatarUrl}`"
+          :src="`${userAvatarUrl}`"
           transition="none"
           class="mx-auto"
           height="65px"
@@ -261,7 +261,14 @@ export default {
       return this.user && this.user.username === eXo.env.portal.userName;
     },
     userAvatarUrl() {
-      return this.user && this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
+      let userAvatarUrl = this.user && this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
+      if (!userAvatarUrl.includes('?')) {
+        userAvatarUrl += '?';
+      } else {
+        userAvatarUrl += '&';
+      }
+      userAvatarUrl += 'size=65x65';
+      return userAvatarUrl;
     },
     userBannerUrl() {
       return this.user && this.user.banner || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/banner`;
