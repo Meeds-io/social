@@ -19,7 +19,7 @@
         outlined
         small
         @click="editAboutMe">
-        <i class="uiIconEdit uiIconLightBlue pb-2"></i>
+        <v-icon size="18">fas fa-edit</v-icon>
       </v-btn>
     </v-toolbar>
     <v-card
