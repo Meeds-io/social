@@ -18,7 +18,7 @@
         outlined
         small
         @click="editContactInformation">
-        <i class="uiIconEdit uiIconLightBlue pb-2"></i>
+        <v-icon size="18">fas fa-edit</v-icon>
       </v-btn>
     </v-toolbar>
     <div v-if="user" class="px-4 pb-6 white">
