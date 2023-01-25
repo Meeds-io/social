@@ -181,7 +181,7 @@ public class ProfileSearchConnector {
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
     String expEs = buildExpression(filter);
-    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty()? buildAdvancedExpression(filter) : null;
+    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty()? buildAdvancedFilterExpression(filter) : null;
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     esQuery.append("   \"from\" : " + offset + ", \"size\" : " + limit + ",\n");
@@ -377,10 +377,8 @@ public class ProfileSearchConnector {
       esSubQuery.append("          \"userName\" : [" + remoteIds.toString() + "]\n");
       esSubQuery.append("        } \n");
       esSubQuery.append("      },\n");
-
       subQueryEmpty = false;
     }
-
     if (identity != null && type != null) {
       esSubQuery.append("      \"must\" : {\n");
       esSubQuery.append("        \"query_string\" : {\n");
@@ -545,7 +543,7 @@ public class ProfileSearchConnector {
     return esExp.toString();
   }
 
-  private String buildAdvancedExpression(ProfileFilter filter) {
+  private String buildAdvancedFilterExpression(ProfileFilter filter) {
     StringBuilder esExp = new StringBuilder();
     esExp.append("( ");
     Map<String,String> settings = new HashMap<>();

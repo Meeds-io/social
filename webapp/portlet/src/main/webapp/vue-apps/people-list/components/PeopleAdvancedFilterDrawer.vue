@@ -100,6 +100,7 @@ export default {
         }
       });
       this.$root.$emit('advanced-filter', keyValue);
+      this.close();
     }
   }
 };
