@@ -23,7 +23,8 @@
     <template slot="footer">
       <div class="VuetifyApp flex d-flex">
         <v-btn
-            class="peopleAdvancedFilterResetButton">
+            class="peopleAdvancedFilterResetButton"
+            @click="reset">
           <v-icon x-small class="pr-1">fas fa-redo</v-icon>
           <template>
             {{ $t('pepole.advanced.filter.button.reset') }}
@@ -77,6 +78,15 @@ export default {
         }
       });
       this.$refs.peopleAdvancedFilterDrawer.close();
+    },
+    reset() {
+      this.settings.forEach((element) => {
+        if (element && element.valueToSearch) {
+          element.valueToSearch = '';
+        }
+      });
+      this.$refs.peopleAdvancedFilterDrawer.close();
+      this.$root.$emit('reset-advanced-filter');
     },
     getSettings() {
       return this.$profileSettingsService.getSettings()
