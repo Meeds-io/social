@@ -103,6 +103,7 @@ export default {
     spaces: [],
     limitToFetch: 0,
     originalLimitToFetch: 0,
+    typing: false,
   }),
   computed: {
     canShowMore() {
@@ -122,14 +123,14 @@ export default {
   },
   watch: {
     keyword() {
-      if (!this.keyword) {
+      if (!this.keyword?.length) {
         this.resetSearch();
         this.searchSpaces();
         return;
       }
       this.startTypingKeywordTimeout = Date.now();
-      if (!this.loadingSpaces) {
-        this.loadingSpaces = true;
+      if (!this.typing) {
+        this.typing = true;
         this.waitForEndTyping();
       }
     },
@@ -184,6 +185,7 @@ export default {
     waitForEndTyping() {
       window.setTimeout(() => {
         if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
+          this.typing = false;
           this.searchSpaces();
         } else {
           this.waitForEndTyping();
