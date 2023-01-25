@@ -9,7 +9,7 @@
       <v-btn
         v-else
         id="addNewSpaceButton"
-        class="btn btn-primary px-0 mx-2 mx-sm-0  addNewSpaceButton"
+        class="btn btn-primary px-0 mx-2 mx-sm-0 addNewSpaceButton"
         :small="isMobile"
         :large="!isMobile"
         @click="$root.$emit('addNewSpace')">
