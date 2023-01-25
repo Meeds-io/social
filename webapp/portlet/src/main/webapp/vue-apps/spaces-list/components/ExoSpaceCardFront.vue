@@ -26,7 +26,7 @@
         </v-btn>
         <v-spacer />
         <exo-space-favorite-action
-          v-if="space.isMember && favoritesSpaceEnabled && !isMobile"
+          v-if="space.isMember && !isMobile"
           :is-favorite="space.isFavorite"
           :space-id="space.id" />
         <div v-if="isMobile">
@@ -91,7 +91,6 @@
                 <v-list-item v-if="space.isMember">
                   <v-list-item-title>
                     <exo-space-favorite-action
-                      v-if="favoritesSpaceEnabled"
                       :is-favorite="space.isFavorite"
                       :space-id="space.id"
                       extra-class="ms-4"
@@ -314,7 +313,6 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    favoritesSpaceEnabled: eXo.env.portal.spaceFavoritesEnabled,
     bottomMenu: false,
   }),
   computed: {

@@ -331,7 +331,7 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    publisherRolePromotionFeatureEnabled: false,
+    publisherRolePromotionFeatureEnabled: eXo.env.portal.PublisherRolePromotionFeatureEnabled,
     bottomMenu: false
   }),
   computed: {
@@ -399,7 +399,6 @@ export default {
         }, this.waitTimeUntilCloseMenu);
       }
     });
-    this.publisherRolePromotionFeatureEnabled = eXo.env.portal.PublisherRolePromotionFeatureEnabled;
   },
   methods: {
     connect() {
