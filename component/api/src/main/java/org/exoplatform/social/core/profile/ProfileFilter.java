@@ -79,7 +79,7 @@ public class ProfileFilter implements Cloneable {
 
   private String firstCharFieldName = null;
 
-  private Map<String, String> profileSettings ;
+  private Map<String, String> profileSettings;
   
   private boolean isEnabled = true;
 
@@ -332,7 +332,7 @@ public class ProfileFilter implements Cloneable {
   }
 
   public void setProfileSettings(Map<String, String> profileSettings) {
-    this.profileSettings.putAll(profileSettings);
+    this.profileSettings = profileSettings;
   }
 
   public boolean isEmpty() {
@@ -341,7 +341,7 @@ public class ProfileFilter implements Cloneable {
         && StringUtils.isBlank(this.company)
         && StringUtils.isBlank(this.position)
         && StringUtils.isBlank(this.skills)
-        && this.profileSettings.isEmpty()
+        && (this.profileSettings == null || this.profileSettings.isEmpty()) 
         && (this.remoteIds == null || this.remoteIds.isEmpty())
         && (this.excludedIdentityList == null || this.excludedIdentityList.isEmpty() || (this.excludedIdentityList.size() == 1 && this.viewerIdentity != null && this.excludedIdentityList.contains(this.viewerIdentity)));
   }

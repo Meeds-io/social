@@ -181,7 +181,7 @@ public class ProfileSearchConnector {
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
     String expEs = buildExpression(filter);
-    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty()? buildAdvancedFilterExpression(filter) : null;
+    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty() ? buildAdvancedFilterExpression(filter) : null;
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     esQuery.append("   \"from\" : " + offset + ", \"size\" : " + limit + ",\n");
@@ -546,22 +546,15 @@ public class ProfileSearchConnector {
   private String buildAdvancedFilterExpression(ProfileFilter filter) {
     StringBuilder esExp = new StringBuilder();
     esExp.append("( ");
-    Map<String,String> settings = new HashMap<>();
-    settings = filter.getProfileSettings();
-
+    Map<String,String> settings = filter.getProfileSettings();
     int index = 0 ;
-    String[]  splitedValue = new String[0];
-
     for (Map.Entry<String, String> entry : settings.entrySet()){
-
+      String[]  splitedValue = new String[0];
       String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-
       if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
         inputValue = inputValue.replace("\"", "");
       }
-
       splitedValue = inputValue.split(" ");
-
       if (splitedValue.length > 1) {
         esExp.append("(");
         for (int i = 0; i < splitedValue.length; i++) {

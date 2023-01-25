@@ -63,7 +63,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     keyword: {
