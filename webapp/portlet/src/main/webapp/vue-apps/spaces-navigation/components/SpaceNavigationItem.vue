@@ -114,7 +114,6 @@ export default {
     secondeLevel: false,
     showItemActions: false,
     arrowIcon: 'fa-arrow-right',
-    spaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
     spaceUnreadItems: null,
     webSocketSpaceUnreadItems: {},
   }),
@@ -132,7 +131,7 @@ export default {
       return this.space?.displayName;
     },
     spaceUnreadCount() {
-      return this.spaceWebNotificationsEnabled && this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
+      return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
     },
     toggleArrow() {
       return this.showItemActions || this.secondeLevel;
