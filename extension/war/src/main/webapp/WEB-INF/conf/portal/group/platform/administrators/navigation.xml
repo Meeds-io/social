@@ -41,9 +41,9 @@
       <page-reference>group::/platform/administrators::membershipsManagement</page-reference>
     </node>
     <node>
-      <name>branding</name>
-      <label>#{administration.Branding}</label>
-      <page-reference>group::/platform/administrators::branding</page-reference>
+      <name>generalSettings</name>
+      <label>#{administration.generalSettings}</label>
+      <page-reference>group::/platform/administrators::generalSettings</page-reference>
     </node>
     <node>
       <name>notification</name>

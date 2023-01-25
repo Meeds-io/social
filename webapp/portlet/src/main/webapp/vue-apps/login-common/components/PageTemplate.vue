@@ -22,21 +22,36 @@
   <v-app>
     <div class="d-flex flex-row full-height">
       <v-card
-        tile
-        flat
-        min-width="33%"
+        color="transparent"
+        :min-width="!background && '33%'"
+        :max-width="background && '50%'"
         height="100%"
-        class="primary fill-height width-min-content flex-shrink-1 d-none d-sm-flex">
-        <nav class="fill-height flex-grow-1">
-          <portal-login-introduction>
-            <template #title>
-              {{ title }}
-            </template>
-            <template #subtitle>
-              {{ subtitle }}
-            </template>
-          </portal-login-introduction>>
-        </nav>
+        class="d-none d-sm-flex flex-shrink-0 full-height position-relative"
+        flat
+        tile>
+        <img
+          v-if="background"
+          :src="background"
+          style="height: 100%;"
+          alt="">
+        <v-card
+          :class="background && 'position-absolute t-0'"
+          min-width="100%"
+          height="100%"
+          tile
+          flat
+          class="fill-height width-min-content flex-shrink-1 transparent">
+          <nav class="fill-height flex-grow-1">
+            <portal-login-introduction :color="background && 'transparent' || 'primary'">
+              <template #title>
+                <span :style="background && `color: ${backgroundTextColor};`">{{ title }}</span>
+              </template>
+              <template #subtitle>
+                <span :style="background && `color: ${backgroundTextColor};`">{{ subtitle }}</span>
+              </template>
+            </portal-login-introduction>
+          </nav>
+        </v-card>
       </v-card>
       <v-main
         id="mainAppArea"
@@ -99,6 +114,12 @@ export default {
     companyName() {
       return this.params?.companyName;
     },
+    background() {
+      return this.params?.authenticationBackground;
+    },
+    backgroundTextColor() {
+      return this.params?.authenticationTextColor;
+    },
     title() {
       return this.$t(this.authenticationTitleKey);
     },
@@ -106,10 +127,10 @@ export default {
       return this.$t(this.authenticationSubtitleKey);
     },
     authenticationTitleKey() {
-      return this.params?.authenticationTitle || 'UILoginForm.label.pageTitle';
+      return this.params?.authenticationTitle;
     },
     authenticationSubtitleKey() {
-      return this.params?.authenticationSubtitle || 'UILoginForm.label.pageSubTitle';
+      return this.params?.authenticationSubtitle;
     },
     successCode() {
       return this.params?.success || this.params?.successCode || this.params?.successMessage;

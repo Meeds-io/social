@@ -66,12 +66,14 @@ let config = {
     activitySearchResultCard: './src/main/webapp/vue-apps/search-activity/main.js',
     activityReactions: './src/main/webapp/vue-apps/activity-reactions/main.js',
     activityStream: './src/main/webapp/vue-apps/activity-stream/main.js',
-    branding: './src/main/webapp/vue-apps/company-branding-app/main.js',
     spaceBannerLogoPopover: './src/main/webapp/vue-apps/space-top-bannerlogo/main.js',
     topBarFavorites: './src/main/webapp/vue-apps/favorites-list-top-bar/main.js',
     popover: './src/main/webapp/vue-apps/popover/main.js',
     versionHistoryDrawer: './src/main/webapp/vue-apps/version-history-drawer/main.js',
     topBarMenu: './src/main/webapp/vue-apps/top-bar-menu/main.js',
+    generalSettings: './src/main/webapp/vue-apps/general-settings/main.js',
+    imageCropper: './src/main/webapp/vue-apps/component-image-crop/main.js',
+    translationField: './src/main/webapp/vue-apps/component-translation-field/main.js',
   },
   module: {
     rules: [

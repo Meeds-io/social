@@ -1302,11 +1302,11 @@
   </portlet>
 
   <portlet>
-    <name>Branding</name>
+    <name>GeneralSettings</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/branding.bundle.js</path>
+        <path>/js/generalSettings.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -1315,20 +1315,30 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
       </depends>
       <depends>
         <module>extensionRegistry</module>
       </depends>
       <depends>
-        <module>filedrop</module>
+        <module>loginCommon</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>imageCropper</module>
+      </depends>
+      <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
+        <module>cropper</module>
+        <as>Cropper</as>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
       </depends>
     </module>
   </portlet>
@@ -1916,6 +1926,72 @@
     <name>socialPlugin</name>
     <script>
       <path>/js/eXo/social/Util.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+  <module>
+    <name>imageCropper</name>
+    <script>
+      <path>/js/imageCropper.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>cropper</module>
+      <as>Cropper</as>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+  <module>
+    <name>translationField</name>
+    <script>
+      <path>/js/translationField.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
+  <module>
+    <name>cropper</name>
+    <as>Cropper</as>
+    <script>
+      <adapter>
+        (function() {
+          <include>/js/eXo/cropper.min.js</include>
+          return Cropper.noConflict();
+        })();
+      </adapter>
     </script>
     <depends>
       <module>jquery</module>

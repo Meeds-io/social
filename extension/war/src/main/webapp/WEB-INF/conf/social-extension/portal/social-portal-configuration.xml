@@ -165,10 +165,10 @@
               <string>war:/conf/portal</string>
             </field>
             <field name="override">
-              <boolean>${exo.social.portalConfig.metadata.override:true}</boolean>
+              <boolean>${exo.social.groups.portalConfig.metadata.override:true}</boolean>
             </field>
             <field name="importMode">
-              <string>${exo.social.portalConfig.metadata.importmode:merge}</string>
+              <string>${exo.social.groups.portalConfig.metadata.importmode:overwrite}</string>
             </field>
           </object>
         </object-param>
