@@ -26,7 +26,7 @@
           outlined
           small
           @click="editWorkExperiences">
-          <i class="uiIconEdit uiIconLightBlue pb-1"></i>
+          <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>
       </template>
     </v-toolbar>
