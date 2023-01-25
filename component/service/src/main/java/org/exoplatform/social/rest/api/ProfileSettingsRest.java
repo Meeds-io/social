@@ -73,7 +73,7 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
     try {
-      return Response.ok(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertySettingsService.getPropertySettings(), labelService, ProfilePropertySettingsService.LABELS_OBJECT_TYPE)).build();
+      return Response.ok(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertySettingsService.getPropertySettings(), labelService, profilePropertySettingsService, ProfilePropertySettingsService.LABELS_OBJECT_TYPE)).build();
     }catch (Exception e) {
       LOG.error("An error occurred while getting list of settings", e);
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();

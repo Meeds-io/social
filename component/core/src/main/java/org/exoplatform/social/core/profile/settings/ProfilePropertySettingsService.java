@@ -43,6 +43,7 @@ public class ProfilePropertySettingsService implements Startable {
 
   public static final String LABELS_OBJECT_TYPE = "profileProperty";
   private final List<String> predifinedSystemProperties = Arrays.asList(Profile.FULL_NAME,Profile.FIRST_NAME,Profile.LAST_NAME,Profile.EMAIL,Profile.POSITION,Profile.COMPANY,Profile.LOCATION,Profile.DEPARTMENT,Profile.TEAM,Profile.PROFESSION,Profile.COUNTRY,Profile.CITY,Profile.CONTACT_PHONES,"phones.work","phones.home","phones.other",Profile.CONTACT_IMS,"ims.facebook","ims.msn","ims.jitsi","ims.skype","ims.other",Profile.CONTACT_URLS);
+  private final List<String> synchronizedGroupDisabledProperties = Arrays.asList(Profile.FULL_NAME,Profile.FIRST_NAME,Profile.LAST_NAME,Profile.EMAIL,Profile.CONTACT_PHONES,"phones.work","phones.home","phones.other",Profile.CONTACT_IMS,"ims.facebook","ims.msn","ims.jitsi","ims.skype","ims.other",Profile.CONTACT_URLS);
 
   public ProfilePropertySettingsService(ProfileSettingStorage profileSettingStorage, SettingService settingService) {
     this.profileSettingStorage = profileSettingStorage;
@@ -72,9 +73,15 @@ public class ProfilePropertySettingsService implements Startable {
     if (storedProfilePropertySetting!=null) {
       throw new ObjectAlreadyExistsException(storedProfilePropertySetting,"A profile property with provided name already exist");
     }
+    if(!isGroupSynchronizedEnabledProperty(profilePropertySetting)){
+      profilePropertySetting.setGroupSynchronized(false);
+    }
     return profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
   }
   public void updatePropertySetting(ProfilePropertySetting profilePropertySetting) {
+    if(!isGroupSynchronizedEnabledProperty(profilePropertySetting)){
+      profilePropertySetting.setGroupSynchronized(false);
+    }
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
   }
 
@@ -83,6 +90,19 @@ public class ProfilePropertySettingsService implements Startable {
       throw new IllegalArgumentException("Profile Property Setting Technical Identifier is mandatory");
     }
     profileSettingStorage.deleteProfilePropertySetting(id);
+  }
+
+  public boolean isGroupSynchronizedEnabledProperty(ProfilePropertySetting profilePropertySetting){
+    if(synchronizedGroupDisabledProperties.contains(profilePropertySetting.getPropertyName())){
+      return false;
+    }
+    if(profilePropertySetting.getParentId()!=null && profilePropertySetting.getParentId()>0){
+      ProfilePropertySetting parent = profileSettingStorage.getProfileSettingById(profilePropertySetting.getParentId());
+      if(parent != null && synchronizedGroupDisabledProperties.contains(parent.getPropertyName())){
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
