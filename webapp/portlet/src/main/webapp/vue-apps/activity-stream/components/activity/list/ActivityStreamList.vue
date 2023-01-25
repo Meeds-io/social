@@ -99,7 +99,7 @@ export default {
       return this.spaceId && 'activity-stream-space' || 'activity-stream-user';
     },
     pinActivityEnabled() {
-      return eXo.env.portal.PinActivityEnabled && this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
+      return this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
     }
   },
   watch: {
@@ -115,7 +115,7 @@ export default {
     },
   },
   created() {
-    this.streamFilter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
+    this.streamFilter = !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
     document.addEventListener('activity-favorite-removed', event => {
       const favoriteActivity = event && event.detail && event.detail;
       if (this.streamFilter === 'user_favorite_stream') {

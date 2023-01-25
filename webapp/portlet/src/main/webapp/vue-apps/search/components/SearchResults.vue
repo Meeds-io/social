@@ -13,9 +13,7 @@
         </v-icon>
         <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
       </v-chip>
-      <search-tag-selector
-        v-if="tagsEnabled"
-        @tags-changed="selectTags" />
+      <search-tag-selector @tags-changed="selectTags" />
       <v-menu
         v-model="connectorsListOpened"
         :close-on-content-click="false"
@@ -137,7 +135,6 @@ export default {
     results: null,
     pageSize: 10,
     limit: 10,
-    tagsEnabled: eXo.env.portal.activityTagsEnabled,
     selectedTags: [],
     favorites: false,
     allEnabled: true,

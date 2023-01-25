@@ -87,7 +87,7 @@ export default {
       return !this.standalone && this.canPost;
     },
     streamFilterEnabled() {
-      return eXo.env.portal.StreamFilterEnabled && this.canFilter;
+      return this.canFilter;
     },
     displayToolbar() {
       return this.userCanPost || this.streamFilterEnabled;

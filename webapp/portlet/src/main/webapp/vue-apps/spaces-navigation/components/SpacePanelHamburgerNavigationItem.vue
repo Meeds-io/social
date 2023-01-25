@@ -46,11 +46,6 @@ export default {
       default: null
     },
   },
-  data() {
-    return {
-      spaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
-    };
-  },
   computed: {
     navigationIcon() {
       return `${this.applicationIcon(this.navigation.icon)} icon-default-color icon-default-size`;
@@ -73,8 +68,7 @@ export default {
       ) && 'activity' || pageUri;
     },
     unreadBadge() {
-      return this.spaceWebNotificationsEnabled
-        && this.spaceUnreadItems
+      return this.spaceUnreadItems
         && (this.badgeApplicationName === 'activity' && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0)
       || 0;
     },

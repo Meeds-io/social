@@ -43,7 +43,6 @@ export default {
     },
   },
   data: () => ({
-    spaceWebNotificationsEnabled: eXo.env.portal.SpaceWebNotificationsEnabled,
     textLength: 0,
     textPosition: null,
     windowHeight: window.innerHeight || document.documentElement?.clientHeight,
@@ -58,7 +57,7 @@ export default {
       return !!this.unreadMetadata;
     },
     displayBadge() {
-      return this.spaceWebNotificationsEnabled && this.spaceId && this.isUnread;
+      return this.spaceId && this.isUnread;
     },
     waitTimeToMarkAsRead() {
       return Math.max(parseInt(this.textLength / 100 * 5000) - 1000, 4000);

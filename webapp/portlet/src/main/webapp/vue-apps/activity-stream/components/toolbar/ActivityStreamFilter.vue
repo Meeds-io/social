@@ -89,7 +89,7 @@ export default {
       },{
         text: this.$t('activity.filter.pinnedActivities'),
         value: 'pin_stream',
-        enable: eXo.env.portal.PinActivityEnabled && !eXo.env.portal.spaceId,
+        enable: !eXo.env.portal.spaceId,
       },{
         text: this.$t('activity.filter.myActivities'),
         value: 'user_stream',
@@ -103,12 +103,12 @@ export default {
       },{
         text: this.$t('activity.filter.favoriteSpaces'),
         value: 'favorite_spaces_stream',
-        enable: eXo.env.portal.spaceFavoritesEnabled && !eXo.env.portal.spaceId,
+        enable: !eXo.env.portal.spaceId,
       }].filter(filter => filter.enable == null || filter.enable === true);
     },
   },
   created() {
-    this.filter = eXo.env.portal.StreamFilterEnabled && !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
+    this.filter = !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
   },
   methods: {
     applyFilter() {

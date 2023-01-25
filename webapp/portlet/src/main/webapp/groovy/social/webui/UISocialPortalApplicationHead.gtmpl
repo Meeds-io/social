@@ -32,8 +32,6 @@
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
      eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
      eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
-     eXo.env.portal.spaceFavoritesEnabled = <%=PropertyManager.getProperty("exo.feature.SpaceFavorites.enabled")%>;
-     eXo.env.portal.editorToolbarEnabled = <%=PropertyManager.getProperty("exo.feature.NewEditorToolbar.enabled")%>;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
@@ -61,11 +59,6 @@
        },
      };
 
-     eXo.env.portal.activityTagsEnabled = <%=featureService.isFeatureActiveForUser("ActivityTags", userName)%>;
-     eXo.env.portal.leftMenuReviewEnabled = <%=featureService.isFeatureActiveForUser("leftMenuReview", userName)%>;
-     eXo.env.portal.StreamFilterEnabled = <%=featureService.isFeatureActiveForUser("StreamFilter", userName)%>;
-     eXo.env.portal.PinActivityEnabled = <%=featureService.isFeatureActiveForUser("PinActivity", userName)%>;
-     eXo.env.portal.SpaceWebNotificationsEnabled = <%=featureService.isFeatureActiveForUser("SpaceWebNotifications", userName)%>;
      eXo.env.portal.SpaceHomeLayoutResetEnabled = <%=featureService.isFeatureActiveForUser("SpaceHomeLayoutReset", userName)%>;
-	 eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
+     eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
 </script>

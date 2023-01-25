@@ -34,7 +34,6 @@ import org.picocontainer.Startable;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.config.PluginConfig;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
-import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.RootContainer.PortalContainerPostInitTask;
@@ -69,44 +68,38 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   private PluginSettingService             pluginSettingService;
 
-  private boolean                          enabled;
-
   private List<SpaceWebNotificationPlugin> plugins                  = new ArrayList<>();
 
   public SpaceWebNotificationServiceImpl(PortalContainer container,
                                          MetadataService metadataService,
-                                         ExoFeatureService featureService,
                                          PluginSettingService pluginSettingService,
                                          ListenerService listenerService) {
     this.container = container;
     this.metadataService = metadataService;
     this.listenerService = listenerService;
     this.pluginSettingService = pluginSettingService;
-    this.enabled = featureService.isActiveFeature("SpaceWebNotifications");
   }
 
   @Override
   public void start() { // NOSONAR
-    if (enabled) {
-      PortalContainer.addInitTask(container.getPortalContext(), new PortalContainerPostInitTask() {
-        @Override
-        public void execute(ServletContext context, PortalContainer portalContainer) {
-          for (SpaceWebNotificationPlugin spaceWebNotificationPlugin : plugins) {
-            List<String> notificationPluginIds = spaceWebNotificationPlugin.getNotificationPluginIds();
-            if (CollectionUtils.isNotEmpty(notificationPluginIds)) {
-              for (String notificationPluginId : notificationPluginIds) {
-                PluginConfig pluginConfig = pluginSettingService.getPluginConfig(notificationPluginId);
-                if (pluginConfig == null) {
-                  LOG.warn("Notification plugin {} wasn't found", notificationPluginId);
-                } else {
-                  pluginConfig.addAdditionalChannel(SpaceWebChannel.ID);
-                }
+    PortalContainer.addInitTask(container.getPortalContext(), new PortalContainerPostInitTask() {
+      @Override
+      public void execute(ServletContext context, PortalContainer portalContainer) {
+        for (SpaceWebNotificationPlugin spaceWebNotificationPlugin : plugins) {
+          List<String> notificationPluginIds = spaceWebNotificationPlugin.getNotificationPluginIds();
+          if (CollectionUtils.isNotEmpty(notificationPluginIds)) {
+            for (String notificationPluginId : notificationPluginIds) {
+              PluginConfig pluginConfig = pluginSettingService.getPluginConfig(notificationPluginId);
+              if (pluginConfig == null) {
+                LOG.warn("Notification plugin {} wasn't found", notificationPluginId);
+              } else {
+                pluginConfig.addAdditionalChannel(SpaceWebChannel.ID);
               }
             }
           }
         }
-      });
-    }
+      }
+    });
   }
 
   @Override
@@ -121,11 +114,6 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   @Override
   public void dispatch(NotificationInfo notification, String username) throws Exception {
-    if (!this.enabled) {
-      LOG.debug("Space Web Notifications are disabled, thus no notification will be sent.");
-      return;
-    }
-
     SpaceWebNotificationItem notificationItem = getSpaceWebNotificationItem(notification, username);
     if (notificationItem != null) {
       markAsUnread(notificationItem);
@@ -134,10 +122,6 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   @Override
   public void markAsUnread(SpaceWebNotificationItem notificationItem) throws Exception {
-    if (!this.enabled) {
-      LOG.debug("Space Web Notifications are disabled, thus no notification will be sent.");
-      return;
-    }
     if (notificationItem == null) {
       throw new IllegalArgumentException("SpaceWebNotificationItem is mandatory");
     }

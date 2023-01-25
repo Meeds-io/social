@@ -123,7 +123,7 @@ extensionRegistry.registerExtension('activity', 'action', {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return eXo.env.portal.PinActivityEnabled && activity.canPin && !activity.pinned;
+    return activity.canPin && !activity.pinned;
   },
   click: (activity) => {
     return Vue.prototype.$activityService.pinActivity(activity.id)
@@ -141,7 +141,7 @@ extensionRegistry.registerExtension('activity', 'action', {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
     }
-    return eXo.env.portal.PinActivityEnabled && activity.canPin && activity.pinned;
+    return activity.canPin && activity.pinned;
   },
   click: (activity) => {
     return Vue.prototype.$activityService.unpinActivity(activity.id)
