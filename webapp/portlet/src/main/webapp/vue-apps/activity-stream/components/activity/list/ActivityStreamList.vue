@@ -5,6 +5,7 @@
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
+      v-if="showStreamUpdater"
       :space-id="spaceId"
       :activities="activities"
       :standalone="!!activityId"
@@ -100,6 +101,9 @@ export default {
     },
     pinActivityEnabled() {
       return this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
+    },
+    showStreamUpdater() {
+      return this.streamFilter === 'all_stream' ;
     }
   },
   watch: {
