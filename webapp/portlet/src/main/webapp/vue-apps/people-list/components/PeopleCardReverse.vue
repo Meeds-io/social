@@ -57,7 +57,7 @@ export default {
   },
   computed: {
     isMobile() {
-      return this.$vuetify.breakpoint.mdAndDown;
+      return this.$vuetify.breakpoint.xs;
     },
   }
 };
