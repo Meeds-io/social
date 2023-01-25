@@ -77,9 +77,11 @@ export default {
     this.getActiveTab();
   },
   watch: {
-    isMobile(mobile) {
-      if (mobile) {
+    isMobile() {
+      if (this.isMobile) {
         this.refreshMobileNavigations();
+      } else {
+        this.computeSiteBodyMargin();
       }
     },
   },
@@ -135,6 +137,7 @@ export default {
       } else {
         this.mobileNavigations = this.navigations;
       }
+      this.computeSiteBodyMargin();
     },
     getActiveTab() {
       const siteName = eXo.env.portal.portalName;
@@ -147,7 +150,16 @@ export default {
       if (pathname !== this.tab && !pathname.startsWith(this.tab)) {
         this.tab = pathname;
       }
-    }
+    },
+    computeSiteBodyMargin() {
+      if (this.isMobile) {
+        window.setTimeout(() => {
+          $('#UISiteBody').css('margin-bottom', '70px');
+        }, 200);
+      } else {
+        $('#UISiteBody').css('margin-bottom', '');
+      }
+    },
   }
 };
 </script>
