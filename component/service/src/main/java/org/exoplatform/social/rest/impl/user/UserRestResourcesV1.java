@@ -351,7 +351,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Path("/advancedfilter")
   @RolesAllowed("users")
   @Operation(
-      summary = "Gets all users",
+      summary = "Gets all users or connections by advanced filter",
       method = "POST",
       description = "")
   @ApiResponses(value = {
@@ -359,7 +359,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       @ApiResponse (responseCode = "404", description = "Resource not found"),
       @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
       @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response getUsersAllByAdvancedFilter(@Context UriInfo uriInfo,
+  public Response getAllUsersByAdvancedFilter(@Context UriInfo uriInfo,
                            @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
                            @Parameter(description = "Filter type to filter , ex all , connection") @DefaultValue("all") @QueryParam("filterType") String filterType,
                            @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
