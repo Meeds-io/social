@@ -50,10 +50,10 @@
        theme: { disable: true },
        breakpoint: {
          thresholds: {
-           xs: 767,
-           sm: 979,
-           md: 1023,
-           lg: 1279,
+           xs: 768,
+           sm: 980,
+           md: 1024,
+           lg: 1280,
            xl: 1700,
          },
        },
