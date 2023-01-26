@@ -85,7 +85,6 @@ export default {
           element.valueToSearch = '';
         }
       });
-      this.$refs.peopleAdvancedFilterDrawer.close();
       this.$root.$emit('reset-advanced-filter');
     },
     getSettings() {
