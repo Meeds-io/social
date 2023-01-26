@@ -400,12 +400,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
       }
       filter.setProfileSettings(settings);
-        ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter); ;
+        ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
         identities = list.load(offset, limit);
         if(returnSize) {
           totalSize = list.getSize();
         }
-    List<DataEntity> profileInfos = new ArrayList<DataEntity>();
+    List<DataEntity> profileInfos = new ArrayList<>();
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
       //

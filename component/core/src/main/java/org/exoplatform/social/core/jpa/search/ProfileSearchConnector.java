@@ -547,14 +547,13 @@ public class ProfileSearchConnector {
     StringBuilder esExp = new StringBuilder();
     esExp.append("( ");
     Map<String, String> settings = filter.getProfileSettings();
-    int index = 0 ;
+    int settingsCount = 0 ;
     for (Map.Entry<String, String> entry : settings.entrySet()){
-      String[] splittedValue = new String[0];
       String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
       if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
         inputValue = inputValue.replace("\"", "");
       }
-      splittedValue = inputValue.split(" ");
+      String[] splittedValue = inputValue.split(" ");
       if (splittedValue.length > 1) {
         esExp.append("(");
         for (int i = 0; i < splittedValue.length; i++) {
@@ -568,8 +567,8 @@ public class ProfileSearchConnector {
         esExp.append("( "+entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
         esExp.append(")");
       }
-      if ( index != settings.size()- 1 ) esExp.append(" AND ") ;
-      index += 1 ;
+      if ( settingsCount != settings.size()- 1 ) esExp.append(" AND ") ;
+      settingsCount += 1 ;
     }
     esExp.append(" )");
     return esExp.toString();
