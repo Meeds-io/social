@@ -27,7 +27,7 @@
   </parent>
   <groupId>org.exoplatform.social</groupId>
   <artifactId>social</artifactId>
-  <version>6.4.0-exo-20230124</version>
+  <version>6.4.x-exo-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo PLF:: Social</name>
   <description>eXo Social - Enterprise Social Networking</description>
@@ -39,14 +39,14 @@
   <scm>
     <connection>scm:git:git://github.com/exoplatform/social.git</connection>
     <developerConnection>scm:git:git@github.com:exoplatform/social.git</developerConnection>
-    <tag>6.4.0-exo-20230124</tag>
+    <tag>HEAD</tag>
     <url>http://fisheye.exoplatform.org/browse/social</url>
   </scm>
   <properties>
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
-    <org.exoplatform.commons.version>6.4.0-exo-20230124</org.exoplatform.commons.version>
+    <org.exoplatform.commons.version>6.4.x-exo-SNAPSHOT</org.exoplatform.commons.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
