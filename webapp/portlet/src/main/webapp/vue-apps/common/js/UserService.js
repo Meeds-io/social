@@ -76,6 +76,23 @@ export function getUsers(query, offset, limit, expand) {
     }
   });
 }
+export function getUsersByAdvancedFilter(settings, offset, limit, expand,filterType) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/advancedfilter?offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&filterType=${filterType || 'all'}&returnSize=true`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(settings),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    } else {
+      return resp.json();
+    }
+  });
+}
 
 export function getUsersByStatus(query, offset, limit, status) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&status=${status || 'ENABLED'}&returnSize=true`, {
