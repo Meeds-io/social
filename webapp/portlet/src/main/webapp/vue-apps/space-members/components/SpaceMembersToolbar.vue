@@ -104,7 +104,11 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
-    publisherRolePromotionFeatureEnabled: eXo.env.portal.publisherRolePromotionEnabled
+    publisherRolePromotionFeatureEnabled: eXo.env.portal.publisherRolePromotionEnabled,
+    startSearchAfterInMilliseconds: 300,
+    endTypingKeywordTimeout: 50,
+    startTypingKeywordTimeout: 0,
+    typing: false,
   }),
   computed: {
     bottomNavigationHeight() {
@@ -182,7 +186,11 @@ export default {
   },
   watch: {
     keyword() {
-      this.$emit('keyword-changed', this.keyword);
+      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
+      if (!this.typing) {
+        this.typing = true;
+        this.waitForEndTyping();
+      }
     },
     filter() {
       this.$emit('filter-changed', this.filter);
@@ -196,6 +204,16 @@ export default {
     changeFilterSelection() {
       this.bottomMenu = false;
       this.filter = this.filterToChange;
+    },
+    waitForEndTyping() {
+      window.setTimeout(() => {
+        if (Date.now() > this.startTypingKeywordTimeout) {
+          this.typing = false;
+          this.$emit('keyword-changed', this.keyword);
+        } else {
+          this.waitForEndTyping();
+        }
+      }, this.endTypingKeywordTimeout);
     },
   }
 };
