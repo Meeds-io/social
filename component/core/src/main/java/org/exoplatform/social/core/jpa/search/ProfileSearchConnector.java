@@ -546,22 +546,22 @@ public class ProfileSearchConnector {
   private String buildAdvancedFilterExpression(ProfileFilter filter) {
     StringBuilder esExp = new StringBuilder();
     esExp.append("( ");
-    Map<String,String> settings = filter.getProfileSettings();
+    Map<String, String> settings = filter.getProfileSettings();
     int index = 0 ;
     for (Map.Entry<String, String> entry : settings.entrySet()){
-      String[]  splitedValue = new String[0];
+      String[] splittedValue = new String[0];
       String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
       if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
         inputValue = inputValue.replace("\"", "");
       }
-      splitedValue = inputValue.split(" ");
-      if (splitedValue.length > 1) {
+      splittedValue = inputValue.split(" ");
+      if (splittedValue.length > 1) {
         esExp.append("(");
-        for (int i = 0; i < splitedValue.length; i++) {
+        for (int i = 0; i < splittedValue.length; i++) {
           if (i != 0 ) {
             esExp.append(" AND ") ;
           }
-          esExp.append(entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splitedValue[i])).append(StorageUtils.ASTERISK_STR);
+          esExp.append(entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splittedValue[i])).append(StorageUtils.ASTERISK_STR);
         }
         esExp.append(")");
       } else {
