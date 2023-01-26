@@ -3,7 +3,7 @@
     <div class="d-flex">
       <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold d-flex align-center">
         <span>
-          {{ title }}
+          {{ getResolvedName(property) }}
         </span>
       </div>
       <div class="align-end flex-grow-1 text-no-wrap text-end">
@@ -18,13 +18,12 @@
         </v-btn>
       </div>
     </div>
-    <v-flex v-for="(value, i) in values" :key="i">
+    <v-flex v-for="(childProperty, i) in property.children" :key="i">
       <profile-contact-edit-multi-field-select
-        :value="value"
-        :items="items"
-        :item-name="itemName"
-        :item-value="itemValue"
-        :type="type"
+        :property="childProperty"
+        :properties="property.children"
+        :multiValued="property.multiValued"
+        @propertyUpdated="propertyUpdated"
         @remove="remove(i)" />
     </v-flex>
   </v-card-text>
@@ -33,46 +32,32 @@
 <script>
 export default {
   props: {
-    title: {
-      type: String,
+    property: {
+      type: Object,
       default: () => null,
-    },
-    type: {
-      type: String,
-      default: () => null,
-    },
-    itemName: {
-      type: String,
-      default: () => null,
-    },
-    itemValue: {
-      type: String,
-      default: () => null,
-    },
-    items: {
-      type: Array,
-      default: () => [],
-    },
-    values: {
-      type: Array,
-      default: () => null,
-    },
+    }
   },
   methods: {
     remove(i) {
-      this.values.splice(i, 1);
+      this.property.children.splice(i, 1);
+      this.$emit('propertyUpdated',this.property);
     },
     addNewItem() {
-      const item = {};
-      if (this.itemName && this.items && this.items.length) {
-        item[this.itemName] = this.items[0] || '';
-      }
-      if (this.itemValue) {
-        item[this.itemValue] = '';
-      }
-      this.values.push(item);
+      const item = {isNew: true};
+      this.property.children.push(item);
       this.$forceUpdate();
     },
+    propertyUpdated(){
+      this.$emit('propertyUpdated',this.property);
+    },
+    getResolvedName(item){
+      const lang = eXo && eXo.env.portal.language || 'en';
+      const resolvedLabel = item.labels && item.labels.find(v => v.language === lang);
+      if (resolvedLabel){
+        return resolvedLabel.label;
+      }
+      return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
+    }
   },
 };
 </script>

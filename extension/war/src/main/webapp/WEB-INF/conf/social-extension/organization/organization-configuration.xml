@@ -132,5 +132,63 @@
 			<set-method>addListenerPlugin</set-method>
 			<type>org.exoplatform.social.core.space.impl.SocialGroupEventListenerImpl</type>
 		</component-plugin>
+		<component-plugin>
+			<name>init.service.listener</name>
+			<set-method>addListenerPlugin</set-method>
+			<type>org.exoplatform.services.organization.OrganizationDatabaseInitializer</type>
+			<description>this listener populate organization data for processes application</description>
+			<init-params>
+				<value-param>
+					<name>checkDatabaseAlgorithm</name>
+					<description>check database</description>
+					<value>entry</value>
+				</value-param>
+				<value-param>
+					<name>printInformation</name>
+					<description>Print information init database</description>
+					<value>false</value>
+				</value-param>
+				<object-param>
+					<name>configuration</name>
+					<description>description</description>
+					<object type="org.exoplatform.services.organization.OrganizationConfig">
+						<field name="group">
+							<collection type="java.util.ArrayList">
+								<value>
+									<object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+										<field name="name">
+											<string>profile</string>
+										</field>
+										<field name="label">
+											<string>Profile</string>
+										</field>
+										<field name="description">
+											<string>Profile group</string>
+										</field>
+										<field name="parentId">
+											<string />
+										</field>
+									</object>
+								</value>
+							</collection>
+						</field>
+						<field name="user">
+							<collection type="java.util.ArrayList">
+								<value>
+									<object type="org.exoplatform.services.organization.OrganizationConfig$User">
+										<field name="userName">
+											<string>${exo.super.user}</string>
+										</field>
+										<field name="groups">
+											<string>*:/profile</string>
+										</field>
+									</object>
+								</value>
+							</collection>
+						</field>
+					</object>
+				</object-param>
+			</init-params>
+		</component-plugin>
 	</external-component-plugins>
 </configuration>
