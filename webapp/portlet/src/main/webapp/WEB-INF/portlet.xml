@@ -843,6 +843,23 @@
     </portlet-info>
   </portlet>
 
+
+  <portlet>
+    <portlet-name>ProfileSettingsPortlet</portlet-name>
+    <display-name xml:lang="EN">Profile Settings Portlet</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/profileSettings.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Profile Settings Portlet</title>
+    </portlet-info>
+  </portlet>
+
   <portlet>
     <portlet-name>OverviewBanner</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>

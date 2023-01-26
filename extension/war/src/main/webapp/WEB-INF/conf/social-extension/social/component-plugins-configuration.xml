@@ -60,6 +60,16 @@
   </external-component-plugins>
 
   <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.IdentityManager</target-component>
+    <component-plugin>
+      <name>groupSynchronization.listeners.social.profile</name>
+      <set-method>addProfileListener</set-method>
+      <type>org.exoplatform.social.core.listeners.GroupSynchronizationSocialProfileListener</type>
+      <description>Social Profile listener for profile properties group synchronization</description>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
     <target-component>org.exoplatform.social.core.manager.RelationshipManager</target-component>
     <component-plugin>
       <name>RelationshipPublisher</name>
