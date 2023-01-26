@@ -69,6 +69,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.rest.entity.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -122,16 +123,6 @@ import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.api.UserRestResources;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.ExperienceEntity;
-import org.exoplatform.social.rest.entity.IMEntity;
-import org.exoplatform.social.rest.entity.PhoneEntity;
-import org.exoplatform.social.rest.entity.ProfileEntity;
-import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.rest.entity.URLEntity;
-import org.exoplatform.social.rest.entity.UserEntity;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -493,8 +484,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
-      builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
+      if(StringUtils.isNotBlank(expand) && expand.equals("settings")){
+        builder = Response.ok(EntityBuilder.buildProperties(identity.getProfile()), MediaType.APPLICATION_JSON);
+      } else {
+        ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+        builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
+      }
       builder.tag(eTag);
       builder.lastModified(new Date(cacheTime));
       builder.expires(new Date(cacheTime));
@@ -875,6 +870,101 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.serverError().build();
     }
     return Response.noContent().build();
+  }
+ @PATCH
+  @Path("{id}/profile/properties")
+  @Operation(
+          summary = "Update set of properties in user profile",
+          method = "PATCH",
+          description = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+      @ApiResponse (responseCode = "204", description = "Request fulfilled but not content returned"),
+      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+      @ApiResponse (responseCode = "403", description = "Unothorized to modify user profile"),
+      @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response updateUserProfileAttributes(@Context HttpServletRequest request,
+                                              @Parameter(description = "User name", required = true) @PathParam("id") String username,
+                                              @RequestBody(description = "User profile attributes map", required = true) List<ProfilePropertySettingEntity> profilePropertySettingEntities) throws Exception {
+    if (StringUtils.isBlank(username)) {
+      return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
+    }
+    if (profilePropertySettingEntities == null || profilePropertySettingEntities.isEmpty()) {
+      return Response.status(Status.BAD_REQUEST).entity("Use profile properties are mandatory").build();
+    }
+
+    String currentUser = getCurrentUser();
+    if (!StringUtils.equals(currentUser, username)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
+   Identity userIdentity = getUserIdentity(username);
+   Profile profile = userIdentity.getProfile();
+
+    for(ProfilePropertySettingEntity profileProperty : profilePropertySettingEntities){
+
+      if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME)) {
+        String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, profileProperty.getValue());
+        if (StringUtils.isNotBlank(errorMessage)) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+        }
+      }
+      if (profileProperty.getPropertyName().equals(Profile.LAST_NAME)) {
+        String errorMessage = LASTNAME_VALIDATOR.validate(locale, profileProperty.getValue());
+        if (StringUtils.isNotBlank(errorMessage)) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+        }
+      }
+      if (profileProperty.getPropertyName().equals(Profile.EMAIL)) {
+        String errorMessage = EMAIL_VALIDATOR.validate(locale, profileProperty.getValue());
+        if (StringUtils.isNotBlank(errorMessage)) {
+          return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
+        }
+        // Check if mail address is already used
+        if (isEmailAlreadyExists(username, profileProperty.getValue())) {
+          return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+        }
+      }
+      try {
+        if(!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())){
+          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
+        } else {
+          if(profileProperty.getPropertyName().equals(Profile.CONTACT_PHONES)){
+            List <PhoneEntity> phoneEntities = new ArrayList<>();
+            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
+              phoneEntities.add(new PhoneEntity(child.getPropertyName(), child.getValue()));
+              updateProfileField(profile, profileProperty.getPropertyName(), phoneEntities, true);
+            }
+          }
+          else if(profileProperty.getPropertyName().equals(Profile.CONTACT_IMS)){
+            List <IMEntity> imEntities = new ArrayList<>();
+            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
+              imEntities.add(new IMEntity(child.getPropertyName(), child.getValue()));
+              updateProfileField(profile, profileProperty.getPropertyName(), imEntities, true);
+            }
+          }
+          else if(profileProperty.getPropertyName().equals(Profile.CONTACT_URLS)){
+            List <URLEntity> urlEntities = new ArrayList<>();
+            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
+              urlEntities.add(new URLEntity(child.getValue()));
+              updateProfileField(profile, profileProperty.getPropertyName(), urlEntities, true);
+            }
+          } else {
+            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
+              updateProfileField(profile, child.getPropertyName(), child.getValue(), true);
+            }
+          }
+        }
+      } catch (IllegalAccessException e) {
+        LOG.error("User {} is not allowed to update attributes", currentUser);
+        return Response.status(Status.UNAUTHORIZED).build();
+      } catch (Exception e) {
+        LOG.error("Error updating user {} attributes", currentUser, e);
+        return Response.serverError().build();
+      }
+
+    }
+    return Response.ok().build();
   }
 
   @DELETE
