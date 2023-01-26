@@ -41,6 +41,11 @@
       <page-reference>group::/platform/administrators::membershipsManagement</page-reference>
     </node>
     <node>
+      <name>profileManagement</name>
+      <label>#{administration.profileManagement}</label>
+      <page-reference>group::/platform/administrators::profileManagement</page-reference>
+    </node>
+    <node>
       <name>generalSettings</name>
       <label>#{administration.generalSettings}</label>
       <page-reference>group::/platform/administrators::generalSettings</page-reference>

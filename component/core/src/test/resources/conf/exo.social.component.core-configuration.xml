@@ -539,6 +539,15 @@
   </component>
 
   <component>
+    <key>org.exoplatform.social.core.storage.api.ProfileSettingStorage</key>
+    <type>org.exoplatform.social.core.jpa.storage.RDBMSProfileSettingStorageImpl</type>
+  </component>
+  <component>
+    <key>org.exoplatform.social.core.storage.api.LabelStorage</key>
+    <type>org.exoplatform.social.core.jpa.storage.RDBMSLabelStorageImpl</type>
+  </component>
+
+  <component>
     <type>org.exoplatform.social.core.jpa.search.ProfileSearchConnector</type>
     <init-params>
       <properties-param>
@@ -602,10 +611,36 @@
     <key>org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportUserDAO</key>
     <type>org.exoplatform.social.core.jpa.storage.dao.jpa.GroupSpaceBindingReportUserDAOImpl</type>
   </component>
-  
+
   <component>
     <key>org.exoplatform.social.core.binding.spi.GroupSpaceBindingService</key>
     <type>org.exoplatform.social.core.binding.impl.GroupSpaceBindingServiceImpl</type>
+  </component>
+
+  <!--
+  ProfilePropertySetting  components.
+  -->
+
+  <component>
+    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO</type>
+  </component>
+
+
+  <component>
+    <type>org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService</type>
+  </component>
+
+  <!--
+  Label  components.
+  -->
+
+  <component>
+    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.LabelDAO</type>
+  </component>
+
+
+  <component>
+    <type>org.exoplatform.social.core.service.LabelService</type>
   </component>
   <!--
     GroupSpaceBinding storage components.
