@@ -40,6 +40,8 @@ public interface ProfileSettingStorage {
 
   ProfilePropertySetting findProfileSettingByName(String name);
 
+  ProfilePropertySetting getProfileSettingById(Long id);
+
   /**
    * Saves a profilePropertySetting. If isNew is true, creates new profilePropertySetting. If not only updates profilePropertySetting
    * and saves it.

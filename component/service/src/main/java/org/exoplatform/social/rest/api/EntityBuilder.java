@@ -363,7 +363,7 @@ public class EntityBuilder {
       if(property.getParentId()!=null && property.getParentId()!=0L){
         subProperties.add(property);
       } else {
-        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,profilePropertySettingsService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
         try {
           profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
           profilePropertySettingEntity.setInternal(internal);
@@ -380,7 +380,7 @@ public class EntityBuilder {
                     propertySetting = profilePropertySettingsService.getProfileSettingByName(subProperty.get("key"));
                   }
                   if(propertySetting!=null){
-                    subProfilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
+                    subProfilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,labelService,profilePropertySettingsService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
                   } else {
                     subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
                   }
@@ -398,7 +398,7 @@ public class EntityBuilder {
     }
     for (ProfilePropertySetting property : subProperties){
       if(!parents.contains(property.getParentId())){
-        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,profilePropertySettingsService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
         profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
         profilePropertySettingEntity.setInternal(internal);
         ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId() );
@@ -1495,7 +1495,7 @@ public class EntityBuilder {
    * @param profilePropertySetting the ProfilePropertySetting object
    * @return the ProfilePropertySettingEntity rest object
    */
-  public static ProfilePropertySettingEntity buildEntityProfilePropertySetting(ProfilePropertySetting profilePropertySetting, LabelService labelService, String objectType) {
+  public static ProfilePropertySettingEntity buildEntityProfilePropertySetting(ProfilePropertySetting profilePropertySetting, LabelService labelService, ProfilePropertySettingsService profilePropertySettingsService, String objectType) {
     if (profilePropertySetting == null ) return null;
     ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
     profilePropertySettingEntity.setId(profilePropertySetting.getId());
@@ -1508,6 +1508,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setRequired(profilePropertySetting.isRequired());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
+    profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertySettingsService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
     profilePropertySettingEntity.setLabels(labelService.findLabelByObjectTypeAndObjectId(objectType, String.valueOf(profilePropertySetting.getId())));
     return profilePropertySettingEntity;
   }
@@ -1518,9 +1519,9 @@ public class EntityBuilder {
    * @param profilePropertySettingList the ProfilePropertySetting objects list
    * @return the ProfilePropertySettingEntity rest objects list
    */
-  public static List<ProfilePropertySettingEntity> buildEntityProfilePropertySettingList (List<ProfilePropertySetting> profilePropertySettingList, LabelService labelService, String objectType) {
+  public static List<ProfilePropertySettingEntity> buildEntityProfilePropertySettingList (List<ProfilePropertySetting> profilePropertySettingList, LabelService labelService, ProfilePropertySettingsService profilePropertySettingsService, String objectType) {
     if (profilePropertySettingList.isEmpty()) return new ArrayList<>();
-    return profilePropertySettingList.stream().map(setting -> buildEntityProfilePropertySetting(setting, labelService, objectType)).toList();
+    return profilePropertySettingList.stream().map(setting -> buildEntityProfilePropertySetting(setting, labelService, profilePropertySettingsService, objectType)).toList();
   }
 
   /**

@@ -48,6 +48,7 @@ public class ProfilePropertySettingEntity {
   private boolean isMultiValued;
 
   private boolean isInternal;
+  private boolean isGroupSynchronizationEnabled;
 
   private List<Label> labels;
 
@@ -163,6 +164,14 @@ public class ProfilePropertySettingEntity {
 
   public void setInternal(boolean internal) {
     isInternal = internal;
+  }
+
+  public boolean isGroupSynchronizationEnabled() {
+    return isGroupSynchronizationEnabled;
+  }
+
+  public void setGroupSynchronizationEnabled(boolean groupSynchronizationEnabled) {
+    isGroupSynchronizationEnabled = groupSynchronizationEnabled;
   }
 
   public List<ProfilePropertySettingEntity> getChildren() {

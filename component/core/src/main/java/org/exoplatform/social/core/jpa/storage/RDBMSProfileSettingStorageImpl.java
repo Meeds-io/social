@@ -45,6 +45,11 @@ public class RDBMSProfileSettingStorageImpl implements ProfileSettingStorage {
   }
 
   @Override
+  public ProfilePropertySetting getProfileSettingById(Long id) {
+    return convertFromEntity(profilePropertySettingDAO.find(id));
+  }
+
+  @Override
   public ProfilePropertySetting saveProfilePropertySetting(ProfilePropertySetting profilePropertySetting, boolean isNew) {
     if (isNew) {
       ProfilePropertySettingEntity newProfilePropertySettingEntity = profilePropertySettingDAO.create(convertToEntity(profilePropertySetting));

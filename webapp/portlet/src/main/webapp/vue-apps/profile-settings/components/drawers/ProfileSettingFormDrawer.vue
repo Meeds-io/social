@@ -66,14 +66,14 @@
               ref="settingParentField"
               id="settingParentField" 
               v-model="setting.parentId"
-              :items="settings"
+              :items="parents"
               :placeholder="$t('profileSettings.placeholder.parent')"
               class="d-flex pa-4 ignore-vuetify-classes flex-grow-1"
               outlined
               dense
               width="100%"
               max-width="100%"
-              item-text="propertyName"
+              item-text="resolvedLabel"
               item-value="id"
               @blur="blurAutocomplete()" />  
         </v-card-text>
@@ -159,7 +159,7 @@
       <v-list-item-action>
         <v-switch
                 v-model="setting.groupSynchronized"
-                :disabled="saving"
+                :disabled="saving || !setting.groupSynchronizationEnabled"
                 :ripple="false"
                 color="primary"
                 class="groupSynchronizedSwitcher my-auto" />
@@ -225,7 +225,8 @@ export default {
     newSetting: false,
     saving: false,
     confirmNewPassword: null,
-    setting: {},
+    setting: {labels: []},
+    parents: [],
     changes: false
   }),
   computed: {
@@ -235,7 +236,7 @@ export default {
       } else {
         return this.$t('profileSettings.drawer.title.editSetting');
       }
-    },
+    }
   },
   watch: {
     saving() {
@@ -275,13 +276,18 @@ export default {
       this.$refs.settingNameInput.setCustomValidity('');
     },
     addNewSetting() {
-      this.setting = {labels: [{language: 'en', label: ''}], visible: true, editable: true, groupSynchronized: false, active: true};
+      this.setting = {labels: [{language: 'en', label: ''}], visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
+      this.parents = Object.assign([], this.settings);
+      this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = true;
       this.changes= false;
       this.drawer = true;
     },
     editSetting(setting) {
       this.setting = Object.assign({}, setting);
+      this.parents = Object.assign([], this.settings);
+      this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId);
+      this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = false;
       if (this.setting.labels.length === 0){
         this.setting.labels.push( {language: 'en', label: ''});
