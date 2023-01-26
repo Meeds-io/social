@@ -71,6 +71,7 @@ let config = {
     popover: './src/main/webapp/vue-apps/popover/main.js',
     versionHistoryDrawer: './src/main/webapp/vue-apps/version-history-drawer/main.js',
     topBarMenu: './src/main/webapp/vue-apps/top-bar-menu/main.js',
+    profileSettings: './src/main/webapp/vue-apps/profile-settings/main.js',
     generalSettings: './src/main/webapp/vue-apps/general-settings/main.js',
     imageCropper: './src/main/webapp/vue-apps/component-image-crop/main.js',
     translationField: './src/main/webapp/vue-apps/component-translation-field/main.js',
