@@ -33,6 +33,8 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.*;
+import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
@@ -66,6 +68,8 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
   private ActivityManager activityManager;
 
+  private ProfilePropertySettingsService profilePropertySettingsService;
+
   private SpaceService    spaceService;
 
   public void setUp() throws Exception {
@@ -78,6 +82,9 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
     activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
     assertNotNull(activityManager);
+
+    profilePropertySettingsService = (ProfilePropertySettingsService) getContainer().getComponentInstanceOfType(ProfilePropertySettingsService.class);
+    assertNotNull(profilePropertySettingsService);
 
     tearDownIdentityList = new ArrayList<Identity>();
     tearDownSpaceList = new ArrayList<Space>();
@@ -534,6 +541,10 @@ public class IdentityManagerTest extends AbstractCoreTest {
    * Test {@link IdentityManager#updateProfile(Profile, boolean)}
    */
   public void testUpdateProfileAndDetectChanges() throws Exception {
+    ProfilePropertySetting profilePropertySetting =  new ProfilePropertySetting();
+    profilePropertySetting.setPropertyName(Profile.POSITION);
+    profilePropertySetting.setActive(true);
+    profilePropertySettingsService.createPropertySetting(profilePropertySetting);
     Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     Profile profile = rootIdentity.getProfile();
     profile.setProperty(Profile.POSITION, "Changed POSITION");
