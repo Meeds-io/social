@@ -75,6 +75,11 @@ export default {
     error: null,
     saving: null,
     fieldError: false,
+    avatarData: null,
+    cropOptions: {
+      aspectRatio: 1,
+      viewMode: 1,
+    },
   }),
   methods: {
     
