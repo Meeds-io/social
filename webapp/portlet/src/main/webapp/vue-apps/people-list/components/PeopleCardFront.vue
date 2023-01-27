@@ -184,7 +184,7 @@
     </div>
 
     <v-card-text class="peopleCardBody align-center py-0 py-sm-1">
-      <v-sheet :height="isMobile &&'47px' || '26px'" class="mt-0">
+      <v-sheet :height="userTitleHeight" class="mt-0">
         <a
           :href="url"
           :title="user.fullname"
@@ -197,9 +197,8 @@
         </a>
       </v-sheet>
       <v-card-subtitle 
-        class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto">
-        {{ userPosition || '&nbsp;' }}
-      </v-card-subtitle>
+        class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto"
+        v-sanitized-html="userPosition" />
     </v-card-text>
 
     <v-card-actions v-if="!isSameUser && !isMobile" class="peopleCardActions">
@@ -392,13 +391,13 @@ export default {
       return this.user?.relationshipStatus === 'OUTGOING';
     },
     userPosition() {
-      if (this.isMobile) {
-        return this.user?.position || '--';
-      }
-      return;
+      return this.user?.position || (this.isMobile ? '--' : '&nbsp;'); 
     },
     externalUser() {
       return this.user.external === 'true';
+    },
+    userTitleHeight() {
+      return this.isMobile && '47px' || '26px';
     }
   },
   created() {
