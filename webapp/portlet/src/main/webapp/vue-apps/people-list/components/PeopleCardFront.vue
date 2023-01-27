@@ -66,7 +66,7 @@
       <div v-if="isMobile && !isSameUser">
         <v-icon 
           size="14" 
-          class="my-3" 
+          class="my-1" 
           @click="openBottomMenu">
           fas fa-ellipsis-v
         </v-icon>
@@ -183,20 +183,22 @@
       </a>
     </div>
 
-    <v-card-text class="peopleCardBody align-center py-1">
-      <a
-        :href="url"
-        :title="user.fullname"
-        :class="usernameClass"
-        class="userFullname font-weight-bold">
-        {{ user.fullname }}
-        <span v-if="user.external == 'true' " class="externalFlagClass">
-          {{ $t('peopleList.label.external') }}
-        </span>
-      </a>
+    <v-card-text class="peopleCardBody align-center py-0 py-sm-1">
+      <v-sheet :height="isMobile &&'47px' || '26px'" class="mt-0">
+        <a
+          :href="url"
+          :title="user.fullname"
+          :class="usernameClass"
+          class="userFullname font-weight-bold">
+          {{ user.fullname }}
+          <span v-if="externalUser" class="externalFlagClass">
+            {{ $t('peopleList.label.external') }}
+          </span>
+        </a>
+      </v-sheet>
       <v-card-subtitle 
         class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto">
-        {{ user.position || '&nbsp;' }}
+        {{ userPosition || '&nbsp;' }}
       </v-card-subtitle>
     </v-card-text>
 
@@ -388,6 +390,15 @@ export default {
     },
     outgoingUser() {
       return this.user?.relationshipStatus === 'OUTGOING';
+    },
+    userPosition() {
+      if (this.isMobile) {
+        return this.user?.position || '--';
+      }
+      return;
+    },
+    externalUser() {
+      return this.user.external === 'true';
     }
   },
   created() {
