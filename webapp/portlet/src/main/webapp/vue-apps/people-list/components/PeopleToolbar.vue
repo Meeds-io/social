@@ -37,6 +37,7 @@
         <i class="uiIcon uiIcon24x24 settingsIcon primary--text mr-1"></i>
         <span class="d-none font-weight-regular caption d-sm-inline mr-1">
             {{ $t('profile.label.search.openSearch') }}
+            <span v-if="advancedFilterCountDisplay > 0">{{`(${advancedFilterCountDisplay})`}}</span>
           </span>
       </v-btn>
     </v-scale-transition>
@@ -106,10 +107,16 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     typing: false,
+    advancedFilterCount: 0,
   }),
   created() {
     this.$featureService.isFeatureEnabled('peopleAdvancedFilter')
       .then(enabled => this.peopleAdvancedFilterFeatureEnabled = enabled);
+    this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount );
+    this.$root.$on('reset-advanced-filter-count', () => {
+      this.advancedFilterCount = 0;
+      this.advancedFilterCountDisplay();
+    });
   },
   computed: {
     peopleFilters() {
@@ -121,6 +128,9 @@ export default {
         value: 'connections',
       }];
     },
+    advancedFilterCountDisplay() {
+      return this.advancedFilterCount || 0;
+    }
   },
   watch: {
     keyword() {
