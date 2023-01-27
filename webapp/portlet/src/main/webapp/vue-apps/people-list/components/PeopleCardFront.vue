@@ -184,7 +184,6 @@
     </div>
 
     <v-card-text class="peopleCardBody align-center py-0 py-sm-1">
-      <v-sheet :height="userTitleHeight" class="mt-0">
         <a
           :href="url"
           :title="user.fullname"
@@ -195,7 +194,6 @@
             {{ $t('peopleList.label.external') }}
           </span>
         </a>
-      </v-sheet>
       <v-card-subtitle 
         class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto"
         v-sanitized-html="userPosition" />
@@ -396,9 +394,6 @@ export default {
     externalUser() {
       return this.user.external === 'true';
     },
-    userTitleHeight() {
-      return this.isMobile && '47px' || '26px';
-    }
   },
   created() {
     $(document).on('mousedown', () => {
