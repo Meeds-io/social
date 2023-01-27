@@ -37,8 +37,8 @@
             fa-ellipsis-v
           </v-icon>
           <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-            <v-sheet class="text-center" height="210px">
-              <v-list>
+            <v-sheet class="text-center" height="150px">
+              <v-list dense>
                 <v-list-item 
                   v-if="space.isMember"
                   @click="leave">
