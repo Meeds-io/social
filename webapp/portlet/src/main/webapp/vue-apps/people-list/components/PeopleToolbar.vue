@@ -32,6 +32,7 @@
       <v-btn
           class="btn px-2 btn-primary"
           outlined
+          @click="openPeopleAdvancedFilterDrawer()"
       >
         <i class="uiIcon uiIcon24x24 settingsIcon primary--text mr-1"></i>
         <span class="d-none font-weight-regular caption d-sm-inline mr-1">
@@ -141,6 +142,9 @@ export default {
     changeFilterSelection() {
       this.bottomMenu = false;
       this.filter = this.filterToChange;
+    },
+    openPeopleAdvancedFilterDrawer() {
+      this.$root.$emit('open-people-advanced-filter-drawer');
     },
     waitForEndTyping() {
       window.setTimeout(() => {
