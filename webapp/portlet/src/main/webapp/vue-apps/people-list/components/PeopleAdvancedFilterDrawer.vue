@@ -86,6 +86,7 @@ export default {
         }
       });
       this.$root.$emit('reset-advanced-filter');
+      this.$root.$emit('reset-advanced-filter-count');
     },
     getSettings() {
       return this.$profileSettingsService.getSettings()
@@ -109,6 +110,8 @@ export default {
         }
       });
       this.$root.$emit('advanced-filter', keyValue);
+      const advancedFilterCount = Object.keys(keyValue).length || 0 ;
+      this.$root.$emit('advanced-filter-count', advancedFilterCount);
       this.close();
     }
   }
