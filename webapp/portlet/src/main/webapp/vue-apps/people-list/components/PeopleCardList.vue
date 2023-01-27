@@ -150,6 +150,7 @@ export default {
 
     // To broadcast event about current page supporting profile extensions
     document.dispatchEvent(new CustomEvent('profile-extension-init'));
+    this.$root.$on('reset-advanced-filter', this.searchPeople);
 
     this.refreshExtensions();
   },
