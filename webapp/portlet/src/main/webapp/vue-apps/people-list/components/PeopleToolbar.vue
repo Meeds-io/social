@@ -28,7 +28,7 @@
       @click="openBottomMenu">
       fa-filter
     </v-icon>
-    <v-scale-transition v-if="peopleAdvancedFilterFeatureEnabled">
+    <v-scale-transition>
       <v-btn
           class="btn px-2 btn-primary"
           outlined
@@ -102,7 +102,6 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
-    peopleAdvancedFilterFeatureEnabled: false,
     startSearchAfterInMilliseconds: 300,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
@@ -110,8 +109,6 @@ export default {
     advancedFilterCount: 0,
   }),
   created() {
-    this.$featureService.isFeatureEnabled('peopleAdvancedFilter')
-      .then(enabled => this.peopleAdvancedFilterFeatureEnabled = enabled);
     this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount );
     this.$root.$on('reset-advanced-filter-count', () => {
       this.advancedFilterCount = 0;
