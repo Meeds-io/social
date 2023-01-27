@@ -72,7 +72,7 @@
         </v-icon>
         <v-bottom-sheet v-model="bottomMenu" class="pa-0">
           <v-sheet class="text-center" height="100">
-            <v-list>
+            <v-list dense>
               <v-list-item 
                 v-if="confirmedUser"
                 @click="disconnect">
