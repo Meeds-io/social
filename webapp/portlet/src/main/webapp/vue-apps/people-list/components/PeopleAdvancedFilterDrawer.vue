@@ -100,6 +100,16 @@ export default {
         return resolvedLabel.label;
       }
       return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`) !== `profileSettings.property.name.${item.propertyName}` ?this.$t(`profileSettings.property.name.${item.propertyName}`) : item.propertyName;
+    },
+    confirm() {
+      const keyValue = {};
+      this.settings.forEach((e)=>{
+        if (e && e.valueToSearch){
+          keyValue[e.propertyName] = e.valueToSearch;
+        }
+      });
+      this.$root.$emit('advanced-filter', keyValue);
+      this.close();
     }
   }
 };
