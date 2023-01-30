@@ -812,7 +812,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     String currentUser = getCurrentUser();
     if (!StringUtils.equals(currentUser, username)) {
-      return Response.status(Status.UNAUTHORIZED).build();
+      if(!RestUtils.isMemberOfAdminGroup()){
+        return Response.status(Status.UNAUTHORIZED).build();
+      }
     }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
@@ -889,7 +891,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     String currentUser = getCurrentUser();
     if (!StringUtils.equals(currentUser, username)) {
-      return Response.status(Status.UNAUTHORIZED).build();
+      if(!RestUtils.isMemberOfAdminGroup()){
+        return Response.status(Status.UNAUTHORIZED).build();
+      }
     }
 
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
@@ -955,9 +959,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     String currentUser = getCurrentUser();
     if (!StringUtils.equals(currentUser, username)) {
-      return Response.status(Status.UNAUTHORIZED).build();
+      if(!RestUtils.isMemberOfAdminGroup()){
+        return Response.status(Status.UNAUTHORIZED).build();
+      }
     }
-
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
    Identity userIdentity = getUserIdentity(username);
    Profile profile = userIdentity.getProfile();
