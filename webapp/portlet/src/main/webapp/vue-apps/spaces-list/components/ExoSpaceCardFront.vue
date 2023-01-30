@@ -93,7 +93,7 @@
                     <exo-space-favorite-action
                       :is-favorite="space.isFavorite"
                       :space-id="space.id"
-                      extra-class="ms-4"
+                      extra-class="ms-3"
                       display-label />
                   </v-list-item-title>
                 </v-list-item>
