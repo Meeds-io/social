@@ -4,7 +4,7 @@
       {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
     <span>
-      <v-icon v-if="showMobileFilter" left size="20" @click="mobileFilter">fa-arrow-left</v-icon>
+      <v-icon v-if="showMobileFilter && isMobile" left size="20" @click="mobileFilter">fa-arrow-left</v-icon>
     </span>
     <v-spacer class="d-none d-sm-flex" />
     <v-scale-transition>
