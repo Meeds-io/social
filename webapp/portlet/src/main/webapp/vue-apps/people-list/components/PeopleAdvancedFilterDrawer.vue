@@ -91,7 +91,7 @@ export default {
     getSettings() {
       return this.$profileSettingsService.getSettings()
         .then(settings => {
-          this.settings =  settings.filter((e) => e.active ).map(obj => ({ ...obj, valueToSearch: '' })) || [];
+          this.settings =  settings.filter((e) => e.active && e.parentId === null ).map(obj => ({ ...obj, valueToSearch: '' })) || [];
         });
     },
     getResolvedName(item){
