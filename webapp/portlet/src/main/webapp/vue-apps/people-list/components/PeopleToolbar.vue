@@ -7,14 +7,14 @@
       <v-icon v-if="showMobileFilter && isMobile" left size="20" @click="mobileFilter">fa-arrow-left</v-icon>
     </span>
     <v-spacer class="d-none d-sm-flex" />
-    <v-scale-transition>
+    <v-col>
       <v-text-field
           v-show="isMobile && showMobileFilter || !isMobile"
           v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
         class="inputPeopleFilter pa-0 me-3 my-auto" />
-    </v-scale-transition>
+    </v-col>
     <v-scale-transition>
       <select
         v-model="filter"
