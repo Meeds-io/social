@@ -40,17 +40,6 @@
         </properties-param>
       </init-params>
    </component>
-   <component>
-     <key>PeopleAdvancedFilterFeatureProperties</key>
-     <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
-     <init-params>
-       <properties-param>
-         <name>PeopleAdvancedFilterFeatureProperties</name>
-         <description>People Advanced Filter Feature enablement flag</description>
-         <property name="exo.feature.peopleAdvancedFilter.enabled" value="${exo.feature.peopleAdvancedFilter.enabled:false}"/>
-       </properties-param>
-     </init-params>
-    </component>
 
   <external-component-plugins>
     <target-component>org.exoplatform.commons.file.services.NameSpaceService</target-component>
