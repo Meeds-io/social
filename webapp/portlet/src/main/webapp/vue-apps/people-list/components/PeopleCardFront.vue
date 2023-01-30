@@ -184,16 +184,16 @@
     </div>
 
     <v-card-text class="peopleCardBody align-center py-0 py-sm-1">
-        <a
-          :href="url"
-          :title="user.fullname"
-          :class="usernameClass"
-          class="userFullname font-weight-bold">
-          {{ user.fullname }}
-          <span v-if="externalUser" class="externalFlagClass">
-            {{ $t('peopleList.label.external') }}
-          </span>
-        </a>
+      <a
+        :href="url"
+        :title="user.fullname"
+        :class="usernameClass"
+        class="userFullname font-weight-bold">
+        {{ user.fullname }}
+        <span v-if="externalUser" class="externalFlagClass">
+          {{ $t('peopleList.label.external') }}
+        </span>
+      </a>
       <v-card-subtitle 
         class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto"
         v-sanitized-html="userPosition" />
