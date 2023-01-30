@@ -1538,7 +1538,11 @@ public class EntityBuilder {
     profilePropertySetting.setEditable(profilePropertySettingEntity.isEditable());
     profilePropertySetting.setVisible(profilePropertySettingEntity.isVisible());
     profilePropertySetting.setPropertyName(profilePropertySettingEntity.getPropertyName());
-    profilePropertySetting.setParentId(profilePropertySettingEntity.getParentId());
+    if (profilePropertySettingEntity.getParentId() == 0) {
+      profilePropertySetting.setParentId(null);
+    } else {
+      profilePropertySetting.setParentId(profilePropertySettingEntity.getParentId());
+    }
     profilePropertySetting.setGroupSynchronized(profilePropertySettingEntity.isGroupSynchronized());
     profilePropertySetting.setRequired(profilePropertySettingEntity.isRequired());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
