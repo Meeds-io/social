@@ -1538,7 +1538,7 @@ public class EntityBuilder {
     profilePropertySetting.setEditable(profilePropertySettingEntity.isEditable());
     profilePropertySetting.setVisible(profilePropertySettingEntity.isVisible());
     profilePropertySetting.setPropertyName(profilePropertySettingEntity.getPropertyName());
-    if (profilePropertySettingEntity.getParentId() == 0) {
+    if (profilePropertySettingEntity.getParentId() == null || profilePropertySettingEntity.getParentId() == 0) {
       profilePropertySetting.setParentId(null);
     } else {
       profilePropertySetting.setParentId(profilePropertySettingEntity.getParentId());
