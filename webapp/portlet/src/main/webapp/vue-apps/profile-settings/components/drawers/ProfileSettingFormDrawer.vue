@@ -288,6 +288,7 @@ export default {
       this.parents = Object.assign([], this.settings);
       this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId);
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
+      this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;
       if (this.setting.labels.length === 0){
         this.setting.labels.push( {language: 'en', label: ''});
