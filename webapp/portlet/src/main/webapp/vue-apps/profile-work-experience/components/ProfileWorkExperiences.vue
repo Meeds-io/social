@@ -42,7 +42,7 @@
           :experience="experience" />
       </v-timeline>
       <!-- Must be v-html to preserve the href with javascript -->
-      <div v-else-if="owner" v-html="emptyExperiencesOwnerTitle"></div>
+      <div v-else-if="displayEmptyBlock" v-html="emptyExperiencesOwnerTitle"></div>
     </div>
     <profile-work-experience-drawer
       ref="profileWorkExperiencesDrawer"
@@ -74,17 +74,18 @@ export default {
     title() {
       return this.owner && this.$t('profileYourWorkExperiences.title') || this.$t('profileWorkExperiences.title');
     },
+    displayEmptyBlock() {
+      return this.owner && !this.hasExperiences;
+    },
     emptyExperiencesOwnerTitle() {
       return this.owner && this.$t('profileYourWorkExperiences.emptyTitle', {
-        0: `<a href="javascript:document.dispatchEvent(new CustomEvent('${this.addExperienceEventName}'))" class="primary--text font-weight-bold">`,
+        0: '<a id="emptyExperiencesLink" class="primary--text font-weight-bold">',
         1: '</a>',
       });
     },
   },
   created() {
-    document.addEventListener(this.addExperienceEventName, () => {
-      this.addWorkExperience();
-    });
+    document.addEventListener('click', this.openDrawerOnLinkClick);
 
     this.refresh()
       .finally(() => this.$root.$applicationLoaded());
@@ -93,6 +94,9 @@ export default {
     if (this.experiences) {
       this.$root.$emit('application-loaded');
     }
+  },
+  beforeDestroy() {
+    document.removeEventListener('click', this.openDrawerOnLinkClick);
   },
   methods: {
     refresh() {
@@ -129,6 +133,11 @@ export default {
         console.error('Error sorting experiences', e); // eslint-disable-line no-console
       }
       this.experiences = experiences;
+    },
+    openDrawerOnLinkClick(event) {
+      if (this.displayEmptyBlock && event?.target?.id === 'emptyExperiencesLink') {
+        this.addWorkExperience();
+      }
     },
     initWorkExperiencesDrawer() {
       this.workExperiencesDrawerKey += 1;
