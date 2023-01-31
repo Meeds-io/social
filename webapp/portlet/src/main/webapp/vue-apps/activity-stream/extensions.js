@@ -75,9 +75,9 @@ const defaultActivityOptions = {
     icon: 'fa fa-link',
   },
   getBody: activity => {
-    return (activity.templateParams && activity.templateParams.comment)
-           || (activity && activity.title)
-           || (activity && activity.body)
+    return ( activity?.templateParams?.comment)
+           || activity?.title
+           || (!activity?.originalActivity && activity?.body)
            || '';
   },
   getBodyToEdit: activity => {
