@@ -15,8 +15,7 @@
       :loading-people="loadingPeople"
       :people-count="peopleCount"
       @loaded="peopleLoaded" />
-    <people-advanced-filter-drawer
-    />
+    <people-advanced-filter-drawer />
   </v-app>    
 </template>
 

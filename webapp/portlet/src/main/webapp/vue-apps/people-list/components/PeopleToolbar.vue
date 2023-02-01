@@ -3,14 +3,17 @@
     <div class="showingPeopleText text-sub-title ms-3 d-none d-sm-flex">
       {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
     </div>
-    <span>
-      <v-icon v-if="showMobileFilter && isMobile" left size="20" @click="mobileFilter">fa-arrow-left</v-icon>
+    <span v-show="mobileFilter" class="hidden-sm-and-up">
+      <v-icon
+        left
+        size="20"
+        @click="showMobileFilter">fa-arrow-left</v-icon>
     </span>
     <v-spacer class="d-none d-sm-flex" />
     <v-col>
       <v-text-field
-          v-show="isMobile && showMobileFilter || !isMobile"
-          v-model="keyword"
+        v-show="isMobile && mobileFilter || !isMobile"
+        v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
         class="inputPeopleFilter pa-0 my-auto" />
@@ -27,26 +30,25 @@
         </option>
       </select>
     </v-scale-transition>
-    <v-scale-transition >
+    <v-scale-transition>
       <v-btn
-          v-show="isMobile && showMobileFilter || !isMobile"
-          class="btn px-2 btn-primary"
-          outlined
-          @click="openPeopleAdvancedFilterDrawer()"
-      >
-        <i class="uiIcon uiIcon24x24 settingsIcon primary--text mr-1"></i>
+        v-show="isMobile && mobileFilter || !isMobile"
+        class="btn px-2 btn-primary"
+        outlined
+        @click="openPeopleAdvancedFilterDrawer()">
+        <v-icon small class="primary--text mr-1">fa-sliders-h</v-icon>
         <span class="d-none font-weight-regular caption d-sm-inline mr-1">
-            {{ $t('profile.label.search.openSearch') }}
-            <span v-if="advancedFilterCountDisplay > 0">{{`(${advancedFilterCountDisplay})`}}</span>
-          </span>
+          {{ $t('profile.label.search.openSearch') }}
+          {{ advancedFilterCountDisplay }}
+        </span>
       </v-btn>
     </v-scale-transition>
     <v-icon
-        size="24"
-        class="text-sub-title pa-1 my-auto mt-2 ml-auto"
-        v-show="isMobile && !showMobileFilter"
-        @click="mobileFilter()">
-        mdi-filter-outline
+      size="24"
+      class="text-sub-title pa-1 my-auto mt-2 ml-auto"
+      v-show="isMobile && !mobileFilter"
+      @click="showMobileFilter()">
+      mdi-filter-outline
     </v-icon>
   </v-toolbar>
 </template>
@@ -76,13 +78,12 @@ export default {
     startTypingKeywordTimeout: 0,
     typing: false,
     advancedFilterCount: 0,
-    showMobileFilter: false,
+    mobileFilter: false,
   }),
   created() {
-    this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount );
+    this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount);
     this.$root.$on('reset-advanced-filter-count', () => {
       this.advancedFilterCount = 0;
-      this.advancedFilterCountDisplay();
     });
   },
   computed: {
@@ -96,7 +97,7 @@ export default {
       }];
     },
     advancedFilterCountDisplay() {
-      return this.advancedFilterCount || 0;
+      return this.advancedFilterCount > 0 ? `(${this.advancedFilterCount})`:'';
     },
     isMobile() {
       return this.$vuetify.breakpoint.width < 768;
@@ -136,8 +137,8 @@ export default {
         }
       }, this.endTypingKeywordTimeout);
     },
-    mobileFilter() {
-      this.showMobileFilter = !this.showMobileFilter;
+    showMobileFilter() {
+      this.mobileFilter = !this.mobileFilter;
     }
   }
 };
