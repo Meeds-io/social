@@ -3,8 +3,6 @@ package org.exoplatform.social.rest.impl.activity;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import javax.ws.rs.core.MultivaluedMap;
-
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
@@ -18,7 +16,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
-import org.exoplatform.social.metadata.favorite.model.FavoriteObject;
 import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -358,6 +355,96 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     response = service("GET", getURLResource("activities/"+ rootActivity.getId() +"?expand="), "", headers, null, new DummyContainerResponseWriter());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
+
+    activityManager.deleteActivity(rootActivity);
+  }
+
+  public void testGetCachedActivity() throws Exception {
+    startSessionAs("root");
+
+    Space space = getSpaceInstance("testGetCachedActivity", "root", "john");
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+
+    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
+    rootActivity.setTitle("root activity");
+    rootActivity.setPosterId(rootIdentity.getId());
+    rootActivity.setUserId(rootIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, rootActivity);
+
+    restartTransaction();
+
+    rootActivity = activityManager.getActivity(rootActivity.getId());
+
+    ContainerResponse response =
+                               service("GET", getURLResource("activities/" + rootActivity.getId() + "?expand="), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    Object responseEtag = response.getHttpHeaders().getFirst("etag");
+    assertNotNull(responseEtag);
+
+    DataEntity dataEntityActivity = (DataEntity) response.getEntity();
+    assertNotNull(dataEntityActivity);
+    assertEquals(rootActivity.getId(), dataEntityActivity.get("id"));
+    assertEquals(rootActivity.getTitle(), dataEntityActivity.get("title"));
+
+    Map<String, List<String>> headers = new HashMap<>();
+    headers.put("if-none-match", Collections.singletonList(responseEtag.toString()));
+    response = service("GET",
+                       getURLResource("activities/" + rootActivity.getId() + "?expand="),
+                       "",
+                       headers,
+                       null,
+                       new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    // Changing poster identity should return HTTP 200
+    rootIdentity.getProfile().setProperty("test", "test");
+    identityManager.updateProfile(rootIdentity.getProfile());
+
+    response = service("GET",
+                       getURLResource("activities/" + rootActivity.getId() + "?expand="),
+                       "",
+                       headers,
+                       null,
+                       new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    responseEtag = response.getHttpHeaders().getFirst("etag");
+    assertNotNull(responseEtag);
+
+    headers.put("if-none-match", Collections.singletonList(responseEtag.toString()));
+    response = service("GET",
+                       getURLResource("activities/" + rootActivity.getId() + "?expand="),
+                       "",
+                       headers,
+                       null,
+                       new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    startSessionAs("john");
+
+    headers.put("if-none-match", Collections.singletonList(responseEtag.toString()));
+    response = service("GET",
+                       getURLResource("activities/" + rootActivity.getId() + "?expand="),
+                       "",
+                       headers,
+                       null,
+                       new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    startSessionAs("root");
+    headers.put("if-none-match", Collections.singletonList(responseEtag.toString()));
+    response = service("GET",
+                       getURLResource("activities/" + rootActivity.getId() + "?expand="),
+                       "",
+                       headers,
+                       null,
+                       new DummyContainerResponseWriter());
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
 
     activityManager.deleteActivity(rootActivity);
   }
