@@ -124,9 +124,11 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
 
     long cacheTime = identity.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
@@ -174,8 +176,11 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
+
     long cacheTime = identity.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
