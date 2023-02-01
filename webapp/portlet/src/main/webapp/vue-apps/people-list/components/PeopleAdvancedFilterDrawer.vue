@@ -1,48 +1,68 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
 <template>
   <exo-drawer
-      ref="peopleAdvancedFilterDrawer"
-      id="peopleAdvancedFilterDrawer"
-      right
-      @closed="close">
+    ref="peopleAdvancedFilterDrawer"
+    id="peopleAdvancedFilterDrawer"
+    right
+    @closed="close">
     <template slot="title">
       <span class="popupTitle">{{ $t('pepole.advanced.filter.title') }}</span>
     </template>
     <template slot="content">
       <v-form class="pa-2 ms-2 mt-4">
-      <div class="d-flex flex-column flex-grow-1">
-      <div class="d-flex flex-row" v-for="item in settings" :key="item">
-        <input
-            v-model="item.valueToSearch"
-            :placeholder="getResolvedName(item)"
-            type="text"
-            class="input-block-level ignore-vuetify-classes my-3">
-      </div>
-      </div>
+        <div class="d-flex flex-column flex-grow-1">
+          <div
+            v-for="item in settings"
+            :key="item.id"
+            class="d-flex flex-row">
+            <people-advanced-filter-input-item
+              :settings-item="item"
+              @input-value-changed="setValueToSearch" />
+          </div>
+        </div>
       </v-form>
     </template>
     <template slot="footer">
-      <div class="VuetifyApp flex d-flex">
+      <div class="flex d-flex">
         <v-btn
-            class="peopleAdvancedFilterResetButton"
-            @click="reset">
+          color="primary"
+          elevation="0"
+          text
+          link
+          @click="reset">
           <v-icon x-small class="pr-1">fas fa-redo</v-icon>
-          <template>
-            {{ $t('pepole.advanced.filter.button.reset') }}
-          </template>
+          {{ $t('pepole.advanced.filter.button.reset') }}
         </v-btn>
         <v-spacer />
         <div class="d-btn">
           <v-btn
-              class="btn me-2"
-              @click="cancel">
+            class="btn me-2"
+            @click="cancel">
             <template>
               {{ $t('pepole.advanced.filter.button.cancel') }}
             </template>
           </v-btn>
           <v-btn
-              :disabled="disabled"
-              class="btn btn-primary"
-              @click="confirm">
+            :disabled="disabled"
+            class="btn btn-primary"
+            @click="confirm">
             <template>
               {{ $t('pepole.advanced.filter.button.confirm') }}
             </template>
@@ -54,7 +74,7 @@
 </template>
 <script>
 export default {
-  name: 'peopleAdvancedFilterDrawer',
+  name: 'PeopleAdvancedFilterDrawer',
   data() {
     return {
       settings: [],
@@ -77,6 +97,7 @@ export default {
           element.valueToSearch = '';
         }
       });
+      this.$root.$emit('cancel-advanced-filter');
       this.$refs.peopleAdvancedFilterDrawer.close();
     },
     reset() {
@@ -94,14 +115,6 @@ export default {
           this.settings =  settings.filter((e) => e.active && e.parentId === null ).map(obj => ({ ...obj, valueToSearch: '' })) || [];
         });
     },
-    getResolvedName(item){
-      const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`) !== `profileSettings.property.name.${item.propertyName}` ?this.$t(`profileSettings.property.name.${item.propertyName}`) : item.propertyName;
-    },
     confirm() {
       const keyValue = {};
       this.settings.forEach((e)=>{
@@ -113,6 +126,13 @@ export default {
       const advancedFilterCount = Object.keys(keyValue).length || 0 ;
       this.$root.$emit('advanced-filter-count', advancedFilterCount);
       this.close();
+    },
+    setValueToSearch(item){
+      this.settings.forEach((e)=>{
+        if (e.id === item.itemId){
+          e.valueToSearch = item.valueTosearch;
+        }
+      });
     }
   }
 };
