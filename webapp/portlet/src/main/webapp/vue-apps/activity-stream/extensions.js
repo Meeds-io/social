@@ -92,7 +92,7 @@ const defaultActivityOptions = {
       && templateParams.default_title
       && templateParams.default_title
       || (activity?.title?.replaceAll('%', '%25'))
-      || (activity?.body?.replaceAll('%', '%25'))
+      || (!activity?.originalActivity && activity?.body?.replaceAll('%', '%25'))
       || ''));
   },
   canShare: () => true,
