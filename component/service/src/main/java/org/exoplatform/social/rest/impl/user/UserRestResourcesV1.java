@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -484,9 +485,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
+    org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    String authenticatedUser = authenticatedUserIdentity.getUserId();
 
     long cacheTime = identity.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);

@@ -259,6 +259,55 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals(1, collections.getEntities().size());
   }
 
+  public void testShouldNotUseUseSameCacheWhenUserChange() throws Exception {
+    getSpaceInstance(1, "root");
+    getSpaceInstance(2, "john");
+    getSpaceInstance(3, "demo");
+
+    startSessionAs("root");
+
+    ContainerResponse response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(3, collections.getEntities().size());
+    EntityTag eTagRoot = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTagRoot);
+
+    MultivaluedMap<String,String> headers = new MultivaluedMapImpl();
+    headers.putSingle("If-None-Match", "\"" + eTagRoot.getValue() + "\"");
+    response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    startSessionAs("john");
+
+    headers.putSingle("If-None-Match", "\"" + eTagRoot.getValue() + "\"");
+    response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    EntityTag eTagJohn = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTagJohn);
+
+    headers.putSingle("If-None-Match", "\"" + eTagJohn.getValue() + "\"");
+    response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    startSessionAs("root");
+
+    headers.putSingle("If-None-Match", "\"" + eTagRoot.getValue() + "\"");
+    response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    headers.putSingle("If-None-Match", "\"" + eTagJohn.getValue() + "\"");
+    response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
   public void testCreateSpace() throws Exception {
     startSessionAs("root");
     String input = "{\"displayName\":\"social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";

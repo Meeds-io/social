@@ -233,8 +233,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       collectionSpace.setSize(listAccess.getSize());
     }
 
-    EntityTag eTag = null;
-    eTag = new EntityTag(Integer.toString(collectionSpace.hashCode()));
+    String eTagValue = String.valueOf(Objects.hash(collectionSpace.hashCode(), authenticatedUser, expand));
+    EntityTag eTag = new EntityTag(eTagValue);
 
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
@@ -360,7 +360,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     long cacheTime = space.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(authenticatedUser.hashCode() + expand.hashCode() + cacheTime);
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
@@ -408,7 +408,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     long cacheTime = space.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
@@ -456,7 +456,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     long cacheTime = space.getCacheTime();
-    String eTagValue = expand == null ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
@@ -811,7 +811,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (returnSize) {
       collectionUser.setSize(spaceIdentitiesListAccess.getSize());
     }
-    EntityTag eTag  = new EntityTag(String.valueOf(collectionUser.hashCode()), true);
+
+    String eTagValue = String.valueOf(Objects.hash(collectionUser.hashCode(), authenticatedUser, expand));
+    EntityTag eTag  = new EntityTag(eTagValue);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = Response.ok(collectionUser, MediaType.APPLICATION_JSON);
