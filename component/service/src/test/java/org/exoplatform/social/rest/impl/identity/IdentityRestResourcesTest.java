@@ -126,6 +126,55 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
   }
 
+  public void testGetIdentityCache() throws Exception {
+    startSessionAs("root");
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+
+    ContainerResponse response = service("GET",
+                                         "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(),
+                                         "",
+                                         null,
+                                         null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    EntityTag eTagRoot = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTagRoot);
+
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("If-None-Match", "\"" + eTagRoot.getValue() + "\"");
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    startSessionAs("john");
+
+    headers.putSingle("If-None-Match", "\"" + eTagRoot.getValue() + "\"");
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    EntityTag eTagJohn = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTagJohn);
+
+    headers.putSingle("If-None-Match", "\"" + eTagJohn.getValue() + "\"");
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    startSessionAs("root");
+
+    headers.putSingle("If-None-Match", "\"" + eTagJohn.getValue() + "\"");
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    headers.putSingle("If-None-Match", "\"" + eTagRoot.getValue() + "\"");
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+  }
+
   public void testCacheWhenUserJoinsSpace() throws Exception {
     startSessionAs("root");
     Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");

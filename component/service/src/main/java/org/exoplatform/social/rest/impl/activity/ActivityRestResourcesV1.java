@@ -338,7 +338,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     long cacheTime = computeCacheTime(activity);
-    String eTagValue = StringUtils.isBlank(expand) ? String.valueOf(cacheTime) : String.valueOf(expand.hashCode() + cacheTime);
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
