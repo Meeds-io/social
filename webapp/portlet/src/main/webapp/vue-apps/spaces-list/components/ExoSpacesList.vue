@@ -13,6 +13,7 @@
       :filter="filter"
       :loading-spaces="loadingSpaces"
       :spaces-size="spacesSize"
+      @loading-spaces="loadingSpaces = $event"
       @loaded="spacesLoaded" />
 
     <exo-space-managers-drawer />
