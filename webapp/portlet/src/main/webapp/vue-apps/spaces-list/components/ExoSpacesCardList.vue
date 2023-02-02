@@ -145,6 +145,11 @@ export default {
     filter() {
       this.searchSpaces();
     },
+    typing() {
+      if (this.typing) {
+        this.$emit('loading-spaces', true);
+      }
+    },
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
@@ -157,7 +162,7 @@ export default {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
     searchSpaces() {
-      this.loadingSpaces = true;
+      this.$emit('loading-spaces', true);
       const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite';
       return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter, expand)
         .then(data => {
@@ -172,7 +177,7 @@ export default {
             this.limitToFetch += this.pageSize;
           }
         })
-        .finally(() => this.loadingSpaces = false);
+        .finally(() => this.$emit('loading-spaces', false));
     },
     resetSearch() {
       if (this.limitToFetch !== this.originalLimitToFetch) {
