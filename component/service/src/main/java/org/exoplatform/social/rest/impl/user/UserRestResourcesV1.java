@@ -750,7 +750,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
     String currentUser = getCurrentUser();
-    if (!StringUtils.equals(currentUser, username)) {
+    if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
 
@@ -827,7 +827,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     String currentUser = getCurrentUser();
-    if (!StringUtils.equals(currentUser, username)) {
+    if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
 
@@ -893,10 +893,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     String currentUser = getCurrentUser();
-    if (!StringUtils.equals(currentUser, username)) {
+    if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
-
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
    Identity userIdentity = getUserIdentity(username);
    Profile profile = userIdentity.getProfile();
