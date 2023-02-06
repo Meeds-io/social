@@ -195,7 +195,7 @@ export default {
     document.addEventListener('userModified', event => {
       if (event && event.detail) {
         const user = event.detail;
-        Object.assign(this.user, user);
+        this.user = Object.assign({}, this.user, user);
         this.user.ims = user.ims && user.ims.slice() || [];
         this.user.phones = user.phones && user.phones.slice() || [];
         this.user.urls = user.urls && user.urls.slice() || [];
