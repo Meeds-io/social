@@ -893,4 +893,21 @@
     </portlet-preferences>
   </portlet>
 
+  <portlet>
+    <portlet-name>DrawersOverlay</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/drawersOverlay.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Technical Drawers Overlay Portlet</title>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>
