@@ -104,47 +104,34 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.SpacesListApplication-${lang}.json`,
 ];
 
-exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-  const parentDrawersOverlayElement = document.querySelector('#MiddleToolBarChildren') || document.body;
-  let drawersOverlayElement = parentDrawersOverlayElement.querySelector('#drawers-overlay');
-  if (!drawersOverlayElement) {
-    drawersOverlayElement = document.createElement('div');
-    drawersOverlayElement.id = 'drawers-overlay';
-    drawersOverlayElement.class = 'v-application v-application--is-ltr transparent theme--light';
-    parentDrawersOverlayElement.appendChild(drawersOverlayElement);
-    parentDrawersOverlayElement.classList.add('VuetifyApp');
-    new Vue({
-      created() {
-        this.$userPopupLabels = Vue.prototype.$userPopupLabels = {
-          CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
-          Confirm: this.$t('UserProfilePopup.label.Confirm'),
-          Connect: this.$t('UserProfilePopup.label.Connect'),
-          Ignore: this.$t('UserProfilePopup.label.Ignore'),
-          RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
-          StatusTitle: this.$t('UserProfilePopup.label.Loading'),
-          External: this.$t('UserProfilePopup.label.External'),
-          Disabled: this.$t('UserProfilePopup.label.Disabled'),
-          Loading: this.$t('UserProfilePopup.label.Loading'),
-        };
-        this.$spacePopupLabels = Vue.prototype.$spacePopupLabels = {
-          CancelRequest: this.$t('UserProfilePopup.label.CancelRequest'),
-          Confirm: this.$t('UserProfilePopup.label.Confirm'),
-          Connect: this.$t('UserProfilePopup.label.Connect'),
-          Ignore: this.$t('UserProfilePopup.label.Ignore'),
-          RemoveConnection: this.$t('UserProfilePopup.label.RemoveConnection'),
-          StatusTitle: this.$t('UserProfilePopup.label.Loading'),
-          External: this.$t('UserProfilePopup.label.External'),
-          join: this.$t('spacesList.button.join'),
-          leave: this.$t('spacesList.button.leave'),
-          members: this.$t('spacesList.label.SpaceMembers'),
-        };
-      },
-      template: '<drawers-overlay id="drawers-overlay" />',
-      vuetify: Vue.prototype.vuetifyOptions,
-      i18n,
-    }).$mount(drawersOverlayElement);
-  }
-});
+if (!window.drawersOverlayInitialized) {
+  window.drawersOverlayInitialized = true;
+  exoi18n.loadLanguageAsync(lang, urls)
+    .then(i18n => {
+      if (document.querySelector('#drawers-overlay')) {
+        new Vue({
+          template: '<drawers-overlay id="drawers-overlay" />',
+          vuetify: Vue.prototype.vuetifyOptions,
+          i18n,
+        }).$mount('#drawers-overlay');
+      } else { // Needed for anonymous pages (login, register ...)
+        const parentDrawersOverlayElement = document.querySelector('#MiddleToolBarChildren') || document.body;
+        let drawersOverlayElement = parentDrawersOverlayElement.querySelector('#drawers-overlay');
+        if (!drawersOverlayElement) {
+          drawersOverlayElement = document.createElement('div');
+          drawersOverlayElement.id = 'drawers-overlay';
+          drawersOverlayElement.class = 'v-application v-application--is-ltr transparent theme--light';
+          parentDrawersOverlayElement.appendChild(drawersOverlayElement);
+          parentDrawersOverlayElement.classList.add('VuetifyApp');
+          new Vue({
+            template: '<drawers-overlay id="drawers-overlay" />',
+            vuetify: Vue.prototype.vuetifyOptions,
+            i18n,
+          }).$mount(drawersOverlayElement);
+        }
+      }
+    });
+}
 
 const parentNotificationsElement = document.querySelector('#bottom-all-container') || document.body;
 let alertNotificationsElement = parentNotificationsElement.querySelector('#alert-notifications');
