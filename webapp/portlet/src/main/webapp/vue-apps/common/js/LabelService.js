@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
-export function getSettings() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings`, {
+export function getLabel(objectType,objectId,language) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/${objectType}/${objectId}/${language}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -32,42 +31,51 @@ export function getSettings() {
   });
 }
 
-export function addSetting(setting) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings`, {
+export function getLabels(objectType,objectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/labels/${objectType}/${objectId}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error');
+    } else {
+      return resp.json();
+    }
+  });
+}
+
+export function addLabels(labels,objectType,objectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/labels/${objectType}/${objectId}`, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(setting, (key, value) => {
+    body: JSON.stringify(labels, (key, value) => {
       if (value !== null) { return value; }
     }),
   }).then(resp => {
     if (!resp || !resp.ok) {
-      if (resp.status === 409) {
-        throw new Error('profileSettings.create.error.already.exist.message');
-      } else {
-        throw new Error('profileSettings.create.error.message');
-      } 
+      throw new Error('labels.create.error.message');
     } else {
       return resp.ok;
     }
   });
 }
 
-export function updateSetting(setting) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings`, {
+export function mergeLabels(labels,objectType,objectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/labels/${objectType}/${objectId}`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(setting, (_key, value) => {
+    body: JSON.stringify(labels, (_key, value) => {
       if (value !== null) { return value; }
     }),
   }).then(resp => {
     if (!resp || !resp.ok) {
-      throw new Error('profileSettings.update.error.message');
+      throw new Error('labels.update.error.message');
     } else {
       return resp.ok;
     }

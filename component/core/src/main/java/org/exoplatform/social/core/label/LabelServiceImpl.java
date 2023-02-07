@@ -1,48 +1,57 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.core.service;
 
-import org.apache.commons.lang.StringUtils;
-import org.exoplatform.commons.ObjectAlreadyExistsException;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.model.Label;
-import org.exoplatform.social.core.storage.api.LabelStorage;
+package org.exoplatform.social.core.label;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class LabelService {
+import org.apache.commons.lang.StringUtils;
 
-  private static final Log LOG = ExoLogger.getLogger(LabelService.class);
+import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.label.storage.LabelStorage;
+import org.exoplatform.social.core.model.Label;
+
+public class LabelServiceImpl implements LabelService {
+
+  private static final Log   LOG = ExoLogger.getLogger(LabelServiceImpl.class);
 
   private final LabelStorage labelStorage;
 
-
-  public LabelService(LabelStorage labelStorage) {
+  public LabelServiceImpl(LabelStorage labelStorage) {
     this.labelStorage = labelStorage;
   }
 
+  @Override
   public Label findLabelByObjectTypeAndObjectIdAndLang(String objectType, String objectId, String language) {
     return labelStorage.findLabelByObjectTypeAndObjectIdAndLang(objectType, objectId, language);
   }
 
+  @Override
   public List<Label> findLabelByObjectTypeAndObjectId(String objectType, String objectId) {
     return labelStorage.findLabelByObjectTypeAndObjectId(objectType, objectId);
   }
 
+  @Override
   public void createLabels(List<Label> labels, String objectType, String objectId) {
     for (Label label : labels) {
       try {
@@ -59,6 +68,7 @@ public class LabelService {
     }
   }
 
+  @Override
   public void createLabel(Label label) throws ObjectAlreadyExistsException {
     if (label == null) {
       throw new IllegalArgumentException("Label Item Object is mandatory");
@@ -75,13 +85,16 @@ public class LabelService {
     if (StringUtils.isBlank(label.getLabel())) {
       throw new IllegalArgumentException("label value is mandatory");
     }
-    Label storedLabel = labelStorage.findLabelByObjectTypeAndObjectIdAndLang(label.getObjectType(), label.getObjectId(), label.getLanguage());
+    Label storedLabel = labelStorage.findLabelByObjectTypeAndObjectIdAndLang(label.getObjectType(),
+                                                                             label.getObjectId(),
+                                                                             label.getLanguage());
     if (storedLabel != null) {
       throw new ObjectAlreadyExistsException(storedLabel, "Label already exist");
     }
     labelStorage.saveLabel(label, true);
   }
 
+  @Override
   public void mergeLabels(List<Label> labels, String objectType, String objectId) {
     List<Label> storedLabels = findLabelByObjectTypeAndObjectId(objectType, objectId);
     List<Label> labelstoUpdate = new ArrayList<>();
@@ -125,20 +138,24 @@ public class LabelService {
     }
   }
 
-  private Label containsLabel(final List<Label> list, final Label label) {
+  @Override
+  public Label containsLabel(final List<Label> list, final Label label) {
     return list.stream().filter(o -> o.getId() != null && o.getId().equals(label.getId())).findAny().orElse(null);
   }
 
+  @Override
   public void updateLabel(Label label) {
     labelStorage.saveLabel(label, false);
   }
 
+  @Override
   public void deleteLabels(List<Label> labels) {
     for (Label label : labels) {
       deleteLabel(label.getId());
     }
   }
 
+  @Override
   public void deleteLabel(Long id) {
     if (id <= 0) {
       throw new IllegalArgumentException("Label Technical Identifier is mandatory");

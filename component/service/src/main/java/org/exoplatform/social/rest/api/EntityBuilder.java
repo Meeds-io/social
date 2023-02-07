@@ -17,11 +17,27 @@
 
 package org.exoplatform.social.rest.api;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -45,15 +61,15 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.label.LabelService;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
-import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
-import org.exoplatform.social.core.service.LabelService;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -68,20 +84,6 @@ import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
 import org.exoplatform.ws.frameworks.json.impl.JsonException;
 import org.exoplatform.ws.frameworks.json.impl.JsonParserImpl;
 import org.exoplatform.ws.frameworks.json.impl.ObjectBuilder;
-
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class EntityBuilder {
 
@@ -152,8 +154,8 @@ public class EntityBuilder {
   public static final String              MANAGER_MEMBERSHIP                         = "manager";
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
-  
-  public static final String              PUBLISHER_MEMBERSHIP                        = "publisher";
+
+  public static final String              PUBLISHER_MEMBERSHIP                       = "publisher";
 
   public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
 
@@ -179,8 +181,8 @@ public class EntityBuilder {
   }
 
   /**
-   * Get a IdentityEntity from an identity in order to build a json object for
-   * the rest service
+   * Get a IdentityEntity from an identity in order to build a json object for the
+   * rest service
    * 
    * @param identity the provided identity
    * @param restPath base REST path
@@ -341,12 +343,11 @@ public class EntityBuilder {
     return userEntity;
   }
 
-  public static List <ProfilePropertySettingEntity> buildProperties(Profile profile){
+  public static List<ProfilePropertySettingEntity> buildProperties(Profile profile) {
 
     Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
-    ProfilePropertySettingsService profilePropertySettingsService = CommonsUtils.getService(ProfilePropertySettingsService.class);
-    LabelService labelService = CommonsUtils.getService(LabelService.class);
-    List<ProfilePropertySetting> settings = profilePropertySettingsService.getPropertySettings();
+    ProfilePropertyService profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
     boolean internal = false;
@@ -355,57 +356,83 @@ public class EntityBuilder {
       User user = organizationService.getUserHandler().findUserByName(profile.getIdentity().getRemoteId(), UserStatus.ANY);
       if (user != null) {
         internal = user.isInternalStore();
-       }
+      }
     } catch (Exception e) {
       LOG.warn("Error when getting user {}", profile.getIdentity().getRemoteId(), e);
     }
-    for (ProfilePropertySetting property : settings){
-      if(property.getParentId()!=null && property.getParentId()!=0L){
+    for (ProfilePropertySetting property : settings) {
+      if (property.getParentId() != null && property.getParentId() != 0L) {
         subProperties.add(property);
       } else {
-        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,profilePropertySettingsService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
-        try {
-          profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
-          profilePropertySettingEntity.setInternal(internal);
-        } catch (ClassCastException e) {
-          List<Map<String, String>> multiValues = (List<Map<String, String>>)  profile.getProperty(property.getPropertyName());
-          if (!multiValues.isEmpty()){
-            List<ProfilePropertySettingEntity> children = new ArrayList<>();
-            for (Map<String, String> subProperty : multiValues) {
-              if(StringUtils.isNotEmpty(subProperty.get("value"))){
-                ProfilePropertySettingEntity subProfilePropertySettingEntity = new ProfilePropertySettingEntity();
-                if(StringUtils.isNotEmpty(subProperty.get("key"))){
-                  ProfilePropertySetting propertySetting = profilePropertySettingsService.getProfileSettingByName(property.getPropertyName()+"."+subProperty.get("key"));
-                  if (propertySetting==null) {
-                    propertySetting = profilePropertySettingsService.getProfileSettingByName(subProperty.get("key"));
-                  }
-                  if(propertySetting!=null){
-                    subProfilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,labelService,profilePropertySettingsService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
-                  } else {
-                    subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
-                  }
+        ProfilePropertySettingEntity profilePropertySettingEntity =
+                                                                  buildEntityProfilePropertySetting(property,
+                                                                                                    profilePropertyService,
+                                                                                                    ProfilePropertyService.LABELS_OBJECT_TYPE);
+        if (profile.getProperty(property.getPropertyName()) != null) {
+          if (profile.getProperty(property.getPropertyName()) instanceof String propertyValue) {
+            if (StringUtils.isNotEmpty(propertyValue)) {
+              if (!profilePropertySettingEntity.isMultiValued()) {
+                profilePropertySettingEntity.setValue(propertyValue);
+              } else {
+                List<ProfilePropertySettingEntity> children = new ArrayList<>();
+                String[] childrenValues = StringUtils.split(propertyValue, ',');
+                for (String value : childrenValues) {
+                  ProfilePropertySettingEntity subProfilePropertySettingEntity = new ProfilePropertySettingEntity();
+                  subProfilePropertySettingEntity.setValue(value);
+                  children.add(subProfilePropertySettingEntity);
                 }
-                subProfilePropertySettingEntity.setValue(subProperty.get("value"));
-                children.add(subProfilePropertySettingEntity);
+                profilePropertySettingEntity.setChildren(children);
               }
             }
-            profilePropertySettingEntity.setChildren(children);
-            parents.add(profilePropertySettingEntity.getId());
+          } else {
+            List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(property.getPropertyName());
+            if (!multiValues.isEmpty()) {
+              List<ProfilePropertySettingEntity> children = new ArrayList<>();
+              for (Map<String, String> subProperty : multiValues) {
+                if (StringUtils.isNotEmpty(subProperty.get("value"))) {
+                  ProfilePropertySettingEntity subProfilePropertySettingEntity = new ProfilePropertySettingEntity();
+                  if (StringUtils.isNotEmpty(subProperty.get("key"))) {
+                    ProfilePropertySetting propertySetting =
+                                                           profilePropertyService.getProfileSettingByName(property.getPropertyName()
+                                                               + "." + subProperty.get("key"));
+                    if (propertySetting == null) {
+                      propertySetting = profilePropertyService.getProfileSettingByName(subProperty.get("key"));
+                    }
+                    if (propertySetting != null) {
+                      subProfilePropertySettingEntity =
+                                                      buildEntityProfilePropertySetting(propertySetting,
+                                                                                        profilePropertyService,
+                                                                                        ProfilePropertyService.LABELS_OBJECT_TYPE);
+                    } else {
+                      subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
+                    }
+                  }
+                  subProfilePropertySettingEntity.setValue(subProperty.get("value"));
+                  children.add(subProfilePropertySettingEntity);
+                }
+              }
+              profilePropertySettingEntity.setChildren(children);
+              parents.add(profilePropertySettingEntity.getId());
+            }
           }
         }
-        properties.put(profilePropertySettingEntity.getId(),profilePropertySettingEntity);
+        profilePropertySettingEntity.setInternal(internal);
+        properties.put(profilePropertySettingEntity.getId(), profilePropertySettingEntity);
       }
     }
-    for (ProfilePropertySetting property : subProperties){
-      if(!parents.contains(property.getParentId())){
-        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,labelService,profilePropertySettingsService,ProfilePropertySettingsService.LABELS_OBJECT_TYPE);
+    for (ProfilePropertySetting property : subProperties) {
+      if (!parents.contains(property.getParentId())) {
+        ProfilePropertySettingEntity profilePropertySettingEntity =
+                                                                  buildEntityProfilePropertySetting(property,
+                                                                                                    profilePropertyService,
+                                                                                                    ProfilePropertyService.LABELS_OBJECT_TYPE);
         profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
         profilePropertySettingEntity.setInternal(internal);
-        ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId() );
+        ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId());
         List<ProfilePropertySettingEntity> children = parentProperty.getChildren();
         children.add(profilePropertySettingEntity);
         parentProperty.setChildren(children);
-        properties.put(parentProperty.getId(),parentProperty);
+        properties.put(parentProperty.getId(), parentProperty);
       }
     }
     return new ArrayList<>(properties.values());
@@ -544,7 +571,7 @@ public class EntityBuilder {
           redactors = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), REDACTOR_MEMBERSHIP, restPath));
         }
         spaceEntity.setRedactors(redactors);
-        
+
         LinkEntity publishers;
         if (expandFields.contains(RestProperties.PUBLISHERS)) {
           publishers = new LinkEntity(buildEntityProfiles(space.getPublishers(), restPath, expand));
@@ -586,7 +613,7 @@ public class EntityBuilder {
                                                                   ExoContainerContext.getService(SpaceWebNotificationService.class);
           Map<String, Long> unreadItems =
                                         spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
-                                                                                                     Long.parseLong(space.getId()));
+                                                                                                  Long.parseLong(space.getId()));
           if (MapUtils.isNotEmpty(unreadItems)) {
             spaceEntity.setUnreadItems(unreadItems);
           }
@@ -670,17 +697,17 @@ public class EntityBuilder {
 
     spaceMembership.setRole(type);
     switch (type) {
-      case "invited":
-        spaceMembership.setStatus("invited");
-        break;
-      case "pending":
-        spaceMembership.setStatus("pending");
-        break;
-      case "ignored":
-        spaceMembership.setStatus("ignored");
-        break;
-      default:
-        spaceMembership.setStatus("approved");
+    case "invited":
+      spaceMembership.setStatus("invited");
+      break;
+    case "pending":
+      spaceMembership.setStatus("pending");
+      break;
+    case "ignored":
+      spaceMembership.setStatus("ignored");
+      break;
+    default:
+      spaceMembership.setStatus("approved");
     }
     return spaceMembership;
   }
@@ -824,24 +851,25 @@ public class EntityBuilder {
       String metadataType = metadataEntry.getKey();
       List<MetadataItem> metadataItems = metadataEntry.getValue();
       if (MapUtils.isNotEmpty(activityMetadatas)) {
-        List<MetadataItemEntity> activityMetadataEntities = metadataItems.stream()
-                                                                         .filter(metadataItem -> metadataItem.getMetadata()
-                                                                                                             .getAudienceId() == 0
-                                                                             || metadataItem.getMetadata()
-                                                                                            .getAudienceId() == streamOwnerId
-                                                                             || metadataItem.getMetadata()
-                                                                                            .getAudienceId() == authentiatedUserId)
-                                                                         .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
-                                                                                                                     metadataItem.getMetadata()
-                                                                                                                                 .getName(),
-                                                                                                                     metadataItem.getObjectType(),
-                                                                                                                     metadataItem.getObjectId(),
-                                                                                                                     metadataItem.getParentObjectId(),
-                                                                                                                     metadataItem.getCreatorId(),
-                                                                                                                     metadataItem.getMetadata()
-                                                                                                                                 .getAudienceId(),
-                                                                                                                     metadataItem.getProperties()))
-                                                                         .collect(Collectors.toList());
+        List<MetadataItemEntity> activityMetadataEntities =
+                                                          metadataItems.stream()
+                                                                       .filter(metadataItem -> metadataItem.getMetadata()
+                                                                                                           .getAudienceId() == 0
+                                                                           || metadataItem.getMetadata()
+                                                                                          .getAudienceId() == streamOwnerId
+                                                                           || metadataItem.getMetadata()
+                                                                                          .getAudienceId() == authentiatedUserId)
+                                                                       .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
+                                                                                                                   metadataItem.getMetadata()
+                                                                                                                               .getName(),
+                                                                                                                   metadataItem.getObjectType(),
+                                                                                                                   metadataItem.getObjectId(),
+                                                                                                                   metadataItem.getParentObjectId(),
+                                                                                                                   metadataItem.getCreatorId(),
+                                                                                                                   metadataItem.getMetadata()
+                                                                                                                               .getAudienceId(),
+                                                                                                                   metadataItem.getProperties()))
+                                                                       .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
           activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
         }
@@ -850,8 +878,7 @@ public class EntityBuilder {
     return activityMetadatasToPublish;
   }
 
-  public static void buildActivityFromEntity(ActivityEntity model,
-                                             ExoSocialActivity activity) {
+  public static void buildActivityFromEntity(ActivityEntity model, ExoSocialActivity activity) {
     if (model.getTitle() != null && !model.getTitle().equals(activity.getTitle())) {
       activity.setTitle(model.getTitle());
     }
@@ -867,8 +894,9 @@ public class EntityBuilder {
   }
 
   public static void buildActivityParamsFromEntity(ExoSocialActivity activity, Map<String, ?> templateParams) {
-    Map<String, String> currentTemplateParams = activity.getTemplateParams() == null ? new HashMap<>()
-                                                                                     : new HashMap<>(activity.getTemplateParams());
+    Map<String, String> currentTemplateParams =
+                                              activity.getTemplateParams() == null ? new HashMap<>()
+                                                                                   : new HashMap<>(activity.getTemplateParams());
     if (templateParams != null) {
       templateParams.forEach((name, value) -> currentTemplateParams.put(name, (String) value));
     }
@@ -921,7 +949,7 @@ public class EntityBuilder {
     commentEntity.setIdentity(identityLink);
     if (poster != null) {
       commentEntity.setPoster(poster.getRemoteId());
-      commentEntity.setOwner(getActivityOwner(poster, restPath,activityManager.getParentActivity(comment).getSpaceId()));
+      commentEntity.setOwner(getActivityOwner(poster, restPath, activityManager.getParentActivity(comment).getSpaceId()));
     }
     if (comment.getBody() == null) {
       commentEntity.setBody(comment.getTitle());
@@ -1019,8 +1047,8 @@ public class EntityBuilder {
   }
 
   /**
-   * Get a RelationshipEntity from a relationship in order to build a json
-   * object for the rest service
+   * Get a RelationshipEntity from a relationship in order to build a json object
+   * for the rest service
    * 
    * @param relationship the provided relationship
    * @param restPath base REST path
@@ -1081,9 +1109,8 @@ public class EntityBuilder {
   }
 
   /**
-   * update the SpaceMemberShip between the user and the space as ignored and
-   * then update also the MemberShipType used in
-   * SpaceMembershipRestResourcesV1.java
+   * update the SpaceMemberShip between the user and the space as ignored and then
+   * update also the MemberShipType used in SpaceMembershipRestResourcesV1.java
    * 
    * @param space suggested space to ignore
    * @param userId user ignoring suggested space
@@ -1131,7 +1158,7 @@ public class EntityBuilder {
   private static DataEntity getActivityOwner(Identity owner, String restPath, String spaceId) {
     BaseEntity mentionEntity = new BaseEntity(owner.getId());
     mentionEntity.setHref(RestUtils.getRestUrl(getIdentityType(owner), getIdentityId(owner), restPath));
-    if(spaceId != null && !spaceId.isEmpty()) {
+    if (spaceId != null && !spaceId.isEmpty()) {
       SpaceService spaceService = getSpaceService();
       Space space = spaceService.getSpaceById(spaceId);
       boolean isMember = spaceService.isMember(space, owner.getRemoteId());
@@ -1168,8 +1195,7 @@ public class EntityBuilder {
   /**
    * Get the activityStream's information related to the activity.
    * 
-   * @param activity {@link ExoSocialActivity} to retrieve its Stream
-   *          information
+   * @param activity {@link ExoSocialActivity} to retrieve its Stream information
    * @param restPath base REST path
    * @param authentiatedUser the viewer
    * @return activityStream object, null if the viewer has no permission to view
@@ -1488,15 +1514,18 @@ public class EntityBuilder {
     return operationReportEntity;
   }
 
-
   /**
    * Build rest ProfilePropertySettingEntity from ProfilePropertySetting object
    *
    * @param profilePropertySetting the ProfilePropertySetting object
    * @return the ProfilePropertySettingEntity rest object
    */
-  public static ProfilePropertySettingEntity buildEntityProfilePropertySetting(ProfilePropertySetting profilePropertySetting, LabelService labelService, ProfilePropertySettingsService profilePropertySettingsService, String objectType) {
-    if (profilePropertySetting == null ) return null;
+  public static ProfilePropertySettingEntity buildEntityProfilePropertySetting(ProfilePropertySetting profilePropertySetting,
+                                                                               ProfilePropertyService profilePropertyService,
+                                                                               String objectType) {
+    if (profilePropertySetting == null)
+      return null;
+    LabelService labelService = CommonsUtils.getService(LabelService.class);
     ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
     profilePropertySettingEntity.setId(profilePropertySetting.getId());
     profilePropertySettingEntity.setActive(profilePropertySetting.isActive());
@@ -1508,30 +1537,40 @@ public class EntityBuilder {
     profilePropertySettingEntity.setRequired(profilePropertySetting.isRequired());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
-    profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertySettingsService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
-    profilePropertySettingEntity.setLabels(labelService.findLabelByObjectTypeAndObjectId(objectType, String.valueOf(profilePropertySetting.getId())));
+    profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
+    profilePropertySettingEntity.setLabels(labelService.findLabelByObjectTypeAndObjectId(objectType,
+                                                                                         String.valueOf(profilePropertySetting.getId())));
     return profilePropertySettingEntity;
   }
 
   /**
-   * Build rest ProfilePropertySettingEntity list from ProfilePropertySetting objects list
+   * Build rest ProfilePropertySettingEntity list from ProfilePropertySetting
+   * objects list
    *
    * @param profilePropertySettingList the ProfilePropertySetting objects list
    * @return the ProfilePropertySettingEntity rest objects list
    */
-  public static List<ProfilePropertySettingEntity> buildEntityProfilePropertySettingList (List<ProfilePropertySetting> profilePropertySettingList, LabelService labelService, ProfilePropertySettingsService profilePropertySettingsService, String objectType) {
-    if (profilePropertySettingList.isEmpty()) return new ArrayList<>();
-    return profilePropertySettingList.stream().map(setting -> buildEntityProfilePropertySetting(setting, labelService, profilePropertySettingsService, objectType)).toList();
+  public static List<ProfilePropertySettingEntity> buildEntityProfilePropertySettingList(List<ProfilePropertySetting> profilePropertySettingList,
+                                                                                         ProfilePropertyService profilePropertyService,
+                                                                                         String objectType) {
+    if (profilePropertySettingList.isEmpty())
+      return new ArrayList<>();
+    return profilePropertySettingList.stream()
+                                     .map(setting -> buildEntityProfilePropertySetting(setting,
+                                                                                       profilePropertyService,
+                                                                                       objectType))
+                                     .toList();
   }
 
   /**
    * Build ProfilePropertySetting from ProfilePropertySettingEntity object
    *
    * @param profilePropertySettingEntity the ProfilePropertySettingEntity object
-   * @return the ProfilePropertySetting  object
+   * @return the ProfilePropertySetting object
    */
   public static ProfilePropertySetting buildProfilePropertySettingFromEntity(ProfilePropertySettingEntity profilePropertySettingEntity) {
-    if (profilePropertySettingEntity == null ) return null;
+    if (profilePropertySettingEntity == null)
+      return null;
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
     profilePropertySetting.setId(profilePropertySettingEntity.getId());
     profilePropertySetting.setActive(profilePropertySettingEntity.isActive());

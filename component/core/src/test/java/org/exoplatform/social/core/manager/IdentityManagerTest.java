@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.*;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -33,18 +32,16 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.*;
-import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.test.AbstractCoreTest;
-import org.exoplatform.upload.UploadResource;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
@@ -68,7 +65,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
   private ActivityManager activityManager;
 
-  private ProfilePropertySettingsService profilePropertySettingsService;
+  private ProfilePropertyService profilePropertyService;
 
   private SpaceService    spaceService;
 
@@ -83,8 +80,8 @@ public class IdentityManagerTest extends AbstractCoreTest {
     activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
     assertNotNull(activityManager);
 
-    profilePropertySettingsService = (ProfilePropertySettingsService) getContainer().getComponentInstanceOfType(ProfilePropertySettingsService.class);
-    assertNotNull(profilePropertySettingsService);
+    profilePropertyService = (ProfilePropertyService) getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
+    assertNotNull(profilePropertyService);
 
     tearDownIdentityList = new ArrayList<Identity>();
     tearDownSpaceList = new ArrayList<Space>();
@@ -544,7 +541,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     ProfilePropertySetting profilePropertySetting =  new ProfilePropertySetting();
     profilePropertySetting.setPropertyName(Profile.POSITION);
     profilePropertySetting.setActive(true);
-    profilePropertySettingsService.createPropertySetting(profilePropertySetting);
+    profilePropertyService.createPropertySetting(profilePropertySetting);
     Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     Profile profile = rootIdentity.getProfile();
     profile.setProperty(Profile.POSITION, "Changed POSITION");

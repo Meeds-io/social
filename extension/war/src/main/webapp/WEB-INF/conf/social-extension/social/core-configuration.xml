@@ -153,13 +153,12 @@
     </component>
 
     <component>
-        <key>org.exoplatform.social.core.storage.api.ProfileSettingStorage</key>
-        <type>org.exoplatform.social.core.jpa.storage.RDBMSProfileSettingStorageImpl</type>
+        <type>org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage</type>
     </component>
 
     <component>
         <key>org.exoplatform.social.core.storage.api.LabelStorage</key>
-        <type>org.exoplatform.social.core.jpa.storage.RDBMSLabelStorageImpl</type>
+        <type>org.exoplatform.social.core.label.storage.LabelStorage</type>
     </component>
 
     <!--
@@ -728,14 +727,16 @@
         </component-plugins>
     </component>
 
-    <!-- ProfilePropertySettings service -->
+    <!-- ProfilePropertyService service -->
     <component>
-        <type>org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService</type>
+        <key>org.exoplatform.social.core.profileproperty.ProfilePropertyService</key>
+        <type>org.exoplatform.social.core.profileproperty.ProfilePropertyServiceImpl</type>
     </component>
 
     <!-- LabelService service -->
     <component>
-        <type>org.exoplatform.social.core.service.LabelService</type>
+        <key>org.exoplatform.social.core.label.LabelService</key>
+        <type>org.exoplatform.social.core.label.LabelServiceImpl</type>
     </component>
     
     <!-- GroupSpaceBinding service -->

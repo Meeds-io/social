@@ -1,19 +1,23 @@
-<!--
-  This file is part of the Meeds project (https://meeds.io/).
-  Copyright (C) 2022 Meeds Association
-  contact@meeds.io
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 3 of the License, or (at your option) any later version.
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-  You should have received a copy of the GNU Lesser General Public License
-  along with this program; if not, write to the Free Software Foundation,
-  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
--->
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 <template>
   <v-app  role="main" flat>
     <div class="py-3 pe-6 ps-3">
@@ -45,7 +49,8 @@ export default {
     type: '',
     message: '',
     settings: [],
-    filter: 'Active'
+    filter: 'Active',
+    labelsObjectType: 'profileProperty',
   }),
   created() {
     this.$root.$on('update-setting', this.editSetting);
@@ -83,16 +88,18 @@ export default {
     getSettings() {
       return this.$profileSettingsService.getSettings()
         .then(settings => {
-          this.settings = settings || [];
-        });
+          this.settings = settings || [];}
+        );
     },
     editSetting(setting,refresh) {
       this.$profileSettingsService.updateSetting(setting).then(() => {
-        this.$root.$emit('close-settings-form-drawer');      
-        if (refresh){
-          this.getSettings();
-        }
-        this.displayMessage({type: 'success', message: this.$t('profileSettings.update.success.message')});
+        this.$labelService.mergeLabels(setting.labels,this.labelsObjectType,setting.id).then(() => {
+          this.$root.$emit('close-settings-form-drawer');      
+          if (refresh){
+            this.getSettings();
+          }
+          this.displayMessage({type: 'success', message: this.$t('profileSettings.update.success.message')});
+        });
       }).catch(e => {
         console.error(e);
         this.displayMessage({type: 'error', message: this.$t(e.message)});
@@ -100,9 +107,33 @@ export default {
     },
     createSetting(setting) {
       this.$profileSettingsService.addSetting(setting).then(() => {
-        this.$root.$emit('close-settings-form-drawer');  
-        this.getSettings();
-        this.displayMessage({type: 'success', message: this.$t('profileSettings.create.success.message')});
+        this.$labelService.addLabels(setting.labels,this.labelsObjectType,setting.id).then(() => {
+          this.$root.$emit('close-settings-form-drawer');  
+          this.getSettings();
+          this.displayMessage({type: 'success', message: this.$t('profileSettings.create.success.message')});
+        });
+      }).catch(e => {
+        console.error(e);
+        this.displayMessage({type: 'error', message: this.$t(e.message)});
+      });
+    },
+    getLabels(id) {
+      return this.$labelService.getLabels(this.labelsObjectType,id)
+        .then(labels => {
+          return labels || [];
+        });
+    },
+    editLabels(labels,id) {
+      this.$profileSettingsService.mergeLabels(labels,this.labelsObjectType,id).then(() => {
+        return this.getLabels(this.labelsObjectType,id);
+      }).catch(e => {
+        console.error(e);
+        this.displayMessage({type: 'error', message: this.$t(e.message)});
+      });
+    },
+    createLabels(labels,id) {
+      this.$labelService.addLabels(labels,this.labelsObjectType,id).then(() => {
+        return this.getLabels(id);
       }).catch(e => {
         console.error(e);
         this.displayMessage({type: 'error', message: this.$t(e.message)});

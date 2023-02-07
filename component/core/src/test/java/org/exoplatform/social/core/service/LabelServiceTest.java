@@ -1,22 +1,28 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * Copyright (C) 2020 - 2021 Meeds Association contact@meeds.io
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.exoplatform.social.core.service;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.LabelDAO;
+import org.exoplatform.social.core.label.LabelService;
 import org.exoplatform.social.core.model.Label;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import java.util.ArrayList;
@@ -29,8 +35,8 @@ public class LabelServiceTest extends AbstractCoreTest {
 
   private LabelDAO labelDAO;
 
-  private String objectId = "1";
-  private String objectType = "testObject";
+  private final String objectId = "1";
+  private final String objectType = "testObject";
 
   @Override
   public void setUp() throws Exception {
@@ -100,7 +106,6 @@ public class LabelServiceTest extends AbstractCoreTest {
     assertEquals("Label Technical Identifier is mandatory", exception1.getMessage());
     try {
       labelService.createLabel(createLabel("test label fr", "fr"));
-      ;
       Label label = labelService.findLabelByObjectTypeAndObjectIdAndLang(objectType, objectId, "fr");
       assertNotNull(label.getId());
       labelService.deleteLabel(label.getId());
