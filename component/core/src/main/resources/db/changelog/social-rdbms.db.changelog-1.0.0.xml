@@ -835,6 +835,7 @@
         </addColumn>
     </changeSet>
 
+<<<<<<< HEAD
 
     <changeSet author="social" id="1.0.0-85">
         <createTable tableName="SOC_PROFILE_PROPERTY_SETTING">
@@ -893,6 +894,8 @@
       ALTER TABLE SOC_ACTIVITY_SHARE_ACTIONS MODIFY COLUMN TITLE longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     </sql>
   </changeSet>
+=======
+>>>>>>> f86a107518 (feat: Merge feature profile settings -Meeds-io/MIPs#38)
 
     <changeSet author="social" id="1.0.0-85">
         <createTable tableName="SOC_PROFILE_PROPERTY_SETTING">
@@ -947,4 +950,9 @@
         <createSequence sequenceName="SEQ_SOC_LABELS_ID" startValue="1"/>
     </changeSet>
 
+    <changeSet author="social" id="1.0.0-89" dbms="mysql">
+        <sql>
+            ALTER TABLE SOC_ACTIVITY_SHARE_ACTIONS MODIFY COLUMN TITLE longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
