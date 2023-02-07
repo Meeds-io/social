@@ -1,30 +1,33 @@
-<!--
-  This file is part of the Meeds project (https://meeds.io/).
-  Copyright (C) 2022 Meeds Association
-  contact@meeds.io
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 3 of the License, or (at your option) any later version.
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-  You should have received a copy of the GNU Lesser General Public License
-  along with this program; if not, write to the Free Software Foundation,
-  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
--->
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 
 <template>
   <v-list dense>
-    <v-list-item class="menu-list px-2 text-left action-menu-item">
+    <v-list-item class="px-2 text-left">
       <div
     class="clickable mx-2"
     @click="edit()">
     <v-icon
       size="21"
-      dark
-      class="pe-1 iconStyle">
+      class="pe-1">
       fas fa-edit
     </v-icon>
     <span class="ps-1">{{ $t('profileSettings.label.edit') }}</span>
@@ -36,8 +39,7 @@
     @click="moveUp()">
     <v-icon
       size="21"
-      dark
-      class="pe-1 iconStyle">
+      class="pe-1">
       mdi-mouse-move-up
     </v-icon>
     <span class="ps-1">{{ $t('profileSettings.label.moveUp') }}</span>
@@ -49,8 +51,7 @@
     @click="moveDown()">
     <v-icon
       size="21"
-      dark
-      class="pe-1 iconStyle">
+      class="pe-1">
       mdi-mouse-move-down
     </v-icon>
     <span class="ps-1">{{ $t('profileSettings.label.moveDown') }}</span>

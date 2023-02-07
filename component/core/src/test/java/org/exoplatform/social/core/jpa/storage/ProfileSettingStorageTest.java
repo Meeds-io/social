@@ -1,26 +1,31 @@
 /*
- * Copyright (C) 2003-2010 eXo Platform SAS.
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Affero General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.exoplatform.social.core.jpa.storage;
+
+import java.util.List;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
-import org.exoplatform.social.core.storage.api.ProfileSettingStorage;
+import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
 
 /**
  * Unit Tests for {@link ProfileSettingStorage}
@@ -39,68 +44,51 @@ public class ProfileSettingStorageTest extends AbstractCoreTest {
   }
 
   public void testSaveProfilePropertySetting() {
-    try {
-      ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("test");
-      profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
-      profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
-      assertNotNull(profilePropertySetting.getId());
-    } catch (Exception e) {
-      LOG.error(e.getMessage());
-      fail(e.getMessage());
-    }
+    ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("test");
+    profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
+    profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertNotNull(profilePropertySetting.getId());
   }
 
   public void testDeleteProfilePropertySetting() {
-    try {
-      ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("test");
-      profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
-      profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
-      assertNotNull(profilePropertySetting.getId());
-      profileSettingStorage.deleteProfilePropertySetting(profilePropertySetting.getId());
-      profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
-      assertNull(profilePropertySetting);
-    } catch (Exception e) {
-      LOG.error(e.getMessage());
-      fail(e.getMessage());
-    }
+    ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("test");
+    profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
+    profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertNotNull(profilePropertySetting.getId());
+    profileSettingStorage.deleteProfilePropertySetting(profilePropertySetting.getId());
+    profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertNull(profilePropertySetting);
   }
 
   public void testupdateProfilePropertySetting() {
-    try {
-      ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("test");
-      profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
-      profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
-      assertTrue(profilePropertySetting.isActive());
-      profilePropertySetting.setActive(false);
-      profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
-      profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
-      assertFalse(profilePropertySetting.isActive());
-    } catch (Exception e) {
-      LOG.error(e.getMessage());
-      fail(e.getMessage());
-    }
+    ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("test");
+    profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
+    profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertTrue(profilePropertySetting.isActive());
+    profilePropertySetting.setActive(false);
+    profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
+    profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertFalse(profilePropertySetting.isActive());
   }
 
   public void testGetProfilePropertySettings() {
-    try {
-      assertEquals(0, profileSettingStorage.getPropertySettings().size());
-      ProfilePropertySetting profilePropertySetting1 = createProfileSettingInstance("test10");
-      ProfilePropertySetting profilePropertySetting2 = createProfileSettingInstance("test20");
-      ProfilePropertySetting profilePropertySetting3 = createProfileSettingInstance("test30");
-      ProfilePropertySetting profilePropertySetting4 = createProfileSettingInstance("test40");
-      ProfilePropertySetting profilePropertySetting5 = createProfileSettingInstance("test50");
-      ProfilePropertySetting profilePropertySetting6 = createProfileSettingInstance("test60");
-      profileSettingStorage.saveProfilePropertySetting(profilePropertySetting1, true);
-      profileSettingStorage.saveProfilePropertySetting(profilePropertySetting2, true);
-      profileSettingStorage.saveProfilePropertySetting(profilePropertySetting3, true);
-      profileSettingStorage.saveProfilePropertySetting(profilePropertySetting4, true);
-      profileSettingStorage.saveProfilePropertySetting(profilePropertySetting5, true);
-      profileSettingStorage.saveProfilePropertySetting(profilePropertySetting6, true);
-      assertEquals(6, profileSettingStorage.getPropertySettings().size());
-    } catch (Exception e) {
-      LOG.error(e.getMessage());
-      fail(e.getMessage());
-    }
+    assertEquals(0, profileSettingStorage.getPropertySettings().size());
+    ProfilePropertySetting profilePropertySetting1 = createProfileSettingInstance("test10");
+    ProfilePropertySetting profilePropertySetting2 = createProfileSettingInstance("test20");
+    ProfilePropertySetting profilePropertySetting3 = createProfileSettingInstance("test30");
+    ProfilePropertySetting profilePropertySetting4 = createProfileSettingInstance("test40");
+    ProfilePropertySetting profilePropertySetting5 = createProfileSettingInstance("test50");
+    ProfilePropertySetting profilePropertySetting6 = createProfileSettingInstance("test60");
+    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting1, true);
+    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting2, true);
+    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting3, true);
+    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting4, true);
+    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting5, true);
+    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting6, true);
+    List<ProfilePropertySetting> profilePropertySettings = profileSettingStorage.getPropertySettings();
+    assertEquals(6, profilePropertySettings.size());
+    assertEquals("test30", profilePropertySettings.get(2).getPropertyName());
+    assertEquals("test40", profilePropertySettings.get(3).getPropertyName());
   }
 
   public void testGetSynchronizedProperties() {
@@ -108,6 +96,18 @@ public class ProfileSettingStorageTest extends AbstractCoreTest {
     profilePropertySetting.setGroupSynchronized(true);
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
     assertEquals(1, profileSettingStorage.getSynchronizedPropertySettings().size());
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    deleteAllSettings();
+    super.tearDown();
+  }
+
+  protected void deleteAllSettings() {
+    for (ProfilePropertySetting p : profileSettingStorage.getPropertySettings()) {
+      profileSettingStorage.deleteProfilePropertySetting(p.getId());
+    }
   }
 
   private ProfilePropertySetting createProfileSettingInstance(String propertyName) {
@@ -121,18 +121,6 @@ public class ProfileSettingStorageTest extends AbstractCoreTest {
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
     return profilePropertySetting;
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
-    deleteAllSettingss();
-    super.tearDown();
-  }
-
-  protected void deleteAllSettingss() {
-    for (ProfilePropertySetting p : profileSettingStorage.getPropertySettings()) {
-      profileSettingStorage.deleteProfilePropertySetting(p.getId());
-    }
   }
 
 }

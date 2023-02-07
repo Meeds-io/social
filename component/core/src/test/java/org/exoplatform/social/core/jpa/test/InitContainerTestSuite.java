@@ -24,7 +24,6 @@ import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.core.jpa.storage.*;
 import org.exoplatform.social.core.jpa.storage.dao.*;
-import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
 
 @SuiteClasses({
     ActivityDAOTest.class,
@@ -37,12 +36,12 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
     IdentityStorageTest.class,
     RDBMSSpaceStorageTest.class,
     ProfileSettingStorageTest.class,
-    LabelStorageTest.class,
+    ProfileLabelStorageTest.class,
     SpaceMemberDAOTest.class,
     SpaceExternalInvitationDAOTest.class,
     SpaceDAOTest.class,
     SpaceDAOTest.class,
-    LabelDAOTest.class
+    ProfileLabelDAOTest.class
 })
 
 @ConfigTestCase(AbstractCoreTest.class)

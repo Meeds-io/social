@@ -31,7 +31,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
@@ -44,12 +44,12 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
 
   private final IdentityManager                identityManager;
 
-  private final ProfilePropertySettingsService profilePropertySettingsService;
+  private final ProfilePropertyService profilePropertyService;
 
   public SocialUserProfileEventListenerImpl(IdentityManager identityManager,
-                                            ProfilePropertySettingsService profilePropertySettingsService) {
+                                            ProfilePropertyService profilePropertyService) {
     this.identityManager = identityManager;
-    this.profilePropertySettingsService = profilePropertySettingsService;
+    this.profilePropertyService = profilePropertyService;
   }
 
   @Override
@@ -65,7 +65,7 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
     Map<String, String> properties = userProfile.getUserInfoMap();
     exlcudedAttributeList.forEach(properties.keySet()::remove);
     properties.forEach((name, value) -> {
-      updateProfilePropertySettings(name, profilePropertySettingsService);
+      updateProfilePropertySettings(name, profilePropertyService);
       if (isNew) {
         profile.setProperty(name, value);
       } else if (!StringUtils.equals((String) profile.getProperty(name), userProfile.getAttribute(name))) {
@@ -89,19 +89,15 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
       profile.setListUpdateTypes(updateTypes);
     }
 
-    if (hasUpdated.get() && !isNew) {
-      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-      identityManager.updateProfile(profile);
-    }
-
-    if (isNew) {
+    if (hasUpdated.get() || isNew) {
       IdentityStorage identityStorage = CommonsUtils.getService(IdentityStorage.class);
       identityStorage.updateProfile(profile);
     }
+
   }
 
-  private void updateProfilePropertySettings(String propertyName, ProfilePropertySettingsService profilePropertySettingsService) {
-    ProfilePropertySetting propertySetting = profilePropertySettingsService.getProfileSettingByName(propertyName);
+  private void updateProfilePropertySettings(String propertyName, ProfilePropertyService profilePropertyService) {
+    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
     if (propertySetting == null) {
       ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
       profilePropertySetting.setPropertyName(propertyName);
@@ -111,9 +107,9 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
       profilePropertySetting.setVisible(true);
       profilePropertySetting.setParentId(null);
       try {
-        profilePropertySettingsService.createPropertySetting(profilePropertySetting);
+        profilePropertyService.createPropertySetting(profilePropertySetting);
       } catch (ObjectAlreadyExistsException e) {
-        LOG.error("Error while adding new profile setting property", e);
+        LOG.error("Cannot add new profile setting property with name {}, already exist", propertyName, e);
       }
     }
   }

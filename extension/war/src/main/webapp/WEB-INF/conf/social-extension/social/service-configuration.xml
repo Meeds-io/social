@@ -95,6 +95,9 @@
   <component>
     <type>org.exoplatform.social.rest.api.ProfileSettingsRest</type>
   </component>
+  <component>
+    <type>org.exoplatform.social.rest.api.ProfileLabelRest</type>
+  </component>
   <!-- END: Supported REST service -->
 
 <!-- Getting Started Services -->
