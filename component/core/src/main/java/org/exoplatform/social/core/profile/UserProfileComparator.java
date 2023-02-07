@@ -42,14 +42,7 @@ public class UserProfileComparator {
   }
 
   public static boolean hasChanged(Profile profileToUpdate, Profile existingProfile, List<String> keys) {
-    if (keys != null && !keys.isEmpty()) {
-      for (String key : keys) {
-        if (hasChanged(profileToUpdate, existingProfile, key)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return keys != null && keys.stream().anyMatch(key -> hasChanged(profileToUpdate, existingProfile, key));
   }
 
   @SuppressWarnings("unchecked")

@@ -52,7 +52,7 @@ export default {
     },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = item.labels && item.labels.find(v => v.language === lang);
+      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
       if (resolvedLabel){
         return resolvedLabel.label;
       }
