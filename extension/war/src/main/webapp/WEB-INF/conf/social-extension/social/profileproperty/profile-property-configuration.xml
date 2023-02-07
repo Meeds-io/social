@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+
+<configuration
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
+   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+	<external-component-plugins>
+		<target-component>org.exoplatform.social.core.profileproperty.ProfilePropertyService</target-component>
+		<component-plugin>
+			<name>initProfileProperties</name>
+			<set-method>addProfilePropertyPlugin</set-method>
+			<type>org.exoplatform.social.core.profileproperty.ProfilePropertyDatabaseInitializer</type>
+			<description>this listener populate profile property settings data for the first launch</description>
+			<init-params>
+				<value-param>
+					<name>checkDatabaseAlgorithm</name>
+					<description>check database</description>
+					<value>entry</value>
+				</value-param>
+				<value-param>
+					<name>updateProperties</name>
+					<description>Update existing properties</description>
+					<value>false</value>
+				</value-param>
+				<object-param>
+					<name>configuration</name>
+					<description>description</description>
+					<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig">
+						<field  name="profileProperties">
+							<collection type="java.util.ArrayList">
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>fullName</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>false</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>1</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>firstName</string>
+										</field>
+										<field  name="visible">
+											<boolean>false</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>true</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>2</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>lastName</string>
+										</field>
+										<field  name="visible">
+											<boolean>false</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>true</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>3</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>email</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>true</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>4</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>position</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>5</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>company</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>6</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>location</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>7</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>department</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>8</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>team</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>9</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>profession</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>10</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>country</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>12</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>city</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>13</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>phones</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>14</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>phones.work</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>phones</string>
+										</field>
+										<field  name="order">
+											<int>15</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>phones.home</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>phones</string>
+										</field>
+										<field  name="order">
+											<int>16</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>phones.other</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>phones</string>
+										</field>
+										<field  name="order">
+											<int>17</int>
+										</field>
+									</object>
+								</value>
+
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>ims</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>18</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>ims.facebook</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>ims</string>
+										</field>
+										<field  name="order">
+											<int>19</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>ims.msn</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>ims</string>
+										</field>
+										<field  name="order">
+											<int>20</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>ims.jitsi</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>ims</string>
+										</field>
+										<field  name="order">
+											<int>21</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>ims.skype</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>ims</string>
+										</field>
+										<field  name="order">
+											<int>22</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>ims.other</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>false</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="parentName">
+											<string>ims</string>
+										</field>
+										<field  name="order">
+											<int>23</int>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.social.core.profileproperty.ProfilePropertyConfig$ProfileProperty">
+										<field  name="propertyName">
+											<string>urls</string>
+										</field>
+										<field  name="visible">
+											<boolean>true</boolean>
+										</field>
+										<field  name="editable">
+											<boolean>true</boolean>
+										</field>
+										<field  name="active">
+											<boolean>true</boolean>
+										</field>
+										<field  name="required">
+											<boolean>false</boolean>
+										</field>
+										<field  name="multiValued">
+											<boolean>true</boolean>
+										</field>
+										<field  name="groupSynchronized">
+											<boolean>false</boolean>
+										</field>
+										<field  name="order">
+											<int>24</int>
+										</field>
+									</object>
+								</value>
+							</collection>
+						</field>
+					</object>
+				</object-param>
+			</init-params>
+		</component-plugin>
+	</external-component-plugins>
+</configuration>

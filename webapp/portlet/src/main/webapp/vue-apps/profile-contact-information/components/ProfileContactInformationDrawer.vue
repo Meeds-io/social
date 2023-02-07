@@ -201,6 +201,7 @@ export default {
       document.dispatchEvent(new CustomEvent('userModified'));
     }, 
     cancel() {
+      this.refresh();
       this.$refs.profileContactInformationDrawer.close();
     },
     open() {
@@ -214,7 +215,7 @@ export default {
     },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = item.labels.find(v => v.language === lang);
+      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
       if (resolvedLabel){
         return resolvedLabel.label;
       }

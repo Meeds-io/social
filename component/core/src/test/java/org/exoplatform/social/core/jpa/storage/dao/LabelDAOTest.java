@@ -15,17 +15,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.social.core.jpa.storage.dao;
+
+import java.util.List;
+
 import org.exoplatform.social.core.jpa.storage.dao.jpa.LabelDAO;
 import org.exoplatform.social.core.jpa.storage.entity.LabelEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
-import java.util.List;
-
 public class LabelDAOTest extends BaseCoreTest {
   private LabelDAO labelDAO;
-  private String objectId = "1";
-  private String objectType = "testObject";
 
+  private final String   objectId   = "1";
+
+  private final String   objectType = "testObject";
 
   @Override
   public void setUp() throws Exception {
@@ -39,31 +41,28 @@ public class LabelDAOTest extends BaseCoreTest {
     super.tearDown();
   }
 
-  public void testCreateLabel() throws Exception {
+  public void testCreateLabel() {
     LabelEntity labelEntity = createLabel("test label fr", "fr");
 
     labelDAO.create(labelEntity);
 
-    end();
-    begin();
+    restartTransaction();
 
     LabelEntity result = labelDAO.find(labelEntity.getId());
     assertNotNull(result);
-    assertEquals(result.getId(), labelEntity);
+    assertEquals(result.getId(), labelEntity.getId());
   }
 
-  public void testFindLabelByObjectTypeAndObjectIdAndLang() throws Exception {
+  public void testFindLabelByObjectTypeAndObjectIdAndLang() {
     LabelEntity labelEntityFr = createLabel("test label fr", "fr");
 
     labelEntityFr = labelDAO.create(labelEntityFr);
 
     LabelEntity labelEntityEn = createLabel("test label en", "en");
 
-    labelEntityEn = labelDAO.create(labelEntityEn);
+    labelDAO.create(labelEntityEn);
 
-
-    end();
-    begin();
+    restartTransaction();
 
     LabelEntity result = labelDAO.findLabelByObjectTypeAndObjectIdAndLang(objectType, objectId, "fr");
     assertNotNull(result);
@@ -74,7 +73,7 @@ public class LabelDAOTest extends BaseCoreTest {
     assertEquals(3, results.size());
   }
 
-  public void testFindLabelByObjectTypeAndObjectId() throws Exception {
+  public void testFindLabelByObjectTypeAndObjectId() {
     LabelEntity labelEntityFr = createLabel("test label fr", "fr");
 
     labelDAO.create(labelEntityFr);
@@ -87,8 +86,7 @@ public class LabelDAOTest extends BaseCoreTest {
 
     labelDAO.create(labelEntityDe);
 
-    end();
-    begin();
+    restartTransaction();
 
     List<LabelEntity> results = labelDAO.findLabelByObjectTypeAndObjectId(objectType, objectId);
     assertNotNull(results);

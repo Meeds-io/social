@@ -1,110 +1,52 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 
 package org.exoplatform.social.core.profileproperty.model;
 
-public class  ProfilePropertySetting {
-  String       propertyName;
-  boolean      isVisible;
-  boolean      isEditable;
-  Long         parentId;
-  Long          order;
-  boolean      isActive;
-  boolean      isGroupSynchronized;
-  boolean      isRequired;
-  boolean      isMultiValued;
-  private Long id;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-  public Long getId() {
-    return id;
-  }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProfilePropertySetting {
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+  private String  propertyName;
 
-  public String getPropertyName() {
-    return propertyName;
-  }
+  private boolean isVisible;
 
-  public void setPropertyName(String propertyName) {
-    this.propertyName = propertyName;
-  }
+  private boolean isEditable;
 
-  public boolean isVisible() {
-    return isVisible;
-  }
+  private Long    parentId;
 
-  public void setVisible(boolean visible) {
-    isVisible = visible;
-  }
+  private Long    order;
 
-  public boolean isEditable() {
-    return isEditable;
-  }
+  private boolean isActive;
 
-  public void setEditable(boolean editable) {
-    isEditable = editable;
-  }
+  private boolean isGroupSynchronized;
 
-  public Long getParentId() {
-    return parentId;
-  }
+  private boolean isRequired;
 
-  public void setParentId(Long parentId) {
-    this.parentId = parentId;
-  }
+  private boolean isMultiValued;
 
-  public Long getOrder() {
-    return order;
-  }
-
-  public void setOrder(Long order) {
-    this.order = order;
-  }
-
-  public boolean isActive() {
-    return isActive;
-  }
-
-  public void setActive(boolean active) {
-    isActive = active;
-  }
-
-  public boolean isGroupSynchronized() {
-    return isGroupSynchronized;
-  }
-
-  public boolean isRequired() {
-    return isRequired;
-  }
-
-  public void setRequired(boolean required) {
-    isRequired = required;
-  }
-
-  public void setGroupSynchronized(boolean groupSynchronized) {
-    isGroupSynchronized = groupSynchronized;
-  }
-
-  public boolean isMultiValued() {
-    return isMultiValued;
-  }
-
-  public void setMultiValued(boolean multiValued) {
-    isMultiValued = multiValued;
-  }
+  private Long    id;
 }
