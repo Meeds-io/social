@@ -22,12 +22,12 @@
   <parent>
     <artifactId>maven-parent-pom</artifactId>
     <groupId>org.exoplatform</groupId>
-    <version>27-M02</version>
+    <version>27-devx-SNAPSHOT</version>
     <relativePath />
   </parent>
   <groupId>org.exoplatform.social</groupId>
   <artifactId>social</artifactId>
-  <version>7.0.x-exo-SNAPSHOT</version>
+  <version>7.0.x-devx-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo PLF:: Social</name>
   <description>eXo Social - Enterprise Social Networking</description>
@@ -46,8 +46,8 @@
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
-    <org.exoplatform.commons.version>7.0.x-exo-SNAPSHOT</org.exoplatform.commons.version>
-    <org.exoplatform.platform-ui.version>7.0.x-exo-SNAPSHOT</org.exoplatform.platform-ui.version>
+    <org.exoplatform.commons.version>7.0.x-devx-SNAPSHOT</org.exoplatform.commons.version>
+    <org.exoplatform.platform-ui.version>7.0.x-devx-SNAPSHOT</org.exoplatform.platform-ui.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
