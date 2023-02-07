@@ -13,7 +13,11 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.services.thumbnail.ImageResizeService;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
@@ -53,6 +57,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private IdentityManager     identityManager;
 
+  private ProfilePropertyService profilePropertyService;
+
   private UserACL             userACL;
 
   private RelationshipManager relationshipManager;
@@ -79,6 +85,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private Identity            demoIdentity;
 
+  private List<ProfilePropertySetting>     tearDownProfilePropertyList = new ArrayList<>();
+
   public void setUp() throws Exception {
     super.setUp();
 
@@ -86,6 +94,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
+    profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
     userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
@@ -124,6 +133,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void tearDown() throws Exception {
     super.tearDown();
+    for(ProfilePropertySetting propertySetting : tearDownProfilePropertyList){
+      profilePropertyService.deleteProfilePropertySetting(propertySetting.getId());
+    }
     removeResource(UserRestResourcesV1.class);
   }
 
@@ -383,11 +395,20 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testGetUserProfilePropertiesById() throws Exception {
     startSessionAs("root");
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setPropertyName(Profile.FIRST_NAME);
+    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
+    profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setPropertyName(Profile.LAST_NAME);
+    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
+    profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setPropertyName(Profile.EMAIL);
+    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
     ContainerResponse response = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     ArrayList collections = (ArrayList) response.getEntity();
-    assertEquals(15, collections.size());
+    assertEquals(3, collections.size());
   }
 
   public void testGetUserAvatarForAnonymous() throws Exception {
@@ -1015,6 +1036,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
 
     String johnEmail = "john@platform.com";
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setPropertyName(Profile.EMAIL);
+    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
     startSessionAs("john");
     ContainerResponse response = service("PATCH",
                                          getURLResource("users/john"),
