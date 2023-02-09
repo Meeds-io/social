@@ -264,13 +264,18 @@ public class RestUtils {
   }
 
   public static final long getCurrentUserIdentityId() {
-    return isAnonymous() ? 0 : Long.parseLong(getUserIdentity(getCurrentUser()).getId());
+    String currentUser = getCurrentUser();
+    if (isAnonymous() || currentUser == null) {
+      return 0;
+    }
+    Identity userIdentity = getUserIdentity(currentUser);
+    String id = userIdentity == null ? null : userIdentity.getId();
+    return id == null ? 0 : Long.parseLong(id);
   }
 
   public static final String getCurrentUser() {
     return isAnonymous() ? null : ConversationState.getCurrent().getIdentity().getUserId();
   }
-
 
   /**
    * gets online identities who are members of a space.

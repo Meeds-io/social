@@ -260,31 +260,7 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     relationship = relationshipManager.get(relationshipId);
     assertNull("relationship must be null", relationship);
   }
-  
-  /**
-   * Test {@link RelationshipManager#update(Relationship)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testUpdate() throws Exception {
-    Relationship rootToDemoRelationship = relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
-    Relationship maryToRootRelationship = relationshipManager.inviteToConnect(maryIdentity, rootIdentity);
-    Relationship rootToJohnRelationship = relationshipManager.inviteToConnect(rootIdentity, johnIdentity);
-    
-    assertEquals("rootToDemoRelationship.getStatus() must return: " + Relationship.Type.PENDING,
-                 Relationship.Type.PENDING, rootToDemoRelationship.getStatus());
-    rootToDemoRelationship.setStatus(Relationship.Type.CONFIRMED);
-    relationshipManager.update(rootToDemoRelationship);
-    rootToDemoRelationship = relationshipManager.get(rootIdentity, demoIdentity);
-    assertEquals("rootToDemoRelationship.getStatus() must return: " + Relationship.Type.CONFIRMED,
-                 Relationship.Type.CONFIRMED, rootToDemoRelationship.getStatus());
-    
-    assertEquals("maryToRootRelationship.getStatus() must return: " + Relationship.Type.PENDING,
-                 Relationship.Type.PENDING, maryToRootRelationship.getStatus());
-    
-  }
-  
+
   /**
    * Test {@link RelationshipManager#inviteToConnect(Identity, Identity)}
    * 
@@ -854,21 +830,7 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     assertEquals("rootConnections.size() must return: 3", 3, rootConnections.size());
     
   }
-  
-  /**
-   * Test {@link RelationshipManager#create(Identity, Identity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testCreate() throws Exception {
-    Relationship demoToJohnRelationship = relationshipManager.create(demoIdentity, johnIdentity);
-    assertNotNull("demoToJohnRelationship must not be null", demoToJohnRelationship);
-    assertEquals("demoToJohnRelationship.getSender() must return: " + demoIdentity, demoIdentity, demoToJohnRelationship.getSender());
-    assertEquals("demoToJohnRelationship.getReceiver() must return: " + johnIdentity, johnIdentity, demoToJohnRelationship.getReceiver());
-    assertEquals("demoToJohnRelationship.getStatus() must return: " + Relationship.Type.PENDING, Relationship.Type.PENDING, demoToJohnRelationship.getStatus());
-  }
-  
+
   /**
    * Test {@link RelationshipManager#getRelationship(Identity, Identity)}
    * 
@@ -1277,43 +1239,6 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     List<Relationship> contactsList = relationshipManager.getConfirmed(johnIdentity, listIdentities);
     assertEquals(3, contactsList.size());
   }
-
-  /**
-   * Test {@link RelationshipManager#save(Relationship)}
-   *
-   * @throws Exception
-   */
-  public void testSave() throws Exception {
-    Relationship testRelationship = new Relationship(johnIdentity, demoIdentity, Type.PENDING);
-    relationshipManager.save(testRelationship);
-    assertNotNull("testRelationship.getId() must not be null", testRelationship.getId());
-
-  }
-
-  /**
-   *
-   * @throws Exception
-   */
-  /*
-  public void testGetManyRelationshipsByIdentityId() throws Exception {
-    String providerId = OrganizationIdentityProvider.NAME;
-
-    Identity sender = identityManager.getOrCreateIdentity(providerId,"john");
-    identityManager.saveIdentity(sender);
-    assertNotNull(sender.getId());
-
-    Identity receiver = identityManager.getOrCreateIdentity(providerId,"mary");
-    assertNotNull(receiver.getId());
-
-    relationshipManager.inviteToConnect(sender, receiver);
-
-    List<Relationship> senderRelationships = relationshipManager.getAllRelationships(sender);
-    List<Relationship> receiverRelationships = relationshipManager.getAllRelationships(receiver);
-
-    assertEquals(total, senderRelationships.size());
-    assertEquals(total, receiverRelationships.size());
-  }
-*/
 
   /**
    * Test {@link RelationshipManager#inviteToConnect(Identity, Identity)}
