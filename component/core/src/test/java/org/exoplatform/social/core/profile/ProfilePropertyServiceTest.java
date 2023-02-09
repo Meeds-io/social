@@ -32,9 +32,9 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 
 public class ProfilePropertyServiceTest extends AbstractCoreTest {
 
-  private ProfilePropertyService profilePropertyService;
+  private ProfilePropertyService    profilePropertyService;
 
-  private ProfilePropertySettingDAO      profilePropertySettingDAO;
+  private ProfilePropertySettingDAO profilePropertySettingDAO;
 
   @Override
   public void setUp() throws Exception {
@@ -45,8 +45,7 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
     profilePropertySettingDAO.deleteAll();
     super.tearDown();
   }

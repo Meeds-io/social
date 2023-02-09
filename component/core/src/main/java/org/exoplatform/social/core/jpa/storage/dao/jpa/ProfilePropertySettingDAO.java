@@ -18,37 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
+
+import java.util.List;
+
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-import java.util.Collections;
-import java.util.List;
-
 public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfilePropertySettingEntity, Long> {
-    public ProfilePropertySettingEntity findProfileSettingByName(String name) {
-        TypedQuery<ProfilePropertySettingEntity> query = getEntityManager().createNamedQuery("SocProfileSettingEntity.findProfileSettingByName",ProfilePropertySettingEntity.class)
-        .setParameter("name", name);
-        try {
-            return query.getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        }
-
+  public ProfilePropertySettingEntity findProfileSettingByName(String name) {
+    TypedQuery<ProfilePropertySettingEntity> query =
+                                                   getEntityManager().createNamedQuery("SocProfileSettingEntity.findProfileSettingByName",
+                                                                                       ProfilePropertySettingEntity.class)
+                                                                     .setParameter("name", name);
+    try {
+      return query.getSingleResult();
+    } catch (NoResultException e) {
+      return null;
     }
 
-    public List<ProfilePropertySettingEntity> findSynchronizedSettings() {
-      TypedQuery<ProfilePropertySettingEntity> query =
-                                                     getEntityManager().createNamedQuery("SocProfileSettingEntity.findSynchronizedSettings",
-                                                                                         ProfilePropertySettingEntity.class);
-      try {
-        return query.getResultList();
-      } catch (NoResultException e) {
-        return Collections.emptyList();
-      }
-    }
+  }
+
+  public List<ProfilePropertySettingEntity> findSynchronizedSettings() {
+    TypedQuery<ProfilePropertySettingEntity> query =
+                                                   getEntityManager().createNamedQuery("SocProfileSettingEntity.findSynchronizedSettings",
+                                                                                       ProfilePropertySettingEntity.class);
+    return query.getResultList();
+  }
 }

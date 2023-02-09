@@ -18,24 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.exoplatform.social.core.model;
+package org.exoplatform.social.core.profileproperty;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Label {
+public class ProfileProperty {
+  private String  propertyName;
 
-  private Long id;
+  private boolean visible;
 
-  private String objectId;
+  private boolean editable;
 
-  private String objectType;
+  private String  parentName;
 
-  private String label;
+  private int     order;
 
-  private String language;
+  private boolean active;
+
+  private boolean groupSynchronized;
+
+  private boolean required;
+
+  private boolean multiValued;
+
 }

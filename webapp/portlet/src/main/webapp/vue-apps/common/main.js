@@ -16,7 +16,7 @@ import {spacesConstants} from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
 import * as brandingService from './js/brandingService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
-import * as labelService from '../common/js/LabelService.js';
+import * as profileLabelService from '../common/js/ProfileLabelService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -83,8 +83,8 @@ window.Object.defineProperty(Vue.prototype, '$brandingService', {
 window.Object.defineProperty(Vue.prototype, '$profileSettingsService', {
   value: profileSettingsService,
 });
-window.Object.defineProperty(Vue.prototype, '$labelService', {
-  value: labelService,
+window.Object.defineProperty(Vue.prototype, '$profileLabelService', {
+  value: profileLabelService,
 });
 
 if (eXo.env.portal.userIdentityId) {

@@ -79,8 +79,8 @@ public class ProfilePropertyDatabaseInitializer extends BaseComponentPlugin impl
   }
 
   protected void createProperties(ProfilePropertyService profilePropertyService) {
-    List<ProfilePropertyConfig.ProfileProperty> properties = config.getProfileProperties();
-    for (ProfilePropertyConfig.ProfileProperty data : properties) {
+    List<ProfileProperty> properties = config.getProfileProperties();
+    for (ProfileProperty data : properties) {
       try {
         ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
         profilePropertySetting.setPropertyName(data.getPropertyName());

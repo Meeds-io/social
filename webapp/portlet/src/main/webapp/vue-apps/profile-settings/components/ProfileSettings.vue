@@ -49,12 +49,14 @@ export default {
     type: '',
     message: '',
     settings: [],
-    filter: 'Active',
-    labelsObjectType: 'profileProperty',
+    filter: 'Active'
   }),
   created() {
     this.$root.$on('update-setting', this.editSetting);
     this.$root.$on('create-setting', this.createSetting);
+    this.$root.$on('update-labels', this.updateLabels);
+    this.$root.$on('create-labels', this.createLabels);
+    this.$root.$on('delete-labels', this.deleteLabels);
     this.$root.$on('move-up-setting', this.moveUpSetting);
     this.$root.$on('move-down-setting', this.moveDownSetting);
     this.$root.$on('settings-set-filter', this.setFilter);
@@ -93,51 +95,45 @@ export default {
     },
     editSetting(setting,refresh) {
       this.$profileSettingsService.updateSetting(setting).then(() => {
-        this.$labelService.mergeLabels(setting.labels,this.labelsObjectType,setting.id).then(() => {
-          this.$root.$emit('close-settings-form-drawer');      
-          if (refresh){
-            this.getSettings();
-          }
-          this.displayMessage({type: 'success', message: this.$t('profileSettings.update.success.message')});
-        });
+        this.$root.$emit('close-settings-form-drawer');      
+        if (refresh){
+          this.getSettings();
+        }
+        this.displayMessage({type: 'success', message: this.$t('profileSettings.update.success.message')});
       }).catch(e => {
         console.error(e);
         this.displayMessage({type: 'error', message: this.$t(e.message)});
       });
     },
     createSetting(setting) {
-      this.$profileSettingsService.addSetting(setting).then(() => {
-        this.$labelService.addLabels(setting.labels,this.labelsObjectType,setting.id).then(() => {
+      this.$profileSettingsService.addSetting(setting).then(storedSetting => {
+        if (setting.labels && setting.labels.length>0){
+          setting.labels.forEach(element => {
+            element.objectId=storedSetting.id;
+          });
+          this.$profileLabelService.addLabels(setting.labels).then(() => {
+            this.$root.$emit('close-settings-form-drawer');  
+            this.getSettings();
+            this.displayMessage({type: 'success', message: this.$t('profileSettings.create.success.message')});
+          });
+        } else {
           this.$root.$emit('close-settings-form-drawer');  
           this.getSettings();
           this.displayMessage({type: 'success', message: this.$t('profileSettings.create.success.message')});
-        });
+        }
       }).catch(e => {
         console.error(e);
         this.displayMessage({type: 'error', message: this.$t(e.message)});
       });
     },
-    getLabels(id) {
-      return this.$labelService.getLabels(this.labelsObjectType,id)
-        .then(labels => {
-          return labels || [];
-        });
+    updateLabels(labels) {
+      this.$profileLabelService.updateLabels(labels);
     },
-    editLabels(labels,id) {
-      this.$profileSettingsService.mergeLabels(labels,this.labelsObjectType,id).then(() => {
-        return this.getLabels(this.labelsObjectType,id);
-      }).catch(e => {
-        console.error(e);
-        this.displayMessage({type: 'error', message: this.$t(e.message)});
-      });
+    createLabels(labels) {
+      this.$profileLabelService.addLabels(labels);
     },
-    createLabels(labels,id) {
-      this.$labelService.addLabels(labels,this.labelsObjectType,id).then(() => {
-        return this.getLabels(id);
-      }).catch(e => {
-        console.error(e);
-        this.displayMessage({type: 'error', message: this.$t(e.message)});
-      });
+    deleteLabels(labels) {
+      this.$profileLabelService.deleteLabels(labels);
     },
     setFilter(filter) {
       this.filter = filter;

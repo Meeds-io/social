@@ -30,6 +30,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.*;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
@@ -100,6 +101,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
       }
       spaceService.deleteSpace(space);
     }
+    getService(ProfilePropertySettingDAO.class).deleteAll();
     super.tearDown();
   }
 

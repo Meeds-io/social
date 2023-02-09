@@ -42,15 +42,15 @@ import org.exoplatform.social.core.relationship.model.Relationship;
  */
 public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String           TYPE = "profile";
+  public static final String    TYPE = "profile";
 
-  private static final Log             LOG  = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
+  private static final Log      LOG  = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
 
-  private final IdentityManager        identityManager;
+  private final IdentityManager identityManager;
 
-  private final ConnectionDAO          connectionDAO;
+  private final ConnectionDAO   connectionDAO;
 
-  private final IdentityDAO            identityDAO;
+  private final IdentityDAO     identityDAO;
 
   private final ProfilePropertyService profilePropertyService;
 
@@ -158,57 +158,57 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   @Override
   public String getMapping() {
-    StringBuilder mapping =
-                          new StringBuilder().append("{")
-                                             .append("  \"properties\" : {\n")
-                                             .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
-                                             .append("    \"name\" : {")
-                                             .append("      \"type\" : \"text\",")
-                                             .append("      \"index_options\": \"offsets\",")
-                                             .append("      \"fields\": {")
-                                             .append("        \"raw\": {")
-                                             .append("          \"type\": \"keyword\"")
-                                             .append("        },")
-                                             .append("        \"whitespace\": {")
-                                             .append("          \"type\": \"text\",")
-                                             .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-                                             .append("        }")
-                                             .append("      }")
-                                             .append("    },\n")
-                                             .append("    \"firstName\" : {")
-                                             .append("      \"type\" : \"text\",")
-                                             .append("      \"index_options\": \"offsets\",")
-                                             .append("      \"fields\": {")
-                                             .append("        \"raw\": {")
-                                             .append("          \"type\": \"keyword\"")
-                                             .append("        },")
-                                             .append("        \"whitespace\": {")
-                                             .append("          \"type\": \"text\",")
-                                             .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-                                             .append("        }")
-                                             .append("      }")
-                                             .append("    },\n")
-                                             .append("    \"lastName\" : {")
-                                             .append("      \"type\" : \"text\",")
-                                             .append("      \"index_options\": \"offsets\",")
-                                             .append("      \"fields\": {")
-                                             .append("        \"raw\": {")
-                                             .append("          \"type\": \"keyword\"")
-                                             .append("        },")
-                                             .append("        \"whitespace\": {")
-                                             .append("          \"type\": \"text\",")
-                                             .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-                                             .append("        }")
-                                             .append("      }")
-                                             .append("    },\n")
-                                             .append("    \"email\" : {\"type\" : \"keyword\"},\n")
-                                             .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
-                                             .append("    \"position\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
-                                             .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
-                                             .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
-                                             .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
-                                             .append("  }\n")
-                                             .append("}");
+    StringBuilder mapping = new StringBuilder()
+            .append("{")
+            .append("  \"properties\" : {\n")
+            .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
+            .append("    \"name\" : {")
+            .append("      \"type\" : \"text\",")
+            .append("      \"index_options\": \"offsets\",")
+            .append("      \"fields\": {")
+            .append("        \"raw\": {")
+            .append("          \"type\": \"keyword\"")
+            .append("        },")
+            .append("        \"whitespace\": {")
+            .append("          \"type\": \"text\",")
+            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+            .append("        }")
+            .append("      }")
+            .append("    },\n")
+            .append("    \"firstName\" : {")
+            .append("      \"type\" : \"text\",")
+            .append("      \"index_options\": \"offsets\",")
+            .append("      \"fields\": {")
+            .append("        \"raw\": {")
+            .append("          \"type\": \"keyword\"")
+            .append("        },")
+            .append("        \"whitespace\": {")
+            .append("          \"type\": \"text\",")
+            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+            .append("        }")
+            .append("      }")
+            .append("    },\n")
+            .append("    \"lastName\" : {")
+            .append("      \"type\" : \"text\",")
+            .append("      \"index_options\": \"offsets\",")
+            .append("      \"fields\": {")
+            .append("        \"raw\": {")
+            .append("          \"type\": \"keyword\"")
+            .append("        },")
+            .append("        \"whitespace\": {")
+            .append("          \"type\": \"text\",")
+            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+            .append("        }")
+            .append("      }")
+            .append("    },\n")
+            .append("    \"email\" : {\"type\" : \"keyword\"},\n")
+            .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
+            .append("    \"position\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
+            .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
+            .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
+            .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
+            .append("  }\n")
+            .append("}");
 
     return mapping.toString();
   }
@@ -245,7 +245,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
     for (String propertyName : profilePropertyService.getPropertySettingNames()) {
       if (!fields.containsKey(propertyName)) {
-        if (profile.getProperty(propertyName) != null && profile.getProperty(propertyName) instanceof String value) {
+        if (profile.getProperty(propertyName) != null && profile.getProperty(propertyName)instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
             fields.put(propertyName, value);
           }
@@ -271,9 +271,9 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
     Document document = new ProfileIndexDocument(id, null, createdDate, (Set<String>) null, fields);
     LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
-             id,
-             identity.getRemoteId(),
-             System.currentTimeMillis() - ts);
+            id,
+            identity.getRemoteId(),
+            System.currentTimeMillis() - ts);
 
     return document;
   }

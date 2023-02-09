@@ -55,6 +55,14 @@ export default {
       type: Object,
       default: null
     },
+    labelsObjectType: {
+      type: String,
+      default: ''
+    },
+    id: {
+      type: Number,
+      default: 0
+    },
   },
 
   computed: {
@@ -64,12 +72,12 @@ export default {
     filtredLanguages(){
       const result = this.propertylabels.map(a => a.language);
       return this.languages.filter(lang => !result.includes(lang.value));
-    }
+    },
   },
 
   methods: {
     addNewLabel() {
-      this.propertylabels.push( {language: '', label: ''});
+      this.propertylabels.push( {language: '', label: '', objectId: this.id, objectType: this.labelsObjectType});
     },
     deleteLabel(propertylabel) {
       this.propertylabels.splice(this.propertylabels.findIndex(v => v.language === propertylabel.language), 1);

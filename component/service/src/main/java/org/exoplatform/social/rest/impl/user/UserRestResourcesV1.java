@@ -16,23 +16,60 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.*;
+import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
+import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentities;
+import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentitiesOfSpace;
+import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.rest.entity.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -50,7 +87,14 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.rest.http.PATCH;
@@ -74,8 +118,11 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
-import org.exoplatform.social.rest.api.*;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.api.ErrorResource;
+import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.rest.api.UserImportResultEntity;
+import org.exoplatform.social.rest.api.UserRestResources;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -90,87 +137,83 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 /**
+ * 
  * Provides REST Services for manipulating jobs related to users.
+ * 
  */
 
 @Path(VersionResources.VERSION_ONE + "/social/users")
-@Tag(name = VersionResources.VERSION_ONE
-    + "/social/users", description = "Operations on users with their activities, connections and spaces")
+@Tag(name = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRestResourcesV1 implements UserRestResources, Startable {
 
-  public static final String                         PROFILE_DEFAULT_BANNER_URL  = "/skin/images/banner/DefaultUserBanner.png";
+  public static final String  PROFILE_DEFAULT_BANNER_URL = "/skin/images/banner/DefaultUserBanner.png";
 
-  public static final String                         PROFILE_DEFAULT_AVATAR_URL  = "/skin/images/avatar/DefaultUserAvatar.png";
+  public static final String  PROFILE_DEFAULT_AVATAR_URL = "/skin/images/avatar/DefaultUserAvatar.png";
 
-  private static final String                        ONLINE                      = "online";
+  private static final String ONLINE              = "online";
 
-  private static final String                        INTERNAL                    = "internal";
+  private static final String INTERNAL              = "internal";
 
-  private static final String                        CONNECTED                   = "connected";
+  private static final String CONNECTED              = "connected";
 
-  private static final CacheControl                  CACHE_CONTROL               = new CacheControl();
+  private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
-  private static final Date                          DEFAULT_IMAGES_LAST_MODIFED = new Date();
+  private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
 
-  private static final long                          DEFAULT_IMAGES_HASH         = DEFAULT_IMAGES_LAST_MODIFED.getTime();
+  private static final long         DEFAULT_IMAGES_HASH         = DEFAULT_IMAGES_LAST_MODIFED.getTime();
 
   // 3 days
-  private static final int                           CACHE_IN_SECONDS            = 3 * 86400;
+  private static final int          CACHE_IN_SECONDS            = 3 * 86400;
 
-  private static final int                           CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
+  private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
-  public static final UserFieldValidator             USERNAME_VALIDATOR          =
-                                                                        new UserFieldValidator("userName", true, false);
+  public static final UserFieldValidator       USERNAME_VALIDATOR             = new UserFieldValidator("userName", true, false);
 
-  public static final UserFieldValidator             EMAIL_VALIDATOR             = new UserFieldValidator("email", false, false);
+  public static final UserFieldValidator       EMAIL_VALIDATOR                = new UserFieldValidator("email", false, false);
 
-  public static final UserFieldValidator             LASTNAME_VALIDATOR          =
-                                                                        new UserFieldValidator("lastName", false, true);
+  public static final UserFieldValidator       LASTNAME_VALIDATOR             = new UserFieldValidator("lastName", false, true);
 
-  public static final UserFieldValidator             FIRSTNAME_VALIDATOR         =
-                                                                         new UserFieldValidator("firstName", false, true);
+  public static final UserFieldValidator       FIRSTNAME_VALIDATOR            = new UserFieldValidator("firstName", false, true);
 
-  public static final UserFieldValidator             PASSWORD_VALIDATOR          =
-                                                                        new UserFieldValidator("password", false, false, 8, 255);
+  public static final UserFieldValidator       PASSWORD_VALIDATOR             = new UserFieldValidator("password", false, false, 8, 255);
 
-  public static final List<UserFieldValidator>       USER_FIELD_VALIDATORS       = Arrays.asList(USERNAME_VALIDATOR,
-                                                                                                 EMAIL_VALIDATOR,
-                                                                                                 LASTNAME_VALIDATOR,
-                                                                                                 FIRSTNAME_VALIDATOR,
-                                                                                                 PASSWORD_VALIDATOR);
+  public static final List<UserFieldValidator> USER_FIELD_VALIDATORS          = Arrays.asList(USERNAME_VALIDATOR,
+                                                                                              EMAIL_VALIDATOR,
+                                                                                              LASTNAME_VALIDATOR,
+                                                                                              FIRSTNAME_VALIDATOR,
+                                                                                              PASSWORD_VALIDATOR);
 
   private static Map<String, UserImportResultEntity> importUsersProcessing       = new HashMap<>();
 
-  private UserACL                                    userACL;
+  private UserACL userACL;
 
-  private ActivityRestResourcesV1                    activityRestResourcesV1;
+  private ActivityRestResourcesV1 activityRestResourcesV1;
 
-  private OrganizationService                        organizationService;
+  private OrganizationService organizationService;
 
-  private IdentityManager                            identityManager;
+  private IdentityManager identityManager;
 
-  private RelationshipManager                        relationshipManager;
+  private RelationshipManager relationshipManager;
 
-  private UserStateService                           userStateService;
+  private UserStateService userStateService;
 
-  private SpaceService                               spaceService;
+  private SpaceService spaceService;
+  
+  private UserSearchService userSearchService;
 
-  private UserSearchService                          userSearchService;
+  private ImageThumbnailService imageThumbnailService;
 
-  private ImageThumbnailService                      imageThumbnailService;
+  private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
 
-  private static final Log                           LOG                         = ExoLogger.getLogger(UserRestResourcesV1.class);
+  private byte[]              defaultUserAvatar = null;
 
-  private byte[]                                     defaultUserAvatar           = null;
+  private byte[]              defaultUserBanner = null;
 
-  private byte[]                                     defaultUserBanner           = null;
+  private UploadService       uploadService;
 
-  private UploadService                              uploadService;
-
-  private ExecutorService                            importExecutorService       = null;
-
+  private ExecutorService     importExecutorService = null;
+  
   public UserRestResourcesV1(ActivityRestResourcesV1 activityRestResourcesV1,
                              UserACL userACL,
                              OrganizationService organizationService,
@@ -208,54 +251,30 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @GET
   @RolesAllowed("users")
-  @Operation(summary = "Gets all users", method = "GET", description = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"."
-      + "Using the query param \"status\" to filter the target users, ex: \"status=online*\" returns the visible online users."
-      + "Using the query params \"status\" and \"spaceId\" together to filter the target users, ex: \"status=online*\" and \"spaceId=1*\" returns the visible online users who are member of space with id=1."
-      + "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getUsers(@Context
-  UriInfo uriInfo,
-                           @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name")
-                           @QueryParam("q")
-                           String q,
-                           @Parameter(description = "User status to filter online users, ex: online")
-                           @QueryParam("status")
-                           String status,
-                           @Parameter(description = "User type to filter, ex: internal, external")
-                           @DefaultValue("internal")
-                           @QueryParam("userType")
-                           String userType,
-                           @Parameter(description = "Is connected users")
-                           @QueryParam("isConnected")
-                           String isConnected,
-                           @Parameter(description = "Space id to filter only its members, ex: 1")
-                           @QueryParam("spaceId")
-                           String spaceId,
-                           @Parameter(description = "Is disabled users")
-                           @Schema(defaultValue = "false")
-                           @QueryParam("isDisabled")
-                           boolean isDisabled,
-                           @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment")
-                           @QueryParam("enrollmentStatus")
-                           String enrollmentStatus,
-                           @Parameter(description = "Offset")
-                           @Schema(defaultValue = "0")
-                           @QueryParam("offset")
-                           int offset,
-                           @Parameter(description = "Limit")
-                           @Schema(defaultValue = "20")
-                           @QueryParam("limit")
-                           int limit,
-                           @Parameter(description = "Returning the number of users found or not")
-                           @Schema(defaultValue = "false")
-                           @QueryParam("returnSize")
-                           boolean returnSize,
-                           @Parameter(description = "Asking for a full representation of a specific subresource if any")
-                           @QueryParam("expand")
-                           String expand) throws Exception {
+  @Operation(
+          summary = "Gets all users",
+          method = "GET",
+          description = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"."
+                + "Using the query param \"status\" to filter the target users, ex: \"status=online*\" returns the visible online users."
+                + "Using the query params \"status\" and \"spaceId\" together to filter the target users, ex: \"status=online*\" and \"spaceId=1*\" returns the visible online users who are member of space with id=1."
+                + "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "404", description = "Resource not found"),
+    @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response getUsers(@Context UriInfo uriInfo,
+                           @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
+                           @Parameter(description = "User status to filter online users, ex: online") @QueryParam("status") String status,
+                           @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
+                           @Parameter(description = "Is connected users") @QueryParam("isConnected") String isConnected,
+                           @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") String spaceId,
+                           @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
+                           @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
+                           @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                           @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                           @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
 
     String userId;
     try {
@@ -267,8 +286,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
 
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()
-        && userType != null && !userType.equals(INTERNAL)) {
+    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
@@ -285,10 +303,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         if (space != null) {
           identities = getOnlineIdentitiesOfSpace(userStateService, userId, space, limit);
         } else {
-          return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"),
-                                           uriInfo,
-                                           RestUtils.getJsonMediaType(),
-                                           Response.Status.NOT_FOUND);
+          return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"), uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
         }
       } else {
         identities = getOnlineIdentities(userStateService, userId, limit);
@@ -305,8 +320,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
         filter.setEnrollmentStatus(enrollmentStatus);
       }
-      if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null
-          && !userType.equals(INTERNAL)) {
+      if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
         Query query = new Query();
         if (q != null && !q.isEmpty()) {
           query.setUserName(q);
@@ -348,7 +362,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       } else if (isDisabled && q != null && !q.isEmpty()) {
         ListAccess<User> usersListAccess;
         User[] users;
-        if (q.contains("@")) {
+        if(q.contains("@")) {
           Query query = new Query();
           query.setEmail(q);
           usersListAccess = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.DISABLED);
@@ -365,14 +379,13 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         } else {
           users = usersListAccess.load(offset, limitToFetch);
         }
-        identities =
-                   Arrays.stream(users)
-                         .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
-                         .toArray(Identity[]::new);
+        identities = Arrays.stream(users)
+                           .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
+                           .toArray(Identity[]::new);
       } else {
         ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
         identities = list.load(offset, limit);
-        if (returnSize) {
+        if(returnSize) {
           totalSize = list.getSize();
         }
       }
@@ -394,37 +407,41 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(summary = "Creates a new user", method = "POST", description = "This creates the user if the authenticated user is in the /platform/administrators group.")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response addUser(@Context
-  UriInfo uriInfo,
-                          @Parameter(description = "Asking for a full representation of a specific subresource if any")
-                          @QueryParam("expand")
-                          String expand,
-                          @RequestBody(description = "User object to be created, ex:<br />" + "{<br />\"username\": \"john\","
-                              + "<br />\"password\": \"gtngtn\"," + "<br />\"email\": \"john@exoplatform.com\","
-                              + "<br />\"firstname\": \"John\"," + "<br />\"lastname\": \"Smith\"<br />}", required = true)
-                          UserEntity model) throws Exception {
+  @Operation(
+          summary = "Creates a new user",
+          method = "POST",
+          description = "This creates the user if the authenticated user is in the /platform/administrators group.")
+  @ApiResponses(value = { 
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response addUser(@Context UriInfo uriInfo,
+                          @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                          @RequestBody(description = "User object to be created, ex:<br />" +
+                                            "{<br />\"username\": \"john\"," +
+                                            "<br />\"password\": \"gtngtn\"," +
+                                            "<br />\"email\": \"john@exoplatform.com\"," +
+                                            "<br />\"firstname\": \"John\"," +
+                                            "<br />\"lastname\": \"Smith\"<br />}"
+                          		              , required = true) UserEntity model) throws Exception {
     if (model.isNotValid()) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-
-    // Check permission of current user
+    
+    //Check permission of current user
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-
-    // check if the user is already exist
+    
+    //check if the user is already exist
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, model.getUsername());
     if (identity != null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    if (isEmailAlreadyExists(model.getUsername(), model.getEmail())) {
+    if(isEmailAlreadyExists(model.getUsername(), model.getEmail())) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-
-    // Create new user
+    
+    //Create new user
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.createUserInstance(model.getUsername());
     user.setFirstName(model.getFirstname());
@@ -433,30 +450,26 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     user.setPassword(model.getPassword() == null || model.getPassword().isEmpty() ? "exo" : model.getPassword());
     userHandler.createUser(user, true);
     //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(model.getUsername(), uriInfo.getPath(), expand),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(model.getUsername(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @GET
   @Path("{id}")
   @RolesAllowed("users")
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Gets a specific user by user name", method = "GET", description = "This can only be done by the logged in user.")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getUserById(@Context
-  UriInfo uriInfo, @Context
-  Request request,
-                              @Parameter(description = "User name", required = true)
-                              @PathParam("id")
-                              String id,
-                              @Parameter(description = "Asking for a full representation of a specific subresource if any")
-                              @QueryParam("expand")
-                              String expand) throws Exception {
+  @Operation(
+          summary = "Gets a specific user by user name",
+          method = "GET",
+          description = "This can only be done by the logged in user.")
+  @ApiResponses(value = { 
+    @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse (responseCode = "404", description = "Resource not found"),
+    @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response getUserById(@Context UriInfo uriInfo,
+                              @Context Request request,
+                              @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                              @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     //
     if (identity == null) {
@@ -472,8 +485,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       if (StringUtils.isNotBlank(expand) && expand.equals("settings")) {
-        List<ProfilePropertySettingEntity> propertySettingEntities = EntityBuilder.buildProperties(identity.getProfile());
-        builder = Response.ok(propertySettingEntities, MediaType.APPLICATION_JSON);
+        builder = Response.ok(EntityBuilder.buildProperties(identity.getProfile()), MediaType.APPLICATION_JSON);
       } else {
         ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
         builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
@@ -489,16 +501,17 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("email/{email}")
   @RolesAllowed("users")
-  @Operation(summary = "Gets a specific user by user email", method = "GET", description = "This can only be done by the logged in user.")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getUserByEmail(@Context
-  UriInfo uriInfo,
-                                 @Parameter(description = "User email", required = true)
-                                 @PathParam("email")
-                                 String email) throws JSONException {
+  @Operation(
+          summary = "Gets a specific user by user email",
+          method = "GET",
+          description = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "404", description = "Resource not found"),
+          @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input")})
+  public Response getUserByEmail(@Context UriInfo uriInfo,
+                                 @Parameter(description = "User email", required = true) @PathParam("email") String email) throws JSONException {
     User user = getUserByEmail(email);
     if (user == null) {
       return Response.ok().entity("{\"id\":\"" + null + "\"}").build();
@@ -518,30 +531,26 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return Response.ok(jsonObject.toString()).build();
 
   }
-
+  
   @GET
   @Path("{id}/avatar")
-  @Operation(summary = "Gets a specific user avatar by username", method = "GET", description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getUserAvatarById(@Context
-  UriInfo uriInfo, @Context
-  Request request,
-                                    @Parameter(description = "User name", required = true)
-                                    @PathParam("id")
-                                    String id,
-                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
-                                    @QueryParam("lastModified")
-                                    String lastModified,
-                                    @Parameter(description = "Resized avatar size. Use 0x0 for original size.")
-                                    @DefaultValue("45x45")
-                                    @QueryParam("size")
-                                    String size,
-                                    @Parameter(description = "A mandatory valid token that is used to authorize anonymous request")
-                                    @QueryParam("r")
-                                    String token) throws IOException {
+  @Operation(
+          summary = "Gets a specific user avatar by username",
+          method = "GET",
+          description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
+  @ApiResponses(value = {
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response getUserAvatarById(@Context UriInfo uriInfo,
+                                    @Context Request request,
+                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
+                                    @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("45x45") @QueryParam("size") String size,
+                                    @Parameter(
+                                        description = "A mandatory valid token that is used to authorize anonymous request"
+                                    ) @QueryParam("r") String token) throws IOException {
 
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     Identity identity = null;
@@ -567,7 +576,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (isDefault) {
       eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     } else if (lastUpdated != null) {
-      eTag = new EntityTag(lastUpdated + "-" + size);
+      eTag = new EntityTag(lastUpdated+"-"+size);
     }
 
     builder = eTag == null ? null : request.evaluatePreconditions(eTag);
@@ -588,17 +597,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           int[] dimension = Utils.parseDimension(size);
           byte[] avatarContent = null;
           try {
-            if (identityManager.getAvatarFile(identity) != null) {
+            if(identityManager.getAvatarFile(identity) != null) {
               avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                                                                         identity,
-                                                                         dimension[0],
-                                                                         dimension[1])
-                                                   .getAsByte();
+                              identity,
+                              dimension[0],
+                              dimension[1])
+                      .getAsByte();
             }
           } catch (Exception e) {
-            LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned",
-                      identity.getId(),
-                      e);
+            LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned", identity.getId(), e);
           }
           if (avatarContent != null) {
             builder = Response.ok(avatarContent, "image/png");
@@ -628,23 +635,22 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @GET
   @Path("{id}/banner")
-  @Operation(summary = "Gets a specific user banner by username", method = "GET", description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getUserBannerById(@Context
-  UriInfo uriInfo, @Context
-  Request request,
-                                    @Parameter(description = "User name", required = true)
-                                    @PathParam("id")
-                                    String id,
-                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
-                                    @QueryParam("lastModified")
-                                    String lastModified,
-                                    @Parameter(description = "A mandatory valid token that is used to authorize anonymous request")
-                                    @QueryParam("r")
-                                    String token) throws IOException {
+  @Operation(
+          summary = "Gets a specific user banner by username",
+          method = "GET",
+          description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
+  @ApiResponses(value = {
+          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse (responseCode = "404", description = "Resource not found"),
+          @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response getUserBannerById(@Context UriInfo uriInfo,
+                                    @Context Request request,
+                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
+                                    @Parameter(
+                                        description = "A mandatory valid token that is used to authorize anonymous request"
+                                    ) @QueryParam("r") String token) throws IOException {
 
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     Identity identity = null;
@@ -692,9 +698,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           if (stream != null) {
             /*
              * As recommended in the the RFC1341
-             * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we set the banner
-             * content-type to "image/png". So, its data would be recognized as "image" by
-             * the user-agent
+             * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we
+             * set the banner content-type to "image/png". So, its data would be
+             * recognized as "image" by the user-agent
              */
             builder = Response.ok(stream, "image/png");
             builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
@@ -725,21 +731,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @PATCH
   @Path("{id}")
   @Operation(summary = "Update user property", method = "PATCH", description = "This can only be done by the logged in user.")
-  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
       @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
       @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
       @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response updateUserProfileAttribute(@Context
-  HttpServletRequest request,
-                                             @Parameter(description = "User name", required = true)
-                                             @PathParam("id")
-                                             String username,
-                                             @Parameter(description = "User profile attribute name", required = true)
-                                             @FormParam("name")
-                                             String name,
-                                             @Parameter(description = "User profile attribute value", required = true)
-                                             @FormParam("value")
-                                             String value) {
+  public Response updateUserProfileAttribute(@Context HttpServletRequest request,
+                                             @Parameter(description = "User name", required = true) @PathParam("id") String username,
+                                             @Parameter(description = "User profile attribute name", required = true) @FormParam("name") String name,
+                                             @Parameter(description = "User profile attribute value", required = true) @FormParam("value") String value) throws IOException {
     if (StringUtils.isBlank(name)) {
       return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
     }
@@ -791,7 +791,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         profile.setBannerUrl("DEFAULT_BANNER");
         profile.removeProperty(name);
         identityManager.updateProfile(profile, true);
-      } else {
+      } else{
         updateProfileField(profile, fieldName, value, true);
       }
     } catch (IllegalAccessException e) {
@@ -807,18 +807,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   @PATCH
   @Path("{id}/profile")
-  @Operation(summary = "Update set of properties in user profile", method = "PATCH", description = "This can only be done by the logged in user.")
-  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response updateUserProfileAttributes(@Context
-  HttpServletRequest request,
-                                              @Parameter(description = "User name", required = true)
-                                              @PathParam("id")
-                                              String username,
-                                              @RequestBody(description = "User profile attributes map", required = true)
-                                              ProfileEntity profileEntity) throws Exception {
+  @Operation(
+          summary = "Update set of properties in user profile",
+          method = "PATCH",
+          description = "This can only be done by the logged in user.")
+  @ApiResponses(value = {
+      @ApiResponse (responseCode = "204", description = "Request fulfilled but not content returned"),
+      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
+      @ApiResponse (responseCode = "403", description = "Unothorized to modify user profile"),
+      @ApiResponse (responseCode = "400", description = "Invalid query input") })
+  public Response updateUserProfileAttributes(@Context HttpServletRequest request,
+                                              @Parameter(description = "User name", required = true) @PathParam("id") String username,
+                                              @RequestBody(description = "User profile attributes map", required = true) ProfileEntity profileEntity) throws Exception {
     if (StringUtils.isBlank(username)) {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
@@ -871,16 +871,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     return Response.noContent().build();
   }
-
   @PATCH
   @Path("{id}/profile/properties")
   @Operation(summary = "Update set of properties in user profile", method = "PATCH", description = "This can only be done by the logged in user.")
   @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
+          @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response updateUserProfileAttributes(@Context
-  HttpServletRequest request,
+                                              HttpServletRequest request,
                                               @Parameter(description = "User name", required = true)
                                               @PathParam("id")
                                               String username,
@@ -930,33 +929,33 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
         } else {
           switch (profileProperty.getPropertyName()) {
-          case Profile.CONTACT_PHONES:
-            List<PhoneEntity> phoneEntities = new ArrayList<>();
-            for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
-              phoneEntities.add(new PhoneEntity(child.getPropertyName(), child.getValue()));
-              updateProfileField(profile, profileProperty.getPropertyName(), phoneEntities, true);
-            }
-            break;
-          case Profile.CONTACT_IMS:
-            List<IMEntity> imEntities = new ArrayList<>();
-            for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
-              imEntities.add(new IMEntity(child.getPropertyName(), child.getValue()));
-              updateProfileField(profile, profileProperty.getPropertyName(), imEntities, true);
-            }
-            break;
-          case Profile.CONTACT_URLS:
-            List<URLEntity> urlEntities = new ArrayList<>();
-            for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
-              urlEntities.add(new URLEntity(child.getValue()));
-              updateProfileField(profile, profileProperty.getPropertyName(), urlEntities, true);
-            }
-            break;
-          default:
-            List<String> childrenValues = profileProperty.getChildren()
-                                                         .stream()
-                                                         .map(ProfilePropertySettingEntity::getValue)
-                                                         .toList();
-            updateProfileField(profile, profileProperty.getPropertyName(), StringUtils.join(childrenValues, ','), true);
+            case Profile.CONTACT_PHONES:
+              List<PhoneEntity> phoneEntities = new ArrayList<>();
+              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
+                phoneEntities.add(new PhoneEntity(child.getPropertyName(), child.getValue()));
+                updateProfileField(profile, profileProperty.getPropertyName(), phoneEntities, true);
+              }
+              break;
+            case Profile.CONTACT_IMS:
+              List<IMEntity> imEntities = new ArrayList<>();
+              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
+                imEntities.add(new IMEntity(child.getPropertyName(), child.getValue()));
+                updateProfileField(profile, profileProperty.getPropertyName(), imEntities, true);
+              }
+              break;
+            case Profile.CONTACT_URLS:
+              List<URLEntity> urlEntities = new ArrayList<>();
+              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
+                urlEntities.add(new URLEntity(child.getValue()));
+                updateProfileField(profile, profileProperty.getPropertyName(), urlEntities, true);
+              }
+              break;
+            default:
+              List<String> childrenValues = profileProperty.getChildren()
+                      .stream()
+                      .map(ProfilePropertySettingEntity::getValue)
+                      .toList();
+              updateProfileField(profile, profileProperty.getPropertyName(), StringUtils.join(childrenValues, ','), true);
           }
         }
       } catch (IllegalAccessException e) {
@@ -974,20 +973,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @DELETE
   @Path("{id}")
   @RolesAllowed("users")
-  @Operation(summary = "Deletes a specific user by user name", method = "DELETE", description = "This deletes the user if the authenticated user is in the /platform/administrators group.")
-  public Response deleteUserById(@Context
-  UriInfo uriInfo,
-                                 @Parameter(description = "User name", required = true)
-                                 @PathParam("id")
-                                 String id,
-                                 @Parameter(description = "Asking for a full representation of a specific subresource if any")
-                                 @QueryParam("expand")
-                                 String expand) throws Exception {
-    // Check permission of current user
+  @Operation(
+          summary = "Deletes a specific user by user name",
+          method = "DELETE",
+          description = "This deletes the user if the authenticated user is in the /platform/administrators group.")
+  public Response deleteUserById(@Context UriInfo uriInfo,
+                                 @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                 @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
+    //Check permission of current user
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-
+    
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -998,62 +995,55 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     UserHandler userHandler = organizationService.getUserHandler();
     userHandler.removeUser(id, false);
     //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
-
+  
   @PUT
   @Path("{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(summary = "Updates a specific user by user name", method = "PUT", description = "This updates the user if he is the authenticated user.")
-  public Response updateUserById(@Context
-  UriInfo uriInfo,
-                                 @Parameter(description = "User name", required = true)
-                                 @PathParam("id")
-                                 String id,
-                                 @Parameter(description = "Asking for a full representation of a specific subresource if any")
-                                 @QueryParam("expand")
-                                 String expand,
-                                 @RequestBody(description = "User object to be updated, ex:<br />"
-                                     + "{<br />\"username\": \"john\"," + "<br />\"password\": \"gtngtn\","
-                                     + "<br />\"email\": \"john@exoplatform.com\"," + "<br />\"firstname\": \"John\","
-                                     + "<br />\"lastname\": \"Smith\"<br />}", required = true)
-                                 UserEntity model) throws Exception {
+  @Operation(
+          summary = "Updates a specific user by user name",
+          method = "PUT",
+          description = "This updates the user if he is the authenticated user.")
+  public Response updateUserById(@Context UriInfo uriInfo,
+                                 @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                 @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                                 @RequestBody(description = "User object to be updated, ex:<br />" +
+                                            "{<br />\"username\": \"john\"," +
+                                            "<br />\"password\": \"gtngtn\"," +
+                                            "<br />\"email\": \"john@exoplatform.com\"," +
+                                            "<br />\"firstname\": \"John\"," +
+                                            "<br />\"lastname\": \"Smith\"<br />}", required = true) UserEntity model) throws Exception {
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
     if (user == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    // Check if the current user is the authenticated user
+    //Check if the current user is the authenticated user
     if (!ConversationState.getCurrent().getIdentity().getUserId().equals(id)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-    if (isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
+    if(isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-
+    
     fillUserFromModel(user, model);
     userHandler.saveUser(user, true);
     //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @PATCH
   @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(summary = "Send onBoarding email to a specific user", method = "PATCH", description = "This send onBoarding email to a specific user.")
-  public Response sendOnBoardingEmail(@Context
-  HttpServletRequest request,
-                                      @Parameter(description = "User name", required = true)
-                                      @PathParam("id")
-                                      String id) throws Exception {
+  @Operation(
+          summary = "Send onBoarding email to a specific user",
+          method = "PATCH",
+          description = "This send onBoarding email to a specific user.")
+  public Response sendOnBoardingEmail(@Context HttpServletRequest request,
+                                      @Parameter(description = "User name", required = true) @PathParam("id") String id) throws Exception {
     if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
@@ -1072,13 +1062,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @Operation(summary = "Make action on list of users", method = "PATCH", description = "This will realize the action on the list of users if possible")
-  public Response bulk(@Context
-  HttpServletRequest request,
-                       @Parameter(description = "Action", required = true)
-                       @PathParam("action")
-                       String action,
-                       @Parameter(description = "User List", required = true)
-                       List<String> users) throws Exception {
+  public Response bulk(@Context HttpServletRequest request,
+                                       @Parameter(description = "Action", required = true) @PathParam("action") String action,
+                                       @Parameter(description = "User List", required = true) List<String> users) throws Exception {
 
     if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
@@ -1147,46 +1133,39 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     return Response.ok(updatedUsers).build();
   }
-
+  
   @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
-  @Operation(summary = "Gets connections of a specific user", method = "GET", description = "This can only be done by the logged in user.")
-  public Response getConnectionsOfUser(@Context
-  UriInfo uriInfo,
-                                       @Parameter(description = "User name", required = true)
-                                       @PathParam("id")
-                                       String id,
-                                       @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name", required = false)
-                                       @QueryParam("q")
-                                       String q,
-                                       @Parameter(description = "Returning the number of connections or not")
-                                       @Schema(defaultValue = "false")
-                                       @QueryParam("returnSize")
-                                       boolean returnSize,
-                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
-                                       @QueryParam("expand")
-                                       String expand) throws Exception {
+  @Operation(
+          summary = "Gets connections of a specific user",
+          method = "GET",
+          description = "This can only be done by the logged in user.")
+  public Response getConnectionsOfUser(@Context UriInfo uriInfo,
+                                      @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                      @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
+                                      @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                      @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-
+    
     int limit = RestUtils.getLimit(uriInfo);
     int offset = RestUtils.getOffset(uriInfo);
-
+    
     List<DataEntity> profileInfos = new ArrayList<DataEntity>();
     ProfileFilter profileFilter = new ProfileFilter();
     profileFilter.setName(q);
     ListAccess<Identity> listAccess = relationshipManager.getConnectionsByFilter(target, profileFilter);
-    Identity[] identities = listAccess.load(offset, limit);
+    Identity []identities = listAccess.load(offset, limit);
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
       //
       profileInfos.add(profileInfo.getDataEntity());
     }
     CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
-    if (returnSize) {
+    if(returnSize) {
       collectionUser.setSize(listAccess.getSize());
     }
     return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -1196,15 +1175,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Path("connections/invitations")
   @RolesAllowed("users")
   @Operation(summary = "Gets received invitations of current user", method = "GET", description = "This can only be done by the logged in user.")
-  public Response getInvitationsOfUser(@Context
-  UriInfo uriInfo,
-                                       @Parameter(description = "Returning the number of connections or not")
-                                       @Schema(defaultValue = "false")
-                                       @QueryParam("returnSize")
-                                       boolean returnSize,
-                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
-                                       @QueryParam("expand")
-                                       String expand) throws Exception {
+  public Response getInvitationsOfUser(@Context UriInfo uriInfo,
+                                       @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
     if (target == null) {
@@ -1232,15 +1205,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("connections/pending")
   @Operation(summary = "Gets received invitations of current user", method = "GET", description = "This can only be done by the logged in user.")
-  public Response getPendingOfUser(@Context
-  UriInfo uriInfo,
-                                   @Parameter(description = "Returning the number of connections or not")
-                                   @Schema(defaultValue = "false")
-                                   @QueryParam("returnSize")
-                                   boolean returnSize,
-                                   @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
-                                   @QueryParam("expand")
-                                   String expand) throws Exception {
+  public Response getPendingOfUser(@Context UriInfo uriInfo,
+                                   @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                   @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
     if (target == null) {
@@ -1268,44 +1235,30 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
-  @Operation(summary = "Gets spaces of a specific user", method = "GET", description = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
-  public Response getSpacesOfUser(@Context
-  UriInfo uriInfo,
-                                  @Parameter(description = "User name", required = true)
-                                  @PathParam("id")
-                                  String id,
-                                  @Parameter(description = "Offset")
-                                  @Schema(defaultValue = "0")
-                                  @QueryParam("offset")
-                                  int offset,
-                                  @Parameter(description = "Limit")
-                                  @Schema(defaultValue = "20")
-                                  @QueryParam("limit")
-                                  int limit,
-                                  @Parameter(description = "Returning the number of spaces or not")
-                                  @Schema(defaultValue = "false")
-                                  @QueryParam("returnSize")
-                                  boolean returnSize,
-                                  @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>")
-                                  @QueryParam("expand")
-                                  String expand) throws Exception {
+  @Operation(
+          summary = "Gets spaces of a specific user",
+          method = "GET",
+          description = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  public Response getSpacesOfUser(@Context UriInfo uriInfo,
+                                  @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                  @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                  @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                  @Parameter(description = "Returning the number of spaces or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                  @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>") @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
     Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-    // Check if the given user exists
+    //Check if the given user exists
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    // Check permission of authenticated user : he must be an admin or he is the
-    // given user
+    //Check permission of authenticated user : he must be an admin or he is the given user
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(id)) {
-      // Check permission of spaces to retrieve owner : authenticated user must be in
-      // a confirmed relationship with spaces to retrieve's owner
-      Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-                                                                               authenticatedUser);
+      //Check permission of spaces to retrieve owner : authenticated user must be in a confirmed relationship with spaces to retrieve's owner
+      Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
       Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
       Relationship relationship = relationshipManager.get(authenticatedUserIdentity, userIdentity);
       if (relationship == null || relationship.getStatus() != Relationship.Type.CONFIRMED) {
@@ -1332,57 +1285,39 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @GET
   @Path("{userId}/spaces/{profileId}")
   @RolesAllowed("users")
-  @Operation(summary = "Gets commons spaces of current user", method = "GET", description = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
-  public Response getCommonSpacesOfUser(@Context
-  UriInfo uriInfo,
-                                        @Parameter(description = "User Id", required = true)
-                                        @PathParam("userId")
-                                        String userId,
-                                        @Parameter(description = "Profile Id", required = true)
-                                        @PathParam("profileId")
-                                        String profileId,
-                                        @Parameter(description = "Offset")
-                                        @Schema(defaultValue = "0")
-                                        @QueryParam("offset")
-                                        int offset,
-                                        @Parameter(description = "Limit")
-                                        @Schema(defaultValue = "20")
-                                        @QueryParam("limit")
-                                        int limit,
-                                        @Parameter(description = "Returning the number of spaces or not")
-                                        @Schema(defaultValue = "false")
-                                        @QueryParam("returnSize")
-                                        boolean returnSize,
-                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>")
-                                        @QueryParam("expand")
-                                        String expand) throws Exception {
+  @Operation(
+          summary = "Gets commons spaces of current user",
+          method = "GET",
+          description = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  public Response getCommonSpacesOfUser(@Context UriInfo uriInfo,
+                                        @Parameter(description = "User Id", required = true) @PathParam("userId") String userId,
+                                        @Parameter(description = "Profile Id", required = true) @PathParam("profileId") String profileId,
+                                        @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                        @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                        @Parameter(description = "Returning the number of spaces or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>") @QueryParam("expand") String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
     Identity userProfile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, profileId);
-    // Check if the current user and profile user exists
+    //Check if the current user and profile user exists
     if (currentUser == null || userProfile == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
-    // Check permission of authenticated user : he must be an admin or he is the
-    // given user
+    //Check permission of authenticated user : he must be an admin or he is the given user
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(userId)) {
+    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(userId) ) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    ListAccess<Space> commonSpacesAccessList = CommonsUtils.getService(SpaceService.class).getCommonSpaces(userId, profileId);
+    ListAccess<Space> commonSpacesAccessList = CommonsUtils.getService(SpaceService.class).getCommonSpaces(userId,profileId);
 
     List<DataEntity> commonSpaceInfos = Arrays.stream(commonSpacesAccessList.load(offset, limit))
-                                              .map(space -> EntityBuilder.buildEntityFromSpace(space,
-                                                                                               userId,
-                                                                                               uriInfo.getPath(),
-                                                                                               expand)
-                                                                         .getDataEntity())
-                                              .collect(Collectors.toList());
+            .map(space -> EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand).getDataEntity())
+            .collect(Collectors.toList());
     CollectionEntity collectionSpace = new CollectionEntity(commonSpaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
       collectionSpace.setSize(commonSpacesAccessList.getSize());
@@ -1393,60 +1328,39 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @POST
   @Path("{id}/activities")
   @RolesAllowed("users")
-  @Operation(summary = "Creates an activity by a specific user", method = "POST", description = "This creates the activity if the given user is the authenticated user.")
+  @Operation(
+          summary = "Creates an activity by a specific user",
+          method = "POST",
+          description = "This creates the activity if the given user is the authenticated user.")
   @Deprecated
   @DeprecatedAPI(value = "Use ActivityRestResourcesV1.postActivity instead", insist = true)
-  public Response addActivityByUser(@Context
-  UriInfo uriInfo,
-                                    @Parameter(description = "User name", required = true)
-                                    @PathParam("id")
-                                    String id,
-                                    @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>")
-                                    @QueryParam("expand")
-                                    String expand,
-                                    @RequestBody(description = "Activity object to be created, in which the title of activity is required, ex: <br/>{\"title\": \"act4 posted\"}", required = true)
-                                    ActivityEntity model) throws Exception {
+  public Response addActivityByUser(@Context UriInfo uriInfo,
+                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                    @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>") @QueryParam("expand") String expand,
+                                    @RequestBody(description = "Activity object to be created, in which the title of activity is required, ex: <br/>{\"title\": \"act4 posted\"}", required = true) ActivityEntity model) throws Exception {
     return activityRestResourcesV1.postActivity(uriInfo, null, expand, model);
   }
 
   @GET
   @Path("{id}/activities")
   @RolesAllowed("users")
-  @Operation(summary = "Gets activities of a specific user", method = "GET", description = "This returns an activity in the list in the following cases: "
-      + "<br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li>"
-      + "<li>this is a space activity and the authenticated user is a member of the space</li></ul>")
+  @Operation(
+          summary = "Gets activities of a specific user",
+          method = "GET",
+          description = "This returns an activity in the list in the following cases: " +
+                  "<br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li>" +
+                  "<li>this is a space activity and the authenticated user is a member of the space</li></ul>")
   @Deprecated
   @DeprecatedAPI(value = "Use ActivityRestResourcesV1.getActivities instead", insist = true)
-  public Response getActivitiesOfUser(@Context
-  UriInfo uriInfo,
-                                      @Parameter(description = "User name", required = true)
-                                      @PathParam("id")
-                                      String id,
-                                      @Parameter(description = "Activity stream type, ex: <em>owner, connections, spaces</em> or <em>all</em>")
-                                      @Schema(defaultValue = "all")
-                                      @QueryParam("type")
-                                      String type,
-                                      @Parameter(description = "Offset")
-                                      @Schema(defaultValue = "0")
-                                      @QueryParam("offset")
-                                      int offset,
-                                      @Parameter(description = "Limit")
-                                      @Schema(defaultValue = "20")
-                                      @QueryParam("limit")
-                                      int limit,
-                                      @Parameter(description = "Base time to load older activities (yyyy-MM-dd HH:mm:ss)")
-                                      @QueryParam("before")
-                                      String before,
-                                      @Parameter(description = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)")
-                                      @QueryParam("after")
-                                      String after,
-                                      @Parameter(description = "Returning the number of activities or not")
-                                      @Schema(defaultValue = "false")
-                                      @QueryParam("returnSize")
-                                      boolean returnSize,
-                                      @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>")
-                                      @QueryParam("expand")
-                                      String expand) throws Exception {
+  public Response getActivitiesOfUser(@Context UriInfo uriInfo,
+                                      @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                      @Parameter(description = "Activity stream type, ex: <em>owner, connections, spaces</em> or <em>all</em>") @Schema(defaultValue = "all") @QueryParam("type") String type,
+                                      @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
+                                      @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
+                                      @Parameter(description = "Base time to load older activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("before") String before,
+                                      @Parameter(description = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("after") String after,
+                                      @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
+                                      @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>") @QueryParam("expand") String expand) throws Exception {
     return activityRestResourcesV1.getActivities(uriInfo, null, before, after, offset, limit, returnSize, expand, null);
   }
 
@@ -1454,25 +1368,16 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("csv")
   @RolesAllowed("administrators")
-  @Operation(summary = "Import users using CSV file", description = "Import users using CSV file that has a header defining user fields names."
-      + "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position", method = "POST")
-  public Response importUsers(@Context
-  HttpServletRequest request,
-                              @Parameter(description = "CSV File uploadId retrieved after uploading", required = true)
-                              @FormParam("uploadId")
-                              String uploadId,
-                              @Parameter(description = "Get processing progress percentage of imported file")
-                              @Schema(defaultValue = "false")
-                              @FormParam("progress")
-                              boolean progress,
-                              @Parameter(description = "Whether clean file after processing or not")
-                              @Schema(defaultValue = "false")
-                              @FormParam("clean")
-                              boolean clean,
-                              @Parameter(description = "Whether process importing users in a sync or async way of current request")
-                              @Schema(defaultValue = "false")
-                              @FormParam("sync")
-                              boolean sync) {
+  @Operation(
+          summary = "Import users using CSV file",
+          description = "Import users using CSV file that has a header defining user fields names."
+               + "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position",
+          method = "POST")
+  public Response importUsers(@Context HttpServletRequest request,
+                              @Parameter(description = "CSV File uploadId retrieved after uploading", required = true) @FormParam("uploadId") String uploadId,
+                              @Parameter(description = "Get processing progress percentage of imported file") @Schema(defaultValue = "false") @FormParam("progress") boolean progress,
+                              @Parameter(description = "Whether clean file after processing or not") @Schema(defaultValue = "false") @FormParam("clean") boolean clean,
+                              @Parameter(description = "Whether process importing users in a sync or async way of current request") @Schema(defaultValue = "false") @FormParam("sync") boolean sync) {
     if (StringUtils.isBlank(uploadId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID:MANDATORY").build();
     }
@@ -1516,7 +1421,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     if (userImportResultEntity.getCount() < 1) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("BAD_FORMAT:FILE_EMPTY").build();
+      return Response.status(Response.Status.BAD_REQUEST).entity("BAD_FORMAT:FILE_EMPTY").build();      
     }
 
     if (sync) {
@@ -1538,7 +1443,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     });
   }
 
-  private void importUsers(String fileLocation, UserImportResultEntity userImportResultEntity, Locale locale, StringBuilder url) {
+  private void importUsers(String fileLocation,
+                           UserImportResultEntity userImportResultEntity,
+                           Locale locale,
+                           StringBuilder url) {
     try (BufferedReader reader = new BufferedReader(new FileReader(fileLocation))) {
       // Retrieve header line and import others
       String headerLine = null;
@@ -1609,13 +1517,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return userName;
     }
     boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
-    boolean userStatus = !userObject.isNull("enabled") && ("true".equalsIgnoreCase(userObject.getString("enabled"))
-        || "false".equalsIgnoreCase(userObject.getString("enabled")));
+    boolean userStatus = !userObject.isNull("enabled") && ( "true".equalsIgnoreCase(userObject.getString("enabled")) ||"false".equalsIgnoreCase(userObject.getString("enabled")));
 
     User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
-    if (existingUser != null) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Skipping password update for: {}", userName);
+    if (existingUser != null ) {
+      if(LOG.isDebugEnabled()){
+        LOG.debug("Skipping password update for: {}",userName);
       }
       // skipping password overwrite from csvLine
       user.setPassword(null);
@@ -1623,9 +1530,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         organizationService.getUserHandler().setEnabled(userName, Boolean.valueOf(userObject.getString("enabled")), true);
       }
       organizationService.getUserHandler().saveUser(user, true);
-      onboardUser = onboardUser && existingUser.isEnabled()
-          && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
-    } else {
+      onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
+    }
+    else {
       if (isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
         userImportResultEntity.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
         return userName;
@@ -1644,18 +1551,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         List<String> groupsList = Arrays.asList(groups.split(";"));
         for (String groupMembershipExpression : groupsList) {
           String membershipType =
-                                groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
-                                                                        : SpaceUtils.MEMBER;
+                  groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
+                          : SpaceUtils.MEMBER;
           String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
-                                                                   : groupMembershipExpression;
-          if (groupId.equals("/platform/externals"))
-            continue;
+                  : groupMembershipExpression;
+          if (groupId.equals("/platform/externals")) continue;
           Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
           if (groupObject == null) {
             userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
             continue;
           }
-          MembershipType membershipTypeObject = organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
+          MembershipType membershipTypeObject =
+                  organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
           if (membershipTypeObject == null) {
             userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
             continue;
@@ -1670,8 +1577,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:");
       }
     }
-    // onboard user if the onboardUser csv field is true, the user is enabled and
-    // not yet logged in
+    //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
     if (onboardUser) {
       sendOnBoardingEmail(user, url);
     }
@@ -1752,7 +1658,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       user.setPassword(model.getPassword());
     }
   }
-
+  
   /**
    * Checks if input email is existing already or not.
    * 
@@ -1760,8 +1666,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
    * @return true if email is existing in system.
    */
   private User getUserByEmail(String email) {
-    if (email == null)
-      return null;
+    if (email == null) return null;
     try {
       Query query = new Query();
       query.setEmail(email);
@@ -1822,7 +1727,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
   }
 
-  private void updateProfileField(Profile profile, String name, Object value, boolean save) throws Exception {
+  private void updateProfileField(Profile profile,
+                                  String name,
+                                  Object value,
+                                  boolean save) throws Exception {
     if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
     } else if (Profile.USERNAME.equals(name)) {

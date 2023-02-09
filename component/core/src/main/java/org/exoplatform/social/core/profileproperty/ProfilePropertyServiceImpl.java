@@ -29,9 +29,9 @@ import org.picocontainer.Startable;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.container.component.ComponentPlugin;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
 
@@ -42,27 +42,21 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   private final ProfileSettingStorage                profileSettingStorage;
 
-  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins              =
-                                                                            new ArrayList<>();
+  private static final String SYNCHRONIZED_DISABLED_PROPERTIES= "synchronizationDisabledProperties";
 
-  private final List<String>                         synchronizedGroupDisabledProperties = Arrays.asList(Profile.FULL_NAME,
-                                                                                                         Profile.FIRST_NAME,
-                                                                                                         Profile.LAST_NAME,
-                                                                                                         Profile.EMAIL,
-                                                                                                         Profile.CONTACT_PHONES,
-                                                                                                         "phones.work",
-                                                                                                         "phones.home",
-                                                                                                         "phones.other",
-                                                                                                         Profile.CONTACT_IMS,
-                                                                                                         "ims.facebook",
-                                                                                                         "ims.msn",
-                                                                                                         "ims.jitsi",
-                                                                                                         "ims.skype",
-                                                                                                         "ims.other",
-                                                                                                         Profile.CONTACT_URLS);
+  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins              = new ArrayList<>();
 
-  public ProfilePropertyServiceImpl(ProfileSettingStorage profileSettingStorage) {
+  private  List<String>                         synchronizedGroupDisabledProperties = new ArrayList<>();
+
+  public ProfilePropertyServiceImpl(InitParams params, ProfileSettingStorage profileSettingStorage) {
     this.profileSettingStorage = profileSettingStorage;
+    if (params != null) {
+      try {
+        synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES).getValue().split(","));
+      } catch (Exception e) {
+        LOG.warn("List of disabled properties for synchronization not provided, all properties can be synchronized! ");
+      }
+    }
   }
 
   @Override
@@ -144,7 +138,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
       try {
         plugin.init(this);
       } catch (Exception ex) {
-        LOG.error("Failed start Profile properties Service , probably because of configuration error. Error occurs when initializing properties for {}", plugin.getClass().getName(),ex);
+        LOG.error("Failed start Profile properties Service , probably because of configuration error. Error occurs when initializing properties for {}",
+                  plugin.getClass().getName(),
+                  ex);
       }
     }
 

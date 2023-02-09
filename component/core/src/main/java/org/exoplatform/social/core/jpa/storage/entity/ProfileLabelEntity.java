@@ -23,15 +23,27 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity(name = "SocLabelEntity")
+@Entity(name = "SocProfileLabelEntity")
 @ExoEntity
 @Table(name = "SOC_LABELS ")
 
-@NamedQuery(name = "SocLabelEntity.findLabelByObjectTypeAndObjectIdAndLang", query = "SELECT c FROM SocLabelEntity c WHERE objectType = :objectType and objectId = :objectId and language = :language")
-@NamedQuery(name = "SocLabelEntity.findLabelByObjectTypeAndObjectId", query = "SELECT c FROM SocLabelEntity c WHERE objectType = :objectType and objectId = :objectId")
+@NamedQuery(
+  name = "SocProfileLabelEntity.findLabelByObjectTypeAndObjectIdAndLang",
+  query = "SELECT c FROM SocProfileLabelEntity c"
+      + " WHERE objectType = :objectType"
+      + " AND objectId = :objectId"
+      + " AND language = :language"
+      // ORDER BY for pagiination
+)
+@NamedQuery(
+  name = "SocProfileLabelEntity.findLabelByObjectTypeAndObjectId",
+  query = "SELECT c FROM SocProfileLabelEntity c"
+      + " WHERE objectType = :objectType"
+      + " AND objectId = :objectId"
+      // ORDER BY for pagiination
+)
 
-
-public class LabelEntity implements Serializable {
+public class ProfileLabelEntity implements Serializable {
 
   @Id
   @SequenceGenerator(name = "SEQ_SOC_LABELS_ID", sequenceName = "SEQ_SOC_LABELS_ID", allocationSize = 1)

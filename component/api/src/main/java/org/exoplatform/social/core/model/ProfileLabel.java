@@ -18,56 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.exoplatform.social.rest.entity;
+package org.exoplatform.social.core.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.exoplatform.social.core.model.ProfileLabel;
 
-import java.util.ArrayList;
-import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfilePropertySettingEntity {
+public class ProfileLabel {
 
   private Long id;
 
-  private String propertyName;
+  private String objectId;
 
-  private String value;
+  private String objectType;
 
-  private String resolvedLabel;
+  private String label;
 
-  private boolean isVisible;
-
-  private boolean isEditable;
-
-  private Long parentId;
-
-  private Long order;
-
-  private boolean isActive;
-
-  private boolean isGroupSynchronized;
-
-  private boolean isRequired;
-
-  private boolean isMultiValued;
-
-  private boolean isInternal;
-
-  private boolean isGroupSynchronizationEnabled;
-
-  private List<ProfileLabel> labels;
-
-  private List<ProfilePropertySettingEntity> children;
-
-  public List<ProfilePropertySettingEntity> getChildren() {
-    if (children!=null){
-      return children;
-    }
-    return new ArrayList<>();
-  }
+  private String language;
 }

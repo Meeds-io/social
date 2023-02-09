@@ -50,7 +50,7 @@ export function addSetting(setting) {
         throw new Error('profileSettings.create.error.message');
       } 
     } else {
-      return resp.ok;
+      return resp.json();
     }
   });
 }

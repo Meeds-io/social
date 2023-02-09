@@ -19,7 +19,7 @@
  */
 
 export function getLabel(objectType,objectId,language) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/${objectType}/${objectId}/${language}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/${objectType}/${objectId}/${language}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -32,7 +32,7 @@ export function getLabel(objectType,objectId,language) {
 }
 
 export function getLabels(objectType,objectId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/labels/${objectType}/${objectId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk/${objectType}/${objectId}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -44,8 +44,8 @@ export function getLabels(objectType,objectId) {
   });
 }
 
-export function addLabels(labels,objectType,objectId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/labels/${objectType}/${objectId}`, {
+export function addLabels(labels) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -63,9 +63,28 @@ export function addLabels(labels,objectType,objectId) {
   });
 }
 
-export function mergeLabels(labels,objectType,objectId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/label/labels/${objectType}/${objectId}`, {
+export function updateLabels(labels) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk`, {
     method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(labels, (_key, value) => {
+      if (value !== null) { return value; }
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('labels.update.error.message');
+    } else {
+      return resp.ok;
+    }
+  });
+}
+
+export function deleteLabels(labels) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk`, {
+    method: 'DELETE',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',

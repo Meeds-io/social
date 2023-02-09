@@ -89,6 +89,7 @@ public class ProfileSettingsRest implements ResourceContainer {
 
   @POST
   @RolesAllowed("administrators")
+  @Produces(MediaType.APPLICATION_JSON)
   @Operation(
           summary = "Creates a Profile property setting",
           method = "POST",
@@ -106,8 +107,8 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(Status.BAD_REQUEST).entity("Profile property setting is null or property name not provided").build();
     }
     try {
-      profilePropertyService.createPropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
-      return Response.ok().build();
+      ProfilePropertySetting newProperty = profilePropertyService.createPropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
+      return Response.ok(EntityBuilder.buildEntityProfilePropertySetting(newProperty,profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE)).build();
     } catch (ObjectAlreadyExistsException ex) {
       LOG.warn("Cannot add a property named {}, this name is already used",profilePropertySettingEntity.getPropertyName(), ex);
       return Response.status(Status.CONFLICT).build();
@@ -136,7 +137,7 @@ public class ProfileSettingsRest implements ResourceContainer {
     }
     try {
       profilePropertyService.updatePropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch (Exception ex) {
       LOG.warn("Failed to update the Property setting", ex);
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();
@@ -163,7 +164,7 @@ public class ProfileSettingsRest implements ResourceContainer {
     }
     try {
       profilePropertyService.deleteProfilePropertySetting(profilePropertySettingEntity.getId());
-      return Response.ok().build();
+      return Response.noContent().build();
     } catch (Exception ex) {
       LOG.warn("Failed to update the Property setting", ex);
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();
