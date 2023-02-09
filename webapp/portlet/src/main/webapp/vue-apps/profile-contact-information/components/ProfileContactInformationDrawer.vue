@@ -64,14 +64,9 @@
 
 <script>
 export default {
-  props: {
-    properties: {
-      type: Array,
-      default: () => null,
-    }
-  },
   data: () => ({
     propertiesToSave: [],
+    properties: [],
     error: null,
     saving: null,
     fieldError: false,
@@ -81,6 +76,9 @@ export default {
       viewMode: 1,
     },
   }),
+  created() {
+    this.$root.$on('open-profile-contact-information-drawer', this.open);
+  },
   methods: {
     
     resetCustomValidity() {
@@ -208,8 +206,11 @@ export default {
     cancel() {
       this.$refs.profileContactInformationDrawer.close();
     },
-    open() {
+    open(event) {
       this.error = null;
+      if (event) {
+        this.properties = JSON.parse(JSON.stringify(event));
+      }
       this.$refs.profileContactInformationDrawer.open();
     },
     propertyUpdated(item){
