@@ -79,6 +79,26 @@
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item 
+                  v-else-if="space.subscription === 'validation' && !space.isMember && !space.isPending"
+                  @click="requestJoin">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-icon class="mx-4" size="16">fas fa-plus-circle</v-icon>
+                    <span class="mx-2">
+                      {{ $t('spacesList.button.requestJoin') }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item 
+                  v-if="space.isPending"
+                  @click="cancelRequest">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-icon class="mx-4" size="16">fas fa-minus-circle</v-icon>
+                    <span class="mx-2">
+                      {{ $t('spacesList.button.cancelRequest') }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item 
                   v-if="space.isManager"
                   @click="editSpace">
                   <v-list-item-title class="align-center d-flex">
