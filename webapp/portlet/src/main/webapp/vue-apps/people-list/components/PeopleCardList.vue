@@ -131,7 +131,7 @@ export default {
         this.searchPeople();
         return;
       }
-      this.searchPeople();
+      this.waitForInitializing();
 
     },
     limitToFetch() {
@@ -140,7 +140,7 @@ export default {
     filter() {
       this.searchPeople();
     },
-  }, 
+  },
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
@@ -164,7 +164,7 @@ export default {
     searchPeople() {
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
-      // to finally let only 'limitToFetch' users 
+      // to finally let only 'limitToFetch' users
       let searchUsersFunction;
       if (this.filter === 'connections') {
         searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
@@ -251,6 +251,15 @@ export default {
           this.initialized = true;
         });
 
+    },
+    waitForInitializing() {
+      window.setTimeout(() => {
+        if (this.initialized) {
+          this.searchPeople();
+        } else {
+          this.waitForInitializing();
+        }
+      }, 50);
     }
   }
 };
