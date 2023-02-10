@@ -103,6 +103,9 @@ export default {
     users: [],
     limitToFetch: 0,
     originalLimitToFetch: 0,
+    startSearchAfterInMilliseconds: 300,
+    endTypingKeywordTimeout: 50,
+    startTypingKeywordTimeout: 0,
   }),
   computed: {
     profileActionExtensions() {
@@ -131,8 +134,11 @@ export default {
         this.searchPeople();
         return;
       }
-      this.searchPeople();
-
+      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
+      if (!this.typing) {
+        this.typing = true;
+        this.waitForEndTyping();
+      }
     },
     limitToFetch() {
       this.searchPeople();
@@ -140,7 +146,7 @@ export default {
     filter() {
       this.searchPeople();
     },
-  }, 
+  },
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
@@ -164,7 +170,7 @@ export default {
     searchPeople() {
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
-      // to finally let only 'limitToFetch' users 
+      // to finally let only 'limitToFetch' users
       let searchUsersFunction;
       if (this.filter === 'connections') {
         searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
@@ -251,6 +257,16 @@ export default {
           this.initialized = true;
         });
 
+    },
+    waitForEndTyping() {
+      window.setTimeout(() => {
+        if (Date.now() > this.startTypingKeywordTimeout && this.initialized) {
+          this.typing = false;
+          this.searchPeople();
+        } else {
+          this.waitForEndTyping();
+        }
+      }, this.endTypingKeywordTimeout);
     }
   }
 };
