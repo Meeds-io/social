@@ -45,7 +45,7 @@ import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesV1;
+import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResources;
 import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesV1;
 import org.exoplatform.web.security.csrf.ExoCSRFCheck;
 
@@ -55,7 +55,7 @@ import org.exoplatform.web.security.csrf.ExoCSRFCheck;
  *          exo@exoplatform.com
  * Nov 26, 2014  
  * 
- * @deprecated use {@link SpaceMembershipRestResourcesV1} and {@link RelationshipsRestResourcesV1}
+ * @deprecated use {@link SpaceMembershipRestResourcesV1} and {@link RelationshipsRestResources}
  */
 @Path("social/intranet-notification")
 @Deprecated

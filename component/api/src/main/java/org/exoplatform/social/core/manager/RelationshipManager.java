@@ -58,24 +58,6 @@ public interface RelationshipManager {
   Relationship get(Identity identity1, Identity identity2);
 
   /**
-   * Updates an existing relationship.
-   *
-   * @param existingRelationship The existing relationship to be updated.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
-   */
-  void update(Relationship existingRelationship);
-
-  /**
-   * Deletes an existing relationship.
-   *
-   * @param existingRelationship The existing relationship to be deleted.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
-   */
-  void delete(Relationship existingRelationship);
-
-  /**
    * Invites one identity to connect to the other. The first argument must be the sender identity. The
    * second argument must be the identity who is invited to connect.
    * <br>
@@ -83,6 +65,7 @@ public interface RelationshipManager {
    *
    * @param invitingIdentity The sender identity.
    * @param invitedIdentity The identity who is invited.
+   * @return {@link Relationship} if exists else null
    * @LevelAPI Platform
    * @since 1.2.0-GA
    */
@@ -93,10 +76,11 @@ public interface RelationshipManager {
    *
    * @param invitedIdentity The identity who gets invitation.
    * @param invitingIdentity The identity who invites another.
+   * @return {@link Relationship} after confirming
    * @LevelAPI Platform
    * @since 1.2.0-GA
    */
-  void confirm(Identity invitedIdentity, Identity invitingIdentity);
+  Relationship confirm(Identity invitedIdentity, Identity invitingIdentity);
 
   /**
    * Denies to connect to an identity who sent invitation.
@@ -118,6 +102,15 @@ public interface RelationshipManager {
    * @since 1.2.0-GA
    */
   void ignore(Identity invitedIdentity, Identity invitingIdentity);
+
+  /**
+   * Deletes an existing relationship.
+   *
+   * @param existingRelationship The existing relationship to be deleted.
+   * @LevelAPI Platform
+   * @since 1.2.0-GA
+   */
+  void delete(Relationship existingRelationship);
 
   /**
    * Gets a list access which contains all identities who are connected to a provided identity.
@@ -181,7 +174,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #inviteToConnect(Identity, Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   Relationship invite(Identity sender, Identity receiver) throws RelationshipStorageException;
 
   /**
@@ -191,23 +184,8 @@ public interface RelationshipManager {
    * @return The relationship.
    * @throws RelationshipStorageException the exception
    * @LevelAPI Provisional
-   * @deprecated Use {@link #get(String)} instead.
-   *             Will be removed by 4.0.x.
    */
-  @Deprecated
   Relationship getRelationshipById(String id) throws RelationshipStorageException;
-
-  /**
-   * Saves a relationship.
-   *
-   * @param relationship The relationship to be saved.
-   * @throws RelationshipStorageException the exception
-   * @LevelAPI Provisional
-   * @deprecated Use actions (inviteToConnect, confirm) instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  void save(Relationship relationship) throws RelationshipStorageException;
 
   /**
    * Marks a relationship as "confirmed".
@@ -218,7 +196,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #confirm(Identity, Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   void confirm(Relationship relationship) throws RelationshipStorageException;
 
   /**
@@ -230,7 +208,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #deny(Identity, Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   void deny(Relationship relationship) throws RelationshipStorageException;
 
   /**
@@ -239,10 +217,10 @@ public interface RelationshipManager {
    * @param relationship The relationship to be removed.
    * @throws RelationshipStorageException the exception
    * @LevelAPI Provisional
-   * @deprecated Use {@link #delete(Relationship)} instead.
+   * @deprecated Use {@link #deny(Identity, Identity)} or {@link #ignore(Identity, Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   void remove(Relationship relationship) throws RelationshipStorageException;
 
   /**
@@ -254,7 +232,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #ignore(Identity, Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   void ignore(Relationship relationship) throws RelationshipStorageException;
 
   /**
@@ -267,7 +245,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getIncoming(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getPendingRelationships(Identity identity) throws RelationshipStorageException;
 
   /**
@@ -283,7 +261,7 @@ public interface RelationshipManager {
    *             When toConfirm=false, use {@link #getOutgoing(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getPendingRelationships(Identity identity, boolean toConfirm) throws RelationshipStorageException;
 
   /**
@@ -300,7 +278,7 @@ public interface RelationshipManager {
    *             When toConfirm=false use {@link #getOutgoing(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getPendingRelationships(Identity currIdentity, List<Identity> identities,
                                              boolean toConfirm) throws RelationshipStorageException;
 
@@ -315,7 +293,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getConnections(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getContacts(Identity currIdentity, List<Identity> identities) throws RelationshipStorageException;
 
   /**
@@ -328,7 +306,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getConnections(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getContacts(Identity identity) throws RelationshipStorageException;
 
   /**
@@ -341,7 +319,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getAllWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getAllRelationships(Identity identity) throws RelationshipStorageException;
 
   /**
@@ -354,7 +332,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getAllWithListAccess(Identity)} with identity instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getRelationshipsByIdentityId(String id) throws RelationshipStorageException;
 
   /**
@@ -367,47 +345,8 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getAllWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Identity> getIdentities(Identity id) throws Exception;
-
-  /**
-   * Creates a relationship.
-   *
-   * @param sender The sender.
-   * @param receiver The receiver.
-   * @return The relationship.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #invite(Identity, Identity)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  Relationship create(Identity sender, Identity receiver);
-
-  /**
-   * Saves a relationship.
-   *
-   * @param relationship The relationship to be saved.
-   * @throws RelationshipStorageException the exception
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #update(Relationship)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  void saveRelationship(Relationship relationship) throws RelationshipStorageException;
-
-  /**
-   * Gets a relationship between 2 identities.
-   *
-   * @param sender The identity 1.
-   * @param receiver The identity 2.
-   * @return The relationship.
-   * @throws RelationshipStorageException
-   * @LevelAPI Provisional
-   * @deprecated Should use {@link #get(Identity, Identity)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List findRoute(Identity sender, Identity receiver) throws RelationshipStorageException;
 
   /**
    * Gets a relationship between 2 identities.
@@ -420,7 +359,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #get(Identity, Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   Relationship getRelationship(Identity sender, Identity receiver) throws RelationshipStorageException;
 
   /**
@@ -434,7 +373,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getIncoming(Identity)} or {@link #getOutgoing(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Identity> findRelationships(Identity ownerIdentity, Relationship.Type relationshipType)
                                    throws RelationshipStorageException;
 
@@ -450,7 +389,7 @@ public interface RelationshipManager {
    * But we still keep this method for build, call {@link #getStatus(Identity, Identity)}.
    *            This method will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   Relationship.Type getRelationshipStatus(Relationship rel, Identity id);
 
   /**
@@ -465,7 +404,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getStatus(Identity, Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   Relationship.Type getConnectionStatus(Identity fromIdentity, Identity toIdentity) throws Exception;
 
   /**
@@ -479,7 +418,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getIncoming(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getPending(Identity sender) throws RelationshipStorageException;
 
   /**
@@ -494,7 +433,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getIncomingWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getPending(Identity sender, List<Identity> identities) throws RelationshipStorageException;
 
   /**
@@ -508,7 +447,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getIncomingWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getIncoming(Identity receiver) throws RelationshipStorageException;
 
   /**
@@ -523,7 +462,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getIncomingWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getIncoming(Identity receiver, List<Identity> identities) throws RelationshipStorageException;
 
   /**
@@ -537,7 +476,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getConnections(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getConfirmed(Identity identity) throws RelationshipStorageException;
 
   /**
@@ -552,7 +491,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getConnections(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getConfirmed(Identity identity, List<Identity> identities) throws RelationshipStorageException;
 
   /**
@@ -566,7 +505,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getAllWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getAll(Identity identity) throws RelationshipStorageException;
 
   /**
@@ -581,7 +520,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getAllWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getAll(Identity identity, List<Identity> identities) throws RelationshipStorageException;
 
   /**
@@ -597,7 +536,7 @@ public interface RelationshipManager {
    * @deprecated Use {@link #getAllWithListAccess(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   List<Relationship> getAll(Identity identity, Relationship.Type type,
                             List<Identity> identities) throws RelationshipStorageException;
   
@@ -626,7 +565,7 @@ public interface RelationshipManager {
    * @since  1.2.3
    */
   @DeprecatedAPI("Must use getIncoming method instead, ES doesn't index incomings")
-  @Deprecated
+  @Deprecated(forRemoval = true)
   ListAccess<Identity> getIncomingByFilter(Identity existingIdentity, ProfileFilter profileFilter);
   
   /**
@@ -640,7 +579,7 @@ public interface RelationshipManager {
    * @since  1.2.3
    */
   @DeprecatedAPI("Must use getIncoming method instead, ES doesn't index outgoings")
-  @Deprecated
+  @Deprecated(forRemoval = true)
   ListAccess<Identity> getOutgoingByFilter(Identity existingIdentity, ProfileFilter profileFilter);
   
   /**
@@ -671,7 +610,7 @@ public interface RelationshipManager {
    * @since 4.0.2
    * @deprecated Use {@link #getSuggestions(org.exoplatform.social.core.identity.model.Identity, int, int, int)} instead
    */
-  @Deprecated
+  @Deprecated(forRemoval = true)
   public Map<Identity, Integer> getSuggestions(Identity identity, int offset, int limit);
   
   /**
