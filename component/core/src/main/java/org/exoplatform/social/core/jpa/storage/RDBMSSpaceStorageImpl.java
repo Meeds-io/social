@@ -577,7 +577,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
       //
       entity.setUpdatedDate(new Date());
-      spaceDAO.create(entity);
+      entity = spaceDAO.create(entity);
       space.setId(String.valueOf(entity.getId()));
     } else {
       Long id = Long.parseLong(space.getId());
