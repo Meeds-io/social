@@ -32,9 +32,13 @@ import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesT
 import org.exoplatform.social.rest.impl.space.SpaceRestResourcesTest;
 import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesTest;
 import org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministrationRestResourcesTest;
-import org.exoplatform.social.rest.impl.userrelationship.UsersRelationshipsRestResourcesTest;
 import org.exoplatform.social.rest.impl.users.UserRestResourcesTest;
-import org.exoplatform.social.service.rest.*;
+import org.exoplatform.social.service.rest.GroupSpaceBindingRestServiceTest;
+import org.exoplatform.social.service.rest.IdentityRestServiceTest;
+import org.exoplatform.social.service.rest.NotificationsRestServiceTest;
+import org.exoplatform.social.service.rest.RestCheckerTest;
+import org.exoplatform.social.service.rest.SecurityManagerTest;
+import org.exoplatform.social.service.rest.SpaceRestServiceTest;
 import org.exoplatform.social.service.rest.UtilTest;
 import org.exoplatform.social.service.rest.api.VersionResourcesTest;
 import org.exoplatform.social.service.rest.notification.IntranetNotificationsRestServiceTest;
@@ -57,7 +61,6 @@ import org.exoplatform.social.service.rest.notification.IntranetNotificationsRes
   SpaceRestResourcesTest.class,
   SpaceMembershipRestResourcesTest.class,
   SpacesAdministrationRestResourcesTest.class,
-  UsersRelationshipsRestResourcesTest.class,
   UserRestResourcesTest.class,
   GroupSpaceBindingRestServiceTest.class,
   FavoriteRestTest.class,
