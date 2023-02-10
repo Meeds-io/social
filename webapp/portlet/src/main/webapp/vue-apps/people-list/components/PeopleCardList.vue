@@ -132,8 +132,11 @@ export default {
         this.searchPeople();
         return;
       }
-      this.searchPeople();
-
+      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
+      if (!this.typing) {
+        this.typing = true;
+        this.waitForEndTyping();
+      }
     },
     limitToFetch() {
       this.searchPeople();
@@ -141,7 +144,7 @@ export default {
     filter() {
       this.searchPeople();
     },
-  }, 
+  },
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
@@ -262,6 +265,16 @@ export default {
           this.abortController = null;
         });
 
+    },
+    waitForEndTyping() {
+      window.setTimeout(() => {
+        if (Date.now() > this.startTypingKeywordTimeout && this.initialized) {
+          this.typing = false;
+          this.searchPeople();
+        } else {
+          this.waitForEndTyping();
+        }
+      }, this.endTypingKeywordTimeout);
     }
   }
 };
