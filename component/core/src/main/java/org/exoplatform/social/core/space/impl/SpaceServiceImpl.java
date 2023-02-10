@@ -425,6 +425,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     space.setGroupId(groupId);
     space.setUrl(space.getPrettyName());
+    saveSpace(space, true);
 
     try {
       String spaceType = space.getTemplate();
@@ -440,7 +441,6 @@ public class SpaceServiceImpl implements SpaceService {
       throw new IllegalStateException("Failed to init apps for space " + space.getPrettyName(), e);
     }
 
-    saveSpace(space, true);
     spaceLifeCycle.spaceCreated(space, creator);
 
     try {

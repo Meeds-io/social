@@ -23,9 +23,9 @@
       <v-list-item-title>
         <a :href="url" class="text-color">
           {{ user.fullname }}
-          <span v-if="user.external === 'true'" class="externalTagClass">{{ "(" + $t('UserProfilePopup.label.profile.external') +
-            ")"
-          }}</span>
+          <span v-if="user.external === 'true'" class="externalTagClass">
+            ({{ $t('UserProfilePopup.label.profile.external') }})
+          </span>
         </a>
       </v-list-item-title>
       <v-list-item-subtitle>

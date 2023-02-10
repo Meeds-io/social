@@ -255,6 +255,9 @@ export function deleteRelationship(userId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       sender: userId,
       receiver: eXo.env.portal.userName,
@@ -262,8 +265,6 @@ export function deleteRelationship(userId) {
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
     }
   });
 }

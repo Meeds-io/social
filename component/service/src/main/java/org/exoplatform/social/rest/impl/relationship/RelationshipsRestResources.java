@@ -36,6 +36,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -60,7 +61,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(VersionResources.VERSION_ONE + "/social/relationships")
 @Tag(name = VersionResources.VERSION_ONE + "/social/relationships", description = "Managing relationships of identities")
-public class RelationshipsRestResources {
+public class RelationshipsRestResources implements ResourceContainer {
 
   private RelationshipManager relationshipManager;
 
