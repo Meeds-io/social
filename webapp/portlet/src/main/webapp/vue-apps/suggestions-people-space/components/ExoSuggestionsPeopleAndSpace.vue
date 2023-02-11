@@ -96,7 +96,7 @@ export default {
   },
   methods: {
     initPeopleSuggestionsList() {
-      return this.$userService.getSuggestionsUsers()
+      return this.$userService.getUserSuggestions()
         .then(data => {
           this.peopleSuggestionsList = data.items;
         })

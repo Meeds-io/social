@@ -98,10 +98,11 @@ public interface RelationshipManager {
    *
    * @param invitedIdentity The identity who gets invitation.
    * @param invitingIdentity The identity who invites another.
+   * @return {@link Relationship} after ignoring
    * @LevelAPI Platform
    * @since 1.2.0-GA
    */
-  void ignore(Identity invitedIdentity, Identity invitingIdentity);
+  Relationship ignore(Identity invitedIdentity, Identity invitingIdentity);
 
   /**
    * Deletes an existing relationship.

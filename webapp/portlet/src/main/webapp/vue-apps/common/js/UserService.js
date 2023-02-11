@@ -129,7 +129,7 @@ export function getPending(offset, limit, expand) {
   });
 }
 
-export function getSuggestionsUsers() {
+export function getUserSuggestions() {
   const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   if (cachedSuggestions) {
     return Promise.resolve(JSON.parse(cachedSuggestions));
@@ -153,20 +153,6 @@ export function getSuggestionsUsers() {
       }
     }
     return data;
-  });
-}
-
-export function sendConnectionRequest(userID) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/connect/${userID}`,{
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
   });
 }
 
@@ -220,7 +206,7 @@ export function confirm(userId) {
   });
 }
 
-export function ignoreSuggestion(receiver) {
+export function ignore(receiver) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }

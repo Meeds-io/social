@@ -110,7 +110,7 @@ public class RelationshipManagerImpl implements RelationshipManager {
   }
 
   @Override
-  public void ignore(Identity sender, Identity receiver) {
+  public Relationship ignore(Identity sender, Identity receiver) {
     Relationship relationship = get(sender, receiver);
     if (relationship == null || !Type.IGNORED.equals(relationship.getStatus())) {
       relationship = new Relationship(sender, receiver);
@@ -118,6 +118,7 @@ public class RelationshipManagerImpl implements RelationshipManager {
       saveRelationship(relationship);
       lifeCycle.relationshipIgnored(this, relationship);
     }
+    return relationship;
   }
 
   @Override
