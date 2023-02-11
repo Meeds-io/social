@@ -103,7 +103,6 @@ public class RelationshipsRestResources implements ResourceContainer {
                                    @QueryParam("returnSize")
                                    boolean returnSize) throws WebApplicationException {
 
-    //
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
@@ -127,7 +126,7 @@ public class RelationshipsRestResources implements ResourceContainer {
       }
     } else {
       String currentUser = getCurrentUserName();
-      Identity authenticatedUser = identityManager.getOrCreateUserIdentity(currentUser);
+      Identity authenticatedUser = getUserIdentity(currentUser);
       relationships = relationshipManager.getRelationshipsByStatus(authenticatedUser, type, offset, limit);
       if (returnSize) {
         size = relationshipManager.getRelationshipsCountByStatus(authenticatedUser, type);
@@ -139,7 +138,7 @@ public class RelationshipsRestResources implements ResourceContainer {
                                                                    offset,
                                                                    limit);
     collectionRelationship.setSize(size);
-    //
+
     Response.ResponseBuilder builder = EntityBuilder.getResponseBuilder(collectionRelationship,
                                                                         uriInfo,
                                                                         RestUtils.getJsonMediaType(),
@@ -191,19 +190,24 @@ public class RelationshipsRestResources implements ResourceContainer {
     if (!StringUtils.equals(senderRemoteId, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    Identity receiver = identityManager.getOrCreateUserIdentity(receiverRemoteId);
-    Identity currentSenderIdentity = identityManager.getOrCreateUserIdentity(senderRemoteId);
+    Identity receiver = getUserIdentity(receiverRemoteId);
+    Identity currentSenderIdentity = getUserIdentity(senderRemoteId);
 
-    if (type == Type.PENDING) {
+    if (receiver == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    } else if (type == Type.PENDING) {
       Relationship relationship = relationshipManager.inviteToConnect(currentSenderIdentity, receiver);
       return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, true),
                                        uriInfo,
                                        RestUtils.getJsonMediaType(),
                                        Response.Status.OK);
     } else if (type == Type.IGNORED) {// NOSONAR kept for code clearness
-      relationshipManager.ignore(currentSenderIdentity, receiver);
-      return Response.noContent().build();
-    } else {
+      Relationship relationship = relationshipManager.ignore(currentSenderIdentity, receiver);
+      return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, false),
+                                       uriInfo,
+                                       RestUtils.getJsonMediaType(),
+                                       Response.Status.OK);
+    } else {// NOSONAR unreachable, but kept in case of code evolves with more statuses to manage
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
   }
@@ -225,15 +229,18 @@ public class RelationshipsRestResources implements ResourceContainer {
                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
                                       @QueryParam("expand")
                                       String expand) throws WebApplicationException {
-    Identity authenticatedUser = identityManager.getOrCreateUserIdentity(getCurrentUserName());
+    Identity authenticatedUser = getUserIdentity(getCurrentUserName());
     Relationship relationship = relationshipManager.get(id);
-    if (relationship == null || !hasPermissionOnRelationship(authenticatedUser, relationship)) {
+    if (relationship == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    } else if (!isUserInRelationship(relationship, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    } else {
+      return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, true),
+                                       uriInfo,
+                                       RestUtils.getJsonMediaType(),
+                                       Response.Status.OK);
     }
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, true),
-                                     uriInfo,
-                                     RestUtils.getJsonMediaType(),
-                                     Response.Status.OK);
   }
 
   @PUT
@@ -263,8 +270,17 @@ public class RelationshipsRestResources implements ResourceContainer {
     }
 
     Relationship relationship = relationshipManager.get(id);
-    Type type = Type.valueOf(model.getStatus().toUpperCase());
+    if (relationship == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
 
+    if (StringUtils.isNotBlank(model.getReceiver())
+        && StringUtils.isNotBlank(model.getSender())
+        && !isUserInRelationship(model, getCurrentUserName())) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+
+    Type type = Type.valueOf(model.getStatus().toUpperCase());
     return updateRelationship(relationship, type, uriInfo, expand);
   }
 
@@ -295,11 +311,27 @@ public class RelationshipsRestResources implements ResourceContainer {
 
     Identity sender = identityManager.getOrCreateUserIdentity(model.getSender());
     Identity receiver = identityManager.getOrCreateUserIdentity(model.getReceiver());
-    Relationship relationship = relationshipManager.get(sender, receiver);
+    if (sender == null
+        || receiver == null
+        || StringUtils.equals(receiver.getId(), sender.getId())) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
 
     Type type = Type.valueOf(model.getStatus().toUpperCase());
-
-    return updateRelationship(relationship, type, uriInfo, expand);
+    Relationship relationship = relationshipManager.get(sender, receiver);
+    if (relationship == null) {
+      if(type == Type.IGNORED) {
+        relationship = relationshipManager.ignore(sender, receiver);
+        return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, false),
+                                         uriInfo,
+                                         RestUtils.getJsonMediaType(),
+                                         Response.Status.OK);
+      } else {
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      }
+    } else {
+      return updateRelationship(relationship, type, uriInfo, expand);
+    }
   }
 
   @DELETE
@@ -342,26 +374,39 @@ public class RelationshipsRestResources implements ResourceContainer {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
-    Identity sender = identityManager.getOrCreateUserIdentity(senderRemoteId);
-    Identity receiver = identityManager.getOrCreateUserIdentity(receiverRemoteId);
+    Identity sender = getUserIdentity(senderRemoteId);
+    Identity receiver = getUserIdentity(receiverRemoteId);
     Relationship relationship = relationshipManager.get(sender, receiver);
 
     return deleteRelationship(relationship);
   }
 
   private Response updateRelationship(Relationship relationship, Type type, UriInfo uriInfo, String expand) {
-    if (relationship == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-
     String currentUserName = getCurrentUserName();
-    Identity authenticatedUserIdentity = identityManager.getOrCreateUserIdentity(currentUserName);
-    if (type.equals(Type.IGNORED)) {
-      if (!hasPermissionOnRelationship(authenticatedUserIdentity, relationship)) {
-        throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    Identity authenticatedUserIdentity = getUserIdentity(currentUserName);
+    if (!isUserInRelationship(relationship, authenticatedUserIdentity)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    } else if (relationship.getStatus() == type) {
+      return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, true),
+                                       uriInfo,
+                                       RestUtils.getJsonMediaType(),
+                                       Response.Status.OK);
+    } else if (type.equals(Type.IGNORED)) {
+      relationship = relationshipManager.ignore(relationship.getSender(), relationship.getReceiver());
+      return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, false),
+                                       uriInfo,
+                                       RestUtils.getJsonMediaType(),
+                                       Response.Status.OK);
+    } else if (type.equals(Type.PENDING)) {
+      if (isSender(relationship, authenticatedUserIdentity)) {
+        relationship = relationshipManager.inviteToConnect(relationship.getSender(), relationship.getReceiver());
+      } else if (isReceiver(relationship, authenticatedUserIdentity)) {
+        relationship = relationshipManager.inviteToConnect(relationship.getReceiver(), relationship.getSender());
       }
-      relationshipManager.deny(relationship.getSender(), relationship.getReceiver());
-      return Response.noContent().build();
+      return EntityBuilder.getResponse(EntityBuilder.buildEntityRelationship(relationship, uriInfo.getPath(), expand, true),
+                                       uriInfo,
+                                       RestUtils.getJsonMediaType(),
+                                       Response.Status.OK);
     } else if (type.equals(Type.CONFIRMED)) {
       if (!StringUtils.equals(relationship.getReceiver().getRemoteId(), currentUserName)) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -390,9 +435,28 @@ public class RelationshipsRestResources implements ResourceContainer {
     return Response.noContent().build();
   }
 
-  private boolean hasPermissionOnRelationship(Identity authenticatedUser, Relationship relationship) {
-    return authenticatedUser.getId().equals(relationship.getSender().getId())
-        || authenticatedUser.getId().equals(relationship.getReceiver().getId());
+  private boolean isUserInRelationship(Relationship relationship,
+                                       Identity authenticatedUserIdentity) {
+    return isSender(relationship, authenticatedUserIdentity) || isReceiver(relationship, authenticatedUserIdentity);
+  }
+
+  private boolean isSender(Relationship relationship,
+                           Identity authenticatedUserIdentity) {
+    return StringUtils.equals(relationship.getSender().getId(), authenticatedUserIdentity.getId());
+  }
+
+  private boolean isReceiver(Relationship relationship,
+                             Identity authenticatedUserIdentity) {
+    return StringUtils.equals(relationship.getReceiver().getId(), authenticatedUserIdentity.getId());
+  }
+
+  private boolean isUserInRelationship(RelationshipEntity model, String authenticatedUser) {
+    return StringUtils.equals(model.getSender(), authenticatedUser)
+        || StringUtils.equals(model.getReceiver(), authenticatedUser);
+  }
+
+  private Identity getUserIdentity(String currentUserName) {
+    return identityManager.getOrCreateUserIdentity(currentUserName);
   }
 
   private String getCurrentUserName() {

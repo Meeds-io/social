@@ -1,7 +1,6 @@
 package org.exoplatform.social.rest.impl.relationship;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.StringUtils;
 
@@ -11,6 +10,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
@@ -20,19 +20,23 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class RelationshipsRestResourcesTest extends AbstractResourceTest {
 
-  private IdentityManager identityManager;
+  private IdentityManager     identityManager;
+
   private RelationshipManager relationshipManager;
 
-  private Identity rootIdentity;
-  private Identity johnIdentity;
-  private Identity maryIdentity;
-  private Identity demoIdentity;
+  private Identity            rootIdentity;
+
+  private Identity            johnIdentity;
+
+  private Identity            maryIdentity;
+
+  private Identity            demoIdentity;
 
   public void setUp() throws Exception {
     super.setUp();
-    
+
     System.setProperty("gatein.email.domain.url", "localhost:8080");
-    
+
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
 
@@ -45,7 +49,7 @@ public class RelationshipsRestResourcesTest extends AbstractResourceTest {
     identityManager.saveIdentity(johnIdentity);
     identityManager.saveIdentity(maryIdentity);
     identityManager.saveIdentity(demoIdentity);
-    
+
     addResource(RelationshipsRestResources.class, null);
   }
 
@@ -90,7 +94,7 @@ public class RelationshipsRestResourcesTest extends AbstractResourceTest {
     input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"IGNORED\"}";
     response = getResponse("POST", "/" + VersionResources.VERSION_ONE + "/social/relationships/", input);
     assertNotNull(response);
-    assertEquals(204, response.getStatus());
+    assertEquals(200, response.getStatus());
 
     input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"PENDING\"}";
     response = getResponse("POST", "/" + VersionResources.VERSION_ONE + "/social/relationships/", input);
@@ -119,27 +123,123 @@ public class RelationshipsRestResourcesTest extends AbstractResourceTest {
     assertEquals("demo", relationship.getReceiver().getRemoteId());
     assertEquals("CONFIRMED", relationship.getStatus().name());
   }
-  
+
   public void testGetRelationshipById() throws Exception {
     relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
     Relationship relationship = relationshipManager.confirm(rootIdentity, demoIdentity);
-    
+
     startSessionAs("root");
-    ContainerResponse response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationship.getId(), "", null, null);
+    ContainerResponse response = service("GET",
+                                         "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationship.getId(),
+                                         "",
+                                         null,
+                                         null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    
-    RelationshipEntity result = getBaseEntity(response.getEntity(), RelationshipEntity.class) ;
-    assertEquals("CONFIRMED", result.getStatus());
+
+    RelationshipEntity result = getBaseEntity(response.getEntity(), RelationshipEntity.class);
+    assertEquals(Type.CONFIRMED.name(), result.getStatus());
   }
-  
+
   public void testDeleteRelationshipById() throws Exception {
     relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
     Relationship relationship = relationshipManager.confirm(rootIdentity, demoIdentity);
 
     startSessionAs("root");
-    ContainerResponse response = service("DELETE", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationship.getId(), "", null, null);
+    ContainerResponse response = service("DELETE",
+                                         "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationship.getId(),
+                                         "",
+                                         null,
+                                         null);
     assertNotNull(response);
     assertEquals(204, response.getStatus());
   }
+
+  public void testUpdateRelationshipById() throws Exception { // NOSONAR
+    Relationship relationship = relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
+
+    startSessionAs("root");
+    String input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"CONFIRMED\"}";
+    String relationshipId = relationship.getId();
+    ContainerResponse response = getResponse("PUT",
+                                             "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId,
+                                             input);
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"IGNORED\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    relationship = relationshipManager.get(relationshipId);
+    assertNotNull(relationship);
+    assertEquals(Type.IGNORED, relationship.getStatus());
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"CONFIRMED\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.IGNORED, relationship.getStatus());
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"IGNORED\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/", input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.IGNORED, relationship.getStatus());
+    relationshipId = relationship.getId();
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"CONFIRMED\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.IGNORED, relationship.getStatus());
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"PENDING\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.PENDING, relationship.getStatus());
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"CONFIRMED\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.PENDING, relationship.getStatus());
+
+    startSessionAs("demo");
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"PENDING\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.PENDING, relationship.getStatus());
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"CONFIRMED\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.CONFIRMED, relationship.getStatus());
+
+    input = "{\"sender\":\"root\", \"receiver\":\"demo\", \"status\":\"IGNORED\"}";
+    response = getResponse("PUT", "/" + VersionResources.VERSION_ONE + "/social/relationships/" + relationshipId, input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    relationship = relationshipManager.get(rootIdentity, demoIdentity);
+    assertNotNull(relationship);
+    assertEquals(Type.IGNORED, relationship.getStatus());
+  }
+
 }
