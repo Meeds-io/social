@@ -835,4 +835,10 @@
         </addColumn>
     </changeSet>
 
+  <changeSet author="social" id="1.0.0-89" dbms="mysql">
+    <sql>
+      ALTER TABLE SOC_ACTIVITY_SHARE_ACTIONS MODIFY COLUMN TITLE longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>
