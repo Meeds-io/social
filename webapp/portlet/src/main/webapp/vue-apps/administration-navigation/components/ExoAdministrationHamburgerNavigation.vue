@@ -121,11 +121,6 @@ export default {
       if (this.navigations.length) {
         return;
       }
-      const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(`Administration_Navigations_${eXo.env.server.sessionId}`);
-      if (cachedNavigations) {
-        this.$nextTick().then(() => this.navigations = JSON.parse(cachedNavigations));
-      }
-
       this.loading = true;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/group?exclude=/spaces.*&${this.visibilityQueryParams}`, {
         method: 'GET',
@@ -134,11 +129,6 @@ export default {
         .then(resp => resp && resp.ok && resp.json())
         .then(data => {
           const navigations = data || [];
-          try {
-            window.sessionStorage.setItem(`Administration_Navigations_${eXo.env.server.sessionId}`, JSON.stringify(navigations));
-          } catch (e) {
-            // Expected Quota Exceeded Error
-          }
           this.navigations = navigations;
         })
         .then(() => fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/categories`, {
