@@ -122,7 +122,7 @@ export default {
         return;
       }
       this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/group?exclude=/spaces.*&${this.visibilityQueryParams}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/group?${this.visibilityQueryParams}`, {
         method: 'GET',
         credentials: 'include',
       })
