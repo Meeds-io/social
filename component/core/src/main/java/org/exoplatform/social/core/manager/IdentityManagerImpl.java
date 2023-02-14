@@ -16,9 +16,13 @@
  */
 package org.exoplatform.social.core.manager;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.file.model.FileItem;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
@@ -33,15 +37,10 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.model.Profile.UpdateType;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.profile.*;
-import org.exoplatform.social.core.profile.settings.ProfilePropertySettingsService;
-import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
 
 /**
  * Class IdentityManagerImpl implements IdentityManager without caching.
@@ -73,7 +72,7 @@ public class IdentityManagerImpl implements IdentityManager {
   protected RelationshipManager              relationshipManager;
 
   /** The profile Property Settings Service */
-  protected ProfilePropertySettingsService              profilePropertySettingsService;
+  protected ProfilePropertyService profilePropertyService;
 
   /** lifecycle for profile */
   protected ProfileLifeCycle                 profileLifeCycle  = new ProfileLifeCycle();
@@ -93,8 +92,10 @@ public class IdentityManagerImpl implements IdentityManager {
    */
   public IdentityManagerImpl(IdentityStorage identityStorage,
                              IdentityProvider<?> defaultIdentityProvider,
+                             ProfilePropertyService profilePropertyService,
                              InitParams initParams) {
     this.identityStorage = identityStorage;
+    this.profilePropertyService = profilePropertyService;
     this.addIdentityProvider(defaultIdentityProvider);
     if (initParams != null) {
       String sortFieldName = this.defaultSorting.sortBy.getFieldName();
@@ -273,7 +274,7 @@ public class IdentityManagerImpl implements IdentityManager {
       }
       if (UserProfileComparator.hasChanged(specificProfile,
               existingProfile,
-              getProfilePropertySettingsService().getPropertySettings().stream().map(ProfilePropertySetting::getPropertyName).toList())) {
+              profilePropertyService.getPropertySettingNames())) {
         list.add(Profile.UpdateType.CONTACT);
       }
       if (UserProfileComparator.hasChanged(specificProfile, existingProfile, Profile.EXPERIENCES)) {
@@ -637,17 +638,6 @@ public class IdentityManagerImpl implements IdentityManager {
     return relationshipManager;
   }
 
-  /**
-   * Gets profilePropertySettingsService.
-   *
-   * @return profilePropertySettingsService
-   */
-  public ProfilePropertySettingsService getProfilePropertySettingsService() {
-    if (profilePropertySettingsService == null) {
-      profilePropertySettingsService = CommonsUtils.getService(ProfilePropertySettingsService.class);
-    }
-    return profilePropertySettingsService;
-  }
 
   /**
    * {@inheritDoc}
