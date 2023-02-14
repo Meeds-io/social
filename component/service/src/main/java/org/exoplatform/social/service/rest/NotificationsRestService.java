@@ -37,14 +37,14 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesV1;
+import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResources;
 import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesV1;
 
 /**
  * 
  * Provides REST Services for manipulating jobs related to notifications.
  * 
- * @deprecated use {@link SpaceMembershipRestResourcesV1} and {@link RelationshipsRestResourcesV1}
+ * @deprecated use {@link SpaceMembershipRestResourcesV1} and {@link RelationshipsRestResources}
  * @anchor NotificationRestService
  */
 
