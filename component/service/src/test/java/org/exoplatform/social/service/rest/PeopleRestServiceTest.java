@@ -100,7 +100,8 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
     activityStorage.saveActivity(demoIdentity, demoActivity);
     Relationship relationship = new Relationship(rootIdentity, maryIdentity);
     relationship.setStatus(Relationship.Type.CONFIRMED);
-    relationshipManager.update(relationship);
+    relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
+    relationshipManager.confirm(maryIdentity, rootIdentity);
     MultivaluedMap<String, String> h2 = new MultivaluedMapImpl();
     String username = "root";
     h2.putSingle("username", username);
@@ -127,7 +128,8 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
     // Given
     Relationship relationship = new Relationship(rootIdentity, maryIdentity);
     relationship.setStatus(Relationship.Type.CONFIRMED);
-    relationshipManager.update(relationship);
+    relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
+    relationshipManager.confirm(maryIdentity, rootIdentity);
     MultivaluedMap<String, String> h3 = new MultivaluedMapImpl();
     String username = "root";
     h3.putSingle("username", username);
@@ -172,9 +174,8 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
 
   public void testUserMentionInSpaceComment() throws Exception {
     // Given
-    Relationship relationship = new Relationship(rootIdentity, maryIdentity);
-    relationship.setStatus(Relationship.Type.CONFIRMED);
-    relationshipManager.update(relationship);
+    relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
+    Relationship relationship = relationshipManager.confirm(maryIdentity, rootIdentity);
     Space space = new Space();
     space.setPrettyName("space1");
     space.setDisplayName("space1");
@@ -213,9 +214,8 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
 
   public void testUserMentionInSpaceActivityStream() throws Exception {
     // Given
-    Relationship relationship = new Relationship(rootIdentity, maryIdentity);
-    relationship.setStatus(Relationship.Type.CONFIRMED);
-    relationshipManager.update(relationship);
+    relationshipManager.inviteToConnect(rootIdentity, maryIdentity);
+    Relationship relationship = relationshipManager.confirm(maryIdentity, rootIdentity);
     Space space = new Space();
     space.setPrettyName("space1");
     space.setDisplayName("space1");

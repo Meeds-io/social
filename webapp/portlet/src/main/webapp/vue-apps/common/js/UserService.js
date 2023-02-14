@@ -129,7 +129,7 @@ export function getPending(offset, limit, expand) {
   });
 }
 
-export function getSuggestionsUsers() {
+export function getUserSuggestions() {
   const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   if (cachedSuggestions) {
     return Promise.resolve(JSON.parse(cachedSuggestions));
@@ -156,50 +156,11 @@ export function getSuggestionsUsers() {
   });
 }
 
-export function sendConnectionRequest(userID) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/connect/${userID}`,{
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function ignoreSuggestion(receiver) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
-  }
-  const sender = eXo.env.portal.userName;
-  const data = {'sender': sender ,'receiver': receiver,'status': 'IGNORED'};
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships/`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body: JSON.stringify(data),
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      return resp.text().then((text) => {
-        throw new Error(text);
-      });
-    } else {
-      return resp.json();
-    }
-  });
-}
-
 export function connect(userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -209,7 +170,7 @@ export function connect(userId) {
     body: JSON.stringify({
       sender: eXo.env.portal.userName,
       receiver: userId,
-      status: 'pending',
+      status: 'PENDING',
     }),
   }).then(resp => {
     if (!resp || !resp.ok) {
@@ -224,7 +185,7 @@ export function confirm(userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -234,7 +195,7 @@ export function confirm(userId) {
     body: JSON.stringify({
       sender: userId,
       receiver: eXo.env.portal.userName,
-      status: 'confirmed',
+      status: 'CONFIRMED',
     }),
   }).then(resp => {
     if (!resp || !resp.ok) {
@@ -245,18 +206,51 @@ export function confirm(userId) {
   });
 }
 
+export function ignore(receiver) {
+  if (sessionStorage) {
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  }
+  const sender = eXo.env.portal.userName;
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
+    method: 'PUT',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({
+      'sender': sender ,
+      'receiver': receiver,
+      'status': 'IGNORED'
+    }),
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function deleteRelationship(userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/usersRelationships/${eXo.env.portal.userName}/${userId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: userId,
+      receiver: eXo.env.portal.userName,
+    }),
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
     }
   });
 }

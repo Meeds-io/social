@@ -26,7 +26,7 @@ import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.impl.SpaceServiceImpl;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesV1;
+import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResources;
 import org.exoplatform.social.service.rest.IntranetNotificationRestService;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
