@@ -172,7 +172,7 @@ export default {
     params() {
       return {
         identityType: 'space',
-        identityId: eXo.env.portal.spaceId
+        identityId: this.spaceId
       };
     },
     enabledExtensionComponents() {
