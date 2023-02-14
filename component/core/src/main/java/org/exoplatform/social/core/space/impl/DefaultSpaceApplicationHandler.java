@@ -16,8 +16,13 @@
  */
 package org.exoplatform.social.core.space.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,7 +33,6 @@ import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.Container;
@@ -39,7 +43,6 @@ import org.exoplatform.portal.config.model.TransientApplicationState;
 import org.exoplatform.portal.module.ModuleRegistry;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
-import org.exoplatform.portal.mop.navigation.NavigationService;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.portal.mop.navigation.NodeModel;
 import org.exoplatform.portal.mop.navigation.NodeState;
@@ -47,9 +50,11 @@ import org.exoplatform.portal.mop.navigation.NodeState.Builder;
 import org.exoplatform.portal.mop.navigation.Scope;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
-import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.mop.page.PageState;
-import org.exoplatform.portal.mop.user.*;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
+import org.exoplatform.portal.mop.storage.PageStorage;
+import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.portal.pom.config.Utils;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
 import org.exoplatform.portal.pom.spi.portlet.PortletBuilder;
@@ -57,7 +62,10 @@ import org.exoplatform.portal.webui.portal.UIPortal;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceApplication;
+import org.exoplatform.social.core.space.SpaceException;
+import org.exoplatform.social.core.space.SpaceTemplate;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceApplicationHandler;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -113,8 +121,11 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
 
   protected PortalContainer container = PortalContainer.getInstance();
 
-  protected DataStorage dataStorage = null;
-  protected PageService pageService = null;
+  protected LayoutService layoutService;
+
+  protected NavigationService navigationService;
+
+  protected PageStorage   pageStorage;
 
   protected SpaceService spaceService;
 
@@ -124,18 +135,18 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
 
   protected Map<ApplicationCategory, List<Application>> appStoreCache = null;
 
-  protected static List<Application> appCache = new ArrayList<Application>();
+  protected static List<Application> appCache = new ArrayList<>();
 
   protected String templateName;
 
-  /**
-   * Constructor.
-   *
-   * @param dataStorage
-   */
-  public DefaultSpaceApplicationHandler(InitParams params, DataStorage dataStorage, PageService pageService, SpaceTemplateService spaceTemplateService) {
-    this.dataStorage = dataStorage;
-    this.pageService = pageService;
+  public DefaultSpaceApplicationHandler(InitParams params,
+                                        LayoutService layoutService,
+                                        NavigationService navigationService,
+                                        PageStorage pageService,
+                                        SpaceTemplateService spaceTemplateService) {
+    this.layoutService = layoutService;
+    this.navigationService = navigationService;
+    this.pageStorage = pageService;
     this.spaceTemplateService = spaceTemplateService;
     if (params == null) {
       templateName = NAME;
@@ -149,10 +160,8 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
    */
   public void initApps(Space space, SpaceTemplate spaceTemplate) throws SpaceException {
     try {
-      NavigationService navService = (NavigationService) container.getComponentInstance(NavigationService.class);
       NavigationContext navContext = SpaceUtils.createGroupNavigation(space.getGroupId());
-      
-      NodeContext<NodeContext<?>> parentNodeCtx = navService.loadNode(NodeModel.SELF_MODEL, navContext, Scope.CHILDREN, null);
+      NodeContext<NodeContext<?>> parentNodeCtx = navigationService.loadNode(NodeModel.SELF_MODEL, navContext, Scope.CHILDREN, null);
 
       //
       SpaceApplication homeApplication = spaceTemplate.getSpaceHomeApplication();
@@ -177,7 +186,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
           }
         }
       }
-      navService.saveNode(parentNodeCtx, null);
+      navigationService.saveNode(parentNodeCtx, null);
     } catch (Exception e) {
       throw new SpaceException(SpaceException.Code.UNABLE_TO_INIT_APP, e);
     }
@@ -203,8 +212,8 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       for (NodeContext<?> child : homeNodeCtx.getNodes()) {
         @SuppressWarnings("unchecked")
         NodeContext<NodeContext<?>> childNode = (NodeContext<NodeContext<?>>) child;
-        Page page = dataStorage.getPage(childNode.getState().getPageRef().format());
-        dataStorage.remove(page);
+        Page page = layoutService.getPage(childNode.getState().getPageRef().format());
+        layoutService.remove(page);
      }
       
      
@@ -218,7 +227,6 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
    * {@inheritDoc}
    */
   public void activateApplication(Space space, String appId, String appName) throws SpaceException {
-    ExoContainer container = ExoContainerContext.getCurrentContainer();
     NavigationService navService = (NavigationService) container.getComponentInstance(NavigationService.class);
     NavigationContext navContext;
     NodeContext<NodeContext<?>> homeNodeCtx = null;
@@ -444,7 +452,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
             // Remove from cache
             uiPortal.setUIPage(pageRef.format(), null);
           }
-          pageService.destroyPage(pageRef);
+          layoutService.remove(pageRef);
         }
       }
       
@@ -548,10 +556,10 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
                                           page.getAccessPermissions() != null ? Arrays.asList(page.getAccessPermissions()) : null, 
                                           page.getEditPermission(), Arrays.asList(page.getMoveAppsPermissions()), Arrays.asList(page.getMoveContainersPermissions()));
       
-      pageService.savePage(new PageContext(pageKey, pageState));
-      dataStorage.save(page);
-      page = dataStorage.getPage(page.getPageId());
-      PageContext pageContext = pageService.loadPage(PageKey.parse(page.getPageId()));
+      pageStorage.savePage(new PageContext(pageKey, pageState));
+      layoutService.save(page);
+      page = layoutService.getPage(page.getPageId());
+      PageContext pageContext = pageStorage.loadPage(PageKey.parse(page.getPageId()));
       pageContext.update(page);
     } catch (Exception e) {
       LOG.warn(e.getMessage(), e);
