@@ -87,11 +87,6 @@ export default {
     },
   },
   created(){
-    const cacheKey = `Site_Navigations_${eXo.env.portal.portalName}_${eXo.env.server.sessionId}`;
-    const cachedNavigations = window.sessionStorage && window.sessionStorage.getItem(cacheKey);
-    if (cachedNavigations) {
-      this.$nextTick().then(() => this.navigations = JSON.parse(cachedNavigations));
-    }
     fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}&scope=${this.navigationScope}&${this.visibilityQueryParams}`, {
       method: 'GET',
       credentials: 'include',
@@ -99,11 +94,6 @@ export default {
       .then(resp => resp && resp.ok && resp.json())
       .then(data => {
         const navigations = data || [];
-        try {
-          window.sessionStorage.setItem(cacheKey, JSON.stringify(navigations));
-        } catch (e) {
-          // Expected Quota Exceeded Error
-        }
         if (!this.navigations || !this.navigations.length) {
           this.navigations = navigations;
         }
