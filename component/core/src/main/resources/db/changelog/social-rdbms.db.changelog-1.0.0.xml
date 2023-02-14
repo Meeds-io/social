@@ -894,4 +894,10 @@
             ALTER TABLE SOC_ACTIVITY_SHARE_ACTIONS MODIFY COLUMN TITLE longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
         </sql>
     </changeSet>
+    
+    <changeSet author="social" id="1.0.0-90" dbms="postgresql">
+        <createSequence sequenceName="SEQ_SOC_PROPERTY_SETTING_ID" startValue="1"/>
+        <createSequence sequenceName="SEQ_SOC_LABELS_ID" startValue="1"/>
+    </changeSet>
+
 </databaseChangeLog>
