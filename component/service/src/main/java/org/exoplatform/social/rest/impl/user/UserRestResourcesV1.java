@@ -38,8 +38,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -75,16 +75,16 @@ import org.json.JSONObject;
 import org.picocontainer.Startable;
 
 import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.deprecation.DeprecatedAPI;
-import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -1789,9 +1789,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws Exception {
     PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-    DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+    LayoutService layoutService = CommonsUtils.getService(LayoutService.class);
     String currentSiteName = CommonsUtils.getCurrentSite().getName();
-    String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+    String currentSiteLocale = layoutService.getPortalConfig(currentSiteName).getLocale();
     Locale locale = new Locale(currentSiteLocale);
     boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
     if (onBoardingEmailSent) {

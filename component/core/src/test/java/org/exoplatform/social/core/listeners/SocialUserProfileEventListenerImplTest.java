@@ -42,20 +42,17 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
 
   private SocialStorageCacheService cacheService;
 
-  private ProfilePropertyService profilePropertyService;
+  private ProfilePropertyService    profilePropertyService;
 
   private Identity                  paul;
 
   private Identity                  raul;
-
-  private boolean                   alreadyAddedPlugins = false;
 
   public void setUp() throws Exception {
     super.setUp();
     identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     organizationService = (OrganizationService) getContainer().getComponentInstanceOfType(OrganizationService.class);
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
-    fakePlugins();
     cacheService = getContainer().getComponentInstanceOfType(SocialStorageCacheService.class);
     cacheService.getIdentityCache().clearCache();
     cacheService.getIdentityIndexCache().clearCache();
@@ -65,15 +62,6 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
 
     org.exoplatform.services.security.Identity identity = getService(IdentityRegistry.class).getIdentity("root");
     ConversationState.setCurrent(new ConversationState(identity));
-  }
-
-  private void fakePlugins() throws Exception {
-    if (!alreadyAddedPlugins) {
-      organizationService.addListenerPlugin(new SocialUserEventListenerImpl(getContainer()));
-      organizationService.addListenerPlugin(new SocialUserProfileEventListenerImpl(identityManager,
-              profilePropertyService));
-      alreadyAddedPlugins = true;
-    }
   }
 
   public void testSynchronizeFromSocialToPortal() throws Exception {
