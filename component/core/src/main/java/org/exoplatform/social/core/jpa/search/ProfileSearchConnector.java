@@ -17,10 +17,7 @@
 package org.exoplatform.social.core.jpa.search;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
@@ -184,6 +181,7 @@ public class ProfileSearchConnector {
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
     String expEs = buildExpression(filter);
+    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty() ? buildAdvancedFilterExpression(filter) : null;
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     esQuery.append("   \"from\" : " + offset + ", \"size\" : " + limit + ",\n");
@@ -219,6 +217,18 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
+    //filter by profile settings
+      if (expEsForAdvancedFilter != null) {
+
+        esSubQuery.append("    \"filter\": [\n");
+        esSubQuery.append("      {");
+        esSubQuery.append("          \"query_string\": {\n");
+        esSubQuery.append("            \"query\": \"" + expEsForAdvancedFilter + "\"\n");
+        esSubQuery.append("          }\n");
+        esSubQuery.append("      }\n");
+        esSubQuery.append("    ],\n");
+
+      }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
@@ -354,7 +364,6 @@ public class ProfileSearchConnector {
           break;
       }
     }
-
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
       StringBuilder remoteIds = new StringBuilder();
       for (String remoteId : filter.getRemoteIds()) {
@@ -516,9 +525,6 @@ public class ProfileSearchConnector {
       }
       if (keys.length > 1) {
         // We will not search on username because it doesn't contain a space character
-        if (filter.isSearchEmail()) {
-          esExp.append("(");
-        }
         esExp.append("(");
         for (int i = 0; i < keys.length; i++) {
           if (i != 0 ) {
@@ -527,53 +533,44 @@ public class ProfileSearchConnector {
           esExp.append(" name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
         }
         esExp.append(")");
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR ( ");
-          for (int i = 0; i < keys.length; i++) {
-            if (i != 0 ) {
-              esExp.append(" AND ") ;
-            }
-            esExp.append(" email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
-          }
-          esExp.append(") )");
-        }
       } else if (StringUtils.isNotBlank(newInputName)) {
         esExp.append("name:").append(removeAccents(newInputName));
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR email:").append(removeAccents(newInputName));
-        }
-        esExp.append(" OR userName:").append(removeAccents(newInputName));
       } else {
         esExp.append("( name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
-        if (filter.isSearchEmail()) {
-          esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
+        esExp.append(")");
+      }
+    }
+    return esExp.toString();
+  }
+
+  private String buildAdvancedFilterExpression(ProfileFilter filter) {
+    StringBuilder esExp = new StringBuilder();
+    esExp.append("( ");
+    Map<String, String> settings = filter.getProfileSettings();
+    int settingsCount = 0 ;
+    for (Map.Entry<String, String> entry : settings.entrySet()){
+      String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
+      if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
+        inputValue = inputValue.replace("\"", "");
+      }
+      String[] splittedValue = inputValue.split(" ");
+      if (splittedValue.length > 1) {
+        esExp.append("(");
+        for (int i = 0; i < splittedValue.length; i++) {
+          if (i != 0 ) {
+            esExp.append(" AND ") ;
+          }
+          esExp.append(entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splittedValue[i])).append(StorageUtils.ASTERISK_STR);
         }
-        esExp.append(" OR userName:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR).append(")");
+        esExp.append(")");
+      } else {
+        esExp.append("( "+entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
+        esExp.append(")");
       }
+      if ( settingsCount != settings.size()- 1 ) esExp.append(" AND ") ;
+      settingsCount += 1 ;
     }
-
-    //skills
-    String skills = StringUtils.isBlank(filter.getSkills()) ? null : filter.getSkills().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-
-    if (StringUtils.isNotBlank(skills)) {
-      skills = skills.startsWith("\"") && skills.endsWith("\"")  ? skills.replace("\"", "") : skills;
-      if (esExp.length() > 0) {
-        esExp.append(" OR ");
-      }
-      //
-      esExp.append("skills:").append(StorageUtils.ASTERISK_STR).append(removeAccents(skills)).append(StorageUtils.ASTERISK_STR);
-    }
-
-    //position
-    String position = StringUtils.isBlank(filter.getPosition()) ? null : filter.getPosition().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-
-    if (StringUtils.isNotBlank(position)) {
-      position = position.startsWith("\"") && position.endsWith("\"") ? position.replace("\"", "") : position;
-      if (esExp.length() > 0) {
-        esExp.append(" OR ");
-      }
-      esExp.append("position:").append(StorageUtils.ASTERISK_STR).append(removeAccents(position)).append(StorageUtils.ASTERISK_STR);
-    }
+    esExp.append(" )");
     return esExp.toString();
   }
 

@@ -4,6 +4,8 @@ import PeopleToolbar from './components/PeopleToolbar.vue';
 import PeopleCard from './components/PeopleCard.vue';
 import PeopleCardFront from './components/PeopleCardFront.vue';
 import PeopleCardReverse from './components/PeopleCardReverse.vue';
+import PeopleAdvancedFilterDrawer from './components/PeopleAdvancedFilterDrawer.vue';
+import AdvancedFilterInputItem from './components/AdvancedFilterInputItem.vue';
 
 const components = {
   'people-list': PeopleList,
@@ -12,12 +14,13 @@ const components = {
   'people-card': PeopleCard,
   'people-card-front': PeopleCardFront,
   'people-card-reverse': PeopleCardReverse,
+  'people-advanced-filter-drawer': PeopleAdvancedFilterDrawer,
+  'people-advanced-filter-input-item': AdvancedFilterInputItem,
 };
 
 for (const key in components) {
   Vue.component(key, components[key]);
 }
-
 //get overrided components if exists
 if (extensionRegistry) {
   const components = extensionRegistry.loadComponents('peopleList');
