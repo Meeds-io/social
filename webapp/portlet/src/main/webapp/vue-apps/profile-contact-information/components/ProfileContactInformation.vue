@@ -40,7 +40,6 @@
     <profile-contact-information-drawer
       v-if="owner"
       ref="contactInformationEdit"
-      :properties="properties"
       :upload-limit="uploadLimit"
       @refresh="refresh" />
   </v-app>
@@ -85,11 +84,11 @@ export default {
         .finally(() => this.$root.$applicationLoaded());
     },
     editContactInformation() {
-      this.$refs.contactInformationEdit.open();
+      this.$root.$emit('open-profile-contact-information-drawer', this.properties);
     },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = item.labels.find(v => v.language === lang);
+      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
       if (resolvedLabel){
         return resolvedLabel.label;
       }

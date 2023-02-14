@@ -548,7 +548,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      if(StringUtils.isNotBlank(expand) && expand.equals("settings")){
+      if (StringUtils.isNotBlank(expand) && expand.equals("settings")) {
         builder = Response.ok(EntityBuilder.buildProperties(identity.getProfile()), MediaType.APPLICATION_JSON);
       } else {
         ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
@@ -935,20 +935,20 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     return Response.noContent().build();
   }
- @PATCH
+  @PATCH
   @Path("{id}/profile/properties")
-  @Operation(
-          summary = "Update set of properties in user profile",
-          method = "PATCH",
-          description = "This can only be done by the logged in user.")
-  @ApiResponses(value = {
-      @ApiResponse (responseCode = "204", description = "Request fulfilled but not content returned"),
-      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse (responseCode = "403", description = "Unothorized to modify user profile"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response updateUserProfileAttributes(@Context HttpServletRequest request,
-                                              @Parameter(description = "User name", required = true) @PathParam("id") String username,
-                                              @RequestBody(description = "User profile attributes map", required = true) List<ProfilePropertySettingEntity> profilePropertySettingEntities) throws Exception {
+  @Operation(summary = "Update set of properties in user profile", method = "PATCH", description = "This can only be done by the logged in user.")
+  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
+          @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+          @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response updateUserProfileAttributes(@Context
+                                              HttpServletRequest request,
+                                              @Parameter(description = "User name", required = true)
+                                              @PathParam("id")
+                                              String username,
+                                              @RequestBody(description = "User profile attributes map", required = true)
+                                              List<ProfilePropertySettingEntity> profilePropertySettingEntities) throws Exception {
     if (StringUtils.isBlank(username)) {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
@@ -961,10 +961,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(Status.UNAUTHORIZED).build();
     }
     Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
-   Identity userIdentity = getUserIdentity(username);
-   Profile profile = userIdentity.getProfile();
+    Identity userIdentity = getUserIdentity(username);
+    Profile profile = userIdentity.getProfile();
 
-    for(ProfilePropertySettingEntity profileProperty : profilePropertySettingEntities){
+    for (ProfilePropertySettingEntity profileProperty : profilePropertySettingEntities) {
 
       if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME)) {
         String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, profileProperty.getValue());
@@ -989,33 +989,37 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
       }
       try {
-        if(!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())){
+        if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
           updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
         } else {
-          if(profileProperty.getPropertyName().equals(Profile.CONTACT_PHONES)){
-            List <PhoneEntity> phoneEntities = new ArrayList<>();
-            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
-              phoneEntities.add(new PhoneEntity(child.getPropertyName(), child.getValue()));
-              updateProfileField(profile, profileProperty.getPropertyName(), phoneEntities, true);
-            }
-          }
-          else if(profileProperty.getPropertyName().equals(Profile.CONTACT_IMS)){
-            List <IMEntity> imEntities = new ArrayList<>();
-            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
-              imEntities.add(new IMEntity(child.getPropertyName(), child.getValue()));
-              updateProfileField(profile, profileProperty.getPropertyName(), imEntities, true);
-            }
-          }
-          else if(profileProperty.getPropertyName().equals(Profile.CONTACT_URLS)){
-            List <URLEntity> urlEntities = new ArrayList<>();
-            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
-              urlEntities.add(new URLEntity(child.getValue()));
-              updateProfileField(profile, profileProperty.getPropertyName(), urlEntities, true);
-            }
-          } else {
-            for(ProfilePropertySettingEntity child :profileProperty.getChildren()){
-              updateProfileField(profile, child.getPropertyName(), child.getValue(), true);
-            }
+          switch (profileProperty.getPropertyName()) {
+            case Profile.CONTACT_PHONES:
+              List<PhoneEntity> phoneEntities = new ArrayList<>();
+              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
+                phoneEntities.add(new PhoneEntity(child.getPropertyName(), child.getValue()));
+                updateProfileField(profile, profileProperty.getPropertyName(), phoneEntities, true);
+              }
+              break;
+            case Profile.CONTACT_IMS:
+              List<IMEntity> imEntities = new ArrayList<>();
+              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
+                imEntities.add(new IMEntity(child.getPropertyName(), child.getValue()));
+                updateProfileField(profile, profileProperty.getPropertyName(), imEntities, true);
+              }
+              break;
+            case Profile.CONTACT_URLS:
+              List<URLEntity> urlEntities = new ArrayList<>();
+              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
+                urlEntities.add(new URLEntity(child.getValue()));
+                updateProfileField(profile, profileProperty.getPropertyName(), urlEntities, true);
+              }
+              break;
+            default:
+              List<String> childrenValues = profileProperty.getChildren()
+                      .stream()
+                      .map(ProfilePropertySettingEntity::getValue)
+                      .toList();
+              updateProfileField(profile, profileProperty.getPropertyName(), StringUtils.join(childrenValues, ','), true);
           }
         }
       } catch (IllegalAccessException e) {

@@ -64,14 +64,9 @@
 
 <script>
 export default {
-  props: {
-    properties: {
-      type: Array,
-      default: () => null,
-    }
-  },
   data: () => ({
     propertiesToSave: [],
+    properties: [],
     error: null,
     saving: null,
     fieldError: false,
@@ -81,6 +76,9 @@ export default {
       viewMode: 1,
     },
   }),
+  created() {
+    this.$root.$on('open-profile-contact-information-drawer', this.open);
+  },
   methods: {
     
     resetCustomValidity() {
@@ -206,10 +204,14 @@ export default {
       document.dispatchEvent(new CustomEvent('userModified'));
     }, 
     cancel() {
+      this.refresh();
       this.$refs.profileContactInformationDrawer.close();
     },
-    open() {
+    open(event) {
       this.error = null;
+      if (event) {
+        this.properties = JSON.parse(JSON.stringify(event));
+      }
       this.$refs.profileContactInformationDrawer.open();
     },
     propertyUpdated(item){
@@ -219,7 +221,7 @@ export default {
     },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = item.labels.find(v => v.language === lang);
+      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
       if (resolvedLabel){
         return resolvedLabel.label;
       }
