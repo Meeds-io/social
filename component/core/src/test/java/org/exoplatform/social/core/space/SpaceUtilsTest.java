@@ -28,8 +28,6 @@ import org.exoplatform.portal.mop.page.PageService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.Utils;
@@ -81,7 +79,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     space1.setVisibility("public");
     space1.setPriority("2");
     String[] manager = new String []{"root"};
-    String[] members = new String []{"demo", "john", "mary"};
+    String[] members = new String []{"root", "demo", "john", "mary"};
     space1.setManagers(manager);
     space1.setMembers(members);
 
@@ -118,20 +116,6 @@ public class SpaceUtilsTest extends AbstractCoreTest {
   public void testRemoveSpecialCharacter() {
     assertEquals("The filter should only filter special characters only","script alert 'Hello' script 100", Utils.removeSpecialCharacterInSpaceFilter("<script>alert('Hello');</script> 100"));
     assertEquals("The filter should keep wildcard *,? and %","% * '?", Utils.removeSpecialCharacterInSpaceFilter("( ) %{ } * [ ] \'? \""));
-    /* I comment this part because unicode String may have problem with Jenkins build.
-    assertEquals("The filter should only filter special characters only","script alert a á à ả ã ạ ă ắ ằ ẳ ẵ ặ â" +
-    		          " ấ ầ ẩ ẫ ậ o ó ò ỏ õ ọ ơ ớ ờ ở ỡ ợ u ú ù ủ ũ ụ ư ứ ừ ử ữ ự đ script 100",
-    		          SpaceUtils.removeSpecialCharacterInSpaceFilter("<script>alert(' a á à ả ã ạ ă ắ ằ ẳ ẵ ặ â" +
-                  " ấ ầ ẩ ẫ ậ o ó ò ỏ õ ọ ơ ớ ờ ở ỡ ợ u ú ù ủ ũ ụ ư ứ ừ ử ữ ự đ');</script> 100"));
-    assertEquals("The filter should keep the unicode characters","ˆáàâäåÁÃÄÅÀÂæÆçÇêéëèÊËÉÈïíîìÍÌÎÏñÑœŒöòõóøÓÔÕØÖÒšŠúüûùÙÚÜÛÿŸýÝžŽÞþƒßµÐºÇüéâäàåçêëèïîìÄÅÉæÆôöòû" +
-    		         "ùÿÖÜáíóúñÑºĈĉĜĝĤĥĴĵŜŝŬŭàâçéèêëîïœôùûÀÂÇÈÉÊËÎÏŒáéíñóúüÁÉÍÑÓÚÜÔÙÛàèìòùÀÈÌÒÙãÃçÇòÒóÓõÕäåæðëöøßþü" +
-    		         "ÿÄÅÆÐËÖØÞÜ",
-    		         SpaceUtils.removeSpecialCharacterInSpaceFilter(
-		             "ˆáàâäåÁÃÄÅÀÂæÆçÇêéëèÊËÉÈïíîìÍÌÎÏñÑœŒöòõóøÓÔÕØÖÒšŠúüûùÙÚÜÛÿŸýÝžŽÞþƒßµÐºÇüéâäàåçêëèïîìÄÅÉæÆôöòû" +
-                 "ùÿÖÜáíóúñÑºĈĉĜĝĤĥĴĵŜŝŬŭàâçéèêëîïœôùûÀÂÇÈÉÊËÎÏŒáéíñóúüÁÉÍÑÓÚÜÔÙÛàèìòùÀÈÌÒÙãÃçÇòÒóÓõÕäåæðëöøßþü" +
-                 "ÿÄÅÆÐËÖØÞÜ"
-                 ));
-    */
   }
   
   public void testGetAppFromPortalContainer() throws Exception {
