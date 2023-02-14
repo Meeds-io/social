@@ -16,23 +16,16 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.io.InputStream;
+import static java.lang.Thread.sleep;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.test.AbstractCoreTest;
-
-import static java.lang.Thread.sleep;
 
 /**
  * Unit Tests for {@link RelationshipManager}
@@ -224,39 +217,7 @@ public class RelationshipManagerTest extends AbstractCoreTest {
     relationship = relationshipManager.get(relationshipId);
     assertNull("relationship must be null", relationship);
   }
-  
-  /**
-   * Test {@link RelationshipManager#update(Relationship)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testUpdate() throws Exception {
-    Relationship rootToDemoRelationship = relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
-    Relationship maryToRootRelationship = relationshipManager.inviteToConnect(maryIdentity, rootIdentity);
-    Relationship rootToJohnRelationship = relationshipManager.inviteToConnect(rootIdentity, johnIdentity);
-    
-    assertEquals("rootToDemoRelationship.getStatus() must return: " + Relationship.Type.PENDING,
-                 Relationship.Type.PENDING, rootToDemoRelationship.getStatus());
-    rootToDemoRelationship.setStatus(Relationship.Type.CONFIRMED);
-    relationshipManager.update(rootToDemoRelationship);
-    rootToDemoRelationship = relationshipManager.get(rootIdentity, demoIdentity);
-    assertEquals("rootToDemoRelationship.getStatus() must return: " + Relationship.Type.CONFIRMED,
-                 Relationship.Type.CONFIRMED, rootToDemoRelationship.getStatus());
-    
-    assertEquals("maryToRootRelationship.getStatus() must return: " + Relationship.Type.PENDING,
-                 Relationship.Type.PENDING, maryToRootRelationship.getStatus());
-    maryToRootRelationship.setStatus(Relationship.Type.IGNORED);
-    relationshipManager.update(maryToRootRelationship);
-    maryToRootRelationship = relationshipManager.get(maryIdentity, rootIdentity);
-    assertEquals("maryToRootRelationship.getStatus() must return: " + Relationship.Type.IGNORED,
-                 Relationship.Type.IGNORED, maryToRootRelationship.getStatus());
-    
-    tearDownRelationshipList.add(rootToDemoRelationship);
-    tearDownRelationshipList.add(maryToRootRelationship);
-    tearDownRelationshipList.add(rootToJohnRelationship);
-  }
-  
+
   /**
    * Test {@link RelationshipManager#inviteToConnect(Identity, Identity)}
    * 
@@ -860,21 +821,7 @@ public class RelationshipManagerTest extends AbstractCoreTest {
     tearDownRelationshipList.add(maryToRootRelationship);
     tearDownRelationshipList.add(rootToJohnRelationship);
   }
-  
-  /**
-   * Test {@link RelationshipManager#create(Identity, Identity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testCreate() throws Exception {
-    Relationship demoToJohnRelationship = relationshipManager.create(demoIdentity, johnIdentity);
-    assertNotNull("demoToJohnRelationship must not be null", demoToJohnRelationship);
-    assertEquals("demoToJohnRelationship.getSender() must return: " + demoIdentity, demoIdentity, demoToJohnRelationship.getSender());
-    assertEquals("demoToJohnRelationship.getReceiver() must return: " + johnIdentity, johnIdentity, demoToJohnRelationship.getReceiver());
-    assertEquals("demoToJohnRelationship.getStatus() must return: " + Relationship.Type.PENDING, Relationship.Type.PENDING, demoToJohnRelationship.getStatus());
-  }
-  
+
   /**
    * Test {@link RelationshipManager#getRelationship(Identity, Identity)}
    * 
@@ -1104,44 +1051,6 @@ public class RelationshipManagerTest extends AbstractCoreTest {
     tearDownRelationshipList.add(johnMaryRelationship);
     tearDownRelationshipList.add(johnRootRelationship);
   }
-
-  /**
-   * Test {@link RelationshipManager#save(Relationship)}
-   *
-   * @throws Exception
-   */
-  public void testSave() throws Exception {
-    Relationship testRelationship = new Relationship(johnIdentity, demoIdentity, Type.PENDING);
-    relationshipManager.save(testRelationship);
-    assertNotNull("testRelationship.getId() must not be null", testRelationship.getId());
-
-    tearDownRelationshipList.add(testRelationship);
-  }
-
-  /**
-   *
-   * @throws Exception
-   */
-  /*
-  public void testGetManyRelationshipsByIdentityId() throws Exception {
-    String providerId = OrganizationIdentityProvider.NAME;
-
-    Identity sender = identityManager.getOrCreateIdentity(providerId,"john");
-    identityManager.saveIdentity(sender);
-    assertNotNull(sender.getId());
-
-    Identity receiver = identityManager.getOrCreateIdentity(providerId,"mary");
-    assertNotNull(receiver.getId());
-
-    relationshipManager.invite(sender, receiver);
-
-    List<Relationship> senderRelationships = relationshipManager.getAllRelationships(sender);
-    List<Relationship> receiverRelationships = relationshipManager.getAllRelationships(receiver);
-
-    assertEquals(total, senderRelationships.size());
-    assertEquals(total, receiverRelationships.size());
-  }
-*/
 
   /**
    * Test {@link RelationshipManager#invite(Identity, Identity)}

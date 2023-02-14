@@ -136,7 +136,6 @@ Vue.startApp = function(jsModule, methodName, params) {
 Vue.directive('cacheable', {
   bind(el, binding, vnode) {
     const appId = el.id;
-    const cacheId = binding && binding.value && binding.value.cacheId || appId;
 
     const mountApplication = function() {
       const cachedAppElement = document.querySelector(`#UIPortalApplication #${appId}`);
@@ -145,53 +144,6 @@ Vue.directive('cacheable', {
       } else {
         // eslint-disable-next-line no-console
         console.warn(`Application with identifier ${appId} was not found in page`);
-      }
-    };
-
-    const cacheDom = function() {
-      if (navigator.serviceWorker && window.caches) {
-        window.caches.open('portal-pwa-resources-dom')
-          .then(cache => {
-            if (cache) {
-              window.setTimeout(() => {
-                const domToCache = vnode.componentInstance.$root.$el.innerHTML
-                  .replaceAll('<input ', '<input disabled ')
-                  .replaceAll('<button ', '<button disabled ')
-                  .replaceAll('v-btn ', 'v-btn v-btn--disabled ')
-                  .replaceAll('<select ', '<select disabled ')
-                  .replaceAll('<textarea ', '<textarea disabled ')
-                  .replaceAll('v-navigation-drawer--open', 'v-navigation-drawer--open hidden')
-                  .replaceAll('v-alert ', 'v-alert hidden ')
-                  .replaceAll('v-menu ', 'v-menu hidden ')
-                  .replaceAll('v-overlay--active', 'v-overlay--active hidden')
-                  .replaceAll('v-application--wrap', `flex app-cache-loading ${cacheId}-cache-loading`);
-                if (vnode.componentInstance.$root.$el.offsetHeight && vnode.componentInstance.$root.$el.offsetWidth) {
-                  cache.put(`/dom-cache?id=${cacheId}`, new Response($(`
-                    <div>
-                      <div class="flex position-relative v-application--wrap">
-                        <div role="progressbar" aria-valuemin="0" aria-valuemax="100" class="v-progress-linear v-progress-linear--rounded theme--light app-cached-content ${cacheId}-cached-content" style="height: 1px; position: absolute; z-index: 1">
-                          <div class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active">
-                            <div class="v-progress-linear__indeterminate short primary"></div>
-                          </div>
-                        </div>
-                        ${domToCache}
-                      </div>
-                    </div>
-                  `).html(), {
-                    headers: {'content-type': 'text/html;charset=UTF-8'},
-                  }));
-                } else {
-                  cache.put(`/dom-cache?id=${cacheId}`, new Response($(`
-                    <div>
-                      ${domToCache}
-                    </div>
-                  `).html(), {
-                    headers: {'content-type': 'text/html;charset=UTF-8'},
-                  }));
-                }
-              }, 500);
-            }
-          });
       }
     };
 
@@ -204,13 +156,8 @@ Vue.directive('cacheable', {
     });
 
     vnode.componentInstance.$root.$on('application-loaded', () => {
-      cacheDom();
       vnode.componentInstance.$root.$vuetify.rtl = eXo.env.portal.orientation === 'rtl';
       vnode.componentInstance.$root.$emit('application-mount');
-    });
-
-    vnode.componentInstance.$root.$on('application-cache', () => {
-      cacheDom();
     });
   },
   inserted(el, binding, vnode) {
