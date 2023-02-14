@@ -20,6 +20,7 @@ import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
@@ -251,15 +252,16 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
           }
         } else {
           List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(propertyName);
-          String value = multiValues.stream()
-                                    .filter(property -> property.get("value") != null)
-                                    .map(property -> property.get("value"))
-                                    .collect(Collectors.joining(",", "", ""));
-          if (StringUtils.isNotEmpty(value)) {
-            fields.put(propertyName, removeAccents(value));
+          if (CollectionUtils.isNotEmpty(multiValues)) {
+            String value = multiValues.stream()
+                .filter(property -> property.get("value") != null)
+                .map(property -> property.get("value"))
+                .collect(Collectors.joining(",", "", ""));
+            if (StringUtils.isNotEmpty(value)) {
+              fields.put(propertyName, removeAccents(value));
+            }
           }
         }
-
       }
     }
 
