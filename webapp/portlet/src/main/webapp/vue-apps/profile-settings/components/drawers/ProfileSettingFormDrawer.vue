@@ -1,19 +1,23 @@
-<!--
-  This file is part of the Meeds project (https://meeds.io/).
-  Copyright (C) 2022 Meeds Association
-  contact@meeds.io
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 3 of the License, or (at your option) any later version.
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-  You should have received a copy of the GNU Lesser General Public License
-  along with this program; if not, write to the Free Software Foundation,
-  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
--->
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 
 <template>
   <exo-drawer
@@ -55,7 +59,7 @@
           {{ $t('profileSettings.label.labels') }}
         </v-card-text>
         <v-card-text class="d-flex settingNameField py-0">
-          <profile-property-labels :propertylabels="setting.labels" :languages="languages"/>
+          <profile-property-labels :propertylabels="labels" :languages="languages" :labelsObjectType="labelsObjectType" :id="setting.id"/>
         </v-card-text>
 
         <v-card-text class="d-flex parentLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -225,9 +229,11 @@ export default {
     newSetting: false,
     saving: false,
     confirmNewPassword: null,
-    setting: {labels: []},
+    setting: {},
     parents: [],
-    changes: false
+    labels: [],
+    changes: false,
+    labelsObjectType: 'profileProperty',
   }),
   computed: {
     title() {
@@ -266,7 +272,7 @@ export default {
     },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = item.labels.find(v => v.language === lang);
+      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
       if (resolvedLabel){
         return resolvedLabel.label;
       }
@@ -276,7 +282,8 @@ export default {
       this.$refs.settingNameInput.setCustomValidity('');
     },
     addNewSetting() {
-      this.setting = {labels: [{language: 'en', label: ''}], visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
+      this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
+      this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
       this.parents = Object.assign([], this.settings);
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = true;
@@ -290,8 +297,9 @@ export default {
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;
-      if (this.setting.labels.length === 0){
-        this.setting.labels.push( {language: 'en', label: ''});
+      this.labels = JSON.parse(JSON.stringify(this.setting.labels));
+      if (this.labels.length === 0){
+        this.labels.push( {language: 'en', label: '', objectId: this.setting.id, objectType: this.labelsObjectType});
       }
       this.changes= false;
       this.drawer = true;     
@@ -314,11 +322,52 @@ export default {
 
       this.saving = true;
       if (this.newSetting){
+        this.setting.labels= this.labels;
         this.$root.$emit('create-setting', this.setting);
       } else {
+        this.mergeLabels();
         this.$root.$emit('update-setting', this.setting,true);
       }
       this.saving = false;
+    },
+    mergeLabels() {
+      const labelstoCreate = [];
+      const labelstoUpdate = [];
+      const labelstoDelete = [];
+      if (this.labels.length ===0 && !this.setting.labels.length ===0) {
+        this.$root.$emit('delete-labels', this.setting.labels);
+      } else if (!this.labels.length ===0 && this.setting.labels.length ===0) {
+        this.$root.$emit('create-labels', this.labels);
+      } else {
+        this.setting.labels.forEach(label => {
+          const foundProfileLabel = this.containsLabel(this.labels, label);
+          if (foundProfileLabel){
+            if (foundProfileLabel.label!==label.label || foundProfileLabel.language!==label.language) {
+              labelstoUpdate.push(foundProfileLabel);
+            }
+          } else {
+            labelstoDelete.push(label);
+          }
+        });
+        this.labels.forEach(label => {
+          if (!label.id) {
+            labelstoCreate.push(label);
+          }
+        });
+        if (labelstoCreate.length>0){
+          this.$root.$emit('create-labels', labelstoCreate);
+        }
+        if (labelstoUpdate.length>0){
+          this.$root.$emit('update-labels', labelstoUpdate);
+        }
+        if (labelstoDelete.length>0){
+          this.$root.$emit('delete-labels', labelstoDelete);
+        }
+        this.setting.labels=this.labels;
+      }   
+    },
+    containsLabel(labelsList, label){
+      return labelsList.find((profileLabel) => profileLabel.id === label.id);  
     },
     cancel() {
       this.drawer = false;
