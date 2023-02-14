@@ -24,7 +24,6 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
-import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.service.rest.Util;
 
 @Path("/homepage/intranet/people/")
@@ -45,7 +44,6 @@ public class PeopleRestServices implements ResourceContainer {
 
   private  RelationshipManager relationshipManager;
 
-
   static {
     RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
     cacheControl = new CacheControl();
@@ -56,166 +54,6 @@ public class PeopleRestServices implements ResourceContainer {
     this.userACL = userACL;
     this.identityManager = identityManager;
     this.relationshipManager =  relationshipManager;
-
-  }
-
-  @GET
-  @Path("contacts/pending")
-  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.getUsersRelationships instead")
-  public Response getPending(@Context SecurityContext sc, @Context UriInfo uriInfo) {
-
-    try {
-
-      String userId = getUserId(sc, uriInfo);
-      if (userId == null) {
-        return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-      }
-
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-      List<Relationship> relations = relationshipManager.getPending(identity);
-
-      JSONArray jsonArray = new JSONArray();
-
-      for (Relationship relation : relations) {
-
-        Identity senderId = relation.getSender();
-        Profile senderProfile = senderId.getProfile();
-        Identity receiverId = relation.getReceiver();
-        Profile receiverProfile = receiverId.getProfile();
-
-        JSONObject json = new JSONObject();
-        json.put("senderName", senderProfile.getFullName());
-        json.put("senderId", senderId.getId());
-        json.put("receiverName", receiverProfile.getFullName());
-        json.put("receiverId", receiverId.getId());
-        json.put("status", relation.getStatus());
-        jsonArray.put(json);
-      }
-
-      return Response.ok(jsonArray.toString(), MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-
-    } catch (Exception e) {
-      log.error("Error in people pending rest service: " + e.getMessage(), e);
-      return Response.ok("error").cacheControl(cacheControl).build();
-    }
-  }
-
-
-  @GET
-  @Path("contacts/incoming")
-  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.getUsersRelationships instead")
-  public Response getIncoming(@Context SecurityContext sc, @Context UriInfo uriInfo) {
-
-    try {
-
-      String userId = getUserId(sc, uriInfo);
-      if (userId == null) {
-        return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-      }
-
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-      List<Relationship> relations = relationshipManager.getIncoming(identity);
-
-      JSONArray jsonArray = new JSONArray();
-
-      for (Relationship relation : relations) {
-
-        Identity senderId = relation.getSender();
-        String avatar = senderId.getProfile().getAvatarImageSource();
-        if (avatar == null) {
-          avatar = "/eXoSkin/skin/images/system/Avatar.gif";
-        }
-
-        JSONObject json = new JSONObject();
-        json.put("senderName", senderId.getProfile().getFullName());
-        json.put("relationId", relation.getId());
-        json.put("avatar", avatar);
-        json.put("profile", senderId.getProfile().getUrl());
-        jsonArray.put(json);
-      }
-
-      return Response.ok(jsonArray.toString(), MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-    } catch (Exception e) {
-      log.error("Error in people incoming rest service: " + e.getMessage(), e);
-      return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-    }
-
-  }
-
-
-  //confirm a request
-
-  @GET
-  @Path("contacts/confirm/{relationId}")
-  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.updateUsersRelationship instead")
-  public Response confirm(@PathParam("relationId") String relationId, @Context SecurityContext sc, @Context UriInfo uriInfo) {
-
-    try {
-
-      String userId = getUserId(sc, uriInfo);
-      if (userId == null) {
-        return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-      }
-
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-
-      log.debug("request accepted.");
-
-      relationshipManager.confirm(relationshipManager.getRelationshipById(relationId));
-
-      return Response.ok("Confirmed", MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-    } catch (Exception e) {
-      log.error("Error in people accept rest service: " + e.getMessage(), e);
-      return Response.ok("error").cacheControl(cacheControl).build();
-    }
-  }
-
-  @GET
-  @Path("contacts/deny/{relationId}")
-  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.updateUsersRelationship instead")
-  public Response deny(@PathParam("relationId") String relationId, @Context SecurityContext sc, @Context UriInfo uriInfo) {
-
-    try {
-
-      String userId = getUserId(sc, uriInfo);
-      if (userId == null) {
-        return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-      }
-
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-
-      relationshipManager.deny(relationshipManager.getRelationshipById(relationId));
-
-      return Response.ok("Denied", MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-
-    } catch (Exception e) {
-      log.error("Error in people deny rest service: " + e.getMessage(), e);
-      return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-    }
-  }
-
-  @GET
-  @Path("contacts/connect/{relationId}")
-  @DeprecatedAPI("Use UsersRelationshipsRestResourcesV1.updateUsersRelationship instead")
-  public Response connect(@PathParam("relationId") String relationId, @Context SecurityContext sc, @Context UriInfo uriInfo) {
-
-    try {
-
-      String userId = getUserId(sc, uriInfo);
-      if (userId == null) {
-        return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-      }
-
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-
-      relationshipManager.invite(identity, identityManager.getIdentity(relationId));
-
-      return Response.ok("Connected", MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-    } catch (Exception e) {
-      log.error("Error in people connect rest service: " + e.getMessage(), e);
-      return Response.ok("Error", MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-    }
-
   }
 
   @GET
@@ -298,7 +136,6 @@ public class PeopleRestServices implements ResourceContainer {
     }
 
   }
-
 
   private String getUserId(SecurityContext sc, UriInfo uriInfo) {
     try {

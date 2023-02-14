@@ -19,19 +19,15 @@ package org.exoplatform.social.core.service;
 import org.apache.commons.lang.StringUtils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 public class LinkProviderTest extends AbstractCoreTest {
   private IdentityManager identityManager;
-  private IdentityStorage identityStorage;
 
   public void setUp() throws Exception {
     super.setUp();
     identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-    identityStorage = (IdentityStorage) this.getContainer().getComponentInstanceOfType(IdentityStorage.class);
 
     assertNotNull(identityManager);
   }
@@ -47,8 +43,7 @@ public class LinkProviderTest extends AbstractCoreTest {
   public void testGetProfileLink() throws Exception {
     final String portalOwner = "classic";
 
-    IdentityManager identityManger = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-    Identity rootIdentity = identityManger.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root", false);
+    Identity rootIdentity = identityManager.getOrCreateUserIdentity("root");
     String rootFullName = rootIdentity.getProfile().getFullName();
     assertNotNull("rootFullName must not be null.", rootFullName);
     // but when we have the identity we generate a link
