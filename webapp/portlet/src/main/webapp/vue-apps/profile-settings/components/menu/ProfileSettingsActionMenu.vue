@@ -92,7 +92,7 @@ export default {
   },
   methods: {
     edit(){
-      this.$root.$emit('open-settings-edit-drawer', this.setting);
+      this.$root.$emit('open-settings-edit-drawer', JSON.parse(JSON.stringify( this.setting)));
     },
     moveUp(){
       this.$root.$emit('move-up-setting', this.setting);
