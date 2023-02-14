@@ -19,11 +19,12 @@ package org.exoplatform.social.core.space.mock;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.page.PageService;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
+import org.exoplatform.portal.mop.storage.PageStorage;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -32,10 +33,11 @@ import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 public class MockSpaceApplicationHandler extends DefaultSpaceApplicationHandler {
 
   public MockSpaceApplicationHandler(InitParams params,
-                                     DataStorage dataStorage,
-                                     PageService pageService,
+                                     LayoutService layoutService,
+                                     NavigationService navigationService,
+                                     PageStorage pageStorage,
                                      SpaceTemplateService spaceTemplateService) {
-    super(params, dataStorage, pageService, spaceTemplateService);
+    super(params, layoutService, navigationService, pageStorage, spaceTemplateService);
   }
 
   @Override

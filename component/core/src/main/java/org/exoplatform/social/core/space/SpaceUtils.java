@@ -16,7 +16,20 @@
  */
 package org.exoplatform.social.core.space;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
@@ -27,10 +40,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
-import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;
@@ -43,20 +52,46 @@ import com.ibm.icu.text.Transliterator;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ExpressionUtil;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.*;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
-import org.exoplatform.portal.config.*;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserACL.Permission;
-import org.exoplatform.portal.config.model.*;
-import org.exoplatform.portal.mop.*;
-import org.exoplatform.portal.mop.description.DescriptionService;
-import org.exoplatform.portal.mop.navigation.*;
-import org.exoplatform.portal.mop.page.*;
-import org.exoplatform.portal.mop.user.*;
+import org.exoplatform.portal.config.UserPortalConfig;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.ApplicationState;
+import org.exoplatform.portal.config.model.ApplicationType;
+import org.exoplatform.portal.config.model.Container;
+import org.exoplatform.portal.config.model.ModelObject;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.State;
+import org.exoplatform.portal.mop.Visibility;
+import org.exoplatform.portal.mop.navigation.GenericScope;
+import org.exoplatform.portal.mop.navigation.NavigationContext;
+import org.exoplatform.portal.mop.navigation.NavigationServiceException;
+import org.exoplatform.portal.mop.navigation.NavigationState;
+import org.exoplatform.portal.mop.navigation.NodeContext;
+import org.exoplatform.portal.mop.navigation.NodeModel;
+import org.exoplatform.portal.mop.navigation.Scope;
+import org.exoplatform.portal.mop.page.PageContext;
+import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
+import org.exoplatform.portal.mop.storage.DescriptionStorage;
+import org.exoplatform.portal.mop.storage.PageStorage;
+import org.exoplatform.portal.mop.user.UserNavigation;
+import org.exoplatform.portal.mop.user.UserNode;
+import org.exoplatform.portal.mop.user.UserNodeFilterConfig;
+import org.exoplatform.portal.mop.user.UserPortal;
+import org.exoplatform.portal.mop.user.UserPortalContext;
 import org.exoplatform.portal.webui.portal.UIPortal;
 import org.exoplatform.portal.webui.util.NavigationURLUtils;
 import org.exoplatform.portal.webui.util.Util;
@@ -64,16 +99,28 @@ import org.exoplatform.portal.webui.workspace.UIPortalApplication;
 import org.exoplatform.portal.webui.workspace.UIWorkingWorkspace;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipHandler;
+import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.MembershipTypeHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 import org.exoplatform.web.application.RequestContext;
 import org.exoplatform.webui.application.WebuiRequestContext;
 
@@ -422,7 +469,7 @@ public class SpaceUtils {
 
     try {
 
-      DataStorage dataService = CommonsUtils.getService(DataStorage.class);
+      LayoutService layoutService = CommonsUtils.getService(LayoutService.class);
       UserNode renamedNode = SpaceUtils.getSpaceUserNode(space);
       UserNode parentNode = renamedNode.getParent();
       String newNodeLabel = space.getDisplayName();
@@ -430,10 +477,10 @@ public class SpaceUtils {
       renamedNode.setLabel(newNodeLabel);
       renamedNode.setName(newNodeName);
 
-      Page page = dataService.getPage(renamedNode.getPageRef().format());
+      Page page = layoutService.getPage(renamedNode.getPageRef().format());
       if (page != null) {
         page.setTitle(newNodeLabel);
-        dataService.save(page);
+        layoutService.save(page);
       }
 
       SpaceUtils.getUserPortal().saveNode(parentNode, null);
@@ -538,7 +585,7 @@ public class SpaceUtils {
    */
   public static void removePagesAndGroupNavigation(Space space) throws Exception {
     // remove pages
-    DataStorage dataStorage = getDataStorage();
+    LayoutService layoutService = getLayoutService();
     String groupId = space.getGroupId();
     NavigationContext spaceNavCtx = SpaceUtils.getGroupNavigationContext(groupId);
     // return in case group navigation was removed by portal SOC-548
@@ -550,8 +597,8 @@ public class SpaceUtils {
     for (NodeContext<?> child : homeNodeCtx.getNodes()) {
       @SuppressWarnings("unchecked")
       NodeContext<NodeContext<?>> childNode = (NodeContext<NodeContext<?>>) child;
-      Page page = dataStorage.getPage(childNode.getState().getPageRef().format());
-      dataStorage.remove(page);
+      Page page = layoutService.getPage(childNode.getState().getPageRef().format());
+      layoutService.remove(page);
     }
 
     // remove group navigation
@@ -570,8 +617,8 @@ public class SpaceUtils {
   public static void changeSpaceUrlPreference(UserNode spacePageNode,
                                               Space space,
                                               String newSpaceName) throws Exception {
-    DataStorage dataStorage = getDataStorage();
-    Page page = dataStorage.getPage(spacePageNode.getPageRef().format());
+    LayoutService layoutService = getLayoutService();
+    Page page = layoutService.getPage(spacePageNode.getPageRef().format());
 
     ArrayList<ModelObject> pageChildren = page.getChildren();
 
@@ -600,20 +647,19 @@ public class SpaceUtils {
    * @throws Exception
    */
 
-  @SuppressWarnings("unchecked")
   public static void changeAppPageTitle(UserNode spacePageNode, String newSpaceName) throws Exception {
-    DataStorage dataStorage = getDataStorage();
-    Page page = dataStorage.getPage(spacePageNode.getPageRef().format());
+    LayoutService layoutService = getLayoutService();
+    Page page = layoutService.getPage(spacePageNode.getPageRef().format());
 
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-    PageService pageService = (PageService) container.getComponentInstanceOfType(PageService.class);
-    PageContext pageContext = pageService.loadPage(page.getPageKey());
+    PageStorage pageStorage = container.getComponentInstanceOfType(PageStorage.class);
+    PageContext pageContext = pageStorage.loadPage(page.getPageKey());
     if (pageContext != null && pageContext.getState() != null) {
       String dispalyname = pageContext.getState().getDisplayName();
       if (dispalyname != null && !dispalyname.isEmpty() && dispalyname.indexOf("-") != -1) {
         String newPageTitle = newSpaceName + " -" + dispalyname.split("-")[1];
         pageContext.setState(pageContext.getState().builder().displayName(newPageTitle).build());
-        pageService.savePage(pageContext);
+        pageStorage.savePage(pageContext);
       }
     }
   }
@@ -622,11 +668,11 @@ public class SpaceUtils {
    * Change menu portlet preference.
    * 
    * @param menuContainer
-   * @param dataStorage
+   * @param layoutService
    * @param space
    * @since 1.2.8
    */
-  public static void changeMenuPortletPreference(Container menuContainer, DataStorage dataStorage, Space space) {
+  public static void changeMenuPortletPreference(Container menuContainer, LayoutService layoutService, Space space) {
     org.exoplatform.portal.config.model.Application<org.exoplatform.portal.pom.spi.portlet.Portlet> menuPortlet =
                                                                                                                 (org.exoplatform.portal.config.model.Application<org.exoplatform.portal.pom.spi.portlet.Portlet>) menuContainer
                                                                                                                                                                                                                                .getChildren()
@@ -635,9 +681,9 @@ public class SpaceUtils {
     ApplicationState<org.exoplatform.portal.pom.spi.portlet.Portlet> menuState = menuPortlet.getState();
     org.exoplatform.portal.pom.spi.portlet.Portlet menuPortletPreference;
     try {
-      menuPortletPreference = dataStorage.load(menuState, ApplicationType.PORTLET);
+      menuPortletPreference = layoutService.load(menuState, ApplicationType.PORTLET);
       menuPortletPreference.setValue(SPACE_URL, space.getUrl());
-      dataStorage.save(menuState, menuPortletPreference);
+      layoutService.save(menuState, menuPortletPreference);
     } catch (Exception e) {
       LOG.warn("Can not save menu portlet preference!", e);
     }
@@ -647,11 +693,11 @@ public class SpaceUtils {
    * Change application portlet preference.
    * 
    * @param applicationContainer
-   * @param dataStorage
+   * @param layoutService
    * @param space
    * @since 1.2.8
    */
-  public static void changeAppPortletPreference(Container applicationContainer, DataStorage dataStorage, Space space) {
+  public static void changeAppPortletPreference(Container applicationContainer, LayoutService layoutService, Space space) {
     try {
       org.exoplatform.portal.config.model.Application<org.exoplatform.portal.pom.spi.portlet.Portlet> applicationPortlet =
                                                                                                                          (org.exoplatform.portal.config.model.Application<org.exoplatform.portal.pom.spi.portlet.Portlet>) applicationContainer
@@ -660,13 +706,13 @@ public class SpaceUtils {
       ApplicationState<org.exoplatform.portal.pom.spi.portlet.Portlet> appState = applicationPortlet.getState();
       org.exoplatform.portal.pom.spi.portlet.Portlet appPortletPreference;
       try {
-        appPortletPreference = dataStorage.load(appState, ApplicationType.PORTLET);
+        appPortletPreference = layoutService.load(appState, ApplicationType.PORTLET);
         if (appPortletPreference == null || appPortletPreference.getPreference(SPACE_URL) == null) {
           return;
         } else {
           appPortletPreference.setValue(SPACE_URL, space.getUrl());
         }
-        dataStorage.save(appState, appPortletPreference);
+        layoutService.save(appState, appPortletPreference);
       } catch (Exception e) {
         LOG.warn("Can not save application portlet preference!", e);
       }
@@ -755,7 +801,7 @@ public class SpaceUtils {
    */
   public static void removeNavigation(UserNavigation nav) throws Exception {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-    NavigationService navService = (NavigationService) container.getComponentInstanceOfType(NavigationService.class);
+    NavigationService navService = container.getComponentInstanceOfType(NavigationService.class);
     try {
       navService.destroyNavigation(new NavigationContext(nav.getKey(), new NavigationState(1)));
     } catch (NavigationServiceException nex) {
@@ -1368,17 +1414,14 @@ public class SpaceUtils {
     UserNode spaceUserNode = null;
     UserPortal userPortal = SpaceUtils.getUserPortal();
     if (userPortal != null) {
-      UserNavigation userNav = userPortal.getNavigation(spaceNavCtx.getKey());
-
-      UserNode parentUserNode = userPortal.getNode(userNav, Scope.CHILDREN, filter, null);
+      UserNavigation userNavigation = userPortal.getNavigation(spaceNavCtx.getKey());
+      UserNode parentUserNode = userPortal.getNode(userNavigation, Scope.CHILDREN, filter, null);
       spaceUserNode = parentUserNode.getChildrenSize() > 0 ? parentUserNode.getChild(0) : null;
-
-      if (spaceUserNode != null) {
-        userPortal.updateNode(spaceUserNode, Scope.CHILDREN, null);
-      }
     }
     if (spaceUserNode == null) {
       LOG.warn("Failed to get spaceUserNode of group {}", space.getGroupId());
+    } else {
+      userPortal.updateNode(spaceUserNode, Scope.CHILDREN, null);
     }
     return spaceUserNode;
   }
@@ -1646,9 +1689,9 @@ public class SpaceUtils {
    *
    * @return
    */
-  public static DataStorage getDataStorage() {
+  public static LayoutService getLayoutService() {
     PortalContainer portalContainer = PortalContainer.getInstance();
-    return (DataStorage) portalContainer.getComponentInstanceOfType(DataStorage.class);
+    return portalContainer.getComponentInstanceOfType(LayoutService.class);
   }
 
   /**
@@ -2021,8 +2064,8 @@ public class SpaceUtils {
     if (nodeLabel != null) {
       return ExpressionUtil.getExpressionValue(resourceBundle, nodeLabel);
     } else if (id != null) {
-      DescriptionService descriptionService = getUserPortalConfigService().getDescriptionService();
-      State description = descriptionService.resolveDescription(id, locale);
+      DescriptionStorage descriptionStorage = getUserPortalConfigService().getDescriptionService();
+      State description = descriptionStorage.resolveDescription(id, locale);
       if (description != null && !StringUtils.equals(description.getName(), userNode.getName())) {
         return description.getName();
       }
@@ -2042,7 +2085,7 @@ public class SpaceUtils {
       if (currentPage == null) {
         nonePageNodes.add(node);
       } else {
-        PageContext currentPageContext = getPageService().loadPage(currentPage);
+        PageContext currentPageContext = getPageStorage().loadPage(currentPage);
         if (currentPageContext == null || !userACL.hasPermission(currentPageContext)) {
           nonePageNodes.add(node);
         }
@@ -2077,8 +2120,8 @@ public class SpaceUtils {
     return ExoContainerContext.getService(UserPortalConfigService.class);
   }
 
-  public static PageService getPageService() {
-    return ExoContainerContext.getService(PageService.class);
+  public static PageStorage getPageStorage() {
+    return ExoContainerContext.getService(PageStorage.class);
   }
 
   public static SpaceService getSpaceService() {

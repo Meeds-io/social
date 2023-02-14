@@ -28,16 +28,16 @@ import org.apache.commons.lang.ArrayUtils;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.portal.config.model.ModelObject;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
-import org.exoplatform.portal.mop.navigation.NavigationService;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.portal.mop.navigation.NodeModel;
 import org.exoplatform.portal.mop.navigation.Scope;
 import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -3713,8 +3713,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     PageKey homePageKey = homeNodeContext.getState().getPageRef();
     assertNotNull(homePageKey);
 
-    DataStorage dataStorage = getContainer().getComponentInstanceOfType(DataStorage.class);
-    Page page = dataStorage.getPage(homePageKey.format());
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    Page page = layoutService.getPage(homePageKey.format());
     assertNotNull(page);
     assertEquals(5, countPageApplications(page.getChildren(), 0));
 
@@ -3725,7 +3725,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertThrows(IllegalAccessException.class, () -> spaceService.restoreSpacePageLayout(spaceId, "home", new org.exoplatform.services.security.Identity("demo")));
 
     spaceService.restoreSpacePageLayout(spaceId, "home", rootACLIdentity);
-    page = dataStorage.getPage(homePageKey.format());
+    page = layoutService.getPage(homePageKey.format());
     assertNotNull(page);
     assertEquals(2, countPageApplications(page.getChildren(), 0));
   }
