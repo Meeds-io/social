@@ -1,31 +1,11 @@
 package org.exoplatform.social.core.space.impl;
 
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.portal.application.PortalRequestContext;
-import org.exoplatform.portal.config.DataStorage;
-import org.exoplatform.portal.config.model.Page;
-import org.exoplatform.portal.mop.user.UserNode;
-import org.exoplatform.portal.webui.util.Util;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.GroupHandler;
-import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
-import org.exoplatform.web.application.RequestContext;
-import org.exoplatform.web.url.navigation.NodeURL;
-import org.exoplatform.container.PortalContainer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SpaceRenamedListenerImpl extends SpaceListenerPlugin {
-
-  private static final Log LOG = ExoLogger.getExoLogger(SpaceRenamedListenerImpl.class);
 
   @Override
   public void spaceAccessEdited(SpaceLifeCycleEvent event) {
