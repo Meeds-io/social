@@ -22,7 +22,7 @@
       <profile-contact-edit-multi-field-select
         :property="childProperty"
         :properties="property.children"
-        :multiValued="property.multiValued"
+        :multi-valued="property.multiValued"
         @propertyUpdated="propertyUpdated"
         @remove="remove(i)" />
     </v-flex>
