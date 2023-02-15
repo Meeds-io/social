@@ -17,30 +17,30 @@
 package org.exoplatform.social.core.jpa.search;
 
 import java.text.Normalizer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-import org.exoplatform.commons.search.es.ElasticSearchException;
-import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.social.core.manager.IdentityManager;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.commons.search.es.ElasticSearchException;
+import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.SortBy;
-import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 /**
@@ -53,12 +53,10 @@ public class ProfileSearchConnector {
   private static final Log LOG = ExoLogger.getLogger(ProfileSearchConnector.class);
   private final ElasticSearchingClient client;
   private String index;
-  private String searchType;
   
   public ProfileSearchConnector(InitParams initParams, ElasticSearchingClient client) {
     PropertiesParam param = initParams.getPropertiesParam("constructor.params");
     this.index = param.getProperty("index");
-    this.searchType = param.getProperty("searchType");
     this.client = client;
   }
 
@@ -128,55 +126,19 @@ public class ProfileSearchConnector {
 
     //
     JSONArray jsonHits = (JSONArray) jsonResult.get("hits");
-    Identity identity = null;
-    Profile p;
     for(Object jsonHit : jsonHits) {
-      JSONObject hitSource = (JSONObject) ((JSONObject) jsonHit).get("_source");
-      String position = (String) hitSource.get("position");
-      String aboutMe = (String) hitSource.get("aboutMe");
-      String name = (String) hitSource.get("name");
-      String userName = (String) hitSource.get("userName");
-      String firstName = (String) hitSource.get("firstName");
-      String lastName = (String) hitSource.get("lastName");
-      String avatarUrl = (String) hitSource.get("avatarUrl");
-      String email = (String) hitSource.get("email");
       String identityId = (String) ((JSONObject) jsonHit).get("_id");
-      identity = new Identity(OrganizationIdentityProvider.NAME, userName);
-      identity.setId(identityId);
-      p = new Profile(identity);
-      Profile profile = getIdentityProfile(userName);
-      if (profile == null) {
-        continue;
+      Identity identity = getIdentity(identityId);
+      if (identity != null) {
+        results.add(identity);
       }
-      p.setId(identityId);
-      p.setAvatarUrl(avatarUrl);
-      p.setUrl(LinkProvider.getProfileUri(userName));
-      p.setProperty(Profile.FULL_NAME, name);
-      p.setProperty(Profile.FIRST_NAME, firstName);
-      p.setProperty(Profile.LAST_NAME, lastName);
-      p.setProperty(Profile.POSITION, position);
-      p.setProperty(Profile.EMAIL, email);
-      p.setProperty(Profile.USERNAME, userName);
-      p.setProperty(Profile.ABOUT_ME, aboutMe);
-      if ((String) profile.getProperty(Profile.EXTERNAL) != null && !((String) profile.getProperty(Profile.EXTERNAL)).isEmpty()) {
-        p.setProperty(Profile.EXTERNAL, (String) profile.getProperty(Profile.EXTERNAL));
-      }
-      if( (String) profile.getProperty(Profile.SYNCHRONIZED_DATE) != null && !((String) profile.getProperty(Profile.SYNCHRONIZED_DATE)).isEmpty()){
-        p.setProperty(Profile.SYNCHRONIZED_DATE, (String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
-      }
-      if( (String) profile.getProperty(Profile.ENROLLMENT_DATE) != null && !((String) profile.getProperty(Profile.ENROLLMENT_DATE)).isEmpty()){
-        p.setProperty(Profile.ENROLLMENT_DATE, (String) profile.getProperty(Profile.ENROLLMENT_DATE));
-      }
-      identity.setProfile(p);
-      results.add(identity);
     }
     return results;
   }
 
-  private Profile getIdentityProfile(String userName) {
+  private Identity getIdentity(String identityId) {
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName);
-    return identity == null ? null : identity.getProfile();
+    return identityManager.getIdentity(identityId);
   }
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
@@ -426,6 +388,8 @@ public class ProfileSearchConnector {
       esQuery.append(esSubQuery);
     }
 
+    esQuery.append(",\"_source\": false\n");
+    esQuery.append(",\"fields\": [\"_id\"]\n");
     esQuery.append("}\n");
     LOG.debug("Search Query request to ES : {} ", esQuery);
 
