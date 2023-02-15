@@ -32,6 +32,7 @@ export function init(uploadLimit, imTypes) {
     Vue.createApp({
       data: () => ({
         imTypes,
+        language: lang,
       }),
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
