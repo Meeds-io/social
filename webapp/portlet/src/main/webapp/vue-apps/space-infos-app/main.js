@@ -17,7 +17,6 @@ if (extensionRegistry) {
 }
 
 const appId = 'spaceInfosApp';
-const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 // getting locale ressources
 export function init() {
@@ -26,9 +25,9 @@ export function init() {
     appElement.id = appId;
 
     Vue.createApp({
-      template: `<exo-space-infos v-cacheable="{cacheId: '${cacheId}'}" id="${appId}"></exo-space-infos>`,
+      template: `<exo-space-infos id="${appId}"></exo-space-infos>`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
-    }, appElement, 'Space Info');
+    }, `#${appId}`, 'Space Info');
   });
 }

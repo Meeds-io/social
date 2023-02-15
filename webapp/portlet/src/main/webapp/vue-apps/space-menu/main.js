@@ -11,7 +11,6 @@ if (extensionRegistry) {
 }
 
 const appId = 'SpaceMenu';
-const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 export function init(settings) {
   const appElement = document.createElement('div');
@@ -22,7 +21,7 @@ export function init(settings) {
       navigations: settings && settings.navigations,
       selectedNavigationUri: settings && settings.selectedNavigationUri,
     },
-    template: `<space-menu v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" />`,
+    template: `<space-menu id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" />`,
     vuetify: Vue.prototype.vuetifyOptions,
-  }, appElement, 'Space Menu');
+  }, `#${appId}`, 'Space Menu');
 }

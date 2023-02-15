@@ -21,16 +21,13 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<user-setting-security id="${appId}" v-cacheable />`,
+      template: `<user-setting-security id="${appId}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'User Settings Security');
+    }, `#${appId}`, 'User Settings Security');
   });
 }

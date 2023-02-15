@@ -47,7 +47,8 @@
             close-on-click
             absolute>
             <profile-settings-action-menu
-              :setting="setting"  :settings="settings"/>
+              :setting="setting"
+              :settings="settings" />
           </v-menu>
         </template>
         <span>

@@ -22,9 +22,6 @@ const appId = 'UserSettingTimezone';
 
 export function init(timezones) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       data: {
         timezones: timezones,
@@ -32,9 +29,9 @@ export function init(timezones) {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<user-setting-timezone v-cacheable id="${appId}" :timezones="timezones" />`,
+      template: `<user-setting-timezone id="${appId}" :timezones="timezones" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'User Settings TimeZone');
+    }, `#${appId}`, 'User Settings TimeZone');
   });
 }

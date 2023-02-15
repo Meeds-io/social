@@ -41,8 +41,11 @@ export default {
   },
   created() {
     document.addEventListener('userModified', event => {
-      if (event && event.detail) {
-        Object.assign(this.profile, event.detail);
+      if (event?.detail) {
+        this.profile = Object.assign({}, this.profile, event.detail);
+        this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+      } else {
+        this.getUserInformation();
       }
     });
     this.retrieveUserInformation();
@@ -51,11 +54,14 @@ export default {
     retrieveUserInformation() {
       this.profile = this.$currentUserIdentity && this.$currentUserIdentity.profile;
       if (!this.profile) {
-        return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
-          .then(data => this.profile = data && data.profile)
-          .finally(() => this.$root.$applicationLoaded());
+        return this.getUserInformation();
       }
       this.$root.$applicationLoaded();
+    },
+    getUserInformation() {
+      return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
+        .then(data => this.profile = data && data.profile)
+        .finally(() => this.$root.$applicationLoaded());
     },
   },
 };

@@ -22,9 +22,6 @@ const appId = 'UserSettingLanguage';
 
 export function init(languages) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       data: {
         languages: languages,
@@ -32,9 +29,9 @@ export function init(languages) {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<user-setting-language v-cacheable id="${appId}" :languages="languages" />`,
+      template: `<user-setting-language id="${appId}" :languages="languages" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'User Setting Language');
+    }, `#${appId}`, 'User Setting Language');
   });
 }

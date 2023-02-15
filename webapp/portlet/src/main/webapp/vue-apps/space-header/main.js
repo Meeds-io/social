@@ -11,7 +11,6 @@ if (extensionRegistry) {
 }
 
 const appId = 'SpaceHeader';
-const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 
 //getting language of the PLF 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -23,9 +22,6 @@ export function init(settings, bannerUrl, maxUploadSize, isAdmin) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       data: {
         navigations: settings && settings.navigations,
@@ -35,9 +31,9 @@ export function init(settings, bannerUrl, maxUploadSize, isAdmin) {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<space-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" />`,
+      template: `<space-header id="${appId}" :navigations="navigations" :selected-navigation-uri="selectedNavigationUri" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
-    }, appElement, 'Space Header');
+    }, `#${appId}`, 'Space Header');
   });
 }

@@ -27,16 +27,13 @@ const appId = 'spacesAdministration';
 // getting locale ressources
 export function init(applicationsByCategory) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       data: {
         applicationsByCategory: applicationsByCategory,
       },
-      template: `<exo-spaces-administration-spaces v-cacheable id="${appId}" :applications-by-category="applicationsByCategory"></exo-spaces-administration-spaces>`,
+      template: `<exo-spaces-administration-spaces id="${appId}" :applications-by-category="applicationsByCategory"></exo-spaces-administration-spaces>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'Spaces Administration');
+    }, `#${appId}`, 'Spaces Administration');
   });
 }
