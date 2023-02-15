@@ -38,7 +38,7 @@ export default {
   computed: {
     validProperties() {
       return this.properties.filter(property => 
-        property && property.visible && property.propertyName && ((property.children && property.children.some(e => e.value)) || property.value)
+        property && property.visible && property.propertyName && ((property.children?.length && property.children.some(e => e.value)) || property.value)
       );
     },
     lastIndex() {

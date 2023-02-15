@@ -12,11 +12,6 @@
         ref="profileContactForm"
         class="form-horizontal"
         flat>
-        <v-card-text v-if="error" class="errorMessage">
-          <v-alert type="error">
-            {{ error }}
-          </v-alert>
-        </v-card-text>   
         <div v-for="property in properties" :key="property.id">
           <profile-contact-edit-multi-field
             v-if="property.editable && (property.multiValued || (property.children && property.children.length))"
@@ -67,12 +62,20 @@
 <script>
 export default {
   data: () => ({
-    propertiesToSave: [],
     properties: [],
     error: null,
     saving: null,
     fieldError: false,
   }),
+  watch: {
+    error() {
+      if (this.error) {
+        this.$root.$emit('alert-message', this.error, 'error');
+      } else {
+        this.$root.$emit('close-alert-message');
+      }
+    },
+  },
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
   },
@@ -93,19 +96,20 @@ export default {
       this.fieldError = false;
       
       this.resetCustomValidity();
-      let proptocheck = this.propertiesToSave.find(property => property.propertyName === 'urls');
+      let proptocheck = this.properties.find(property => property.propertyName === 'urls');
       if (proptocheck && proptocheck.children.length > 0) {
         if (proptocheck.children.some(property => property.value.length > 100 || property.value.length < 10)){
-          this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
+          const error = this.$t('profileWorkExperiences.invalidFieldLength', {
             0: this.$t('profileContactInformation.urls'),
             1: 10,
             2: 100,
-          }));
+          });
+          this.handleError(error);
           return;
         }
       }
 
-      proptocheck = this.propertiesToSave.find(property => property.propertyName === 'email');
+      proptocheck = this.properties.find(property => property.propertyName === 'email');
       if (proptocheck){
         if ((proptocheck.value && (proptocheck.value.length > 100 || proptocheck.value.length  < 10)) || !proptocheck.value) {
           this.$refs.emailInput[0].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
@@ -117,7 +121,6 @@ export default {
           this.$refs.emailInput[0].setCustomValidity('');
         }
       } 
-      
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
           || !this.$refs.profileContactForm.$el.reportValidity()) { // Standard HTML rules
@@ -134,7 +137,7 @@ export default {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(this.propertiesToSave),
+        body: JSON.stringify(this.properties),
       }).then(resp => {
         if (!resp || !resp.ok) {
           if (resp.status === 400) {
@@ -146,7 +149,7 @@ export default {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
         }
-      }).then(this.refresh)
+      }).then(() => document.dispatchEvent(new CustomEvent('userModified')))
         .then(() => this.$refs.profileContactInformationDrawer.close())
         .catch(this.handleError)
         .finally(() => {
@@ -177,11 +180,7 @@ export default {
         } else {
           error = error.message || String(error);
           const errorI18NKey = `UsersManagement.error.${error}`;
-          const errorI18N = this.$t(errorI18NKey, {0: this.userToSave.fullname});
-          if (errorI18N !== errorI18NKey) {
-            error = errorI18N;
-          }
-          this.error = error;
+          this.error = this.$te(errorI18NKey) && this.$t(errorI18NKey) || error;
           window.setTimeout(() => {
             this.error = null;
           }, 5000);
@@ -197,23 +196,17 @@ export default {
         this.error = null;
       }
     },
-    refresh() {
-      document.dispatchEvent(new CustomEvent('userModified'));
-    }, 
     cancel() {
-      this.refresh();
       this.$refs.profileContactInformationDrawer.close();
     },
-    open(event) {
+    open(properties) {
       this.error = null;
-      if (event) {
-        this.properties = JSON.parse(JSON.stringify(event));
-      }
+      this.properties = properties && JSON.parse(JSON.stringify(properties)) || [];
       this.$refs.profileContactInformationDrawer.open();
     },
     propertyUpdated(item){
-      if (!this.propertiesToSave.some(e => e.id === item.id)) {
-        this.propertiesToSave.push(item);
+      if (!this.properties.some(e => e.id === item.id)) {
+        this.properties.push(item);
       }    
     },
     getResolvedName(item){

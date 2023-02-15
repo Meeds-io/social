@@ -20,7 +20,7 @@
 -->
 <template>
   <div v-if="validProperty" class="text-no-wrap text-truncate">
-    <span class="pe-1 profile-contact-information-label text-capitalize">
+    <span v-if="propertyResolvedName" class="pe-1 profile-contact-information-label text-capitalize">
       {{ propertyResolvedName }}:
     </span>
     <profile-contact-information-property-value
@@ -42,10 +42,10 @@ export default {
       return this.$root.language;
     },
     validProperty() {
-      return this.childProperty?.propertyName && this.childProperty?.value;
+      return this.childProperty?.value;
     },
     propertyResolvedName() {
-      if (!this.childProperty) {
+      if (!this.childProperty || !this.childProperty.propertyName) {
         return;
       }
       const resolvedLabel = this.childProperty.labels?.find(v => v.language === this.language);

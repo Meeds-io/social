@@ -25,8 +25,7 @@
     <profile-contact-information-drawer
       v-if="owner"
       ref="contactInformationEdit"
-      :upload-limit="uploadLimit"
-      @refresh="refresh" />
+      :upload-limit="uploadLimit" />
   </v-app>
 </template>
 
@@ -52,12 +51,8 @@ export default {
   },
   mounted() {
     document.addEventListener('userModified', () => {
-      this.refreshProperties();
+      this.$nextTick().then(this.refreshProperties);
     });
-
-    if (this.properties) {
-      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
-    }
   },
   methods: {
     refreshProperties() {

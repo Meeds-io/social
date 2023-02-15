@@ -57,7 +57,7 @@ export default {
       return `profileContactInformation-${this.property.propertyName.replace(/\./g, '-')}`;
     },
     multivalued() {
-      return this.property?.children?.some(e => e.value);
+      return this.property?.children?.length && this.property?.children?.some(e => e.value);
     },
     language() {
       return this.$root.language;
