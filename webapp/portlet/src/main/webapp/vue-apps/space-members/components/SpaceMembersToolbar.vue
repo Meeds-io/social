@@ -104,7 +104,7 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
-    publisherRolePromotionFeatureEnabled: eXo.env.portal.publisherRolePromotionEnabled,
+    publisherRolePromotionFeatureEnabled: eXo.env.portal.PublisherRolePromotionFeatureEnabled,
     startSearchAfterInMilliseconds: 300,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
