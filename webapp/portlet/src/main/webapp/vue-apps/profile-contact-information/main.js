@@ -16,7 +16,6 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 const lang = eXo && eXo.env.portal.language || 'en';
 
 const appId = 'ProfileContactInformation';
-const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
 //should expose the locale ressources as REST API 
 const urls = [
@@ -26,9 +25,6 @@ const urls = [
 
 export function init(uploadLimit, imTypes) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
     Vue.createApp({
       data: () => ({
         imTypes,
@@ -37,9 +33,9 @@ export function init(uploadLimit, imTypes) {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<profile-contact-information v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :upload-limit="${uploadLimit}" />`,
+      template: `<profile-contact-information id="${appId}" :upload-limit="${uploadLimit}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'Profile Contact Information');
+    }, `#${appId}`, 'Profile Contact Information');
   });
 }

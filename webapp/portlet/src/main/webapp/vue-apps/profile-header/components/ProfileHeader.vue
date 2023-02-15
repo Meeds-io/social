@@ -144,9 +144,13 @@ export default {
   mounted() {
     this.refresh();
     document.addEventListener('userModified', event => {
-      if (event && event.detail && event.detail !== this.user) {
+      if (event?.detail === this.user) {
+        // Already updated
+      } else if(event?.detail) {
         this.user = Object.assign({}, this.user, event.detail);
         this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+      } else {
+        this.refresh();
       }
     });
   },
