@@ -27,7 +27,7 @@
     :position-y="offsetY"
     transition="slide-x-transition"
     absolute
-    top
+    bottom
     content-class="profile-popover-menu pa-1 transparent"
     elevation="0"
     max-width="350"
@@ -160,7 +160,7 @@ export default {
     },
     setPopoverNotHovered() {
       this.isMenuHovered = false;
-      this.closePopover();
+      this.closePopover(true);
     },
     openPopover(immediatly) {
       if (!this.menu) {
