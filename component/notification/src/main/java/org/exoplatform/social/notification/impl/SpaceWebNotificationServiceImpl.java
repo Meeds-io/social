@@ -240,7 +240,14 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
                                                              .findFirst()
                                                              .orElse(null);
     if (spaceWebNotification != null) {
-      return spaceWebNotification.getSpaceApplicationItem(notification, username);
+      SpaceWebNotificationItem spaceApplicationItem = spaceWebNotification.getSpaceApplicationItem(notification, username);
+      if (spaceApplicationItem != null
+          && spaceApplicationItem.getSpaceId() > 0
+          && spaceApplicationItem.getUserId() > 0
+          && StringUtils.isNotBlank(spaceApplicationItem.getApplicationItemId())
+          && StringUtils.isNotBlank(spaceApplicationItem.getApplicationName())) {
+        return spaceApplicationItem;
+      }
     }
     return null;
   }

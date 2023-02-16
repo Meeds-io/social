@@ -7,10 +7,13 @@ import static org.exoplatform.social.notification.service.SpaceWebNotificationSe
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -24,6 +27,9 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.commons.api.notification.model.PluginKey;
+import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.listener.ListenerService;
@@ -35,6 +41,7 @@ import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
+import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceWebNotificationServiceTest {
@@ -112,6 +119,39 @@ public class SpaceWebNotificationServiceTest {
 
     spaceWebNotificationService.markAsUnread(spaceWebNotificationItem);
     verify(metadataService, times(1)).createMetadataItem(eq(metadataObject), eq(metadataKey), any(), eq(userIdentityId));
+    verify(listenerService, times(1)).broadcast(NOTIFICATION_UNREAD_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
+  }
+
+  @Test
+  public void testDispatchNotification() throws Exception {
+    SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem(METADATA_OBJECT_TYPE,
+                                                                                     activityId,
+                                                                                     userIdentityId,
+                                                                                     0);
+
+    SpaceWebNotificationPlugin spaceWebNotificationPlugin = mock(SpaceWebNotificationPlugin.class);
+    spaceWebNotificationService.addPlugin(spaceWebNotificationPlugin);
+
+    String username = "testuser";
+    NotificationInfo notificationInfo = mock(NotificationInfo.class);
+    BaseNotificationPlugin notificationPlugin = mock(BaseNotificationPlugin.class);
+    when(notificationPlugin.getId()).thenReturn("notificationPlugin");
+    PluginKey pluginKey = new PluginKey(notificationPlugin);
+    when(notificationInfo.getKey()).thenReturn(pluginKey);
+
+    when(spaceWebNotificationPlugin.getSpaceApplicationItem(notificationInfo, username)).thenReturn(spaceWebNotificationItem);
+    when(spaceWebNotificationPlugin.isManagedPlugin(pluginKey)).thenReturn(true);
+
+    spaceWebNotificationService.dispatch(notificationInfo, username);
+
+    verify(spaceWebNotificationPlugin, times(1)).getSpaceApplicationItem(notificationInfo, username);
+    verifyNoInteractions(metadataService, listenerService);
+
+    spaceWebNotificationItem.setSpaceId(spaceId);
+
+    spaceWebNotificationService.dispatch(notificationInfo, username);
+
+    verify(metadataService, times(1)).createMetadataItem(any(), any(), any(), anyLong());
     verify(listenerService, times(1)).broadcast(NOTIFICATION_UNREAD_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
   }
 
