@@ -48,14 +48,18 @@ public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlug
     } else {
       metadataObject = activity.getMetadataObject();
     }
-    SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem(metadataObject.getType(),
-                                                                                     metadataObject.getId(),
-                                                                                     0,
-                                                                                     metadataObject.getSpaceId());
-    if (activity.isComment()) {
-      spaceWebNotificationItem.addApplicationSubItem(activity.getId());
+    if (metadataObject != null && metadataObject.getSpaceId() > 0) {
+      SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem(metadataObject.getType(),
+                                                                                       metadataObject.getId(),
+                                                                                       0,
+                                                                                       metadataObject.getSpaceId());
+      if (activity.isComment()) {
+        spaceWebNotificationItem.addApplicationSubItem(activity.getId());
+      }
+      return spaceWebNotificationItem;
+    } else {
+      return null;
     }
-    return spaceWebNotificationItem;
   }
 
 }
