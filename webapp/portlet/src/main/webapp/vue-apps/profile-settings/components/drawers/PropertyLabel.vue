@@ -23,19 +23,29 @@
   <v-row class="mx-0 mb-0 mt-4 max-width-fit" no-gutters>
     <v-col cols="3" class="px-2">
       <div class="flex-grow-1 text-truncate">
-        <select v-model="propertylabel.language" name="documentsFilter"
-          class="max-width-fit ignore-vuetify-classes my-0" @change="changeSettingsFilter">
-          <option v-for="item in langArray" :key="item.value" :value="item.value">
+        <select
+          v-model="propertylabel.language"
+          name="documentsFilter"
+          class="max-width-fit ignore-vuetify-classes my-0"
+          @change="changeSettingsFilter">
+          <option
+            v-for="item in langArray"
+            :key="item.value"
+            :value="item.value">
             {{ item.value.toUpperCase().split('_')[0] }}
           </option>
         </select>
       </div>
-
     </v-col>
     <v-col cols="9">
       <div class="d-flex max-width-fit">
-        <input v-model="propertylabel.label" :placeholder="$t('profileSettings.placeholder.label')" type="text"
-          class="ignore-vuetify-classes flex-grow-1 pa-3 ms-1" maxlength="2000" required>
+        <input
+          v-model="propertylabel.label"
+          :placeholder="$t('profileSettings.placeholder.label')"
+          type="text"
+          class="ignore-vuetify-classes flex-grow-1 pa-3 ms-1"
+          maxlength="2000"
+          required>
 
         <div class="flex-grow-0">
           <v-btn icon @click="deleteLabel">
