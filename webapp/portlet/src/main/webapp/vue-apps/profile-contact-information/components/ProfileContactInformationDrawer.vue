@@ -91,19 +91,7 @@ export default {
       this.fieldError = false;
       
       this.resetCustomValidity();
-      let proptocheck = this.propertiesToSave.find(property => property.propertyName === 'urls');
-      if (proptocheck && proptocheck.children.length > 0) {
-        if (proptocheck.children.some(property => property.value.length > 100 || property.value.length < 10)){
-          this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
-            0: this.$t('profileContactInformation.urls'),
-            1: 10,
-            2: 100,
-          }));
-          return;
-        }
-      }
-
-      proptocheck = this.propertiesToSave.find(property => property.propertyName === 'email');
+      const proptocheck = this.propertiesToSave.find(property => property.propertyName === 'email');
       if (proptocheck){
         if ((proptocheck.value && (proptocheck.value.length > 100 || proptocheck.value.length  < 10)) || !proptocheck.value) {
           this.$refs.emailInput[0].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
@@ -196,6 +184,7 @@ export default {
       }
     },
     refresh() {
+      this.propertiesToSave = [];
       document.dispatchEvent(new CustomEvent('userModified'));
     }, 
     cancel() {
