@@ -56,6 +56,7 @@
       </v-tab>
     </template>
     <navigation-mobile-menu-sub-item
+      v-if="hasChildren"
       :navigation="navigation.children"
       :base-site-uri="baseSiteUri"
       :show-menu="showMenu"
