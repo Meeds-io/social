@@ -257,7 +257,7 @@ export default {
         if (this.initialized) {
           this.searchPeople();
         } else {
-          this.waitForEndTyping();
+          this.waitForInitializing();
         }
       }, 50);
     }
