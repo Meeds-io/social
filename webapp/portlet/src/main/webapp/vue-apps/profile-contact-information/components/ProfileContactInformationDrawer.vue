@@ -80,6 +80,7 @@ export default {
       if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity('');}
       if (this.$refs.firstNameInput) { this.$refs.firstNameInput[0].setCustomValidity('');}
       if (this.$refs.lastNameInput) { this.$refs.lastNameInput[0].setCustomValidity('');}
+      this.$root.$emit('reset-custom-validity');   
     },
 
     disabledField(property){
@@ -93,13 +94,15 @@ export default {
       this.resetCustomValidity();
       let proptocheck = this.propertiesToSave.find(property => property.propertyName === 'urls');
       if (proptocheck && proptocheck.children.length > 0) {
-        if (proptocheck.children.some(property => property.value.length > 100 || property.value.length < 10)){
-          this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {
-            0: this.$t('profileContactInformation.urls'),
-            1: 10,
-            2: 100,
-          }));
-          return;
+        let errorFound = false;
+        proptocheck.children.forEach(property => {
+          if (!property.value || property.value.length===0 || !String(property.value).match(/((http(s)?:\/\/.)|www.)[-a-zA-Z0-9@:%._\\+~#=]{2,256}/g)){
+            this.$root.$emit('non-valid-url-input', property.value);
+            errorFound = true;
+          }
+        });
+        if (!errorFound){
+          this.$root.$emit('reset-custom-validity');
         }
       }
 
@@ -196,6 +199,7 @@ export default {
       }
     },
     refresh() {
+      this.propertiesToSave = [];
       document.dispatchEvent(new CustomEvent('userModified'));
     }, 
     cancel() {
