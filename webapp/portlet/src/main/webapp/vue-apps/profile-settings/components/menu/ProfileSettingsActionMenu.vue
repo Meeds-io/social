@@ -23,39 +23,39 @@
   <v-list dense>
     <v-list-item class="px-2 text-left">
       <div
-    class="clickable mx-2"
-    @click="edit()">
-    <v-icon
-      size="21"
-      class="pe-1">
-      fas fa-edit
-    </v-icon>
-    <span class="ps-1">{{ $t('profileSettings.label.edit') }}</span>
-  </div>
+        class="clickable mx-2"
+        @click="edit()">
+        <v-icon
+          size="21"
+          class="pe-1">
+          fas fa-edit
+        </v-icon>
+        <span class="ps-1">{{ $t('profileSettings.label.edit') }}</span>
+      </div>
     </v-list-item>
     <v-list-item v-if="canMoveUp" class="menu-list px-2 text-left action-menu-item">
       <div
-    class="clickable mx-2"
-    @click="moveUp()">
-    <v-icon
-      size="21"
-      class="pe-1">
-      mdi-mouse-move-up
-    </v-icon>
-    <span class="ps-1">{{ $t('profileSettings.label.moveUp') }}</span>
-  </div>
+        class="clickable mx-2"
+        @click="moveUp()">
+        <v-icon
+          size="21"
+          class="pe-1">
+          mdi-mouse-move-up
+        </v-icon>
+        <span class="ps-1">{{ $t('profileSettings.label.moveUp') }}</span>
+      </div>
     </v-list-item>
     <v-list-item v-if="canMoveDown" class="menu-list px-2 text-left action-menu-item">
       <div
-    class="clickable mx-2"
-    @click="moveDown()">
-    <v-icon
-      size="21"
-      class="pe-1">
-      mdi-mouse-move-down
-    </v-icon>
-    <span class="ps-1">{{ $t('profileSettings.label.moveDown') }}</span>
-  </div>
+        class="clickable mx-2"
+        @click="moveDown()">
+        <v-icon
+          size="21"
+          class="pe-1">
+          mdi-mouse-move-down
+        </v-icon>
+        <span class="ps-1">{{ $t('profileSettings.label.moveDown') }}</span>
+      </div>
     </v-list-item>
   </v-list>
 </template>

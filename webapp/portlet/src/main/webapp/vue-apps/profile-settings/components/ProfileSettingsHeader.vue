@@ -27,16 +27,16 @@
         dark>
         mdi-plus
       </v-icon>
-      {{ $t('profileSettings.button.addNew')}}
+      {{ $t('profileSettings.button.addNew') }}
     </button>
-    <v-spacer/>
+    <v-spacer />
     <select
-    id="filterSettingsSelect"
+      id="filterSettingsSelect"
       v-model="filter"
       class="width-auto my-auto ignore-vuetify-classes d-none d-sm-inline"
       @change="changeSettingsFilter">
       <option
-      v-for="item in filterSettings"
+        v-for="item in filterSettings"
         :key="item.name"
         :value="item.name">
         {{ $t('profileSettings.filter.'+item.name.toLowerCase()) }}
