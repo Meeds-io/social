@@ -22,7 +22,10 @@
 <template>
   <div>
     <div v-for="propertylabel in propertylabels" :key="propertylabel.id">
-      <property-label :propertylabel="propertylabel" :languages="filtredLanguages" @delete-label="deleteLabel" />
+      <property-label
+        :propertylabel="propertylabel"
+        :languages="filtredLanguages"
+        @delete-label="deleteLabel" />
     </div>
     <div class="d-flex pt-4">
       <v-spacer />
