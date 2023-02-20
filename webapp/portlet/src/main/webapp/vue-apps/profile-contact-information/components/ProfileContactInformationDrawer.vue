@@ -17,11 +17,14 @@
             {{ error }}
           </v-alert>
         </v-card-text>   
-        <div v-for="property in properties" :key="property.id" >
-          <profile-contact-edit-multi-field v-if="property.editable && (property.multiValued || (property.children && property.children.length))" :property="property" @propertyUpdated="propertyUpdated"/>
+        <div v-for="property in properties" :key="property.id">
+          <profile-contact-edit-multi-field
+            v-if="property.editable && (property.multiValued || (property.children && property.children.length))"
+            :property="property"
+            @propertyUpdated="propertyUpdated" />
           <div v-else-if="property.editable">
             <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              {{ getResolvedName(property)}}<span v-if="property.required">*</span>
+              {{ getResolvedName(property) }}<span v-if="property.required">*</span>
             </v-card-text>
             <v-card-text class="d-flex py-0">
               <v-card-text v-exo-tooltip.bottom.body="disabledField(property) ? $t('profileContactInformation.synchronizedUser.tooltip') :$t('profileContactInformation.'+property.propertyName)" class="d-flex pa-0">
@@ -38,7 +41,6 @@
             </v-card-text>
           </div>
         </div>
-
       </v-form>
     </template>
     <template slot="footer">

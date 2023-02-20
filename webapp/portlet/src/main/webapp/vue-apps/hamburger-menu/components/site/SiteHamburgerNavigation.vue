@@ -47,8 +47,6 @@
 </template>
 
 <script>
-import {setSettingValue} from '../../common/js/SettingService.js';
-
 export default {
   data: () => ({
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
@@ -104,7 +102,7 @@ export default {
   },
   methods: {
     changeHome() {
-      setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedNavigation.fullUri)
+      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedNavigation.fullUri)
         .then(() => {
           this.homeLink = eXo.env.portal.homeLink = this.selectedNavigation.fullUri;
           $('#UserHomePortalLink').attr('href', this.homeLink);

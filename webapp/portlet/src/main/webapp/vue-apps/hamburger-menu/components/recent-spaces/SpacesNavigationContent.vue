@@ -5,15 +5,15 @@
     flat>
     <v-list dense>
       <v-list-item-group v-model="selectedSpaceIndex">
-        <space-navigation-item 
+        <space-navigation-item
           v-for="space in filteredSpaces" 
           :key="space.id"
           :space="space"
           :space-url="url(space)"
           :home-icon="homeIcon"
           :home-link="homeLink"
-          @open-space-panel="openOrCloseSpacePanel(space)"
-          @close-space-panel="openOrCloseSpacePanel(space)" />
+          :opened-space="openedSpace"
+          :third-level="thirdLevel" />
       </v-list-item-group>
     </v-list>
     <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
@@ -61,13 +61,20 @@ export default {
       type: Boolean,
       default: false,
     },
+    thirdLevel: {
+      type: Boolean,
+      default: false,
+    },
+    openedSpace: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     startSearchAfterInMilliseconds: 400,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     spaces: [],
-    initialized: false,
     loadingSpaces: false,
     limitToFetch: 0,
     originalLimitToFetch: 0,
@@ -101,13 +108,7 @@ export default {
       }
     },
     limitToFetch() {
-      this.searchSpaces()
-        .finally(() => {
-          if (!this.initialized) {
-            this.initialized = true;
-            this.$root.$applicationLoaded();
-          }
-        });
+      this.searchSpaces();
     },
   }, 
   created() {
@@ -172,13 +173,6 @@ export default {
         return '#';
       }
     },
-    openOrCloseSpacePanel(space) {
-      if (space) {
-        this.$emit('open-space-panel',space);
-      } else {
-        this.$emit('close-space-panel',null);
-      }
-    }
   }
 };
 </script>

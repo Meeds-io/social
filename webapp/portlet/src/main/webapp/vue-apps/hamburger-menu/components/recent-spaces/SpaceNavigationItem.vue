@@ -19,7 +19,7 @@
   <v-list-item
     v-if="isMobile"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
-    class="px-2 spaceItem"
+    class="px-2 spaceItem text-truncate"
     @click="openOrCloseDrawer()">
     <v-list-item-avatar 
       size="28"
@@ -65,7 +65,9 @@
       :disabled="loading"
       :loading="loading"
       class="me-2 align-center">
-      <v-btn icon @click="openOrCloseDrawer($event)">
+      <v-btn
+        icon
+        @click="openOrCloseDrawer($event)">
         <v-icon
           :id="space.id"
           class="me-0 pa-2 icon-default-color clickable"
@@ -107,13 +109,19 @@ export default {
     homeIcon: {
       type: Boolean,
       default: false,
-    }
+    },
+    openedSpace: {
+      type: Object,
+      default: null,
+    },
+    thirdLevel: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
-    secondLevelVueInstancee: null,
     secondeLevel: false,
     showItemActions: false,
-    arrowIcon: 'fa-arrow-right',
     spaceUnreadItems: null,
     webSocketSpaceUnreadItems: {},
   }),
@@ -139,6 +147,9 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
+    arrowIcon() {
+      return this.openedSpace?.id === this.space?.id && 'fa-arrow-left' || 'fa-arrow-right';
+    },
   },
   watch: {
     space: {
@@ -152,18 +163,6 @@ export default {
     },
   },
   created() {
-    document.addEventListener('space-opened', (event) => {
-      if (event.detail === this.space.id) {
-        this.arrowIcon= 'fa-arrow-right';
-        this.secondeLevel = false;
-        this.showItemActions = false;
-      }
-    });
-    document.addEventListener('hide-space-panel', () => {
-      this.arrowIcon= 'fa-arrow-right';
-      this.secondeLevel = false;
-      this.showItemActions = false;
-    });
     document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
     document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
     document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
@@ -222,24 +221,12 @@ export default {
         unread: this.spaceUnreadItems,
       }}));
     },
-    hideSecondeItem() {
-      this.arrowIcon= 'fa-arrow-right';
-      this.showItemActions = false;
-      this.secondeLevel = false;
-    },
     openOrCloseDrawer(event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
-      this.secondeLevel = !this.secondeLevel;
-      if (this.secondeLevel) {
-        this.arrowIcon = 'fa-arrow-left';
-        this.$emit('open-space-panel');
-      } else {
-        this.arrowIcon = 'fa-arrow-right';
-        this.$emit('close-space-panel');
-      }
+      this.$root.$emit('change-space-menu', this.space, this.thirdLevel);
     }, 
   },
 };

@@ -1,7 +1,10 @@
 <template>
   <v-container class="recentDrawer" flat>
     <v-flex class="filterSpaces d-flex align-center">
-      <v-list-item-icon class="d-flex d-sm-none backToMenu my-5 mx-2 icon-default-color justify-center" @click="closeMenu()">
+      <v-list-item-icon
+        v-if="!displaySequentially"
+        class="backToMenu my-5 mx-2 icon-default-color justify-center"
+        @click="$emit('close')">
         <v-icon class="fas fa-arrow-left" small />
       </v-list-item-icon>
       <v-list-item class="recentSpacesTitle px-2">
@@ -38,18 +41,29 @@
         </v-list-item-action>
       </v-list-item>
     </v-flex>
-    <exo-spaces-navigation-content
+    <spaces-navigation-content
       :limit="itemsToShow"
       :page-size="itemsToShow"
       :keyword="keyword"
+      :opened-space="openedSpace"
       show-more-button
+      third-level
       class="recentSpacesWrapper mt-4"
       @open-space-panel="$emit('open-space-panel',$event)" />
   </v-container>
 </template>
 <script>
-
 export default {
+  props: {
+    openedSpace: {
+      type: Object,
+      default: null,
+    },
+    displaySequentially: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data () {
     return {
       itemsToShow: 15,

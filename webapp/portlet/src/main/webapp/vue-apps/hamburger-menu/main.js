@@ -17,17 +17,22 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init() {
+const appId = 'HamburgerNavigationMenu';
+
+export function init(canAddSpaces) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
+        data: () => ({
+          canAddSpaces,
+        }),
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
-        template: '<exo-hamburger-menu-navigation></exo-hamburger-menu-navigation>',
+        template: `<hamburger-menu-navigation id="${appId}" />`,
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
-      }, '#HamburgerNavigationMenu', 'Hamburger Menu');
+      }, `#${appId}`, 'Hamburger Menu');
     });
 }
