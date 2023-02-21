@@ -28,7 +28,6 @@
     :right="$root.rtl"
     max-width="100%"
     hide-overlay>
-    {{ $root.rtl }}
     <template v-if="drawer">
       <recent-spaces-hamburger-navigation
         v-if="secondLevel === 'recentSpaces'"
