@@ -27,7 +27,7 @@
     :content-class="`position-relative overflow-hidden elevation-0 fill-height ${extraClass}`"
     :min-width="drawerWidth"
     max-width="none"
-    attach="#ParentSiteLeftContainer"
+    attach="#ParentSiteStickyMenu"
     eager
     tile>
     <slot></slot>
