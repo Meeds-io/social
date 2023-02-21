@@ -23,7 +23,8 @@
     ref="thirdLevelDrawer"
     v-model="drawer"
     :width="drawerWidth"
-    :style="`left: ${drawerLeft}px;`"
+    :style="drawerOffsetStyle"
+    :right="$root.rtl"
     max-width="100%"
     hide-overlay>
     <template v-if="drawer">
@@ -64,8 +65,11 @@ export default {
     drawer: false,
   }),
   computed: {
-    drawerLeft() {
+    drawerOffset() {
       return this.displaySequentially && this.drawerWidth * 2 || 0;
+    },
+    drawerOffsetStyle() {
+      return this.$root.ltr && `left: ${this.drawerOffset}px;` || `right: ${this.drawerOffset}px;`;
     },
   },
   watch: {

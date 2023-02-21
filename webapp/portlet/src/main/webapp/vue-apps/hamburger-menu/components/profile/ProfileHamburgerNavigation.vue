@@ -35,7 +35,7 @@
           :title="value && $t('menu.collapse') || $t('menu.expand')"
           icon
           @click="changeMenuStickiness">
-          <v-icon>{{ value && 'fa-angle-double-left' || 'fa-angle-double-right' }}</v-icon>
+          <v-icon>{{ arrowIconClass }}</v-icon>
         </v-btn>
       </v-list-item-action>
     </v-list-item>
@@ -63,6 +63,15 @@ export default {
     };
   },
   computed: {
+    arrowIconClass() {
+      return this.value && this.arrowIconLeft || this.arrowIconRight;
+    },
+    arrowIconLeft() {
+      return this.$root.ltr && 'fa-angle-double-left' || 'fa-angle-double-right';
+    },
+    arrowIconRight() {
+      return this.$root.ltr && 'fa-angle-double-right' || 'fa-angle-double-left';
+    },
     avatar() {
       return this.profile && this.profile.avatar || '';
     },

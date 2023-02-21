@@ -151,7 +151,13 @@ export default {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
     arrowIcon() {
-      return this.openedSpace?.id === this.space?.id && 'fa-arrow-left' || 'fa-arrow-right';
+      return this.openedSpace?.id === this.space?.id && this.arrowIconLeft || this.arrowIconRight;
+    },
+    arrowIconLeft() {
+      return this.$root.ltr && 'fa-arrow-left' || 'fa-arrow-right';
+    },
+    arrowIconRight() {
+      return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
     },
   },
   watch: {
