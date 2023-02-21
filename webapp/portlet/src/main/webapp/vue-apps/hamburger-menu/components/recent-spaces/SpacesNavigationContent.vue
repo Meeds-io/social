@@ -1,3 +1,23 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-flex
     :class="shaped && 'ms-12'"
@@ -5,15 +25,15 @@
     flat>
     <v-list dense>
       <v-list-item-group v-model="selectedSpaceIndex">
-        <space-navigation-item 
+        <space-navigation-item
           v-for="space in filteredSpaces" 
           :key="space.id"
           :space="space"
           :space-url="url(space)"
           :home-icon="homeIcon"
           :home-link="homeLink"
-          @open-space-panel="openOrCloseSpacePanel(space)"
-          @close-space-panel="openOrCloseSpacePanel(space)" />
+          :opened-space="openedSpace"
+          :third-level="thirdLevel" />
       </v-list-item-group>
     </v-list>
     <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
@@ -61,13 +81,20 @@ export default {
       type: Boolean,
       default: false,
     },
+    thirdLevel: {
+      type: Boolean,
+      default: false,
+    },
+    openedSpace: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     startSearchAfterInMilliseconds: 400,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     spaces: [],
-    initialized: false,
     loadingSpaces: false,
     limitToFetch: 0,
     originalLimitToFetch: 0,
@@ -101,13 +128,7 @@ export default {
       }
     },
     limitToFetch() {
-      this.searchSpaces()
-        .finally(() => {
-          if (!this.initialized) {
-            this.initialized = true;
-            this.$root.$applicationLoaded();
-          }
-        });
+      this.searchSpaces();
     },
   }, 
   created() {
@@ -131,11 +152,7 @@ export default {
       }
     },
     searchSpaces() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=&offset=${this.offset}&limit=${this.limitToFetch}&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread`, {
-        method: 'GET',
-        credentials: 'include',
-      })
-        .then(resp => resp && resp.ok && resp.json())
+      return this.$spaceService.getSpaces('', this.offset, this.limitToFetch, 'lastVisited', 'member,managers,favorite,unread')
         .then(data => {
           this.spaces = data && data.spaces || [];
           return this.$nextTick();
@@ -172,13 +189,6 @@ export default {
         return '#';
       }
     },
-    openOrCloseSpacePanel(space) {
-      if (space) {
-        this.$emit('open-space-panel',space);
-      } else {
-        this.$emit('close-space-panel',null);
-      }
-    }
   }
 };
 </script>

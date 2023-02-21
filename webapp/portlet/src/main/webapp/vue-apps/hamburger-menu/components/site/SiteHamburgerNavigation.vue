@@ -1,11 +1,30 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-container 
     id="SiteHamburgerNavigation"
     px-0
     py-0
     class="white">
-    <div
-      class="mx-0">
+    <div v-if="navigations" class="mx-0">
       <v-list  
         dense 
         min-width="90%"
@@ -47,16 +66,17 @@
 </template>
 
 <script>
-import {setSettingValue} from '../../common/js/SettingService.js';
-
 export default {
+  props: {
+    navigations: {
+      type: Array,
+      default: null,
+    },
+  },
   data: () => ({
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     homeLink: eXo.env.portal.homeLink,
     selectedNavigation: null,
-    navigationScope: 'children',
-    navigationVisibilities: ['displayed'],
-    navigations: []
   }),
   computed: {
     confirmMessage() {
@@ -64,11 +84,8 @@ export default {
         0: `<b>${this.selectedNavigation && this.selectedNavigation.label}</b>`,
       });
     },
-    visibilityQueryParams() {
-      return this.navigationVisibilities.map(visibilityName => `visibility=${visibilityName}`).join('&');
-    },
     selectedNavigationIndex() {
-      return this.navigations.findIndex(nav => nav.uri === eXo.env.portal.selectedNodeUri);
+      return this.navigations && this.navigations.findIndex(nav => nav.uri === eXo.env.portal.selectedNodeUri);
     },
     navigationsToDisplay() {
       this.navigations.forEach(nav => {
@@ -87,24 +104,13 @@ export default {
     },
   },
   created(){
-    fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}&scope=${this.navigationScope}&${this.visibilityQueryParams}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(resp => resp && resp.ok && resp.json())
-      .then(data => {
-        const navigations = data || [];
-        if (!this.navigations || !this.navigations.length) {
-          this.navigations = navigations;
-        }
-      });
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;
     });
   },
   methods: {
     changeHome() {
-      setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedNavigation.fullUri)
+      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.selectedNavigation.fullUri)
         .then(() => {
           this.homeLink = eXo.env.portal.homeLink = this.selectedNavigation.fullUri;
           $('#UserHomePortalLink').attr('href', this.homeLink);

@@ -359,58 +359,18 @@
     </portlet-info>
   </portlet>
 
-
-
   <portlet>
-    <portlet-name>SiteHamburgerMenu</portlet-name>
+    <portlet-name>HamburgerMenu</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/siteHamburgerMenuItem.jsp</value>
+      <value>/WEB-INF/jsp/portlet/hamburgerMenu.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Site Hamburger Menu</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
-    <portlet-name>ProfileHamburgerMenu</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/html/blank.html</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>Profile Hamburger Menu</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
-    <portlet-name>SpacesHamburgerMenu</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/siteHamburgerMenuItem.jsp</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.rest</name>
-      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread]]></value>
-    </init-param>
-    <init-param>
-      <name>separator</name>
-      <value>|</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>Spaces Hamburger Menu</title>
+      <title>Hamburger Menu</title>
     </portlet-info>
   </portlet>
 
@@ -617,7 +577,7 @@
     </init-param>
     <init-param>
       <name>preload.resource.rest</name>
-      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=20&filterType=all&returnSize=true&expand=managers|/portal/rest/v1/social/spaceTemplates/templates]]></value>
+      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=20&filterType=all&returnSize=true&expand=managers,favorite|/portal/rest/v1/social/spaceTemplates/templates]]></value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -747,36 +707,6 @@
     <resource-bundle>locale.portlet.Portlets</resource-bundle>
     <portlet-info>
       <title>Search</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
-    <portlet-name>AdministrationHamburgerMenu</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/html/blank.html</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>Administration Hamburger Menu</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
-    <portlet-name>UserHamburgerMenu</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/html/blank.html</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>User Hamburger Menu</title>
     </portlet-info>
   </portlet>
 

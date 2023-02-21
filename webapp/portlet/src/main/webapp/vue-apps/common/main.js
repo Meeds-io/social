@@ -15,6 +15,7 @@ import * as socialWebSocket from './js/WebSocket.js';
 import {spacesConstants} from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
 import * as brandingService from './js/brandingService.js';
+import * as navigationService from '../common/js/NavigationService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
 import * as profileLabelService from '../common/js/ProfileLabelService.js';
 
@@ -85,6 +86,9 @@ window.Object.defineProperty(Vue.prototype, '$profileSettingsService', {
 });
 window.Object.defineProperty(Vue.prototype, '$profileLabelService', {
   value: profileLabelService,
+});
+window.Object.defineProperty(Vue.prototype, '$navigationService', {
+  value: navigationService,
 });
 
 if (eXo.env.portal.userIdentityId) {
