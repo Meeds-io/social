@@ -24,8 +24,7 @@
     px-0
     py-0
     class="white">
-    <div
-      class="mx-0">
+    <div v-if="navigations" class="mx-0">
       <v-list  
         dense 
         min-width="90%"
@@ -68,13 +67,16 @@
 
 <script>
 export default {
+  props: {
+    navigations: {
+      type: Array,
+      default: null,
+    },
+  },
   data: () => ({
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     homeLink: eXo.env.portal.homeLink,
     selectedNavigation: null,
-    navigationScope: 'children',
-    navigationVisibilities: ['displayed'],
-    navigations: []
   }),
   computed: {
     confirmMessage() {
@@ -82,11 +84,8 @@ export default {
         0: `<b>${this.selectedNavigation && this.selectedNavigation.label}</b>`,
       });
     },
-    visibilityQueryParams() {
-      return this.navigationVisibilities.map(visibilityName => `visibility=${visibilityName}`).join('&');
-    },
     selectedNavigationIndex() {
-      return this.navigations.findIndex(nav => nav.uri === eXo.env.portal.selectedNodeUri);
+      return this.navigations && this.navigations.findIndex(nav => nav.uri === eXo.env.portal.selectedNodeUri);
     },
     navigationsToDisplay() {
       this.navigations.forEach(nav => {
@@ -105,17 +104,6 @@ export default {
     },
   },
   created(){
-    fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?siteName=${eXo.env.portal.portalName}&scope=${this.navigationScope}&${this.visibilityQueryParams}`, {
-      method: 'GET',
-      credentials: 'include',
-    })
-      .then(resp => resp && resp.ok && resp.json())
-      .then(data => {
-        const navigations = data || [];
-        if (!this.navigations || !this.navigations.length) {
-          this.navigations = navigations;
-        }
-      });
     document.addEventListener('homeLinkUpdated', () => {
       this.homeLink = eXo.env.portal.homeLink;
     });

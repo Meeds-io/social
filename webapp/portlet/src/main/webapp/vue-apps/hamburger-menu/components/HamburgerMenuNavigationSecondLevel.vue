@@ -37,7 +37,6 @@
         v-else-if="hasAdministrationNavigations && secondLevel === 'administration'"
         :display-sequentially="displaySequentially"
         :navigations="administrationNavigations"
-        :categories="administrationCategories"
         @close="drawer = false" />
       <space-panel-hamburger-navigation
         v-else-if="secondLevel === 'spaceMenu'"
@@ -85,10 +84,6 @@ export default {
     },
     administrationNavigations: {
       type: Array,
-      default: null,
-    },
-    administrationCategories: {
-      type: Object,
       default: null,
     },
   },

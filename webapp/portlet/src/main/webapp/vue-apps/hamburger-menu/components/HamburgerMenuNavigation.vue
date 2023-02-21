@@ -49,8 +49,7 @@
         :home-link="homeLink"
         :drawer-width="drawerWidth"
         :has-administration-navigations="hasAdministrationNavigations"
-        :administration-navigations="administrationNavigations"
-        :administration-categories="administrationCategories" />
+        :administration-navigations="administrationNavigations" />
       <hamburger-menu-navigation-first-level
         :sticky-preference="stickyPreference"
         :first-level-drawer="firstLevelDrawer"
@@ -58,6 +57,7 @@
         :third-level-drawer="thirdLevelDrawer"
         :second-level="secondLevel"
         :has-administration-navigations="hasAdministrationNavigations"
+        :site-navigations="siteNavigations"
         :opened-space="space"
         :sticky-allowed="stickyAllowed"
         :drawer-width="drawerWidth"
@@ -72,6 +72,7 @@
         :third-level-drawer="thirdLevelDrawer"
         :second-level="secondLevel"
         :has-administration-navigations="hasAdministrationNavigations"
+        :site-navigations="siteNavigations"
         :opened-space="space"
         :sticky-allowed="stickyAllowed"
         :drawer-width="drawerWidth"
@@ -87,9 +88,9 @@
         :home-link="homeLink"
         :drawer-width="drawerWidth"
         :has-administration-navigations="hasAdministrationNavigations"
-        :administration-navigations="administrationNavigations"
-        :administration-categories="administrationCategories" />
+        :administration-navigations="administrationNavigations" />
       <hamburger-menu-navigation-third-level
+        v-if="allowDisplayLevels"
         v-model="thirdLevelDrawer"
         :display-sequentially="displaySequentially"
         :opened-space="space"
@@ -109,9 +110,8 @@ export default {
     drawerWidth: 310,
     space: null,
     administrationNavigations: null,
-    administrationCategories: null,
-    navigationScope: 'ALL',
-    navigationVisibilities: ['displayed'],
+    siteNavigations: null,
+    initStep: 0,
   }),
   computed: {
     allowDisplayLevels() {
@@ -122,9 +122,6 @@ export default {
     },
     showOverlay() {
       return this.stickyDisplay && this.levelsOpened;
-    },
-    visibilityQueryParams() {
-      return this.navigationVisibilities.map(visibilityName => `visibility=${visibilityName}`).join('&');
     },
     hasAdministrationNavigations() {
       return this.administrationNavigations?.length;
@@ -138,8 +135,16 @@ export default {
     stickyDisplay() {
       return this.stickyPreference && this.stickyAllowed;
     },
+    initialized() {
+      return this.initStep === 2;
+    },
   },
   watch: {
+    initialized() {
+      if (this.initialized) {
+        this.$root.$applicationLoaded();
+      }
+    },
     showOverlay() {
       if (this.showOverlay) {
         document.dispatchEvent(new CustomEvent('drawerOpened'));
@@ -177,9 +182,18 @@ export default {
     this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
     this.$root.$on('change-administration-menu', this.changeAdministrationMenu);
     document.addEventListener('closeDisplayedDrawer', () => this.closeMenu());
-    this.retrieveAdministrationMenu().finally(() => this.$root.$applicationLoaded());
+    this.init();
+  },
+  mounted() {
+    this.initStep++;
   },
   methods: {
+    init() {
+      return Promise.all([
+        this.retrieveSiteNavigations(),
+        this.retrieveAdministrationNavigations(),
+      ]).finally(() => this.initStep++);
+    },
     changeRecentSpacesMenu() {
       if (this.secondLevel === 'recentSpaces') {
         this.space = null;
@@ -237,21 +251,13 @@ export default {
       this.secondLevel = null;
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
     },
-    retrieveAdministrationMenu() {
-      if (this.administrationNavigations) {
-        return;
-      }
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/group?${this.visibilityQueryParams}`, {
-        method: 'GET',
-        credentials: 'include',
-      })
-        .then(resp => resp && resp.ok && resp.json())
-        .then(data => this.administrationNavigations = data || [])
-        .then(() => this.administrationNavigations?.length && fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/categories`, {
-          method: 'GET',
-          credentials: 'include',
-        }).then(resp => resp && resp.ok && resp.json()))
-        .then(data => this.administrationCategories = data || {});
+    retrieveSiteNavigations() {
+      return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', 'displayed')
+        .then(data => this.siteNavigations = data || []);
+    },
+    retrieveAdministrationNavigations() {
+      return this.$navigationService.getNavigations(null, 'group', null, 'displayed')
+        .then(data => this.administrationNavigations = data || []);
     },
   },
 };

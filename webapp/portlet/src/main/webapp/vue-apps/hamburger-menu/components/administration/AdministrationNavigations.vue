@@ -30,7 +30,7 @@
       @click="$emit('close')">
       <v-icon class="fas fa-arrow-left" small />
     </v-list-item-icon>
-    <v-row v-if="navigations && navigations.length" class="mx-0">
+    <v-row v-if="initialized && navigations && navigations.length" class="mx-0">
       <v-list 
         shaped 
         dense 
@@ -53,15 +53,15 @@ export default {
       type: Array,
       default: () => [],
     },
-    categories: {
-      type: Object,
-      default: () => ({}),
-    },
     displaySequentially: {
       type: Boolean,
       default: false,
     },
   },
+  data: () => ({
+    categories: null,
+    initialized: false,
+  }),
   computed: {
     sortedEmbeddedNavigationTree() {
       return this.categories && this.categories.navs && Object.keys(this.categories.navs)
@@ -119,7 +119,18 @@ export default {
       return navigationTree;
     },
   },
+  created() {
+    this.retrieveAdministrationCategories();
+  },
   methods: {
+    retrieveAdministrationCategories() {
+      if (this.initialized) {
+        return;
+      }
+      return this.$navigationService.getNavigationCategories()
+        .then(data => this.categories = data || {})
+        .finally(() => this.initialized = true);
+    },
     filterDisplayedNavigations(navigations, excludeHidden) {
       return navigations
         .filter(nav => {
