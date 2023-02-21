@@ -127,10 +127,10 @@ export default {
       return this.administrationNavigations?.length;
     },
     displaySequentially() {
-      return this.$vuetify.breakpoint.lgAndUp;
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
     stickyAllowed() {
-      return this.$vuetify.breakpoint.lgAndUp;
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
     stickyDisplay() {
       return this.stickyPreference && this.stickyAllowed;

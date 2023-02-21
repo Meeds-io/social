@@ -30,11 +30,10 @@ if (extensionRegistry) {
 }
 
 Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
+Vue.prototype.vuetifyOptions = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 Vue.use(Vuetify);
 Vue.use(VueEllipsis);
-
-Vue.prototype.vuetifyOptions = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 window.Object.defineProperty(Vue.prototype, '$userService', {
   value: userService,
