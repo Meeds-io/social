@@ -152,11 +152,7 @@ export default {
       }
     },
     searchSpaces() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=&offset=${this.offset}&limit=${this.limitToFetch}&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread`, {
-        method: 'GET',
-        credentials: 'include',
-      })
-        .then(resp => resp && resp.ok && resp.json())
+      return this.$spaceService.getSpaces('', this.offset, this.limitToFetch, 'lastVisited', 'member,managers,favorite,unread')
         .then(data => {
           this.spaces = data && data.spaces || [];
           return this.$nextTick();

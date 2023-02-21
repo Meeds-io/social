@@ -28,7 +28,8 @@
     :min-width="drawerWidth"
     max-width="none"
     attach="#ParentSiteLeftContainer"
-    eager>
+    eager
+    tile>
     <slot></slot>
   </v-menu>
 </template>

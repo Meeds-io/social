@@ -37,7 +37,8 @@
       class="d-flex flex-column fill-height HamburgerNavigationMenu"
       role="navigation"
       color="white"
-      flat>
+      flat
+      tile>
       <profile-hamburger-navigation
         :value="stickyPreference"
         :sticky-allowed="stickyAllowed"
@@ -48,7 +49,8 @@
         :aria-label="$t('menu.role.navigation.first.level')"
         max-width="100%"
         class="overflow-y-auto overflow-x-hidden flex-grow-1 flex-shrink-1"
-        flat>
+        flat
+        tile>
         <site-hamburger-navigation />
         <spaces-hamburger-navigation
           :recent-spaces-drawer-opened="recentSpacesDrawerOpened"

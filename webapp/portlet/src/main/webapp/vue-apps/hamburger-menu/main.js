@@ -42,9 +42,9 @@ export function init(canAddSpaces) {
     .then(i18n => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
-        data: () => ({
+        data: {
           canAddSpaces,
-        }),
+        },
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
