@@ -29,7 +29,6 @@
     @opened="$emit('firstLevelDrawer', true)"
     @closed="$emit('firstLevelDrawer', false)">
     <v-card
-      id="StickyHamburgerMenu"
       :aria-label="$t('menu.role.navigation.first.level')"
       :min-width="drawerWidth"
       :max-width="drawerWidth"
@@ -48,7 +47,7 @@
         id="StickyHamburgerMenu"
         :aria-label="$t('menu.role.navigation.first.level')"
         max-width="100%"
-        class="overflow-y-auto overflow-x-hidden flex-grow-1 flex-shrink-1"
+        class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1"
         flat
         tile>
         <site-hamburger-navigation />
