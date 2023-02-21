@@ -1,7 +1,30 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-container class="recentDrawer" flat>
     <v-flex class="filterSpaces d-flex align-center">
-      <v-list-item-icon class="d-flex d-sm-none backToMenu my-5 mx-2 icon-default-color justify-center" @click="closeMenu()">
+      <v-list-item-icon
+        v-if="!displaySequentially"
+        class="backToMenu my-5 mx-2 icon-default-color justify-center"
+        @click="$emit('close')">
         <v-icon class="fas fa-arrow-left" small />
       </v-list-item-icon>
       <v-list-item class="recentSpacesTitle px-2">
@@ -38,18 +61,29 @@
         </v-list-item-action>
       </v-list-item>
     </v-flex>
-    <exo-spaces-navigation-content
+    <spaces-navigation-content
       :limit="itemsToShow"
       :page-size="itemsToShow"
       :keyword="keyword"
+      :opened-space="openedSpace"
       show-more-button
+      third-level
       class="recentSpacesWrapper mt-4"
       @open-space-panel="$emit('open-space-panel',$event)" />
   </v-container>
 </template>
 <script>
-
 export default {
+  props: {
+    openedSpace: {
+      type: Object,
+      default: null,
+    },
+    displaySequentially: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data () {
     return {
       itemsToShow: 15,
