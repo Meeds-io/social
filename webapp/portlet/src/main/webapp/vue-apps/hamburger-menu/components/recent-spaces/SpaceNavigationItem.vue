@@ -54,13 +54,22 @@
     class="px-2 spaceItem"
     @mouseover="showItemActions = true" 
     @mouseleave="showItemActions = false">
-    <v-list-item-avatar 
-      size="28"
-      class="me-3 ms-2 tile my-0 spaceAvatar"
-      tile>
+    <v-badge
+      :value="spaceUnreadCount && !expand"
+      color="transparent">
+      <template v-slot:badge>
+        <v-btn class="error-color-background white--text ms-n5 mt-1" x-small icon>
+          {{ spaceUnreadCount }}
+        </v-btn>
+      </template>
+      <v-list-item-avatar 
+        size="28"
+        class="me-3 ms-2 tile my-0 spaceAvatar"
+        tile>
       <v-img :src="spaceAvatar" />
-    </v-list-item-avatar>
-    <v-list-item-content>
+      </v-list-item-avatar>
+    </v-badge>
+    <v-list-item-content v-if="expand">
       <v-list-item-title class="body-2" v-text="spaceDisplayName" />
     </v-list-item-content>
     <v-list-item-icon
@@ -80,7 +89,7 @@
       </v-btn>
     </v-list-item-icon>
     <v-list-item-icon
-      v-if="!toggleArrow && spaceUnreadCount"
+      v-if="!toggleArrow && expand && spaceUnreadCount"
       class="me-2 align-center">
       <v-chip
         v-if="spaceUnreadCount"
@@ -121,9 +130,12 @@ export default {
       type: Boolean,
       default: false,
     },
+    expand: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
-    secondeLevel: false,
     showItemActions: false,
     spaceUnreadItems: null,
     webSocketSpaceUnreadItems: {},
@@ -145,7 +157,7 @@ export default {
       return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
     },
     toggleArrow() {
-      return this.showItemActions || this.secondeLevel;
+      return this.showItemActions && this.expand;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';

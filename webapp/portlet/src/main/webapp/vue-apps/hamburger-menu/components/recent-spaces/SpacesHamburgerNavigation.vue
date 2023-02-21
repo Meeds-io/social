@@ -54,7 +54,7 @@
         <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
-        <v-list-item-content class="subtitle-2">
+        <v-list-item-content v-if="expand" class="subtitle-2">
           {{ $t('menu.spaces.lastVisitedSpaces') }}
         </v-list-item-content>
         <v-list-item-action v-if="toggleArrow" class="my-0 d-flex flex-row align-center">
@@ -84,6 +84,7 @@
       :limit="spacesLimit"
       :home-link="homeLink"
       :opened-space="!thirdLevel && openedSpace"
+      :expand="expand"
       home-icon
       shaped />
     <exo-confirm-dialog
@@ -107,6 +108,10 @@ export default {
       default: null,
     },
     thirdLevel: {
+      type: Boolean,
+      default: false,
+    },
+    expand: {
       type: Boolean,
       default: false,
     },
@@ -136,7 +141,7 @@ export default {
       return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
     },
     toggleArrow() {
-      return this.showItemActions && !this.spacePanel;
+      return this.showItemActions && !this.spacePanel && this.expand;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';

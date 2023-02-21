@@ -42,12 +42,12 @@
             <v-list-item-icon class="me-6 my-2">
               <i :class="nav.iconClass"></i>
             </v-list-item-icon>
-            <v-list-item-content>
+            <v-list-item-content v-if="expand">
               <v-list-item-title
                 class="subtitle-2"
                 v-text="nav.label" />
             </v-list-item-content>
-            <v-list-item-icon @click="selectHome($event, nav)">
+            <v-list-item-icon v-if="expand" @click="selectHome($event, nav)">
               <span class="fas mt-1 fa-house-user icon-default-color homePage">
               </span>
             </v-list-item-icon>
@@ -71,6 +71,10 @@ export default {
     navigations: {
       type: Array,
       default: null,
+    },
+    expand: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

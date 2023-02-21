@@ -31,7 +31,7 @@
         <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon">
           <v-icon class="fa fa-cog" />
         </v-list-item-icon>
-        <v-list-item-content class="subtitle-2">
+        <v-list-item-content v-if="expand" class="subtitle-2">
           {{ this.$t('menu.administration.title') }}
         </v-list-item-content>
         <v-list-item-action v-if="toggleArrow" class="my-0">
@@ -52,6 +52,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    expand: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -69,7 +73,7 @@ export default {
       return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
     },
     toggleArrow() {
-      return this.secondeLevel || this.showItemActions;
+      return this.expand && this.showItemActions;
     }
   },
 };

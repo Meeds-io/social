@@ -74,8 +74,9 @@
       :keyword="keyword"
       :opened-space="openedSpace"
       show-more-button
-      third-level
       class="recentSpacesWrapper mt-4"
+      third-level
+      expand
       @open-space-panel="$emit('open-space-panel',$event)" />
   </v-container>
 </template>

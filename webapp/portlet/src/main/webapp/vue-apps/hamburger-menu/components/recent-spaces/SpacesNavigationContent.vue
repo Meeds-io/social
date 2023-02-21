@@ -20,7 +20,7 @@
 -->
 <template>
   <v-flex
-    :class="shaped && 'ms-12'"
+    :class="shaped && expand && 'ms-12'"
     class="mx-0 spacesNavigationContent"
     flat>
     <v-list dense>
@@ -33,6 +33,7 @@
           :home-icon="homeIcon"
           :home-link="homeLink"
           :opened-space="openedSpace"
+          :expand="expand"
           :third-level="thirdLevel" />
       </v-list-item-group>
     </v-list>
@@ -88,6 +89,10 @@ export default {
     openedSpace: {
       type: Object,
       default: null,
+    },
+    expand: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

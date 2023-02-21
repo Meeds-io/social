@@ -26,11 +26,11 @@
       <v-list-item-avatar size="44" class="me-3 mt-0 mb-0 elevation-1">
         <v-img :src="avatar" eager />
       </v-list-item-avatar>
-      <v-list-item-content class="py-0 accountTitleLabel">
+      <v-list-item-content v-if="expand" class="py-0 accountTitleLabel">
         <v-list-item-title class="font-weight-bold body-2 mb-0">{{ fullName }} <span v-if="external" class="externalFlagClass">{{ $t('menu.profile.external') }}</span></v-list-item-title>
         <v-list-item-subtitle class="font-italic caption">{{ position }}</v-list-item-subtitle>
       </v-list-item-content>
-      <v-list-item-action v-if="stickyAllowed" class="my-auto">
+      <v-list-item-action v-if="stickyAllowed && expand" class="my-auto">
         <v-btn
           :title="value && $t('menu.collapse') || $t('menu.expand')"
           icon
@@ -51,6 +51,10 @@ export default {
       default: false,
     },
     stickyAllowed: {
+      type: Boolean,
+      default: false,
+    },
+    expand: {
       type: Boolean,
       default: false,
     },
