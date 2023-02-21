@@ -60,7 +60,13 @@ export default {
   },
   computed: {
     arrowIconClass() {
-      return this.openedMenu && 'fa-arrow-left' || 'fa-arrow-right';
+      return this.openedMenu && this.arrowIconLeft || this.arrowIconRight;
+    },
+    arrowIconLeft() {
+      return this.$root.ltr && 'fa-arrow-left' || 'fa-arrow-right';
+    },
+    arrowIconRight() {
+      return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
     },
     toggleArrow() {
       return this.secondeLevel || this.showItemActions;

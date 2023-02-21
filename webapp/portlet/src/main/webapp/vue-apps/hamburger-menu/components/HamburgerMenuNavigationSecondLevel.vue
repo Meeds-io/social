@@ -24,9 +24,11 @@
     ref="secondLevelDrawer"
     v-model="drawer"
     :width="drawerWidth"
-    :style="`left: ${drawerLeft}px;`"
+    :style="drawerOffsetStyle"
+    :right="$root.rtl"
     max-width="100%"
     hide-overlay>
+    {{ $root.rtl }}
     <template v-if="drawer">
       <recent-spaces-hamburger-navigation
         v-if="secondLevel === 'recentSpaces'"
@@ -91,8 +93,11 @@ export default {
     drawer: false,
   }),
   computed: {
-    drawerLeft() {
+    drawerOffset() {
       return this.displaySequentially && this.drawerWidth || 0;
+    },
+    drawerOffsetStyle() {
+      return this.$root.ltr && `left: ${this.drawerOffset}px;` || `right: ${this.drawerOffset}px;`;
     },
   },
   watch: {

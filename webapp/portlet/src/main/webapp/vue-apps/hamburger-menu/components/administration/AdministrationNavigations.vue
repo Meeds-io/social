@@ -28,7 +28,14 @@
       v-if="!displaySequentially"
       class="backToMenu ma-2 icon-default-color justify-center"
       @click="$emit('close')">
-      <v-icon class="fas fa-arrow-left" small />
+      <v-icon
+        v-if="$root.ltr"
+        class="fas fa-arrow-left"
+        small />
+      <v-icon
+        v-else
+        class="fas fa-arrow-right"
+        small />
     </v-list-item-icon>
     <v-row v-if="initialized && navigations && navigations.length" class="mx-0">
       <v-list 

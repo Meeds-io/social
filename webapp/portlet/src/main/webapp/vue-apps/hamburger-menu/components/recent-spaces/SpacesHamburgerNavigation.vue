@@ -126,7 +126,13 @@ export default {
   },
   computed: {
     arrowIconClass() {
-      return this.recentSpacesDrawerOpened && 'fa-arrow-left' || 'fa-arrow-right';
+      return this.recentSpacesDrawerOpened && this.arrowIconLeft || this.arrowIconRight;
+    },
+    arrowIconLeft() {
+      return this.$root.ltr && 'fa-arrow-left' || 'fa-arrow-right';
+    },
+    arrowIconRight() {
+      return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
     },
     toggleArrow() {
       return this.showItemActions && !this.spacePanel;
