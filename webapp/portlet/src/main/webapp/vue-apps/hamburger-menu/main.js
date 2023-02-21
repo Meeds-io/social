@@ -44,6 +44,8 @@ export function init(canAddSpaces) {
       Vue.createApp({
         data: {
           canAddSpaces,
+          rtl: eXo.env.portal.orientation === 'rtl',
+          ltr: eXo.env.portal.orientation === 'ltr',
         },
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
