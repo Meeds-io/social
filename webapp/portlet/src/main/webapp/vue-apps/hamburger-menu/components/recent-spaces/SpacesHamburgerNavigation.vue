@@ -20,6 +20,7 @@
 -->
 <template>
   <v-container
+    id="RecentSpaceHamburgerNavigation"
     px-0
     pt-0
     class="border-box-sizing">
