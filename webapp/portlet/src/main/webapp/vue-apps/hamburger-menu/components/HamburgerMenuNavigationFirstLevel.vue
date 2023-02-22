@@ -25,7 +25,7 @@
     :value="firstLevelDrawer"
     :drawer-width="drawerWidth"
     :levels-opened="levelsOpened"
-    class="no-box-shadow"
+    class="HamburgerMenuFirstLevelParent no-box-shadow border-box-sizing"
     @opened="$emit('firstLevelDrawer', true)"
     @closed="$emit('firstLevelDrawer', false)">
     <v-card

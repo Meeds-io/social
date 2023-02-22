@@ -25,6 +25,7 @@
     :width="drawerWidth"
     :style="drawerOffsetStyle"
     :right="$root.rtl"
+    class="HamburgerMenuThirdLevelParent border-box-sizing"
     max-width="100%"
     hide-overlay>
     <template v-if="drawer">
