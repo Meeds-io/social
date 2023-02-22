@@ -181,7 +181,7 @@ export default {
     this.$root.$on('change-space-menu', this.changeSpaceMenu);
     this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
     this.$root.$on('change-administration-menu', this.changeAdministrationMenu);
-    document.addEventListener('closeDisplayedDrawer', () => this.closeMenu());
+    document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     this.init();
   },
   mounted() {
@@ -241,6 +241,11 @@ export default {
       } else {
         this.secondLevel = 'administration';
         this.secondLevelDrawer = true;
+      }
+    },
+    closeDisplayedDrawer() {
+      if (this.firstLevelDrawer || this.secondLevelDrawer) {
+        this.closeMenu();
       }
     },
     closeMenu() {
