@@ -20,40 +20,40 @@
 
 <template>
   <v-data-table
-      ref="dataTable"
-      :headers="headers"
-      :items="settings"
-      :items-per-page="pageSize"
-      :loading="loading"
-      :options.sync="options"
-      :locale="lang"
-      :disable-sort="isMobile"
-      :loading-text="loadingLabel"
-      :class="loadingClass"
-      :sort-by="sortBy"
-      hide-default-footer
-      disable-pagination
-      disable-filtering
-      class="settings-table data-table-light-border py-6">
-      <template slot="item.propertyName" slot-scope="{ item }">
-        {{getResolvedName(item)}}
-      </template>
-      <template slot="item.actions" slot-scope="{ item }">
-        <profile-settings-actions-cell :setting="item" :settings="settings"/>
-        </template>
-        <template v-slot:no-data>{{ $t("profileSettings.noSettings") }}</template>
-      <template v-if="hasMore" slot="footer">
-        <v-flex class="d-flex py-2 border-box-sizing mb-1">
-          <v-btn
-            :loading="loading"
-            :disabled="loading"
-            class="white mx-auto no-border primary--text no-box-shadow"
-            @click="$root.$emit('document-load-more')">
-            {{ $t('profileSettings.loadMore') }}
-          </v-btn>
-        </v-flex>
-      </template>
-    </v-data-table>
+    ref="dataTable"
+    :headers="headers"
+    :items="settings"
+    :items-per-page="pageSize"
+    :loading="loading"
+    :options.sync="options"
+    :locale="lang"
+    :disable-sort="isMobile"
+    :loading-text="loadingLabel"
+    :class="loadingClass"
+    :sort-by="sortBy"
+    hide-default-footer
+    disable-pagination
+    disable-filtering
+    class="settings-table data-table-light-border py-6">
+    <template slot="item.propertyName" slot-scope="{ item }">
+      {{ getResolvedName(item) }}
+    </template>
+    <template slot="item.actions" slot-scope="{ item }">
+      <profile-settings-actions-cell :setting="item" :settings="settings" />
+    </template>
+    <template #no-data>{{ $t("profileSettings.noSettings") }}</template>
+    <template v-if="hasMore" slot="footer">
+      <v-flex class="d-flex py-2 border-box-sizing mb-1">
+        <v-btn
+          :loading="loading"
+          :disabled="loading"
+          class="white mx-auto no-border primary--text no-box-shadow"
+          @click="$root.$emit('document-load-more')">
+          {{ $t('profileSettings.loadMore') }}
+        </v-btn>
+      </v-flex>
+    </template>
+  </v-data-table>
 </template>
 
 <script>

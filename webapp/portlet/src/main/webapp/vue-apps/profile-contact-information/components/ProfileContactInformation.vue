@@ -22,12 +22,12 @@
       </v-btn>
     </v-toolbar>
     <div class="px-4 pb-6 white">
-      <div  v-for="property in properties" :key="property.id" >
+      <div v-for="property in properties" :key="property.id">
         <profile-multi-valued-property v-if="property.children && property.children.length" :property="property" />
         <template v-else-if="property && property.visible && property.value">
           <v-flex class="d-flex">
             <div class="align-start text-no-wrap font-weight-bold me-3">
-              {{ getResolvedName(property)}}
+              {{ getResolvedName(property) }}
             </div>
             <div :title="property.value" class="align-end flex-grow-1 text-truncate text-end">
               {{ property.value }}

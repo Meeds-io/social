@@ -59,7 +59,11 @@
           {{ $t('profileSettings.label.labels') }}
         </v-card-text>
         <v-card-text class="d-flex settingNameField py-0">
-          <profile-property-labels :propertylabels="labels" :languages="languages" :labelsObjectType="labelsObjectType" :id="setting.id"/>
+          <profile-property-labels
+            :propertylabels="labels"
+            :languages="languages"
+            :labels-object-type="labelsObjectType"
+            :id="setting.id" />
         </v-card-text>
 
         <v-card-text class="d-flex parentLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
@@ -67,126 +71,126 @@
         </v-card-text>
         <v-card-text class="d-flex settingParentField py-0 pl-0 pr-7">
           <v-autocomplete
-              ref="settingParentField"
-              id="settingParentField" 
-              v-model="setting.parentId"
-              :items="parents"
-              :placeholder="$t('profileSettings.placeholder.parent')"
-              class="d-flex pa-4 ignore-vuetify-classes flex-grow-1"
-              outlined
-              dense
-              width="100%"
-              max-width="100%"
-              item-text="resolvedLabel"
-              item-value="id"
-              @blur="blurAutocomplete()" />  
+            ref="settingParentField"
+            id="settingParentField" 
+            v-model="setting.parentId"
+            :items="parents"
+            :placeholder="$t('profileSettings.placeholder.parent')"
+            class="d-flex pa-4 ignore-vuetify-classes flex-grow-1"
+            outlined
+            dense
+            width="100%"
+            max-width="100%"
+            item-text="resolvedLabel"
+            item-value="id"
+            @blur="blurAutocomplete()" />  
         </v-card-text>
-      <v-list-item class="pt-4">
-      <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
-        <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          <div>
-            {{ $t('profileSettings.label.visible') }}
-          </div>
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-switch
-                v-model="setting.visible"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="visibleSwitcher my-auto" />
-      </v-list-item-action>
-    </v-list-item>
+        <v-list-item class="pt-4">
+          <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
+            <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.visible') }}
+              </div>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="setting.visible"
+              :disabled="saving"
+              :ripple="false"
+              color="primary"
+              class="visibleSwitcher my-auto" />
+          </v-list-item-action>
+        </v-list-item>
 
         <v-list-item>
-      <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
-        <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          <div>
-            {{ $t('profileSettings.label.editable') }}
-          </div>
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-switch
-                v-model="setting.editable"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="editableSwitcher my-auto" />
-      </v-list-item-action>
-    </v-list-item>
+          <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
+            <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.editable') }}
+              </div>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="setting.editable"
+              :disabled="saving"
+              :ripple="false"
+              color="primary"
+              class="editableSwitcher my-auto" />
+          </v-list-item-action>
+        </v-list-item>
 
         <v-list-item>
-      <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
-        <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          <div>
-            {{ $t('profileSettings.label.required') }}
-          </div>
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-switch
-                v-model="setting.required"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="requiredSwitcher my-auto" />
-      </v-list-item-action>
-    </v-list-item>
+          <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
+            <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.required') }}
+              </div>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="setting.required"
+              :disabled="saving"
+              :ripple="false"
+              color="primary"
+              class="requiredSwitcher my-auto" />
+          </v-list-item-action>
+        </v-list-item>
         <v-list-item>
-      <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
-        <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          <div>
-            {{ $t('profileSettings.label.multiValued') }}
-          </div>
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-switch
-                v-model="setting.multiValued"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="requiredSwitcher my-auto" />
-      </v-list-item-action>
-    </v-list-item>
+          <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
+            <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.multiValued') }}
+              </div>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="setting.multiValued"
+              :disabled="saving"
+              :ripple="false"
+              color="primary"
+              class="requiredSwitcher my-auto" />
+          </v-list-item-action>
+        </v-list-item>
 
         <v-list-item>
-      <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
-        <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          <div>
-            {{ $t('profileSettings.label.groupSynchronized') }}
-          </div>
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-switch
-                v-model="setting.groupSynchronized"
-                :disabled="saving || !setting.groupSynchronizationEnabled"
-                :ripple="false"
-                color="primary"
-                class="groupSynchronizedSwitcher my-auto" />
-      </v-list-item-action>
-    </v-list-item>
+          <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
+            <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.groupSynchronized') }}
+              </div>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="setting.groupSynchronized"
+              :disabled="saving || !setting.groupSynchronizationEnabled"
+              :ripple="false"
+              color="primary"
+              class="groupSynchronizedSwitcher my-auto" />
+          </v-list-item-action>
+        </v-list-item>
 
-    <v-list-item>
-      <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
-        <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          <div>
-            {{ $t('profileSettings.label.active') }}
-          </div>
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-switch
-                v-model="setting.active"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="activeSwitcher my-auto" />
-      </v-list-item-action>
-    </v-list-item>
+        <v-list-item>
+          <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
+            <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.active') }}
+              </div>
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="setting.active"
+              :disabled="saving"
+              :ripple="false"
+              color="primary"
+              class="activeSwitcher my-auto" />
+          </v-list-item-action>
+        </v-list-item>
       </v-form>
     </template>
     <template slot="footer">
