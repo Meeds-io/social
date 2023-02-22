@@ -20,22 +20,22 @@
 
 <template>
   <v-app>
-      <v-main>
-        <v-card
+    <v-main>
+      <v-card
         color="white"
         class="px-4 py-6 mb-12 mb-sm-0"
         flat>
-      <profile-settings-header :filter="filter"/>
-      <profile-settings-table :settings="filteredSettings"/>
-      <profile-setting-form-drawer :settings="settings" :languages="languages"/>
-      <v-alert
-        :icon="type === 'warning' ? 'mdi-alert-circle' : ''"
-        v-model="alert"
-        :type="type"
-        dismissible>
-        {{ message }}
-      </v-alert>
-    </v-card>
+        <profile-settings-header :filter="filter" />
+        <profile-settings-table :settings="filteredSettings" />
+        <profile-setting-form-drawer :settings="settings" :languages="languages" />
+        <v-alert
+          :icon="type === 'warning' ? 'mdi-alert-circle' : ''"
+          v-model="alert"
+          :type="type"
+          dismissible>
+          {{ message }}
+        </v-alert>
+      </v-card>
     </v-main>
   </v-app>
 </template>

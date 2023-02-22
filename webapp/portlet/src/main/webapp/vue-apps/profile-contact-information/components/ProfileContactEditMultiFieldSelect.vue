@@ -19,6 +19,7 @@
       type="text"
       class="ignore-vuetify-classes align-end flex-grow-1"
       maxlength="2000"
+      ref="multiInput"
       @change="$emit('propertyUpdated')">
     <v-icon
       small
@@ -45,6 +46,11 @@ export default {
       default: () => null,
     }
   },
+  
+  created() {
+    this.$root.$on('non-valid-url-input', this.showError);
+    this.$root.$on('reset-custom-validity', this.resetCustomValidity);
+  },
   methods: {
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
@@ -53,6 +59,14 @@ export default {
         return resolvedLabel.label;
       }
       return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
+    },
+    showError(value){
+      if (this.$refs.multiInput && this.$refs.multiInput.value===value){
+        this.$refs.multiInput.setCustomValidity(this.$t('profileContactInformation.invalidUrlFormat'));
+      }
+    },
+    resetCustomValidity() {
+      if (this.$refs.multiInput) { this.$refs.multiInput.setCustomValidity('');}
     },
   }
 };
