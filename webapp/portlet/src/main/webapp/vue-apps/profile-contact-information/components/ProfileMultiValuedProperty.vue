@@ -23,7 +23,7 @@
   <div v-if="property && property.visible && hasValues">
     <v-flex class="d-flex">
       <div class="align-start text-no-wrap font-weight-bold me-3">
-        {{ getResolvedName(property)}}
+        {{ getResolvedName(property) }}
       </div>
       <div class="align-end flex-grow-1 text-truncate text-end">
         <div
@@ -32,7 +32,7 @@
           :title="childProperty.value"
           class="text-no-wrap text-truncate">
           <span v-if="childProperty.propertyName" class="pe-1 text-capitalize">
-            {{ getResolvedName(childProperty)}}:
+            {{ getResolvedName(childProperty) }}:
           </span>
           <span v-autolinker="childProperty.value"></span>
         </div>
