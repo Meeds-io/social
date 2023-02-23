@@ -124,10 +124,7 @@ export default {
       this.$refs.aboutMeDrawer.startLoading();
       return this.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
         .then(() => this.refresh(this.modifyingAboutMe))
-        .catch(error => {
-          console.warn('Error saving about me section', error); // eslint-disable-line no-console
-          this.error = this.$t('profileAboutMe.savingError');
-        })
+        .catch(() => this.error = this.$t('profileAboutMe.savingError'))
         .finally(() => {
           this.saving = false;
           this.$refs.aboutMeDrawer.endLoading();

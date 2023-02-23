@@ -204,14 +204,29 @@ export default {
       eXo.openedDrawers = [];
     }
 
-    document.addEventListener('modalOpened', () => this.modalOpened = this.drawer);
-    document.addEventListener('modalClosed', () => this.modalOpened = false);
+    document.addEventListener('modalOpened', this.setModalOpened);
+    document.addEventListener('modalClosed', this.setModalClosed);
     document.addEventListener('closeAllDrawers', this.close);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+  },
+  beforeDestroy() {
+    document.removeEventListener('modalOpened', this.setModalOpened);
+    document.removeEventListener('modalClosed', this.setModalClosed);
+    document.removeEventListener('closeAllDrawers', this.close);
+    document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+    if (this.drawer) {
+      this.drawer = false;
+    }
   },
   methods: {
     open() {
       this.drawer = true;
+    },
+    setModalOpened() {
+      this.modalOpened = this.drawer;
+    },
+    setModalClosed() {
+      this.modalOpened = false;
     },
     closeDisplayedDrawer() {
       const isLastOpenedDrawer = eXo.openedDrawers.indexOf(this) === eXo.openedDrawers.length - 1;

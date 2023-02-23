@@ -89,6 +89,8 @@ Vue.createApp = function(params, el, appName) {
   if (element) {
     if (!params.data) {
       params.data = {};
+    } else if (typeof params.data === 'function') {
+      params.data = params.data();
     }
     params.data.appName = appName || element.id;
     document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: {
