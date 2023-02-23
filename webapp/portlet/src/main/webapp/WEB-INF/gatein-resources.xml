@@ -1123,39 +1123,12 @@
     </module>
   </portlet>
 
-  <module>
+  <portlet>
     <name>HamburgerMenu</name>
-    <script>
-      <minify>false</minify>
-      <path>/js/hamburgerMenu.bundle.js</path>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-  </module>
-
-  <portlet>
-    <name>AdministrationHamburgerMenu</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/administrationHamburgerMenu.bundle.js</path>
+        <path>/js/hamburgerMenu.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -1168,144 +1141,6 @@
       </depends>
       <depends>
         <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
-      </depends>
-      <depends>
-        <module>HamburgerMenu</module>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>UserHamburgerMenu</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/userHamburgerMenu.bundle.js</path>
-      </script>
-      <depends>
-        <module>uiForm</module>
-      </depends>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
-      </depends>
-      <depends>
-        <module>HamburgerMenu</module>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SiteHamburgerMenu</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/siteHamburgerMenu.bundle.js</path>
-      </script>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>ProfileHamburgerMenu</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/profileHamburgerMenu.bundle.js</path>
-      </script>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
-      </depends>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SpacesHamburgerMenu</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/spacesHamburgerMenu.bundle.js</path>
-      </script>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
       </depends>
       <depends>
         <module>extensionRegistry</module>

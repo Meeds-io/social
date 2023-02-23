@@ -1,26 +1,40 @@
 <!--
-  This file is part of the Meeds project (https://meeds.io/).
-  Copyright (C) 2022 Meeds Association
-  contact@meeds.io
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 3 of the License, or (at your option) any later version.
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-  You should have received a copy of the GNU Lesser General Public License
-  along with this program; if not, write to the Free Software Foundation,
-  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 -->
 <template>
   <v-container class="recentDrawer" flat>
     <v-flex class="d-flex pa-0">
-      <v-list-item-icon class="d-flex d-sm-none backToMenu my-5 mx-2 icon-default-color justify-center" @click="closeMenu()">
-        <v-icon class="fas fa-arrow-left" small />
+      <v-list-item-icon
+        v-if="!displaySequentially"
+        class="backToMenu my-5 mx-2 icon-default-color justify-center"
+        @click="$emit('close')">
+        <v-icon
+          v-if="$root.ltr"
+          class="fas fa-arrow-left"
+          small />
+        <v-icon
+          v-else
+          class="fas fa-arrow-right"
+          small />
       </v-list-item-icon>
-      <v-list-item class="width-min-content pt-3">
+      <v-list-item class="width-min-content text-truncate pt-3">
         <v-list-item-avatar
           class="spaceAvatar mt-0 mb-0 align-self-start"
           :width="avatarWidth"
@@ -30,7 +44,7 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <a :href="spaceURL" class="font-weight-bold text-truncate-2 primary--text mb-2">{{ spaceDisplayName }}</a>
+          <a :href="spaceURL" class="font-weight-bold text-truncate primary--text mb-2">{{ spaceDisplayName }}</a>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
@@ -66,7 +80,7 @@
               v-on="on" 
               link
               icon 
-              @click="selectHome()">
+              @click="$root.$emit('change-home-link-space', space)">
               <v-icon 
                 class="me-0 pa-2" 
                 :class="isHomeLink && 'primary--text' || 'icon-default-color'" 
@@ -137,7 +151,11 @@ export default {
     homeLink: {
       type: String,
       default: null
-    }
+    },
+    displaySequentially: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     spaceNavigations: [],
@@ -251,13 +269,6 @@ export default {
     },
     closeMenu() {
       this.$emit('close-menu');
-    },
-    leftNavigationActionEvent(clickedItem) {
-      document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
-    },
-    selectHome() {
-      this.$emit('selectHome');
-      this.leftNavigationActionEvent('makeAsHomePage');
     },
     openDetails() {
       document.dispatchEvent(new CustomEvent('display-users-list-drawer', {detail: this.managersToDisplay} ));

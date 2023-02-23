@@ -31,8 +31,7 @@ const lang = eXo && eXo.env.portal.language || 'en';
 
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
+const vuetify = Vue.prototype.vuetifyOptions;
 
 const appId = 'topBarMenu';
 
