@@ -35,6 +35,7 @@ import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 
 /**
@@ -244,9 +245,11 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
     Date createdDate = new Date(profile.getCreatedTime());
 
-    for (String propertyName : profilePropertyService.getPropertySettingNames()) {
-      if (!fields.containsKey(propertyName)) {
-        if (profile.getProperty(propertyName) != null && profile.getProperty(propertyName)instanceof String value) {
+    for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
+      String propertyName = profilePropertySetting.getPropertyName();
+      // We should index only active properties of user profile
+      if (!fields.containsKey(propertyName) && profilePropertySetting.isActive()) {
+        if (profile.getProperty(propertyName) != null && profile.getProperty(propertyName) instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
             fields.put(propertyName, value);
           }
