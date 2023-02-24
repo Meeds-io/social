@@ -172,7 +172,7 @@ export default {
       this.abortController = new AbortController();
       let searchUsersFunction;
       if (this.filter === 'connections') {
-        searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, 200 + 1, this.fieldsToRetrieve, this.abortController.signal);
+        searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       } else if (this.filter === 'member'
           || this.filter === 'manager'
           || this.filter === 'invited'
@@ -181,7 +181,7 @@ export default {
           || this.filter === 'publisher') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
       } else {
-        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, 200 + 1, this.fieldsToRetrieve, this.abortController.signal);
+        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       }
       return searchUsersFunction.then(data => {
         let users = data && data.users || [];
