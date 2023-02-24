@@ -24,5 +24,6 @@ export function init() {
         vuetify: Vue.prototype.vuetifyOptions,
         i18n: exoi18n.i18n,
       }, `#${appId}`, 'Topbar Favorites');
-    });
+    })
+    .finally(() => Vue.prototype.$utils.includeExtensions('FavoriteDrawerExtension'));
 }

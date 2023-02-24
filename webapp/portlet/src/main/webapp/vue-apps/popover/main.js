@@ -52,4 +52,4 @@ exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     i18n,
     vuetify: Vue.prototype.vuetifyOptions,
   }, `#${appId}`, 'identity Popover');
-});
+}).finally(() => Vue.prototype.$utils.includeExtensions('PopoverExtension'));

@@ -25,21 +25,28 @@
   
   def status = uicomponent.getStatus();
   def spacePrettyName = uicomponent.getSpacePrettyName();
+  def spaceGroupId = uicomponent.getSpaceGroupId();
   def spaceDisplayName = uicomponent.getSpaceDisplayName();
   def redirectURI = uicomponent.getRedirectURI();
   def pageTitle = _ctx.appRes("UISpaceAccess.pageTitle");
   def memberRestrict = _ctx.appRes("UISpaceAccess.memberRestrict");
-  
-	def jsManager = _ctx.getRequestContext().getJavascriptManager();
-	jsManager.require("SHARED/socialUtil", "socialUtil");
 %>
-  <% if ("social.space.access.join-space".equals(status)) {
+<script>
+function redirectToSpaces() {
+  window.location.href = `\${eXo.env.portal.context}/\${eXo.env.portal.portalName}/spaces`;
+}
+
+function redirectToSpace() {
+  window.location.href = `\${eXo.env.portal.context}/g/<%=spaceGroupId.replace("/", ":")%>`;
+}
+</script>
+<% if ("social.space.access.join-space".equals(status)) {
     memberRestrict = memberRestrict.replace("{0}", "<p title="+ spaceDisplayName +" class=\"text-truncate\"><b>" + spaceDisplayName + "</b></p>");
     %>
     <div class="spaceAccessBlock lockIcon">
       <h3>$pageTitle</h3>
       <div class="spaceAccessInfo">$memberRestrict</div>
-      <a href="javascript:void(0)" onclick="<%= uicomponent.event("Join") %>" title="Join" class="btn btn-primary">
+      <a href="javascript:void(0)" onclick="<%= uicomponent.event("Join").replace(")", ", redirectToSpace)") %>" title="Join" class="btn btn-primary">
         <%=_ctx.appRes("UISpaceAccess.action.Join");%>
       </a>
     </div>
@@ -57,7 +64,7 @@
     <div class="spaceAccessBlock lockIcon">
       <h3>$pageTitle</h3>
       <div class="spaceAccessInfo">$memberRestrict</div>
-      <a href="javascript:void(0)" onclick="<%= uicomponent.event("RequestToJoin") %>" title="Request to Join" class="btn btn-primary">
+      <a href="javascript:void(0)" onclick="<%= uicomponent.event("RequestToJoin").replace(")", ", redirectToSpace)") %>" title="Request to Join" class="btn btn-primary">
       <%=_ctx.appRes("UISpaceAccess.action.RequestToJoin"); %>
       </a>
     </div>
@@ -72,8 +79,8 @@
     %>
     <div class="spaceAccessBlock">
       <div class="spaceAccessInfo">$invitedToSpace</div>
-      <a href="javascript:void(0)" onclick="<%= uicomponent.event("Accept") %>" title="Accept" class="btn btn-primary"><%=_ctx.appRes("UISpaceAccess.action.Accept");%></a>
-      <a href="javascript:void(0)" onclick="<%= uicomponent.event("Refuse") %>" title="Refuse" class="btn"><%=_ctx.appRes("UISpaceAccess.action.Refuse");%></a>
+      <a href="javascript:void(0)" onclick="<%= uicomponent.event("Accept").replace(")", ", redirectToSpace)") %>" title="Accept" class="btn btn-primary"><%=_ctx.appRes("UISpaceAccess.action.Accept");%></a>
+      <a href="javascript:void(0)" onclick="<%= uicomponent.event("Refuse").replace(")", ", redirectToSpaces)") %>" title="Refuse" class="btn"><%=_ctx.appRes("UISpaceAccess.action.Refuse");%></a>
     </div>
   <% } else if ("social.space.access.not-access-wiki-space".equals(status)) {%>
     <div class="spaceAccessBlock permanWikiLink">

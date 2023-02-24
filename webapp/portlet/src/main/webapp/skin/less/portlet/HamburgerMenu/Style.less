@@ -1,0 +1,195 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+.iconOverview {
+  .fa();
+  .fa-trophy();
+}
+.iconStream {
+  .fa();
+  .fa-stream();
+}
+.uiIconToolbarNavItem.uiIconHome, .uiIconToolbarNavItem.uiIconExternal-stream {
+  .fa();
+  .fa-user-lock();
+}
+.iconSpaces {
+  .fa();
+  .fa-people-arrows();
+}
+.iconPeople, .uiIconToolbarNavItem.uiIconConnexions {
+  .fa();
+  .fa-users();
+}
+.spacesIcon {
+  .fa();
+  .fa-history();
+}
+.settingsIcon {
+  .fa();
+  .fa-sliders-h();
+}
+.logoutIcon {
+  .fa();
+  .fa-power-off();
+}
+
+.UserPageLink .UserPageHome, .UserPageLinkHome .UserPageHome {
+  .fa();
+  .fa-house-user();
+}
+
+.UserPageLink .homePage {
+  display: none;
+}
+
+.UserPageLink:hover .homePage {
+  display: flex;
+}
+
+@media (min-width: @minTabletWidth) {
+  #StickyHamburgerMenu, #HamburgerNavigationMenu .v-navigation-drawer__content {
+    .specific-scrollbar()
+  }
+}
+
+.HamburgerNavigationMenu {
+  .HamburgerNavigationMenuLink  {
+    border-right: 1px solid @greyColorLighten1Opacity1 ~'; /** orientation=lt */ ';
+    border-left: 1px solid @greyColorLighten1Opacity1 ~'; /** orientation=rt */ ';
+
+    i {
+      color: @toolbarLightIconColor !important;
+    }
+    .unread-activity-badge {
+      border-radius: 100%;
+      border: 2px solid white;
+      top: 6px;
+      right: 10px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+  .uiIcon.uiIconToolbarNavItem {
+    font-size: 22px;
+    max-width: 28px;
+    color: @toolbarLightIconColor !important;
+    margin: 0 auto;
+  }
+  .accountTitleWrapper {
+    border-bottom: 1px solid #f9f9f9;
+    .accountTitleItem {
+      max-width: 100%;
+      &:before {
+        display: none!important;
+      }
+      &:hover {
+        &:before {
+          opacity: 0;
+        }
+      }
+      &:focus {
+        &:before {
+          opacity: 0;
+        }
+      }
+      .accountTitleLabel {
+        color: @toolbarLightLinkHoverColor;
+        font-size: 0.9rem!important;
+      }
+      .externalFlagClass {
+        color: @baseColorLight;
+        font-weight: normal;
+      }
+    }
+  }
+  .v-list-item {
+    color: @toolbarLightLinkHoverColor !important;
+    position: relative;
+
+    .v-list-item__icon {
+      min-width: 28px;
+      margin-right: 20px ~'!important; /** orientation=lt */ ';
+      margin-left: 20px ~'!important; /** orientation=rt */ ';
+
+      i {
+        color: @toolbarLightIconColor;
+        font-size: 22px;
+        text-align: center;
+      }
+    }
+  }
+  .v-list-item--active {
+    color: @textLightColor!important;
+    background: @greyColorLighten1Opacity1;
+    &:before {
+      content: '';
+      width: 8px;
+      background:@secondaryColor;
+      position: absolute;
+      left: 0;
+      opacity: 1!important;
+    }
+    .v-list-item__icon {
+      i {
+        color: @toolbarLightIconColor !important;
+      }
+      .spaceRightArrow {
+        color: @toolbarDarkLinkHoverColor !important;
+      }
+    }
+  }
+  .administrationTitle {
+   .titleLabel {
+     color: @toolbarLightLinkHoverColor !important;
+   }
+  }
+  .adminMenu {
+    .subItemTitle {
+      color: @toolbarLightLinkHoverColor !important;
+      .v-treeview-node__root {
+        margin: 0!important;
+        .v-treeview-node__label {
+          a {
+            color: @toolbarLightLinkHoverColor !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: @minLargeDesktop) {
+  .HamburgerMenuSticky {
+    #UITopBarContainerParent {
+      margin-left: 20px ~'; /** orientation=lt */ ';
+      margin-right: 20px ~'; /** orientation=rt */ ';
+      position: relative;
+    }
+    /* added for page loading phase */
+    #ParentSiteLeftContainer {
+      min-width: 310px;
+      background-color: @lightWhite;
+    }
+  }
+}

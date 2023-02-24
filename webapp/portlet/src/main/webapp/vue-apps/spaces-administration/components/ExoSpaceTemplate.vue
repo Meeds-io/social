@@ -41,10 +41,5 @@ export default {
       return `${this.$spacesConstants.SPACES_TEMPLATES_API}/${this.template.name}/banner`;
     }
   },
-  methods: {
-    showBannerImage(){
-      eXo.commons.MaskLayerControl.showPicture(this.bannerImage);
-    }
-  }
 };
 </script>

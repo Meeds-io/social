@@ -1,0 +1,249 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+.uiIntranetNotificationsPortlet {
+  @import "../../common/Notification/Style.less";
+  padding: 20px;
+  position: relative;
+  h4 {
+    padding-bottom: 5px;
+  }
+  .notificationsActions {
+    position: absolute;
+    right: 20px;
+    top: 31px;
+    .actionMark {
+      float: left;
+      margin-right: 20px;
+      > a {
+        pointer-events: none;
+        color: @textLightColor;
+      }
+    }
+    .actionMark.enabled {
+      > a {
+        pointer-events: auto;
+        color: @linkColor;
+      }
+    }
+    .uiIconSetting:before {
+      color: @primaryColor;
+    }
+  }
+  .displayItems {
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+
+    .text-bold {
+      font-weight: bold;
+    }
+    > li.no-items {
+      .fa();
+      .fa-bell-slash();
+      display: none;
+      text-align: center;
+      padding: 130px 0px;
+      color: @textLightColor;
+      font-size: 24px;
+
+      &:hover {
+        cursor: default;
+        color: @textLightColor;
+      }
+    }
+    > li {
+      display: block;
+      padding: 11px 25px 15px 15px;
+      border-top: none;
+      position: relative;
+      cursor: pointer;
+      > .remove-item {
+        right: 5px;
+        padding: 0px;
+        margin: 0px;
+        cursor: pointer;
+        display: none;
+        > .uiIconClose {
+          margin: 0px;
+        }
+      }
+      .status {
+        display: block;
+      }
+      .content {
+        font-weight: bold;
+      }
+      .content, .content-normal {
+        font-size: 12px;
+        .btn {
+          font-weight: normal;
+          &.btn-primary {
+            font-weight: bold;
+          }
+          &+ .btn {
+            margin-left: 7px;
+          }
+        }
+        p, div {
+          display: inline;
+        }
+        .confirm {
+          margin: 3px 0;
+        }
+        blockquote {
+          border-left: 6px solid #aacded ~'; /** orientation=lt */ ';
+          border-right: 6px solid #aacded ~'; /** orientation=rt */ ';
+          margin-bottom: 10px;
+          div, p {
+            padding: 10px 0 !important;
+          }
+        }
+      }
+      .avatarXSmall {
+        max-height: 45px;
+        min-width: 45px;
+        max-width: 45px;
+
+        img {
+          border-radius: 50%;
+          width: 36px !important;
+          height: 36px;
+          object-fit: cover;
+        }
+      }
+      .quoteContainer {
+        padding-left: 20px;
+        margin: 5px 0;
+        overflow: hidden;
+      }
+      .comment, .commentNoHtml, .readmore {
+        padding-left: 20px;
+        font-style: italic;
+       }      
+      .comment, .commentNoHtml {
+        border-left: 6px solid #aacded ~'; /** orientation=lt */ ';
+        border-right: 6px solid #aacded ~'; /** orientation=rt */ ';
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-height: 20px;
+      }
+      .readMore {
+        color: #4672A1;
+        display: none;
+        font-style: italic;
+      }
+      .commentNoHtml {
+        display: none;
+        white-space: nowrap;
+      }
+      .lastUpdatedTime {
+        color: @textLightColor;
+        font-size: 12px;
+        display: inline-block;
+      }
+      + li {
+        border-top: 1px solid @borderColor;
+      }
+      [class^="uiIcon"] {
+        margin-right: 7px;
+      }
+      &.unread {
+        background-color: @notifcationUnreadBackground;
+      }
+      &:hover {
+        background-image: linear-gradient(to bottom, @dropdownLinkBackgroundHover, @dropdownLinkBackgroundHoverDark);
+        background-repeat: repeat-x;
+        color: @dropdownLinkColorHover;
+        cursor: pointer;
+        > .remove-item {
+          > .uiIconClose, > .uiIconClose:hover {
+              color: @colorIconSecondary !important;
+          }
+        }
+        .btn {
+          color: @btnColor !important;
+          &.btn-primary {
+            color: @btnPrimaryColor !important;
+          }
+        }
+        a {
+          color: @dropdownLinkColorHover !important;
+        }
+        .lastUpdatedTime {
+          color: @dropdownLinkColorHover !important;
+        }
+        .uiIconLightGray {
+            color: @colorIconSecondary;
+        }
+        .uiIconSocLightGray	{
+            color: @colorIconSecondary;
+        }
+        .readMore {
+          color: white !important;
+        }
+      }
+    }
+  }
+  .loadingMoreNotification {
+    text-align: center;
+  }
+  .bottomContainer {
+    height: 60px;
+  }
+  .loadingIndicator {
+    position:relative;
+    margin-bottom: -60px;
+    height: 70px;
+    display: none;
+    text-align: center;
+    .loadingText {
+      position: absolute;
+      bottom: -2px;
+      left: 0px;
+      right: 0px;
+      text-align: center;
+    }
+  }
+  .share-comment {
+    font-style: italic;
+    padding-left: 10px;
+    margin-left: 47px;
+    border-left-style: solid;
+    border-color: rgba(0, 137, 255, 0.31);
+    border-width: thick;
+  }
+}
+
+@media (max-width: 767px) {
+  .uiIntranetNotificationsPortlet {
+    h4 {
+        padding-bottom: 25px;
+    }
+    .notificationsActions .actionMark {
+        margin-right: -16px;
+        margin-top: 25px
+    }
+  }
+}

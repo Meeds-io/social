@@ -1,0 +1,80 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+#ProfileWorkExperience {
+
+  .profileWorkExperiencesDrawer {
+    .uiIconSocSimplePlus {
+      font-size: 14px;
+    }
+
+    .profileWorkExperiencesEditItem {
+      border-radius: 5px;
+  
+      &:after {
+        content: none;
+      }
+  
+      > * {
+        max-width: 100%;
+        .half-width {
+          max-width: ~"calc(50% - 8px)";
+        }
+        input {
+          max-width: 100%;
+        }
+      }
+  
+      textarea {
+        min-width: 100%;
+        min-height: 150px;
+        resize: none;
+      }
+    }
+  }
+}
+
+@media(max-width: @maxTabletWidth) {
+  #ProfileWorkExperience {
+
+    .workExperienceTimeLine {
+
+      &:before {
+        left: 15px !important;
+      }
+
+      .workExperienceTimeLineItem {
+        .v-timeline-item__body {
+          max-width: ~"calc(100% - 32px)" !important;
+        }
+        .v-timeline-item__opposite {
+          display: none;
+        }
+        .v-timeline-item__divider {
+          min-width: 32px;
+          padding-right: 10px;
+        }
+      }
+    }
+  }
+}

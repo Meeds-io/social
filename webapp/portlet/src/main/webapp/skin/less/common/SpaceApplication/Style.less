@@ -1,0 +1,48 @@
+.SpaceApplicationCard {
+  min-width: 232px;
+  max-width: 232px;
+  width: 232px;
+  height: 92px;
+  border-radius: 4px !important;
+  border: 1px solid @btnBorder;
+
+  &.dashed-border {
+    border-style: dashed;
+  }
+
+  .SpaceApplicationCardImage {
+    max-width: 45px;
+    width: 45px;
+  }
+  .SpaceApplicationCardBody, .SpaceApplicationCardTitle, .SpaceApplicationCardDescription {
+    max-width: 133px;
+    width: 133px;
+  }
+  .SpaceApplicationCardAction {
+    max-width: 36px;
+    width: 36px;
+  }
+  .v-menu__content {
+    top: 30px !important;
+    right: 10px ~'!important; /** orientation=lt */ ';
+    left: auto  ~'!important; /** orientation=lt */ ';
+    left: 10px ~'!important; /** orientation=rt */ ';
+    right: auto  ~'!important; /** orientation=rt */ ';
+  }
+
+  &.SpaceApplicationCardEmbedded {
+    min-width: auto;
+    max-width: none;
+    width: auto;
+    height: 82px;
+    margin: 8px -16px;
+
+    .SpaceApplicationCardBody {
+      max-width: ~"calc(100% - 121px)";
+    }
+    .SpaceApplicationCardTitle, .SpaceApplicationCardDescription {
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+}

@@ -25,7 +25,6 @@
     <groupId>org.exoplatform.social</groupId>
     <version>6.5.x-meedsv2-SNAPSHOT</version>
   </parent>
-  <groupId>org.exoplatform.social</groupId>
   <artifactId>social-extension-war</artifactId>
   <packaging>war</packaging>
   <name>eXo PLF:: Social Extension WAR</name>
@@ -315,28 +314,6 @@
     <dependency>
       <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-comet-service</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-webui-component</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-webui-component</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-webui-ext</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-webui-ext</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

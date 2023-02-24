@@ -46,16 +46,18 @@ const urls = [
 ];
 
 export function init(initialData, initialLimit) {
-  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    Vue.createApp({
-      data: {
-        initialData,
-        initialLimit,
-        activityBaseLink: activityBaseLink,
-      },
-      template: `<activity-stream id="${appId}" :initial-limit="initialLimit" :initial-data="initialData" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
-      i18n,
-    }, `#${appId}`, 'Stream');
-  });
+  exoi18n.loadLanguageAsync(lang, urls)
+    .then(i18n => {
+      Vue.createApp({
+        data: {
+          initialData,
+          initialLimit,
+          activityBaseLink: activityBaseLink,
+        },
+        template: `<activity-stream id="${appId}" :initial-limit="initialLimit" :initial-data="initialData" />`,
+        vuetify: Vue.prototype.vuetifyOptions,
+        i18n,
+      }, `#${appId}`, 'Stream');
+    })
+    .finally(() => Vue.prototype.$utils.includeExtensions('ActivityStreamExtension'));
 }

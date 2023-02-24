@@ -28,7 +28,7 @@
       <v-list-item
         v-if="isMobile"
         @click="$root.$emit('change-recent-spaces-menu')">
-        <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
+        <v-list-item-icon class="mb-2 mt-3 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
         <v-list-item-content class="subtitle-2">
@@ -51,7 +51,7 @@
         v-else
         @mouseover="showItemActions = true;spacePanel=false" 
         @mouseleave="showItemActions = false">
-        <v-list-item-icon class="mb-2 mt-3 me-6 titleIcon">
+        <v-list-item-icon class="mb-2 mt-3 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
         <v-list-item-content class="subtitle-2">
