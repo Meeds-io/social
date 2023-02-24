@@ -132,7 +132,7 @@ export default {
         this.searchPeople();
         return;
       }
-      this.waitForInitializing();
+      this.searchPeople();
 
     },
     limitToFetch() {
@@ -141,7 +141,7 @@ export default {
     filter() {
       this.searchPeople();
     },
-  },
+  }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
@@ -262,15 +262,6 @@ export default {
           this.abortController = null;
         });
 
-    },
-    waitForInitializing() {
-      window.setTimeout(() => {
-        if (this.initialized) {
-          this.searchPeople();
-        } else {
-          this.waitForInitializing();
-        }
-      }, 50);
     }
   }
 };
