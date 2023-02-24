@@ -54,6 +54,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String OBJECT_ID            = "objectId";
 
   private static final String SPACE_ID             = "spaceId";
+  
+  private static final String SPACES_ID             = "spacesId";
 
   private static final String OBJECT_TYPE          = OBJECT_TYPE_PARAM;
 
@@ -213,6 +215,23 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     query.setParameter(METADATA_TYPE_PARAM, metadataType);
     query.setParameter(CREATOR_ID, creatorId);
     query.setParameter(SPACE_ID, spaceId);
+    List<Tuple> result = query.getResultList();
+    if (CollectionUtils.isEmpty(result)) {
+      return Collections.emptyList();
+    } else {
+      return result;
+    }
+  }
+
+  public List<Tuple> countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(long metadataType,
+                                                                             long creatorId,
+                                                                             List<Long> spacesId) {
+    TypedQuery<Tuple> query =
+                            getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId",
+                                                                Tuple.class);
+    query.setParameter(METADATA_TYPE_PARAM, metadataType);
+    query.setParameter(CREATOR_ID, creatorId);
+    query.setParameter(SPACES_ID, spacesId);
     List<Tuple> result = query.getResultList();
     if (CollectionUtils.isEmpty(result)) {
       return Collections.emptyList();

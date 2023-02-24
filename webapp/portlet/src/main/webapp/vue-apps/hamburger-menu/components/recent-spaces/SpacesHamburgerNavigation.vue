@@ -84,6 +84,7 @@
       :limit="spacesLimit"
       :home-link="homeLink"
       :opened-space="!thirdLevel && openedSpace"
+      :recent-spaces="recentSpaces"
       home-icon
       shaped />
     <exo-confirm-dialog
@@ -109,6 +110,10 @@ export default {
     thirdLevel: {
       type: Boolean,
       default: false,
+    },
+    recentSpaces: {
+      type: Array,
+      default: null,
     },
   },
   data() {

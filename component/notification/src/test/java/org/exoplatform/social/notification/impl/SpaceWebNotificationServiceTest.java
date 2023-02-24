@@ -18,6 +18,9 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +44,10 @@ import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.notification.AbstractCoreTest;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.identity.model.Identity;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
@@ -65,6 +72,12 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
   @Mock
   private PluginSettingService                   pluginSettingService;
 
+  @Mock
+  IdentityManager                                identityManager;                                                                 // NOSONAR
+
+  @Mock
+  SpaceService                                   spaceService; 
+  
   private static SpaceWebNotificationServiceImpl spaceWebNotificationService;
 
   @Before
@@ -73,7 +86,9 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       pluginSettingService,
-                                                                      listenerService);
+                                                                      listenerService,
+                                                                      identityManager,
+                                                                      spaceService);
   }
 
   @Test
@@ -93,7 +108,9 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       pluginSettingService,
-                                                                      listenerService);
+                                                                      listenerService,
+                                                                      identityManager,
+                                                                      spaceService);
 
     assertThrows(IllegalArgumentException.class, () -> spaceWebNotificationService.markAsUnread(null));
     assertThrows(IllegalArgumentException.class, // NOSONAR
@@ -257,6 +274,37 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     Map<String, Long> result = spaceWebNotificationService.countUnreadItemsByApplication(userIdentityId, spaceId);
     assertEquals(expectedResult, result);
   }
+  
+  @Test
+  public void testcountUnreadItemsBySpace() throws Exception {
+    List<String> spaceIds = new ArrayList<>();
+
+    Identity rootIdentity = new Identity();
+    rootIdentity.setId("1");
+    rootIdentity.setProviderId("organization");
+    rootIdentity.setRemoteId("root");
+
+    when(identityManager.getOrCreateIdentity("organization", "root")).thenReturn(rootIdentity);
+
+    when(metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
+                                                                                 Long.parseLong(rootIdentity.getId()),
+                                                                                 Collections.emptyList())).thenReturn(Collections.emptyMap());
+
+    Space space = new Space();
+    space.setId("1");
+    spaceService.addMember(space, rootIdentity.getRemoteId());
+    spaceIds = spaceService.getMemberSpacesIds("root", 0, -1);
+    List<Long> spacesId = spaceIds.stream().map(e -> Long.parseLong(e)).collect(Collectors.toList());
+    Map<Long, Long> expectedResult = Collections.singletonMap(Long.parseLong(space.getId()), 5l);
+
+    when(metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
+                                                                                 Long.parseLong(rootIdentity.getId()),
+                                                                                 spacesId)).thenReturn(expectedResult);
+
+    Map<Long, Long> result = spaceWebNotificationService.countUnreadItemsBySpace(rootIdentity.getRemoteId());
+    assertEquals(expectedResult, result);
+
+  }
 
   @Test
   public void testMarkAsRead() throws Exception {
@@ -280,7 +328,9 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     spaceWebNotificationService = new SpaceWebNotificationServiceImpl(getContainer(),
                                                                       metadataService,
                                                                       pluginSettingService,
-                                                                      listenerService);
+                                                                      listenerService,
+                                                                      identityManager,
+                                                                      spaceService);
 
     assertThrows(IllegalArgumentException.class, () -> spaceWebNotificationService.markAsRead(null));
     assertThrows(IllegalArgumentException.class, // NOSONAR

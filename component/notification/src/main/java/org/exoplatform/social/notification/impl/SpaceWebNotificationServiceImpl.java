@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -34,8 +35,10 @@ import org.picocontainer.Startable;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.config.PluginConfig;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.RootContainer.PortalContainerPostInitTask;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
@@ -49,6 +52,9 @@ import org.exoplatform.social.notification.channel.SpaceWebChannel;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 
 @SuppressWarnings("removal")
 public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService, Startable {
@@ -68,16 +74,24 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   private PluginSettingService             pluginSettingService;
 
+  private IdentityManager                  identityManager;
+
+  private SpaceService                     spaceService;
+
   private List<SpaceWebNotificationPlugin> plugins                  = new ArrayList<>();
 
   public SpaceWebNotificationServiceImpl(PortalContainer container,
                                          MetadataService metadataService,
                                          PluginSettingService pluginSettingService,
-                                         ListenerService listenerService) {
+                                         ListenerService listenerService,
+                                         IdentityManager identityManager,
+                                         SpaceService spaceService) {
     this.container = container;
     this.metadataService = metadataService;
     this.listenerService = listenerService;
     this.pluginSettingService = pluginSettingService;
+    this.identityManager = identityManager;
+    this.spaceService = spaceService;
   }
 
   @Override
@@ -208,6 +222,20 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
     return metadataService.countMetadataItemsByMetadataTypeAndAudienceId(METADATA_TYPE_NAME, userIdentityId, spaceId);
   }
 
+  @Override
+  public Map<Long, Long> countUnreadItemsBySpace(String authenticatedUser) {
+    List<Long> spaceIds = new ArrayList<>();
+    IdentityManager identityManager = getIdentityManager();
+    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
+    List<String> spacesId = spaceService.getMemberSpacesIds(authenticatedUser, 0, -1);
+    if (CollectionUtils.isNotEmpty(spacesId)) {
+      spaceIds = spacesId.stream().map(e -> Long.parseLong(e)).collect(Collectors.toList());
+    }
+    return metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
+                                                                                   Long.parseLong(userIdentity.getId()),
+                                                                                   spaceIds);
+  }
+
   private void mergeExistingUnreadProperties(SpaceWebNotificationItem notificationItem,
                                              MetadataKey metadataKey,
                                              MetadataObject metadataObject) throws ObjectNotFoundException {
@@ -250,6 +278,13 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       }
     }
     return null;
+  }
+  
+  public IdentityManager getIdentityManager() {
+    if (identityManager == null) {
+      identityManager = ExoContainerContext.getService(IdentityManager.class);
+    }
+    return identityManager;
   }
 
 }
