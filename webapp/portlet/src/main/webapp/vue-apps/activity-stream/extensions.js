@@ -195,6 +195,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   click: (activity, activityTypeExtension) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
+      .then(() => document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id})))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
@@ -231,7 +232,13 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   isEnabled: (activity, comment) => comment.canDelete === 'true',
   click: (activity, comment) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-    return Vue.prototype.$activityService.deleteActivity(comment.id)
+    return Vue.prototype.$activityService.deleteActivity(comment?.id)
+      .then(() => document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: {
+        activityId: activity?.id,
+        spaceId: activity?.activityStream?.space?.id,
+        commentId: comment?.id,
+        parentCommentId: comment?.parentCommentId,
+      }})))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });

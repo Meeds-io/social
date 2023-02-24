@@ -30,13 +30,13 @@
         v-model="keyword"
         :placeholder="$t('spacesList.label.filterSpaces')"
         prepend-inner-icon="fa-filter"
-        class="inputSpacesFilter pa-0 me-3 my-auto" />
+        class="inputSpacesFilter pa-0 me-3 mb-n2 my-auto" />
       <v-text-field
         v-else-if="isMobile && menuHeaderChanged"
         v-model="keyword"
         :placeholder="$t('spacesList.label.filterSpacesByName')"
         prepend-inner-icon="fa-filter"
-        class="inputSpacesFilter pa-0 ms-3 my-auto"
+        class="inputSpacesFilter pa-0 ms-3 mb-n2 my-auto"
         clearable />
     </div>
     <v-spacer v-if="isMobile" />

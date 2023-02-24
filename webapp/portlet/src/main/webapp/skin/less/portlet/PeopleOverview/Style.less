@@ -1,0 +1,82 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+#PeopleOverview {
+  .peopleOverviewCard {
+    max-height: 114px;
+    min-height: 114px;
+    height: 114px;
+    max-width: ~"calc(50% - 5px)";
+    width: ~"calc(50% - 5px)";
+  }
+
+  .peopleOverviewCount {
+    font-size: 24px;
+    font-weight: bold;
+    width: 50px;
+    max-height: 30px;
+    margin: 10px auto;
+  }
+
+  .peopleOverviewTitle {
+    font-size: 16px;
+    min-width: 100px;
+  }
+
+  .externalTagClass {
+    color: @baseColorLight;
+    font-weight: normal;
+  }
+
+  .peopleOverviewVertivalSeparator {
+    height: 85px;
+  }
+
+  .peopleOverviewCheck:not(.outlined) {
+    background-color: @successColor;
+    color: #fff;
+  }
+
+  .peopleOverviewCheck.outlined {
+    background-color: transparent;
+    color: @successColor;
+
+    &:before {
+      background-color: transparent;
+    }
+  }
+
+  .peopleOverviewClose:not(.outlined) {
+    background-color: @errorColor;
+    color: #fff;
+  }
+
+  .peopleOverviewClose.outlined {
+    background-color: transparent;
+    color: @errorColor;
+
+    &:before {
+      background-color: transparent;
+    }
+  }
+}

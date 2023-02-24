@@ -16,7 +16,8 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
-              <span v-exo-tooltip.bottom="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
+              <span
+                :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
                 <v-btn
                   :disabled="!allowedToChangePassword"
                   small

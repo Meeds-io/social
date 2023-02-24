@@ -1,0 +1,416 @@
+/*
+This file is part of the Meeds project (https://meeds.io/).
+Copyright (C) 2020 Meeds Association
+contact@meeds.io
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//
+// Buttons
+// --------------------------------------------------
+.btn {
+	padding: @paddingDefault;
+	border-bottom-color: @btnBorder;
+  text-shadow: none!important;
+  color: @btnColor;
+  border-radius: @borderRadiusSmall;
+	background-color: @btnBackgroundColor;
+	background-image: @btnBackgroundImage;
+    &:hover,
+    &:focus {
+      color: @btnColor;
+	  background-color: @btnHoverBackgroundColor;
+    }
+}
+
+.btn.dropdown-toggle {
+	padding-right: 5px;
+	background-color: @btnDropdownBackground;
+	background-image: @btnDropdownImage;
+}
+
+.btn-primary{
+	font-family: @sansBoldFontFamily;
+	font-weight: bold;
+	.buttonBackground(@btnPrimaryBackground, @btnPrimaryBackgroundHighlight, @btnPrimaryBorder, @btnPrimaryColor);
+}
+
+.btn-primary:hover {
+	background-color: @btnPrimaryHoverBackgroundColor;
+	background-position: @btnPrimaryHoverBackgroundPosition;
+}
+
+.uiAction .btn:first-child {
+	.btn-primary;
+}
+
+.uiAction {
+	padding: 15px 0 0;
+	text-align: center;
+	.btn {
+		margin: 0 5px;
+		min-width: 50px;
+	}
+}
+
+.uiActionBorder{
+	border-top: @uiActionBorderBorderTop;
+	text-align: center;
+	padding: 15px 0;
+	margin-top: @uiActionBorderMarginTop;
+	margin-left: -15px;
+	margin-right: -15px;
+}
+
+.uiCreateToolBarPortlet {
+  .uiActionBorder {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  span.dropdown-menu {
+    padding: 10px;
+  }
+}
+
+// uiBox
+// --------------------------------------------------
+.uiBox() {
+  border-radius :@baseBorderRadius;
+  box-shadow: 0px 2px 4px -1px rgba(35,44,48,0.18);
+  border: 1px solid @uiBoxBorder;
+  background: @uiBoxBg;
+  margin: 0 0 @baseLineHeight 0;
+  .title {
+    background-color:  @uiBoxHeadBg;
+    border-bottom: 1px solid @borderColor;
+    box-shadow: 0 1px 2px rgba(13, 13, 13, 0.2);
+    border-radius: @baseBorderRadius @baseBorderRadius 0 0;
+    padding: 8px 10px;
+    line-height: @baseLineHeight;
+    margin: 0;
+    word-wrap: break-word;
+        .pull-right {
+            line-height: 16px;
+        }
+  }
+  .uiContentBox {
+    padding: 15px;
+    & + .title {
+      border-radius: 0;
+      border-top: 1px solid @borderColor;
+    }
+         & + .uiContentBox {
+           border-top: 1px solid @borderColor;
+
+         }
+          & + .noBorder {
+            border: none!important;
+          }
+          hr {
+            margin: 10px -15px;
+          }
+  }
+  &.roundedBottom {
+    border-radius: 0 0 @baseBorderRadius @baseBorderRadius;
+    .title {
+      border-radius: 0;
+    }
+  }
+  &.roundedTop {
+    border-radius: @baseBorderRadius @baseBorderRadius 0 0;
+  }
+  &.uiGrayLightBox {
+    background: @uiBoxGray;
+  }
+  &.noRounded {
+    border-radius: 0;
+    .title {
+      border-radius: 0;
+    }
+  }
+    .footer {
+        background-color:  @uiBoxHeadBg;
+        border-top: 1px solid @borderColor;
+        border-radius:  0 0 @baseBorderRadius @baseBorderRadius;
+        padding: 8px 10px;
+    }
+    .rowOdd {
+      background-color: @primaryBackgroundLight;
+    }
+}
+
+.uiBox() {
+	 .uiContentBox {
+		.uiAction.uiActionBorder{
+			margin: 15px -15px 0;
+			padding-bottom: 0;
+		}
+		.uiAction {
+			padding-top: 15px;
+		}
+	}
+}
+
+.uiBox.uiFormWithTitle {
+	.uiContentBox {
+		.uiActionBorder{
+			margin: 10px -15px 0;
+		}
+	}
+}
+
+.uiPortalComposer {
+	.uiAction {
+		padding: 15px 0;
+	}
+}
+
+.btn:focus{
+	background-position: 0 0;
+}
+
+h1,h2,h3,h4 {
+	.btn + .btn{
+	font-weight: normal;
+	}
+}
+
+
+///// Size Button
+
+
+// X-large
+.btn-xlarge {
+	font-size: @fontSizeXlarge;
+	padding: @paddingXLarge;
+}
+
+// Large
+.btn-large {
+  padding: @paddingLarge;
+}
+
+// Small
+.btn-small {
+  padding: @paddingSmall;
+}
+
+// Mini
+.btn-mini {
+	padding: @paddingMini;
+	border-radius: @borderRadiusSmall - 1px;
+}
+
+// Extra (padding-left = padding-right = 15px)
+.extra-btn {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+.btn.disabled, .btn[disabled] {
+  color: @btnDisableColor;
+  background-color: @btnDisableBackground;
+}
+
+.btn.btn-primary.disabled,
+.btn.btn-primary[disabled] {
+	background-color: @btnPrimaryDisableBackground;
+}
+
+.btn.btn-primary.disabled:hover,
+.btn.btn-primary[disabled]:hover {
+	background-color: @btnPrimaryDisableHoverBackground;
+}
+
+.uiAction .btn-primary.disabled:first-child,
+.uiAction .btn-primary[disabled]:first-child ,
+.btn-primary[disabled]:first-child,
+.btn-primary[disabled],
+.uiAction .btn.disabled:first-child,
+.uiAction .btn[disabled]:first-child {
+	color: @btnPrimaryColor
+}
+
+@media (max-width: 480px) {
+    .uiAction .btn {
+        display: block;
+        margin: 5px auto!important;
+        width: 80%;
+    }
+}
+
+/* Enterprise skin-default btn */
+.btn, .uiActionWithLabel:not(.uiDropdown) {
+  font-family: @baseFontFamily;
+  font-size: 15px;
+  padding: 9px 20px;
+  color: @btnColor;
+  border: 1px solid @greyColor;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.btn:active,
+.btn:focus,
+.uiActionWithLabel:active,
+.uiActionWithLabel:focus {
+  color: @btnColor;
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.11);
+}
+
+.btn.disabled,
+.btn[disabled],
+.uiActionWithLabel.disabled {
+  border: solid 2px @disableBackground;
+  color: @btnDisableColor;
+}
+
+@media (min-width: 481px) and (max-width: @maxLargeTabletWidth) {
+  body .btn {
+    padding: 9px 20px;
+    font-size: 15px;
+  }
+}
+
+/* Enterprise skin-btn primary */
+.btn.btn-primary,
+.btn-primary {
+  font-family: @baseFontFamily;
+  font-weight: normal;
+  color: @btnPrimaryColor;
+  border: none;
+  box-shadow: none;
+  padding: 10px 20px;
+  &[disabled], &.disabled {
+    border-color: @btnPrimaryDisableBackground;
+    color: @lightWhite;
+    &:hover {
+      background: @btnPrimaryDisableBackground; 
+    }
+  }
+}
+
+/* Enterprise skin-btn small */
+.btn.btn-small,
+.btn.btn-small.active,
+.btn-group .btn.dropdown-toggle.btn-small {
+  font-size: 12px;
+  padding: 2px 10px;
+}
+
+/* Enterprise skin-btn mini */
+
+.btn.btn-mini,
+.btn-group .btn.dropdown-toggle.btn-mini {
+  font-size: 11px;
+  padding: 0 10px;
+}
+
+/* Enterprise skin-btn group */
+.btn-group > .btn {
+  border: 1px solid @greyColor;
+  box-shadow: none;
+  padding: 9px 20px;
+}
+.btn-group > .btn:hover,
+.btn-group > .btn:focus,
+.btn-group > .btn:active,
+.btn-group > .btn.active {
+  border: 1px solid @greyColor;
+  z-index: 0;
+}
+.btn-group > .btn:focus,
+.btn-group > .btn.active{
+  background-color: @primaryColor;
+  border: solid 1px @primaryColor;
+  color: @btnGroupColor;
+}
+.btn-group > .btn:not(.dropdown-toggle):focus a,
+.btn-group > .btn:not(.dropdown-toggle).active a{
+  color: @btnGroupColor;
+}
+.btn-group > .btn > i, .btn-group > .btn:hover > i, .btn-group > .btn:focus > i {
+  color: inherit;
+}
+.uiActionBar .alignBtnGroup .btn.active a {
+  color: @uiActionBarBtnColor;
+}
+/* Enterprise skin-btn default dropdown */
+.uiActionWithLabel:not(.uiDropdown) {
+  padding: 8px 10px;
+  cursor: pointer;
+  display: inline-block;
+  &:hover {
+    color: @btnColor;
+    border: 1px solid @greyColor;
+    background: @greyColor;
+    box-shadow: none;
+    &:focus, &:active {
+      border: 1px solid @greyColor;
+      background: @greyColor;
+      box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.11);
+    }
+  }
+}
+.uiActionWithLabel.uiDropdown {
+  background: none;
+}
+/* Enterprise skin-btn primary dropdown */
+.btn.btn-primary.dropdown-toggle {
+  color: @btnPrimaryColor;
+  background-color: @btnPrimaryDropdownBackground;
+  box-shadow: none;
+}
+/* Enterprise skin-btn group dropdown */
+.btn-group .btn.dropdown-toggle {
+  color: @darkGrey;
+  background-color: @lightWhite;
+  border-width: 1px;
+  padding: 8px 15px;
+  &:focus {border: 2px solid @greyColor;}
+  .uiIconArrowDownMini, .uiIconMiniArrowDown {
+    top: -1px;
+    &:before {
+      color: inherit;
+      margin-left: 5px ~'; /** orientation=lt */ ';
+      margin-right: 5px ~'; /** orientation=rt */ ';
+    }
+  }
+}
+.btn-group.open .dropdown-toggle {
+  box-shadow: none;
+}
+
+/* Enterprise skin-btn primary group dropdown */
+.btn-group .btn.btn-primary, .btn-group .btn.btn-primary.dropdown-toggle {
+  color: @btnPrimaryColor;
+  background: @btnPrimaryDropdownBackground;
+  border-color: @btnPrimaryDropdownBackground;
+}
+
+/* Enterprise skin-btn large */
+.btn.btn-large,
+.btn.dropdown-toggle.btn-large.btn-primary,
+.btn.dropdown-toggle.btn-large {
+  padding: 12px 20px;
+}
+
+/* Enterprise skin - uiaction buttons */
+.uiAction .btn:first-child {
+  border: none;
+  padding: 10px 20px;
+  &:hover {
+    background-color: @btnPrimaryHoverBackgroundColor;
+    background-position: 0 -45px;
+  }
+}
