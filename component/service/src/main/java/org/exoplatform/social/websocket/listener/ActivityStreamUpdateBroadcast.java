@@ -63,6 +63,16 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
   }
 
   @Override
+  public void deleteActivity(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
+    String activityId = getActivityId(event);
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "deleteActivity", getSpaceId(event));
+    activityStreamWebSocketService.sendMessage(activityStreamModification);
+  }
+
+  @Override
   public void saveComment(ActivityLifeCycleEvent event) {
     if (event.getActivity() == null || event.getActivity().isHidden()) {
       return;
