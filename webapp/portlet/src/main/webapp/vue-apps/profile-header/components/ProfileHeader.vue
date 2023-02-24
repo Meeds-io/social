@@ -13,7 +13,7 @@
             alt=""
             width="100%"
             height="auto"
-            class="profileBannerImg absolute-vertical-center"
+            class="profileBannerImg position-absolute"
             lazy>
           <profile-header-banner-button
             v-if="owner"

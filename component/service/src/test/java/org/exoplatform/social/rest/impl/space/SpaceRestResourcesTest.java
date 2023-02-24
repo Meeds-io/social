@@ -1,5 +1,8 @@
 package org.exoplatform.social.rest.impl.space;
 
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.CoreMatchers.*;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
@@ -537,6 +540,16 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     response = service("GET", bannerUrl, "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
+
+    removeSpaceBanner(space.getId());
+
+    response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity);
+    assertThat(spaceEntity.getBannerUrl(), containsString("/spaceTemplates/"));
   }
 
   public void testGetSpaceById() throws Exception {
@@ -805,6 +818,13 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     endSession();
   }
 
+  private void removeSpaceBanner(String spaceId) throws Exception {
+    String input = "{\"id\":\"" + spaceId + "\",\"bannerId\":\"DEFAULT_BANNER\"}";
+    // root try to update demo activity
+    ContainerResponse response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
 
   private void uploadSpaceAvatar(String user, String spaceId) throws Exception {
     uploadSpaceAvatar(user,spaceId,"blank.gif");

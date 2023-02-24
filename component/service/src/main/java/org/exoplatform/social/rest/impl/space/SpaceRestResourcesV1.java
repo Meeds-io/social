@@ -1334,7 +1334,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   private void updateProfileField(Space space,
                                   String name,
                                   String value) throws IOException {
-    if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
+    if (Profile.BANNER.equals(name) && StringUtils.equals(value, "DEFAULT_BANNER")) {
+      space.setBannerAttachment(null);
+      spaceService.updateSpaceBanner(space);
+    } else if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
       UploadResource uploadResource = uploadService.getUploadResource(value);
       if (uploadResource == null) {
         throw new IllegalStateException("No uploaded resource found with uploadId = " + value);

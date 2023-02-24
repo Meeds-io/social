@@ -20,17 +20,30 @@
             v-if="admin"
             v-show="hover"
             class="d-flex flex-grow-1 position-absolute full-height full-width">
-            <v-btn
-              v-show="hover"
-              ref="bannerInput"
-              id="spaceBannerEditButton"
-              class="changeBannerButton border-color me-2 ms-auto my-auto mt-sm-2 mb-sm-0"
-              icon
-              outlined
-              dark
-              @click="$refs.imageCropDrawer.open()">
-              <v-icon size="18">fas fa-file-image</v-icon>
-            </v-btn>
+            <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
+              <v-btn
+                v-show="!isDefaultBanner && hover"
+                :title="$t('UIPopupBannerUploader.title.deleteBanner')"
+                id="spaceBannerDeleteButton"
+                class="changeBannerButton border-color"
+                outlined
+                icon
+                dark
+                @click="removeBanner">
+                <v-icon size="18">mdi-delete</v-icon>
+              </v-btn>
+              <v-btn
+                v-show="hover"
+                ref="bannerInput"
+                id="spaceBannerEditButton"
+                class="changeBannerButton border-color"
+                icon
+                outlined
+                dark
+                @click="$refs.imageCropDrawer.open()">
+                <v-icon size="18">fas fa-file-image</v-icon>
+              </v-btn>
+            </div>
           </div>
         </v-img>
       </v-hover>
@@ -39,10 +52,9 @@
         ref="imageCropDrawer"
         :crop-options="cropOptions"
         :max-file-size="maxUploadSizeInBytes"
-        :src="bannerData || bannerUrl"
+        :src="bannerUrl"
         max-image-width="1280"
         drawer-title="UIPopupBannerUploader.title.ChangeBanner"
-        @data="bannerData = $event"
         @input="uploadBanner" />
       <v-tabs
         v-if="hasNavigations"
@@ -95,13 +107,15 @@ export default {
   },
   data: () => ({
     errorMessage: null,
-    bannerData: null,
     cropOptions: {
       aspectRatio: 1280 / 175,
       viewMode: 1,
     },
   }),
   computed: {
+    isDefaultBanner() {
+      return this.bannerUrl && this.bannerUrl.includes('/portal/rest/v1/social/spaceTemplates/');
+    },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * ONE_KB * ONE_KB;
     },
@@ -151,18 +165,13 @@ export default {
     this.$root.$applicationLoaded();
   },
   methods: {
-    refresh() {
-      // Force refresh by using random query param 'updated'
-      this.bannerUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${eXo.env.portal.spaceName}/banner?updated=${Math.random()}`;
-      this.$nextTick().then(() => this.$root.$emit('application-cache'));
-    },
     uploadBanner(uploadId) {
       return this.$spaceService.updateSpace({
         id: eXo.env.portal.spaceId,
         bannerId: uploadId,
       })
-        .then(() => {
-          this.refresh();
+        .then(space => {
+          this.$emit('banner-changed', space.bannerUrl);
           this.$root.$emit('alert-message', this.$t('UIPopupBannerUploader.title.BannerUpdated'), 'success');
         })
         .catch(this.handleError);
@@ -175,6 +184,16 @@ export default {
           this.errorMessage = String(error);
         }
       }
+    },
+    removeBanner() {
+      return this.$spaceService.updateSpace({
+        id: eXo.env.portal.spaceId,
+        bannerId: 'DEFAULT_BANNER',
+      })
+        .then(space => {
+          this.$emit('banner-changed', space.bannerUrl);
+          this.$root.$emit('alert-message', this.$t('UIPopupBannerUploader.title.BannerDeleted'), 'success');
+        });
     },
   },
 };
