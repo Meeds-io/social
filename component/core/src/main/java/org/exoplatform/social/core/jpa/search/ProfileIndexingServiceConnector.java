@@ -248,7 +248,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
       String propertyName = profilePropertySetting.getPropertyName();
       // We should index only active properties of user profile
-      if (!fields.containsKey(propertyName) && profilePropertySetting.isActive()) {
+      if (!fields.containsKey(propertyName)) {
         if (profile.getProperty(propertyName) != null && profile.getProperty(propertyName) instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
             fields.put(propertyName, value);
