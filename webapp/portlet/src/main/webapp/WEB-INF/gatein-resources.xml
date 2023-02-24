@@ -1,26 +1,332 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2003-2011 eXo Platform SAS.
+  This file is part of the Meeds project (https://meeds.io/).
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <gatein-resources
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/gatein_resources_1_4 http://www.exoplatform.org/xml/ns/gatein_resources_1_4"
   xmlns="http://www.exoplatform.org/xml/ns/gatein_resources_1_4">
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>GeneralSettings</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/GeneralSettings/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>HamburgerMenu</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/HamburgerMenu/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>PeopleList</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/PeopleList/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileAboutMe</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileAboutMe/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceSettingPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceSettings/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceActivityStreamPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ActivityStream/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>UserActivityStreamPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ActivityStream/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpacesAdministration</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesAdministration/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpacesList</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesList/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceMenuPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceHeader/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceTopbarMenu</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceMenu/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>MembersPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceMembers/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileHeader</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileHeader/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>Search</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/Search/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileContactInformation</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileContactInformation/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileWorkExperience</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileWorkExperience/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceInfos</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceInfos/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>WhoIsOnLinePortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/platform/portlets/WhoIsOnLine/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>GettingStarted</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/GettingStarted/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ExternalSpacesList</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesListExternal/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SuggestionsPeopleAndSpace</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SuggestionsPeopleAndSpace/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpacesOverview</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesOverview/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>PeopleOverview</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/PeopleOverview/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IDMUsersManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/IDMUsersManagement/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IDMGroupsManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/IDMGroupsManagement/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IDMMembershipTypesManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/IDMMembershipTypesManagement/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <!-- TopBar Menu - TopBar navigation menu skin -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>TopBarMenu</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/TopBarMenu/Style.css</css-path>
+    <css-priority>2</css-priority>
+  </portlet-skin>
+
+  <!-- Profile Settings - Profile Settings  skin -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileSettingsPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileSettings/Style.css</css-path>
+    <css-priority>2</css-priority>
+  </portlet-skin>
+
+  <!-- TODO <Start> Deprecated WebUI & Juzu Portlets skins to move -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceAccessPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/uiSpaceAccess/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IntranetNotificationsPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/uiAllNotifications/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>commons-extension</application-name>
+    <portlet-name>NotificationsAdminJuzuPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/platform/portlets/uiNotificationsAdmin/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+  <!-- TODO <End> Deprecated WebUI & Juzu Portlets skins to move -->
+
+  <!-- ATTENTION ! <Start> DO NOT DELETE -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>ProfileSearch</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileSearch/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>SpaceSearch</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceSearch/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>ActivitySearch</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ActivitySearch/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>portal</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>login</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/standalone-pages/Login.css</css-path>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>portal</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>AccountSetup</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/standalone-pages/AccountSetup.css</css-path>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>portal</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>AccountSetup</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/standalone-pages/OAuth.css</css-path>
+  </portlet-skin>
+  <!-- ATTENTION ! <End> DO NOT DELETE -->
 
   <portlet>
     <name>Login</name>
@@ -420,7 +726,7 @@
         <path>/js/spaceMembers.bundle.js</path>
       </script>
       <depends>
-        <module>peopleListComponents</module>
+        <module>  Components</module>
       </depends>
       <depends>
         <module>commonVueComponents</module>
@@ -1977,4 +2283,5 @@
       <module>vuetify</module>
     </depends>
   </module>
+
 </gatein-resources>

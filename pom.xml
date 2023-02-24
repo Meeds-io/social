@@ -47,16 +47,12 @@
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
     <org.exoplatform.commons.version>6.5.x-meedsv2-SNAPSHOT</org.exoplatform.commons.version>
+    <org.exoplatform.platform-ui.version>6.5.x-meedsv2-SNAPSHOT</org.exoplatform.platform-ui.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
   </properties>
   <dependencyManagement>
-    <!-- ### NEVER CHANGE THIS ORDER OF DEPMGT ### -->
-    <!-- * From top level to bottom projects -->
-    <!-- * maven-depmgt-pom must be the first -->
-    <!-- * Your own modules -->
-    <!-- * And projects below you -->
     <dependencies>
       <!-- Import versions from commons project -->
       <dependency>
@@ -66,6 +62,14 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.exoplatform.platform-ui</groupId>
+        <artifactId>platform-ui</artifactId>
+        <version>${org.exoplatform.platform-ui.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
       <!-- Declare our own artifacts -->
       <dependency>
         <groupId>org.exoplatform.social</groupId>

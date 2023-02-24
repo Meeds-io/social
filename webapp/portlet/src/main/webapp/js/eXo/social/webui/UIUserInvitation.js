@@ -28,9 +28,9 @@
                 optionIconField: 'avatarUrl',
                 defaultOptionIcon: function(item) {
                     if (item.type == "space") {
-                        return '/eXoSkin/skin/images/system/SpaceAvtDefault.png';
+                        return '/platform-ui/skin/images/avatar/DefaultSpaceAvatar.png';
                     } else {
-                        return '/eXoSkin/skin/images/system/UserAvtDefault.png';
+                        return '/platform-ui/skin/images/avatar/DefaultUserAvatar.png';
                     }
                 },
               sortField: [{field: 'order'}, {field: '$score'}],
@@ -113,9 +113,9 @@
                 optionIconField: 'avatarUrl',
                 defaultOptionIcon: function(item) {
                     if (item.type == "space") {
-                        return '/eXoSkin/skin/images/system/SpaceAvtDefault.png';
+                        return '/platform-ui/skin/images/avatar/DefaultSpaceAvatar.png';
                     } else {
-                        return '/eXoSkin/skin/images/system/UserAvtDefault.png';
+                        return '/platform-ui/skin/images/avatar/DefaultUserAvatar.png';
                     }
                 },
                 sortField: [{field: 'order'}, {field: '$score'}],

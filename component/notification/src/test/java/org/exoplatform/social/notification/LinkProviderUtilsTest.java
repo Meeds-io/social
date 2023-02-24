@@ -102,13 +102,13 @@ public class LinkProviderUtilsTest extends AbstractCoreTest {
   }
 
   public void testGetSpaceAvatarUrl() {
-    String expected = "http://exoplatform.com/eXoSkin/skin/images/system/SpaceAvtDefault.png";
+    String expected = "http://test.com/platform-ui/skin/images/system/SpaceAvtDefault.png";
     assertEquals(expected, LinkProviderUtils.getSpaceAvatarUrl(null));
     Space space = new Space();
     assertEquals(expected, LinkProviderUtils.getSpaceAvatarUrl(space));
     //
     space.setAvatarUrl("/rest/social/space/avatar/space_test");
-    expected = "http://exoplatform.com/rest/social/space/avatar/space_test";
+    expected = "http://test.com/rest/social/space/avatar/space_test";
     assertEquals(expected, LinkProviderUtils.getSpaceAvatarUrl(space));
   }
 

@@ -192,7 +192,7 @@
                 var item = $('<div />'),
                 text = (usedList[i].text ? usedList[i].text : usedList[i]);
 
-                var avatar = (usedList[i].avatarUrl ? usedList[i].avatarUrl : '/eXoSkin/skin/images/system/UserAvtDefault.png');
+                var avatar = (usedList[i].avatarUrl ? usedList[i].avatarUrl : '/platform-ui/skin/images/avatar/DefaultUserAvatar.png');
                 if (searchResultAvatars && searchResultAvatars[i]) {
                   avatar = searchResultAvatars[i];
                 }

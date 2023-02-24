@@ -1,0 +1,86 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+#GettingStartedPortlet {
+    .getting-started-title {
+        color: @greyColorLighten1;
+        .title {
+            width: 100%;
+            .btClose{
+                float: right;
+            }
+        }
+    }
+    .getting-started-list {
+        .getting-started-list-item {
+            &:last-child {
+                .steps-icon {
+                    &:before {
+                        display: none;
+                    }
+                }
+            }
+            .steps-icon {
+                .UICheckIcon {
+                    background: @tertiaryColor;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    &:before {
+                        content: '\e9c8';
+                        font-family: 'PLF-FONT-ICONS' !important;
+                        font-size: 12px;
+                        margin-left: -3px;
+                    }
+                }
+                .step-number {
+                    width: 20px;
+                    height: 20px;
+                    background: @greyColorLighten1;
+                    text-align: center;
+                    border-radius: 50%;
+                }
+                &:before {
+                    content: '';
+                    position: absolute;
+                    width: 1px;
+                    height: 20px;
+                    background:  @greyColorLighten1;
+                    left: 25px ~'; /** orientation=lt */ ';
+                    right: 25px ~'; /** orientation=rt */ ';
+                    top: 28px;
+                }
+            }
+        
+            .inactiveStep {
+                color: @greyColorLighten1;
+            }
+        
+        }
+
+    }
+}

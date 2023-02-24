@@ -1,0 +1,323 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+#UsersManagement {
+  .selectUsersFilter {
+    height: 40px;
+  }
+  .inputUserFilter {
+    max-width: 260px;
+  }
+
+  input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .errorMessage {
+    position: absolute;
+    top: 40px;
+  }
+
+  header {
+    z-index: 1;
+    position: relative;
+  }
+
+  .trashIconColor {
+    color: @errorColor;
+  }
+
+  .synchronizedIconClass {
+    display: flex;
+    padding: 5px;
+    font-size: 8px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .internalIconClass {
+    color: @yellow;
+    display: flex;
+    padding: 5px;
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .uiDiseabledIconEdit {
+    color: @greyColorLighten1Default;
+  }
+
+  .displayedIconClass {
+    margin-top: 16px;
+  }
+
+  .headerPadding {
+    padding: 3px!important;
+  }
+
+  /* switch */
+  label.uiSwitchBtn {
+      height: 30px;
+  }
+  .uiSwitchBtn span.deactivated {
+      text-align: left;
+  }
+  .switch {
+      position: relative;
+      display: inline-block;
+      width: 53px;
+      height: 32px;
+      top: 0.4rem;
+  }
+
+  .switch input {
+      display: none;
+  }
+
+  .slider {
+      position: absolute;
+      cursor: pointer;
+      overflow: hidden;
+      top: 5px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 60px;
+      height: 20px;
+      background-color: @lightGrey;
+      -webkit-transition: .4s;
+      transition: .4s;
+  }
+
+  .slider:before {
+      position: absolute;
+      z-index: 2;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 5px;
+      bottom: 3px;
+      background-color: @darkGrey;
+      -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.22);
+      -webkit-transition: .4s;
+      transition: all 0.4s ease-in-out;
+  }
+
+  input:not(:checked)+.slider > .absolute-activate {
+    z-index: -1;
+    position: absolute;
+    -webkit-transform: translateX(-190px);
+    -ms-transform: translateX(-190px);
+    transform: translateX(-190px);
+    left: 2px;
+    color: @white;
+    text-align: right;
+    font-size: 9px;
+    width: calc(100% - 40px);
+    line-height: 22px;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+  }
+
+  input:checked+.slider> .absolute-activate {
+    -webkit-transform: translateX(0px);
+    -ms-transform: translateX(0px);
+    transform: translateX(0px);
+    z-index: 15;
+    position: absolute;
+    left: 2px;
+    color: @white;
+    text-align: right;
+    font-size: 9px;
+    width: calc(100% - 40px);
+    line-height: 22px;
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+  }
+
+  .slider:after {
+    position: absolute;
+    left: -20px;
+    z-index: 1;
+    content: "";
+    font-size: 13px;
+    text-align: left !important;
+    line-height: 19px;
+    padding-left: 0;
+    width: 95px;
+    height: 26px !important;
+    color: @tableBackgroundAccent;
+    background-color: #477ab3;
+    background-image: -moz-linear-gradient(top, @primaryColorDefault, #2f5e92);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#476A9C), to(#2f5e92));
+    background-image: -webkit-linear-gradient(top, @primaryColorDefault, #2f5e92);
+    background-image: -o-linear-gradient(top, @primaryColorDefault, #2f5e92);
+    background-image: linear-gradient(to bottom, @primaryColorDefault, #2f5e92);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff578dc9', endColorstr='#ff2f5e92', GradientType=0);
+    -webkit-box-shadow: inset 0px 3px 5px @primaryDarkerColor;
+    -moz-box-shadow: inset 0px 3px 5px @primaryDarkerColor;
+    box-shadow: inset 0px 3px 5px @primaryDarkerColor;
+    -webkit-border-top-left-radius: 9px;
+    -moz-border-radius-topleft: 9px;
+    border-top-left-radius: 9px;
+    -webkit-border-bottom-left-radius: 9px;
+    -moz-border-radius-bottomleft: 9px;
+    border-bottom-left-radius: 9px;
+    height: 57px;
+    border-radius: 100px;
+    background-color: @primaryColorDefault;
+    -webkit-transform: translateX(-190px);
+    -ms-transform: translateX(-190px);
+    transform: translateX(-190px);
+    transition: all 0.4s ease-in-out;
+  }
+
+  input:checked+.slider:after {
+    -webkit-transform: translateX(0px);
+    -ms-transform: translateX(0px);
+    transform: translateX(0px);
+    padding-left: 25px;
+  }
+
+  input:checked+.slider:before {
+    background-color: @white;
+    -webkit-transform: translateX(38px);
+    -ms-transform: translateX(38px);
+    transform: translateX(38px);
+  }
+
+  input:checked+.slider:before {
+    -webkit-transform: translateX(38px);
+    -ms-transform: translateX(38px);
+    transform: translateX(38px);
+  }
+
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 100px;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+  .absolute-deactivated {
+    position: absolute;
+    left: 19px;
+    color: @darkGrey;
+    text-align: right;
+    font-size: 8px;
+    width: calc(100% - 30px);
+    line-height: 30px;
+    cursor: pointer;
+  }
+  
+  /* enrollment */
+  .mailBadge {
+    .v-badge__badge {
+      padding: 0;
+      width: 12px;
+      height: 12px;
+      min-width: 12px;
+    }
+    .errorColor {
+      color : @errorColor;
+    }
+    .successColor {
+      color: lighten(@successColor, 20%);
+    }
+    .disabled {
+      color : @greyColorLighten1Default;
+    }
+  }
+  .multiSelect.theme--light.v-btn.v-btn--disabled {
+    color: @primaryColor !important;
+    opacity: 50%;
+    [class^="uiIcon"] {
+      color: @primaryColor !important;
+      opacity: 50%;
+    }
+  }
+  .userUpdated.v-alert {
+    border-left: 0 !important;
+  }
+  .data-table-light-border {
+    .mdi-checkbox-blank-outline {
+      &::before {
+        font-family: "PLF-FONT-ICONS" !important;
+        content: "\e932";
+        color: @primaryColor;
+        font-size: 22px;
+      }
+      &::after {
+        transition: initial !important;
+      }
+    }
+    .mdi-checkbox-marked {
+      &::before {
+        font-family: "PLF-FONT-ICONS" !important;
+        content: "\e931";
+        color: @primaryColor;
+        font-size: 22px;
+      }
+      &::after {
+        transition: initial !important;
+      }
+    }
+    .mdi-minus-box {
+      &::before {
+        font-family: "PLF-FONT-ICONS" !important;
+        content: "\e932";
+        color: @primaryColor;
+        font-size: 22px;
+      }
+      &::after {
+        font-family: "PLF-FONT-ICONS" !important;
+        content: "\eb3c" !important;
+        font-size: 10px;
+        position: absolute !important;
+        opacity: initial !important;
+        background-color: transparent !important;
+        top: 9px !important;
+        left: 6px !important;
+        color: @white;
+        transition: initial !important;
+      }
+      position: relative;
+    }
+    .v-input--selection-controls__ripple {
+      display: contents;
+    }
+  }
+
+  .uiSettingsIcon {
+    font-size: 20px;
+    font-style: normal;
+    &:before {
+      font-family: 'PLF-FONT-ICONS';
+      content: "\eaf2" !important;
+    }
+  }
+}

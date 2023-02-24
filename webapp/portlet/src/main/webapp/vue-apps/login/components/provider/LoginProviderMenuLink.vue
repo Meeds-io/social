@@ -95,7 +95,7 @@ export default {
     providerImage() {
       const image = this.provider?.image;
       if (!image && this.defaultProviders.indexOf(this.providerKeyLowerCase) >= 0) {
-        return `/eXoSkin/skin/images/themes/default/platform/portlets/extensions/${this.providerKeyLowerCase}.png`;
+        return `/platform-ui/skin/images/oauth/${this.providerKeyLowerCase}.png`;
       } else {
         return image;
       }

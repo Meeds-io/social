@@ -1,0 +1,59 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+@import "./OAuth.less";
+
+body, html, .VuetifyApp, .v-application, .v-application--wrap, .v-main, .v-main__wrap {
+  height: 100%;
+  max-height: 100%;
+  min-height: 100%;
+}
+body {
+	background-color: @baseBackgroundDefault;
+	font-family: @baseFontFamily;
+	font-size: @baseFontSize;
+	color: @textColor;
+}
+.VuetifyApp .v-application .white-background {
+  background-color: #FFFFFF !important;
+}
+#mainAppArea .v-main__wrap {
+  display: flex;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.VuetifyApp .v-btn--outlined {
+  border: thin solid currentColor !important;
+}
+.login-button, .register-button {
+  width: 222px !important;
+  max-width: 100% !important;
+}
+.v-input legend {
+  width: 0;
+}
+
+.brandingLogo {
+  bottom: 3%;
+  right: 3%;
+  position: fixed;
+}

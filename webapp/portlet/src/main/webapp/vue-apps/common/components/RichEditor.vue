@@ -1,5 +1,5 @@
 <template>
-  <div class="activityRichEditor newEditorToolbar">
+  <div class="richEditor">
     <div
       v-if="displayPlaceholder"
       @click="setFocus"

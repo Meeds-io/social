@@ -1,0 +1,101 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+@peopleCardParentMargin: 22px;
+@peopleCardMaxHeight: 227px;
+@peopleCardParentMaxHeight: @peopleCardParentMargin + @peopleCardMaxHeight;
+
+#peopleListApplication {
+  .selectPeopleFilter {
+    height: 40px;
+    width: auto;
+    padding-right: 20px;
+  }
+  #peopleListBody {
+    min-height: ~"calc(100vh - 180px)";
+  }
+  .noPeopleYetBlock {
+    min-height: ~"calc(100vh - 280px)";
+    color: @greyColorLighten1;
+
+    .addNewPeopleLink {
+      padding-bottom: 3px;
+    }
+    .noPeopleYetIcons {
+      i::before {
+        font-size: 140px !important;
+        color: @greyColorLighten1;
+      }
+    }
+  }
+  .inputPeopleFilter {
+    max-width: 215px;
+  }
+  .showingPeopleText {
+    min-width: 120px;
+  }
+  .peopleActionMenu {
+    max-width: none;
+  }
+
+  @import "../common/ProfileCard/Style.less";
+
+  .peopleCardFront, .peopleCardBack {
+    > * {
+      margin: 0 5px;
+    }
+  }
+  .peopleCardItem {
+    margin: 0px 6px 0px 0px;
+  }
+
+  .peopleFormDrawer {
+    textarea {
+      resize: none;
+    }
+  }
+}
+
+@media (max-width: @maxMobileWidth) {
+  #peopleListApplication {
+    #peopleListToolbar {
+      .addNewPeopleButton {
+        padding: 0 !important;
+      }
+      .inputPeopleFilter {
+        max-width: none;
+      }
+    }
+
+    .inputPeopleFilter {
+      .v-input__prepend-inner {
+        display: none;
+      }
+
+      input{
+        padding-top: 0;
+      }
+    }
+
+    @import "../common/ProfileCard/Style-mobile.less";
+  }
+}
