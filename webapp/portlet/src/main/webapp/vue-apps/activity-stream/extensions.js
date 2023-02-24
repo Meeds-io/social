@@ -117,6 +117,7 @@ extensionRegistry.registerExtension('activity', 'type', {
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'pin',
+  rank: 10,
   labelKey: 'UIActivity.label.pin',
   icon: 'mdi-pin',
   isEnabled: (activity, activityTypeExtension) => {
@@ -135,6 +136,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'unpin',
+  rank: 10,
   labelKey: 'UIActivity.label.unpin',
   icon: 'mdi-pin-off',
   isEnabled: (activity, activityTypeExtension) => {
@@ -153,6 +155,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'edit',
+  rank: 20,
   labelKey: 'UIActivity.label.Edit',
   icon: 'fa-edit',
   isEnabled: (activity, activityTypeExtension) => {
@@ -175,6 +178,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'delete',
+  rank: 30,
   labelKey: 'UIActivity.label.Delete',
   icon: 'fa-trash-alt',
   confirmDialog: true,
@@ -188,27 +192,16 @@ extensionRegistry.registerExtension('activity', 'action', {
     }
     return activity.canDelete === 'true';
   },
-  click: (activity, activityTypeExtension, isActivityDetail) => {
+  click: (activity, activityTypeExtension) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
-      .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
-        if (isActivityDetail) {
-          setTimeout(() => {
-            if (activity.activityStream.type === 'space') {
-              window.location.href = `${eXo.env.portal.context}/g/${activity.activityStream.space.groupId.replace(/\//g, ':')}`;
-            } else {
-              window.location.href = eXo.env.portal.context;
-            }
-          }, 500);
-        }
-      })
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'copyLink',
+  rank: 40,
   labelKey: 'UIActivity.label.CopyLink',
   icon: 'fa-copy',
   isEnabled: activity => activity && activity.id,
@@ -239,9 +232,6 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   click: (activity, comment) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(comment.id)
-      .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: comment}));
-      })
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
