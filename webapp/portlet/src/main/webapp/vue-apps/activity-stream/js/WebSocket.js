@@ -1,15 +1,13 @@
-export function initCometd(callback, standalone) {
+export function initCometd(callback) {
   Vue.prototype.$socialWebSocket.initCometd('/SpaceWebNotification');
 
-  if (!standalone) {
-    cCometd.subscribe('/eXo/Application/ActivityStream', null, (event) => {
-      const data = event.data && JSON.parse(event.data);
-      if (!data) {
-        return;
-      }
-      callback(data);
-    });
-  }
+  cCometd.subscribe('/eXo/Application/ActivityStream', null, (event) => {
+    const data = event.data && JSON.parse(event.data);
+    if (!data) {
+      return;
+    }
+    callback(data);
+  });
 }
 
 export function isDisconnected() {

@@ -188,21 +188,9 @@ extensionRegistry.registerExtension('activity', 'action', {
     }
     return activity.canDelete === 'true';
   },
-  click: (activity, activityTypeExtension, isActivityDetail) => {
+  click: (activity, activityTypeExtension) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
-      .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
-        if (isActivityDetail) {
-          setTimeout(() => {
-            if (activity.activityStream.type === 'space') {
-              window.location.href = `${eXo.env.portal.context}/g/${activity.activityStream.space.groupId.replace(/\//g, ':')}`;
-            } else {
-              window.location.href = eXo.env.portal.context;
-            }
-          }, 500);
-        }
-      })
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
