@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -53,12 +54,14 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.mop.service.LayoutService;
@@ -86,6 +89,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
+import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.api.RestUtils;
@@ -148,6 +152,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   private final UploadService uploadService;
 
   private final SpaceService spaceService;
+  
+  private final SpaceWebNotificationService spaceWebNotificationService;
   
   private final ImageThumbnailService imageThumbnailService;
 
@@ -849,6 +855,15 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
     if (returnSize) {
       collectionUser.setSize(spaceIdentitiesListAccess.getSize());
+    }
+
+    if (StringUtils.isNotBlank(expand)) {
+      if (Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
+        Map<Long, Long> unreadItemsPerSpace = spaceWebNotificationService.countUnreadItemsBySpace();
+        if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
+          collectionUser.setUnreadPerSpace(unreadItemsPerSpace);
+        }
+      }
     }
 
     String eTagValue = String.valueOf(Objects.hash(collectionUser.hashCode(), authenticatedUser, expand));

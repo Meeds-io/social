@@ -23,14 +23,9 @@
     color="transaprent"
     class="HamburgerNavigationMenu"
     flat>
-    <a
+    <hamburger-menu-navigation-button 
       v-if="!stickyDisplay"
-      class="HamburgerNavigationMenuLink flex border-box-sizing"
-      @click="firstLevelDrawer = true">
-      <div class="px-5 py-3">
-        <v-icon size="24">fa-bars</v-icon>
-      </div>
-    </a>
+      @open-drawer="firstLevelDrawer = true" />
     <template v-if="displaySequentially">
       <hamburger-menu-navigation-third-level
         v-if="allowDisplayLevels"
@@ -112,6 +107,7 @@ export default {
     administrationNavigations: null,
     siteNavigations: null,
     initStep: 0,
+    recentSpaces: null
   }),
   computed: {
     allowDisplayLevels() {

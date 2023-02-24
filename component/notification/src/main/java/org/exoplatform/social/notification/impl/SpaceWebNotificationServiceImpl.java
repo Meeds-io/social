@@ -207,6 +207,11 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   public Map<String, Long> countUnreadItemsByApplication(long userIdentityId, long spaceId) {
     return metadataService.countMetadataItemsByMetadataTypeAndAudienceId(METADATA_TYPE_NAME, userIdentityId, spaceId);
   }
+  
+  @Override
+  public Map<Long, Long> countUnreadItemsBySpace() {
+    return metadataService.countMetadataItemsByMetadataTypeAndSpaceId(METADATA_TYPE_NAME);
+  }
 
   private void mergeExistingUnreadProperties(SpaceWebNotificationItem notificationItem,
                                              MetadataKey metadataKey,

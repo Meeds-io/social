@@ -342,6 +342,16 @@ public interface MetadataService {
    *                          {@link MetadataObject}
    */
   Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(String metadataTypeName, long creatorId, long spaceId);
+  
+  /**
+   * Count the size of Metadata items to a given {@link Metadata} type,
+   * {@link MetadataItem} by space {@link Space}
+   *
+   * @param  metadataTypeName {@link Metadata} type
+   * @return                  map of Metadata items grouped by space
+   *                          {@link MetadataObject}
+   */
+  Map<Long, Long> countMetadataItemsByMetadataTypeAndSpaceId(String metadataTypeName);
 
   /**
    * Retrieves the list of Metadata items attached to a {@link MetadataKey} and
