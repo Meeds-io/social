@@ -60,7 +60,7 @@
         class="peopleGroupMemberBindingIcon d-flex not-clickable ms-1"
         icon
         small>
-        <span class="d-flex uiIconPLFFont uiIconGroup"></span>
+        <span class="d-flex uiIconGroup"></span>
       </v-btn>
       <v-spacer />
       <div v-if="isMobile && !isSameUser">

@@ -1,0 +1,173 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../variables.less"; 
+@import "../mixins.less";
+@import "./OAuth.less";
+
+body, html, .VuetifyApp, .v-application, .v-application--wrap, .v-main, .v-main__wrap {
+  height: 100%;
+  max-height: 100%;
+  min-height: 100%;
+}
+body {
+	background-color: @baseBackgroundDefault;
+	font-family: @baseFontFamily;
+	font-size: @baseFontSize;
+	color: @textColor;
+}
+.VuetifyApp .v-application .white-background {
+  background-color: #FFFFFF !important;
+}
+#mainAppArea .v-main__wrap {
+  display: flex;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.VuetifyApp .v-btn--outlined {
+  border: thin solid currentColor !important;
+}
+.login-button, .register-button {
+  width: 222px !important;
+  max-width: 100% !important;
+}
+.v-input legend {
+  width: 0;
+}
+
+.brandingLogo {
+  bottom: 3%;
+  right: 3%;
+  position: fixed;
+}
+
+
+/* On page */
+.uiOauthInvitation, .uiOauthRegister {
+  .popupTitle {
+    cursor: default!important;
+  }
+}
+
+.uiOauthRegister {
+  .alert i {
+      top: 0;
+  }
+}
+
+.uiOauthInvitation {
+  width: 400px;
+  margin: 50px auto;
+  border-radius: 8px;
+  .content {
+      p {
+      margin: 0 0 15px;
+      }
+      .error {
+        display: inline-block;
+      }
+  }
+}
+
+.uiOauthRegister.uiPopup {
+  background: #ffffff url("@{images-path}/platform/portlets/extensions/registerFormBG.png") no-repeat scroll center bottom;
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-bottom: 0;
+  padding-bottom: 8px;
+  width: 512px!important;
+  @media (max-width: 600px) {
+    background-image: none;
+    width: auto !important;
+  }
+  .popupHeader {
+    background: #484848;
+    border-radius: 6px 6px 0 0;
+    box-shadow: none;
+    line-height: 42px;
+    padding: 3px 10px 4px 20px;
+    margin: -1px;
+    border: 1px solid #333;
+    position: relative;
+    .uiIconClose {
+        position: absolute;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        transform: translateY(-50%);
+        margin: 0;
+        &:before {
+            margin: 0;
+            position: absolute;
+            right: 4px;
+            top: 2px;
+        }
+    }
+    [class^="uiIcon"]:hover {
+      color: @colorIconSecondary!important;
+    }
+    .popupTitle {
+      font-size: 18px;
+      font-weight: bold;
+      color: #c1c1c1;
+    }
+  }  
+  .popupContent {
+    background: none;
+    .alert.alert-error {
+      background: none;
+      border: none;
+      box-shadow: none;
+      margin-bottom: 0;
+    }
+    .content {
+      padding: 20px 0 5px;
+    }
+    .form-horizontal .controls span {
+      color: red;
+    }
+  }
+  #UIPortalLoginFormAction {
+    padding-top: 35px;
+  }
+}
+@media (max-width: 600px) {
+  .uiOauthRegister.uiPopup #UIPortalLoginFormAction {
+    border-top: 1px solid #ddd;
+    margin: 20px -15px 0;
+    padding-top: 25px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .uiOauthInvitation  .password-field input {
+    width: 90%!important;
+  }
+}
+
+@media(max-width: 480px) {
+  .uiOauthRegister ,.uiOauthInvitation {
+    select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input, .exo-mentions .replaceTextArea {
+        font-size: 13px !important;
+    }
+    .password-field.pull-right {
+        float: none;
+    }
+  }
+}

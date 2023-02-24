@@ -1,0 +1,206 @@
+/*
+This file is part of the Meeds project (https://meeds.io/).
+Copyright (C) 2020 Meeds Association
+contact@meeds.io
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+@import "tables.less";
+
+//
+// Table
+// --------------------------------------------------
+.uiGrid.table {
+  border: 1px solid @tableBorder;
+  thead tr:first-child {
+    .box-shadow(0px 1px 2px -1px rgba(13,13,13,0.2));
+  }
+  td ,th {
+    font-size: 13px;
+    border-left: 1px solid @tableBorder;
+    padding: 7px 15px;
+    vertical-align: middle;
+    &.center {
+        text-align: center;
+      }
+    &.left {
+        text-align: start;
+      }
+    &.right {
+        text-align: end;
+      }
+    &.empty {
+      color: @baseColorLight;
+      background-color: @tableBackgroundAccent;
+      text-align: center;
+    }
+    .text {
+      overflow: hidden;
+            display: block;
+    }
+        .Text {
+           overflow: hidden;
+        }
+  }
+  tr {
+    th {
+      background-color: @tableThBackground;
+      border-bottom: 1px solid @tableBorder;
+    }
+
+    td {
+      border-top: none;
+      .actionIcon {
+        &:active,&:focus {
+          box-shadow: 0px 0px 10px 0 rgba(0, 0, 0, 0.15) inset;
+          border: 1px solid #c7c7c7;
+          border-radius: @borderRadiusSmall;
+          background-color: @primaryBackground;
+        }
+      }
+    }
+        &.disabled {
+          td {
+            color: @baseColorLight;
+          }
+        }
+    }
+}
+
+.table-striped {
+  tbody {
+    tr:nth-child(odd) td {
+      background-color: @tableBackgroundAccent;
+    }
+    tr:nth-child(even) td {
+      background-color: @baseBackground;
+    }
+  }
+  tr:nth-child(odd) td{
+    background-color: @tableBackgroundAccent;
+  }
+  tr:nth-child(even) td {
+    background-color: @baseBackground;
+  }
+}
+
+.uiGrid.rounded-corners {
+  border-collapse: separate;
+  box-shadow: 0 1px 2px rgba(13,13,13,0.1);
+  border-radius: @baseBorderRadius;
+  thead:first-child tr:first-child th:first-child,
+  tbody:first-child tr:first-child td:first-child {
+    border-top-left-radius: @baseBorderRadius;
+  }
+  tbody {
+    box-shadow: 0 -1px 1px 0px rgba(13, 13, 13, 0.1);
+  }
+  thead:first-child tr:first-child th:last-child,
+  tbody:first-child tr:first-child td:last-child {
+    border-top-right-radius: @baseBorderRadius;
+  }
+  thead:last-child tr:last-child th:first-child,
+  tbody:last-child tr:last-child td:first-child,
+  tfoot:last-child tr:last-child td:first-child {
+    .border-bottom-left-radius(@baseBorderRadius);
+  }
+  thead:last-child tr:last-child th:last-child,
+  tbody:last-child tr:last-child td:last-child,
+  tfoot:last-child tr:last-child td:last-child {
+    .border-bottom-right-radius(@baseBorderRadius);
+  }
+  thead:first-child tr th:first-child,
+   tr td:first-child {
+    border-left: 0;
+  }
+}
+
+/*table rounder corners bottom border */
+
+.uiGrid.rounded-corners-bottom {
+  .uiGrid.rounded-corners; /*call rounded corners table*/
+  .border-radius(0 0 @baseBorderRadius @baseBorderRadius);
+  thead:first-child tr:first-child th:first-child,
+  tbody:first-child tr:first-child td:first-child {
+    .border-top-left-radius(0);
+
+  }
+  thead:first-child tr:first-child th:last-child,
+  tbody:first-child tr:first-child td:last-child {
+    .border-top-right-radius(0);
+  }
+  thead:first-child tr th:first-child,
+  tr td:first-child {
+    border-left: 0;
+  }
+}
+
+/*table clear cell border */
+
+.uiGrid.no-border-cell {
+  tr td,
+  tr th {
+    border-left: 0;
+  }
+}
+
+.uiGrid.table-hover {
+  tbody {
+    tr:hover td,
+    tr:hover th {
+      background-color: @tableBackgroundHover;
+    }
+  }
+}
+
+.table-responsive {
+    overflow:auto ;
+  border-radius: @tableRadius;
+}
+.uiGrid.table tr {
+  color: @tableColor;
+  font-size: 14px;
+  th {
+    font-weight: bold;
+    padding: 10px 15px;
+  }
+  td {
+    padding: 5px 15px;
+    .empty {
+      background-color: @baseBackground;
+      color: inherit;
+    }
+  }
+  .table-striped tbody {
+    tr:nth-child(odd) td {
+      background-color: @baseBackground;
+    }
+    tr:nth-child(even) td {
+      background-color: @tableBackgroundAccent;
+    }
+  }
+}
+
+.uiGrid.table td,
+.uiGrid.table th {
+  color: @tableColor;
+  font-size: 16px;
+  padding: 16px 15px;
+  text-align: start;
+}
+
+.actionContainer {
+  white-space: nowrap
+}
+.clearfix {
+  .clearfix();
+}

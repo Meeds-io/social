@@ -18,7 +18,7 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.PeopleListApplication-${lang}.json`;
 
-const appId = 'peopleListApplication';
+const appId = 'spaceMembersApplication';
 
 export function init(filter, isManager, isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {

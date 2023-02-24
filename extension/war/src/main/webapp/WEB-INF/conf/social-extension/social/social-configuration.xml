@@ -27,9 +27,4 @@
     <type>org.exoplatform.social.core.service.LinkProvider</type>
   </component>
 
-  <component>
-    <key>org.exoplatform.webui.ext.UIExtensionManager</key>
-    <type>org.exoplatform.webui.ext.impl.UIExtensionManagerImpl</type>
-  </component>
-
 </configuration>

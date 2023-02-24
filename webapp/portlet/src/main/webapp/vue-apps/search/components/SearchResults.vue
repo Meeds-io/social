@@ -92,9 +92,9 @@
     </v-row>
     <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto text-center text-sub-title">
-        <div>
+        <div class="position-relative">
           <i class="uiIconSearchLight text-sub-title my-auto">
-            <i class="uiIconCloseLight text-sub-title"></i>
+            <i class="uiIconCloseLight text-sub-title ms-12"></i>
           </i>
         </div>
         <span class="headline">{{ $t('Search.noResults') }}</span>

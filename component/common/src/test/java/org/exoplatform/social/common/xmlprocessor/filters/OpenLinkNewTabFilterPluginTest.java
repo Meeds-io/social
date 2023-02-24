@@ -23,21 +23,21 @@ import junit.framework.TestCase;
 import org.exoplatform.social.common.xmlprocessor.Filter;
 
 /**
- * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
+ * @author <a href="mailto:tuyennt@test.com">Tuyen Nguyen The</a>.
  */
 public class OpenLinkNewTabFilterPluginTest extends TestCase {
   public void testFilterLinkTag() {
-    System.setProperty("gatein.email.domain.url", "exoplatform.com");
+    System.setProperty("gatein.email.domain.url", "test.com");
     Filter linkTagFilter = new OpenLinkNewTabFilterPlugin();
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>", linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\">link</a>"));
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a> <a href=\"exoplatform.net\" target=\"_blank\">link2</a>",
-              linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\">link</a> <a href=\"exoplatform.net\">link2</a>"));
+    assertEquals("This is <a href=\"http://test.com\" target=\"_self\">link</a>", linkTagFilter.doFilter("This is <a href=\"http://test.com\">link</a>"));
+    assertEquals("This is <a href=\"http://test.com\" target=\"_self\">link</a> <a href=\"exoplatform.net\" target=\"_blank\">link2</a>",
+              linkTagFilter.doFilter("This is <a href=\"http://test.com\">link</a> <a href=\"exoplatform.net\">link2</a>"));
     assertEquals("This is <a href=\"http://exoplatform.net\" target=\"_blank\">link</a>",
             linkTagFilter.doFilter("This is <a href=\"http://exoplatform.net\" target=\"_self\">link</a>"));
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>",
-            linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\" target=\"_parent\">link</a>"));
-    assertEquals("This is <a href=\"http://exoplatform.com\" target=\"_self\">link</a>",
-            linkTagFilter.doFilter("This is <a href=\"http://exoplatform.com\" target=\"frame_name\">link</a>"));
+    assertEquals("This is <a href=\"http://test.com\" target=\"_self\">link</a>",
+            linkTagFilter.doFilter("This is <a href=\"http://test.com\" target=\"_parent\">link</a>"));
+    assertEquals("This is <a href=\"http://test.com\" target=\"_self\">link</a>",
+            linkTagFilter.doFilter("This is <a href=\"http://test.com\" target=\"frame_name\">link</a>"));
     System.clearProperty("gatein.email.domain.url");
   }
 

@@ -1,0 +1,48 @@
+.selectPeopleFilter {
+  height: 40px;
+  width: auto;
+  padding-right: 20px;
+}
+#peopleListBody {
+  min-height: ~"calc(100vh - 180px)";
+}
+.noPeopleYetBlock {
+  min-height: ~"calc(100vh - 280px)";
+  color: @greyColorLighten1;
+
+  .addNewPeopleLink {
+    padding-bottom: 3px;
+  }
+  .noPeopleYetIcons {
+    i::before {
+      font-size: 140px !important;
+      color: @greyColorLighten1;
+    }
+  }
+}
+.inputPeopleFilter {
+  max-width: 215px;
+}
+.showingPeopleText {
+  min-width: 120px;
+}
+.peopleActionMenu {
+  max-width: none;
+}
+
+@import "../ProfileCard/Style.less";
+
+.peopleCardFront, .peopleCardBack {
+  > * {
+    margin: 0 5px;
+  }
+}
+.peopleCardItem {
+  margin: 0px 6px 0px 0px;
+}
+
+.peopleFormDrawer {
+  textarea {
+    resize: none;
+  }
+}

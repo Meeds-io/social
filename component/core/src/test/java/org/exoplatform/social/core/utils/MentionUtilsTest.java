@@ -18,7 +18,7 @@ public class MentionUtilsTest extends AbstractCoreTest {
 
     public void setUp() throws Exception {
         super.setUp();
-        System.setProperty("gatein.email.domain.url", "http://exoplatfom.com");
+        System.setProperty("gatein.email.domain.url", "http://test.com");
         identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
 
     }
@@ -34,7 +34,7 @@ public class MentionUtilsTest extends AbstractCoreTest {
         String message = "hello <p>@root</p>";
 
         message = MentionUtils.substituteUsernames(portalOwner, message);
-        assertEquals("hello <p><a href=\"http://exoplatfom.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>", message);
+        assertEquals("hello <p><a href=\"http://test.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>", message);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MentionUtilsTest extends AbstractCoreTest {
         String message = "hello <p>@root</p> hey! <p>@john</p> ";
 
         message = MentionUtils.substituteUsernames(portalOwner, message);
-        assertEquals("hello <p><a href=\"http://exoplatfom.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>" +
-                " hey! <p><a href=\"http://exoplatfom.com/portal/dw/profile/john\" target=\"_parent\">John Anthony</a></p> ", message);
+        assertEquals("hello <p><a href=\"http://test.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>" +
+                " hey! <p><a href=\"http://test.com/portal/dw/profile/john\" target=\"_parent\">John Anthony</a></p> ", message);
     }
 }

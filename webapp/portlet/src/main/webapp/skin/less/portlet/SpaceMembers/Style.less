@@ -1,0 +1,110 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+@peopleCardParentMargin: 22px;
+@peopleCardMaxHeight: 227px;
+@peopleCardParentMaxHeight: @peopleCardParentMargin + @peopleCardMaxHeight;
+
+#spaceMembersApplication {
+  @import "../../common/PeopleList/Style.less";
+}
+
+.spaceInvitationDrawer {
+  .externalList {
+    padding: 0px !important;
+    position: relative!important;
+    .v-list-item {
+      background-color: @tableThBackground!important;
+    }
+    .v-list-item__content {
+      cursor: default;
+    }
+    .v-badge--bordered .v-badge__badge::after {
+      border-width: 1px;
+    }
+
+    .theme--light.v-badge .v-badge__badge::after {
+      border-color: @primaryColor;
+
+    }
+
+    .v-badge__badge {
+      padding-left: 3px;
+      padding-top: 1px;
+      height: 18px;
+      width: 18px;
+      min-width: 18px!important;
+    }
+    .mdi-close-circle {
+      color: @errorColor!important;
+    }
+    .externalUserEmail {
+      color: #333333;
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.375rem!important;
+      letter-spacing: 0.0071428571em;
+    }
+    .subEmail {
+      color: @greyColorLighten1!important;
+    }
+    .subExpired {
+      color: @errorColor!important;
+      max-width: fit-content;
+    }
+    .uiIconSocUserProfile {
+      font-size: 12px;
+    }
+    .helpIcon {
+      margin-left: -10px!important;
+      margin-bottom: 6px!important;
+      font-size: 8px!important;
+    }
+  }
+  .alreadyExistAlert {
+    color: #7F221D!important;
+    background-color: @errorColorLight!important;
+    border: 2px solid @errorColor!important;
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    opacity: 0.9;
+    border-radius: 6px;
+    font-size: 0.875rem!important;
+  }
+  .successfulInvitation {
+    color: @alertSuccessColor!important;
+    background-color: @successColor!important;
+    border: 2px solid!important;
+    font-size: 13.5px;
+  }
+}
+.tooltip {
+  max-width: 280px !important;
+}
+
+@media (max-width: @maxMobileWidth) {
+  #spaceMembersApplication {
+    @import "../../common/PeopleList/Style-mobile.less";
+  }
+}

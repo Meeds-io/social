@@ -44,7 +44,7 @@
       </template>
       <template slot="item.enrollmentDate" slot-scope="{ item }">
         <div
-          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          :title="item.enrollmentDetails"
           v-if="item.enrollmentStatus === 'invitationAccepted'"
           class="d-inline">
           <v-badge
@@ -59,7 +59,7 @@
           </v-badge>
         </div>
         <div
-          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          :title="item.enrollmentDetails"
           v-else-if="item.enrollmentStatus === 'reInviteToJoin'"
           class="d-inline">
           <v-badge
@@ -74,13 +74,13 @@
           </v-badge>
         </div>
         <div
-          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          :title="item.enrollmentDetails"
           v-else-if="item.enrollmentStatus === 'inviteToJoin'"
           class="d-inline">
           <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
         </div>
         <div
-          v-exo-tooltip.bottom.body="item.enrollmentDetails"
+          :title="item.enrollmentDetails"
           v-else
           class="d-inline mailBadge">
           <v-icon class="disabled" size="22">mdi-email</v-icon>
@@ -101,16 +101,16 @@
       <template slot="item.isInternal" slot-scope="{ item }">
         <div v-if="item.isInternal" class="displayedIconClass">
           <v-btn
-            v-exo-tooltip.bottom.body="createdTitle(item.createdDate)"
+            :title="createdTitle(item.createdDate)"
             primary
             icon
             text>
-            <i class="uiIconSoupCan"><span class="internalIconClass">eXo</span></i>
+            <i class="uiIconSoupCan"></i>
           </v-btn>
         </div>
         <div v-else class="displayedIconClass">
           <v-btn
-            v-exo-tooltip.bottom.body="synchronizedTitle(item.synchronizedDate)"
+            :title="synchronizedTitle(item.synchronizedDate)"
             primary
             icon
             text>
@@ -132,7 +132,7 @@
         </v-btn>
       </template>
       <template slot="item.edit" slot-scope="{ item }">
-        <span v-exo-tooltip.bottom.body="item.isInternal ? $t('UsersManagement.button.editUser') : $t('UsersManagement.tooltip.editSynchronzedUser')">
+        <span :title="item.isInternal ? $t('UsersManagement.button.editUser') : $t('UsersManagement.tooltip.editSynchronzedUser')">
           <v-btn
             :disabled="!item.isInternal"
             icon

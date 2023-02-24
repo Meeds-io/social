@@ -24,6 +24,7 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.service.rest.Util;
 
 @Path("/homepage/intranet/people/")
@@ -35,8 +36,6 @@ public class PeopleRestServices implements ResourceContainer {
   private static Log log = ExoLogger.getLogger(PeopleRestServices.class);
 
   private static final CacheControl cacheControl;
-
-  private static final String DEFAULT_AVATAR = "/eXoSkin/skin/images/themes/default/social/skin/ShareImages/UserAvtDefault.png";
 
   private UserACL userACL;
 
@@ -108,7 +107,7 @@ public class PeopleRestServices implements ResourceContainer {
         Profile socialProfile = id.getProfile();
         String avatar = socialProfile.getAvatarUrl();
         if (avatar == null) {
-          avatar = DEFAULT_AVATAR;
+          avatar = LinkProvider.PROFILE_DEFAULT_AVATAR_URL;
         }
         String position = socialProfile.getPosition();
         if (position == null) {

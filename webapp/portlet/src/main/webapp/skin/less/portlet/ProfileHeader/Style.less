@@ -1,0 +1,157 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+@import (css) "/platform-ui/skin/css/component/ImageCropper/cropper.min.css";
+
+#ProfileHeader {
+
+  /* Only for owner because the 'refuse connection' button
+  that is displayed on profile of profile of other user
+  will be displayed under the banner */
+  &.profileHeaderOwner {
+    overflow: hidden;
+  }
+
+  .changeBannerButton {
+    button {
+      background: rgba(0, 0, 0, 0.2) !important;
+    }
+  }
+
+  #profileHeaderActions {
+    button {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      min-width: auto !important;
+      i {
+        margin-right: 4px ~'; /** orientation=lt */ ';
+        margin-left: 4px ~'; /** orientation=rt */ ';
+      }
+    }
+  }
+
+  .invitationButtons {
+
+    .acceptToConnectButtonParent {
+      display: inline-flex;
+  
+      .acceptToConnectButton {
+        border-right: 1px solid @btnBorder !important;
+        border-bottom-right-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+  
+        .v-btn__content {
+          span {
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+        }
+      }
+      .peopleButtonMenu {
+        border-bottom-left-radius: 0 !important;
+        border-top-left-radius: 0 !important;
+        min-width: auto;
+        padding: 0;
+
+        i {
+          margin: 0;
+        }
+
+        &.dialogButton {
+          display: none;
+        }  
+      }
+    }
+    .refuseToConnectButton {
+      margin-top: 2px;
+      position: absolute;
+      left: 0;
+      top: 24px;
+      min-width: 76%;
+      max-width: 76%;
+    }
+  }
+}
+
+.profileHeaderAvatar {
+  &.profileHeaderAvatarHoverEdit {
+    background: linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(4, 4, 4) 80%, rgba(0,0,0,1) 100%);
+
+    .v-image__image {
+      opacity: 0.8;
+    }
+  }
+
+  .changeAvatarButton {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+@media (max-width: @maxTabletWidth) {
+  #ProfileHeader #profileHeaderActions {
+    button {
+      margin: 0 6px !important;
+      padding: 0 !important;
+      min-width: auto !important;
+      background: transparent !important;
+      border: 0 !important;
+
+      .buttonText {
+        display: none;
+      }
+      i {
+        color: @primaryColor !important;
+      }
+    }
+
+    .acceptToConnectButton, .refuseToConnectButton {
+      display: none;
+    }
+
+    .invitationButtons {
+      min-width: 24px;
+      display: inline-block !important;
+      height: 21px;
+      top: 0;
+    }
+
+    .acceptToConnectButtonParent {
+      position: absolute;
+    }
+
+    .peopleButtonMenu {
+      &.dropdownButton {
+        display: none;
+      }
+      &.dialogButton {
+        margin: 0 !important;
+        display: block;
+      }
+    }
+  }
+}

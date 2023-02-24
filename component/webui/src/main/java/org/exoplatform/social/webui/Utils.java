@@ -752,20 +752,7 @@ public class Utils {
     Space space = getSpaceByContext();
     return (space != null ? space.getId() : null);
   }
-  
-  /**
-   * Initializes user profile popup.
-   * 
-   * @param uiActivityId Id of activity component.
-   * @since 4.0.0-GA
-   */
-  public static void initUserProfilePopup(String uiActivityId) {
-    PortletRequestContext pContext = (PortletRequestContext) WebuiRequestContext.getCurrentInstance();
-    JavascriptManager jm = pContext.getJavascriptManager();
-    jm.require("SHARED/social-ui-profile", "profile")
-      .addScripts("profile.initUserProfilePopup('" + uiActivityId + "', null);");
-  }
-  
+
   /**
    * Clear user profile popup.
    * 

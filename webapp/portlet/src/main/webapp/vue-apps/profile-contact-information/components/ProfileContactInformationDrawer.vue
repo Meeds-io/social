@@ -27,7 +27,7 @@
               {{ getResolvedName(property) }}<span v-if="property.required">*</span>
             </v-card-text>
             <v-card-text class="d-flex py-0">
-              <v-card-text v-exo-tooltip.bottom.body="disabledField(property) ? $t('profileContactInformation.synchronizedUser.tooltip') :$t('profileContactInformation.'+property.propertyName)" class="d-flex pa-0">
+              <v-card-text :title="disabledField(property) ? $t('profileContactInformation.synchronizedUser.tooltip') :$t('profileContactInformation.'+property.propertyName)" class="d-flex pa-0">
                 <input
                   v-model="property.value"
                   :disabled="saving || disabledField(property)"

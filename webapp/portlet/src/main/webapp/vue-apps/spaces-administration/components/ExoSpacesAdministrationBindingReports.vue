@@ -25,7 +25,7 @@
             <div class="btn-group">
               <button class="btn dropdown-toggle" data-toggle="dropdown">
                 {{ action }}
-                <i class="uiIconMiniArrowDown uiIconLightGray"></i><span></span>
+                <i class="uiIconMiniArrowDown uiIconLightGray ms-1"></i><span></span>
               </button>
               <ul class="dropdown-menu">
                 <li><a href="#" @click="action = operationTypes[0]"> {{ operationTypes[0] }} </a></li>

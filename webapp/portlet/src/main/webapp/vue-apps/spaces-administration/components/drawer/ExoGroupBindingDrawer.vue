@@ -56,7 +56,7 @@
           <v-flex xs1 />
           <v-flex xs1>
             <v-btn
-              v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.spaceBindingForm.selectList')"
+              :title="$t('social.spaces.administration.manageSpaces.spaceBindingForm.selectList')"
               icon
               class="rightIcon"
               @click="goToSelectGroups">

@@ -26,6 +26,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
@@ -201,7 +202,7 @@ public class SpaceRestServices implements ResourceContainer {
     private JSONObject buildJSONObject(Space space, int k) throws JSONException {
       String avatar = space.getAvatarUrl();
       if (avatar == null) {
-          avatar = "/eXoSkin/skin/images/themes/default/social/skin/ShareImages/UserAvtDefault.png";
+          avatar = LinkProvider.SPACE_DEFAULT_AVATAR_URL;
       }
       
       String spaceType = "";

@@ -1153,7 +1153,6 @@ public class PeopleRestService implements ResourceContainer{
   }
   
   static public class UserInfo {
-    static private String AVATAR_URL = "/eXoSkin/skin/images/system/UserAvtDefault.png";
 
     String id;
     String name;
@@ -1182,7 +1181,7 @@ public class PeopleRestService implements ResourceContainer{
     }
 
     public String getAvatar() {
-      if (avatar == null || avatar.length() == 0) return AVATAR_URL;
+      if (avatar == null || avatar.length() == 0) return LinkProvider.PROFILE_DEFAULT_AVATAR_URL;
       return avatar;
     }
 

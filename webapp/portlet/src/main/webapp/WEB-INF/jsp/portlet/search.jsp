@@ -59,13 +59,13 @@
           <i class="v-icon fas fa-search position-static d-flex icon-medium-size icon-default-color"></i>
         </span>
       </button>
+      <textarea id="searchConnectorsDefaultValue" class="d-none"><%= jsonSearchConnectors%></textarea>
+      <textarea id="searchSkinUrlsDefaultValue" class="d-none"><%= skinUrlsString%></textarea>
+      <% if (rcontext.getRequestURI().endsWith("/search")) { %>
+      <script type="text/javascript">
+        require(['PORTLET/social-portlet/Search'], app => app.init());
+      </script>
+      <% } %>
     </div>
-    <textarea id="searchConnectorsDefaultValue" class="hidden"><%= jsonSearchConnectors%></textarea>
-    <textarea id="searchSkinUrlsDefaultValue" class="hidden"><%= skinUrlsString%></textarea>
-    <% if (rcontext.getRequestURI().endsWith("/search")) { %>
-    <script type="text/javascript">
-      require(['PORTLET/social-portlet/Search'], app => app.init());
-    </script>
-    <% } %>
   </div>
 </div>

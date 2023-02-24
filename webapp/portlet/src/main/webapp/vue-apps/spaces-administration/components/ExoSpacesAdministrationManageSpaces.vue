@@ -8,7 +8,7 @@
         type="text"
         @keyup.enter="searchSpaces()">
       <a
-        v-exo-tooltip.bottom.body="Search"
+        :title="Search"
         class="advancedSearch"
         href="#">
         <i class="uiIconPLF24x24Search" @click="searchSpaces()"></i>
@@ -29,7 +29,7 @@
           {{ $t('social.spaces.administration.manageSpaces.registration') }}
         </th>
         <th>
-          <span v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.users.tooltip')">
+          <span :title="$t('social.spaces.administration.manageSpaces.users.tooltip')">
             {{ $t('social.spaces.administration.manageSpaces.users') }}
           </span>
         </th>
@@ -56,14 +56,14 @@
         <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
         <td class="center actionContainer">
           <a
-            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.bind')"
+            :title="$t('social.spaces.administration.manageSpaces.actions.bind')"
             v-if="canBindGroupsAndSpaces"
             class="actionIcon"
             @click="openSpaceBindingDrawer(space, index)">
             <i :class="{'bound': space.hasBindings}" class="uiIconSpaceBinding uiIconGroup"></i>
           </a>
           <a
-            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.edit')"
+            :title="$t('social.spaces.administration.manageSpaces.actions.edit')"
             :href="getSpaceLinkSetting(space.displayName,space.groupId)"
             class="actionIcon"
             target="_blank">
@@ -78,7 +78,7 @@
             <v-icon color="primary" size="18">fas fa-undo</v-icon>
           </v-btn>
           <a
-            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.actions.delete')"
+            :title="$t('social.spaces.administration.manageSpaces.actions.delete')"
             class="actionIcon"
             @click="deleteSpaceById(space.id, index)">
             <i class="uiIconDeleteUser uiIconLightGray"></i>
@@ -90,7 +90,7 @@
       <ul class="ms-auto">
         <li :class="{'disabled': currentPage === 1}">
           <a
-            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.pagination.previous')"
+            :title="$t('social.spaces.administration.manageSpaces.pagination.previous')"
             href="#"
             @click="getSpacesPerPage(currentPage-1)">
             <i class="uiIconPrevArrow"></i>
@@ -120,7 +120,7 @@
         </li>
         <li :class="[currentPage === totalPages ? 'disabled': '' ]">
           <a
-            v-exo-tooltip.bottom.body="$t('social.spaces.administration.manageSpaces.pagination.next')"
+            :title="$t('social.spaces.administration.manageSpaces.pagination.next')"
             href="#"
             @click="getSpacesPerPage(currentPage+1)">
             <i class="uiIconNextArrow"></i>

@@ -1,5 +1,4 @@
 import './components/initComponents.js';
-import * as spacesAdministrationDirectives from './spacesAdministrationDirectives.js';
 
 // getting language of the PLF 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -9,8 +8,6 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.SpacesAdministrationPortlet-${lang}.json`,
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portal.webui-${lang}.json`,
 ];
-
-Vue.directive('exo-tooltip', spacesAdministrationDirectives.tooltip);
 
 // get overrided components if exists
 if (extensionRegistry) {

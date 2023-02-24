@@ -58,4 +58,9 @@ export function init(initialData, initialLimit) {
       i18n,
     }, `#${appId}`, 'Stream');
   });
+  Object.keys(window.requirejs.s.contexts._.registry)
+    .filter(definedMofule => definedMofule.includes('ActivityStreamExtension'))
+    .forEach(module => {
+      window.require([module], app => app.init && app.init());
+    });
 }

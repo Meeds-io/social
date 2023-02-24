@@ -28,7 +28,7 @@
     <template #content>
       <v-card flat>
         <v-card-text>
-          <exo-activity-rich-editor
+          <rich-editor
             v-if="drawer"
             :ref="CK_EDITOR_ID"
             v-model="message"

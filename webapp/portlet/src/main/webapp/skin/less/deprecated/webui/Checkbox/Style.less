@@ -1,0 +1,105 @@
+.uiCheckbox {
+  position: relative;
+  display: inline-block;
+  margin: 0 5px;
+  line-height: 20px;
+  min-width:13px;
+}
+
+.uiCheckbox input[type="checkbox"]:checked,
+.uiCheckbox  input[type="checkbox"]:not(:checked) {
+  margin: 4px 0 0; /* hack margin-top: 4px to fix problem on chrome in Mac only */
+  opacity: 0;
+  padding: 0;
+  outline: 0 none;
+  position: absolute;
+  top: 0;
+  left: 0 ~'; /** orientation=lt */ ';
+  right: 0 ~'; /** orientation=rt */ ';
+  z-index: 100;
+}
+
+.uiCheckbox > span {
+  display: inline-block;
+  text-indent: 18px;
+}
+
+.uiCheckbox input[type="checkbox"]:checked + span:after {
+  border-bottom: 2px solid @uiCheckboxCheckedBorder;
+  border-left: 2px solid @uiCheckboxCheckedBorder ~'; /** orientation=lt */ ';
+  border-right: 2px solid @uiCheckboxCheckedBorder ~'; /** orientation=rt */ ';
+  content: "";
+  .size(3px,6px);
+  -webkit-transform: skew(45deg, -49deg);
+     -moz-transform: skew(45deg, -49deg);
+      -ms-transform: skewX(30deg) skewY(-35deg); // See https://github.com/twitter/bootstrap/issues/4885
+       -o-transform: skew(45deg, -49deg);
+          transform: skew(45deg, -49deg) ~'; /** orientation=lt */ ';
+          transform: rotateZ(45deg) ~'; /** orientation=rt */ ';
+  -webkit-backface-visibility: hidden; // See https://github.com/twitter/bootstrap/issues/5319
+  left: 4px ~'; /** orientation=lt */ ';
+  right: 4px ~'; /** orientation=rt */ ';
+  position: absolute;
+  top: 4px;
+}
+
+.uiCheckbox input[type="checkbox"]:checked + span:before {
+  background: @uiCheckboxCheckedBackground;
+}
+
+.uiCheckbox input[type="checkbox"] + span:before {
+  background: @uiCheckboxBackground;
+  .border-radius(@borderRadiusSmall);
+  .box-shadow(inset 0 1px 2px rgba(0,0,0,.17));
+  .square(12px);
+  top: 4px;
+  left: 0px ~'; /** orientation=lt */ ';
+  right: 0px ~'; /** orientation=rt */ ';
+  content: " ";
+  position: absolute;
+}
+
+.uiCheckbox input[type="checkbox"]:disabled + span:after {
+  border-bottom: 2px solid @uiCheckboxCheckedDisabledBorder;
+  border-left: 2px solid @uiCheckboxCheckedDisabledBorder ~'; /** orientation=lt */ ';
+  border-right: 2px solid @uiCheckboxCheckedDisabledBorder ~'; /** orientation=rt */ ';
+}
+
+.uiCheckbox input,.uiRadio input {
+  min-height: 10px;
+  padding: 0;
+}
+
+//checkbox //radiobox
+.uiCheckbox input[type="checkbox"]:checked,
+.uiCheckbox input[type="checkbox"]:not(:checked),
+.uiRadio input[type="radio"]:checked,
+.uiRadio input[type="radio"]:not(:checked) {
+  box-shadow: none;
+  width: 24px;
+  height: 24px;
+}
+
+.uiCheckbox input[type="checkbox"]:checked + span:after {
+  width: 4px;
+  height: 2px;
+  box-shadow: none;
+  left: 5px ~'; /** orientation=lt */ ';
+  right: 5px ~'; /** orientation=rt */ ';
+  top: 9px;
+}
+.uiCheckbox input[type="checkbox"]:disabled + span:before {
+  background: @uiCheckboxDisabledBackground;
+  opacity: .3;
+}
+.uiCheckbox input[type="checkbox"]:disabled + span:after {
+  border-bottom: 2px solid @uiCheckboxCheckedBorder;
+  border-left: 2px solid @uiCheckboxCheckedBorder ~'; /** orientation=lt */ ';
+  border-right: 2px solid @uiCheckboxCheckedBorder ~'; /** orientation=rt */ ';
+}
+.uiCheckbox input[type="checkbox"] + span:before {
+  background: @uiCheckboxBackground;
+  box-shadow: none;
+  width: 16px;
+  height: 16px;
+}

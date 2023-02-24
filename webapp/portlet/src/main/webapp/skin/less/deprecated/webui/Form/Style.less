@@ -1,0 +1,507 @@
+/* Enterprise skin-heading */
+/*=====================================*/
+/*          pagination                 */
+.uiPageIterator ul > li > a,
+.uiPageIterator ul > li > a:hover,
+.uiPageIterator ul > li.disabled > a,
+.uiPageIterator ul > li.disabled > a:hover {
+  color: @uiPageIteratorColor;
+  margin-right: 4px ~'; /** orientation=lt */ ';
+  margin-left: 4px ~'; /** orientation=rt */ ';
+  background-image: none;
+  .box-shadow(none);
+  border: 2px solid @greyColor;
+  background-position: 0 -30px;
+}
+.uiPageIterator ul > .active > a,
+.uiPageIterator ul > .active > a:hover,
+.uiPageIterator ul > .active > span,
+.uiPageIterator ul > .active > span:hover {
+  color: @uiPageIteratorColor;
+  background-image: none;
+  .box-shadow(none);
+  border: 2px solid @primaryColor;
+  background-position: 0 -30px;
+}
+
+.uiPageIterator p {
+  margin: 0 10px 0 0 ~'; /** orientation=lt */ ';
+  margin: 0 0 0 10px ~'; /** orientation=rt */ ';
+  line-height: 40px;
+}
+/*            end pagination           */
+/*=====================================*/
+
+/*=====================================*/
+/*          breadcrumb                 */
+.breadcrumb [class^="uiIcon"] {
+  color: #505154;
+}
+
+/*            end breadcrumb           */
+/*=====================================*/
+
+/* Enterprise skin-default btn */
+.btn, .uiActionWithLabel:not(.uiDropdown) {
+  font-family: @baseFontFamily;
+  font-size: 15px;
+  padding: 9px 20px;
+  color: @btnColor;
+  border: 1px solid @greyColor;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.btn:active,
+.btn:focus,
+.uiActionWithLabel:active,
+.uiActionWithLabel:focus {
+  color: @btnColor;
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.11);
+}
+
+.btn.disabled,
+.btn[disabled],
+.uiActionWithLabel.disabled {
+  border: solid 2px @disableBackground;
+  color: @btnDisableColor;
+}
+
+@media (min-width: 481px) and (max-width: @maxLargeTabletWidth) {
+  body .btn {
+    padding: 9px 20px;
+    font-size: 15px;
+  }
+}
+
+/* Enterprise skin-btn primary */
+.btn.btn-primary,
+.btn-primary {
+  font-family: @baseFontFamily;
+  font-weight: normal;
+  color: @btnPrimaryColor;
+  border: none;
+  box-shadow: none;
+  padding: 10px 20px;
+  &[disabled], &.disabled {
+    border-color: @btnPrimaryDisableBackground;
+    color: @lightWhite;
+    &:hover {
+      background: @btnPrimaryDisableBackground; 
+    }
+  }
+}
+
+/* Enterprise skin-btn small */
+.btn.btn-small,
+.btn.btn-small.active,
+.btn-group .btn.dropdown-toggle.btn-small {
+  font-size: 12px;
+  padding: 2px 10px;
+}
+
+/* Enterprise skin-btn mini */
+
+.btn.btn-mini,
+.btn-group .btn.dropdown-toggle.btn-mini {
+  font-size: 11px;
+  padding: 0 10px;
+}
+
+/* Enterprise skin-btn group */
+.btn-group > .btn {
+  border: 1px solid @greyColor;
+  box-shadow: none;
+  padding: 9px 20px;
+}
+.btn-group > .btn:hover,
+.btn-group > .btn:focus,
+.btn-group > .btn:active,
+.btn-group > .btn.active {
+  border: 1px solid @greyColor;
+  z-index: 0;
+}
+.btn-group > .btn:focus,
+.btn-group > .btn.active{
+  background-color: @primaryColor;
+  border: solid 1px @primaryColor;
+  color: @btnGroupColor;
+}
+#documentPreviewContent {
+  .btn-group > .btn:focus,
+  .btn-group > .btn.active {
+    background-color: inherit;
+  }
+}
+.btn-group > .btn:not(.dropdown-toggle):focus a,
+.btn-group > .btn:not(.dropdown-toggle).active a{
+  color: @btnGroupColor;
+}
+.btn-group > .btn > i, .btn-group > .btn:hover > i, .btn-group > .btn:focus > i {
+  color: inherit;
+}
+.uiActionBar .alignBtnGroup .btn.active a {
+  color: @uiActionBarBtnColor;
+}
+/* Enterprise skin-btn default dropdown */
+.uiActionWithLabel:not(.uiDropdown) {
+  padding: 8px 10px;
+  cursor: pointer;
+  display: inline-block;
+  &:hover {
+    color: @btnColor;
+    border: 1px solid @greyColor;
+    background: @greyColor;
+    box-shadow: none;
+    &:focus, &:active {
+      border: 1px solid @greyColor;
+      background: @greyColor;
+      box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.11);
+    }
+  }
+}
+.uiActionWithLabel.uiDropdown {
+  background: none;
+}
+/* Enterprise skin-btn primary dropdown */
+.btn.btn-primary.dropdown-toggle {
+  color: @btnPrimaryColor;
+  background-color: @btnPrimaryDropdownBackground;
+  box-shadow: none;
+}
+/* Enterprise skin-btn group dropdown */
+.btn-group .btn.dropdown-toggle {
+  color: @darkGrey;
+  background-color: @lightWhite;
+  border-width: 1px;
+  padding: 8px 15px;
+  &:focus {border: 2px solid @greyColor;}
+  .uiIconArrowDownMini, .uiIconMiniArrowDown {
+    top: -1px;
+    &:before {
+      color: inherit;
+      margin-left: 5px ~'; /** orientation=lt */ ';
+      margin-right: 5px ~'; /** orientation=rt */ ';
+    }
+  }
+}
+.btn-group.open .dropdown-toggle {
+  box-shadow: none;
+}
+
+/* Enterprise skin-btn primary group dropdown */
+.btn-group .btn.btn-primary, .btn-group .btn.btn-primary.dropdown-toggle {
+  color: @btnPrimaryColor;
+  background: @btnPrimaryDropdownBackground;
+  border-color: @btnPrimaryDropdownBackground;
+}
+
+/* Enterprise skin-btn large */
+.btn.btn-large,
+.btn.dropdown-toggle.btn-large.btn-primary,
+.btn.dropdown-toggle.btn-large {
+  padding: 12px 20px;
+}
+
+/* Enterprise skin - uiaction buttons */
+.uiAction .btn:first-child {
+  border: none;
+  padding: 10px 20px;
+  &:hover {
+    background-color: @btnPrimaryHoverBackgroundColor;
+    background-position: 0 -45px;
+  }
+}
+
+/* Enterprise skin-Form*/
+
+//input
+.input-append, .input-prepend {
+  .add-on {
+    border: 2px solid @borderColor;
+    background: none;
+    box-sizing: border-box;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 10px;
+  }
+}
+.input-append {
+  .btn {
+    color: @inputAppendColor;
+    margin-left: -8px ~'; /** orientation=lt */ ';
+    margin-right: -8px ~'; /** orientation=rt */ ';
+    border: 2px solid @primaryColor;
+    position: relative;
+    z-index: 2;
+  }
+  .add-on {
+    border-left-width: 0 ~'; /** orientation=lt */ ';
+    border-right-width: 0 ~'; /** orientation=rt */ ';
+  }
+  input[type="text"]{
+    border-right-width: 1px ~'; /** orientation=lt */ ';
+    border-left-width: 1px ~'; /** orientation=rt */ ';
+    border-radius: 5px 0 0 5px ~'; /** orientation=lt */ ';
+    border-radius: 5px 5px 0 0 ~'; /** orientation=rt */ ';
+  }
+}
+.input-prepend {
+  .add-on {
+    border-right-width: 0 ~'; /** orientation=lt */ ';
+    border-left-width: 0 ~'; /** orientation=rt */ ';
+  }
+  input[type="text"]{
+    border-left-width: 1px ~'; /** orientation=lt */ ';
+    border-right-width: 1px ~'; /** orientation=rt */ ';
+    border-radius: 0 5px 5px 0 ~'; /** orientation=lt */ ';
+    border-radius: 0 0 5px 5px ~'; /** orientation=rt */ ';
+  }
+}
+
+select,
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+input[disabled],
+.form-horizontal select,
+.uiPassword input[type="password"],
+.selectize-control .selectize-input,
+.uiSocApplication .selectize-control .selectize-input,
+.uiSearch .quickSet .uiSelectbox .selectbox,
+.selectboxMedium .uiSelectbox .selectbox,
+.UIToolbarContainer .uiCreateToolBarPortlet .uiQuickAddEvent .selectboxMini .uiSelectbox .selectbox,
+.UIToolbarContainer .uiCreateToolBarPortlet .uiQuickAddEvent .selectboxMedium .uiSelectbox .selectbox {
+  font-size: 15px;
+  min-height: 40px;
+  padding: 0 10px;
+  border-radius: 5px;
+  box-shadow: none;
+  max-height: 115px;
+  text-overflow: ellipsis;
+}
+.selectize-control .selectize-input.focus {
+  border-color: @inputFocusBorder;
+  .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 5px @{inputFocusShadow}");
+}
+.selectize-control .selectize-input input:-ms-input-placeholder {
+  color: @textLightColor;
+}
+.uiTableProfileUserSearchInput .selectize-control .selectize-input {
+  text-overflow: clip;
+}
+.form-horizontal select,
+.uiSearch .quickSet .uiSelectbox .selectbox,
+.selectboxMedium .uiSelectbox .selectbox,
+.UIToolbarContainer .uiCreateToolBarPortlet .uiQuickAddEvent .selectboxMini .uiSelectbox .selectbox,
+.UIToolbarContainer .uiCreateToolBarPortlet .uiQuickAddEvent .selectboxMedium .uiSelectbox .selectbox {
+  padding: 0 0 0 10px ~'; /** orientation=lt */ ';
+  padding: 0 10px 0 0 ~'; /** orientation=rt */ ';
+}
+@media(max-width: @maxMobileWidth) {
+  .uiSpaceSearch {
+    .selectize-control, .uiIconSearch {
+      margin-top: 10px;
+    }
+  }
+}
+
+input[type="text"]:active,
+input[type="email"]:active,
+input[disabled]:active,
+.uiSearchInput input[type="text"]:active,
+.uiPassword input[type="password"]:active,
+textarea:active,
+select:active {
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.11);
+}
+
+//error
+.control-group.error input,
+.control-group.error select,
+.control-group.error textarea {
+  background-color : @baseBackground;
+  color: @controlGroupErrorColor;
+  border: Solid 2px @controlGroupErrorColor;
+  height: 39px;
+  border-radius: 4px;
+}
+.form-horizontal .control-group .controls .uiRadio {
+  margin: 8px 25px 0px 0 ~'; /** orientation=lt */ ';
+  margin: 8px 0 0px 25px ~'; /** orientation=rt */ ';
+}
+
+//success
+.control-group.success input,
+.control-group.success select,
+.control-group.success textarea {
+  background-color: @baseBackground;
+  color: @controlGroupSuccessColor;
+  border : Solid 2px @controlGroupSuccessColor;
+  height: 39px;
+  border-radius: 4px;
+}
+
+//select option
+select, textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"], input[type="month"],
+input[type="time"], input[type="week"],
+input[type="number"], input[type="email"],
+input[type="url"], input[type="search"],
+input[type="tel"], input[type="color"],
+.uneditable-input {
+  box-shadow: none;
+}
+
+select option:checked {
+  background-color: @primaryColor;
+  color: @lightWhite;
+}
+option:checked:active {
+  background: linear-gradient(@primaryColor, @primaryColor);
+  color: @selectOptionColor;
+}
+option:checked:hover {
+  background: linear-gradient(@primaryColor, @primaryColor);
+  color: @selectOptionColor;
+}
+
+//disable
+input[disabled],
+select[disabled],
+textarea[disabled] {
+  background-color: @disableBackground;
+  height: 39px;
+  border-radius: 4px;
+}
+
+//checkbox //radiobox
+.uiCheckbox input[type="checkbox"]:checked,
+.uiCheckbox input[type="checkbox"]:not(:checked),
+.uiRadio input[type="radio"]:checked,
+.uiRadio input[type="radio"]:not(:checked) {
+  box-shadow: none;
+  width: 24px;
+  height: 24px;
+}
+
+.uiCheckbox input[type="checkbox"]:checked + span:after {
+  width: 4px;
+  height: 2px;
+  box-shadow: none;
+  left: 5px ~'; /** orientation=lt */ ';
+  right: 5px ~'; /** orientation=rt */ ';
+  top: 9px;
+}
+.uiCheckbox input[type="checkbox"]:disabled + span:before {
+  background: @uiCheckboxDisabledBackground;
+  opacity: .3;
+}
+.uiCheckbox input[type="checkbox"]:disabled + span:after {
+  border-bottom: 2px solid @uiCheckboxCheckedBorder;
+  border-left: 2px solid @uiCheckboxCheckedBorder ~'; /** orientation=lt */ ';
+  border-right: 2px solid @uiCheckboxCheckedBorder ~'; /** orientation=rt */ ';
+}
+.uiCheckbox input[type="checkbox"] + span:before {
+  background: @uiCheckboxBackground;
+  box-shadow: none;
+  width: 16px;
+  height: 16px;
+}
+
+.uiRadio input[type="radio"]:checked + span:after {
+  width: 6px;
+  height: 6px;
+  box-shadow: none;
+  left: 4px ~'; /** orientation=lt */ ';
+  right: 4px ~'; /** orientation=rt */ ';
+  top: 7px;
+  background: @primaryColor;
+}
+
+.uiRadio input[type="radio"] + span:before {
+  box-shadow: none;
+  background: none;
+  border: 2px solid @primaryColor;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  top: 3px;
+}
+.uiRadio input[type="radio"]:checked + span:before {
+  background: none;
+}
+
+//UiSwitchBtn On/Off
+label.switchBtnLabelOn,
+label.switchBtnLabelOff {
+  width: 55px;
+  height: 15px;
+  font-size: 11px;
+  box-shadow: none;
+  span {
+    line-height: 1;
+  }
+}
+
+//switchBtnHandle
+.switchBtnHandle {
+  width: 16px;
+  height: 16px;
+  top: 0px;
+}
+
+//text area
+textarea {
+  border: Solid 2px @greyColor;
+  box-shadow: none;
+}
+
+//label
+.form-horizontal .control-label {
+  padding-top: 8px;
+}
+
+/* Enterprise skin-heading */
+h1, h2, h3, h4, h5 {
+  color: @headingColor;
+  font-family: @baseFontFamily;
+}
+h1 {
+  font-weight: 800;
+}
+h3, h4, h5 {
+  font-weight: normal;
+}
+
+h4.titleWithBorder {
+  color: @headingColor;
+  font-size: 24px;
+}
+/* Entreprise-skin home page */
+.uiBox {
+  box-shadow: 0 2px 3px -2px rgba(35,44,48,0.18);
+  border: none;
+  border-radius: 7px;
+}
+.uiIconLightGray {
+  color: @primaryColor;
+}
