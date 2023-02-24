@@ -64,10 +64,11 @@ export function getUserByEmail(email) {
   });
 }
 
-export function getUsers(query, offset, limit, expand) {
+export function getUsers(query, offset, limit, expand, signal) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
+    signal: signal
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
@@ -76,7 +77,7 @@ export function getUsers(query, offset, limit, expand) {
     }
   });
 }
-export function getUsersByAdvancedFilter(settings, offset, limit, expand,filterType) {
+export function getUsersByAdvancedFilter(settings, offset, limit, expand,filterType, signal) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/advancedfilter?offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&filterType=${filterType || 'all'}&returnSize=true`, {
     method: 'POST',
     headers: {
@@ -84,6 +85,7 @@ export function getUsersByAdvancedFilter(settings, offset, limit, expand,filterT
       'Content-Type': 'application/json',
     },
     credentials: 'include',
+    signal: signal,
     body: JSON.stringify(settings),
   }).then(resp => {
     if (!resp || !resp.ok) {
@@ -107,10 +109,11 @@ export function getUsersByStatus(query, offset, limit, status) {
   });
 }
 
-export function getConnections(query, offset, limit, expand) {
+export function getConnections(query, offset, limit, expand, signal) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/connections?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
+    signal: signal
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
