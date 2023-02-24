@@ -31,7 +31,8 @@ Vue.directive('identity-popover', (el, binding) => {
     document.dispatchEvent(new CustomEvent('popover-identity-display', {
       detail: Object.assign({
         offsetX: rect.left + window.scrollX,
-        offsetY: rect.bottom + window.scrollY,
+        offsetY: isUser || rect.top > 150 + rect.height ? rect.top : rect.bottom + window.scrollY,
+        top: isUser || rect.top > 150 + rect.height ? true : false, 
         identityType: isUser ? 'User' : 'Space',
         element: el,
       }, identity || {})
