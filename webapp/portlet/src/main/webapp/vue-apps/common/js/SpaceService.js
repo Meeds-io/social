@@ -13,10 +13,11 @@ export function getSpaceTemplates() {
   });
 }
 
-export function getSpaceMembers(query, offset, limit, expand, role, spaceId) {
+export function getSpaceMembers(query, offset, limit, expand, role, spaceId, signal) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/users?role=${role}&q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
+    signal: signal
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
