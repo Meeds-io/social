@@ -411,9 +411,9 @@ public class EntityBuilder {
     for (ProfilePropertySetting property : subProperties) {
       if (!parents.contains(property.getParentId())) {
         ProfilePropertySettingEntity profilePropertySettingEntity =
-                buildEntityProfilePropertySetting(property,
-                        profilePropertyService,
-                        ProfilePropertyService.LABELS_OBJECT_TYPE);
+                                                                  buildEntityProfilePropertySetting(property,
+                                                                                                    profilePropertyService,
+                                                                                                    ProfilePropertyService.LABELS_OBJECT_TYPE);
         profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
         profilePropertySettingEntity.setInternal(internal);
         ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId());
@@ -421,6 +421,26 @@ public class EntityBuilder {
         children.add(profilePropertySettingEntity);
         parentProperty.setChildren(children);
         properties.put(parentProperty.getId(), parentProperty);
+      } else {
+        ProfilePropertySettingEntity parent = properties.get(property.getParentId());
+        ProfilePropertySettingEntity profilePropertySettingEntity =
+                                                                  parent.getChildren()
+                                                                        .stream()
+                                                                        .filter(child -> property.getPropertyName()
+                                                                                                 .equals(child.getPropertyName()))
+                                                                        .findAny()
+                                                                        .orElse(null);
+        if (profilePropertySettingEntity == null) {
+          profilePropertySettingEntity = buildEntityProfilePropertySetting(property,
+                                                                           profilePropertyService,
+                                                                           ProfilePropertyService.LABELS_OBJECT_TYPE);
+          profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
+          profilePropertySettingEntity.setInternal(internal);
+          List<ProfilePropertySettingEntity> children = parent.getChildren();
+          children.add(profilePropertySettingEntity);
+          parent.setChildren(children);
+          properties.put(parent.getId(), parent);
+        }
       }
     }
     return new ArrayList<>(properties.values());
