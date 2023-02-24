@@ -1,0 +1,59 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+.uiSpaceAccessPortlet {
+  padding-top: 60px;
+  background: @baseBackground url('/eXoResources/skin/images/themes/default/ShareImages/Background/texture.png') repeat top center;
+  .spaceAccessBlock {
+    width: 100%;
+    padding: 160px 0 50px;
+    margin: 0 auto;
+    text-align: center;
+    h3 {
+      color: @baseColorMedium;
+    }
+    .spaceAccessInfo {
+      font-size: 18px;
+      padding: 10px 0 25px;
+      color: @baseColorMedium;
+    }
+    .text-truncate {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+  .alert-success {
+    width: 330px;
+    margin: 0 auto;
+  }
+  .lockIcon {
+    background: url('/eXoResources/skin/images/themes/default/social/skin/RestrictedArea/lockIcon.png') no-repeat top center;
+  }
+  .denyIcon {
+    background: url('/eXoResources/skin/images/themes/default/social/skin/RestrictedArea/denyIcon.png') no-repeat top center;
+  }
+  .warningIcon {
+    background: url('/eXoResources/skin/images/themes/default/social/skin/RestrictedArea/warningIcon.png') no-repeat top center;
+  }
+}

@@ -1,7 +1,10 @@
 <template>
   <v-toolbar id="usersManagementToolbar" flat>
-    <v-toolbar-title class="nav-collapse overflow-visible">
-      <div v-if="!isDelegatedAdministrator" class="btn-group">
+    <v-toolbar-title class="nav-collapse overflow-visible d-flex">
+      <div
+        v-if="!isDelegatedAdministrator"
+        :class="dropdown && 'open' || ''"
+        class="btn-group">
         <v-btn
           class="btn btn-primary addNewUserButton"
           @click="$root.$emit('addNewUser')">
@@ -12,7 +15,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary dropdown-toggle width-auto pa-0"
-          data-toggle="dropdown">
+          @click.prevent.stop="dropdown = true">
           <span class="caret my-0 mx-3"></span>
         </v-btn>
         <div v-if="initialized" class="dropdown-menu">
@@ -25,7 +28,7 @@
         color="primary"
         class="mx-1 multiSelect"
         @click="multiSelectAction('onboard')">
-        <i class="uiIconInviteUser me-2 mb-2"></i>
+        <i class="uiIconInviteUser me-2"></i>
         {{ $t('UsersManagement.selection.onboard') }}
       </v-btn>
       <v-btn
@@ -34,7 +37,7 @@
         color="primary"
         class="multiSelect"
         @click="multiSelectAction('enable')">
-        <i class="uiIconValidateUser me-2 mb-2"></i>
+        <i class="uiIconValidateUser me-2"></i>
         {{ $t('UsersManagement.selection.enable') }}
       </v-btn>
       <v-btn
@@ -43,7 +46,7 @@
         color="primary"
         class="multiSelect"
         @click="multiSelectAction('disable')">
-        <i class="uiIconRejectUser me-2 mb-2"></i>
+        <i class="uiIconRejectUser me-2"></i>
         {{ $t('UsersManagement.selection.disable') }}
       </v-btn>
     </v-toolbar-title>
@@ -53,7 +56,8 @@
         v-model="keyword"
         :placeholder="$t('UsersManagement.filterBy')"
         prepend-inner-icon="fa-filter"
-        class="inputUserFilter pa-0 me-3 my-auto" />
+        class="inputUserFilter pa-0 me-3 my-auto"
+        hide-details />
     </v-scale-transition>
     <v-scale-transition>
       <select
@@ -89,6 +93,7 @@ export default {
     usersSelected: false,
     numberOfFilters: 0,
     selectedFiler: null,
+    dropdown: false,
     isDelegatedAdministrator: true,
   }),
   watch: {
@@ -105,6 +110,11 @@ export default {
         this.isDelegatedAdministrator = data.result === 'true';
       });
     document.addEventListener('multiSelect', this.updateSelectedUsers);
+    document.addEventListener('click', () => {
+      if (this.dropdown) {
+        this.dropdown = false;
+      }
+    });
     this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
   },
   updated() {

@@ -48,10 +48,5 @@ export function init(params) {
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
     }, `#${appId}`, 'Login');
-  });
-  Object.keys(window.requirejs?.s?.contexts?._?.registry)
-    .filter(definedMofule => definedMofule.includes('LoginExtension'))
-    .forEach(module => {
-      window.require([module], app => app.init && app.init());
-    });
+  }).finally(() => Vue.prototype.$utils.includeExtensions('LoginExtension'));
 }

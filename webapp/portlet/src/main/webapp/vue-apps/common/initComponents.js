@@ -4,7 +4,7 @@ import ExoUserAvatarsList from './components/ExoUserAvatarsList.vue';
 import ExoUserAvatar from './components/ExoUserAvatar.vue';
 import ExoSpaceAvatar from './components/ExoSpaceAvatar.vue';
 import ExoIdentitySuggester from './components/ExoIdentitySuggester.vue';
-import ExoActivityRichEditor from './components/ExoActivityRichEditor.vue';
+import RichEditor from './components/RichEditor.vue';
 import DatePicker from './components/DatePicker.vue';
 import TimePicker from './components/TimePicker.vue';
 import DateFormat from './components/DateFormat.vue';
@@ -34,7 +34,9 @@ const components = {
   'drawers-overlay': DrawersOverlay,
   'exo-confirm-dialog': ExoConfirmDialog,
   'exo-identity-suggester': ExoIdentitySuggester,
-  'exo-activity-rich-editor': ExoActivityRichEditor,
+  // FIXME should be deleted, deprecated, use rich-editor instead
+  'exo-activity-rich-editor': RichEditor,
+  'rich-editor': RichEditor,
   'date-picker': DatePicker,
   'time-picker': TimePicker,
   'date-format': DateFormat,

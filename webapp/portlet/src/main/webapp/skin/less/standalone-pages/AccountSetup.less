@@ -1,0 +1,237 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../deprecated/Style.less";
+
+@import "../variables.less";
+@import "../mixins.less";
+
+body {
+  background: @bodyBackground;
+  font-family: @fontFamily;
+  font-size: @fontSize;
+  color: @textColor;
+  overflow: auto;
+	height: 0;
+	display: flex;
+	align-items: center;
+	min-height: 100vh;
+	box-sizing: border-box;
+	margin: 0;
+}
+
+h5 {
+    font-size: @fontSizeXlarge;
+    font-weight: bold;
+    margin: 20px 0 10px;
+    padding: 0;
+}
+
+a {
+    color: @linkColor;
+}
+
+.accountSetupError {
+    color: @textColor;
+	padding-bottom: 10px;
+}
+.uiWelcomeBox {
+    background-color: @baseBackground;
+    border-radius: 4px 4px 0 0;
+    margin: auto;
+    width: 512px;
+    .header {
+  		background: @uiPopupHeaderBackground;
+  		border-radius: 4px 4px 0 0;
+  		width: 512px;
+  		line-height: 22px;
+        padding: 10px 0;
+  		text-align: center;
+  		font-size: 18px;
+  		font-weight: bold;
+        color: #61676e;
+	  }
+  	.content {
+  		background-color: @baseBackground;
+  		margin: 0 auto;
+  		padding: 0 30px 10px 30px;
+  		width: auto;
+  	}
+    input {
+        outline: none;
+    }
+    .bottom {
+      background: @lightGrey;
+      text-align: center;
+      padding: 20px 0;
+	  border-radius: 0 0 4px 4px;
+    }
+    .btn  {
+        border-radius: 3px;
+		line-height: 20px;
+        padding: 5px 20px;
+		&:active {
+			outline: none;
+			background-position: 0 -45px;
+		}
+    }
+
+    .form-horizontal {
+      .control-group:before, .control-group:after {
+        content: "";
+        display: table;
+        line-height: 0;
+      }
+      .control-group {
+        margin-bottom: 12px;
+      }
+      .control-label {
+        float: left;
+        padding-top: 11px;
+        text-align: right;
+        width: 110px;
+      }
+      .controls {
+        margin-left: 120px;
+        .inputFieldMedium:first-child, .inputFieldMini:first-child{
+           margin-right: 10px;
+        }
+      }
+    }
+    .inputFieldMini {
+        width: 120px;
+    }
+    .inputFieldMedium {
+        width: 160px;
+    }
+    .inputFieldLarge {
+        width: 330px;
+    }
+    .confirmLabel {
+        padding: 0 10px 0 5px;
+    }
+    .desc {
+        font-size: 12px;
+        color: @baseColorLight;
+        margin: 10px 0 15px;
+    }
+    .screenShot {
+        margin: 20px 0 30px;
+        background-color: @baseBackground;
+        background-repeat: repeat-x;
+        border: 1px solid @primaryBackgroundLight;
+        border-radius: 4px;
+        .box-shadow(0 2px 4px rgba(13, 13, 13, 0.27));
+        padding: 7px;
+        display: inline-block;
+        width: 410px;
+        height: 173px;
+        a {
+            background: url("@{images-path}/platform/portlets/extensions/greetingSS.png") no-repeat;
+            display: inline-block;
+            border: 1px solid @borderColor;
+            border-radius: 7px;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position-x: 30%;
+        }
+    }
+    .uiIconError {
+        background: url("@{images-path}/Icons/uiIconsColor.png") no-repeat scroll left top transparent;
+        padding-left: 20px;
+    }
+    .uiIconWarning {
+      background: url("@{images-path}/Icons/uiIconsColor.png") no-repeat -20px top transparent;
+      padding-left: 20px;
+    }
+}
+
+#Greetings {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+    .content {
+        text-align: center;
+        p {
+            text-align: left;
+        }
+    }
+}
+
+
+@media (max-width: 640px){
+  body {
+      padding: 15px;
+  }
+  .backLight{
+    display: none;
+  }
+  .uiWelcomeBox {
+    width: auto;
+    .header {
+      width: auto;
+    }
+    .content {
+      padding: 10px 20px;
+    }
+    .screenShot {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .form-horizontal{
+      .control-label{
+        width: 100%;
+        text-align: left;
+        padding-top: 0;
+        padding-bottom: 8px;
+      }
+      .confirmLabel{
+        display: block;
+        margin-top: 12px;
+        padding: 0;
+      }
+      .controls{
+        margin: 0;
+        input{
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .inputFieldMedium:first-child{
+          margin: 0 0 5px 0;
+        }
+      }
+    } 
+    .bottom{
+      background: none;
+      text-align: left;
+      padding: 20px;
+      .btn{
+        width: 100%;
+        text-align: center;
+        margin: 10px 0 0;
+      }
+    }
+  }
+  #Greetings {
+      width: 90%;
+  }
+}
