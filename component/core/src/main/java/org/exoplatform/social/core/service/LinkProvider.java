@@ -58,8 +58,8 @@ public class LinkProvider {
   public static final String RESOURCE_URL = "/social-resources";
   public static final String JAVASCRIPT_RESOURCE_URL = RESOURCE_URL + "/javascript/";
 
-  public static final String PROFILE_DEFAULT_AVATAR_URL = "/platform-ui/skin/images/avatar/DefaultSpaceAvatar.png";
-  public static final String SPACE_DEFAULT_AVATAR_URL = "/platform-ui/skin/images/avatar/DefaultUserAvatar.png";
+  public static final String PROFILE_DEFAULT_AVATAR_URL = "/platform-ui/skin/images/avatar/DefaultUserAvatar.png";
+  public static final String SPACE_DEFAULT_AVATAR_URL = "/platform-ui/skin/images/avatar/DefaultSpaceAvatar.png";
   public static final String HAS_CONNECTION_ICON =
           RESOURCE_URL + "/platform-ui/skin/images/themes/default/social/skin/UIManageUsers/StatusIcon.png";
   public static final String WAITING_CONFIRMATION_ICON =

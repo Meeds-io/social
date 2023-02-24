@@ -318,14 +318,6 @@
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/standalone-pages/AccountSetup.css</css-path>
   </portlet-skin>
-
-  <portlet-skin>
-    <application-name>portal</application-name>
-    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
-    <portlet-name>AccountSetup</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/standalone-pages/OAuth.css</css-path>
-  </portlet-skin>
   <!-- ATTENTION ! <End> DO NOT DELETE -->
 
   <portlet>

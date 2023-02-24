@@ -132,7 +132,6 @@
                 <!-- Standalone Modules -->
                 <include>standalone-pages/AccountSetup.less</include>
                 <include>standalone-pages/Login.less</include>
-                <include>standalone-pages/OAuth.less</include>
               </includes>
             </configuration>
             <goals>
