@@ -21,24 +21,26 @@
 @import "../../variables.less"; 
 @import "../../mixins.less";
 
-.searchCard {
-  .searchMatchExcerpt {
-    font-weight: bold;
-    font-style: oblique;
-    text-decoration: underline;
-  }
-  blockquote {
-    margin-bottom: 10px !important;
-    p {
-      font-size: inherit;
-      font-weight: inherit;
-      line-height: inherit;
-      margin-bottom: 0 !important;
+#searchDialog {
+  .searchCard {
+    .searchMatchExcerpt {
+      font-weight: bold;
+      font-style: oblique;
+      text-decoration: underline;
+    }
+    blockquote {
+      margin-bottom: 10px !important;
+      p {
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        margin-bottom: 0 !important;
+      }
     }
   }
-}
-
-.uiIconActivity::before {
-  font-family: "PLF-FONT-ICONS";
-  content: "\e64f";
+  
+  .uiIconActivity {
+    .far();
+    .fa-file-alt();
+  }
 }

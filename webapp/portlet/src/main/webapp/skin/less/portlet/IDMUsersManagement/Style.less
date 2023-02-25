@@ -63,12 +63,11 @@
     font-family: Arial, Helvetica, sans-serif;
   }
 
+  .uiIconEdit, .uiIconGroup {
+    color: @primaryColor;
+  }
   .uiDiseabledIconEdit {
     color: @greyColorLighten1Default;
-  }
-
-  .displayedIconClass {
-    margin-top: 16px;
   }
 
   .headerPadding {
@@ -87,7 +86,7 @@
       display: inline-block;
       width: 53px;
       height: 32px;
-      top: 0.4rem;
+      top: 0.3rem;
   }
 
   .switch input {
@@ -265,9 +264,10 @@
   }
   .data-table-light-border {
     .mdi-checkbox-blank-outline {
+      .fas();
+      .fa-square();
       &::before {
-        font-family: "PLF-FONT-ICONS" !important;
-        content: "\e932";
+        .fas();
         color: @primaryColor;
         font-size: 22px;
       }
@@ -276,9 +276,10 @@
       }
     }
     .mdi-checkbox-marked {
+      .fas();
+      .fa-check-square();
       &::before {
-        font-family: "PLF-FONT-ICONS" !important;
-        content: "\e931";
+        .fas();
         color: @primaryColor;
         font-size: 22px;
       }
@@ -287,22 +288,14 @@
       }
     }
     .mdi-minus-box {
+      .fas();
+      .fa-minus-square();
       &::before {
-        font-family: "PLF-FONT-ICONS" !important;
-        content: "\e932";
+        .fas();
         color: @primaryColor;
         font-size: 22px;
       }
       &::after {
-        font-family: "PLF-FONT-ICONS" !important;
-        content: "\eb3c" !important;
-        font-size: 10px;
-        position: absolute !important;
-        opacity: initial !important;
-        background-color: transparent !important;
-        top: 9px !important;
-        left: 6px !important;
-        color: @white;
         transition: initial !important;
       }
       position: relative;
@@ -315,9 +308,6 @@
   .uiSettingsIcon {
     font-size: 20px;
     font-style: normal;
-    &:before {
-      font-family: 'PLF-FONT-ICONS';
-      content: "\eaf2" !important;
-    }
+    color: @greyColorLighten1;
   }
 }

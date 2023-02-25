@@ -72,8 +72,6 @@
   <link rel="preload" href="/platform-ui/skin/fonts/vuetify/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/platform-ui/skin/fonts/vuetify/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/platform-ui/skin/fonts/vuetify/materialdesignicons-webfont.woff2?v=5.9.55" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="/platform-ui/skin/fonts/Ionic/ionicons.ttf" as="font" type="font/ttf" crossorigin />
-  <link rel="preload" href="/platform-ui/skin/fonts/PLF-FONT-ICONS.ttf?-m9uidt" as="font" type="font/ttf" crossorigin />
   <link rel="preload" as="style" type="text/css" href="<%=brandingThemeUrl%>" />
   <% for(String skinUrl : skinUrls) { %>
   <link rel="preload" href= "<%=skinUrl%>" as="style" type="text/css" />

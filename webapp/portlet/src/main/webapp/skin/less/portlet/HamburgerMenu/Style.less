@@ -21,63 +21,49 @@
 @import "../../variables.less"; 
 @import "../../mixins.less";
 
-.iconSnapshot:before {
-  content: "\eb67";
+.iconOverview {
+  .fa();
+  .fa-trophy();
 }
-.iconOverview:before {
-  content: "\ebdb" !important;
-  font-family: "PLF-FONT-ICONS" !important;
+.iconStream {
+  .fa();
+  .fa-stream();
 }
-.iconStream:before {
-  content: "\e6d5" !important;
-  font-family: "PLF-FONT-ICONS" !important;
+.uiIconToolbarNavItem.uiIconHome, .uiIconToolbarNavItem.uiIconExternal-stream {
+  .fa();
+  .fa-share-alt-square();
 }
-.uiIconToolbarNavItem.uiIconHome:before, .uiIconToolbarNavItem.uiIconExternal-stream:before {
-  content: "\eb67" !important;
-  font-family: "PLF-FONT-ICONS" !important;
-  font-size: 22px;
+.iconSpaces {
+  .fa();
+  .fa-layer-group();
 }
-.iconSpaces:before {
-  content: '\e648';
+.iconPeople, .uiIconToolbarNavItem.uiIconConnexions {
+  .fa();
+  .fa-users();
 }
-.iconPeople:before, .uiIconToolbarNavItem.uiIconConnexions:before {
-  content: "\eac1" !important;
-  font-family: "PLF-FONT-ICONS" !important;
+.spacesIcon {
+  .fa();
+  .fa-outdent();
 }
-.settingsIcon:before {
-  content: "\eaf2";
+.settingsIcon {
+  .fa();
+  .fa-sliders-h();
 }
-.securityIcon:before {
-  content: "\e794";
-}
-.notifIcon:before {
-  content: "\e963";
-}
-
-.languageIcon:before {
-  content: "\e9f1";
+.logoutIcon {
+  .fa();
+  .fa-sign-out-alt();
 }
 
-.helpIcon:before {
-  content: "\ea05";
-}
-.logoutIcon:before {
-  content: "\e6d1";
-}
-.spacesIcon:before {
-   content: '\e630';
-}
-
-.UserPageLink:hover .UserPageHome:before, .UserPageLinkHome .UserPageHome:before {
-  content: "\e6bf";
-  font-family: "PLF-FONT-ICONS";
+.UserPageLink .UserPageHome, .UserPageLinkHome .UserPageHome {
+  .fa();
+  .fa-house-user();
 }
 
 .UserPageLink .homePage {
   display: none;
 }
 
-.UserPageLink:hover .homePage{
+.UserPageLink:hover .homePage {
   display: flex;
 }
 
@@ -192,16 +178,6 @@
         color: @toolbarLightLinkHoverColor!important;
         font-size: 15px !important;
       }
-      .recentSpacesTitleIcon {
-        .uiSearchIcon {
-          color: @toolbarLightLinkHoverColor;
-          font-family: 'PLF-FONT-ICONS';
-          font-size: 20px;
-          &:before {
-            content: '\e978';
-         }
-         }
-      }
     }
     .recentSpacesFilter {
       input {
@@ -218,25 +194,6 @@
       }
        >.v-input__control>.v-input__slot:after {
         display: none;
-      }
-    }
-    .recentSpacesWrapper {
-      .addSpaces {
-        border: 1px dashed @borderColor;
-        .v-avatar {
-          background: @borderColorDark;
-          border-radius: 4px;
-          .uiPlusEmptyIcon {
-            color: @toolbarLightLinkHoverColor;
-            font-size: 22px;
-            &:before {
-              content: '\ead0';
-              margin-left: -4px ~'; /** orientation=lt */ ';
-              margin-right: -4px ~'; /** orientation=rt */ ';
-              font-family: "PLF-FONT-ICONS";
-            }
-          }
-        }
       }
     }
   }

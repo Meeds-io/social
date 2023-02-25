@@ -163,7 +163,7 @@
     <application-name>social-portlet</application-name>
     <portlet-name>WhoIsOnLinePortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/platform/portlets/WhoIsOnLine/Style.css</css-path>
+    <css-path>/skin/css/portlet/WhoIsOnLine/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
 
@@ -270,7 +270,7 @@
     <application-name>commons-extension</application-name>
     <portlet-name>NotificationsAdminJuzuPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/platform/portlets/uiNotificationsAdmin/Style.css</css-path>
+    <css-path>/skin/css/portlet/uiNotificationsAdmin/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
   <!-- TODO <End> Deprecated WebUI & Juzu Portlets skins to move -->
@@ -940,9 +940,6 @@
       <depends>
         <module>jquery</module>
         <as>$</as>
-      </depends>
-      <depends>
-        <module>bts_tooltip</module>
       </depends>
     </module>
   </portlet>
