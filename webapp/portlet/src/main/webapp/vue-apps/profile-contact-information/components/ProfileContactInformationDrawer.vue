@@ -36,7 +36,8 @@
                   maxlength="2000"
                   :required="property.required"
                   :ref="`${property.propertyName}Input`" 
-                  @change="propertyUpdated(property)">
+                  @change="propertyUpdated(property)"
+                  @input="propertyUpdated(property)">
               </v-card-text>
             </v-card-text>
           </div>
@@ -53,7 +54,7 @@
           {{ $t('profileContactInformation.button.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="saving"
+          :disabled="disabled"
           :loading="saving"
           class="btn btn-primary"
           @click="save">
@@ -77,6 +78,7 @@ export default {
       aspectRatio: 1,
       viewMode: 1,
     },
+    disabled: true,
   }),
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
@@ -159,6 +161,7 @@ export default {
         .catch(this.handleError)
         .finally(() => {
           this.saving = false;
+          this.disabled = true;
           this.$refs.profileContactInformationDrawer.endLoading();
         });
     },
@@ -221,6 +224,7 @@ export default {
       this.$refs.profileContactInformationDrawer.open();
     },
     propertyUpdated(item){
+      this.disabled = false;
       if (!this.propertiesToSave.some(e => e.id === item.id)) {
         this.propertiesToSave.push(item);
       }    
