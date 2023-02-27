@@ -103,6 +103,7 @@ export default {
     users: [],
     limitToFetch: 0,
     originalLimitToFetch: 0,
+    abortController: null,
   }),
   computed: {
     profileActionExtensions() {
@@ -164,19 +165,23 @@ export default {
     searchPeople() {
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
-      // to finally let only 'limitToFetch' users 
+      // to finally let only 'limitToFetch' users
+      if (this.abortController) {
+        this.abortController.abort();
+      }
+      this.abortController = new AbortController();
       let searchUsersFunction;
       if (this.filter === 'connections') {
-        searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
+        searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       } else if (this.filter === 'member'
           || this.filter === 'manager'
           || this.filter === 'invited'
           || this.filter === 'pending'
           || this.filter === 'redactor'
           || this.filter === 'publisher') {
-        searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId);
+        searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
       } else {
-        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve);
+        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       }
       return searchUsersFunction.then(data => {
         let users = data && data.users || [];
@@ -204,6 +209,7 @@ export default {
           }
           this.loadingPeople = false;
           this.initialized = true;
+          this.abortController = null;
         });
     },
     resetSearch() {
@@ -219,9 +225,13 @@ export default {
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
       // to finally let only 'limitToFetch' users
+      if (this.abortController) {
+        this.abortController.abort();
+      }
+      this.abortController = new AbortController();
       let filterUsersFunction;
       if (this.filter) {
-        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter);
+        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.abortController.signal);
       }
       return filterUsersFunction.then(data => {
         let users = data && data.users || [];
@@ -249,6 +259,7 @@ export default {
           }
           this.loadingPeople = false;
           this.initialized = true;
+          this.abortController = null;
         });
 
     }
