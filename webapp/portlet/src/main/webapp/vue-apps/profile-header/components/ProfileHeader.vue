@@ -146,10 +146,8 @@ export default {
     document.addEventListener('userModified', event => {
       if (event && event.detail && event.detail !== this.user) {
         this.user = Object.assign({}, this.user, event.detail);
-      } else  {
-        this.refresh();
+        this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       }
-      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
     });
   },
   methods: {

@@ -552,6 +552,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         builder = Response.ok(EntityBuilder.buildProperties(identity.getProfile()), MediaType.APPLICATION_JSON);
       } else {
         ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+        DataEntity dataEntity = profileInfo.getDataEntity();
+        if (StringUtils.isNotBlank(expand) && expand.contains("settings")) {
+          dataEntity.setProperty("properties", EntityBuilder.buildProperties(identity.getProfile()));
+        }
         builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
       }
       builder.tag(eTag);
