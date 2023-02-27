@@ -184,6 +184,12 @@
 
       <dependency>
         <groupId>org.exoplatform.social</groupId>
+        <artifactId>social-webapp</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.exoplatform.social</groupId>
         <artifactId>social-webapp-portlet</artifactId>
         <version>${project.version}</version>
         <type>war</type>
@@ -198,15 +204,8 @@
      </dependencies>
   </dependencyManagement>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
   <build>
+    <finalName>${project.artifactId}</finalName>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -219,7 +218,6 @@
               <org.apache.commons.logging.simplelog.log.net.hibernate>warn</org.apache.commons.logging.simplelog.log.net.hibernate>
               <java.naming.factory.initial>org.exoplatform.services.naming.SimpleContextFactory</java.naming.factory.initial>
               <java.util.logging.config.class>org.exoplatform.component.test.logging.LogConfigurator</java.util.logging.config.class>
-              <exo.profiles>hsqldb</exo.profiles>
               <exo.files.storage.dir>${project.build.directory}/exo-files</exo.files.storage.dir>
               <gatein.email.domain.url>http://localhost:8080</gatein.email.domain.url>
               <com.arjuna.ats.arjuna.objectstore.objectStoreDir>${project.build.directory}/com.arjuna.ats.arjuna.objectstore.objectStoreDir</com.arjuna.ats.arjuna.objectstore.objectStoreDir>

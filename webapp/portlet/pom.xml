@@ -25,7 +25,6 @@
     <groupId>org.exoplatform.social</groupId>
     <version>6.5.x-meedsv2-SNAPSHOT</version>
   </parent>
-  <groupId>org.exoplatform.social</groupId>
   <artifactId>social-webapp-portlet</artifactId>
   <packaging>war</packaging>
   <name>eXo PLF:: Social Portlet Web App</name>
@@ -126,6 +125,7 @@
                 <include>portlet/WhoIsOnLine/Style.less</include>
                 <!-- Deprecated Portlets -->
                 <include>portlet/uiAllNotifications/Style.less</include>
+                <include>portlet/TopBarNotification/Style.less</include>
                 <include>portlet/uiNotificationsAdmin/Style.less</include>
                 <include>portlet/uiSpaceAccess/Style.less</include>
                 <!-- Standalone Modules -->

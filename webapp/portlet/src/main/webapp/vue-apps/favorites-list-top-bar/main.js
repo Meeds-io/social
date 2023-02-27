@@ -25,4 +25,9 @@ export function init() {
         i18n: exoi18n.i18n,
       }, `#${appId}`, 'Topbar Favorites');
     });
+  Object.keys(window.requirejs.s.contexts._.registry)
+    .filter(definedMofule => definedMofule.includes('FavoriteDrawerExtension'))
+    .forEach(module => {
+      window.require([module], app => app.init && app.init());
+    });
 }

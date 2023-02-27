@@ -18,20 +18,16 @@
 
 */
 
-@import "../../../legacy/less/_bootstrap.less";
-
-@import "../../variables.less"; 
-@import "../../mixins.less";
-
-@import "../../legacy/standalone-import/Grid/Style.less";
-@import "../../legacy/standalone-import/SearchInput/Style.less";
-@import "../../legacy/standalone-import/Selectize/Style.less";
-@import "../../legacy/standalone-import/Popup/Style.less";
-@import "../../legacy/standalone-import/Buttons/Style.less";
-
-@import "../../common/SpaceApplication/Style.less";
-
 .spacesAdministration {
+  @import "../../deprecated/Style.less";
+
+  @import "../../variables.less"; 
+  @import "../../mixins.less";
+
+  .layout .v-window {
+    @import "../../common/SpaceApplication/Style.less";
+  }
+
   .table {
     th {
       border-right: 1px solid @greyColor;

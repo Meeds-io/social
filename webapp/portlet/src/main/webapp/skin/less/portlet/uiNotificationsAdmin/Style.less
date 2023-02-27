@@ -18,27 +18,21 @@
 
 */
 
-@import "../../variables.less"; 
-@import "../../mixins.less";
-
 .uiNotificationAdmin {
-    .senderForm {
-    	label {
-            line-height: 27px;
-            margin-bottom: 0;
-            margin-right: 6px ~'; /** orientation=lt */ ';
-            margin-left: 6px ~'; /** orientation=rt */ ';
-    	}
-    }
-    .uiIconPLFWeb:before {
-        content: "\e73a";
-    }
-    .uiIconPLFMail:before {
-        content: "\e6b8";
-    }
-    .uiIconPLFSpace_web:before {
-      content: "\e76e";
-    }
+
+  @import "../../deprecated/Style.less";
+  
+  @import "../../variables.less"; 
+  @import "../../mixins.less";
+
+  .senderForm {
+  	label {
+          line-height: 27px;
+          margin-bottom: 0;
+          margin-right: 6px ~'; /** orientation=lt */ ';
+          margin-left: 6px ~'; /** orientation=rt */ ';
+  	}
+  }
 	.uiGrid.table {
 		thead {
 			th:last-child {
@@ -71,11 +65,20 @@
 	.view-mode, .edit-mode {
 		> div {
 			padding: 2px 0;
+      display: flex;
 		}
 	}
 	.view-mode {
+
 		[class^="uiIconPLF"] {
-			margin-right: 4px;
+      display: flex;
+      min-width: 20px;
+      margin-right: 7px ~'; /** orientation=lt */ ';
+      margin-left: 7px ~'; /** orientation=rt */ ';
+
+      &:before {
+        margin: 0 auto;
+      }
 		}
 		> span {
 			color: @baseColorLight;
@@ -108,7 +111,7 @@
 
 
 @media (max-width: 480px) {
-    .uiNotificationAdmin {
-       padding: 15px 10px;
-    }
+  .uiNotificationAdmin {
+     padding: 15px 10px;
+  }
 }

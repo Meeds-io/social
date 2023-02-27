@@ -25,7 +25,6 @@
     <groupId>org.exoplatform.social</groupId>
     <version>6.5.x-meedsv2-SNAPSHOT</version>
   </parent>
-  <groupId>org.exoplatform.social</groupId>
   <artifactId>social-extension-war</artifactId>
   <packaging>war</packaging>
   <name>eXo PLF:: Social Extension WAR</name>

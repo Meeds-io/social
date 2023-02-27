@@ -25,77 +25,11 @@
 @peopleCardParentMaxHeight: @peopleCardParentMargin + @peopleCardMaxHeight;
 
 #peopleListApplication {
-  .selectPeopleFilter {
-    height: 40px;
-    width: auto;
-    padding-right: 20px;
-  }
-  #peopleListBody {
-    min-height: ~"calc(100vh - 180px)";
-  }
-  .noPeopleYetBlock {
-    min-height: ~"calc(100vh - 280px)";
-    color: @greyColorLighten1;
-
-    .addNewPeopleLink {
-      padding-bottom: 3px;
-    }
-    .noPeopleYetIcons {
-      i::before {
-        font-size: 140px !important;
-        color: @greyColorLighten1;
-      }
-    }
-  }
-  .inputPeopleFilter {
-    max-width: 215px;
-  }
-  .showingPeopleText {
-    min-width: 120px;
-  }
-  .peopleActionMenu {
-    max-width: none;
-  }
-
-  @import "../../common/ProfileCard/Style.less";
-
-  .peopleCardFront, .peopleCardBack {
-    > * {
-      margin: 0 5px;
-    }
-  }
-  .peopleCardItem {
-    margin: 0px 6px 0px 0px;
-  }
-
-  .peopleFormDrawer {
-    textarea {
-      resize: none;
-    }
-  }
+  @import "../../common/PeopleList/Style.less";
 }
 
 @media (max-width: @maxMobileWidth) {
   #peopleListApplication {
-    #peopleListToolbar {
-      .addNewPeopleButton {
-        padding: 0 !important;
-      }
-      .inputPeopleFilter {
-        max-width: none;
-      }
-    }
-
-    .inputPeopleFilter {
-      .v-input__prepend-inner {
-        display: none;
-      }
-
-      input{
-        padding-top: 0;
-      }
-    }
-
-    @import "../../common/ProfileCard/Style-mobile.less";
+    @import "../../common/PeopleList/Style-mobile.less";
   }
 }

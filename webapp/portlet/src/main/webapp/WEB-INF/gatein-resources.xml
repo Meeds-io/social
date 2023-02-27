@@ -267,6 +267,14 @@
   </portlet-skin>
 
   <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>TopBarNotification</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/TopBarNotification/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
     <application-name>commons-extension</application-name>
     <portlet-name>NotificationsAdminJuzuPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
@@ -341,9 +349,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -375,9 +380,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -413,9 +415,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -449,9 +448,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -482,9 +478,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -513,9 +506,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -611,9 +601,6 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
-      <depends>
-        <module>bts_dropdown</module>
-      </depends>
     </module>
   </portlet>
 
@@ -692,9 +679,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -718,7 +702,7 @@
         <path>/js/spaceMembers.bundle.js</path>
       </script>
       <depends>
-        <module>  Components</module>
+        <module>peopleListComponents</module>
       </depends>
       <depends>
         <module>commonVueComponents</module>
@@ -728,9 +712,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -822,10 +803,6 @@
         <module>ActivityStream</module>
       </depends>
       <depends>
-        <module>social-ui-profile</module>
-        <as>socialUIProfile</as>
-      </depends>
-      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -870,10 +847,6 @@
     <module>
       <depends>
         <module>ActivityStream</module>
-      </depends>
-      <depends>
-        <module>social-ui-profile</module>
-        <as>socialUIProfile</as>
       </depends>
       <depends>
         <module>commonVueComponents</module>
@@ -945,26 +918,6 @@
   </portlet>
 
   <portlet>
-    <name>UISetupPlatformToolBarPortlet</name>
-    <module>
-      <depends>
-        <module>bts_dropdown</module>
-      </depends>
-    </module>
-  </portlet>
-  <portlet>
-    <name>UIHelpPlatformToolBarPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-      <depends>
-        <module>social-core</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
     <name>SpacesOverview</name>
     <module>
       <script>
@@ -979,9 +932,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1016,9 +966,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1046,9 +993,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1080,9 +1024,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1110,9 +1051,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1144,9 +1082,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1176,9 +1111,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1206,9 +1138,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1243,9 +1172,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1275,9 +1201,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1305,9 +1228,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1343,9 +1263,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1396,6 +1313,7 @@
   <portlet>
     <name>TopBarFavorites</name>
     <module>
+      <load-group>FavoriteDrawerGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/topBarFavorites.bundle.js</path>
@@ -1513,6 +1431,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>bts_dropdown</module>
       </depends>
     </module>
   </portlet>
@@ -1702,6 +1623,7 @@
 
   <module>
     <name>commonVueComponents</name>
+    <load-group>vueGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/commonVueComponents.bundle.js</path>
@@ -1713,16 +1635,10 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>autoLinkerVue</module>
-    </depends>
-    <depends>
       <module>purifyVue</module>
     </depends>
     <depends>
       <module>ExtendedDomPurify</module>
-    </depends>
-    <depends>
-      <module>vueEllipsis</module>
     </depends>
     <depends>
       <module>eXoVueI18n</module>
@@ -1785,9 +1701,6 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>vueEllipsis</module>
-    </depends>
-    <depends>
       <module>eXoVueI18n</module>
     </depends>
     <depends>
@@ -1815,9 +1728,6 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>vueEllipsis</module>
-    </depends>
-    <depends>
       <module>eXoVueI18n</module>
     </depends>
     <depends>
@@ -1826,55 +1736,6 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
-    </depends>
-  </module>
-
-  <portlet>
-    <name>UIUserNavigationPortlet</name>
-    <module>
-      <depends>
-        <module>webui-ext</module>
-      </depends>
-    </module>
-  </portlet>
-  <module>
-    <name>ui-user-navigation</name>
-    <as>uiusernav</as>
-    <script>
-      <path>/js/UIUserNavigationPortlet/UIUserNavigation.js</path>
-    </script>
-    <depends>
-      <module>base</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>jq</as>
-    </depends>
-    <depends>
-      <module>bts_dropdown</module>
-    </depends>
-    <depends>
-      <module>bts_popover</module>
-    </depends>
-    <depends>
-      <module>bannerUploader</module>
-    </depends>
-  </module>
-  <module>
-    <name>navigation-spaces-search</name>
-    <as>navigationSpacesSearch</as>
-    <script>
-      <path>/js/UISpaceNavigationPortlet/UISpaceNavigation.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-    <depends>
-      <module>bts_dropdown</module>
-    </depends>
-    <depends>
-      <module>bts_popover</module>
     </depends>
   </module>
 
@@ -1967,6 +1828,7 @@
 
   <module>
     <name>ActivityReactions</name>
+    <load-group>ActivityStreamGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/activityReactions.bundle.js</path>
@@ -1994,23 +1856,20 @@
 
   <module>
     <name>ActivityStream</name>
+    <load-group>ActivityStreamGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/activityStream.bundle.js</path>
     </script>
     <depends>
-      <module>social-ui-profile</module>
-      <as>socialUIProfile</as>
+      <module>ActivityReactions</module>
+      <as>activityReactions</as>
     </depends>
     <depends>
       <module>commonVueComponents</module>
     </depends>
     <depends>
       <module>ExtendedDomPurify</module>
-    </depends>
-    <depends>
-      <module>ActivityReactions</module>
-      <as>activityReactions</as>
     </depends>
     <depends>
       <module>vue</module>
@@ -2042,68 +1901,6 @@
   </module>
 
   <module>
-    <name>user-profile</name>
-    <as>userProfile</as>
-    <script>
-      <path>/js/eXo/social/webui/UIUserProfile.js</path>
-    </script>
-    <depends>
-      <module>socialUtil</module>
-      <as>socialUtil</as>
-    </depends>
-    <depends>
-      <module>social-ui-profile</module>
-      <as>socialUIProfile</as>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-  </module>
-
-  <module>
-    <name>social-ui-profile</name>
-    <as>socialUiProfile</as>
-    <script>
-      <path>/js/eXo/social/webui/UIProfile.js</path>
-    </script>
-    <depends>
-      <module>socialUtil</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-  </module>
-
-  <module>
-    <name>socialUtil</name>
-    <script>
-      <path>/js/eXo/social/SocialUtil.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>gj</as>
-    </depends>
-    <depends>
-      <module>uiMaskLayer</module>
-    </depends>
-    <depends>
-      <module>uiPopupWindow</module>
-      <as>popupWindow</as>
-    </depends>
-  </module>
-  <module>
-    <name>socialPlugin</name>
-    <script>
-      <path>/js/eXo/social/Util.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-  </module>
-  <module>
     <name>imageCropper</name>
     <script>
       <path>/js/imageCropper.bundle.js</path>
@@ -2132,6 +1929,7 @@
       <as>jQuery</as>
     </depends>
   </module>
+
   <module>
     <name>translationField</name>
     <script>
@@ -2153,60 +1951,13 @@
       <module>vuetify</module>
     </depends>
   </module>
-  <module>
-    <name>cropper</name>
-    <as>Cropper</as>
-    <script>
-      <adapter>
-        (function() {
-          <include>/js/eXo/cropper.min.js</include>
-          return Cropper.noConflict();
-        })();
-      </adapter>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-  </module>
-  <module>
-    <name>mentionsPlugin</name>
-    <script>
-      <path>/js/eXo/jquery.exomentions.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-    <depends>
-      <module>mentionsLib</module>
-      <as>mentions</as>
-    </depends>
-  </module>
-  <module>
-    <name>mentionsLib</name>
-    <script>
-      <path>/js/eXo/underscore.js</path>
-    </script>
-  </module>
-  <module>
-    <name>userInvitation</name>
-    <script>
-      <path>/js/eXo/social/webui/UIUserInvitation.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-    </depends>
-    <depends>
-      <module>suggester</module>
-    </depends>
-  </module>
 
   <!-- Legacy Notifications List portlet -->
   <module>
     <name>intranetNotification</name>
+    <load-group>webNotificationsGRP</load-group>
     <script>
-      <path>/js/eXo/social/notification/IntranetNotification.js</path>
+      <path>/js/notification/IntranetNotification.js</path>
     </script>
     <depends>
       <module>webNotifications</module>
@@ -2219,12 +1970,198 @@
 
   <module>
     <name>webNotifications</name>
+    <load-group>webNotificationsGRP</load-group>
     <script>
-      <path>/js/eXo/social/notification/WebNotification.js</path>
+      <path>/js/notification/WebNotification.js</path>
     </script>
     <depends>
       <module>jquery</module>
       <as>gj</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>versionHistoryDrawer</name>
+    <script>
+      <path>/js/versionHistoryDrawer.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>cropper</name>
+    <as>Cropper</as>
+    <script>
+      <adapter>
+        (function() {
+          <include>/js/lib/cropper.min.js</include>
+          return Cropper.noConflict();
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>eCharts</name>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/echarts.min.js</include>
+        return echarts;
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
+    <name>purifyVue</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+          Vue.directive('sanitized-html', function (el, binding) {
+            el.innerHTML = ExtendedDomPurify.purify(binding.value);
+          })
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>ExtendedDomPurify</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>ExtendedDomPurify</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/ExtendedDomPurify.js</path>
+    </script>
+    <depends>
+      <module>autoLinker</module>
+    </depends>
+    <depends>
+      <module>purify</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>purify</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/purify.min.js</include>
+        return DOMPurify;
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
+    <name>autoLinker</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+          <include>/js/lib/autolinker.min.js</include>
+          Vue.directive('autolinker',(el, binding) => el.innerHTML = Autolinker.link(binding.value, {sanitizeHtml: true}));
+          return Autolinker;
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>vuetify</name>
+    <load-group>vueGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/vuetify.min.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>eXoVueI18n</name>
+    <as>exoi18n</as>
+    <load-group>vueGRP</load-group>
+    <script>
+      <path>/js/vue-i18n-wrapper.js</path>
+    </script>
+    <depends>
+      <module>vueI18n</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>vueI18n</name>
+    <as>VueI18n</as>
+    <load-group>vueGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/vue-i18n.min.js</include>
+        return VueI18n;
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>vue</name>
+    <load-group>vueGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/vue.min.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>tagSuggester</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/tag.suggester.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+    <depends>
+      <module>jqueryAtWho</module>
     </depends>
   </module>
 
@@ -2252,24 +2189,147 @@
   </module>
 
   <module>
-    <name>versionHistoryDrawer</name>
+    <name>suggester</name>
+    <load-group>suggesterGRP</load-group>
     <script>
-      <path>/js/versionHistoryDrawer.bundle.js</path>
+      <path>/js/suggester.js</path>
     </script>
     <depends>
-      <module>vue</module>
+      <module>jquery</module>
     </depends>
     <depends>
-      <module>eXoVueI18n</module>
+      <module>selectize2</module>
     </depends>
     <depends>
-      <module>commonVueComponents</module>
+      <module>jqueryAtWho</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>mentionsPlugin</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/jquery.exomentions.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
     </depends>
     <depends>
-      <module>extensionRegistry</module>
+      <module>mentionsLib</module>
+      <as>mentions</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>mentionsLib</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/underscore.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>selectize2</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <adapter>
+        (function($) {
+        var oldJQuery = this.jQuery;
+        this.jQuery = $;
+
+        <include>/js/lib/selectize.js</include>
+
+        var selectize = this.Selectize;
+        this.jQuery = oldJQuery;
+        return selectize;
+        })($);
+      </adapter>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>jqueryCaret</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/jquery.caret.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>jqueryAtWho</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/jquery.atwho.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
     </depends>
     <depends>
-      <module>vuetify</module>
+      <module>jqueryCaret</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>jquery</name>
+    <as>$</as>
+    <load-group>baseGRP</load-group>
+    <script>
+      <adapter>
+        (function() {
+        <include>/js/lib/jquery-3.2.1.js</include>
+        return jQuery.noConflict(true);
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
+    <name>extensionRegistry</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/extensionRegistry.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>bodyScrollListener</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/BodyScrollListener.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>mobileSwipeContainer</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/MobileSwipeContainer.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>topbarLoading</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/TopbarLoading.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
     </depends>
   </module>
 
