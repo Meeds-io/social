@@ -245,23 +245,22 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
     Date createdDate = new Date(profile.getCreatedTime());
 
-    for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
-      String propertyName = profilePropertySetting.getPropertyName();
-      // We should index only active properties of user profile
-      if (!fields.containsKey(propertyName) && profilePropertySetting.isActive()) {
-        if (profile.getProperty(propertyName) != null && profile.getProperty(propertyName) instanceof String value) {
+    for (String profilePropertySettingName : profilePropertyService.getPropertySettingNames()) {
+      if (!fields.containsKey(profilePropertySettingName)) {
+        if (profile.getProperty(profilePropertySettingName) != null && profile.getProperty(profilePropertySettingName) instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
-            fields.put(propertyName, value);
+            // Avoid having dots in field names in ES, otherwise properties with String values may be converted in Objects in some cases
+            fields.put(profilePropertySettingName.replace(".", "_"), value);
           }
         } else {
-          List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(propertyName);
+          List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(profilePropertySettingName);
           if (CollectionUtils.isNotEmpty(multiValues)) {
             String value = multiValues.stream()
                 .filter(property -> property.get("value") != null)
                 .map(property -> property.get("value"))
                 .collect(Collectors.joining(",", "", ""));
             if (StringUtils.isNotEmpty(value)) {
-              fields.put(propertyName, removeAccents(value));
+              fields.put(profilePropertySettingName.replace(".", "_"), removeAccents(value));
             }
           }
         }
