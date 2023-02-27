@@ -95,12 +95,6 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     super.tearDown();
   }
 
-  @Override
-  protected void beforeRunBare() {
-    PropertyManager.getProperties().putIfAbsent("exo.social.profile.excluded.attributeList", "propertyToIgnore, propertyToIgnore1, propertyToIgnore2");
-    super.beforeRunBare();
-  }
-
   /**
    * This testcase what will use for unit testing with scenario to 
    * synchronous profile from Social to Portal's Organization
