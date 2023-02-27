@@ -20,7 +20,8 @@
       class="ignore-vuetify-classes align-end flex-grow-1"
       maxlength="2000"
       ref="multiInput"
-      @change="$emit('propertyUpdated')">
+      @change="$emit('propertyUpdated')"
+      @input="$emit('propertyUpdated')">
     <v-icon
       small
       class="removeMultiFieldValue error--text"
