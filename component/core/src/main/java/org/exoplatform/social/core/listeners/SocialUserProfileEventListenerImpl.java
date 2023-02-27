@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.listeners;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,8 +25,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
@@ -41,8 +44,9 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
 
   private static final Log                     LOG                   =
                                                    ExoLogger.getLogger(SocialUserProfileEventListenerImpl.class);
+  private static final String SOCIAL_PROFILE_EXCLUDED_ATTRIBUTE_LIST = "exo.social.profile.excluded.attributeList";
 
-  private final List<String>                   exlcudedAttributeList = List.of("authenticationAttempts", "latestAuthFailureTime");
+  private final List<String>                   exlcudedAttributeList = new ArrayList<>(List.of("authenticationAttempts", "latestAuthFailureTime"));
 
   private final IdentityManager                identityManager;
 
@@ -52,6 +56,10 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
                                             ProfilePropertyService profilePropertyService) {
     this.identityManager = identityManager;
     this.profilePropertyService = profilePropertyService;
+    String socialProfileExcludedAttributeList = PropertyManager.getProperty(SOCIAL_PROFILE_EXCLUDED_ATTRIBUTE_LIST);
+    if(StringUtils.isNotBlank(socialProfileExcludedAttributeList)) {
+      this.exlcudedAttributeList.addAll(Arrays.asList(socialProfileExcludedAttributeList.split(",")));
+    }
   }
 
   @Override
@@ -109,7 +117,7 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
       ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
       profilePropertySetting.setPropertyName(propertyName);
       profilePropertySetting.setMultiValued(false);
-      profilePropertySetting.setActive(false);
+      profilePropertySetting.setActive(true);
       profilePropertySetting.setEditable(false);
       profilePropertySetting.setVisible(false);
       profilePropertySetting.setParentId(null);

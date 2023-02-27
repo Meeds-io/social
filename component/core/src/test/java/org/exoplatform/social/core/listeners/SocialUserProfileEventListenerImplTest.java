@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
@@ -77,7 +78,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
   }
   
   private void fakePlugins() throws Exception {
-    if (alreadyAddedPlugins == false) {
+    if (!alreadyAddedPlugins) {
       organizationService.addListenerPlugin(new SocialUserEventListenerImpl());
       organizationService.addListenerPlugin(new SocialUserProfileEventListenerImpl(identityManager,
               profilePropertyService));
@@ -93,7 +94,13 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     }
     super.tearDown();
   }
-  
+
+  @Override
+  protected void beforeRunBare() {
+    PropertyManager.getProperties().putIfAbsent("exo.social.profile.excluded.attributeList", "propertyToIgnore, propertyToIgnore1, propertyToIgnore2");
+    super.beforeRunBare();
+  }
+
   /**
    * This testcase what will use for unit testing with scenario to 
    * synchronous profile from Social to Portal's Organization
@@ -269,5 +276,28 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, raulRemoteId).getProfile();
     assertNotNull(profile);
     assertEquals("2100", profile.getProperty("postalCode"));
+  }
+
+  public void testIgnoreExcludedProfileProperties() throws Exception {
+    String raulRemoteId = "raul";
+    UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(raulRemoteId);
+    userProfile.setAttribute("propertyToIgnore", "value1");
+    userProfile.setAttribute("propertyNotToIgnore", "Yes !");
+    organizationService.getUserProfileHandler().saveUserProfile(userProfile, true);
+
+    Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, raulRemoteId).getProfile();
+    assertNotNull(profile);
+
+    // propertyToIgnore should be ignored
+    assertNull(profile.getProperty("propertyToIgnore"));
+
+    // propertyNotToIgnore should not be ignored
+    assertNotNull("Property should not be saved in social profile", profile.getProperty("propertyNotToIgnore"));
+    assertEquals("Yes !", profile.getProperty("propertyNotToIgnore"));
+    assertTrue(profilePropertyService.getPropertySettingNames().contains("propertyNotToIgnore"));
+    ProfilePropertySetting profilePropertySetting = profilePropertyService.getProfileSettingByName("propertyNotToIgnore");
+    assertNotNull(profilePropertySetting);
+    assertTrue(profilePropertySetting.isActive());
+    assertFalse(profilePropertySetting.isVisible());
   }
 }
