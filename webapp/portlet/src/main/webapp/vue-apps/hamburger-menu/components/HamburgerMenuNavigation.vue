@@ -261,7 +261,7 @@ export default {
         .then(data => this.siteNavigations = data || []);
     },
     retrieveAdministrationNavigations() {
-      return this.$navigationService.getNavigations(null, 'group', null, 'displayed')
+      return this.$navigationService.getNavigations(null, 'group', null, 'displayed', '/spaces/.*')
         .then(data => this.administrationNavigations = data || []);
     },
   },
