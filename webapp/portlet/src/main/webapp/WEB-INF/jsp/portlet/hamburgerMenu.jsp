@@ -18,7 +18,6 @@
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
 
   responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/portal?siteName=" + rcontext.getPortalOwner() + "&scope=children&visibility=displayed>; rel=preload; as=fetch; crossorigin=use-credentials", false);
-  responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/group?visibility=displayed>; rel=preload; as=fetch; crossorigin=use-credentials", false);
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread>; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>
 <div class="VuetifyApp">
