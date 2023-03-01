@@ -210,7 +210,7 @@ export default {
     },
     refresh() {
       this.propertiesToSave = [];
-      document.dispatchEvent(new CustomEvent('userModified'));
+      document.dispatchEvent(new CustomEvent('userPropertiesModified'));
     }, 
     cancel() {
       this.refresh();
