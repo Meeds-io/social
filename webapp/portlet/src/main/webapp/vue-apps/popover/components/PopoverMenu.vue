@@ -27,7 +27,7 @@
     :position-y="offsetY"
     transition="slide-x-transition"
     absolute
-    top
+    :top="top"
     content-class="profile-popover-menu pa-1 transparent"
     elevation="0"
     max-width="350"
@@ -42,6 +42,7 @@
 export default {
   data() {
     return {
+      top: true,
       menu: false,
       element: null,
       popoverCloseDelay: 1000,
@@ -80,6 +81,7 @@ export default {
     document.addEventListener('popover-identity-display', event => {
       const data = event?.detail;
       this.identityType = data.identityType;
+      this.top = data.top;
       if (this.isUserIdentity) {
         this.identity = {
           id: data?.id,
@@ -130,8 +132,13 @@ export default {
         $('.profile-popover-menu').css('height', '160px');
       }
     });
+    // Force to close user popover when scrolling
+    document.addEventListener('scroll', this.onScroll, true);
   },
   methods: {
+    onScroll(){
+      this.closePopover(true);
+    },
     registerActivatorElementEvents() {
       if (this.element) {
         $(this.element)
@@ -160,7 +167,7 @@ export default {
     },
     setPopoverNotHovered() {
       this.isMenuHovered = false;
-      this.closePopover();
+      this.closePopover(true);
     },
     openPopover(immediatly) {
       if (!this.menu) {
