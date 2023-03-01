@@ -56,6 +56,7 @@ export default {
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     properties: [],
+    user: null,
   }),
   computed: {
     title() {
@@ -66,8 +67,8 @@ export default {
     this.refreshProperties();
   },
   mounted() {
-    document.addEventListener('userModified', () => {
-      this.refreshProperties();
+    document.addEventListener('userPropertiesModified', () => {
+      this.refreshProperties(true);
     });
 
     if (this.properties) {
@@ -75,11 +76,15 @@ export default {
     }
   },
   methods: {
-    refreshProperties() {
+    refreshProperties(broadcast) {
       return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
-        .then(properties => {
-          this.properties = properties.filter(item => item.active).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
+        .then(userdataEntity => {
+          this.user = userdataEntity;
+          this.properties = userdataEntity?.properties.filter(item => item.active).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
           this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+          if (broadcast){
+            document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));
+          }
         })
         .finally(() => this.$root.$applicationLoaded());
     },
