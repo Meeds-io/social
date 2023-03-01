@@ -225,7 +225,11 @@ export default {
       immediate: true,
       handler(newVal, oldVal) {
         if (newVal !== oldVal) {
-          this.refreshExtensions();
+          if (this.spaceId) {
+            this.spaceNavigations = [];
+            this.retrieveSpaceNavigations(this.spaceId)
+              .then(() => this.refreshExtensions());
+          }
         }
       },
     },
