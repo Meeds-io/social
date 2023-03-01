@@ -77,7 +77,7 @@ export default {
   },
   methods: {
     refreshProperties(broadcast) {
-      return this.$userService.getUser(eXo.env.portal.profileOwner, 'all,settings')
+      return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
         .then(userdataEntity => {
           this.user = userdataEntity;
           this.properties = userdataEntity?.properties.filter(item => item.active).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
