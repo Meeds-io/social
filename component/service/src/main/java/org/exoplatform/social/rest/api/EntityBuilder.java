@@ -327,6 +327,9 @@ public class EntityBuilder {
         }
       }
     }
+    if (expandAttributes.contains("settings")) {
+      userEntity.setProperties(EntityBuilder.buildProperties(profile));
+    }
     return userEntity;
   }
 

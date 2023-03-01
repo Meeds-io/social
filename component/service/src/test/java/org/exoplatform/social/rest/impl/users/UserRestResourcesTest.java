@@ -407,7 +407,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ContainerResponse response = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    ArrayList collections = (ArrayList) response.getEntity();
+    DataEntity dataEntity = (DataEntity) response.getEntity();
+    ArrayList collections = (ArrayList) dataEntity.get("properties");
     assertEquals(3, collections.size());
   }
 
