@@ -548,12 +548,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      if (StringUtils.isNotBlank(expand) && expand.equals("settings")) {
-        builder = Response.ok(EntityBuilder.buildProperties(identity.getProfile()), MediaType.APPLICATION_JSON);
-      } else {
-        ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
-        builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
-      }
+      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+      builder = Response.ok(profileInfo.getDataEntity(), MediaType.APPLICATION_JSON);
       builder.tag(eTag);
       builder.lastModified(new Date(cacheTime));
       builder.expires(new Date(cacheTime));
