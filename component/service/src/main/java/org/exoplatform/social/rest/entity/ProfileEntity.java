@@ -403,6 +403,15 @@ public class ProfileEntity extends BaseEntity {
     return getString("connectionsInCommonCount");
   }
 
+  public String getProperties() {
+    return getString("properties");
+  }
+
+  public ProfileEntity setProperties(List<ProfilePropertySettingEntity> properties) {
+    setProperty("properties", properties);
+    return this;
+  }
+
   public void setPhones(List<PhoneEntity> phones) {
     setProperty(PHONES, phones);
   }
