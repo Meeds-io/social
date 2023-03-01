@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -61,44 +63,49 @@ public class SocialUserProfileEventListenerImpl extends UserProfileEventListener
 
   @Override
   public void postSave(UserProfile userProfile, boolean isNew) throws Exception {
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userProfile.getUserName());
-    Profile profile = identity.getProfile();
-    String uGender = userProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[4]);// "user.gender"
-    String uPosition = userProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]);// user.jobtitle
-    String pGender = (String) profile.getProperty(Profile.GENDER);
-    String pPosition = (String) profile.getProperty(Profile.POSITION);
+    RequestLifeCycle.begin(PortalContainer.getInstance());
+    try {
+      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userProfile.getUserName());
+      Profile profile = identity.getProfile();
+      String uGender = userProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[4]);// "user.gender"
+      String uPosition = userProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]);// user.jobtitle
+      String pGender = (String) profile.getProperty(Profile.GENDER);
+      String pPosition = (String) profile.getProperty(Profile.POSITION);
 
-    AtomicBoolean hasUpdated = new AtomicBoolean(false);
-    Map<String, String> properties = userProfile.getUserInfoMap();
-    exlcudedAttributeList.forEach(properties.keySet()::remove);
-    properties.forEach((name, value) -> {
-      updateProfilePropertySettings(name, profilePropertyService);
-      if (isNew) {
-        profile.setProperty(name, value);
-      } else if (!StringUtils.equals((String) profile.getProperty(name), userProfile.getAttribute(name))) {
-        profile.setProperty(name, value);
+      AtomicBoolean hasUpdated = new AtomicBoolean(false);
+      Map<String, String> properties = userProfile.getUserInfoMap();
+      exlcudedAttributeList.forEach(properties.keySet()::remove);
+      properties.forEach((name, value) -> {
+        updateProfilePropertySettings(name, profilePropertyService);
+        if (isNew) {
+          profile.setProperty(name, value);
+        } else if (!StringUtils.equals((String) profile.getProperty(name), userProfile.getAttribute(name))) {
+          profile.setProperty(name, value);
+          hasUpdated.set(true);
+        }
+      });
+
+      if (!StringUtils.equals(uGender, pGender)) {
+        profile.setProperty(Profile.GENDER, uGender);
         hasUpdated.set(true);
       }
-    });
+      if (!StringUtils.equals(uPosition, pPosition)) {
+        profile.setProperty(Profile.POSITION, uPosition);
+        hasUpdated.set(true);
+      }
 
-    if (!StringUtils.equals(uGender, pGender)) {
-      profile.setProperty(Profile.GENDER, uGender);
-      hasUpdated.set(true);
-    }
-    if (!StringUtils.equals(uPosition, pPosition)) {
-      profile.setProperty(Profile.POSITION, uPosition);
-      hasUpdated.set(true);
-    }
+      if (hasUpdated.get()) {
+        List<Profile.UpdateType> updateTypes = new ArrayList<>();
+        updateTypes.add(Profile.UpdateType.CONTACT);
+        profile.setListUpdateTypes(updateTypes);
+      }
 
-    if (hasUpdated.get()) {
-      List<Profile.UpdateType> updateTypes = new ArrayList<>();
-      updateTypes.add(Profile.UpdateType.CONTACT);
-      profile.setListUpdateTypes(updateTypes);
-    }
-
-    if (hasUpdated.get() || isNew) {
-      IdentityStorage identityStorage = CommonsUtils.getService(IdentityStorage.class);
-      identityStorage.updateProfile(profile);
+      if (hasUpdated.get() || isNew) {
+        IdentityStorage identityStorage = CommonsUtils.getService(IdentityStorage.class);
+        identityStorage.updateProfile(profile);
+      }
+    } finally {
+      RequestLifeCycle.end();
     }
 
   }
