@@ -131,24 +131,27 @@ export default {
     handleCommentDeleted(event) {
       this.$root.$emit('activity-comment-deleted', event && event.detail);
     },
-    deleteComment(comment) {
-      const activityId = comment && comment.activityId;
+    deleteComment(event) {
+      const activityId = event?.activityId;
+      const commentId = event?.commentId;
+      const parentCommentId = event?.parentCommentId;
       if (activityId === this.activityId) {
-        const commentIndex = this.comments.findIndex(tmp => tmp.id === comment.id);
+        let commentIndex = this.comments.findIndex(tmp => tmp.id === commentId);
         if (commentIndex >= 0) {
           const comment = this.comments[commentIndex];
           this.$emit('comment-deleted', comment, commentIndex);
         } else {
-          this.comments.forEach((displayedComment, index) => {
-            const subComments = displayedComment.subComments || [];
-            const commentReplyIndex = subComments.findIndex(tmp => tmp.id === comment.id);
-            if (commentReplyIndex >= 0) {
-              comment.highlight = true;
-              comment.updated = true;
-              subComments.splice(commentReplyIndex, 1);
-              this.$emit('comment-updated', comment, index, commentReplyIndex);
-            }
-          });
+          commentIndex = this.comments.findIndex(tmp => tmp.id === parentCommentId);
+          const displayedComment = this.comments[commentIndex];
+          const subComments = displayedComment?.subComments || [];
+          const commentReplyIndex = subComments.findIndex(tmp => tmp.id === commentId);
+          if (commentReplyIndex >= 0) {
+            const comment = subComments[commentReplyIndex];
+            comment.highlight = true;
+            comment.updated = true;
+            subComments.splice(commentReplyIndex, 1);
+            this.$emit('comment-updated', comment, commentIndex, commentReplyIndex);
+          }
         }
       }
     },

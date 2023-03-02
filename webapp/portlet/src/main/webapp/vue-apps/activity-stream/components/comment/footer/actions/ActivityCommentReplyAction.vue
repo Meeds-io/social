@@ -92,8 +92,10 @@ export default {
         this.hasCommented = true;
       }
     },
-    handleCommentDeleted(comment) {
-      if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
+    handleCommentDeleted(event) {
+      const activityId = event?.activityId;
+      const parentCommentId = event?.parentCommentId;
+      if (activityId === this.activityId && this.comment.id === parentCommentId) {
         this.checkWhetherCommented();
       }
     },
