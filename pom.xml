@@ -46,7 +46,7 @@
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
-    <org.exoplatform.commons.version>6.5.x-meed-SNAPSHOT</org.exoplatform.commons.version>
+    <org.exoplatform.commons.version>6.5.0-meed-20230302</org.exoplatform.commons.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
