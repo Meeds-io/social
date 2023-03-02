@@ -232,9 +232,6 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   click: (activity, comment) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(comment.id)
-      .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: comment}));
-      })
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
