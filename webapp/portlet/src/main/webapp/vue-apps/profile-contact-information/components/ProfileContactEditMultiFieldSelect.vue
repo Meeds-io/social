@@ -6,7 +6,7 @@
       class="ignore-vuetify-classes align-start flex-grow-0 half-width text-capitalize"
       @change="$emit('propertyUpdated')">
       <option
-        v-for="item in properties"
+        v-for="item in filtredProperties"
         :key="item.propertyName"
         :value="item.propertyName"
         class="text-capitalize">
@@ -51,6 +51,15 @@ export default {
   created() {
     this.$root.$on('non-valid-url-input', this.showError);
     this.$root.$on('reset-custom-validity', this.resetCustomValidity);
+  },
+  computed: {
+    filtredProperties(){
+      return this.properties.filter((obj, index, self) =>
+        index === self.findIndex((t) => (
+          t.propertyName === obj.propertyName
+        ))
+      );
+    },
   },
   methods: {
     getResolvedName(item){
