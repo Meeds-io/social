@@ -144,11 +144,10 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 @NamedQuery(
     name = "SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId",
     query = "SELECT item.spaceId, COUNT(DISTINCT item.id) FROM SocMetadataItemEntity item "
-        + " INNER JOIN SocMetadataEntity sm"
-        + " ON item.metadata.id = sm.id "
-        + " AND sm.type = :metadataType "
-        + " AND sm.audienceId = :creatorId "
-        + " AND item.spaceId IN :spacesId "
+        + " INNER JOIN item.metadata sm"
+        + " ON sm.type = :metadataType "
+        + " AND sm.audienceId = :audienceId "
+        + " WHERE item.spaceId IN (:spaceIds) "
         + " GROUP BY item.spaceId"
 )
 @NamedNativeQuery(

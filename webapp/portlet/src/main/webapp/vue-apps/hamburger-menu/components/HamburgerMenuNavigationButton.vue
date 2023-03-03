@@ -19,61 +19,81 @@
 
 -->
 <template>
-  <v-app
-    color="transaprent"
-    class="HamburgerNavigationMenu"
-    flat>
-    <a
-      class="HamburgerNavigationMenuLink flex border-box-sizing"
-      @click="$emit('open-drawer')">
-      <div class="px-5 py-3">
-        <v-icon size="24">fa-bars</v-icon>
-      </div>
-      <v-btn
-        v-show="showBadge"
-        class="hamburger-unread-badge"
-        absolute
-        icon
-        height="16"
-        width="16"
-        text>
-        <div class="hamburger-unread-badge error-color-background"></div>
-      </v-btn>
-    </a>
-  </v-app>
+  <a
+    class="HamburgerNavigationMenuLink flex border-box-sizing"
+    @click="$emit('open-drawer')">
+    <div class="px-5 py-3">
+      <v-icon size="24">fa-bars</v-icon>
+    </div>
+    <v-btn
+      v-show="showBadge"
+      class="hamburger-unread-badge"
+      absolute
+      icon
+      height="16"
+      width="16"
+      text>
+      <div class="hamburger-unread-badge error-color-background"></div>
+    </v-btn>
+  </a>
 </template>
 <script>
 export default {
-  data: () => ({
-    showHamburgerBadge: false
-  }),
   props: {
-    unreadBySpace: {
-      type: Object,
-      default: () => ({})
-    },
-    displayBadge: {
-      type: Boolean,
-      default: false
+    unreadPerSpace: {
+      type: Array,
+      default: () => ([])
     }
   },
   computed: {
     showBadge() {
-      return this.displayBadge || this.showHamburgerBadge;
+      return this.unreadPerSpace?.length;
     }
   },
   mounted() {
     document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+    document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+    document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+  },
+  beforeDestroy() {
+    document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+    document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+    document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
   },
   methods: {
     handleUpdatesFromWebSocket(event) {
       const data = event?.detail;
       const wsEventName = data?.wsEventName || '';
-      if (wsEventName === 'notification.unread.item') {
-        if (!this.showHamburgerBadge) {
-          this.showHamburgerBadge = true;
-        }
+      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
+      if (spaceWebNotificationItem?.length) {
+        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
       }
+      const spaceId = spaceWebNotificationItem?.spaceId;
+      let unreadSpaceItem = {};
+      if (spaceId && this.unreadPerSpace?.length) {
+        unreadSpaceItem = this.unreadPerSpace.find(item => Number(item.spaceId) === Number(spaceId));
+      }
+      if (wsEventName === 'notification.unread.item') {
+        if (unreadSpaceItem?.spaceId ) {
+          unreadSpaceItem.unredItem ++;
+        } else {
+          this.unreadPerSpace.push({
+            'spaceId': spaceId, 
+            'unredItem': 1
+          });
+        }
+      } else if (wsEventName === 'notification.read.item') {
+        if (unreadSpaceItem?.spaceId ) {
+          unreadSpaceItem.unredItem --;
+          if (unreadSpaceItem.unredItem <= 0 ) {
+            this.unreadPerSpace.splice(this.unreadPerSpace.indexOf(unreadSpaceItem), 1);
+          }
+        }  
+      }  else if (wsEventName === 'notification.read.allItems') {
+        if (unreadSpaceItem?.spaceId ) {
+          this.unreadPerSpace.splice(this.unreadPerSpace.indexOf(unreadSpaceItem), 1);
+        }
+      } 
     },
   }
 };

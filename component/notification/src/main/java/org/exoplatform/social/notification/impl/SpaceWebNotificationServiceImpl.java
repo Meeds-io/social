@@ -223,11 +223,13 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   }
 
   @Override
-  public Map<Long, Long> countUnreadItemsBySpace(String authenticatedUser) {
+  public Map<Long, Long> countUnreadItemsBySpace(String username) {
     List<Long> spaceIds = new ArrayList<>();
-    IdentityManager identityManager = getIdentityManager();
-    Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-    List<String> spacesId = spaceService.getMemberSpacesIds(authenticatedUser, 0, -1);
+    Identity userIdentity = identityManager.getOrCreateUserIdentity(username);
+    if (userIdentity == null) {
+      throw new IllegalArgumentException("User " + username + " doesn't exist");
+    }
+    List<String> spacesId = spaceService.getMemberSpacesIds(username, 0, -1);
     if (CollectionUtils.isNotEmpty(spacesId)) {
       spaceIds = spacesId.stream().map(e -> Long.parseLong(e)).collect(Collectors.toList());
     }
@@ -278,13 +280,6 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       }
     }
     return null;
-  }
-  
-  public IdentityManager getIdentityManager() {
-    if (identityManager == null) {
-      identityManager = ExoContainerContext.getService(IdentityManager.class);
-    }
-    return identityManager;
   }
 
 }

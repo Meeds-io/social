@@ -284,11 +284,7 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     rootIdentity.setProviderId("organization");
     rootIdentity.setRemoteId("root");
 
-    when(identityManager.getOrCreateIdentity("organization", "root")).thenReturn(rootIdentity);
-
-    when(metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
-                                                                                 Long.parseLong(rootIdentity.getId()),
-                                                                                 Collections.emptyList())).thenReturn(Collections.emptyMap());
+    when(identityManager.getOrCreateUserIdentity("root")).thenReturn(rootIdentity);
 
     Space space = new Space();
     space.setId("1");

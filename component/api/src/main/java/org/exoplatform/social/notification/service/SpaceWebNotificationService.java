@@ -91,7 +91,7 @@ public interface SpaceWebNotificationService {
    *
    * @return Map of space id and unread items
    */
-  Map<Long, Long> countUnreadItemsBySpace(String authenticatedUser);
+  Map<Long, Long> countUnreadItemsBySpace(String username);
   
   
 

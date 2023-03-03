@@ -25,7 +25,7 @@
     flat>
     <hamburger-menu-navigation-button 
       v-if="!stickyDisplay"
-      :display-badge="showHamburgerBadge"
+      :unread-per-space="unreadPerSpaceArray"
       @open-drawer="firstLevelDrawer = true" />
     <template v-if="displaySequentially">
       <hamburger-menu-navigation-third-level
@@ -113,7 +113,8 @@ export default {
     recentSpaces: null,
     limit: 7,
     offset: 0,
-    showHamburgerBadge: false
+    unreadPerSpace: null,
+    unreadPerSpaceArray: []
   }),
   computed: {
     allowDisplayLevels() {
@@ -271,10 +272,28 @@ export default {
       return this.$spaceService.getSpaces('', this.offset, this.limit, 'lastVisited', 'member,managers,favorite,unread')
         .then(data => {
           this.recentSpaces = data && data.spaces || [];
-          this.showHamburgerBadge = data && data.unreadPerSpace;
+          this.unreadPerSpace = data && data.unreadPerSpace;
+          if ( data && data.unreadPerSpace ) {
+            this.unreadPerSpaceArray = this.convertObjectToArray(this.unreadPerSpace);
+          }
           return this.$nextTick();
         });
     },
+    convertObjectToArray(objectItem) {
+      const unreadPerSpaceArray = [];
+      const keys = Object.keys(objectItem);
+      const values = Object.values(objectItem);
+      for (const index in keys) {
+        const unreadItem = {
+          'spaceId': '',
+          'unredItem': ''
+        };
+        unreadItem.spaceId = keys[index];
+        unreadItem.unredItem = values[index];
+        unreadPerSpaceArray.push(unreadItem);
+      }
+      return unreadPerSpaceArray;
+    }
   },
 };
 </script>
