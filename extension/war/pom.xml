@@ -23,7 +23,7 @@
   <parent>
     <artifactId>social-extension</artifactId>
     <groupId>org.exoplatform.social</groupId>
-    <version>6.5.x-meed-SNAPSHOT</version>
+    <version>6.5.0-meed-20230305</version>
   </parent>
   <groupId>org.exoplatform.social</groupId>
   <artifactId>social-extension-war</artifactId>
