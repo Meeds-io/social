@@ -412,7 +412,15 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       
       UserNode spaceUserNode = SpaceUtils.getSpaceUserNode(space);
       UserNode removedNode = spaceUserNode.getChild(appName);
-      
+      if (removedNode == null){
+        //Try to get the node by the pageRef name and the appId
+        for (UserNode node : spaceUserNode.getChildren()){
+          if (appId.equals(node.getPageRef().getName())){
+            removedNode = spaceUserNode.getChild(node.getName());
+            break;
+          }
+        }
+      }
       if (removedNode == null) {
         // In case of cannot find the removed node, try one more time
         String spaceTemplateName = space.getTemplate();
