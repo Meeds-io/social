@@ -5,10 +5,10 @@
     <activity-stream-confirm-dialog />
     <activity-stream-updater
       ref="activityUpdater"
-      v-if="showStreamUpdater"
       :space-id="spaceId"
       :activities="activities"
       :standalone="!!activityId"
+      :stream-filter="streamFilter"
       @loadActivities="loadActivities" />
     <template v-if="activitiesToDisplay.length">
       <activity-stream-loader
@@ -102,9 +102,6 @@ export default {
     pinActivityEnabled() {
       return this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
     },
-    showStreamUpdater() {
-      return this.streamFilter === 'all_stream' ;
-    }
   },
   watch: {
     loading() {
@@ -135,8 +132,18 @@ export default {
     });
     document.addEventListener('activity-deleted', event => {
       const activityId = event && event.detail;
-      if (this.activityId) {
+      if (this.activityId === activityId) {
         this.isDeleted = true;
+        const activity = this.activities.find(obj => activityId === obj.id);
+        if (activity) {
+          setTimeout(() => {
+            if (activity.activityStream.type === 'space') {
+              location.href = `${eXo.env.portal.context}/g/${activity.activityStream.space.groupId.replace(/\//g, ':')}`;
+            } else {
+              location.href = eXo.env.portal.context;
+            }
+          }, 500);
+        }
       }
       if (activityId) {
         const index = this.activities.findIndex(activity => activityId === activity.id);
