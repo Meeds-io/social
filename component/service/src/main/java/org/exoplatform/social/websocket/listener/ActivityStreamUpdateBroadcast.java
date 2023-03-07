@@ -63,6 +63,16 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
   }
 
   @Override
+  public void deleteActivity(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
+    String activityId = getActivityId(event);
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "deleteActivity", getSpaceId(event));
+    activityStreamWebSocketService.sendMessage(activityStreamModification);
+  }
+
+  @Override
   public void saveComment(ActivityLifeCycleEvent event) {
     if (event.getActivity() == null || event.getActivity().isHidden()) {
       return;
@@ -71,6 +81,18 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
     ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "createComment", getSpaceId(event));
+    activityStreamWebSocketService.sendMessage(activityStreamModification);
+  }
+
+  @Override
+  public void deleteComment(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
+    String activityId = getActivityId(event);
+    String commentId = getCommentId(event);
+    String parentCommentId = getParentCommentId(event);
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "deleteComment", getSpaceId(event));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 

@@ -31,6 +31,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    streamFilter: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     updatedActivities: new Set(),
@@ -38,14 +42,14 @@ export default {
   }),
   computed: {
     hasNewActivity() {
-      return this.newerActivitiesCount > 0;
+      return !this.standalone && this.streamFilter === 'all_stream' && this.newerActivitiesCount > 0;
     },
   },
   created() {
-    this.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates, this.standalone);
-    if (!this.standalone) {
-      this.$root.$on('activity-stream-activity-createActivity', this.increaseActivitiesLimitToRetrieve);
-    }
+    this.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates);
+    this.$root.$on('activity-stream-activity-deleteActivity', this.broadcastActivityDeleted);
+    this.$root.$on('activity-stream-activity-createActivity', this.increaseActivitiesLimitToRetrieve);
+    this.$root.$on('activity-stream-activity-deleteComment', this.broadcastCommentDeleted);
   },
   methods: {
     init() {
@@ -70,6 +74,18 @@ export default {
       this.$emit('loadActivities', this.updatedActivities.size);
       this.init();
     },
+    broadcastActivityDeleted(activityId) {
+      document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activityId}));
+    },
+    broadcastCommentDeleted(activityId, spaceId, commentId, parentCommentId) {
+      document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: {
+        activityId: activityId,
+        spaceId: spaceId,
+        commentId: commentId,
+        parentCommentId: parentCommentId,
+      }
+      }));
+    }
   },
 };
 </script>
