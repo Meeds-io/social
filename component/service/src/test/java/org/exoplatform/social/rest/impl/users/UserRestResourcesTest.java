@@ -1,5 +1,6 @@
 package org.exoplatform.social.rest.impl.users;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -57,7 +58,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private IdentityManager     identityManager;
 
-  private ProfilePropertyService profilePropertyService;
+  private ProfilePropertyService       profilePropertyService;
 
   private UserACL             userACL;
 
@@ -127,7 +128,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                       spaceService,
                                                                       uploadService,
                                                                       userSearchService,
-                                                                      imageThumbnailService);
+                                                                      imageThumbnailService,
+                                                                      profilePropertyService);
     registry(userRestResourcesV1);
   }
 
@@ -208,7 +210,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                     spaceService,
                                                                     uploadService,
                                                                     userSearchService,
-                                                                    imageThumbnailService);
+                                                                    imageThumbnailService,
+                                                                    profilePropertyService);
     registry(userRestResources);
 
     //when
@@ -386,11 +389,25 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testGetUserById() throws Exception {
     startSessionAs("root");
-    ContainerResponse response = service("GET", getURLResource("users/john"), "", null, null);
+    ContainerResponse response = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
+    String etag = response.getHttpHeaders().get("etag").toString();
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     ProfileEntity userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
     assertEquals("john", userEntity.getUsername());
+
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setPropertyName(Profile.FIRST_NAME);
+    profilePropertyService.createPropertySetting(profilePropertySetting);
+    ContainerResponse response1 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
+    String etag1 = response1.getHttpHeaders().get("etag").toString();
+    assertNotNull(response1);
+    assertNotEquals(etag, etag1);
+
+    ContainerResponse response2 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
+    String etag2 = response2.getHttpHeaders().get("etag").toString();
+    assertNotNull(response2);
+    assertEquals(etag1, etag2);
   }
 
   public void testGetUserProfilePropertiesById() throws Exception {
