@@ -340,6 +340,9 @@
           <excludes>
             <exclude>**/*TestIT.java</exclude>
           </excludes>
+          <systemPropertyVariables>
+            <exo.social.profile.excluded.attributeList>propertyToIgnore, propertyToIgnore1, propertyToIgnore2</exo.social.profile.excluded.attributeList>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       <plugin>

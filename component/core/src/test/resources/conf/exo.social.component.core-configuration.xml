@@ -654,17 +654,7 @@
     <key>org.exoplatform.social.core.processor.I18NActivityProcessor</key>
     <type>org.exoplatform.social.core.processor.I18NActivityProcessor</type>
   </component>
-
-  <component>
-    <key>social-test-configuration-properties</key>
-    <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
-    <init-params>
-      <properties-param>
-        <name>social-test-configuration-properties</name>
-        <property name="exo.social.profile.excluded.attributeList" value="propertyToIgnore, propertyToIgnore1, propertyToIgnore2" />
-      </properties-param>
-    </init-params>
-  </component>
+  
   <external-component-plugins>
     <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
     <component-plugin>
