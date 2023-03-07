@@ -38,8 +38,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -75,6 +75,7 @@ import org.json.JSONObject;
 import org.picocontainer.Startable;
 
 import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
@@ -82,8 +83,8 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.deprecation.DeprecatedAPI;
-import org.exoplatform.portal.config.DataStorage;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -1530,6 +1531,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
           userName = importUser(userImportResultEntity, locale, url, fields, userCSVLine);
         } catch (Throwable e) {
+          LOG.warn("Error importing user data {}", userName, e);
+
           if (StringUtils.isNotBlank(userName)) {
             userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
           }
@@ -1600,6 +1603,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       try {
         organizationService.getUserHandler().createUser(user, true);
       } catch (Exception e) {
+        LOG.warn("Error importing user {}", userName, e);
         userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
         return userName;
       }
@@ -1659,9 +1663,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     String warnMessage = null;
     try {
       saveProfile(userName, profileEntity);
+    } catch (ObjectNotFoundException e) {
+      // Not a mandatory operation such as IDM store updates
+      // This may happen when user is disabled
+      LOG.debug("User Identity profile {} wasn't found, ignore processing", userName);
     } catch (IdentityStorageException e) {
+      LOG.warn("Error saving user profile {}", userName, e);
       warnMessage = e.getMessageKey();
     } catch (Exception e) {
+      LOG.warn("Error saving user profile {}", userName, e);
       warnMessage = "CREATE_USER_PROFILE_ERROR:" + e.getMessage();
     }
     if (warnMessage != null) {
@@ -1692,16 +1702,20 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
     Identity userIdentity = getUserIdentity(username);
-    Profile profile = userIdentity.getProfile();
+    if (userIdentity == null) {
+      throw new ObjectNotFoundException("User identity of " + username + " wasn't found. It can be due to a disabled user.");
+    } else {
+      Profile profile = userIdentity.getProfile();
 
-    Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
-    for (Entry<String, Object> entry : profileEntries) {
-      String name = entry.getKey();
-      Object value = entry.getValue();
-      String fieldName = ProfileEntity.getFieldName(name);
-      updateProfileField(profile, fieldName, value, false);
+      Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
+      for (Entry<String, Object> entry : profileEntries) {
+        String name = entry.getKey();
+        Object value = entry.getValue();
+        String fieldName = ProfileEntity.getFieldName(name);
+        updateProfileField(profile, fieldName, value, false);
+      }
+      identityManager.updateProfile(profile, true);
     }
-    identityManager.updateProfile(profile, true);
   }
 
   private void fillUserFromModel(User user, UserEntity model) {
@@ -1775,9 +1789,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws Exception {
     PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-    DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+    LayoutService layoutService = CommonsUtils.getService(LayoutService.class);
     String currentSiteName = CommonsUtils.getCurrentSite().getName();
-    String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+    String currentSiteLocale = layoutService.getPortalConfig(currentSiteName).getLocale();
     Locale locale = new Locale(currentSiteLocale);
     boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
     if (onBoardingEmailSent) {

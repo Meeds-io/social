@@ -197,7 +197,7 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     valueParam.setName("templateName");
     valueParam.setValue("custom");
     params.addParameter(valueParam);
-    SpaceApplicationHandler applicationHandler = new DefaultSpaceApplicationHandler(params, null, null, null);
+    SpaceApplicationHandler applicationHandler = new DefaultSpaceApplicationHandler(params, null, null, null, null);
     // when
     spaceTemplateService.registerSpaceApplicationHandler(applicationHandler);
     // then

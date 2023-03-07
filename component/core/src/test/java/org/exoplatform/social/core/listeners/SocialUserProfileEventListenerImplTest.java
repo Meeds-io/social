@@ -16,15 +16,11 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import org.exoplatform.commons.utils.PropertyManager;
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
@@ -32,7 +28,6 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
@@ -40,66 +35,35 @@ import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
-  private final Log  LOG = ExoLogger.getLogger(SocialUserProfileEventListenerImplTest.class);
 
-  private IdentityManager identityManager;
-  
+  private IdentityManager           identityManager;
 
-  private List<Identity>  tearDownIdentityList;
+  private OrganizationService       organizationService;
 
-  private OrganizationService organizationService;
   private SocialStorageCacheService cacheService;
-  private ProfilePropertyService profilePropertyService;
-  private Identity paul;
-  private Identity raul;
-  private boolean alreadyAddedPlugins = false;
 
-  public SocialUserProfileEventListenerImplTest() {
-    setForceContainerReload(true);
-  }
+  private ProfilePropertyService    profilePropertyService;
+
+  private Identity                  paul;
+
+  private Identity                  raul;
 
   public void setUp() throws Exception {
     super.setUp();
     identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     organizationService = (OrganizationService) getContainer().getComponentInstanceOfType(OrganizationService.class);
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
-    fakePlugins();
     cacheService = getContainer().getComponentInstanceOfType(SocialStorageCacheService.class);
     cacheService.getIdentityCache().clearCache();
     cacheService.getIdentityIndexCache().clearCache();
 
-    paul = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "paul", true);
-    raul = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "raul", true);
-    tearDownIdentityList = new ArrayList<Identity>();
-    tearDownIdentityList.add(paul);
-    tearDownIdentityList.add(raul);
+    paul = identityManager.getOrCreateUserIdentity("paul");
+    raul = identityManager.getOrCreateUserIdentity("raul");
+
     org.exoplatform.services.security.Identity identity = getService(IdentityRegistry.class).getIdentity("root");
     ConversationState.setCurrent(new ConversationState(identity));
   }
-  
-  private void fakePlugins() throws Exception {
-    if (!alreadyAddedPlugins) {
-      organizationService.addListenerPlugin(new SocialUserEventListenerImpl());
-      organizationService.addListenerPlugin(new SocialUserProfileEventListenerImpl(identityManager,
-              profilePropertyService));
-      alreadyAddedPlugins = true;
-    }
-    
-  }
 
-  public void tearDown() throws Exception {
-    
-    for (Identity identity : tearDownIdentityList) {
-      identityManager.deleteIdentity(identity);
-    }
-    super.tearDown();
-  }
-
-  /**
-   * This testcase what will use for unit testing with scenario to 
-   * synchronous profile from Social to Portal's Organization
-   * @throws Exception
-   */
   public void testSynchronizeFromSocialToPortal() throws Exception {
     String paulRemoteId = "paul";
     Identity paulIdentity = populateProfile(paul);
@@ -107,68 +71,64 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     //
     UserProfile pProfile = organizationService.getUserProfileHandler().findUserProfileByName(paulRemoteId);
     assertNotNull(pProfile);
-    
+
     //
-    assertEquals(paulIdentity.getProfile().getPosition(), pProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]));//user.jobtitle
-    
-    //update firstName
+    assertEquals(paulIdentity.getProfile().getPosition(), pProfile.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]));// user.jobtitle
+
+    // update firstName
     {
       Identity identity1 = updateProfileKeyValue(paulIdentity, Profile.FIRST_NAME, "thanh");
       User pUser1 = organizationService.getUserHandler().findUserByName(paulRemoteId);
       //
       assertEquals(identity1.getProfile().getProperty(Profile.FIRST_NAME), pUser1.getFirstName());
     }
-    
-    //update lastName
+
+    // update lastName
     {
       Identity identity1 = updateProfileKeyValue(paulIdentity, Profile.LAST_NAME, "vu");
       User pUser1 = organizationService.getUserHandler().findUserByName(paulRemoteId);
       //
       assertEquals(identity1.getProfile().getProperty(Profile.LAST_NAME), pUser1.getLastName());
     }
-    
-    //update leader
+
+    // update leader
     {
       Identity identity1 = updateProfilePosition(paulIdentity, "leader");
       UserProfile pProfile1 = organizationService.getUserProfileHandler().findUserProfileByName(paulRemoteId);
       //
-      assertEquals(identity1.getProfile().getPosition(), pProfile1.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]));//user.jobtitle
+      assertEquals(identity1.getProfile().getPosition(), pProfile1.getAttribute(UserProfile.PERSONAL_INFO_KEYS[7]));// user.jobtitle
 
     }
-    
-    //update gender
+
+    // update gender
     {
       Identity identity2 = updateProfileGender(paulIdentity, "male");
       UserProfile pProfile2 = organizationService.getUserProfileHandler().findUserProfileByName(paulRemoteId);
-      //user.gender
+      // user.gender
       assertEquals(identity2.getProfile().getProperty(Profile.GENDER), pProfile2.getAttribute(UserProfile.PERSONAL_INFO_KEYS[4]));
 
     }
   }
-  
-  /**
-   * This TestCase what will use for unit testing with scenario to 
-   * synchronous profile from Portal's Organization to Social
-   * @throws Exception
-   */
+
   public void testSynchronizeFromProtalToSocial() throws Exception {
     String raulRemoteId = "raul";
     Identity raulIdentity = populateProfile(raul);
     assertNotNull(raulIdentity);
-    
+
     User pUser = organizationService.getUserHandler().findUserByName(raulRemoteId);
     assertNotNull(pUser);
     //
     Profile sProfile = identityManager.getProfile(raulIdentity);
     assertNotNull(sProfile);
-    
+
     assertEquals(sProfile.getProperty(Profile.FIRST_NAME), pUser.getFirstName());
     assertEquals(sProfile.getProperty(Profile.LAST_NAME), pUser.getLastName());
-    
+
   }
+
   /**
-   * Populates the list of identities by specifying the number of items and to indicate if they are added to
-   * the tear-down list.
+   * Populates the list of identities by specifying the number of items and to
+   * indicate if they are added to the tear-down list.
    *
    * @param identity
    */
@@ -176,74 +136,67 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     RequestLifeCycle.begin(PortalContainer.getInstance());
     Profile profile = identity.getProfile();
     assertNotNull(profile);
-    
-    //BASIC_INFO
+
+    // BASIC_INFO
     profile.setProperty(Profile.FIRST_NAME, "FirstName");
     profile.setProperty(Profile.LAST_NAME, "LastName");
-    profile.setProperty(Profile.FULL_NAME, "FirstName" + " " +  "LastName");
+    profile.setProperty(Profile.FULL_NAME, "FirstName" + " " + "LastName");
     profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
     identityManager.updateProfile(profile);
-    
-    //CONTACT INFO
+
+    // CONTACT INFO
     profile.setProperty(Profile.GENDER, "fmale");
     profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
     identityManager.updateProfile(profile);
-    
 
-    //POSITION
+    // POSITION
     profile.setProperty(Profile.POSITION, "developer");
     profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
     identityManager.updateProfile(profile);
 
     RequestLifeCycle.end();
     identity.setProfile(profile);
-    
+
     return identity;
 
   }
-  
-  private Identity updateProfilePosition(Identity identity, String position) throws Exception {
-    RequestLifeCycle.begin(PortalContainer.getInstance());
+
+  @ExoTransactional
+  public Identity updateProfilePosition(Identity identity, String position) throws Exception {
     Profile profile = identity.getProfile();
     assertNotNull(profile);
     //
     profile.setProperty(Profile.POSITION, position);
     profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
     identityManager.updateProfile(profile);
-    
-    //profile.setProperty(Profile.CONTACT_PHONES, new String[]{"098939179"});
-    //profile.setProperty(Profile.CONTACT_URLS, new String[]{"http://exoplatform.com"});
-
-    RequestLifeCycle.end();
     identity.setProfile(profile);
     return identity;
-
   }
-  
+
   private Identity updateProfileGender(Identity identity, String gender) throws Exception {
     RequestLifeCycle.begin(PortalContainer.getInstance());
     Profile profile = identity.getProfile();
     assertNotNull(profile);
-        
+
     profile.setProperty(Profile.GENDER, gender);
     profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
     identityManager.updateProfile(profile);
-    
+
     RequestLifeCycle.end();
     identity.setProfile(profile);
     return identity;
 
   }
-  
+
   private Identity updateProfileKeyValue(Identity identity, String key, String value) throws Exception {
     RequestLifeCycle.begin(PortalContainer.getInstance());
     Profile profile = identity.getProfile();
     assertNotNull(profile);
-        
+
     profile.setProperty(key, value);
     profile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.CONTACT));
     identityManager.updateProfile(profile);
-    
+
     RequestLifeCycle.end();
     identity.setProfile(profile);
     return identity;
@@ -267,7 +220,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     userProfile.setAttribute("postalCode", "2100");
     organizationService.getUserProfileHandler().saveUserProfile(userProfile, true);
 
-    Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, raulRemoteId).getProfile();
+    Profile profile = identityManager.getOrCreateUserIdentity(raulRemoteId).getProfile();
     assertNotNull(profile);
     assertEquals("2100", profile.getProperty("postalCode"));
   }
@@ -279,7 +232,7 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     userProfile.setAttribute("propertyNotToIgnore", "Yes !");
     organizationService.getUserProfileHandler().saveUserProfile(userProfile, true);
 
-    Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, raulRemoteId).getProfile();
+    Profile profile = identityManager.getOrCreateUserIdentity(raulRemoteId).getProfile();
     assertNotNull(profile);
 
     // propertyToIgnore should be ignored

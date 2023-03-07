@@ -88,11 +88,6 @@
       <set-method>addPortalApplicationLifecycle</set-method>
       <type>org.exoplatform.social.webui.SpaceAccessApplicationLifecycle</type>
     </component-plugin>
-    <component-plugin>
-      <name>OAuthLifecycle</name>
-      <set-method>addPortalApplicationLifecycle</set-method>
-      <type>org.exoplatform.oauth.webui.OAuthLifecycle</type>
-    </component-plugin>
   </external-component-plugins>
 
 </configuration>

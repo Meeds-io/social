@@ -16,31 +16,52 @@
  */
 package org.exoplatform.social.rest.impl.space;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.application.registry.Application;
-import org.exoplatform.commons.utils.*;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.IOUtil;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.deprecation.DeprecatedAPI;
-import org.exoplatform.portal.config.DataStorage;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -51,23 +72,42 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.model.*;
+import org.exoplatform.social.core.model.AvatarAttachment;
+import org.exoplatform.social.core.model.BannerAttachment;
+import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceException;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
-import org.exoplatform.social.rest.api.*;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.api.RestProperties;
+import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.rest.api.SpaceRestResources;
+import org.exoplatform.social.rest.entity.ActivityEntity;
+import org.exoplatform.social.rest.entity.BaseEntity;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
@@ -688,11 +728,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       StringBuilder url = new StringBuilder(uri);
 
       PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-      DataStorage dataStorage = CommonsUtils.getService(DataStorage.class);
+      LayoutService layoutService = CommonsUtils.getService(LayoutService.class);
       String currentSiteName = CommonsUtils.getCurrentSite().getName();
       Locale locale = null;
       try {
-        String currentSiteLocale = dataStorage.getPortalConfig(currentSiteName).getLocale();
+        String currentSiteLocale = layoutService.getPortalConfig(currentSiteName).getLocale();
         locale = new Locale(currentSiteLocale);
       } catch (Exception e) {
         LOG.error("Failure to retrieve portal config", e);

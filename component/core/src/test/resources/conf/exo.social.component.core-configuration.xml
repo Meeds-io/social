@@ -1,39 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2003-2011 eXo Platform SAS.
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ This file is part of the Meeds project (https://meeds.io/).
+ 
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
-  <component>
-    <type>org.exoplatform.services.scheduler.impl.QuartzSheduler</type>
-  </component>
-  <component>
-    <type>org.exoplatform.services.scheduler.QueueTasks</type>
-  </component>
-  <component>
-    <key>org.exoplatform.services.scheduler.JobSchedulerService</key>
-    <type>org.exoplatform.services.scheduler.impl.JobSchedulerServiceImpl</type>
-  </component>
-  <component>
-    <key>org.exoplatform.services.jdbc.DataSourceProvider</key>
-    <type>org.exoplatform.services.jdbc.impl.DataSourceProviderImpl</type>
-  </component>
-  
    <component>
      <type>org.exoplatform.social.core.jpa.search.ActivitySearchConnector</type>
       <init-params>
@@ -47,153 +34,6 @@
         </properties-param>
       </init-params>
    </component>
-
-  <component>
-    <key>org.exoplatform.services.document.DocumentReaderService</key>
-    <type>org.exoplatform.services.document.impl.DocumentReaderServiceImpl</type>
-    <component-plugins>
-      <component-plugin>
-        <name>pdf.document.reader</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.PDFDocumentReader</type>
-        <description>to read the pdf inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.types</name>
-            <description>description</description>
-            <value>application/pdf</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerMSWord</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.MSWordDocumentReader</type>
-        <description>to read the ms word inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSWord</name>
-            <description>description</description>
-            <value>application/msword</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerMSExcel</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.MSExcelDocumentReader</type>
-        <description>to read the ms excel inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSExcel</name>
-            <description>description</description>
-            <value>application/excel</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerMSOutlook</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.MSOutlookDocumentReader</type>
-        <description>to read the ms outlook inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesMSOutlook</name>
-            <description>description</description>
-            <value>application/vnd.ms-outlook</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>PPTdocument.reader</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.PPTDocumentReader</type>
-        <description>to read the ms ppt inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesPPT</name>
-            <description>description</description>
-            <value>application/ppt</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerHTML</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.HTMLDocumentReader</type>
-        <description>to read the html inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesHTML</name>
-            <description>description</description>
-            <value>text/html</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerXML</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.XMLDocumentReader</type>
-        <description>to read the xml inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesXML</name>
-            <description>description</description>
-            <value>text/xml</value>
-          </values-param>
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>TPdocument.reader</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.TextPlainDocumentReader</type>
-        <description>to read the plain text inputstream</description>
-        <init-params>
-          <values-param>
-            <name>document.known.typesTextPlain</name>
-            <description>description</description>
-            <value>text/plain</value>
-          </values-param>
-          <!-- values-param>
-            <name>defaultEncoding</name>
-            <description>description</description>
-            <value>UTF-8</value>
-         </values-param -->
-        </init-params>
-      </component-plugin>
-
-      <component-plugin>
-        <name>document.readerOO</name>
-        <set-method>addDocumentReader</set-method>
-        <type>org.exoplatform.services.document.impl.OpenOfficeDocumentReader</type>
-        <description>to read the OO inputstream</description>
-      </component-plugin>
-
-    </component-plugins>
-  </component>
-
-  <component>
-    <type>org.exoplatform.social.core.jpa.mock.DummyDependantComponent</type>
-  </component>
-
-  <component>
-    <key>org.exoplatform.services.naming.InitialContextInitializer</key>
-    <type>org.exoplatform.services.naming.InitialContextInitializer</type>
-    <init-params>
-      <properties-param>
-        <name>default-properties</name>
-        <description>Default initial context properties</description>
-        <property name="java.naming.factory.initial" value="org.exoplatform.services.naming.SimpleContextFactory" />
-      </properties-param>
-    </init-params>
-  </component>
 
   <component>
     <type>org.exoplatform.social.core.storage.cache.SocialStorageCacheService</type>
@@ -369,12 +209,6 @@
     <type>org.exoplatform.social.core.processor.OSHtmlSanitizerProcessor</type>
   </component>
 
-
-
-  <component>
-    <type>org.exoplatform.social.core.identity.model.PropertiesDefinition</type>
-  </component>
-
   <component>
     <key>org.exoplatform.social.core.manager.RelationshipManager</key>
     <type>org.exoplatform.social.core.manager.RelationshipManagerImpl</type>
@@ -448,48 +282,6 @@
     </component-plugins>
   </component>
 
-  <component>
-    <type>org.exoplatform.social.core.service.ProfileConfig</type>
-    <init-params>
-      <values-param>
-        <name>nodetype.emails</name>
-        <value>exo:profileKeyValue</value>
-      </values-param>
-      <values-param>
-        <name>nodetype.phones</name>
-        <value>exo:profileKeyValue</value>
-      </values-param>
-      <values-param>
-        <name>nodetype.ims</name>
-        <value>exo:profileKeyValue</value>
-      </values-param>
-      <values-param>
-        <name>nodetype.urls</name>
-        <value>exo:profileKeyValue</value>
-      </values-param>
-      <values-param>
-        <name>nodetype.address</name>
-        <value>exo:profileAddress</value>
-      </values-param>
-      <values-param>
-        <name>nodetype.experiences</name>
-        <value>exo:profileExperience</value>
-      </values-param>
-      <values-param>
-        <name>nodetype.education</name>
-        <value>exo:profileEducation</value>
-      </values-param>
-      <values-param>
-        <name>forceMultiValue</name>
-        <value>xxxxxxxxxxxx</value>
-      </values-param>
-    </init-params>
-  </component>
-
-  <component>
-    <type>org.exoplatform.social.core.profile.ProfileMapper</type>
-  </component>
-
   <!-- Space Configuration -->
 
   <component>
@@ -554,37 +346,6 @@
       </properties-param>
     </init-params>
   </component>
-
-  <component>
-    <type>org.exoplatform.social.core.jpa.search.PeopleElasticUnifiedSearchServiceConnector</type>
-    <init-params>
-      <properties-param>
-        <name>constructor.params</name>
-        <property name="displayName" value="People" />
-        <property name="index" value="profile_alias" />
-        <property name="type" value="profile" />
-        <property name="enable" value="${exo.unified-search.connector.people.enable:true}" />
-        <property name="titleField" value="name" />
-        <property name="searchFields" value="name,firstName,lastName,position,skills" />
-      </properties-param>
-    </init-params>
-  </component>
-
-  <component>
-    <type>org.exoplatform.social.core.jpa.search.SpaceElasticUnifiedSearchServiceConnector</type>
-    <init-params>
-      <properties-param>
-        <name>constructor.params</name>
-        <property name="displayName" value="Space" />
-        <property name="index" value="space_alias" />
-        <property name="type" value="space" />
-        <property name="enable" value="${exo.unified-search.connector.space.enable:true}" />
-        <property name="titleField" value="displayName" />
-        <property name="searchFields" value="prettyName,displayName,description" />
-      </properties-param>
-    </init-params>
-  </component>
-  
   <!-- Spaces Groups Binding -->
   <component>
     <key>org.exoplatform.social.core.jpa.storage.dao.UserSpaceBindingDAO</key>
@@ -655,16 +416,6 @@
     <type>org.exoplatform.social.core.processor.I18NActivityProcessor</type>
   </component>
 
-  <component>
-    <key>social-test-configuration-properties</key>
-    <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
-    <init-params>
-      <properties-param>
-        <name>social-test-configuration-properties</name>
-        <property name="exo.social.profile.excluded.attributeList" value="propertyToIgnore, propertyToIgnore1, propertyToIgnore2" />
-      </properties-param>
-    </init-params>
-  </component>
   <external-component-plugins>
     <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
     <component-plugin>
@@ -744,53 +495,6 @@
             </field>
           </object>
         </object-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.file.services.NameSpaceService</target-component>
-    <component-plugin>
-      <name>SocialNameSpacePlugin</name>
-      <set-method>addNameSpacePlugin</set-method>
-      <type>org.exoplatform.commons.file.services.NameSpacePlugin</type>
-      <init-params>
-        <properties-param>
-          <name>fileNameSpace.params</name>
-          <property name="name" value="social" />
-          <property name="description" value="social files storage" />
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>exo-jpa_portal</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:mem:db1" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
-        </properties-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
@@ -1171,8 +875,7 @@
         </value-param>
         <value-param>
           <name>page.templates.location</name>
-          <description>the path to the location that contains Page templates</description>
-          <value>classpath:/conf/standalone/portal/template/pages</value>
+          <value>classpath:/portal/template/pages</value>
         </value-param>
         <object-param>
           <name>portal.configuration</name>
@@ -1183,16 +886,13 @@
                 <value>
                   <string>classic</string>
                 </value>
-                <value>
-                  <string>test</string>
-                </value>
               </collection>
             </field>
             <field name="ownerType">
               <string>portal</string>
             </field>
             <field name="templateLocation">
-              <string>classpath:/portal</string>
+              <string>classpath:/org/exoplatform/portal/config/conf</string>
             </field>
           </object>
         </object-param>
@@ -1202,98 +902,16 @@
           <object type="org.exoplatform.portal.config.NewPortalConfig">
             <field name="predefinedOwner">
               <collection type="java.util.HashSet">
-                <value>
-                  <string>administrators</string>
-                </value>
-                <value>
-                  <string>users</string>
-                </value>
               </collection>
             </field>
             <field name="ownerType">
               <string>group</string>
             </field>
             <field name="templateLocation">
-              <string>classpath:/portal</string>
+              <string>classpath:/org/exoplatform/portal/config/conf</string>
             </field>
           </object>
         </object-param>
-        <object-param>
-          <name>user.configuration</name>
-          <description>description</description>
-          <object type="org.exoplatform.portal.config.NewPortalConfig">
-            <field name="predefinedOwner">
-              <collection type="java.util.HashSet">
-                <value>
-                  <string>root</string>
-                </value>
-                <value>
-                  <string>john</string>
-                </value>
-                <value>
-                  <string>mary</string>
-                </value>
-                <value>
-                  <string>demo</string>
-                </value>
-              </collection>
-            </field>
-            <field name="ownerType">
-              <string>user</string>
-            </field>
-            <field name="templateLocation">
-              <string>classpath:/portal</string>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.file.services.NameSpaceService</target-component>
-    <component-plugin>
-      <name>SocialNameSpacePlugin</name>
-      <set-method>addNameSpacePlugin</set-method>
-      <type>org.exoplatform.commons.file.services.NameSpacePlugin</type>
-      <init-params>
-        <properties-param>
-          <name>fileNameSpace.params</name>
-          <property name="name" value="social" />
-          <property name="description" value="social files storage" />
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <!-- Bind datasource -->
-  <external-component-plugins>
-    <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>java:/comp/env/exo-jpa_portal</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:mem:db1" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
-        </properties-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
@@ -1690,48 +1308,5 @@
     </component-plugin>
   </external-component-plugins>
 
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.api.search.SearchService</target-component>
-    <component-plugin profiles="all">
-      <name>PeopleElasticUnifiedSearchServiceConnector</name>
-      <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.core.jpa.search.PeopleElasticUnifiedSearchServiceConnector</type>
-      <description>People ElasticSearch Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="displayName" value="People"/>
-          <property name="index" value="profile_alias"/>
-          <property name="type" value="profile"/>
-          <property name="enable" value="${exo.unified-search.connector.people.enable:true}"/>
-          <property name="titleField" value="name"/>
-          <property name="searchFields" value="name,firstName,lastName,position,skills"/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-  
-  <external-component-plugins>
-    <target-component>org.exoplatform.commons.api.search.SearchService</target-component>
-    <component-plugin profiles="all">
-      <name>SpaceElasticUnifiedSearchServiceConnector</name>
-      <set-method>addConnector</set-method>
-      <type>org.exoplatform.social.core.jpa.search.SpaceElasticUnifiedSearchServiceConnector</type>
-      <description>Space ElasticSearch Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="displayName" value="Spaces"/>
-          <property name="index" value="space_alias"/>
-          <property name="type" value="space"/>
-          <property name="enable" value="${exo.unified-search.connector.space.enable:true}"/>
-          <property name="titleField" value="displayName"/>
-          <property name="searchFields" value="prettyName,displayName,description"/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <remove-configuration>org.exoplatform.mfa.impl.otp.ExoOtpConnector</remove-configuration>
   <remove-configuration>org.exoplatform.commons.search.index.IndexingOperationProcessor</remove-configuration>
 </configuration>
