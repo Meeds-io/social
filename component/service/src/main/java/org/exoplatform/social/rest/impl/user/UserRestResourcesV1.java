@@ -69,6 +69,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.rest.entity.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -204,6 +205,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private ImageThumbnailService imageThumbnailService;
 
+  private ProfilePropertyService profilePropertyService;
+
   private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
 
   private byte[]              defaultUserAvatar = null;
@@ -223,7 +226,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                              SpaceService spaceService,
                              UploadService uploadService,
                              UserSearchService userSearchService,
-                             ImageThumbnailService imageThumbnailService) {
+                             ImageThumbnailService imageThumbnailService,
+                             ProfilePropertyService profilePropertyService) {
     this.userACL = userACL;
     this.activityRestResourcesV1 = activityRestResourcesV1;
     this.organizationService = organizationService;
@@ -234,6 +238,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     this.uploadService = uploadService;
     this.userSearchService = userSearchService;
     this.imageThumbnailService = imageThumbnailService;
+    this.profilePropertyService = profilePropertyService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
@@ -539,11 +544,17 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
+
     org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     String authenticatedUser = authenticatedUserIdentity.getUserId();
 
+    String expandedSettings = expand;
+    if (expand != null && expand.contains("settings")) {
+      expandedSettings = String.valueOf(Objects.hash(profilePropertyService.getPropertySettings()));
+    }
+
     long cacheTime = identity.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expandedSettings));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
