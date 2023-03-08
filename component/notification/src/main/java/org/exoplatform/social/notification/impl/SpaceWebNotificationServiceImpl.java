@@ -231,7 +231,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
     }
     List<String> spacesId = spaceService.getMemberSpacesIds(username, 0, -1);
     if (CollectionUtils.isNotEmpty(spacesId)) {
-      spaceIds = spacesId.stream().map(e -> Long.parseLong(e)).collect(Collectors.toList());
+      spaceIds = spacesId.stream().map(e -> Long.parseLong(e)).toList();
     }
     return metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
                                                                                    Long.parseLong(userIdentity.getId()),
