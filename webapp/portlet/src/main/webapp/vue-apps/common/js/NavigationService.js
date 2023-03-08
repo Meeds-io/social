@@ -20,9 +20,6 @@ export function getNavigations(siteName, siteType, scope, visibility, exclude, n
   if (siteName) {
     formData.append('siteName', siteName);
   }
-  if (siteType) {
-    formData.append('siteType', siteType);
-  }
   if (scope) {
     formData.append('scope', scope);
   }
@@ -36,7 +33,7 @@ export function getNavigations(siteName, siteType, scope, visibility, exclude, n
     formData.append('nodeId', nodeId);
   }
   const params = new URLSearchParams(formData).toString();
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/portal/?${params}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/${siteType || 'portal'}?${params}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
