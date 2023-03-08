@@ -114,7 +114,6 @@ export default {
     limit: 7,
     offset: 0,
     unreadPerSpace: null,
-    //unreadPerSpaceArray: []
   }),
   computed: {
     allowDisplayLevels() {
