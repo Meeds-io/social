@@ -276,7 +276,7 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
   }
   
   @Test
-  public void testcountUnreadItemsBySpace() throws Exception {
+  public void testCountUnreadItemsBySpace() throws Exception {
     List<String> spaceIds = new ArrayList<>();
 
     Identity rootIdentity = new Identity();
