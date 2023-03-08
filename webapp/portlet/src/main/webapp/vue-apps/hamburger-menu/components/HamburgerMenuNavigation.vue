@@ -23,14 +23,10 @@
     color="transaprent"
     class="HamburgerNavigationMenu"
     flat>
-    <a
+    <hamburger-menu-navigation-button 
       v-if="!stickyDisplay"
-      class="HamburgerNavigationMenuLink flex border-box-sizing"
-      @click="firstLevelDrawer = true">
-      <div class="px-5 py-3">
-        <v-icon size="24">fa-bars</v-icon>
-      </div>
-    </a>
+      :unread-per-space="unreadPerSpace"
+      @open-drawer="firstLevelDrawer = true" />
     <template v-if="displaySequentially">
       <hamburger-menu-navigation-third-level
         v-if="allowDisplayLevels"
@@ -58,6 +54,7 @@
         :second-level="secondLevel"
         :has-administration-navigations="hasAdministrationNavigations"
         :site-navigations="siteNavigations"
+        :recent-spaces="recentSpaces"
         :opened-space="space"
         :sticky-allowed="stickyAllowed"
         :drawer-width="drawerWidth"
@@ -73,6 +70,7 @@
         :second-level="secondLevel"
         :has-administration-navigations="hasAdministrationNavigations"
         :site-navigations="siteNavigations"
+        :recent-spaces="recentSpaces"
         :opened-space="space"
         :sticky-allowed="stickyAllowed"
         :drawer-width="drawerWidth"
@@ -112,6 +110,10 @@ export default {
     administrationNavigations: null,
     siteNavigations: null,
     initStep: 0,
+    recentSpaces: null,
+    limit: 7,
+    offset: 0,
+    unreadPerSpace: null,
   }),
   computed: {
     allowDisplayLevels() {
@@ -192,6 +194,7 @@ export default {
       return Promise.all([
         this.retrieveSiteNavigations(),
         this.retrieveAdministrationNavigations(),
+        this.retrieveRecentSpaces(),
       ]).finally(() => this.initStep++);
     },
     changeRecentSpacesMenu() {
@@ -263,6 +266,14 @@ export default {
     retrieveAdministrationNavigations() {
       return this.$navigationService.getNavigations(null, 'group', null, 'displayed')
         .then(data => this.administrationNavigations = data || []);
+    },
+    retrieveRecentSpaces() {
+      return this.$spaceService.getSpaces('', this.offset, this.limit, 'lastVisited', 'member,managers,favorite,unread')
+        .then(data => {
+          this.recentSpaces = data && data.spaces || [];
+          this.unreadPerSpace = data && data.unreadPerSpace;
+          return this.$nextTick();
+        });
     },
   },
 };
