@@ -41,13 +41,13 @@
 export default {
   props: {
     unreadPerSpace: {
-      type: Array,
-      default: () => ([])
+      type: Object,
+      default: () => ({})
     }
   },
   computed: {
     showBadge() {
-      return this.unreadPerSpace?.length;
+      return this.unreadPerSpace && Object.values(this.unreadPerSpace).reduce((sum, v) => sum += v, 0) > 0;
     }
   },
   mounted() {
@@ -69,31 +69,21 @@ export default {
         spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
       }
       const spaceId = spaceWebNotificationItem?.spaceId;
-      let unreadSpaceItem = {};
-      if (spaceId && this.unreadPerSpace?.length) {
-        unreadSpaceItem = this.unreadPerSpace.find(item => Number(item.spaceId) === Number(spaceId));
-      }
       if (wsEventName === 'notification.unread.item') {
-        if (unreadSpaceItem?.spaceId ) {
-          unreadSpaceItem.unredItem ++;
+        if (spaceId && this.unreadPerSpace && this.unreadPerSpace[spaceId]) {
+          this.unreadPerSpace[spaceId] ++;
         } else {
-          this.unreadPerSpace.push({
-            'spaceId': spaceId, 
-            'unredItem': 1
-          });
+          this.unreadPerSpace[spaceId] = 1;
         }
-      } else if (wsEventName === 'notification.read.item') {
-        if (unreadSpaceItem?.spaceId ) {
-          unreadSpaceItem.unredItem --;
-          if (unreadSpaceItem.unredItem <= 0 ) {
-            this.unreadPerSpace.splice(this.unreadPerSpace.indexOf(unreadSpaceItem), 1);
-          }
-        }  
-      }  else if (wsEventName === 'notification.read.allItems') {
-        if (unreadSpaceItem?.spaceId ) {
-          this.unreadPerSpace.splice(this.unreadPerSpace.indexOf(unreadSpaceItem), 1);
+      }  else if (wsEventName === 'notification.read.item') {
+        if (spaceId && this.unreadPerSpace && this.unreadPerSpace[spaceId] > 0) {
+          this.unreadPerSpace[spaceId] --;
         }
-      } 
+      } else if (wsEventName === 'notification.read.allItems') {
+        if (spaceId && this.unreadPerSpace && this.unreadPerSpace[spaceId] > 0) {
+          this.unreadPerSpace[spaceId] = 0;
+        }
+      }
     },
   }
 };
