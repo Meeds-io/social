@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
@@ -27,6 +28,8 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
@@ -54,10 +57,14 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String OBJECT_ID            = "objectId";
 
   private static final String SPACE_ID             = "spaceId";
+  
+  private static final String SPACE_IDS            = "spaceIds";
 
   private static final String OBJECT_TYPE          = OBJECT_TYPE_PARAM;
 
   private static final String CREATOR_ID           = "creatorId";
+
+  private static final String AUDIENCE_ID          = "audienceId";
 
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
@@ -216,6 +223,25 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     List<Tuple> result = query.getResultList();
     if (CollectionUtils.isEmpty(result)) {
       return Collections.emptyList();
+    } else {
+      return result;
+    }
+  }
+
+  public Map<Long, Long> countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(long metadataType,
+                                                                                 long creatorId,
+                                                                                 List<Long> spaceIds) {
+    TypedQuery<Tuple> query =
+                            getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId",
+                                                                Tuple.class);
+    query.setParameter(METADATA_TYPE_PARAM, metadataType);
+    query.setParameter(AUDIENCE_ID, creatorId);
+    query.setParameter(SPACE_IDS, spaceIds);
+    Map<Long, Long> result = query.getResultList()
+                                  .stream()
+                                  .collect(Collectors.toMap(t -> t.get(0, Long.class), t -> t.get(1, Long.class)));
+    if (MapUtils.isEmpty(result)) {
+      return Collections.emptyMap();
     } else {
       return result;
     }
