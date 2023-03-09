@@ -20,6 +20,7 @@
     </div>
     <v-flex v-for="(childProperty, i) in property.children" :key="i">
       <profile-contact-edit-multi-field-select
+        v-if="childProperty.isNew || childProperty.value"
         :property="childProperty"
         :properties="property.children"
         :multi-valued="property.multiValued"
@@ -39,7 +40,11 @@ export default {
   },
   methods: {
     remove(i) {
-      this.property.children.splice(i, 1);
+      if (this.property.children[i].isNew) {
+        this.property.children.splice(i, 1);
+      } else {
+        this.property.children[i].value = null;
+      }
       this.$emit('propertyUpdated',this.property);
     },
     addNewItem() {
