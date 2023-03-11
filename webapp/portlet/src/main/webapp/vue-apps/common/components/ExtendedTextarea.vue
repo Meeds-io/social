@@ -4,13 +4,12 @@
     :rules="rules"
     :counter-value="counterValue"
     :placeholder="placeholder"
-    counter
-    auto-grow
     :rows="rows"
     :row-height="rowHeight"
-    class="extended-textarea" />
+    class="extended-textarea"
+    counter
+    auto-grow />
 </template>
-
 <script>
 export default {
   props: {

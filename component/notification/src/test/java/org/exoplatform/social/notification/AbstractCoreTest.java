@@ -91,7 +91,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     pluginSettingService = getService(PluginSettingService.class);
     exoFeatureService = getService(ExoFeatureService.class);
     organizationService = getService(OrganizationService.class);
-    System.setProperty(CommonsUtils.CONFIGURED_DOMAIN_URL_KEY, "http://exoplatform.com");
+    System.setProperty(CommonsUtils.CONFIGURED_DOMAIN_URL_KEY, "http://test.com");
     //
     checkAndCreateDefaultUsers();
 

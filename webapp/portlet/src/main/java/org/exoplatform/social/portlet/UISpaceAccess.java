@@ -37,6 +37,8 @@ import org.exoplatform.webui.core.UIContainer;
 import org.exoplatform.webui.event.Event;
 import org.exoplatform.webui.event.EventListener;
 
+import lombok.Getter;
+
 /**
  * @since 4.0  
  */
@@ -52,10 +54,12 @@ import org.exoplatform.webui.event.EventListener;
 )
 public class UISpaceAccess extends UIContainer {
   private static final Log LOG = ExoLogger.getLogger(UISpaceAccess.class);
-  static private final String ALL_SPACE_LINK = "all-spaces";
-  
+  static private final String ALL_SPACE_LINK = "spaces";
+
   private String status = null;
   private String spacePrettyName = null;
+  @Getter
+  private String spaceGroupId = null;
   private String spaceDisplayName = null;
   private String redirectURI = null;
   
@@ -96,6 +100,7 @@ public class UISpaceAccess extends UIContainer {
       this.spacePrettyName = spacePrettyNameObj.toString();
       Space space = Utils.getSpaceService().getSpaceByPrettyName(spacePrettyName);
       this.spaceDisplayName = space.getDisplayName();
+      this.spaceGroupId = space.getGroupId();
       //
       if (SpaceAccessType.NO_AUTHENTICATED.toString().equals(status)) {
         redirectToSpaceHome(space);

@@ -33,9 +33,9 @@
     <v-list-item-content>
       <v-list-item-title class="body-2" v-text="spaceDisplayName" />
     </v-list-item-content>
-    <v-list-item-icon
+    <v-list-item-action
       v-if="spaceUnreadCount"
-      class="me-2 align-center">
+      class="me-2 my-auto align-center">
       <v-chip
         v-if="spaceUnreadCount"
         color="error-color-background"
@@ -44,7 +44,7 @@
         dark>
         {{ spaceUnreadCount }}
       </v-chip>
-    </v-list-item-icon>
+    </v-list-item-action>
   </v-list-item>
   <v-list-item
     v-else
@@ -63,11 +63,11 @@
     <v-list-item-content>
       <v-list-item-title class="body-2" v-text="spaceDisplayName" />
     </v-list-item-content>
-    <v-list-item-icon
+    <v-list-item-action
       v-if="toggleArrow"
       :disabled="loading"
       :loading="loading"
-      class="me-2 align-center">
+      class="me-2 my-auto align-center">
       <v-btn
         icon
         @click="openOrCloseDrawer($event)">
@@ -78,10 +78,10 @@
           {{ arrowIcon }} 
         </v-icon>
       </v-btn>
-    </v-list-item-icon>
-    <v-list-item-icon
+    </v-list-item-action>
+    <v-list-item-action
       v-if="!toggleArrow && spaceUnreadCount"
-      class="me-2 align-center">
+      class="me-2 my-auto align-center">
       <v-chip
         v-if="spaceUnreadCount"
         color="error-color-background"
@@ -90,7 +90,7 @@
         dark>
         {{ spaceUnreadCount }}
       </v-chip>
-    </v-list-item-icon>
+    </v-list-item-action>
   </v-list-item>
 </template>
 <script>

@@ -69,12 +69,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="shortcut icon" type="image/x-icon"  href="<%= Utils.getFaviconPath() %>" />
     <link id="brandingSkin" rel="stylesheet" type="text/css" href="/rest/v1/platform/branding/css">
-    <link href="/commons-extension/css/welcome-screens/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+    <link href="/social-portlet/skin/css/welcome-screens/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
     <link href="<%=cssPath%>" rel="stylesheet" type="text/css" />
 
-    <script type="text/javascript" src="/eXoResources/javascript/jquery-3.2.1.js"></script>
-    <script type="text/javascript" src="/commons-extension/javascript/ie-placeholder.js"></script>
-    <script type="text/javascript" src="/commons-extension/javascript/welcome-screens/accountSetup.js"></script>
+    <script type="text/javascript" src="/social-portlet/js/lib/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="/social-portlet/js/welcome-screens/accountSetup.js"></script>
 
 </head>
 <div class="backLight"></div>
@@ -136,7 +135,6 @@
             <p>
                 <strong><%=rb.getString("AccountSetupViewServlet.label.almost_done")%></strong>, <%=rb.getString("AccountSetupViewServlet.label.add_your_colleagues")%>.
             </p>
-            <div class="screenShot"><a href="javascript:void(0);"></a></div>
         </div>
         <div class="bottom"><button name="setupbutton" value="submitform" class="btn btn-primary"><%=rb.getString("AccountSetupViewServlet.label.start")%></button></div>
     </div>
