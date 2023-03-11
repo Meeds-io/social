@@ -16,7 +16,7 @@
         v-model="keyword"
         :placeholder="$t('peopleList.label.filterPeople')"
         prepend-inner-icon="fa-filter"
-        class="inputPeopleFilter pa-0 my-auto" />
+        class="inputPeopleFilter pa-0 mb-n2 my-auto" />
     </v-col>
     <v-scale-transition>
       <select

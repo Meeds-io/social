@@ -28,8 +28,8 @@
     @mouseleave="showItemActions = false">
     <v-row class="mx-0 administrationTitle">
       <v-list-item>
-        <v-list-item-icon class="mb-2 mt-3 mr-6 titleIcon">
-          <v-icon class="fa fa-cog" />
+        <v-list-item-icon class="mb-2 mt-3 titleIcon">
+          <v-icon class="uiIcon uiIconToolbarNavItem fa fa-cog" />
         </v-list-item-icon>
         <v-list-item-content class="subtitle-2">
           {{ this.$t('menu.administration.title') }}

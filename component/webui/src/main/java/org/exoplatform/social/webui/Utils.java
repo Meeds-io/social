@@ -435,33 +435,7 @@ public class Utils {
     }
     return value;
   }
-  
-  /**
-   * Display the feedback message inline instead of show on popup
-   */
-  public static void displayFeedbackMessageInline(String parentId) {
-    try {
-      WebuiRequestContext context = WebuiRequestContext.getCurrentInstance();
-      ResourceBundle res = context.getApplicationResourceBundle();
-      PortletRequestContext pContext = (PortletRequestContext) context;
-      JavascriptManager jm = pContext.getJavascriptManager();
-      String feedbackMessageType = getValueFromRequestParam("feedbackMessage");
-      if (feedbackMessageType != null) {
-        String message = res.getString("Notification.feedback.message." + feedbackMessageType);
-        String userName = getValueFromRequestParam("userName");
-        String spaceId = getValueFromRequestParam("spaceId");
-        if (userName != null)
-          message = message.replace("{0}", getUserIdentity(userName, false).getProfile().getFullName());
-        if (spaceId != null)
-          message = message.replace("{1}", getSpaceService().getSpaceById(spaceId).getDisplayName());
-        message = message.replace("'", "${simpleQuote}");
-        jm.require("SHARED/socialUtil", "socialUtil").addScripts("socialUtil.feedbackMessageInline('" + parentId + "','" + message + "');");
-      }
-    } catch (Exception e) {
-      LOG.debug("Failed to init the feedback message");
-    }
-  }
-  
+
   /**
    * Get the uri.
    * 
@@ -752,32 +726,7 @@ public class Utils {
     Space space = getSpaceByContext();
     return (space != null ? space.getId() : null);
   }
-  
-  /**
-   * Initializes user profile popup.
-   * 
-   * @param uiActivityId Id of activity component.
-   * @since 4.0.0-GA
-   */
-  public static void initUserProfilePopup(String uiActivityId) {
-    PortletRequestContext pContext = (PortletRequestContext) WebuiRequestContext.getCurrentInstance();
-    JavascriptManager jm = pContext.getJavascriptManager();
-    jm.require("SHARED/social-ui-profile", "profile")
-      .addScripts("profile.initUserProfilePopup('" + uiActivityId + "', null);");
-  }
-  
-  /**
-   * Clear user profile popup.
-   * 
-   * @since 4.1.x
-   */
-  public static void clearUserProfilePopup() {
-    PortletRequestContext pContext = (PortletRequestContext) WebuiRequestContext.getCurrentInstance();
-    JavascriptManager jm = pContext.getJavascriptManager();
-    jm.require("SHARED/social-ui-profile", "profile")
-      .addScripts("profile.clearUserProfilePopup();");
-  }
-  
+
   public static Space getSpaceByContext() {
     //
     SpaceService spaceService = (SpaceService) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceService.class);
@@ -809,19 +758,7 @@ public class Utils {
     
     return space;
   }
-  
-  /**
-   * Clears cached user data on user profile popup.
-   * 
-   * @since 4.1.x
-   */
-  public static void clearCacheOnUserPopup() {
-    WebuiRequestContext reqContext = WebuiRequestContext.getCurrentInstance();
-    JavascriptManager jm = reqContext.getJavascriptManager();
-    jm.require("SHARED/jquery", "jq")
-      .addScripts("(function($) { $('#socialUsersData').data('CacheSearch', {}); })(jq);");
-  }
-  
+
   /**
    * Get Resource bundle. If failure, log it in developer mode
    * @param msgKey key to get resource bundle

@@ -28,13 +28,14 @@
     <template #content>
       <v-card flat>
         <v-card-text>
-          <exo-activity-rich-editor
+          <rich-editor
             v-if="drawer"
             :ref="CK_EDITOR_ID"
             v-model="message"
             :max-length="MESSAGE_MAX_LENGTH"
             :template-params="templateParams"
             :placeholder="composerPlaceholder"
+            class="activityRichEditor"
             ck-editor-type="activityContent"
             context-name="activityComposer"
             use-extra-plugins

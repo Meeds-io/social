@@ -1,0 +1,221 @@
+/*
+This file is part of the Meeds project (https://meeds.io/).
+Copyright (C) 2020 Meeds Association
+contact@meeds.io
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//
+// Popup
+// --------------------------------------------------
+.uiPopup ,.modal.uiPopup{
+	border: 1px solid @uiPopupBorder;
+	background: @uiPopupBackground;
+	.box-shadow(0 2px 3px rgba(0,0,0,0.25));
+	.border-radius(4px);
+	position: absolute;
+	max-width: 95%;
+	word-wrap: break-word;
+
+    .cke_dialog {
+        width: auto;
+        .uiIconClose {
+            background: none;
+            top: 10px;
+        }
+    }
+	.popupHeader {
+		background-color: @uiPopupHeaderBackground;
+		.box-shadow(@uiPopupHeaderBoxShadow);
+		border-bottom: @uiPopupHeaderBorder;
+		margin-bottom: @uiPopupHeaderMarginBottom;
+		.border-radius(4px 4px 0 0 );
+		padding: 8px 10px 8px 15px ~'; /** orientation=lt */ ';
+    padding: 8px 15px 8px 10px ~'; /** orientation=rt */ ';
+		font-size: @popupTitleFontSize;
+		font-weight: bold;
+        color: @uiPopupTitleColor;
+		
+		[class^="uiIcon"] {
+			margin: 0 0 0 4px ~'; /** orientation=lt */ ';
+			margin: 0 4px 0 0 ~'; /** orientation=rt */ ';
+			cursor: pointer;
+		}
+        [class^="uiIconArrow"] {
+            margin: 13px 4px 0 0 ~'; /** orientation=lt */ ';
+            margin: 13px 0 0 4px ~'; /** orientation=rt */ ';
+        }
+        .uiIconArrowDownMini {
+            margin: 6px 4px 0 ;
+            &.pull-left {
+                margin-left: 0 ~'; /** orientation=lt */ ';
+                margin-right: 0 ~'; /** orientation=rt */ ';
+            }
+        }
+        .popupTitle {
+			margin: 0;
+			color: @uiPopupTitleColor;
+			display: block;
+            cursor: move;
+			font-size: @popupTitleFontSize;
+			font-weight: bold;
+		}
+	}
+
+	.popupContent {
+		overflow: auto;
+		padding: 15px;
+		width: auto;
+		background: @uiPopupContentBackground;
+		.border-radius(0 0 4px 4px);
+		.resizable {
+			overflow: auto;
+			padding: 15px;
+			margin: -15px;
+			max-height: ~"calc(100vh - 300px)";
+		}
+		> .resizable {
+			padding: 0 15px;
+            > .UIForm {
+              padding-top: 15px;
+            }
+		}
+        select {margin-bottom: 0;}
+	}
+	.form-horizontal {
+		padding: 0;
+		.control-group{
+			&:last-child {
+				margin-bottom: 0;
+				&:first-child {
+					margin-bottom: 12px;
+				}
+			}
+		}
+	}
+	.table {
+		margin-bottom: 15px;
+	}
+	.uiIconResize {
+		.square(16px);
+		margin: -18px 2px 2px;
+		cursor: nw-resize;
+	}
+	.uiAction.uiActionBorder {
+		margin-left: -15px;
+		margin-right: -15px;
+		padding-bottom: 0;
+	}
+	.form-horizontal.resizable {
+		//margin-top: 0;
+		//margin-bottom: 0;
+		.controls-full {
+			> .center {
+				margin-bottom: 20px;
+			}
+		}
+	}
+}
+
+/**********************Popup Messages*************************/
+
+.uiPopup ,.modal.uiPopup{
+	.popupMessage {
+		&.resizable {
+			padding-top: 15px;
+			padding-bottom: 15px;
+		}
+
+		> li span.errorIcon {
+	   .fa();
+	   .fa-times();
+		}
+
+		> li span.warningIcon {
+     .fa();
+     .fa-exclamation-triangle();
+		}
+
+		> li span.infoIcon {
+     .fa();
+     .fa-info-circle();
+		}
+
+		> li span.confirmationIcon {
+     .fa();
+     .fa-question-circle();
+		}
+
+		> li.collapseItem > ul {
+			display: block;
+		}
+
+		> li.expandItem > ul {
+			display: none;
+		}
+
+		> li > ul > li {
+			line-height: 16px;
+			padding: 0 0 0 40px;
+		}
+	}
+
+	.popupContent .multipleMessage {
+		background: @multipleMessageBackground;
+		border: 1px solid @multipleMessageBorder;
+		margin: 0;
+	}
+
+	.singleMessage > li span[class*="Icon"] {
+		font-weight: normal;
+		display: block;
+		margin: 5px 0;
+	}
+}
+.uiPopup .popupHeader {
+  .uiIconClose {
+    height: 16px;
+    line-height: 12px;
+    text-align: center;
+    width: 16px;
+    position: absolute;
+    right: 9px ~'; /** orientation=lt */ ';
+    left: 9px ~'; /** orientation=rt */ ';
+    top: 10px; 
+    z-index: 9;
+    margin: 0;
+    & + .PopupTitle {
+      margin-right: 25px ~'; /** orientation=lt */ ';
+      margin-left: 25px ~'; /** orientation=rt */ ';
+      font-size: @popupTitleFontSize;
+    }
+  }
+  [class^="uiIcon"] + .uiIconClose {
+      position: static;
+      margin-left: 4px ~'; /** orientation=lt */ ';
+      margin-right: 4px ~'; /** orientation=rt */ ';
+      &:before {font-size: @sizeIcon12x12;}
+  }
+}
+
+@media (max-width: @maxLargeTabletWidth) {
+	.uiPopup .popupHeader {
+    .uiIconClose::before, .uiIconClose {
+    	margin: 3px 2px 0 0 ~'; /** orientation=lt */ ';
+    	margin: 3px 0 0 2px ~'; /** orientation=rt */ ';
+    }
+	}
+    .uiPopup.cke_dialog {
+        transform: none;
+        z-index: 100000!important;
+    }
+}
