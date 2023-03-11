@@ -93,8 +93,8 @@
             <%}%>
         <%}%>
         <link href="<%=loginCssPath%>" rel="stylesheet" type="text/css"/>
-        <script type="text/javascript" src="/eXoResources/javascript/jquery-3.2.1.js"></script>
-        <script type="text/javascript" src="/commons-extension/javascript/switch-button.js"></script>
+        <script type="text/javascript" src="/social-portlet/js/lib/jquery-3.2.1.js"></script>
+        <script type="text/javascript" src="/social-portlet/js/lib/deprecated/switch-button.js"></script>
     </head>
     <body class="modal-open">
 	<div class="uiPopupWrapper">

@@ -1,0 +1,78 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+@import (css) "/platform-ui/skin/css/component/ImageCropper/cropper.min.css";
+
+.VuetifyApp .v-application {
+  @import "../../common/SpaceApplication/Style.less";
+}
+
+#SpaceSettings {
+  margin-bottom: 58px;
+
+  .spaceAvatarHoverEdit {
+    position: relative !important;
+    background: linear-gradient(180deg, rgb(255, 255, 255) 0%, rgb(4, 4, 4) 80%, rgba(0,0,0,1) 100%);
+
+    .v-image__image {
+      opacity: 0.8;
+    }
+    
+    .changeAvatarButton {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      position: absolute;
+      padding: 0;
+      margin: 0;
+      display: inline;
+  
+      .v-input__prepend-outer {
+        margin: 0;
+  
+        button {
+          background: rgba(0, 0, 0, 0.2) !important;
+          padding: 3px;
+          color: #fff;
+          border: 1px solid #fff !important;
+          border-radius: 50%;
+          height: 30px;
+          width: 30px;
+        }
+      }
+  
+      .v-input__control {
+        visibility: hidden;
+        width: 0;
+        height: 0;
+      }
+    }
+  }
+
+  .v-alert.error {
+    position: absolute;
+    top: 80px;
+    left: ~"calc(260px - 50%)";
+  }
+
+}

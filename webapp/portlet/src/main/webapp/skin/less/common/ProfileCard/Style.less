@@ -1,0 +1,224 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+.peopleBannerImg {
+  position: absolute;
+}
+.peopleAvatar {
+  .v-image {
+    border-radius: 50%;
+    box-shadow: 0px 0px 0px -2px rgba(0, 0, 0, 0.1), 0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 0px 0px 0px rgba(0, 0, 0, 0.1);
+  }
+  .v-image__image {
+    border-radius: 5px;
+  }
+}
+.connectUserButton:not(.skeleton-text), .acceptToConnectButton:not(.skeleton-text), .peopleButtonMenu:not(.skeleton-text) {
+  border: 1px solid @btnPrimaryBorder !important;
+  color: @btnPrimaryBorder !important;
+  i {
+    color: @btnPrimaryBorder !important;
+  }
+}
+.cancelRequestButton {
+  flex: auto;
+  border: 1px solid @btnBorder !important;
+  color: @btnColor !important;
+
+  i {
+    color: @btnColor !important;
+  }
+}
+.disconnectUserButton, .refuseToConnectButton {
+  border: 1px solid @errorColor !important;
+  color: @errorColor !important;
+
+  i {
+    color: @errorColor !important;
+  }
+}
+.refuseToConnectButton {
+  margin-top: 2px;
+  width: 100%;
+  .v-btn__content {
+    max-width: 100%;
+    span {
+      display: inline-block !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+}
+.externalFlagClass {
+  color: @baseColorLight;
+  font-weight: normal;
+}
+.peopleMenuIcon {
+  height: 26px !important;
+  width: 26px !important;
+  margin-top: 6px;
+
+  &:not(.skeleton-text) {
+    color: #fff !important;
+    background: @btnPrimaryDisableBackground !important;
+  }
+}
+.peopleActionItem {
+  display: flex;
+  line-height: 20px;
+
+  i {
+    font-size: 18px;
+    margin-right: 7px ~'; /** orientation=lt */ ';
+    margin-left: 7px ~'; /** orientation=rt */ ';
+  }
+}
+.peopleInfoIcon, .peopleGroupMemberBindingIcon {
+  height: 26px;
+  width: 26px;
+  margin-top: 6px;
+
+  &:not(.skeleton-text) {
+    background: #fff;
+    border: 1px solid @infoBorder !important;
+    color: @infoBorder !important;
+  }
+}
+.peopleInfoIcon:not(.skeleton-text) {
+  background: #fff;
+  border: 1px solid @infoBorder !important;
+  color: @infoBorder !important;
+}
+.peopleGroupMemberBindingIcon:not(.skeleton-text) {
+  background: @darkGrey;
+  border: 1px solid #fff !important;
+  color: #fff !important;
+}
+.peopleToolbarIcons {
+  display: flex;
+}
+.peopleActionMenu {
+  right: 21px ~'; /** orientation=lt */ ';
+  left: auto ~'!important; /** orientation=lt */ ';
+  left: 21px ~'; /** orientation=rt */ ';
+  right: auto ~'!important; /** orientation=rt */ ';
+  top: 42px !important;
+}
+.aboutMeText {
+  max-height: 112px;
+}
+.peopleCardFlipped {
+  transform: rotateY(180deg);
+}
+.peopleCardFlip {
+  transition: 0.6s;
+  transform-style: preserve-3d;
+  position: relative;
+  min-height: @peopleCardParentMaxHeight;
+  padding: 0;
+}
+.peopleCardFront, .peopleCardBack {
+  backface-visibility: hidden;
+  /* Safari */
+  -webkit-backface-visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0 ~'; /** orientation=lt */ ';
+  right: 0 ~'; /** orientation=rt */ ';
+  height: @peopleCardMaxHeight;
+  max-height: @peopleCardMaxHeight;
+  width: 100%;
+  max-width: 100%;
+}
+.peopleCardFront {
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+.peopleCardBack {
+  transform: rotateY(180deg);
+}
+.peopleCardItem {
+  height: @peopleCardMaxHeight;
+  max-height: @peopleCardMaxHeight;
+  flex-direction: column;
+  border-radius: 5px;
+}
+.peopleDisplayName {
+  color: @textColor !important;
+}
+.peopleMembersLabel {
+  color: @greyColorLighten1 !important;
+}
+.peopleCardActions {
+  align-items: flex-end !important;
+  button i {
+    margin-right: 10px ~'; /** orientation=lt */ ';
+    margin-left: 10px ~'; /** orientation=rt */ ';
+  }
+}
+.invitationButtons {
+  width:100%;
+}
+.acceptToConnectButtonParent {
+  display: inline-flex;
+  width: 100%;
+  max-width: 100%;
+
+  .acceptToConnectButton {
+    max-width: 85%;
+    width: 85%;
+    border-right: 0 ~'; /** orientation=lt */ ';
+    border-left: 0 ~'; /** orientation=rt */ ';
+    border-bottom-right-radius: 0 ~'!important; /** orientation=lt */ ';
+    border-top-right-radius: 0  ~'!important; /** orientation=lt */ ';
+    border-bottom-left-radius: 0 ~'!important; /** orientation=rt */ ';
+    border-top-left-radius: 0  ~'!important; /** orientation=rt */ ';
+
+    .v-btn__content {
+      max-width: 100%;
+      span {
+        width: auto;
+        max-width: calc( 100% - 28px );
+        min-width: auto;
+        display: inline-block !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+    }
+  }
+  .peopleButtonMenu {
+    max-width: 15%;
+    width: 15%;
+    padding: 5px 20px;
+    height: auto;
+    border-left: 0 ~'; /** orientation=lt */ ';
+    margin-left: -11px ~'; /** orientation=lt */ ';
+    border-bottom-left-radius: 0 ~'!important; /** orientation=lt */ ';
+    border-top-left-radius: 0 ~'!important; /** orientation=lt */ ';
+    border-right: 0 ~'; /** orientation=rt */ ';
+    margin-right: -11px ~'; /** orientation=rt */ ';
+    border-bottom-right-radius: 0 ~'!important; /** orientation=rt */ ';
+    border-top-right-radius: 0 ~'!important; /** orientation=rt */ ';
+
+    i {
+      margin: 0;
+    }
+  }
+}

@@ -1,0 +1,75 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+@import (css) "/platform-ui/skin/css/component/ImageCropper/cropper.min.css";
+
+#ProfileContactInformation {
+  .fullnameFields, .fullnameLabels {
+    > div {
+      max-width: 50%;
+    }
+  }
+
+  .profileContactInformationDrawer {
+    select {
+      min-width: auto;
+      width: auto;
+      max-width: 50%;
+      height: 40px;
+      margin-right: 7px;
+      padding-top: 9px;
+    }
+  }
+
+  input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .errorMessage {
+    position: absolute;
+    top: 40px;
+  }
+
+  .multiField {
+    position: relative;
+
+    input {
+      padding-right: 30px;
+    }
+
+    .removeMultiFieldValue {
+      position: absolute;
+      right: 0;
+      top: 10px;
+    }
+  }
+
+  .changeAvatarButton button {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid #fff !important;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+  }
+}

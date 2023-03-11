@@ -83,8 +83,7 @@ export default {
         spaceId: spaceId,
         commentId: commentId,
         parentCommentId: parentCommentId,
-      }
-      }));
+      }}));
     }
   },
 };

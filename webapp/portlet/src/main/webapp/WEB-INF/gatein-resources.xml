@@ -1,26 +1,354 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2003-2011 eXo Platform SAS.
+  This file is part of the Meeds project (https://meeds.io/).
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <gatein-resources
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/gatein_resources_1_4 http://www.exoplatform.org/xml/ns/gatein_resources_1_4"
   xmlns="http://www.exoplatform.org/xml/ns/gatein_resources_1_4">
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>GeneralSettings</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/GeneralSettings/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>HamburgerMenu</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/HamburgerMenu/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>PeopleList</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/PeopleList/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileAboutMe</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileAboutMe/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceSettingPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceSettings/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceActivityStreamPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ActivityStream/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>UserActivityStreamPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ActivityStream/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpacesAdministration</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesAdministration/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpacesList</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesList/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceMenuPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceHeader/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceTopbarMenu</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceMenu/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>MembersPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceMembers/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileHeader</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileHeader/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>Search</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/Search/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileContactInformation</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileContactInformation/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileWorkExperience</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileWorkExperience/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceInfos</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceInfos/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>WhoIsOnLinePortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/WhoIsOnLine/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>GettingStarted</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/GettingStarted/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ExternalSpacesList</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesListExternal/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SuggestionsPeopleAndSpace</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SuggestionsPeopleAndSpace/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpacesOverview</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpacesOverview/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>PeopleOverview</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/PeopleOverview/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IDMUsersManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/IDMUsersManagement/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IDMGroupsManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/IDMGroupsManagement/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IDMMembershipTypesManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/IDMMembershipTypesManagement/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <!-- TopBar Menu - TopBar navigation menu skin -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>TopBarMenu</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/TopBarMenu/Style.css</css-path>
+    <css-priority>2</css-priority>
+  </portlet-skin>
+
+  <!-- Profile Settings - Profile Settings  skin -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>ProfileSettingsPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileSettings/Style.css</css-path>
+    <css-priority>2</css-priority>
+  </portlet-skin>
+
+  <!-- TODO <Start> Deprecated WebUI & Juzu Portlets skins to move -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceAccessPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/uiSpaceAccess/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>IntranetNotificationsPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/uiAllNotifications/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>TopBarNotification</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/TopBarNotification/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>commons-extension</application-name>
+    <portlet-name>NotificationsAdminJuzuPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/uiNotificationsAdmin/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+  <!-- TODO <End> Deprecated WebUI & Juzu Portlets skins to move -->
+
+  <!-- ATTENTION ! <Start> DO NOT DELETE -->
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>ProfileSearch</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ProfileSearch/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>SpaceSearch</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/SpaceSearch/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>ActivitySearch</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/ActivitySearch/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>portal</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>login</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/standalone-pages/Login.css</css-path>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>portal</application-name>
+    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
+    <portlet-name>AccountSetup</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/standalone-pages/AccountSetup.css</css-path>
+  </portlet-skin>
+  <!-- ATTENTION ! <End> DO NOT DELETE -->
+
+  <!-- Bootstrap Javascripts -->
+  <scripts>
+    <name>bootstrap</name>
+    <script>
+      <path>/js/portal.js</path>
+    </script>
+    <script>
+      <path>/js/lib/require.js</path>
+    </script>
+  </scripts>
+
+  <!-- Base Javascripts for anonymous mode -->
+  <portlet>
+    <name>SpaceAccessPortlet</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/lib/deprecated/spaceAccess.js</path>
+      </script>
+    </module>
+  </portlet>
 
   <portlet>
     <name>Login</name>
@@ -41,9 +369,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -79,9 +404,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -113,9 +435,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -151,9 +470,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -184,9 +500,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -215,9 +528,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -313,9 +623,6 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
-      <depends>
-        <module>bts_dropdown</module>
-      </depends>
     </module>
   </portlet>
 
@@ -394,9 +701,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -430,9 +734,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -524,10 +825,6 @@
         <module>ActivityStream</module>
       </depends>
       <depends>
-        <module>social-ui-profile</module>
-        <as>socialUIProfile</as>
-      </depends>
-      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -549,16 +846,6 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>suggester</module>
-      </depends>
-      <depends>
-        <module>tagSuggester</module>
-      </depends>
-      <depends>
-        <module>commons-editor</module>
-        <as>editor</as>
       </depends>
       <depends>
         <module>commons-cometd3</module>
@@ -574,10 +861,6 @@
         <module>ActivityStream</module>
       </depends>
       <depends>
-        <module>social-ui-profile</module>
-        <as>socialUIProfile</as>
-      </depends>
-      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -599,16 +882,6 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>suggester</module>
-      </depends>
-      <depends>
-        <module>tagSuggester</module>
-      </depends>
-      <depends>
-        <module>commons-editor</module>
-        <as>editor</as>
       </depends>
       <depends>
         <module>commons-cometd3</module>
@@ -643,29 +916,6 @@
         <module>jquery</module>
         <as>$</as>
       </depends>
-      <depends>
-        <module>bts_tooltip</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>UISetupPlatformToolBarPortlet</name>
-    <module>
-      <depends>
-        <module>bts_dropdown</module>
-      </depends>
-    </module>
-  </portlet>
-  <portlet>
-    <name>UIHelpPlatformToolBarPortlet</name>
-    <module>
-      <depends>
-        <module>base</module>
-      </depends>
-      <depends>
-        <module>social-core</module>
-      </depends>
     </module>
   </portlet>
 
@@ -684,9 +934,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -721,9 +968,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -751,9 +995,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -785,9 +1026,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -815,9 +1053,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -849,9 +1084,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -881,9 +1113,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -911,9 +1140,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -948,9 +1174,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -980,9 +1203,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>vueEllipsis</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1010,9 +1230,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1048,9 +1265,6 @@
       </depends>
       <depends>
         <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>vueEllipsis</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1101,6 +1315,7 @@
   <portlet>
     <name>TopBarFavorites</name>
     <module>
+      <load-group>FavoriteDrawerGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/topBarFavorites.bundle.js</path>
@@ -1321,12 +1536,8 @@
   <portlet>
     <name>Popover</name>
     <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/popover.bundle.js</path>
-      </script>
       <depends>
-        <module>commonVueComponents</module>
+        <module>popover</module>
       </depends>
       <depends>
         <module>vue</module>
@@ -1407,6 +1618,7 @@
 
   <module>
     <name>commonVueComponents</name>
+    <load-group>vueGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/commonVueComponents.bundle.js</path>
@@ -1418,16 +1630,10 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>autoLinkerVue</module>
-    </depends>
-    <depends>
       <module>purifyVue</module>
     </depends>
     <depends>
       <module>ExtendedDomPurify</module>
-    </depends>
-    <depends>
-      <module>vueEllipsis</module>
     </depends>
     <depends>
       <module>eXoVueI18n</module>
@@ -1440,18 +1646,36 @@
       <module>extensionRegistry</module>
     </depends>
     <depends>
-      <module>suggester</module>
-    </depends>
-    <depends>
-      <module>tagSuggester</module>
-    </depends>
-    <depends>
-      <module>commons-editor</module>
-      <as>editor</as>
-    </depends>
-    <depends>
       <module>commons-cometd3</module>
       <as>cCometd</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>popover</name>
+    <load-group>popoverGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/popover.bundle.js</path>
+    </script>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
     </depends>
   </module>
 
@@ -1490,9 +1714,6 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>vueEllipsis</module>
-    </depends>
-    <depends>
       <module>eXoVueI18n</module>
     </depends>
     <depends>
@@ -1520,9 +1741,6 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>vueEllipsis</module>
-    </depends>
-    <depends>
       <module>eXoVueI18n</module>
     </depends>
     <depends>
@@ -1531,55 +1749,6 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
-    </depends>
-  </module>
-
-  <portlet>
-    <name>UIUserNavigationPortlet</name>
-    <module>
-      <depends>
-        <module>webui-ext</module>
-      </depends>
-    </module>
-  </portlet>
-  <module>
-    <name>ui-user-navigation</name>
-    <as>uiusernav</as>
-    <script>
-      <path>/js/UIUserNavigationPortlet/UIUserNavigation.js</path>
-    </script>
-    <depends>
-      <module>base</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>jq</as>
-    </depends>
-    <depends>
-      <module>bts_dropdown</module>
-    </depends>
-    <depends>
-      <module>bts_popover</module>
-    </depends>
-    <depends>
-      <module>bannerUploader</module>
-    </depends>
-  </module>
-  <module>
-    <name>navigation-spaces-search</name>
-    <as>navigationSpacesSearch</as>
-    <script>
-      <path>/js/UISpaceNavigationPortlet/UISpaceNavigation.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-    <depends>
-      <module>bts_dropdown</module>
-    </depends>
-    <depends>
-      <module>bts_popover</module>
     </depends>
   </module>
 
@@ -1672,6 +1841,7 @@
 
   <module>
     <name>ActivityReactions</name>
+    <load-group>ActivityStreamGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/activityReactions.bundle.js</path>
@@ -1699,23 +1869,20 @@
 
   <module>
     <name>ActivityStream</name>
+    <load-group>ActivityStreamGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/activityStream.bundle.js</path>
     </script>
     <depends>
-      <module>social-ui-profile</module>
-      <as>socialUIProfile</as>
+      <module>ActivityReactions</module>
+      <as>activityReactions</as>
     </depends>
     <depends>
       <module>commonVueComponents</module>
     </depends>
     <depends>
       <module>ExtendedDomPurify</module>
-    </depends>
-    <depends>
-      <module>ActivityReactions</module>
-      <as>activityReactions</as>
     </depends>
     <depends>
       <module>vue</module>
@@ -1734,80 +1901,11 @@
       <module>extensionRegistry</module>
     </depends>
     <depends>
-      <module>suggester</module>
-    </depends>
-    <depends>
-      <module>commons-editor</module>
-      <as>editor</as>
-    </depends>
-    <depends>
       <module>commons-cometd3</module>
       <as>cCometd</as>
     </depends>
   </module>
 
-  <module>
-    <name>user-profile</name>
-    <as>userProfile</as>
-    <script>
-      <path>/js/eXo/social/webui/UIUserProfile.js</path>
-    </script>
-    <depends>
-      <module>socialUtil</module>
-      <as>socialUtil</as>
-    </depends>
-    <depends>
-      <module>social-ui-profile</module>
-      <as>socialUIProfile</as>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-  </module>
-
-  <module>
-    <name>social-ui-profile</name>
-    <as>socialUiProfile</as>
-    <script>
-      <path>/js/eXo/social/webui/UIProfile.js</path>
-    </script>
-    <depends>
-      <module>socialUtil</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>$</as>
-    </depends>
-  </module>
-
-  <module>
-    <name>socialUtil</name>
-    <script>
-      <path>/js/eXo/social/SocialUtil.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>gj</as>
-    </depends>
-    <depends>
-      <module>uiMaskLayer</module>
-    </depends>
-    <depends>
-      <module>uiPopupWindow</module>
-      <as>popupWindow</as>
-    </depends>
-  </module>
-  <module>
-    <name>socialPlugin</name>
-    <script>
-      <path>/js/eXo/social/Util.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-  </module>
   <module>
     <name>imageCropper</name>
     <script>
@@ -1837,6 +1935,7 @@
       <as>jQuery</as>
     </depends>
   </module>
+
   <module>
     <name>translationField</name>
     <script>
@@ -1858,60 +1957,13 @@
       <module>vuetify</module>
     </depends>
   </module>
-  <module>
-    <name>cropper</name>
-    <as>Cropper</as>
-    <script>
-      <adapter>
-        (function() {
-          <include>/js/eXo/cropper.min.js</include>
-          return Cropper.noConflict();
-        })();
-      </adapter>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-  </module>
-  <module>
-    <name>mentionsPlugin</name>
-    <script>
-      <path>/js/eXo/jquery.exomentions.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-    <depends>
-      <module>mentionsLib</module>
-      <as>mentions</as>
-    </depends>
-  </module>
-  <module>
-    <name>mentionsLib</name>
-    <script>
-      <path>/js/eXo/underscore.js</path>
-    </script>
-  </module>
-  <module>
-    <name>userInvitation</name>
-    <script>
-      <path>/js/eXo/social/webui/UIUserInvitation.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-    </depends>
-    <depends>
-      <module>suggester</module>
-    </depends>
-  </module>
 
   <!-- Legacy Notifications List portlet -->
   <module>
     <name>intranetNotification</name>
+    <load-group>webNotificationsGRP</load-group>
     <script>
-      <path>/js/eXo/social/notification/IntranetNotification.js</path>
+      <path>/js/notification/IntranetNotification.js</path>
     </script>
     <depends>
       <module>webNotifications</module>
@@ -1924,12 +1976,198 @@
 
   <module>
     <name>webNotifications</name>
+    <load-group>webNotificationsGRP</load-group>
     <script>
-      <path>/js/eXo/social/notification/WebNotification.js</path>
+      <path>/js/notification/WebNotification.js</path>
     </script>
     <depends>
       <module>jquery</module>
       <as>gj</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>versionHistoryDrawer</name>
+    <script>
+      <path>/js/versionHistoryDrawer.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>cropper</name>
+    <as>Cropper</as>
+    <script>
+      <adapter>
+        (function() {
+          <include>/js/lib/cropper.min.js</include>
+          return Cropper.noConflict();
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>eCharts</name>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/echarts.min.js</include>
+        return echarts;
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
+    <name>purifyVue</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+          Vue.directive('sanitized-html', function (el, binding) {
+            el.innerHTML = ExtendedDomPurify.purify(binding.value);
+          })
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>ExtendedDomPurify</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>ExtendedDomPurify</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/ExtendedDomPurify.js</path>
+    </script>
+    <depends>
+      <module>autoLinker</module>
+    </depends>
+    <depends>
+      <module>purify</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>purify</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/purify.min.js</include>
+        return DOMPurify;
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
+    <name>autoLinker</name>
+    <load-group>purifyGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+          <include>/js/lib/autolinker.min.js</include>
+          Vue.directive('autolinker',(el, binding) => el.innerHTML = Autolinker.link(binding.value, {sanitizeHtml: true}));
+          return Autolinker;
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>vuetify</name>
+    <load-group>vueGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/vuetify.min.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>eXoVueI18n</name>
+    <as>exoi18n</as>
+    <load-group>vueGRP</load-group>
+    <script>
+      <path>/js/vue-i18n-wrapper.js</path>
+    </script>
+    <depends>
+      <module>vueI18n</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>vueI18n</name>
+    <as>VueI18n</as>
+    <load-group>vueGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/vue-i18n.min.js</include>
+        return VueI18n;
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>vue</name>
+    <load-group>vueGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/vue.min.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>tagSuggester</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/tag.suggester.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+    <depends>
+      <module>jqueryAtWho</module>
     </depends>
   </module>
 
@@ -1957,24 +2195,190 @@
   </module>
 
   <module>
-    <name>versionHistoryDrawer</name>
+    <name>suggester</name>
+    <load-group>suggesterGRP</load-group>
     <script>
-      <path>/js/versionHistoryDrawer.bundle.js</path>
+      <path>/js/suggester.js</path>
     </script>
     <depends>
-      <module>vue</module>
+      <module>jquery</module>
     </depends>
     <depends>
-      <module>eXoVueI18n</module>
+      <module>selectize2</module>
     </depends>
     <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
+      <module>jqueryAtWho</module>
     </depends>
   </module>
+
+  <module>
+    <name>mentionsPlugin</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/jquery.exomentions.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+    <depends>
+      <module>mentionsLib</module>
+      <as>mentions</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>mentionsLib</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/underscore.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>selectize2</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <adapter>
+        (function($) {
+        var oldJQuery = this.jQuery;
+        this.jQuery = $;
+
+        <include>/js/lib/selectize.js</include>
+
+        var selectize = this.Selectize;
+        this.jQuery = oldJQuery;
+        return selectize;
+        })($);
+      </adapter>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>jqueryCaret</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/jquery.caret.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>jqueryAtWho</name>
+    <load-group>suggesterGRP</load-group>
+    <script>
+      <path>/js/lib/jquery.atwho.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+    <depends>
+      <module>jqueryCaret</module>
+    </depends>
+    <depends>
+      <module>I18NMessage</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>jquery</name>
+    <as>$</as>
+    <load-group>baseGRP</load-group>
+    <script>
+      <adapter>
+        (function() {
+        <include>/js/lib/jquery-3.2.1.js</include>
+        return jQuery.noConflict(true);
+        })();
+      </adapter>
+    </script>
+  </module>
+
+  <module>
+    <name>extensionRegistry</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/extensionRegistry.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>bodyScrollListener</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/BodyScrollListener.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>mobileSwipeContainer</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/MobileSwipeContainer.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>topbarLoading</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/TopbarLoading.js</path>
+    </script>
+    <depends>
+      <module>jquery</module>
+    </depends>
+  </module>
+
+  <!-- Base Javascripts for anonymous mode -->
+  <module>
+    <name>I18NMessage</name>
+    <as>msg</as>
+    <load-group>suggesterGRP</load-group>
+    <supported-locale>de</supported-locale>
+    <supported-locale>en</supported-locale>
+    <supported-locale>fr</supported-locale>
+    <supported-locale>ru</supported-locale>
+    <supported-locale>vi</supported-locale>
+    <supported-locale>es-ES</supported-locale>
+    <supported-locale>sv-SE</supported-locale>
+    <supported-locale>ja</supported-locale>
+    <supported-locale>ar</supported-locale>
+    <supported-locale>ar-OM</supported-locale>
+    <supported-locale>pt-BR</supported-locale>
+    <supported-locale>pt-PT</supported-locale>
+    <supported-locale>it</supported-locale>
+    <supported-locale>tr</supported-locale>
+    <supported-locale>zh-CN</supported-locale>
+    <supported-locale>fi</supported-locale>
+    <supported-locale>lt</supported-locale>
+    <supported-locale>no</supported-locale>
+    <supported-locale>zh-TW</supported-locale>
+    <supported-locale>cs</supported-locale>
+    <supported-locale>uk</supported-locale>
+    <supported-locale>fa</supported-locale>
+    <supported-locale>el</supported-locale>
+    <supported-locale>ro</supported-locale>
+    <supported-locale>pl</supported-locale>
+    <supported-locale>ca</supported-locale>
+    <supported-locale>in</supported-locale>
+    <supported-locale>fil</supported-locale>
+    <script>
+      <path>/js/I18NMessage.js</path>
+      <resource-bundle>locale.portal</resource-bundle>
+    </script>
+  </module>
+
 </gatein-resources>
