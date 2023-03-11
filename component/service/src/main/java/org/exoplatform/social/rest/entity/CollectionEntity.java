@@ -25,16 +25,19 @@ import java.util.Map;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.json.JSONObject;
 
-
 public class CollectionEntity extends LinkedHashMap<String, Object> {
   private static final long serialVersionUID = 5157400162426650346L;
-  private final String key;
 
-  public CollectionEntity(List<? extends DataEntity> entities, String key, int offset, int limit) {
-     put(key, entities);
-     put("offset", offset);
-     put("limit", limit);
-     this.key = key;
+  private final String      key;
+
+  public CollectionEntity(List<? extends DataEntity> entities,
+                          String key,
+                          int offset,
+                          int limit) {
+    put(key, entities);
+    put("offset", offset);
+    put("limit", limit);
+    this.key = key;
   }
 
   public int getSize() {
@@ -57,9 +60,17 @@ public class CollectionEntity extends LinkedHashMap<String, Object> {
   public int getOffset() {
     return (Integer) get("offset");
   }
-  
+
   public void setOffset(int offset) {
     put("offset", offset);
+  }
+
+  public Map<String, Object> getUnreadPerSpace(Map<String, Object> unreadPerSpace) {
+    return (Map<String, Object>) get("unreadPerSpace");
+  }
+
+  public void setUnreadPerSpace(Map<String, Object> unreadPerSpace) {
+    put("unreadPerSpace", unreadPerSpace);
   }
 
   public List<? extends DataEntity> getEntities() {
