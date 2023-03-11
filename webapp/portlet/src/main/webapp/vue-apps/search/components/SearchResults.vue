@@ -92,8 +92,8 @@
     </v-row>
     <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto text-center text-sub-title">
-        <div>
-          <i class="uiIconSearchLight text-sub-title my-auto">
+        <div class="position-relative">
+          <i class="uiIconSearchLight text-sub-title my-auto position-relative">
             <i class="uiIconCloseLight text-sub-title"></i>
           </i>
         </div>

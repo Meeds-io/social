@@ -171,7 +171,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
 
   @MaxQueryNumber(123)
   public void testUpdateActivityMention() {
-    System.setProperty("gatein.email.domain.url", "exoplatform.com");
+    System.setProperty("gatein.email.domain.url", "test.com");
     ExoSocialActivity activity = createActivity(1);
     activityStorage.saveActivity(demoIdentity, activity);
     //

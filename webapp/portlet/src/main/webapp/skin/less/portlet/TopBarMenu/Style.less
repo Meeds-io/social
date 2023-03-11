@@ -1,0 +1,63 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+#topBarMenu {
+
+  .navigation-mobile-menu {
+
+    .v-tabs-slider-wrapper {
+      bottom: inherit;
+    }
+
+    .v-slide-group__prev--disabled {
+      display: none !important;
+    }
+
+    .navigation-mobile-menu-tab {
+      max-width: 150px;
+    }
+  }
+
+}
+
+.topBar-navigation-drop-sub-menu {
+  margin-left: 6px ~'; /** orientation=lt */ ';
+  margin-left: -6px ~'; /** orientation=rt */ ';
+
+  .v-list-item__icon {
+    min-width: 33px;
+  }
+}
+
+.topBar-navigation-drop-menu {
+
+  .v-list-item__icon {
+    width: 35px;
+    min-width: 33px;
+  }
+}
+
+.topBar-navigation-bottom-drop-menu {
+  margin-bottom: 62px !important;
+  box-shadow: 0px -10px 16px -2px rgba(0, 0, 0, 0.2) !important;
+}

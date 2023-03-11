@@ -22,18 +22,16 @@
             ms-2
             me-4
             xs2>
-            <div class="btn-group">
-              <button class="btn dropdown-toggle" data-toggle="dropdown">
-                {{ action }}
-                <i class="uiIconMiniArrowDown uiIconLightGray"></i><span></span>
-              </button>
-              <ul class="dropdown-menu">
-                <li><a href="#" @click="action = operationTypes[0]"> {{ operationTypes[0] }} </a></li>
-                <li><a href="#" @click="action = operationTypes[1]"> {{ operationTypes[1] }} </a></li>
-                <li><a href="#" @click="action = operationTypes[2]"> {{ operationTypes[2] }} </a></li>
-                <li><a href="#" @click="action = operationTypes[3]"> {{ operationTypes[3] }} </a></li>
-              </ul>
-            </div>
+            <select
+              v-model="action"
+              class="selectSpacesFilter my-auto width-auto me-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+              <option
+                v-for="operationType in operationTypes"
+                :key="operationType"
+                :value="operationType">
+                {{ operationType }}
+              </option>
+            </select>
           </v-flex>
         </v-layout>
       </div>

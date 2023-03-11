@@ -31,7 +31,6 @@
   <import>war:/conf/social-extension/social/social-configuration.xml</import>
   <import>war:/conf/social-extension/social/spaces-templates-configuration.xml</import>
   <import>war:/conf/social-extension/social/component-plugins-configuration.xml</import>
-  <import>war:/conf/social-extension/social/pwa/pwa-configuration.xml</import>
 
   <!-- Comes from config module -->
   <import>war:/conf/social-extension/social/cache-configuration.xml</import>

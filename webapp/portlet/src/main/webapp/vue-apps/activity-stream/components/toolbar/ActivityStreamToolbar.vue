@@ -24,10 +24,9 @@
     flat
     dense>
     <v-flex class="d-flex">
-      <div v-if="userCanPost" class="openLink my-auto ps-0 text-truncate">
-        <a @click="openComposerDrawer(true)" class="primary--text">
-          <i class="uiIconEdit"></i>
-          {{ composerButtonLabel }}
+      <div v-if="userCanPost" class="openLink my-auto pa-0 font-weight-bold text-truncate">
+        <a @click="openComposerDrawer(true)" class="hover-underline primary--text">
+          <i class="uiIconEdit me-1"></i>{{ composerButtonLabel }}
         </a>
       </div>
       <div v-else>
