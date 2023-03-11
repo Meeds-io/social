@@ -3,7 +3,7 @@
 
   This file is part of the Meeds project (https://meeds.io/).
 
-  Copyright (C) 2022 Meeds Association contact@meeds.io
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,6 @@
     <groupId>org.exoplatform.social</groupId>
     <version>6.5.x-SNAPSHOT</version>
   </parent>
-  <groupId>org.exoplatform.social</groupId>
   <artifactId>social-webapp-portlet</artifactId>
   <packaging>war</packaging>
   <name>eXo PLF:: Social Portlet Web App</name>
@@ -36,10 +35,110 @@
       <artifactId>social-component-webui</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- Platform-ui for Less Variables use-->
+    <dependency>
+      <groupId>org.exoplatform.platform-ui</groupId>
+      <artifactId>platform-ui-skin</artifactId>
+      <classifier>sources</classifier>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <build>
     <finalName>social-portlet</finalName>
     <plugins>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>less-copy-resources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/src/main/webapp/skin/less</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/webapp/skin/less</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>platform-ui-src</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeArtifactIds>platform-ui-skin</includeArtifactIds>
+              <outputDirectory>${project.build.directory}/src/main/webapp</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.lesscss</groupId>
+        <artifactId>lesscss-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>core</id>
+            <configuration>
+              <sourceDirectory>${project.build.directory}/src/main/webapp/skin/less</sourceDirectory>
+              <outputDirectory>${project.build.directory}/${project.build.finalName}/skin/css</outputDirectory>
+              <compress>false</compress>
+              <includes>
+                <include>portlet/ActivitySearch/Style.less</include>
+                <include>portlet/ActivityStream/Style.less</include>
+                <include>portlet/GeneralSettings/Style.less</include>
+                <include>portlet/GettingStarted/Style.less</include>
+                <include>portlet/HamburgerMenu/Style.less</include>
+                <include>portlet/IDMGroupsManagement/Style.less</include>
+                <include>portlet/IDMMembershipTypesManagement/Style.less</include>
+                <include>portlet/IDMUsersManagement/Style.less</include>
+                <include>portlet/PeopleList/Style.less</include>
+                <include>portlet/PeopleOverview/Style.less</include>
+                <include>portlet/ProfileAboutMe/Style.less</include>
+                <include>portlet/ProfileContactInformation/Style.less</include>
+                <include>portlet/ProfileHeader/Style.less</include>
+                <include>portlet/ProfileSearch/Style.less</include>
+                <include>portlet/ProfileSettings/Style.less</include>
+                <include>portlet/ProfileWorkExperience/Style.less</include>
+                <include>portlet/Search/Style.less</include>
+                <include>portlet/SpaceHeader/Style.less</include>
+                <include>portlet/SpaceInfos/Style.less</include>
+                <include>portlet/SpaceMembers/Style.less</include>
+                <include>portlet/SpaceMenu/Style.less</include>
+                <include>portlet/SpacesAdministration/Style.less</include>
+                <include>portlet/SpaceSearch/Style.less</include>
+                <include>portlet/SpaceSettings/Style.less</include>
+                <include>portlet/SpacesList/Style.less</include>
+                <include>portlet/SpacesListExternal/Style.less</include>
+                <include>portlet/SpacesOverview/Style.less</include>
+                <include>portlet/SuggestionsPeopleAndSpace/Style.less</include>
+                <include>portlet/TopBarMenu/Style.less</include>
+                <include>portlet/WhoIsOnLine/Style.less</include>
+                <!-- Deprecated Portlets -->
+                <include>portlet/uiAllNotifications/Style.less</include>
+                <include>portlet/TopBarNotification/Style.less</include>
+                <include>portlet/uiNotificationsAdmin/Style.less</include>
+                <include>portlet/uiSpaceAccess/Style.less</include>
+                <!-- Standalone Modules -->
+                <include>standalone-pages/AccountSetup.less</include>
+                <include>standalone-pages/Login.less</include>
+              </includes>
+            </configuration>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>

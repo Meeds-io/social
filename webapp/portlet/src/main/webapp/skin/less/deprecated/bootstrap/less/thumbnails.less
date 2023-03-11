@@ -1,0 +1,69 @@
+/*
+This file is part of the Meeds project (https://meeds.io/).
+Copyright (C) 2020 Meeds Association
+contact@meeds.io
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//
+// Thumbnails
+// --------------------------------------------------
+
+
+// Note: `.thumbnails` and `.thumbnails > li` are overriden in responsive files
+
+// Make wrapper ul behave like the grid
+.thumbnails {
+  margin-left: -@gridGutterWidth;
+  list-style: none;
+  .clearfix();
+}
+// Fluid rows have no left margin
+.row-fluid .thumbnails {
+  margin-left: 0;
+}
+
+// Float li to make thumbnails appear in a row
+.thumbnails > li {
+  float: left; // Explicity set the float since we don't require .span* classes
+  margin-bottom: @baseLineHeight;
+  margin-left: @gridGutterWidth;
+}
+
+// The actual thumbnail (can be `a` or `div`)
+.thumbnail {
+  display: block;
+  padding: 4px;
+  line-height: @baseLineHeight;
+  border: 1px solid #ddd;
+  .border-radius(@baseBorderRadius);
+  .box-shadow(0 1px 3px rgba(0,0,0,.055));
+  .transition(all .2s ease-in-out);
+}
+// Add a hover/focus state for linked versions only
+a.thumbnail:hover,
+a.thumbnail:focus {
+  border-color: @linkColor;
+  .box-shadow(0 1px 4px rgba(0,105,214,.25));
+}
+
+// Images and captions
+.thumbnail > img {
+  display: block;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.thumbnail .caption {
+  padding: 9px;
+  color: @gray;
+}
