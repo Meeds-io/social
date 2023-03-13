@@ -302,9 +302,6 @@ export default {
       this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;
       this.labels = JSON.parse(JSON.stringify(this.setting.labels));
-      if (this.labels.length === 0){
-        this.labels.push( {language: 'en', label: '', objectId: this.setting.id, objectType: this.labelsObjectType});
-      }
       this.changes= false;
       this.drawer = true;     
     },
