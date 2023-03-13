@@ -71,7 +71,7 @@ export default {
 
   methods: {
     addNewLabel() {
-      this.propertylabels.push( {language: '', label: '', objectId: this.id, objectType: this.labelsObjectType});
+      this.propertylabels.push( {language: eXo.env.portal.language, label: '', objectId: this.id, objectType: this.labelsObjectType});
     },
     deleteLabel(propertylabel) {
       this.propertylabels.splice(this.propertylabels.findIndex(v => v.language === propertylabel.language), 1);
