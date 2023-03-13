@@ -29,7 +29,7 @@
             <div class="align-start text-no-wrap font-weight-bold me-3">
               {{ getResolvedName(property) }}
             </div>
-            <div :title="property.value" class="align-end flex-grow-1 text-truncate text-end">
+            <div v-autolinker="property.value" class="align-end flex-grow-1 text-truncate text-end">
               {{ property.value }}
             </div>
           </v-flex>
