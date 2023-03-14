@@ -23,7 +23,7 @@
   <parent>
     <artifactId>social-component</artifactId>
     <groupId>org.exoplatform.social</groupId>
-    <version>6.5.x-exo-SNAPSHOT</version>
+    <version>6.5.x-experience-SNAPSHOT</version>
   </parent>
   <artifactId>social-component-core</artifactId>
   <name>eXo PLF:: Social Core Component</name>
