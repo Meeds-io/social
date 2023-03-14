@@ -21,7 +21,8 @@
 <template>
   <a
     class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')">
+    @click="$emit('open-drawer')"
+    @mouseover="$emit('open-drawer')">
     <div class="px-5 py-3">
       <v-icon size="24">fa-bars</v-icon>
     </div>
