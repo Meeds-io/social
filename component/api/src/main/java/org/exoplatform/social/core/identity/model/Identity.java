@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.core.identity.model;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.social.core.CacheEntry;
@@ -237,6 +239,11 @@ public class Identity implements CacheEntry, Cloneable {
     return StringUtils.equals(providerId, ActivityStream.ORGANIZATION_PROVIDER_ID);
   }
 
+  public boolean isExternal() {
+    Profile identityProfile = getProfile();
+    return identityProfile != null && Objects.equals("true", identityProfile.getProperty(Profile.EXTERNAL));
+  }
+
   /**
    * Sets the provider id.
    *
@@ -296,4 +303,5 @@ public class Identity implements CacheEntry, Cloneable {
       return new Identity(id, remoteId, providerId, isDeleted, isEnable, profile, profileLoader, globalId);
     }
   }
+
 }
