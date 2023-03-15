@@ -128,7 +128,7 @@ export function init(i18n) {
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
       }).$mount('#drawers-overlay');
-    } else { // Needed for anonymous pages (login, register ...)
+    } else if (!document.querySelector('#UIPortalApplication')) { // Needed for anonymous pages (login, register ...)
       const parentDrawersOverlayElement = document.querySelector('#MiddleToolBarChildren') || document.body;
       let drawersOverlayElement = parentDrawersOverlayElement.querySelector('#drawers-overlay');
       if (!drawersOverlayElement) {
@@ -144,9 +144,13 @@ export function init(i18n) {
         }).$mount(drawersOverlayElement);
       }
     }
-    const parentNotificationsElement = document.querySelector('#bottom-all-container') || document.body;
-    let alertNotificationsElement = parentNotificationsElement.querySelector('#alert-notifications');
+    let parentNotificationsElement = document.querySelector('#bottom-all-container');
+    let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
     if (!alertNotificationsElement) {
+      if (!parentNotificationsElement) {
+        parentNotificationsElement = document.createElement('div');
+        document.body.appendChild(parentNotificationsElement);
+      }
       alertNotificationsElement = document.createElement('div');
       alertNotificationsElement.id = 'alert-notifications';
       alertNotificationsElement.class = 'v-application v-application--is-ltr transparent theme--light';
