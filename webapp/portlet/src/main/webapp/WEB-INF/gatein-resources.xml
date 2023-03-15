@@ -252,14 +252,6 @@
   <!-- TODO <Start> Deprecated WebUI & Juzu Portlets skins to move -->
   <portlet-skin>
     <application-name>social-portlet</application-name>
-    <portlet-name>SpaceAccessPortlet</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/uiSpaceAccess/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social-portlet</application-name>
     <portlet-name>IntranetNotificationsPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/uiAllNotifications/Style.css</css-path>
@@ -339,14 +331,28 @@
     </script>
   </scripts>
 
-  <!-- Base Javascripts for anonymous mode -->
   <portlet>
     <name>SpaceAccessPortlet</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/lib/deprecated/spaceAccess.js</path>
+        <path>/js/spaceAccess.bundle.js</path>
       </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
     </module>
   </portlet>
 
