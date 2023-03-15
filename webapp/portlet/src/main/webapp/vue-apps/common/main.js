@@ -121,7 +121,7 @@ if (!window.drawersOverlayInitialized) {
 }
 
 export function init(i18n) {
-  if (document.readyState === 'interactive' || document.readyState === 'complete' || document.querySelector('#drawers-overlay')) {
+  if ((document.readyState === 'interactive' && document.querySelector('#drawers-overlay')) || document.readyState === 'complete') {
     if (document.querySelector('#drawers-overlay')) {
       new Vue({
         template: '<drawers-overlay id="drawers-overlay" />',
