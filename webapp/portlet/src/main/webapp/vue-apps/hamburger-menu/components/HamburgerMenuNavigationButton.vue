@@ -20,6 +20,25 @@
 -->
 <template>
   <a
+    v-if="!isDesktop"
+    class="HamburgerNavigationMenuLink flex border-box-sizing"
+    @click="$emit('open-drawer')">
+    <div class="px-5 py-3">
+      <v-icon size="24">fa-bars</v-icon>
+    </div>
+    <v-btn
+      v-show="showBadge"
+      class="hamburger-unread-badge"
+      absolute
+      icon
+      height="16"
+      width="16"
+      text>
+      <div class="hamburger-unread-badge error-color-background"></div>
+    </v-btn>
+  </a>
+  <a
+    v-else
     class="HamburgerNavigationMenuLink flex border-box-sizing"
     @click="$emit('open-drawer')"
     @mouseover="$emit('open-drawer')">
@@ -52,7 +71,10 @@ export default {
   computed: {
     showBadge() {
       return this.unread && Object.values(this.unread).reduce((sum, v) => sum += v, 0) > 0;
-    }
+    },
+    isDesktop() {
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+    },
   },
   watch: {
     unreadPerSpace() {
