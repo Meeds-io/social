@@ -10,7 +10,7 @@
     </v-expansion-panel-header>
     <v-expansion-panel-content>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pt-0 pb-2">
-        {{ $t('profileWorkExperiences.company') }}
+        {{ $t('profileWorkExperiences.company') }} *
       </v-card-text>
       <v-card-text class="d-flex py-0">
         <input
@@ -23,7 +23,7 @@
           required>
       </v-card-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-        {{ $t('profileWorkExperiences.jobTitle') }}
+        {{ $t('profileWorkExperiences.jobTitle') }} *
       </v-card-text>
       <v-card-text class="d-flex py-0">
         <input
