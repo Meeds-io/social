@@ -20,102 +20,75 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
-import org.exoplatform.portal.mop.user.UserNode;
-import org.exoplatform.portal.webui.util.Util;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.web.application.RequestContext;
 
 /**
  * Processes url and returns the some type of result base on url.
  * 
+ * @deprecated the dependency for WebUI framework
  */
+@Deprecated(forRemoval = true, since = "6.5.0")
 public class URLUtils {
 
-  private static Log LOG = ExoLogger.getLogger(URLUtils.class);
-  private static String ROOT_NODE_NAME = "default";
-  
   /**
-   * Gets current user name base on analytic the current url.<br>
-   * 
-   * @return current user name.
+   * @return current user name base on analysis of current url
    */
   public static String getCurrentUser() {
-    PortalRequestContext pcontext = Util.getPortalRequestContext() ;
+    PortalRequestContext pcontext = getPortalRequestContext();
     String requestPath = "/" + pcontext.getControllerContext().getParameter(RequestNavigationData.REQUEST_PATH);
     Route route = ExoRouter.route(requestPath);
-    if (route == null) { 
+    if (route == null) {
       return null;
     }
-    
+
     String currentUserName = route.localArgs.get("streamOwnerId");
     org.exoplatform.social.core.identity.model.Identity viewerIdentity = Utils.getViewerIdentity();
-    if (Utils.isExternal(viewerIdentity) && !isProfileAccessible(currentUserName, pcontext.getRemoteUser())) {
+    if (viewerIdentity.isExternal() && !isProfileAccessible(currentUserName, pcontext.getRemoteUser())) {
       return null;
     }
-    ExoContainer container = ExoContainerContext.getCurrentContainer();
-    IdentityManager idm = (IdentityManager) container.getComponentInstanceOfType(IdentityManager.class);
-
-    try {
-      if (currentUserName != null) {
-        Identity id = idm.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUserName, false);
-        if (id != null) return currentUserName;
+    if (currentUserName != null) {
+      IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
+      Identity identity = identityManager.getOrCreateUserIdentity(currentUserName);
+      if (identity != null) {
+        return identity.getRemoteId();
       }
-    } catch (Exception e) {
-      if(LOG.isDebugEnabled()) {
-        LOG.debug("Could not found Identity of user " + currentUserName);
-      }
-      return null;
     }
     return null;
   }
-  
-  /**
-   * Gets current requested node.
-   * 
-   * @return
-   * @throws Exception
-   */
-  public static String getRequestedNode() throws Exception {
-    UserNode selectedUserNode = Util.getUIPortal().getSelectedUserNode();
-    UserNode prevParent = selectedUserNode.getParent();
-    UserNode parent = prevParent;
-    boolean isRoot = true;
-    while (!ROOT_NODE_NAME.equals(parent.getName())) {
-      prevParent = parent;
-      parent = prevParent.getParent();
-      isRoot = false;
-    } 
-    
-    return isRoot ? selectedUserNode.getName() : prevParent.getName();  
-  }
 
   private static boolean isProfileAccessible(String currentUserName, String externalUserId) {
-    List<Identity> viewerFriends = null;
     try {
-      viewerFriends = Utils.getViewerFriends();
-      // check if target user in viewer Friends 
+      List<Identity> viewerFriends = Utils.getViewerFriends();
+      // check if target user in viewer Friends
       boolean isFriend = viewerFriends.stream().anyMatch(value -> value.getRemoteId().equals(currentUserName));
       // Gets a list access containing all spaces witch a viewer is member
-      ListAccess<Space> memberSpacesListAccess = Utils.getSpaceService().getMemberSpaces(externalUserId);
+      SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
+      ListAccess<Space> memberSpacesListAccess = spaceService.getMemberSpaces(externalUserId);
       Space[] spaces = memberSpacesListAccess.load(0, memberSpacesListAccess.getSize());
       // check if target user is member of these spaces
       boolean isMemberSpaces = Arrays.stream(spaces).anyMatch(space -> Utils.getSpaceService().isMember(space, currentUserName));
-
       return isFriend || isMemberSpaces;
-
     } catch (Exception e) {
-      LOG.error("Error when getting viewer connections " + e);
+      throw new IllegalStateException("Error checking whether profile " + currentUserName + " is accessible for " + externalUserId
+          + " or not", e);
     }
-    return false;
   }
+
+  private static PortalRequestContext getPortalRequestContext() {
+    RequestContext context = RequestContext.getCurrentInstance();
+    if (context != null && !(context instanceof PortalRequestContext)) {
+      context = context.getParentAppRequestContext();
+    }
+    return (PortalRequestContext) context;
+  }
+
 }
