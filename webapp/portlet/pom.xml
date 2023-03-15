@@ -127,7 +127,6 @@
                 <include>portlet/uiAllNotifications/Style.less</include>
                 <include>portlet/TopBarNotification/Style.less</include>
                 <include>portlet/uiNotificationsAdmin/Style.less</include>
-                <include>portlet/uiSpaceAccess/Style.less</include>
                 <!-- Standalone Modules -->
                 <include>standalone-pages/AccountSetup.less</include>
                 <include>standalone-pages/Login.less</include>
