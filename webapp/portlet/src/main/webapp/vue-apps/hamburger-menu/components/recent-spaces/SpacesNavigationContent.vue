@@ -89,6 +89,10 @@ export default {
       type: Object,
       default: null,
     },
+    recentSpaces: {
+      type: Array,
+      default: null,
+    },
   },
   data: () => ({
     startSearchAfterInMilliseconds: 400,
@@ -105,7 +109,11 @@ export default {
     },
     filteredSpaces() {
       if (!this.keyword) {
-        return this.spaces;
+        if (!this.recentSpaces) {
+          return this.spaces;
+        } else {
+          return this.recentSpaces;
+        }
       } else {
         return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
       }

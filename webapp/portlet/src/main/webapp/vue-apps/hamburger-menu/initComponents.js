@@ -17,6 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import HamburgerMenuNavigation from './components/HamburgerMenuNavigation.vue';
+import HamburgerMenuNavigationButton from './components/HamburgerMenuNavigationButton.vue';
 import HamburgerMenuParentDrawer from './components/HamburgerMenuParentDrawer.vue';
 import HamburgerMenuParentSticky from './components/HamburgerMenuParentSticky.vue';
 import HamburgerMenuNavigationFirstLevel from './components/HamburgerMenuNavigationFirstLevel.vue';
@@ -37,6 +38,7 @@ import UserHamburgerNavigation from './components/user/UserHamburgerNavigation.v
 
 const components = {
   'hamburger-menu-navigation': HamburgerMenuNavigation,
+  'hamburger-menu-navigation-button': HamburgerMenuNavigationButton,
   'hamburger-menu-parent-drawer': HamburgerMenuParentDrawer,
   'hamburger-menu-parent-menu': HamburgerMenuParentSticky,
   'hamburger-menu-navigation-first-level': HamburgerMenuNavigationFirstLevel,

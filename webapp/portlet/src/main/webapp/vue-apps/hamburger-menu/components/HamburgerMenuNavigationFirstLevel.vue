@@ -52,6 +52,7 @@
         tile>
         <site-hamburger-navigation :navigations="siteNavigations" />
         <spaces-hamburger-navigation
+          :recent-spaces="recentSpaces"
           :recent-spaces-drawer-opened="recentSpacesDrawerOpened"
           :opened-space="openedSpace"
           :third-level="thirdLevelDrawer" />
@@ -87,6 +88,10 @@ export default {
       default: false,
     },
     siteNavigations: {
+      type: Array,
+      default: null,
+    },
+    recentSpaces: {
       type: Array,
       default: null,
     },
