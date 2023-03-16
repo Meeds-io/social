@@ -14,7 +14,7 @@
               :key="user.id"
               cols="12"
               md="6"
-              lg="4"
+              lg="3"
               xl="3"
               class="pa-0">
               <people-card
