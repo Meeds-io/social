@@ -276,7 +276,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
       } else if (Profile.CONTACT_IMS.equals(profileProperty.getKey())
               || Profile.CONTACT_PHONES.equals(profileProperty.getKey())
-              || Profile.CONTACT_URLS.equals(profileProperty.getKey())) {
+              || Profile.CONTACT_URLS.equals(profileProperty.getKey()) || properties.get(profileProperty.getKey()) instanceof ArrayList<?>) {
 
         List<Map<String, String>> list = (List<Map<String, String>>) profileProperty.getValue();
         JSONArray arr = new JSONArray();
