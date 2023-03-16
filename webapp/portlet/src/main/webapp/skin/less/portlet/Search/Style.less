@@ -1,0 +1,101 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+#searchDialog {
+  border-top: 1px solid @greyColorLighten1Opacity1;
+  position: fixed;
+  z-index: @zindexInnerModal;
+  top: @topbarHeight;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  #searchInput {
+    font-size: 30px !important;
+  }
+
+  .searchInputParent {
+    .v-input__slot {
+      margin: 0;
+
+      &:after {
+        content: none;
+      }
+      &:before {
+        content: none;
+      }
+    }
+  }
+
+  .searchConnectorsParent {
+    white-space: nowrap;
+    overflow-x: auto;
+    display: -webkit-box!important;
+  }
+  .searchResultsParent {
+    .searchCard {
+      max-width: 224px !important;
+      width: 224px !important;
+      min-width: 224px !important;
+      height: 227px;
+      max-height: 227px;
+      min-height: 227px;
+      display: flex;
+      margin-right: 6px;
+      margin-bottom: 6px;
+
+      > * {
+        width: 100%;
+        height: 100%;
+      }
+
+      .caption {
+        max-height: 140px;
+        overflow: hidden;
+      }
+    }
+  }
+
+  .searchNoResultsParent {
+    .uiIconSearchLight {
+      font-size: 160px;
+
+      .uiIconCloseLight {
+        font-size:60px;
+        position: absolute;
+        left: 45px;
+        top: 28px;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+@media (min-width: @minLargeDesktop) {
+  .HamburgerMenuSticky #searchDialog {
+    top: 0;
+  }
+}

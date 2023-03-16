@@ -16,113 +16,83 @@
  */
 package org.exoplatform.social.core.space;
 
-import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import lombok.Getter;
 
 public enum SpaceAccessType {
 
-  SUPER_ADMINISTRATOR("social.space.access.administrator") {
-
+  INVITED_SPACE("social.space.access.invited-space")
+  {
     @Override
     public boolean doCheck(String remoteId, Space space) {
-      return space != null && getSpaceService().isSuperManager(remoteId);
+      return space != null && getSpaceService().isInvitedUser(space, remoteId);
     }
   },
-  INVITED_SPACE("social.space.access.invited-space") {
-
+  JOIN_SPACE("social.space.access.join-space")
+  {
     @Override
     public boolean doCheck(String remoteId, Space space) {
-      return getSpaceService().isInvitedUser(space, remoteId);
-    }
-  }, //waiting to validate from space manager
-  REQUESTED_JOIN_SPACE("social.space.access.requested-join-space") {
-
-    @Override
-    public boolean doCheck(String remoteId, Space space) {
-      return getSpaceService().isPendingUser(space, remoteId);
+      return space != null && Space.OPEN.equals(space.getRegistration());
     }
   },
-  CLOSED_SPACE("social.space.access.closed-space") {
-
+  REQUESTED_JOIN_SPACE("social.space.access.requested-join-space")
+  {
     @Override
     public boolean doCheck(String remoteId, Space space) {
-      return !getSpaceService().isMember(space, remoteId) && Space.CLOSED.equals(space.getRegistration());
-    }
-    
-  },
-  JOIN_SPACE("social.space.access.join-space") {
-
-    @Override
-    public boolean doCheck(String remoteId, Space space) {
-      return !getSpaceService().isMember(space, remoteId) && Space.OPEN.equals(space.getRegistration());
-    }
-    
-  }, //request to join space validation
-  REQUEST_JOIN_SPACE("social.space.access.request-join-space") {
-
-    @Override
-    public boolean doCheck(String remoteId, Space space) {
-      return !getSpaceService().isMember(space, remoteId) && Space.VALIDATION.equals(space.getRegistration());
-    }
-    
-  },
-  NO_AUTHENTICATED("social.space.access.no-authenticated") {
-
-    @Override
-    public boolean doCheck(String remoteId, Space space) {
-      return remoteId == null;
-    }
-    
-  },
-  SPACE_NOT_FOUND("social.space.access.space-not-found") {
-
-    @Override
-    public boolean doCheck(String remoteId, Space space) {
-      boolean result = false;
-      if (space == null) {
-        result = true;
-      } else if (space != null) {
-        result = Space.HIDDEN.equals(space.getVisibility()) && !getSpaceService().isMember(space, remoteId) && Space.CLOSED.equals(space.getRegistration());
-      }
-      
-      return result;
+      return space != null && Space.VALIDATION.equals(space.getRegistration()) && getSpaceService().isPendingUser(space, remoteId);
     }
   },
-  NOT_ACCESS_WIKI_SPACE("social.space.access.not-access-wiki-space") {
-
-      @Override
-      public boolean doCheck(String remoteId, Space space) {
-        SpaceService spaceService = getSpaceService();
-        return !spaceService.isSuperManager(remoteId) && !spaceService.isMember(space, remoteId);
-      }
-    
+  REQUEST_JOIN_SPACE("social.space.access.request-join-space")
+  {
+    @Override
+    public boolean doCheck(String remoteId, Space space) {
+      return space != null && Space.VALIDATION.equals(space.getRegistration());
+    }
+  },
+  CLOSED_SPACE("social.space.access.closed-space")
+  {
+    @Override
+    public boolean doCheck(String remoteId, Space space) {
+      return space != null && Space.CLOSED.equals(space.getRegistration()) && !Space.HIDDEN.equals(space.getVisibility());
+    }
+  },
+  SPACE_NOT_FOUND("social.space.access.space-not-found")
+  {
+    @Override
+    public boolean doCheck(String remoteId, Space space) {
+      return space == null || (Space.CLOSED.equals(space.getRegistration()) && Space.HIDDEN.equals(space.getVisibility()));
+    }
   };
-  
+
+  @Getter
   private final String name;
-  
+
   private SpaceAccessType(String name) {
     this.name = name;
   }
-  
+
   private static SpaceService getSpaceService() {
-    return (SpaceService) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceService.class);
+    return PortalContainer.getInstance().getComponentInstanceOfType(SpaceService.class);
   }
-  
+
   @Override
   public String toString() {
     return name;
   }
-  
-  public final static String ACCESSED_TYPE_KEY = "social.accessed.space.type.key";
-  public final static String ACCESSED_SPACE_PRETTY_NAME_KEY = "social.accessed.space.key";
-  public final static String ACCESSED_SPACE_WIKI_PAGE_KEY = "social.accessed.space.wiki.page.key";
-  public final static String ACCESSED_SPACE_REQUEST_PATH_KEY = "social.accessed.space.request.path.key";
-  public final static String NODE_REDIRECT = "space-access";
-  
-  public abstract boolean doCheck(String remoteId, Space space);
-  
-  
-}
 
+  public static final String ACCESSED_TYPE_KEY               = "social.accessed.space.type.key";
+
+  public static final String ACCESSED_SPACE_ID_KEY           = "social.accessed.space.id.key";
+
+  public static final String ACCESSED_SPACE_PRETTY_NAME_KEY  = "social.accessed.space.prettyName.key";
+
+  public static final String ACCESSED_SPACE_DISPLAY_NAME_KEY = "social.accessed.space.displayName.key";
+
+  public static final String ACCESSED_SPACE_REQUEST_PATH_KEY = "social.accessed.space.request.path.key";
+
+  public abstract boolean doCheck(String remoteId, Space space);
+
+}

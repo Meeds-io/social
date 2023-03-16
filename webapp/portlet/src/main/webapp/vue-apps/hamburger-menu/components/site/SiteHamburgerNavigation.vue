@@ -47,10 +47,17 @@
                 class="subtitle-2"
                 v-text="nav.label" />
             </v-list-item-content>
-            <v-list-item-icon @click="selectHome($event, nav)">
-              <span class="fas mt-1 fa-house-user icon-default-color homePage">
-              </span>
-            </v-list-item-icon>
+            <v-list-item-action class="my-auto">
+              <v-btn
+                v-bind="attrs" 
+                v-on="on" 
+                link
+                icon
+                @click="selectHome($event, nav)">
+                <span class="fas fa-house-user icon-default-color homePage">
+                </span>
+              </v-btn>
+            </v-list-item-action>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -121,8 +128,10 @@ export default {
       event.preventDefault();
       event.stopPropagation();
 
-      this.selectedNavigation = nav;
-      this.$refs.confirmDialog.open();
+      if (this.homeLink !== nav.fullUri) {
+        this.selectedNavigation = nav;
+        this.$refs.confirmDialog.open();
+      }
     },
   }
 };

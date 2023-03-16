@@ -869,5 +869,13 @@
         </component-plugin>
     </external-component-plugins>
 
+    <external-component-plugins>
+      <target-component>org.exoplatform.web.WebAppController</target-component>
+      <component-plugin>
+        <name>SpaceAccessHandler</name>
+        <set-method>register</set-method>
+        <type>org.exoplatform.social.core.space.impl.SpaceAccessHandler</type>
+      </component-plugin>
+    </external-component-plugins>
 
 </configuration>

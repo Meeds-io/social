@@ -16,26 +16,24 @@
  */
 package org.exoplatform.social.webui;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpUtils;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
 
-import org.exoplatform.commons.utils.ExpressionUtil;
 import org.exoplatform.commons.utils.PropertyManager;
-import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
-import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.mop.SiteType;
-import org.exoplatform.portal.mop.State;
-import org.exoplatform.portal.mop.description.DescriptionService;
-import org.exoplatform.portal.mop.user.UserNavigation;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.portal.webui.workspace.UIPortalApplication;
@@ -44,28 +42,29 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
-import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.web.application.JavascriptManager;
 import org.exoplatform.web.application.RequestContext;
 import org.exoplatform.web.controller.QualifiedName;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 import org.exoplatform.webui.application.WebuiRequestContext;
-import org.exoplatform.webui.application.portlet.PortletRequestContext;
 
 /**
- * Contains some common methods for using as utility.<br>
- *
+ * Contains some common methods for using as utility.
+ * 
+ * @deprecated the dependency for WebUI framework
  */
+@Deprecated(forRemoval = true, since = "6.5.0")
 public class Utils {
   /** . */
   public static final String ACTIVITY_STREAM_TAB_SELECTED_COOKIED = "exo_social_activity_stream_tab_selected_%s";
@@ -203,11 +202,23 @@ public class Utils {
    * @param loadProfile
    * @return identity
    * @since 1.2.0 GA
+   * @deprecated use {@link #getUserIdentity(String)}
    */
+  @Deprecated(forRemoval = true, since = "6.5.0")
   public static Identity getUserIdentity(String userName, boolean loadProfile) {
-    return Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName, loadProfile);
+    return Utils.getIdentityManager().getOrCreateUserIdentity(userName);
   }
-  
+
+  /**
+   * Retrieve Social Identity of user
+   * 
+   * @param userName User name
+   * @return {@link Identity}
+   */
+  public static Identity getUserIdentity(String userName) {
+    return Utils.getIdentityManager().getOrCreateUserIdentity(userName);
+  }
+
   /**
    * Check if an user is enable/disable from the remote id (user name)
    * 
@@ -215,7 +226,7 @@ public class Utils {
    * @return true if user is enable else return false
    */
   public static boolean isEnableUser(String userName) {
-    return getUserIdentity(userName, false).isEnable();
+    return getUserIdentity(userName).isEnable();
   }
   
   /**
@@ -435,33 +446,7 @@ public class Utils {
     }
     return value;
   }
-  
-  /**
-   * Display the feedback message inline instead of show on popup
-   */
-  public static void displayFeedbackMessageInline(String parentId) {
-    try {
-      WebuiRequestContext context = WebuiRequestContext.getCurrentInstance();
-      ResourceBundle res = context.getApplicationResourceBundle();
-      PortletRequestContext pContext = (PortletRequestContext) context;
-      JavascriptManager jm = pContext.getJavascriptManager();
-      String feedbackMessageType = getValueFromRequestParam("feedbackMessage");
-      if (feedbackMessageType != null) {
-        String message = res.getString("Notification.feedback.message." + feedbackMessageType);
-        String userName = getValueFromRequestParam("userName");
-        String spaceId = getValueFromRequestParam("spaceId");
-        if (userName != null)
-          message = message.replace("{0}", getUserIdentity(userName, false).getProfile().getFullName());
-        if (spaceId != null)
-          message = message.replace("{1}", getSpaceService().getSpaceById(spaceId).getDisplayName());
-        message = message.replace("'", "${simpleQuote}");
-        jm.require("SHARED/socialUtil", "socialUtil").addScripts("socialUtil.feedbackMessageInline('" + parentId + "','" + message + "');");
-      }
-    } catch (Exception e) {
-      LOG.debug("Failed to init the feedback message");
-    }
-  }
-  
+
   /**
    * Get the uri.
    * 
@@ -752,32 +737,7 @@ public class Utils {
     Space space = getSpaceByContext();
     return (space != null ? space.getId() : null);
   }
-  
-  /**
-   * Initializes user profile popup.
-   * 
-   * @param uiActivityId Id of activity component.
-   * @since 4.0.0-GA
-   */
-  public static void initUserProfilePopup(String uiActivityId) {
-    PortletRequestContext pContext = (PortletRequestContext) WebuiRequestContext.getCurrentInstance();
-    JavascriptManager jm = pContext.getJavascriptManager();
-    jm.require("SHARED/social-ui-profile", "profile")
-      .addScripts("profile.initUserProfilePopup('" + uiActivityId + "', null);");
-  }
-  
-  /**
-   * Clear user profile popup.
-   * 
-   * @since 4.1.x
-   */
-  public static void clearUserProfilePopup() {
-    PortletRequestContext pContext = (PortletRequestContext) WebuiRequestContext.getCurrentInstance();
-    JavascriptManager jm = pContext.getJavascriptManager();
-    jm.require("SHARED/social-ui-profile", "profile")
-      .addScripts("profile.clearUserProfilePopup();");
-  }
-  
+
   public static Space getSpaceByContext() {
     //
     SpaceService spaceService = (SpaceService) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceService.class);
@@ -809,26 +769,14 @@ public class Utils {
     
     return space;
   }
-  
-  /**
-   * Clears cached user data on user profile popup.
-   * 
-   * @since 4.1.x
-   */
-  public static void clearCacheOnUserPopup() {
-    WebuiRequestContext reqContext = WebuiRequestContext.getCurrentInstance();
-    JavascriptManager jm = reqContext.getJavascriptManager();
-    jm.require("SHARED/jquery", "jq")
-      .addScripts("(function($) { $('#socialUsersData').data('CacheSearch', {}); })(jq);");
-  }
-  
+
   /**
    * Get Resource bundle. If failure, log it in developer mode
    * @param msgKey key to get resource bundle
    * @return Localized value for msgKey. null if value is not found 
    */
-  public static String appRes (String msgKey) {
-    WebuiRequestContext context = WebuiRequestContext.getCurrentInstance();
+  public static String appRes(String msgKey) {
+    WebuiRequestContext context = RequestContext.getCurrentInstance();
     try {
       return context.getApplicationResourceBundle().getString(msgKey);
     } catch (MissingResourceException ex) {
@@ -837,67 +785,6 @@ public class Utils {
       }
       return null;
     }    
-  }
-  
-  /**
-   * Gets resolved application label by input user node.
-   * 
-   * @param userNode user node
-   * @return label value of input user node. null be returned in case of node has no label. 
-   * @since 4.1-RC1
-   */
-  
-  public static String getResolvedAppLabel (UserNode userNode) {
-    ExoContainer container = ExoContainerContext.getCurrentContainer();
-    UserPortalConfigService userPortalConfigService = (UserPortalConfigService)
-                                                  container.getComponentInstanceOfType(UserPortalConfigService.class);
-    if (userNode ==  null) {
-      return null;
-    }
-    
-    String id = userNode.getId();
-    String nodeLabel = userNode.getLabel();
-    
-    if (nodeLabel != null) {
-      UserNavigation navigation = userNode.getNavigation();
-      ResourceBundle bundle = navigation.getBundle();
-      return ExpressionUtil.getExpressionValue(bundle, nodeLabel);
-    } else if (id != null) {
-      Locale userLocale =  Util.getPortalRequestContext().getLocale();
-      Locale portalLocale = SpaceUtils.getUserPortal().getLocale();
-      DescriptionService descriptionService = userPortalConfigService.getDescriptionService();
-      State description = descriptionService.resolveDescription(id, portalLocale, userLocale);
-      if (description != null) {
-        return description.getName();
-      }
-    }
-    
-    return null;
-  }
-
-  /**
-   * Initializes confirmation popup.
-   *  
-   * @param componentId Target component.
-   * @throws Exception
-   */
-  public static void initConfirmationPopup(String componentId) throws Exception {
-    WebuiRequestContext context = WebuiRequestContext.getCurrentInstance();
-    ResourceBundle res = context.getApplicationResourceBundle();
-    JSONObject object = new JSONObject();
-    object.put("componentId", componentId);
-    object.put("Caption", res.getString("Confirmation.label.Caption"));
-    object.put("OK", res.getString("Confirmation.label.OK"));
-    object.put("Cancel", res.getString("Confirmation.label.Cancel"));
-    
-    context.getJavascriptManager().getRequireJS().require("SHARED/socialUtil", "socialUtil")
-           .addScripts("socialUtil.applyConfirmPopup(" + object.toString() + ");");
-  }
-  
-  public static boolean isUserBoundToSpace(String username,String spaceId) {
-    ExoContainer container = ExoContainerContext.getCurrentContainer();
-    GroupSpaceBindingService groupSpaceBindingService = container.getComponentInstanceOfType(GroupSpaceBindingService.class);
-    return groupSpaceBindingService.countUserBindings(spaceId,username)>0;
   }
 
   /**

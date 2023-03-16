@@ -1,0 +1,91 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+
+.spaceMenuParent {
+  height: 56px;
+
+  .v-slide-group__wrapper {
+    height: 57px;
+
+    .v-tab:not(.v-tab--active) {
+      color: @textColor !important;
+    }
+  }
+
+  .v-slide-group__prev--disabled, .v-slide-group__next--disabled {
+    display: none !important;
+  }
+
+  .spaceNavigationTab {
+    font-size: 12px !important;
+  }
+
+  .v-tabs-bar {
+    min-height: 56px;
+  }
+}
+.hide-scroll .spaceButtomNavigation {
+  visibility: hidden;
+}
+.VuetifyApp .v-application .v-footer.spaceButtomNavigation {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 100vw !important;
+  overflow: auto;
+  left: 0;
+  transition: none;
+  transform: none;
+  box-sizing: border-box;
+  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+
+  .v-bottom-navigation {
+    width: auto;
+    max-width: none;
+    box-shadow: none;
+    transition: none;
+    transform: none;
+
+    .spaceButtomNavigationItem {
+      flex: 1 0 auto;
+      width: auto;
+      color: @textColor;
+
+      i {
+        font-size: 24px;
+      }
+
+      i {
+        color: @greyColorLighten1;
+      }
+
+      &.v-btn--active{
+        color: @tertiaryColor;
+
+        i {
+          color: @tertiaryColor;
+        }
+      }
+    }
+  }
+}

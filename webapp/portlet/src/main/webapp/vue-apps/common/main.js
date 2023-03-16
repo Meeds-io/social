@@ -33,7 +33,6 @@ Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
 Vue.prototype.vuetifyOptions = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 Vue.use(Vuetify);
-Vue.use(VueEllipsis);
 
 window.Object.defineProperty(Vue.prototype, '$userService', {
   value: userService,
@@ -118,23 +117,18 @@ const urls = [
 if (!window.drawersOverlayInitialized) {
   window.drawersOverlayInitialized = true;
   exoi18n.loadLanguageAsync(lang, urls)
-    .then(i18n => initDrawerOverlays(i18n));
+    .then(i18n => init(i18n));
 }
 
-export function initDrawerOverlays(i18n) {
-  switch (document.readyState) {
-  case 'loading':
-    window.setTimeout(() => initDrawerOverlays(i18n), 50);
-    break;
-  case 'interactive':
-  case 'complete':
+export function init(i18n) {
+  if ((document.readyState === 'interactive' && document.querySelector('#drawers-overlay')) || document.readyState === 'complete') {
     if (document.querySelector('#drawers-overlay')) {
       new Vue({
         template: '<drawers-overlay id="drawers-overlay" />',
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
       }).$mount('#drawers-overlay');
-    } else { // Needed for anonymous pages (login, register ...)
+    } else if (!document.querySelector('#UIPortalApplication')) { // Needed for anonymous pages (login, register ...)
       const parentDrawersOverlayElement = document.querySelector('#MiddleToolBarChildren') || document.body;
       let drawersOverlayElement = parentDrawersOverlayElement.querySelector('#drawers-overlay');
       if (!drawersOverlayElement) {
@@ -150,21 +144,24 @@ export function initDrawerOverlays(i18n) {
         }).$mount(drawersOverlayElement);
       }
     }
-    break;
+    let parentNotificationsElement = document.querySelector('#bottom-all-container');
+    let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
+    if (!alertNotificationsElement) {
+      if (!parentNotificationsElement) {
+        parentNotificationsElement = document.createElement('div');
+        document.body.appendChild(parentNotificationsElement);
+      }
+      alertNotificationsElement = document.createElement('div');
+      alertNotificationsElement.id = 'alert-notifications';
+      alertNotificationsElement.class = 'v-application v-application--is-ltr transparent theme--light';
+      parentNotificationsElement.appendChild(alertNotificationsElement);
+      parentNotificationsElement.classList.add('VuetifyApp');
+      new Vue({
+        template: '<v-app id="alert-notifications"><alert-notifications /></v-app>',
+        vuetify: Vue.prototype.vuetifyOptions,
+      }).$mount(alertNotificationsElement);
+    }
+  } else {
+    window.setTimeout(() => init(i18n), 50);
   }
-}
-
-const parentNotificationsElement = document.querySelector('#bottom-all-container') || document.body;
-let alertNotificationsElement = parentNotificationsElement.querySelector('#alert-notifications');
-if (!alertNotificationsElement) {
-  alertNotificationsElement = document.createElement('div');
-  alertNotificationsElement.id = 'alert-notifications';
-  alertNotificationsElement.class = 'v-application v-application--is-ltr transparent theme--light';
-  parentNotificationsElement.appendChild(alertNotificationsElement);
-  parentNotificationsElement.classList.add('VuetifyApp');
-
-  new Vue({
-    template: '<v-app id="alert-notifications"><alert-notifications /></v-app>',
-    vuetify: Vue.prototype.vuetifyOptions,
-  }).$mount(alertNotificationsElement);
 }

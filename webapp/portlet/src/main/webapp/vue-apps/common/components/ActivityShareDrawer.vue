@@ -32,7 +32,7 @@
               autofocus />
           </div>
           <div class="d-flex flex-row">
-            <exo-activity-rich-editor
+            <rich-editor
               ref="activityShareMessage"
               v-model="description"
               :template-params="templateParams"
