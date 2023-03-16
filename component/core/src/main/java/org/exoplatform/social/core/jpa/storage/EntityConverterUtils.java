@@ -152,25 +152,32 @@ public class EntityConverterUtils {
       for (Entry<String, String> entry : properties.entrySet()) {
         String key = entry.getKey();
         String value = entry.getValue();
-
-        if (Profile.CONTACT_IMS.equals(key) || Profile.CONTACT_PHONES.equals(key) || Profile.CONTACT_URLS.equals(key)) {
+        boolean isJsonArray = false ;
+        JSONArray arr = null ;
+        try {
+          arr = new JSONArray(value);
+          isJsonArray = true;
+        } catch (Exception ex) {
+          // Ignore this exception
+        }
+        if (Profile.CONTACT_IMS.equals(key) || Profile.CONTACT_PHONES.equals(key) || Profile.CONTACT_URLS.equals(key) || isJsonArray) {
           List<Map<String, String>> list = new ArrayList<>();
-          try {
-            JSONArray arr = new JSONArray(value);
-            for (int i = 0 ; i < arr.length(); i++) {
-              Map<String, String> map = new HashMap<>();
-              JSONObject json = arr.getJSONObject(i);
-              Iterator<String> keys = json.keys();
-              while (keys.hasNext()) {
-                String k = keys.next();
-                map.put(k, json.optString(k));
+          if (arr != null) {
+            try {
+              for (int i = 0; i < arr.length(); i++) {
+                Map<String, String> map = new HashMap<>();
+                JSONObject json = arr.getJSONObject(i);
+                Iterator<String> keys = json.keys();
+                while (keys.hasNext()) {
+                  String k = keys.next();
+                  map.put(k, json.optString(k));
+                }
+                list.add(map);
               }
-              list.add(map);
+            } catch (JSONException ex) {
+              // Ignore this exception
             }
-          } catch (JSONException ex) {
-            // Ignore this exception
           }
-
           props.put(key, list);
 
         } else if (!Profile.URL.equals(key)) {
