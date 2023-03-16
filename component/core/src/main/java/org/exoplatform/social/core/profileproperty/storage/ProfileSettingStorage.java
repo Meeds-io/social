@@ -35,7 +35,7 @@ public class ProfileSettingStorage {
   }
 
   public List<ProfilePropertySetting> getPropertySettings() {
-    return profilePropertySettingDAO.findAll().stream().map(this::convertFromEntity).toList();
+    return profilePropertySettingDAO.findOrderedSettings().stream().map(this::convertFromEntity).toList();
   }
 
   public List<ProfilePropertySetting> getSynchronizedPropertySettings() {
