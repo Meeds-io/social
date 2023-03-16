@@ -235,15 +235,12 @@ export default {
       }
       return filterUsersFunction.then(data => {
         let users = data && data.users || [];
-        if (this.filter === 'all') {
-          users = users.filter(user => user && user.username !== eXo.env.portal.userName);
-        }
         users = users.slice(0, this.limitToFetch);
         this.users = users;
         this.peopleCount = data && data.size && data.size || 0;
-        if (this.peopleCount > 0 && this.filter === 'all' && !this.keyword) {
-          this.peopleCount = this.peopleCount - 1;
-        }
+        console.warn('data.size',data.size);
+        console.warn('this.peopleCount',this.peopleCount);
+        
         this.hasPeople = this.hasPeople || this.peopleCount > 0;
         this.$emit('loaded', this.peopleCount);
         return this.$nextTick();

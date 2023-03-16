@@ -351,7 +351,7 @@ public class ProfileSearchConnector {
       subQueryEmpty = false;
       appendCommar = true;
     } else if (filter.getExcludedIdentityList() != null && filter.getExcludedIdentityList().size() > 0) {
-      esSubQuery.append("      \"must_not\": [\n");
+      esSubQuery.append("      ,\"must_not\": [\n");
       esSubQuery.append("        {\n");
       esSubQuery.append("          \"ids\" : {\n");
       esSubQuery.append("             \"values\" : [" + buildExcludedIdentities(filter) + "]\n");
@@ -389,7 +389,7 @@ public class ProfileSearchConnector {
     }
 
     esQuery.append(",\"_source\": false\n");
-    esQuery.append(",\"fields\": [\"_id\"]\n");
+    esQuery.append(",\"fields\": [\"userName\"]\n");
     esQuery.append("}\n");
     LOG.debug("Search Query request to ES : {} ", esQuery);
 

@@ -454,6 +454,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           filter.setUserType(userType);
         }
       }
+    if (settings != null) {
+      List<Identity> excludedIdentityList = new ArrayList();
+      excludedIdentityList.add(target);
+      filter.setExcludedIdentityList(excludedIdentityList);
+    }
       filter.setProfileSettings(settings);
         ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
         identities = list.load(offset, limit);
@@ -1023,11 +1028,19 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               }
               break;
             default:
-              List<String> childrenValues = profileProperty.getChildren()
-                      .stream()
-                      .map(ProfilePropertySettingEntity::getValue)
-                      .toList();
-              updateProfileField(profile, profileProperty.getPropertyName(), StringUtils.join(childrenValues, ','), true);
+              List<Map<String, String>> maps = new ArrayList<>();
+              profileProperty.getChildren().stream().forEach(profilePropertySettingEntity -> {
+                if (profilePropertySettingEntity.getValue() != null && profilePropertySettingEntity.getPropertyName() != null
+                    && !profilePropertySettingEntity.getPropertyName().isBlank()
+                    && !profilePropertySettingEntity.getValue().isBlank()) {
+                  Map<String, String> childrenMap = new HashMap<>();
+                  childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
+                  childrenMap.put("value", profilePropertySettingEntity.getValue());
+                  maps.add(childrenMap);
+                }
+                return;
+              });
+              updateProfileField(profile, profileProperty.getPropertyName(), maps, true);
           }
         }
       } catch (IllegalAccessException e) {
