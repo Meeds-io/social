@@ -13,16 +13,14 @@ import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
@@ -1192,6 +1190,22 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                  400,
                  response.getStatus());
     data.put(ProfileEntity.LASTNAME, "Test");
+  }
+
+  public void testUpdateUserNewMultiProperties() throws Exception {
+    startSessionAs("root");
+    ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
+    profilePropertySettingEntity.setPropertyName("new ArrayField");
+    profilePropertySettingEntity.setMultiValued(false);
+    ProfilePropertySettingEntity profilePropertySettingEntityChild = new ProfilePropertySettingEntity();
+    profilePropertySettingEntityChild.setPropertyName("subField");
+    profilePropertySettingEntityChild.setValue("subfield value");
+    profilePropertySettingEntity.setChildren(Collections.singletonList(profilePropertySettingEntityChild));
+    ArrayList< ProfilePropertySettingEntity > profilePropertySettingEntityList =  new ArrayList<>();
+    profilePropertySettingEntityList.add(profilePropertySettingEntity);
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/root/profile/properties", new JSONArray(profilePropertySettingEntityList).toString());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {

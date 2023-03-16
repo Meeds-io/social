@@ -1112,6 +1112,16 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertNotNull(identity.getProfile());
     assertEquals("male", identity.getProfile().getGender());
     assertEquals(null, identity.getProfile().getPosition());
+
+
+    profile.setProperty("multi-field", Collections.singletonList("new field"));
+    identityStorage.updateProfile(profile);
+
+    identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userName);
+    assertNotNull(identity);
+    assertNotNull(identity.getProfile());
+    assertNotNull(identity.getProfile().getProperty("multi-field"));
+    assertTrue(identity.getProfile().getProperty("multi-field") instanceof ArrayList<?>);
   }
   
   /**
