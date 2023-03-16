@@ -22,7 +22,7 @@
   <a
     v-if="!isDesktop"
     class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')">
+    @click="openDrawer">
     <div class="px-5 py-3">
       <v-icon size="24">fa-bars</v-icon>
     </div>
@@ -40,21 +40,23 @@
   <a
     v-else
     class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')"
-    @mouseover="$emit('open-drawer')">
-    <div class="px-5 py-3">
-      <v-icon size="24">fa-bars</v-icon>
+    @click="openDrawer"
+    @mouseover="openDrawer(true)">
+    <div class="ripple position-relative overflow-hidden">
+      <div class="px-5 py-3">
+        <v-icon size="24">fa-bars</v-icon>
+      </div>
+      <v-btn
+        v-show="showBadge"
+        class="hamburger-unread-badge"
+        absolute
+        icon
+        height="16"
+        width="16"
+        text>
+        <div class="hamburger-unread-badge error-color-background"></div>
+      </v-btn>
     </div>
-    <v-btn
-      v-show="showBadge"
-      class="hamburger-unread-badge"
-      absolute
-      icon
-      height="16"
-      width="16"
-      text>
-      <div class="hamburger-unread-badge error-color-background"></div>
-    </v-btn>
   </a>
 </template>
 <script>
@@ -121,6 +123,13 @@ export default {
     },
     initUnread() {
       this.unread = this.unreadPerSpace && Object.assign({}, this.unreadPerSpace) || {};
+    },
+    openDrawer(timeout) {
+      if (timeout) {
+        window.setTimeout(() => this.$emit('open-drawer'), 500);
+      } else {
+        this.$emit('open-drawer');
+      }
     }
   }
 };

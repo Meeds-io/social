@@ -28,38 +28,40 @@
       :unread-per-space="unreadPerSpace"
       @open-drawer="firstLevelDrawer = true" />
     <template v-if="displaySequentially">
-      <hamburger-menu-navigation-third-level
-        v-if="allowDisplayLevels"
-        v-model="thirdLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth" />
-      <hamburger-menu-navigation-second-level
-        v-if="allowDisplayLevels"
-        v-model="secondLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :second-level="secondLevel"
-        :third-level-drawer="thirdLevelDrawer"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :administration-navigations="administrationNavigations" />
-      <hamburger-menu-navigation-first-level
-        :sticky-preference="stickyPreference"
-        :first-level-drawer="firstLevelDrawer"
-        :second-level-drawer="secondLevelDrawer"
-        :third-level-drawer="thirdLevelDrawer"
-        :second-level="secondLevel"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :site-navigations="siteNavigations"
-        :recent-spaces="recentSpaces"
-        :opened-space="space"
-        :sticky-allowed="stickyAllowed"
-        :drawer-width="drawerWidth"
-        @stickyPreference="stickyPreference = $event"
-        @firstLevelDrawer="firstLevelDrawer = $event" />
+      <div @mouseleave="closeDrawer">
+        <hamburger-menu-navigation-third-level
+          v-if="allowDisplayLevels"
+          v-model="thirdLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth" />
+        <hamburger-menu-navigation-second-level
+          v-if="allowDisplayLevels"
+          v-model="secondLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :second-level="secondLevel"
+          :third-level-drawer="thirdLevelDrawer"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :administration-navigations="administrationNavigations" />
+        <hamburger-menu-navigation-first-level
+          :sticky-preference="stickyPreference"
+          :first-level-drawer="firstLevelDrawer"
+          :second-level-drawer="secondLevelDrawer"
+          :third-level-drawer="thirdLevelDrawer"
+          :second-level="secondLevel"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :site-navigations="siteNavigations"
+          :recent-spaces="recentSpaces"
+          :opened-space="space"
+          :sticky-allowed="stickyAllowed"
+          :drawer-width="drawerWidth"
+          @stickyPreference="stickyPreference = $event"
+          @firstLevelDrawer="firstLevelDrawer = $event" />
+      </div>
     </template>
     <template v-else>
       <hamburger-menu-navigation-first-level
@@ -258,6 +260,9 @@ export default {
       this.space = null;
       this.secondLevel = null;
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
+    },
+    closeDrawer() {
+      window.setTimeout(() => this.closeMenu(), 500);
     },
     retrieveSiteNavigations() {
       return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', 'displayed')

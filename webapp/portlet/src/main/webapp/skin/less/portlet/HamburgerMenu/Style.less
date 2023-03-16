@@ -90,6 +90,40 @@
       width: 16px;
       height: 16px;
     }
+    .ripple {
+      &:before {
+        content: "";
+        position: absolute;
+        background-color: rgba(0,0,0,.1);
+        width: 10%;
+        height: 25%;
+        border-radius: 50%;
+        z-index: 1;
+        top: 35%;
+        left: 45%;
+        -webkit-transform: scale(0);
+        transform: scale(0);
+      }
+      &:hover {
+        &:before {
+          -webkit-transform: scale(12);
+          transform: scale(12);
+          -webkit-transition: border-radius .3s .3s,-webkit-transform .3s;
+          transition: border-radius .5s .5s,-webkit-transform .3s;
+          transition: transform .5s,border-radius .3s .3s;
+          transition: transform .5s,border-radius .3s .3s,-webkit-transform .3s;
+        }
+        &:after {
+          content: "";
+          position: absolute;
+          z-index: 2;
+          left: 50%;
+          -webkit-transform: translateX(-50%);
+          transform: translateX(-50%);
+        }
+      }
+
+    }
   }
   .uiIcon.uiIconToolbarNavItem {
     font-size: 20px;
