@@ -2,7 +2,7 @@
   <v-card
     :id="userMenuParentId"
     :outlined="!isMobile"
-    class="peopleCardItem d-block d-sm-flex"
+    class="peopleCardItem d-block d-sm-flex mx-2"
     flat
     hover>
     <v-img
