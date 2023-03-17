@@ -19,43 +19,20 @@
 
 -->
 <template>
-  <a
-    v-if="!isDesktop"
-    class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')">
+  <v-btn
+    class="HamburgerNavigationMenuLink flex full-height pa-0 border-box-sizing"
+    text
+    @click="openDrawer()"
+    @mouseover="openDrawer($event)">
     <div class="px-5 py-3">
       <v-icon size="24">fa-bars</v-icon>
     </div>
-    <v-btn
+    <div
       v-show="showBadge"
-      class="hamburger-unread-badge"
-      absolute
-      icon
-      height="16"
-      width="16"
-      text>
+      class="hamburger-unread-badge position-absolute">
       <div class="hamburger-unread-badge error-color-background"></div>
-    </v-btn>
-  </a>
-  <a
-    v-else
-    class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')"
-    @mouseover="$emit('open-drawer')">
-    <div class="px-5 py-3">
-      <v-icon size="24">fa-bars</v-icon>
     </div>
-    <v-btn
-      v-show="showBadge"
-      class="hamburger-unread-badge"
-      absolute
-      icon
-      height="16"
-      width="16"
-      text>
-      <div class="hamburger-unread-badge error-color-background"></div>
-    </v-btn>
-  </a>
+  </v-btn>
 </template>
 <script>
 export default {
@@ -66,14 +43,12 @@ export default {
     }
   },
   data: () => ({
-    unread: {}
+    unread: {},
+    ripple: false,
   }),
   computed: {
     showBadge() {
       return this.unread && Object.values(this.unread).reduce((sum, v) => sum += v, 0) > 0;
-    },
-    isDesktop() {
-      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
   },
   watch: {
@@ -121,7 +96,46 @@ export default {
     },
     initUnread() {
       this.unread = this.unreadPerSpace && Object.assign({}, this.unreadPerSpace) || {};
-    }
+    },
+    openDrawer(event) {
+      if (event?.target) {
+        this.toogleRippleEffect();
+        // Differ opening the drawer
+        window.setTimeout(() => {
+          this.$emit('open-drawer');
+        }, 500);
+      } else {
+        this.$emit('open-drawer');
+      }
+    },
+    toogleRippleEffect() {
+      if (this.addRippleEffect()) {
+        window.setTimeout(this.cleanRippleEffect, 200);
+      }
+    },
+    addRippleEffect() {
+      if (!this.ripple) {
+        this.ripple = true;
+        this.simulateEventOnButton('mousedown');
+        return true;
+      } else {
+        return false;
+      }
+    },
+    cleanRippleEffect() {
+      if (this.ripple) {
+        this.simulateEventOnButton('mouseup');
+        window.setTimeout(() => this.ripple = false, 200);
+      }
+    },
+    simulateEventOnButton(eventType) {
+      document.querySelector('.HamburgerNavigationMenuLink')
+        .dispatchEvent(new MouseEvent(eventType, {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        }));
+    },
   }
 };
 </script>
