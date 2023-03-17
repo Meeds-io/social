@@ -19,11 +19,10 @@
 
 -->
 <template>
-  <v-btn
+  <ripple-hover-button
     class="HamburgerNavigationMenuLink flex full-height pa-0 border-box-sizing"
     text
-    @click="openDrawer()"
-    @mouseover="openDrawer($event)">
+    @ripple-hover="$emit('open-drawer')">
     <div class="px-5 py-3">
       <v-icon size="24">fa-bars</v-icon>
     </div>
@@ -37,7 +36,7 @@
       text>
       <div class="hamburger-unread-badge error-color-background"></div>
     </div>
-  </v-btn>
+  </ripple-hover-button>
 </template>
 <script>
 export default {
@@ -49,7 +48,6 @@ export default {
   },
   data: () => ({
     unread: {},
-    ripple: false,
   }),
   computed: {
     showBadge() {
@@ -59,7 +57,7 @@ export default {
   watch: {
     unreadPerSpace() {
       this.initUnread();
-    }
+    },
   },
   created() {
     this.initUnread();
@@ -101,45 +99,6 @@ export default {
     },
     initUnread() {
       this.unread = this.unreadPerSpace && Object.assign({}, this.unreadPerSpace) || {};
-    },
-    openDrawer(event) {
-      if (event?.target) {
-        this.toggleRippleEffect();
-        // Differ opening the drawer
-        window.setTimeout(() => {
-          this.$emit('open-drawer');
-        }, 500);
-      } else {
-        this.$emit('open-drawer');
-      }
-    },
-    toggleRippleEffect() {
-      if (this.addRippleEffect()) {
-        window.setTimeout(this.cleanRippleEffect, 500);
-      }
-    },
-    addRippleEffect() {
-      if (!this.ripple) {
-        this.ripple = true;
-        this.simulateEventOnButton('mousedown');
-        return true;
-      } else {
-        return false;
-      }
-    },
-    cleanRippleEffect() {
-      if (this.ripple) {
-        this.simulateEventOnButton('mouseup');
-        window.setTimeout(() => this.ripple = false, 500);
-      }
-    },
-    simulateEventOnButton(eventType) {
-      document.querySelector('.HamburgerNavigationMenuLink')
-        .dispatchEvent(new MouseEvent(eventType, {
-          bubbles: true,
-          cancelable: true,
-          view: window
-        }));
     },
   }
 };
