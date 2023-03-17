@@ -25,12 +25,8 @@
     :items="settings"
     :items-per-page="pageSize"
     :loading="loading"
-    :options.sync="options"
     :locale="lang"
-    :disable-sort="isMobile"
-    :loading-text="loadingLabel"
-    :class="loadingClass"
-    :sort-by="sortBy"
+    :sort-by.sync="sortBy"
     hide-default-footer
     disable-pagination
     disable-filtering
@@ -58,7 +54,6 @@
 
 <script>
 export default {
-
   props: {
     settings: {
       type: Object,
@@ -91,6 +86,7 @@ export default {
   },
   data: () => ({
     waitTimeUntilCloseMenu: 200,
+    lang: eXo.env.portal.language,
   }),
   computed: {
     headers() {
