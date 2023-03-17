@@ -900,4 +900,10 @@
         <createSequence sequenceName="SEQ_SOC_LABELS_ID" startValue="1"/>
     </changeSet>
 
+    <changeSet author="social" id="1.0.0-91" dbms="mysql">
+        <sql>
+            ALTER TABLE SOC_ACTIVITY_TEMPLATE_PARAMS MODIFY COLUMN TEMPLATE_PARAM_KEY NVARCHAR(255) BINARY;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
