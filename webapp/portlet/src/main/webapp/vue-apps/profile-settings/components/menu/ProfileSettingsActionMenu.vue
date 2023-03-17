@@ -83,11 +83,11 @@ export default {
     },
     canMoveUp()
     {
-      return this.index > 0 ?  true : false;
+      return this.index > 0;
     },
     canMoveDown()
     {
-      return this.index < this.settings.length-1 ?  true : false;
+      return this.index < this.settings.length - 1;
     }, 
   },
   methods: {
