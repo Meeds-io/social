@@ -69,14 +69,13 @@
               fa-plus
             </v-icon>
           </v-btn>
-          <v-btn
-            :title="$t('menu.seeMySpaces')"
+          <ripple-hover-button
             icon
-            @click="$root.$emit('change-recent-spaces-menu')">
+            @ripple-hover="$root.$emit('change-recent-spaces-menu')">
             <v-icon class="me-0 pa-2 icon-default-color clickable" small>
               {{ arrowIconClass }} 
             </v-icon>
-          </v-btn>
+          </ripple-hover-button>
         </v-list-item-action>
       </v-list-item>
     </v-row>
