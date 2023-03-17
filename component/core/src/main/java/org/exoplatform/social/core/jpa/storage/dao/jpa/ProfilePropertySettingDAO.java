@@ -48,4 +48,11 @@ public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfileProperty
                                                                                        ProfilePropertySettingEntity.class);
     return query.getResultList();
   }
+
+  public List<ProfilePropertySettingEntity> findOrderedSettings() {
+    TypedQuery<ProfilePropertySettingEntity> query =
+                                                   getEntityManager().createNamedQuery("SocProfileSettingEntity.findOrderedSettings",
+                                                                                       ProfilePropertySettingEntity.class);
+    return query.getResultList();
+  }
 }
