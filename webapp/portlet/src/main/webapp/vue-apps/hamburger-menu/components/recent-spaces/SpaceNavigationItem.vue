@@ -52,7 +52,7 @@
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     link
     class="px-2 spaceItem"
-    @mouseover="showItemActions = true" 
+    @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
     <v-list-item-avatar 
       size="28"
@@ -68,16 +68,17 @@
       :disabled="loading"
       :loading="loading"
       class="me-2 my-auto align-center">
-      <v-btn
+      <ripple-hover-button
+        :active="!drawerOpened"
         icon
-        @click="openOrCloseDrawer($event)">
+        @ripple-hover="openOrCloseDrawer($event)">
         <v-icon
           :id="space.id"
           class="me-0 pa-2 icon-default-color clickable"
           small>
           {{ arrowIcon }} 
         </v-icon>
-      </v-btn>
+      </ripple-hover-button>
     </v-list-item-action>
     <v-list-item-action
       v-if="!toggleArrow && spaceUnreadCount"
@@ -123,7 +124,6 @@ export default {
     },
   },
   data: () => ({
-    secondeLevel: false,
     showItemActions: false,
     spaceUnreadItems: null,
     webSocketSpaceUnreadItems: {},
@@ -145,13 +145,16 @@ export default {
       return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
     },
     toggleArrow() {
-      return this.showItemActions || this.secondeLevel;
+      return this.showItemActions;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
+    drawerOpened() {
+      return this.openedSpace?.id === this.space?.id;
+    },
     arrowIcon() {
-      return this.openedSpace?.id === this.space?.id && this.arrowIconLeft || this.arrowIconRight;
+      return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
     },
     arrowIconLeft() {
       return this.$root.ltr && 'fa-arrow-left' || 'fa-arrow-right';

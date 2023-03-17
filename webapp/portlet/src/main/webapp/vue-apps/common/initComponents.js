@@ -23,6 +23,7 @@ import FavoriteButton from './components/FavoriteButton.vue';
 import ChangesReminder from './components/ChangesReminder.vue';
 import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
+import RippleHoverButton from './components/RippleHoverButton.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -52,6 +53,7 @@ const components = {
   'changes-reminder': ChangesReminder,
   'unread-badge': UnreadBadge,
   'alert-notifications': Notifications,
+  'ripple-hover-button': RippleHoverButton,
 };
 
 for (const key in components) {
