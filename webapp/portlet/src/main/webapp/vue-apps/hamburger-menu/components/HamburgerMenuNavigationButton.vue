@@ -19,43 +19,24 @@
 
 -->
 <template>
-  <a
-    v-if="!isDesktop"
-    class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')">
+  <ripple-hover-button
+    class="HamburgerNavigationMenuLink flex full-height pa-0 border-box-sizing"
+    text
+    @ripple-hover="$emit('open-drawer')">
     <div class="px-5 py-3">
       <v-icon size="24">fa-bars</v-icon>
     </div>
-    <v-btn
+    <div
       v-show="showBadge"
-      class="hamburger-unread-badge"
+      class="hamburger-unread-badge position-absolute"
       absolute
       icon
       height="16"
       width="16"
       text>
       <div class="hamburger-unread-badge error-color-background"></div>
-    </v-btn>
-  </a>
-  <a
-    v-else
-    class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')"
-    @mouseover="$emit('open-drawer')">
-    <div class="px-5 py-3">
-      <v-icon size="24">fa-bars</v-icon>
     </div>
-    <v-btn
-      v-show="showBadge"
-      class="hamburger-unread-badge"
-      absolute
-      icon
-      height="16"
-      width="16"
-      text>
-      <div class="hamburger-unread-badge error-color-background"></div>
-    </v-btn>
-  </a>
+  </ripple-hover-button>
 </template>
 <script>
 export default {
@@ -66,20 +47,17 @@ export default {
     }
   },
   data: () => ({
-    unread: {}
+    unread: {},
   }),
   computed: {
     showBadge() {
       return this.unread && Object.values(this.unread).reduce((sum, v) => sum += v, 0) > 0;
-    },
-    isDesktop() {
-      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
-    },
+    }
   },
   watch: {
     unreadPerSpace() {
       this.initUnread();
-    }
+    },
   },
   created() {
     this.initUnread();
@@ -121,7 +99,7 @@ export default {
     },
     initUnread() {
       this.unread = this.unreadPerSpace && Object.assign({}, this.unreadPerSpace) || {};
-    }
+    },
   }
 };
 </script>

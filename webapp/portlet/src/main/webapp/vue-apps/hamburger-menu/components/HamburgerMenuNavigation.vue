@@ -27,7 +27,10 @@
       v-if="!stickyDisplay"
       :unread-per-space="unreadPerSpace"
       @open-drawer="firstLevelDrawer = true" />
-    <template v-if="displaySequentially">
+    <div
+      v-if="displaySequentially"
+      @mouseenter="hover = true"
+      @mouseleave="hover = false">
       <hamburger-menu-navigation-third-level
         v-if="allowDisplayLevels"
         v-model="thirdLevelDrawer"
@@ -60,7 +63,7 @@
         :drawer-width="drawerWidth"
         @stickyPreference="stickyPreference = $event"
         @firstLevelDrawer="firstLevelDrawer = $event" />
-    </template>
+    </div>
     <template v-else>
       <hamburger-menu-navigation-first-level
         :sticky-preference="stickyPreference"
@@ -114,6 +117,8 @@ export default {
     limit: 7,
     offset: 0,
     unreadPerSpace: null,
+    hover: false,
+    interval: null,
   }),
   computed: {
     allowDisplayLevels() {
@@ -167,6 +172,13 @@ export default {
         this.secondLevelDrawer = false;
         this.space = null;
         this.secondLevel = null;
+      } else if (this.firstLevelDrawer) {
+        // Close if mouse is not entered to menu
+        window.setTimeout(() => {
+          if (!this.hover) {
+            this.firstLevelDrawer = false;
+          }
+        }, 500);
       }
     },
     stickyDisplay() {
@@ -175,6 +187,16 @@ export default {
         document.body.className = `${document.body.className.replace('HamburgerMenuSticky', '')  } HamburgerMenuSticky`;
       } else {
         document.body.className = document.body.className.replace('HamburgerMenuSticky', '');
+      }
+    },
+    hover() {
+      if (this.hover) {
+        if (this.interval) {
+          window.clearInterval(this.interval);
+          this.interval = null;
+        }
+      } else if (!this.interval) {
+        this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
   },

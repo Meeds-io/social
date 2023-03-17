@@ -35,11 +35,13 @@
           {{ this.$t('menu.administration.title') }}
         </v-list-item-content>
         <v-list-item-action v-if="toggleArrow" class="my-0">
-          <v-btn icon @click="$root.$emit('change-administration-menu')">
+          <ripple-hover-button
+            icon
+            @ripple-hover="$root.$emit('change-administration-menu')">
             <v-icon class="me-0 pa-2 icon-default-color clickable" small>
               {{ arrowIconClass }} 
             </v-icon>
-          </v-btn>
+          </ripple-hover-button>
         </v-list-item-action>
       </v-list-item>
     </v-row>
