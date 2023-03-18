@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
@@ -52,7 +51,6 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
   private ProfilePropertyService profilePropertyService;
   private Identity paul;
   private Identity raul;
-  private boolean alreadyAddedPlugins = false;
 
   public SocialUserProfileEventListenerImplTest() {
     setForceContainerReload(true);
@@ -63,7 +61,6 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     organizationService = (OrganizationService) getContainer().getComponentInstanceOfType(OrganizationService.class);
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
-    fakePlugins();
     cacheService = getContainer().getComponentInstanceOfType(SocialStorageCacheService.class);
     cacheService.getIdentityCache().clearCache();
     cacheService.getIdentityIndexCache().clearCache();
@@ -75,16 +72,6 @@ public class SocialUserProfileEventListenerImplTest extends AbstractCoreTest {
     tearDownIdentityList.add(raul);
     org.exoplatform.services.security.Identity identity = getService(IdentityRegistry.class).getIdentity("root");
     ConversationState.setCurrent(new ConversationState(identity));
-  }
-  
-  private void fakePlugins() throws Exception {
-    if (!alreadyAddedPlugins) {
-      organizationService.addListenerPlugin(new SocialUserEventListenerImpl());
-      organizationService.addListenerPlugin(new SocialUserProfileEventListenerImpl(identityManager,
-              profilePropertyService));
-      alreadyAddedPlugins = true;
-    }
-    
   }
 
   public void tearDown() throws Exception {
