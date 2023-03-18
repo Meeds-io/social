@@ -63,6 +63,12 @@ export default {
     displaySpaceNavigations() {
       this.computedSiteBodyMargin();
     },
+    selectedNavigationUri() {
+      this.refreshWindowSize();
+    },
+    navigations() {
+      this.refreshWindowSize();
+    },
   },
   created() {
     document.addEventListener('refreshSpaceNavigations', () => {
@@ -95,7 +101,15 @@ export default {
         window.setTimeout(() => {
           $('#UISiteBody').css('margin-bottom', '70px');
         }, 200);
+      } else {
+        $('#UISiteBody').css('margin-bottom', '');
       }
+      this.refreshWindowSize();
+    },
+    refreshWindowSize() {
+      this.$nextTick().then(() => {
+        window.setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+      });
     },
   },
 };
