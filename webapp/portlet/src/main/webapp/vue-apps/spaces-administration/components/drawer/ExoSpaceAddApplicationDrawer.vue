@@ -7,20 +7,25 @@
       {{ $t('social.spaces.administration.manageSpaces.applications') }}
     </template>
     <template slot="content">
-      <v-expansion-panels
-        v-model="expanded"
-        accordion
-        flat
-        focusable
-        class="px-4">
-        <exo-space-application-category-card
-          v-for="(category, index) in applicationsByCategory"
-          :key="category.id"
-          :category="category"
-          :expanded="expanded === index"
-          :installed-applications="installedApplications"
-          @addApplication="addApplication" />
-      </v-expansion-panels>
+      <v-card
+        width="420"
+        max-width="100%"
+        flat>
+        <v-expansion-panels
+          v-model="expanded"
+          accordion
+          flat
+          focusable
+          class="px-4">
+          <exo-space-application-category-card
+            v-for="(category, index) in applicationsByCategory"
+            :key="category.id"
+            :category="category"
+            :expanded="expanded === index"
+            :installed-applications="installedApplications"
+            @addApplication="addApplication" />
+        </v-expansion-panels>
+      </v-card>
     </template>
   </exo-drawer>
 </template>
