@@ -28,76 +28,77 @@
       :unread-per-space="unreadPerSpace"
       @open-drawer="openFirstLevel" />
     <div
-      v-if="displaySequentially"
       @mouseenter="hover = true"
       @mouseleave="hover = false">
-      <hamburger-menu-navigation-third-level
-        v-if="allowDisplayLevels"
-        v-model="thirdLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth" />
-      <hamburger-menu-navigation-second-level
-        v-if="allowDisplayLevels"
-        v-model="secondLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :second-level="secondLevel"
-        :third-level-drawer="thirdLevelDrawer"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :administration-navigations="administrationNavigations" />
-      <hamburger-menu-navigation-first-level
-        :sticky-preference="stickyPreference"
-        :first-level-drawer="firstLevelDrawer"
-        :second-level-drawer="secondLevelDrawer"
-        :third-level-drawer="thirdLevelDrawer"
-        :second-level="secondLevel"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :site-navigations="siteNavigations"
-        :recent-spaces="recentSpaces"
-        :opened-space="space"
-        :sticky-allowed="stickyAllowed"
-        :drawer-width="drawerWidth"
-        @stickyPreference="stickyPreference = $event"
-        @firstLevelDrawer="firstLevelDrawer = $event" />
+      <template v-if="displaySequentially">
+        <hamburger-menu-navigation-third-level
+          v-if="allowDisplayLevels"
+          v-model="thirdLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth" />
+        <hamburger-menu-navigation-second-level
+          v-if="allowDisplayLevels"
+          v-model="secondLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :second-level="secondLevel"
+          :third-level-drawer="thirdLevelDrawer"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :administration-navigations="administrationNavigations" />
+        <hamburger-menu-navigation-first-level
+          :sticky-preference="stickyPreference"
+          :first-level-drawer="firstLevelDrawer"
+          :second-level-drawer="secondLevelDrawer"
+          :third-level-drawer="thirdLevelDrawer"
+          :second-level="secondLevel"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :site-navigations="siteNavigations"
+          :recent-spaces="recentSpaces"
+          :opened-space="space"
+          :sticky-allowed="stickyAllowed"
+          :drawer-width="drawerWidth"
+          @stickyPreference="stickyPreference = $event"
+          @firstLevelDrawer="firstLevelDrawer = $event" />
+      </template>
+      <template v-else>
+        <hamburger-menu-navigation-first-level
+          :sticky-preference="stickyPreference"
+          :first-level-drawer="firstLevelDrawer"
+          :second-level-drawer="secondLevelDrawer"
+          :third-level-drawer="thirdLevelDrawer"
+          :second-level="secondLevel"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :site-navigations="siteNavigations"
+          :recent-spaces="recentSpaces"
+          :opened-space="space"
+          :sticky-allowed="stickyAllowed"
+          :drawer-width="drawerWidth"
+          @stickyPreference="stickyPreference = $event"
+          @firstLevelDrawer="firstLevelDrawer = $event" />
+        <hamburger-menu-navigation-second-level
+          v-if="allowDisplayLevels"
+          v-model="secondLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :second-level="secondLevel"
+          :third-level-drawer="thirdLevelDrawer"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :administration-navigations="administrationNavigations" />
+        <hamburger-menu-navigation-third-level
+          v-if="allowDisplayLevels"
+          v-model="thirdLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth" />
+      </template>
     </div>
-    <template v-else>
-      <hamburger-menu-navigation-first-level
-        :sticky-preference="stickyPreference"
-        :first-level-drawer="firstLevelDrawer"
-        :second-level-drawer="secondLevelDrawer"
-        :third-level-drawer="thirdLevelDrawer"
-        :second-level="secondLevel"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :site-navigations="siteNavigations"
-        :recent-spaces="recentSpaces"
-        :opened-space="space"
-        :sticky-allowed="stickyAllowed"
-        :drawer-width="drawerWidth"
-        @stickyPreference="stickyPreference = $event"
-        @firstLevelDrawer="firstLevelDrawer = $event" />
-      <hamburger-menu-navigation-second-level
-        v-if="allowDisplayLevels"
-        v-model="secondLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :second-level="secondLevel"
-        :third-level-drawer="thirdLevelDrawer"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :administration-navigations="administrationNavigations" />
-      <hamburger-menu-navigation-third-level
-        v-if="allowDisplayLevels"
-        v-model="thirdLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth" />
-    </template>
   </v-app>
 </template>
 <script>
