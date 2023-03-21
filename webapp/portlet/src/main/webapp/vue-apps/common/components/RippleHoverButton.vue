@@ -68,7 +68,7 @@ export default {
       }
     },
     emitAction(event, mouseover) {
-      if (!this.active) {
+      if (!this.active && mouseover) {
         return;
       }
       this.mouseEvent = event.pointerType === 'mouse' || event?.type === 'mouseover' || event?.type === 'click';
@@ -76,17 +76,17 @@ export default {
         this.toggleRippleEffect();
         // Differ opening the drawer
         window.setTimeout(() => {
-          this.emitActionOnce();
+          this.emitActionOnce(mouseover);
         }, 500);
       } else {
         this.cleanRippleEffect();
         window.setTimeout(() => {
-          this.emitActionOnce();
+          this.emitActionOnce(mouseover);
         }, 50);
       }
     },
-    emitActionOnce() {
-      if (!this.emitted && this.active) {
+    emitActionOnce(mouseover) {
+      if (!this.emitted && (this.active || !mouseover)) {
         this.emitted = true;
         this.$emit('ripple-hover', this.mouseEvent);
         window.setTimeout(() => {
