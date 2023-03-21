@@ -24,9 +24,11 @@
     :ripple="!ripple"
     :text="text"
     :icon="icon"
-    @mousedown="nop"
-    @click="emitAction()"
-    @mouseover="emitAction($event)">
+    @mousedown.stop.prevent="nop"
+    @touchstart.stop.prevent="nop"
+    @touchend.stop.prevent="emitAction($event, false)"
+    @click.stop.prevent="emitAction($event, false)"
+    @mouseover.stop.prevent="emitAction($event, true)">
     <slot></slot>
   </v-btn>
 </template>
@@ -49,6 +51,7 @@ export default {
   data: () => ({
     ripple: false,
     emitted: false,
+    mouseEvent: false,
   }),
   watch: {
     ripple() {
@@ -64,11 +67,12 @@ export default {
         event.stopPropagation();
       }
     },
-    emitAction(event) {
+    emitAction(event, mouseover) {
       if (!this.active) {
         return;
       }
-      if (event?.target) {
+      this.mouseEvent = event.pointerType === 'mouse' || event?.type === 'mouseover' || event?.type === 'click';
+      if (mouseover) {
         this.toggleRippleEffect();
         // Differ opening the drawer
         window.setTimeout(() => {
@@ -84,7 +88,7 @@ export default {
     emitActionOnce() {
       if (!this.emitted && this.active) {
         this.emitted = true;
-        this.$emit('ripple-hover');
+        this.$emit('ripple-hover', this.mouseEvent);
         window.setTimeout(() => {
           this.emitted = false;
         }, 500);

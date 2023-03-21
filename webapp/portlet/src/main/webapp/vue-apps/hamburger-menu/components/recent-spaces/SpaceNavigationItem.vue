@@ -23,7 +23,7 @@
     v-if="isMobile"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     class="px-2 spaceItem text-truncate"
-    @click="openOrCloseDrawer()">
+    @click="openOrCloseDrawer">
     <v-list-item-avatar 
       size="28"
       class="me-3 ms-3 tile my-0 spaceAvatar"
@@ -71,7 +71,7 @@
       <ripple-hover-button
         :active="!drawerOpened"
         icon
-        @ripple-hover="openOrCloseDrawer($event)">
+        @ripple-hover="openOrCloseDrawer()">
         <v-icon
           :id="space.id"
           class="me-0 pa-2 icon-default-color clickable"
@@ -145,7 +145,7 @@ export default {
       return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
     },
     toggleArrow() {
-      return this.showItemActions;
+      return this.showItemActions || this.drawerOpened;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
