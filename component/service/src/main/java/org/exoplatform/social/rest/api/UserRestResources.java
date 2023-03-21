@@ -49,7 +49,8 @@ public interface UserRestResources extends SocialRest {
                                     @QueryParam("offset") int offset,
                                     @QueryParam("limit") int limit,
                                     @QueryParam("returnSize") boolean returnSize,
-                                    @QueryParam("expand") String expand) throws Exception;
+                                    @QueryParam("expand") String expand,
+                                    @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception;
 
   /**
    * Creates an user
