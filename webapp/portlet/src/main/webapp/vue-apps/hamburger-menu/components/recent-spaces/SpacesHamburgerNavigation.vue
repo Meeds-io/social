@@ -92,7 +92,9 @@
       :message="confirmMessage"
       :ok-label="$t('menu.confirmation.ok')"
       :cancel-label="$t('menu.confirmation.cancel')"
-      @ok="changeHome" />
+      @ok="changeHome"
+      @opened="$root.$emit('dialog-opened')"
+      @closed="$root.$emit('dialog-closed')" />
   </v-container>
 </template>
 <script>
@@ -162,7 +164,7 @@ export default {
       this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url(this.selectedSpace))
         .then(() => {
           this.homeLink = eXo.env.portal.homeLink = this.url(this.selectedSpace);
-          $('#UserHomePortalLink').attr('href', this.homeLink);
+          document.querySelector('#UserHomePortalLink').href = this.homeLink;
           document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.homeLink}));
         });
     },
