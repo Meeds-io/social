@@ -64,8 +64,8 @@ export function getUserByEmail(email) {
   });
 }
 
-export function getUsers(query, offset, limit, expand, signal) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
+export function getUsers(query, offset, limit, expand, signal, excludeCurrentUser) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true&excludedIdentity=${excludeCurrentUser || false}`, {
     method: 'GET',
     credentials: 'include',
     signal: signal

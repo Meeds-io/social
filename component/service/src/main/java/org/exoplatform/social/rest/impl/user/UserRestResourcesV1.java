@@ -262,7 +262,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           description = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"."
                 + "Using the query param \"status\" to filter the target users, ex: \"status=online*\" returns the visible online users."
                 + "Using the query params \"status\" and \"spaceId\" together to filter the target users, ex: \"status=online*\" and \"spaceId=1*\" returns the visible online users who are member of space with id=1."
-                + "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored")
+                + "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored,"
+                + "the current user \"excludeCurrentUser\" will be excluded")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse (responseCode = "404", description = "Resource not found"),
@@ -279,7 +280,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
                            @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
                            @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
+                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+                           @Parameter(description = "the current user will be excluded in the list") @Schema(defaultValue = "false") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
 
     String userId;
     try {
@@ -314,9 +316,13 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         identities = getOnlineIdentities(userStateService, userId, limit);
       }
     } else {
+      Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setEnabled(!isDisabled);
+      if (target != null && excludeCurrentUser) {
+        filter.setExcludedIdentityList(Collections.singletonList(target));
+      }
       if (!isDisabled) {
         filter.setUserType(userType);
         filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
@@ -446,19 +452,22 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
     Identity[] identities;
     int totalSize = 0;
-      ProfileFilter filter = new ProfileFilter();
-      if (filterType.equals("all")) {
-        filter.setEnabled(!isDisabled);
-        if (!isDisabled) {
-          filter.setUserType(userType);
-        }
+    ProfileFilter filter = new ProfileFilter();
+    if (filterType.equals("all")) {
+      filter.setEnabled(!isDisabled);
+      if (!isDisabled) {
+        filter.setUserType(userType);
       }
-      filter.setProfileSettings(settings);
-        ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
-        identities = list.load(offset, limit);
-        if(returnSize) {
-          totalSize = list.getSize();
-        }
+    }
+    if (settings != null) {
+      filter.setExcludedIdentityList(Collections.singletonList(target));
+    }
+    filter.setProfileSettings(settings);
+    ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
+    identities = list.load(offset, limit);
+    if (returnSize) {
+      totalSize = list.getSize();
+    }
     List<DataEntity> profileInfos = new ArrayList<>();
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
