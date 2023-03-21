@@ -26,7 +26,7 @@
     <hamburger-menu-navigation-button 
       v-if="!stickyDisplay"
       :unread-per-space="unreadPerSpace"
-      @open-drawer="firstLevelDrawer = true" />
+      @open-drawer="openFirstLevel" />
     <div
       v-if="displaySequentially"
       @mouseenter="hover = true"
@@ -119,6 +119,7 @@ export default {
     unreadPerSpace: null,
     hover: false,
     interval: null,
+    mouseEvent: false,
   }),
   computed: {
     allowDisplayLevels() {
@@ -172,11 +173,11 @@ export default {
         this.secondLevelDrawer = false;
         this.space = null;
         this.secondLevel = null;
-      } else if (this.firstLevelDrawer) {
+      } else if (this.firstLevelDrawer && this.mouseEvent) {
         // Close if mouse is not entered to menu
         window.setTimeout(() => {
           if (!this.hover) {
-            this.firstLevelDrawer = false;
+            this.closeMenu();
           }
         }, 500);
       }
@@ -218,6 +219,10 @@ export default {
         this.retrieveAdministrationNavigations(),
         this.retrieveRecentSpaces(),
       ]).finally(() => this.initStep++);
+    },
+    openFirstLevel(mouseEvent) {
+      this.mouseEvent = mouseEvent;
+      this.firstLevelDrawer = true;
     },
     changeRecentSpacesMenu() {
       if (this.secondLevel === 'recentSpaces') {

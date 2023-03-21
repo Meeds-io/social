@@ -22,7 +22,7 @@
   <ripple-hover-button
     class="HamburgerNavigationMenuLink flex full-height pa-0 border-box-sizing"
     text
-    @ripple-hover="$emit('open-drawer')">
+    @ripple-hover="$emit('open-drawer', $event)">
     <div class="px-5 py-3">
       <v-icon size="24">fa-bars</v-icon>
     </div>
