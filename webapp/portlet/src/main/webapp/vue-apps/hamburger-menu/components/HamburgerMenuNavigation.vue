@@ -121,6 +121,7 @@ export default {
     hover: false,
     interval: null,
     mouseEvent: false,
+    allowClosing: true,
   }),
   computed: {
     allowDisplayLevels() {
@@ -207,6 +208,8 @@ export default {
     this.$root.$on('change-space-menu', this.changeSpaceMenu);
     this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
     this.$root.$on('change-administration-menu', this.changeAdministrationMenu);
+    this.$root.$on('dialog-opened', () => this.allowClosing = false);
+    this.$root.$on('dialog-closed', () => this.allowClosing = true);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     this.init();
   },
@@ -280,6 +283,10 @@ export default {
       }
     },
     closeMenu() {
+      if (!this.allowClosing) {
+        this.interval = window.setTimeout(() => this.closeMenu(), 500);
+        return;
+      }
       this.firstLevelDrawer = false;
       this.secondLevelDrawer = false;
       this.thirdLevelDrawer = false;
