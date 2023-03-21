@@ -3,7 +3,7 @@
     <v-card
       :id="spaceMenuParentId"
       :elevation="hover && !isMobile && 4 || 0"
-      class="spaceCardItem d-block d-sm-flex"
+      class="spaceCardItem d-block d-sm-flex mx-2"
       :outlined="!isMobile">
       <v-img
         :src="spaceBannerUrl"
