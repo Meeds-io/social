@@ -19,23 +19,24 @@
 
 -->
 <template>
-  <a
-    class="HamburgerNavigationMenuLink flex border-box-sizing"
-    @click="$emit('open-drawer')">
+  <ripple-hover-button
+    class="HamburgerNavigationMenuLink flex full-height pa-0 border-box-sizing"
+    text
+    @ripple-hover="$emit('open-drawer', $event)">
     <div class="px-5 py-3">
       <v-icon size="24">fa-bars</v-icon>
     </div>
-    <v-btn
+    <div
       v-show="showBadge"
-      class="hamburger-unread-badge"
+      class="hamburger-unread-badge position-absolute"
       absolute
       icon
       height="16"
       width="16"
       text>
       <div class="hamburger-unread-badge error-color-background"></div>
-    </v-btn>
-  </a>
+    </div>
+  </ripple-hover-button>
 </template>
 <script>
 export default {
@@ -46,7 +47,7 @@ export default {
     }
   },
   data: () => ({
-    unread: {}
+    unread: {},
   }),
   computed: {
     showBadge() {
@@ -56,7 +57,7 @@ export default {
   watch: {
     unreadPerSpace() {
       this.initUnread();
-    }
+    },
   },
   created() {
     this.initUnread();
@@ -98,7 +99,7 @@ export default {
     },
     initUnread() {
       this.unread = this.unreadPerSpace && Object.assign({}, this.unreadPerSpace) || {};
-    }
+    },
   }
 };
 </script>

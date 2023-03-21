@@ -26,75 +26,79 @@
     <hamburger-menu-navigation-button 
       v-if="!stickyDisplay"
       :unread-per-space="unreadPerSpace"
-      @open-drawer="firstLevelDrawer = true" />
-    <template v-if="displaySequentially">
-      <hamburger-menu-navigation-third-level
-        v-if="allowDisplayLevels"
-        v-model="thirdLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth" />
-      <hamburger-menu-navigation-second-level
-        v-if="allowDisplayLevels"
-        v-model="secondLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :second-level="secondLevel"
-        :third-level-drawer="thirdLevelDrawer"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :administration-navigations="administrationNavigations" />
-      <hamburger-menu-navigation-first-level
-        :sticky-preference="stickyPreference"
-        :first-level-drawer="firstLevelDrawer"
-        :second-level-drawer="secondLevelDrawer"
-        :third-level-drawer="thirdLevelDrawer"
-        :second-level="secondLevel"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :site-navigations="siteNavigations"
-        :recent-spaces="recentSpaces"
-        :opened-space="space"
-        :sticky-allowed="stickyAllowed"
-        :drawer-width="drawerWidth"
-        @stickyPreference="stickyPreference = $event"
-        @firstLevelDrawer="firstLevelDrawer = $event" />
-    </template>
-    <template v-else>
-      <hamburger-menu-navigation-first-level
-        :sticky-preference="stickyPreference"
-        :first-level-drawer="firstLevelDrawer"
-        :second-level-drawer="secondLevelDrawer"
-        :third-level-drawer="thirdLevelDrawer"
-        :second-level="secondLevel"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :site-navigations="siteNavigations"
-        :recent-spaces="recentSpaces"
-        :opened-space="space"
-        :sticky-allowed="stickyAllowed"
-        :drawer-width="drawerWidth"
-        @stickyPreference="stickyPreference = $event"
-        @firstLevelDrawer="firstLevelDrawer = $event" />
-      <hamburger-menu-navigation-second-level
-        v-if="allowDisplayLevels"
-        v-model="secondLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :second-level="secondLevel"
-        :third-level-drawer="thirdLevelDrawer"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth"
-        :has-administration-navigations="hasAdministrationNavigations"
-        :administration-navigations="administrationNavigations" />
-      <hamburger-menu-navigation-third-level
-        v-if="allowDisplayLevels"
-        v-model="thirdLevelDrawer"
-        :display-sequentially="displaySequentially"
-        :opened-space="space"
-        :home-link="homeLink"
-        :drawer-width="drawerWidth" />
-    </template>
+      @open-drawer="openFirstLevel" />
+    <div
+      @mouseenter="hover = true"
+      @mouseleave="hover = false">
+      <template v-if="displaySequentially">
+        <hamburger-menu-navigation-third-level
+          v-if="allowDisplayLevels"
+          v-model="thirdLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth" />
+        <hamburger-menu-navigation-second-level
+          v-if="allowDisplayLevels"
+          v-model="secondLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :second-level="secondLevel"
+          :third-level-drawer="thirdLevelDrawer"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :administration-navigations="administrationNavigations" />
+        <hamburger-menu-navigation-first-level
+          :sticky-preference="stickyPreference"
+          :first-level-drawer="firstLevelDrawer"
+          :second-level-drawer="secondLevelDrawer"
+          :third-level-drawer="thirdLevelDrawer"
+          :second-level="secondLevel"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :site-navigations="siteNavigations"
+          :recent-spaces="recentSpaces"
+          :opened-space="space"
+          :sticky-allowed="stickyAllowed"
+          :drawer-width="drawerWidth"
+          @stickyPreference="stickyPreference = $event"
+          @firstLevelDrawer="firstLevelDrawer = $event" />
+      </template>
+      <template v-else>
+        <hamburger-menu-navigation-first-level
+          :sticky-preference="stickyPreference"
+          :first-level-drawer="firstLevelDrawer"
+          :second-level-drawer="secondLevelDrawer"
+          :third-level-drawer="thirdLevelDrawer"
+          :second-level="secondLevel"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :site-navigations="siteNavigations"
+          :recent-spaces="recentSpaces"
+          :opened-space="space"
+          :sticky-allowed="stickyAllowed"
+          :drawer-width="drawerWidth"
+          @stickyPreference="stickyPreference = $event"
+          @firstLevelDrawer="firstLevelDrawer = $event" />
+        <hamburger-menu-navigation-second-level
+          v-if="allowDisplayLevels"
+          v-model="secondLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :second-level="secondLevel"
+          :third-level-drawer="thirdLevelDrawer"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth"
+          :has-administration-navigations="hasAdministrationNavigations"
+          :administration-navigations="administrationNavigations" />
+        <hamburger-menu-navigation-third-level
+          v-if="allowDisplayLevels"
+          v-model="thirdLevelDrawer"
+          :display-sequentially="displaySequentially"
+          :opened-space="space"
+          :home-link="homeLink"
+          :drawer-width="drawerWidth" />
+      </template>
+    </div>
   </v-app>
 </template>
 <script>
@@ -114,6 +118,9 @@ export default {
     limit: 7,
     offset: 0,
     unreadPerSpace: null,
+    hover: false,
+    interval: null,
+    mouseEvent: false,
   }),
   computed: {
     allowDisplayLevels() {
@@ -167,6 +174,13 @@ export default {
         this.secondLevelDrawer = false;
         this.space = null;
         this.secondLevel = null;
+      } else if (this.firstLevelDrawer && this.mouseEvent) {
+        // Close if mouse is not entered to menu
+        window.setTimeout(() => {
+          if (!this.hover) {
+            this.closeMenu();
+          }
+        }, 500);
       }
     },
     stickyDisplay() {
@@ -175,6 +189,16 @@ export default {
         document.body.className = `${document.body.className.replace('HamburgerMenuSticky', '')  } HamburgerMenuSticky`;
       } else {
         document.body.className = document.body.className.replace('HamburgerMenuSticky', '');
+      }
+    },
+    hover() {
+      if (this.hover) {
+        if (this.interval) {
+          window.clearInterval(this.interval);
+          this.interval = null;
+        }
+      } else if (!this.interval) {
+        this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
   },
@@ -196,6 +220,10 @@ export default {
         this.retrieveAdministrationNavigations(),
         this.retrieveRecentSpaces(),
       ]).finally(() => this.initStep++);
+    },
+    openFirstLevel(mouseEvent) {
+      this.mouseEvent = mouseEvent;
+      this.firstLevelDrawer = true;
     },
     changeRecentSpacesMenu() {
       if (this.secondLevel === 'recentSpaces') {
