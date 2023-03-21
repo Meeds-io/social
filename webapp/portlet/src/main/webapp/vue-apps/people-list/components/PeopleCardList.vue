@@ -181,19 +181,12 @@ export default {
           || this.filter === 'publisher') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
       } else {
-        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
+        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal, true);
       }
       return searchUsersFunction.then(data => {
-        let users = data && data.users || [];
-        if (this.filter === 'all') {
-          users = users.filter(user => user && user.username !== eXo.env.portal.userName);
-        }
-        users = users.slice(0, this.limitToFetch);
-        this.users = users;
+        const users = data && data.users || [];
+        this.users = users.slice(0, this.limitToFetch);
         this.peopleCount = data && data.size && data.size || 0;
-        if (this.peopleCount > 0 && this.filter === 'all' && !this.keyword) {
-          this.peopleCount = this.peopleCount - 1;
-        }
         this.hasPeople = this.hasPeople || this.peopleCount > 0;
         this.$emit('loaded', this.peopleCount);
         return this.$nextTick();
@@ -234,16 +227,9 @@ export default {
         filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.abortController.signal);
       }
       return filterUsersFunction.then(data => {
-        let users = data && data.users || [];
-        if (this.filter === 'all') {
-          users = users.filter(user => user && user.username !== eXo.env.portal.userName);
-        }
-        users = users.slice(0, this.limitToFetch);
-        this.users = users;
+        const users = data && data.users || [];
+        this.users = users.slice(0, this.limitToFetch);
         this.peopleCount = data && data.size && data.size || 0;
-        if (this.peopleCount > 0 && this.filter === 'all' && !this.keyword) {
-          this.peopleCount = this.peopleCount - 1;
-        }
         this.hasPeople = this.hasPeople || this.peopleCount > 0;
         this.$emit('loaded', this.peopleCount);
         return this.$nextTick();
