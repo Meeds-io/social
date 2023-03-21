@@ -1,6 +1,8 @@
 <template>
   <v-toolbar id="spacesListToolbar" flat>
-    <v-toolbar-title v-if="canCreateSpace">
+    <v-toolbar-title 
+      v-if="canCreateSpace" 
+      class="flex-shrink-0">
       <v-icon
         v-if="menuHeaderChanged"
         @click="changeHeaderMenu">
@@ -9,12 +11,12 @@
       <v-btn
         v-else
         id="addNewSpaceButton"
-        class="btn btn-primary px-2 mx-2 mx-sm-0 addNewSpaceButton"
+        class="btn btn-primary mx-2 mx-md-0 px-md-2 px-0 addNewSpaceButton"
         :small="isMobile"
         :large="!isMobile"
         @click="$root.$emit('addNewSpace')">
         <v-icon dark>mdi-plus</v-icon>
-        <span class="d-none d-sm-inline">
+        <span class="d-none d-lg-inline">
           {{ $t('spacesList.label.addNewSpace') }}
         </span>
       </v-btn>
