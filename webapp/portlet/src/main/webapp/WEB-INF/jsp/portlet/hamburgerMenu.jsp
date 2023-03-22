@@ -24,7 +24,25 @@
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
     <div class="v-application--wrap">
-      <% if (!sticky) { %>
+      <% if (sticky) { %>
+      <script type="text/javascript">
+        if (window.innerWidth >= 1280) {
+          const siteStickyMenuHtml = sessionStorage.getItem('ParentSiteStickyMenu');
+          if (siteStickyMenuHtml) {
+            document.querySelector('#ParentSiteStickyMenu').innerHTML = siteStickyMenuHtml;
+          }
+        } else {
+          document.querySelector('#HamburgerNavigationMenu > .v-application--wrap').innerHTML = `
+          <a class="HamburgerNavigationMenuLink">
+            <div class="px-5 py-3">
+              <i aria-hidden="true"
+                class="v-icon notranslate fa fa-bars theme--light"
+                style="font-size: 24px;"></i>
+            </div>
+          </a>`;
+        }
+      </script>
+      <% } else { %>
       <a class="HamburgerNavigationMenuLink">
         <div class="px-5 py-3">
           <i aria-hidden="true"
@@ -33,9 +51,9 @@
         </div>
       </a>
       <% } %>
-      <script type="text/javascript">
-        require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
-      </script>
     </div>
+    <script type="text/javascript">
+      require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
+    </script>
   </div>
 </div>

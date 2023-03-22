@@ -24,7 +24,7 @@
     :absolute="false"
     :close-on-click="false"
     :close-on-content-click="false"
-    :content-class="`position-relative overflow-hidden elevation-0 fill-height ${extraClass}`"
+    :content-class="`overflow-hidden elevation-0 fill-height ${extraClass} ${componentId}`"
     :min-width="drawerWidth"
     max-width="none"
     attach="#ParentSiteStickyMenu"
@@ -51,6 +51,7 @@ export default {
   },
   data: () => ({
     open: false,
+    componentId: `sticky-menu-${parseInt(Math.random() * 65536)}`,
     extraClass: '',
   }),
   watch: {
@@ -73,6 +74,27 @@ export default {
         this.open = this.value;
       }
     },
-  }
+  },
+  created() {
+    window.addEventListener('beforeunload', this.cacheMenuContent);
+  },
+  mounted() {
+    window.setTimeout(this.hideCachedMenu, 200);
+  },
+  methods: {
+    cacheMenuContent() {
+      const menuElement = document.querySelector('#ParentSiteStickyMenu > .v-menu__content');
+      menuElement.style.zIndex = String(parseInt(menuElement.style.zIndex) - 1);
+      sessionStorage.setItem('ParentSiteStickyMenu', document.querySelector('#ParentSiteStickyMenu').innerHTML);
+    },
+    hideCachedMenu() {
+      const menuElements = document.querySelectorAll('#ParentSiteStickyMenu > .v-menu__content');
+      for (const menuElement of menuElements) {
+        if (!menuElement.classList.contains(this.componentId)) {
+          menuElement.remove();
+        }
+      }
+    },
+  },
 };
 </script>

@@ -20,7 +20,7 @@
 -->
 
 <template>
-  <v-app>
+  <v-app :class="componentId" class="topBarMenu">
     <v-footer
       v-if="isMobile && this.mobileNavigations.length"
       class="white pt-0 pr-0 pl-0 elevation-2"
@@ -61,7 +61,10 @@
 <script>
 export default {
   data: () => ({
+    componentId: `top-bar-menu-${parseInt(Math.random() * 65536)}`,
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
+    initialized: false,
+    mounted: false,
     navigations: [],
     mobileNavigations: [],
     scope: 'ALL',
@@ -72,9 +75,13 @@ export default {
     tab: null,
     navigationTabState: 'topNavigationTabState'
   }),
-  created() {
-    this.getNavigations();
-    this.getActiveTab();
+  computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+    },
+    loadingFinished() {
+      return this.initialized && this.mounted;
+    }
   },
   watch: {
     isMobile() {
@@ -84,13 +91,38 @@ export default {
         this.computeSiteBodyMargin();
       }
     },
-  },
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+    loadingFinished() {
+      if (this.loadingFinished) {
+        this.$root.$applicationLoaded();
+        window.setTimeout(this.hideCachedMenu, 200);
+      }
     },
   },
+  created() {
+    this.init();
+    window.addEventListener('beforeunload', this.cacheMenuContent);
+  },
+  mounted() {
+    this.mounted = true;
+  },
   methods: {
+    init() {
+      return this.getNavigations()
+        .then(() => this.getActiveTab())
+        .finally(() => this.initialized = true);
+    },
+    cacheMenuContent() {
+      sessionStorage.setItem('topBarMenu', document.querySelector('#topBarMenu').innerHTML);
+    },
+    hideCachedMenu() {
+      this.refreshWindowSize();
+      const menuElements = document.querySelectorAll('.topBarMenu');
+      for (const menuElement of menuElements) {
+        if (!menuElement.classList.contains(this.componentId)) {
+          menuElement.remove();
+        }
+      }
+    },
     getNavigationBaseUri(index) {
       const navigationBaseUri = `${this.BASE_SITE_URI}${this.navigations[0].name}`;
       return index && `${navigationBaseUri}/` || navigationBaseUri;
@@ -98,9 +130,9 @@ export default {
     getNavigations() {
       const siteName = eXo.env.portal.portalName;
       return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility, this.exclude)
-        .then(navigations => {
-          if (navigations.length) {
-            const homeNavigation = navigations[0];
+        .then(navs => {
+          if (navs.length) {
+            const homeNavigation = navs[0];
             return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id)
               .then(navigations => {
                 this.navigations = navigations || [];
@@ -159,6 +191,11 @@ export default {
       } else {
         $('#UISiteBody').css('margin-bottom', '');
       }
+    },
+    refreshWindowSize() {
+      this.$nextTick().then(() => {
+        window.setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
+      });
     },
   }
 };
