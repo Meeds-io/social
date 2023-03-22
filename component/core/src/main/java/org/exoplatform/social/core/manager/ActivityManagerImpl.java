@@ -135,6 +135,8 @@ public class ActivityManagerImpl implements ActivityManager {
 
   public static final String          FILE                            = "file";
 
+  public static final String          REMOVABLE                       = "removable";
+
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
                              SpaceService spaceService,
@@ -794,7 +796,14 @@ public class ActivityManagerImpl implements ActivityManager {
     if (identity == null) {
       return false;
     }
-    if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
+    boolean isRemovable = true;
+    if (activity.getTemplateParams().containsKey(REMOVABLE)) {
+      String removable = activity.getTemplateParams().get(REMOVABLE);
+      if (StringUtils.isNotBlank(removable)) {
+        isRemovable = Boolean.parseBoolean(activity.getTemplateParams().get(REMOVABLE));
+      }
+    }
+    if (StringUtils.equals(identity.getId(), activity.getPosterId()) && isRemovable) {
       return true;
     }
     ActivityStream activityStream = null;
