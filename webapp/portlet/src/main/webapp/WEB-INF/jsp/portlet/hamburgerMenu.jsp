@@ -24,7 +24,14 @@
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
     <div class="v-application--wrap">
-      <% if (!sticky) { %>
+      <% if (sticky) { %>
+      <script type="text/javascript">
+        const siteStickyMenuHtml = sessionStorage.getItem('ParentSiteStickyMenu');
+        if (siteStickyMenuHtml) {
+          document.querySelector('#ParentSiteStickyMenu').innerHTML = siteStickyMenuHtml;
+        }
+      </script>
+      <% } else { %>
       <a class="HamburgerNavigationMenuLink">
         <div class="px-5 py-3">
           <i aria-hidden="true"

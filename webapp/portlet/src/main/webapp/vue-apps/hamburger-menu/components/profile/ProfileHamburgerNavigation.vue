@@ -22,7 +22,7 @@
   <v-flex id="ProfileHamburgerNavigation">
     <v-list-item
       :href="PROFILE_URI"
-      class="accountTitleItem top-bar-height mb-5">
+      class="accountTitleItem top-bar-height">
       <v-list-item-avatar size="44" class="me-3 mt-0 mb-0 elevation-1">
         <v-img :src="avatar" eager />
       </v-list-item-avatar>
