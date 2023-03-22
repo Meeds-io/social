@@ -34,13 +34,13 @@
       <v-btn
         v-show="isMobile && mobileFilter || !isMobile"
         class="btn px-2 btn-primary"
+        :min-width="iconWidth"
         outlined
         @click="openPeopleAdvancedFilterDrawer()">
-        <v-icon small class="primary--text mr-1">fa-sliders-h</v-icon>
-        <span class="d-none font-weight-regular caption d-sm-inline mr-1">
-          {{ $t('profile.label.search.openSearch') }}
-          {{ advancedFilterCountDisplay }}
-        </span>
+        <v-icon small class="primary--text mr-lg-1">fa-sliders-h</v-icon>
+        <span class="d-none font-weight-regular caption d-lg-inline mr-1">
+          {{ $t('profile.label.search.openSearch') }} </span>
+        <span class="font-weight-regular caption ml-1"> {{ advancedFilterCountDisplay }} </span>
       </v-btn>
     </v-scale-transition>
     <v-icon
@@ -79,6 +79,7 @@ export default {
     typing: false,
     advancedFilterCount: 0,
     mobileFilter: false,
+    iconWidth: '24px'
   }),
   created() {
     this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount);
@@ -100,7 +101,7 @@ export default {
       return this.advancedFilterCount > 0 ? `(${this.advancedFilterCount})`:'';
     },
     isMobile() {
-      return this.$vuetify.breakpoint.width < 768;
+      return this.$vuetify.breakpoint.name === 'sm';
     },
   },
   watch: {
