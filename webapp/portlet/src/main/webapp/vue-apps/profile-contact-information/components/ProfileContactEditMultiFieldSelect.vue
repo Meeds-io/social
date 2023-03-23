@@ -55,9 +55,9 @@ export default {
   computed: {
     filtredProperties(){
       return this.properties.filter((obj, index, self) =>
-        index === self.findIndex((t) => (
+        obj.isNew && !obj.value || (index === self.findIndex((t) => (
           t.propertyName === obj.propertyName
-        ))
+        )) && obj.visible && obj.active)
       );
     },
   },
