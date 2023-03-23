@@ -1,20 +1,35 @@
-#peopleListToolbar {
-  .addNewPeopleButton {
-    padding: 0 !important;
-  }
-  .inputPeopleFilter {
-    max-width: none;
+@media (max-width: @maxMobileWidth) {
+  #peopleListApplication {
+    #peopleListToolbar {
+      .addNewPeopleButton {
+        padding: 0 !important;
+      }
+      .inputPeopleFilter {
+        max-width: none;
+      }
+    }
+    
+    .inputPeopleFilter {
+      .v-input__prepend-inner {
+        display: none;
+      }
+    
+      input{
+        padding-top: 0;
+      }
+    }
   }
 }
 
-.inputPeopleFilter {
-  .v-input__prepend-inner {
-    display: none;
-  }
-
-  input{
-    padding-top: 0;
+@media (max-width: @maxLargeTabletWidth) {
+  #peopleListApplication {
+    #peopleListToolbar {
+      .selectPeopleFilter {
+        width: 100px;
+      }
+    }
   }
 }
+
 
 @import "../ProfileCard/Style-mobile.less";

@@ -34,18 +34,18 @@
       <v-btn
         v-show="isMobile && mobileFilter || !isMobile"
         class="btn px-2 btn-primary"
+        :min-width="iconWidth"
         outlined
         @click="openPeopleAdvancedFilterDrawer()">
-        <v-icon small class="primary--text mr-1">fa-sliders-h</v-icon>
-        <span class="d-none font-weight-regular caption d-sm-inline mr-1">
-          {{ $t('profile.label.search.openSearch') }}
-          {{ advancedFilterCountDisplay }}
-        </span>
+        <v-icon small class="primary--text me-lg-1">fa-sliders-h</v-icon>
+        <span class="d-none font-weight-regular caption d-lg-inline me-1">
+          {{ $t('profile.label.search.openSearch') }} </span>
+        <span class="font-weight-regular caption ms-1"> {{ advancedFilterCountDisplay }} </span>
       </v-btn>
     </v-scale-transition>
     <v-icon
       size="24"
-      class="text-sub-title pa-1 my-auto mt-2 ml-auto"
+      class="text-sub-title pa-1 my-auto mt-2 ms-auto"
       v-show="isMobile && !mobileFilter"
       @click="showMobileFilter()">
       mdi-filter-outline
@@ -79,6 +79,7 @@ export default {
     typing: false,
     advancedFilterCount: 0,
     mobileFilter: false,
+    iconWidth: '24px'
   }),
   created() {
     this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount);
