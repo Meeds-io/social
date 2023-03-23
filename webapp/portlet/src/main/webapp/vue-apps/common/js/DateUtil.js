@@ -1,5 +1,8 @@
 const DIGIT_PATTERN = /^[1-9]\d*$/g;
 
+//Regex to check date with format: dd/MM/yyyy 
+const DD_MM_YYYY_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
+
 /**
  * Return Date object from string value.
  * The string value can of type:
@@ -16,6 +19,11 @@ export function getDateObjectFromString(value, isISOString) {
   value = String(value).trim();
   if (new RegExp(DIGIT_PATTERN).test(value)) {
     return new Date(parseInt(value));
+
+  } else if (new RegExp(DD_MM_YYYY_REGEX).test(value)) {
+    const [date, month, year] = value.trim().split('/');
+    return new Date(year, parseInt(month) -1, date);
+    
   } else if (isISOString) {
     if (value.length > 10) {
       // long ISO format
@@ -28,9 +36,6 @@ export function getDateObjectFromString(value, isISOString) {
       // in user timezone, the day can change
       return new Date(`${value}T00:00:00`);
     }
-  } else if (String(value).indexOf('/') >= 0) {
-    const [date, month, year] = value.trim().split('/');
-    return new Date(year, parseInt(month) -1, date);
   } else {
     return new Date(value);
   }
