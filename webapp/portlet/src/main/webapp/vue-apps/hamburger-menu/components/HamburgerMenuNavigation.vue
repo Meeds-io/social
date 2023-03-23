@@ -202,6 +202,11 @@ export default {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
+    stickyPreference() {
+      if (this.initialized) {
+        document.dispatchEvent(new CustomEvent('left-menu-stickiness', {detail: this.stickyPreference}));
+      }
+    },
   },
   created() {
     this.stickyPreference = eXo.env.portal.stickyMenu;
