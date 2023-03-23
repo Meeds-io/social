@@ -106,10 +106,7 @@ export default {
         event.stopPropagation();
       }
       this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'HamburgerMenu', 'Sticky', String(!this.value))
-        .then(() => {
-          this.$emit('input', !this.value);
-          document.dispatchEvent(new CustomEvent('left-menu-stickiness', {detail: !this.value} ));
-        });
+        .then(() => this.$emit('input', !this.value));
     },
   },
 };
