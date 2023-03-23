@@ -381,6 +381,8 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/spaceSettings.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -523,6 +525,8 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/topbarFavorites.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -761,7 +765,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/topBarMenu.html</value>
+      <value>/WEB-INF/jsp/portlet/topBarMenu.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -770,7 +774,6 @@
       <title>TopBar Navigation Menu</title>
     </portlet-info>
   </portlet>
-
 
   <portlet>
     <portlet-name>ProfileSettingsPortlet</portlet-name>

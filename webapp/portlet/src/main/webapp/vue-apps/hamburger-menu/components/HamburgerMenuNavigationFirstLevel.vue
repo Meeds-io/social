@@ -47,7 +47,7 @@
         id="StickyHamburgerMenu"
         :aria-label="$t('menu.role.navigation.first.level')"
         max-width="100%"
-        class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1"
+        class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
         flat
         tile>
         <site-hamburger-navigation :navigations="siteNavigations" />
