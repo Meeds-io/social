@@ -351,7 +351,7 @@
 											<boolean>false</boolean>
 										</field>
 										<field  name="order">
-											<int>12</int>
+											<int>11</int>
 										</field>
 									</object>
 								</value>
@@ -379,7 +379,7 @@
 											<boolean>false</boolean>
 										</field>
 										<field  name="order">
-											<int>13</int>
+											<int>12</int>
 										</field>
 									</object>
 								</value>
@@ -407,7 +407,7 @@
 											<boolean>false</boolean>
 										</field>
 										<field  name="order">
-											<int>14</int>
+											<int>13</int>
 										</field>
 									</object>
 								</value>
@@ -438,7 +438,7 @@
 											<string>phones</string>
 										</field>
 										<field  name="order">
-											<int>15</int>
+											<int>14</int>
 										</field>
 									</object>
 								</value>
@@ -469,7 +469,7 @@
 											<string>phones</string>
 										</field>
 										<field  name="order">
-											<int>16</int>
+											<int>15</int>
 										</field>
 									</object>
 								</value>
@@ -500,7 +500,7 @@
 											<string>phones</string>
 										</field>
 										<field  name="order">
-											<int>17</int>
+											<int>16</int>
 										</field>
 									</object>
 								</value>
@@ -529,7 +529,7 @@
 											<boolean>false</boolean>
 										</field>
 										<field  name="order">
-											<int>18</int>
+											<int>17</int>
 										</field>
 									</object>
 								</value>
@@ -560,7 +560,7 @@
 											<string>ims</string>
 										</field>
 										<field  name="order">
-											<int>19</int>
+											<int>18</int>
 										</field>
 									</object>
 								</value>
@@ -591,7 +591,7 @@
 											<string>ims</string>
 										</field>
 										<field  name="order">
-											<int>20</int>
+											<int>19</int>
 										</field>
 									</object>
 								</value>
@@ -622,7 +622,7 @@
 											<string>ims</string>
 										</field>
 										<field  name="order">
-											<int>21</int>
+											<int>20</int>
 										</field>
 									</object>
 								</value>
@@ -653,7 +653,7 @@
 											<string>ims</string>
 										</field>
 										<field  name="order">
-											<int>22</int>
+											<int>21</int>
 										</field>
 									</object>
 								</value>
@@ -684,7 +684,7 @@
 											<string>ims</string>
 										</field>
 										<field  name="order">
-											<int>23</int>
+											<int>22</int>
 										</field>
 									</object>
 								</value>
@@ -712,7 +712,7 @@
 											<boolean>false</boolean>
 										</field>
 										<field  name="order">
-											<int>24</int>
+											<int>23</int>
 										</field>
 									</object>
 								</value>
