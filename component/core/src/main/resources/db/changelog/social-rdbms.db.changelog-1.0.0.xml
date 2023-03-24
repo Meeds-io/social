@@ -905,5 +905,10 @@
             ALTER TABLE SOC_ACTIVITY_TEMPLATE_PARAMS MODIFY COLUMN TEMPLATE_PARAM_KEY NVARCHAR(255) BINARY;
         </sql>
     </changeSet>
+    <changeSet author="social" id="1.0.0-92">
+        <sql>
+            UPDATE SOC_PROFILE_PROPERTY_SETTING SET PROPERTY_ORDER=PROPERTY_SETTING_ID
+        </sql>
+    </changeSet>
 
 </databaseChangeLog>
