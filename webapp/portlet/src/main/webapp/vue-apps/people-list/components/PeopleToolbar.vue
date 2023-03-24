@@ -82,11 +82,9 @@ export default {
     typing: false,
     advancedFilterCount: 0,
     mobileFilter: false,
-    iconWidth: '24px',
-    stickyMenu: false
+    iconWidth: '24px'
   }),
   created() {
-    this.stickyMenu = eXo.env.portal.stickyMenu;
     this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount);
     this.$root.$on('reset-advanced-filter-count', () => {
       this.advancedFilterCount = 0;
@@ -107,9 +105,6 @@ export default {
     },
     isMobile() {
       return this.$vuetify.breakpoint.width < 768;
-    },
-    isStickyMenu() {
-      return this.stickyMenu && this.$vuetify.breakpoint.width > 768;
     }
   },
   watch: {
