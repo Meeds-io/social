@@ -61,4 +61,5 @@
 
      eXo.env.portal.SpaceHomeLayoutResetEnabled = <%=featureService.isFeatureActiveForUser("SpaceHomeLayoutReset", userName)%>;
      eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
+     eXo.env.portal.NewEditNavigationDrawerEnabled = <%=featureService.isFeatureActiveForUser("newEditNavigationDrawer", userName)%>;
 </script>
