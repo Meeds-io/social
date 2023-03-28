@@ -455,7 +455,7 @@ export default {
             // eslint-disable-next-line no-console
             console.warn('Error creating space ', this.space, e);
             if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
-              this.error = this.$t('spacesList.error.spaceWithSameNameExists');
+              this.displayAlert(this.$t('spacesList.error.spaceWithSameNameExists'), 'error');
             } else if (String(e).indexOf('INVALID_SPACE_NAME') >= 0) {
               this.error = this.$t('spacesList.error.InvalidSpaceName');
             } else {
@@ -464,6 +464,12 @@ export default {
           })
           .finally(() => this.savingSpace = false);
       }
+    },
+    displayAlert(message, type) {
+      document.dispatchEvent(new CustomEvent('notification-alert', {detail: {
+        message,
+        type: type || 'success',
+      }}));
     },
   },
 };
