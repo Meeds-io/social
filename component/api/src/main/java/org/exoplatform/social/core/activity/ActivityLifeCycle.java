@@ -19,6 +19,7 @@ package org.exoplatform.social.core.activity;
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent.Type;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 
 
 public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, ActivityLifeCycleEvent> {
