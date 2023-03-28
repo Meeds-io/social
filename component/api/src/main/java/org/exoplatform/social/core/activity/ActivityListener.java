@@ -40,7 +40,15 @@ public interface ActivityListener extends LifeCycleListener<ActivityLifeCycleEve
     // By default, no behavior
   }
 
+  default void deleteLikeActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
   default void likeComment(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
+  default void deleteLikeComment(ActivityLifeCycleEvent event) {
     // By default, no behavior
   }
 
