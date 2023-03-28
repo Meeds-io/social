@@ -340,8 +340,12 @@ public class ProfileSearchConnector {
       esSubQuery.append("        } \n");
       esSubQuery.append("      },\n");
       subQueryEmpty = false;
+      appendCommar = false;
     }
     if (identity != null && type != null) {
+      if(appendCommar) {
+        esSubQuery.append("      ,\n");
+      }
       esSubQuery.append("      \"must\" : {\n");
       esSubQuery.append("        \"query_string\" : {\n");
       esSubQuery.append("          \"query\" : \""+ identity.getId() +"\",\n");
@@ -351,7 +355,10 @@ public class ProfileSearchConnector {
       subQueryEmpty = false;
       appendCommar = true;
     } else if (filter.getExcludedIdentityList() != null && filter.getExcludedIdentityList().size() > 0) {
-      esSubQuery.append("      ,\"must_not\": [\n");
+      if(appendCommar) {
+        esSubQuery.append("      ,\n");
+      }
+      esSubQuery.append("      \"must_not\": [\n");
       esSubQuery.append("        {\n");
       esSubQuery.append("          \"ids\" : {\n");
       esSubQuery.append("             \"values\" : [" + buildExcludedIdentities(filter) + "]\n");
