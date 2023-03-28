@@ -28,6 +28,8 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
     UPDATE_COMMENT,
     LIKE_ACTIVITY,
     LIKE_COMMENT,
+    DELETE_LIKE_ACTIVITY,
+    DELETE_LIKE_COMMENT,
     DELETE_COMMENT,
     DELETE_ACTIVITY,
     SHARED_ACTIVITY,
@@ -38,11 +40,21 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
 
   private ExoSocialActivity activity;
 
+  private String            userId;
+
   public ActivityLifeCycleEvent(Type type, ExoSocialActivity activity) {
     // temp set source as activityId
     super(activity, activity.getId());
     this.activity = activity;
     this.type = type;
+  }
+
+  public ActivityLifeCycleEvent(Type type, ExoSocialActivity activity, String userId) {
+    // temp set source as activityId
+    super(activity, activity.getId());
+    this.activity = activity;
+    this.type = type;
+    this.userId = userId;
   }
 
   public Type getType() {
@@ -55,5 +67,9 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
 
   public String getActivityId() {
     return activity.getId();
+  }
+
+  public String getUserId() {
+    return userId;
   }
 }
