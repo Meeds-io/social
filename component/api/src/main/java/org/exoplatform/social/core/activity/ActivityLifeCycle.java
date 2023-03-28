@@ -19,6 +19,7 @@ package org.exoplatform.social.core.activity;
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent.Type;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 
 
 public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, ActivityLifeCycleEvent> {
@@ -38,12 +39,18 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
       case UPDATE_COMMENT:
         listener.updateComment(event);
         break;
-      case LIKE_ACTIVITY: 
+      case LIKE_ACTIVITY:
         listener.likeActivity(event);
+        break;
+      case DELETE_LIKE_ACTIVITY:
+        listener.deleteLikeActivity(event);
         break;
       case LIKE_COMMENT:
         listener.likeComment(event);
-      break;
+        break;
+      case DELETE_LIKE_COMMENT:
+        listener.deleteLikeComment(event);
+        break;
       case DELETE_COMMENT:
         listener.deleteComment(event);
         break;
@@ -81,6 +88,14 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
 
   public void likeComment(ExoSocialActivity activity) {
     broadcast(new ActivityLifeCycleEvent(Type.LIKE_COMMENT, activity));
+  }
+
+  public void deleteLikeActivity(ExoSocialActivity activity, String userId) {
+    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_ACTIVITY, activity, userId));
+  }
+
+  public void deleteLikeComment(ExoSocialActivity activity, String userId) {
+    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_COMMENT, activity, userId));
   }
 
   public void deleteActivity(ExoSocialActivity activity) {

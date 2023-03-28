@@ -536,6 +536,11 @@ public class ActivityManagerImpl implements ActivityManager {
       //broadcast is false : we don't want to launch update listeners for a like
       updateActivity(activity, false);
     }
+    if (activity.isComment()) {
+      activityLifeCycle.deleteLikeComment(activity, identity.getId());
+    } else {
+      activityLifeCycle.deleteLikeActivity(activity, identity.getId());
+    }
   }
 
   /**
