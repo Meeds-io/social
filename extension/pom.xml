@@ -24,7 +24,7 @@
   <parent>
     <artifactId>social</artifactId>
     <groupId>org.exoplatform.social</groupId>
-    <version>6.5.x-exo-SNAPSHOT</version>
+    <version>6.5.0-exo-20230329</version>
   </parent>
   <artifactId>social-extension</artifactId>
   <packaging>pom</packaging>
