@@ -800,7 +800,7 @@ public class ActivityManagerImpl implements ActivityManager {
     if (activity.getTemplateParams().containsKey(REMOVABLE)) {
       String removable = activity.getTemplateParams().get(REMOVABLE);
       if (StringUtils.isNotBlank(removable)) {
-        isRemovable = Boolean.parseBoolean(activity.getTemplateParams().get(REMOVABLE));
+        isRemovable = Boolean.parseBoolean(removable);
       }
     }
     if (StringUtils.equals(identity.getId(), activity.getPosterId()) && isRemovable) {
