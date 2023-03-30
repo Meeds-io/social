@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.notification;
 
+import static org.exoplatform.commons.notification.template.TemplateUtils.getExcerptSubject;
+
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +42,19 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.notification.plugin.*;
+import org.exoplatform.social.notification.plugin.ActivityCommentPlugin;
+import org.exoplatform.social.notification.plugin.ActivityMentionPlugin;
+import org.exoplatform.social.notification.plugin.ActivityReplyToCommentPlugin;
+import org.exoplatform.social.notification.plugin.EditActivityPlugin;
+import org.exoplatform.social.notification.plugin.EditCommentPlugin;
+import org.exoplatform.social.notification.plugin.LikeCommentPlugin;
+import org.exoplatform.social.notification.plugin.LikePlugin;
+import org.exoplatform.social.notification.plugin.NewUserPlugin;
+import org.exoplatform.social.notification.plugin.PostActivityPlugin;
+import org.exoplatform.social.notification.plugin.PostActivitySpaceStreamPlugin;
+import org.exoplatform.social.notification.plugin.RelationshipReceivedRequestPlugin;
+import org.exoplatform.social.notification.plugin.RequestJoinSpacePlugin;
+import org.exoplatform.social.notification.plugin.SpaceInvitationPlugin;
 
 /**
  * Created by The eXo Platform SAS Author : eXoPlatform thanhvc@exoplatform.com
@@ -124,7 +138,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
    * @param validatedString
    */
   protected void assertSubject(MessageInfo message, String validatedString) {
-    assertEquals(validatedString, message.getSubject());
+    assertEquals(getExcerptSubject(validatedString), message.getSubject());
   }
 
   /**
