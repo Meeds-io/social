@@ -34,6 +34,7 @@ import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.notification.channel.MailChannel;
 import org.exoplatform.commons.notification.impl.NotificationContextImpl;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.MailUtils;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
@@ -185,7 +186,7 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     ctx.setNotificationInfos(list);
     Writer writer = new StringWriter();
     buildDigest(ctx, writer);
-    assertDigest(writer, "USER_222 gtn, USER_333 gtn have joined eXo.");
+    assertDigest(writer, "USER_222 gtn, USER_333 gtn have joined " + MailUtils.getSenderName() + ".");
     removeUser("user_222");
     removeUser("user_333");
   }
