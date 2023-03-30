@@ -32,6 +32,7 @@ import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.notification.channel.MailChannel;
 import org.exoplatform.commons.notification.impl.NotificationContextImpl;
+import org.exoplatform.commons.utils.MailUtils;
 import org.exoplatform.social.notification.AbstractPluginTest;
 import org.exoplatform.social.notification.plugin.RelationshipReceivedRequestPlugin;
 
@@ -59,7 +60,7 @@ public class ReceiveRequestMailBuilderTest extends AbstractPluginTest {
   @Override
   public AbstractTemplateBuilder getTemplateBuilder() {
     AbstractChannel channel = manager.getChannel(ChannelKey.key(MailChannel.ID));
-    assertTrue(channel != null);
+    assertNotNull(channel);
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(RelationshipReceivedRequestPlugin.ID)));
     return channel.getTemplateBuilder(PluginKey.key(RelationshipReceivedRequestPlugin.ID));
   }
@@ -80,7 +81,7 @@ public class ReceiveRequestMailBuilderTest extends AbstractPluginTest {
     MessageInfo message = buildMessageInfo(ctx);
     
     assertBody(message, "New connection request");
-    assertSubject(message, demoIdentity.getProfile().getFullName() +" wants to connect with you on eXo");
+    assertSubject(message, demoIdentity.getProfile().getFullName() +" wants to connect with you on " + MailUtils.getSenderName());
     notificationService.clearAll();
   }
   
