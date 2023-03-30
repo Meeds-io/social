@@ -185,9 +185,6 @@
                   {{ $t('spacesList.button.back') }}
                 </v-btn>
               </v-card-actions>
-              <v-alert v-if="error" type="error">
-                {{ error }}
-              </v-alert>
             </form>
           </v-stepper-content>
         </v-stepper>
@@ -241,7 +238,6 @@ export default {
     space: {},
     spaceToUpdate: {},
     title: null,
-    error: null,
     stepper: 0,
     template: null,
     spaceTemplate: null,
@@ -280,7 +276,6 @@ export default {
       }
     },
     stepper() {
-      this.error = null;
       if (this.stepper) {
         // Used to focus on space name field
         this.$nextTick().then(() => {
@@ -297,7 +292,6 @@ export default {
       } else {
         this.spaceSaved = false;
         this.savingSpace = false;
-        this.error = null;
       }
     },
     template() {
@@ -415,7 +409,6 @@ export default {
       if (this.spaceSaved || this.savingSpace) {
         return;
       }
-      this.error = null;
       this.savingSpace = true;
       if (this.space.id) {
         this.$spaceService.updateSpace({
@@ -438,9 +431,9 @@ export default {
             // eslint-disable-next-line no-console
             console.warn('Error updating space ', this.space, e);
             if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
-              this.error = this.$t('spacesList.error.spaceWithSameNameExists');
+              this.displayAlert(this.$t('spacesList.error.spaceWithSameNameExists'), 'error');
             } else {
-              this.error = this.$t('spacesList.error.unknownErrorWhenSavingSpace');
+              this.displayAlert(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error');
             }
           })
           .finally(() => this.savingSpace = false);
@@ -455,15 +448,21 @@ export default {
             // eslint-disable-next-line no-console
             console.warn('Error creating space ', this.space, e);
             if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
-              this.error = this.$t('spacesList.error.spaceWithSameNameExists');
+              this.displayAlert(this.$t('spacesList.error.spaceWithSameNameExists'), 'error');
             } else if (String(e).indexOf('INVALID_SPACE_NAME') >= 0) {
-              this.error = this.$t('spacesList.error.InvalidSpaceName');
+              this.displayAlert(this.$t('spacesList.error.InvalidSpaceName'), 'error');
             } else {
-              this.error = this.$t('spacesList.error.unknownErrorWhenSavingSpace');
+              this.displayAlert(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error');
             }
           })
           .finally(() => this.savingSpace = false);
       }
+    },
+    displayAlert(message, type) {
+      document.dispatchEvent(new CustomEvent('notification-alert', {detail: {
+        message,
+        type: type || 'success',
+      }}));
     },
   },
 };
