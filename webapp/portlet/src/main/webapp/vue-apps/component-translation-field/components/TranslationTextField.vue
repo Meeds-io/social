@@ -19,6 +19,27 @@
 <template>
   <div class="translation-text-field">
     <v-text-field
+      v-if="isI18N"
+      :id="id"
+      :name="id"
+      :placeholder="placeholder"
+      :value="$t(defaultLanguageValue)"
+      class="border-box-sizing pt-0"
+      type="text"
+      outlined
+      readonly
+      dense>
+      <template #append>
+        <v-btn
+          class="mt-n2 pt-2px"
+          icon
+          @click="defaultLanguageValue = null">
+          <v-icon :color="iconColor">far fa-times-circle</v-icon>
+        </v-btn>
+      </template>
+    </v-text-field>
+    <v-text-field
+      v-else
       v-model="defaultLanguageValue"
       :id="id"
       :name="id"
@@ -85,6 +106,9 @@ export default {
     valuesPerLanguage: {},
   }),
   computed: {
+    isI18N() {
+      return this.$te(this.defaultLanguageValue);
+    },
     translationsCount() {
       return Object.keys(this.valuesPerLanguage).length;
     },
