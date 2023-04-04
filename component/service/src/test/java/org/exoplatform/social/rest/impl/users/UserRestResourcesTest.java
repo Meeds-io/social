@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -13,7 +12,6 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
@@ -70,7 +68,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private ProfilePropertyService       profilePropertyService;
 
   private ProfileLabelService profileLabelService ;
-
 
   private UserACL             userACL;
 
