@@ -1,9 +1,7 @@
 package org.exoplatform.social.rest.impl.users;
 
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +17,8 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.core.model.ProfileLabel;
+import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -67,6 +67,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private ProfilePropertyService       profilePropertyService;
 
+  private ProfileLabelService profileLabelService ;
+
   private UserACL             userACL;
 
   private RelationshipManager relationshipManager;
@@ -104,6 +106,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
+    profileLabelService = getContainer().getComponentInstanceOfType(ProfileLabelService.class);
     userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
@@ -420,10 +423,22 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response1);
     assertNotEquals(etag, etag1);
 
+    ProfileLabel label = new ProfileLabel();
+    label.setLabel("labelTest");
+    label.setLanguage("en");
+    label.setObjectType("profileProperty");
+    label.setObjectId(profilePropertyService.getProfileSettingByName(Profile.FIRST_NAME).getId().toString());
+    profileLabelService.createLabel(label);
     ContainerResponse response2 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag2 = response2.getHttpHeaders().get("etag").toString();
     assertNotNull(response2);
-    assertEquals(etag1, etag2);
+    assertNotEquals(etag1, etag2);
+
+    ContainerResponse response3 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
+    String etag3 = response3.getHttpHeaders().get("etag").toString();
+    assertNotNull(response2);
+    assertEquals(etag2, etag3);
+
   }
 
   public void testGetUserProfilePropertiesById() throws Exception {
