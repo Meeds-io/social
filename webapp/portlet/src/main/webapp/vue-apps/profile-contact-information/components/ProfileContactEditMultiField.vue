@@ -20,7 +20,7 @@
     </div>
     <v-flex v-for="(childProperty, i) in property.children" :key="i">
       <profile-contact-edit-multi-field-select
-        v-if="childProperty.isNew || childProperty.visible && childProperty.active && childProperty.value"
+        v-if="childProperty.isNew || (childProperty.visible && childProperty.active && childProperty.value) || (property.multiValued && property.active && property.visible && childProperty.value)"
         :property="childProperty"
         :properties="property.children"
         :multi-valued="property.multiValued"
