@@ -28,6 +28,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.IdentityProvider;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -96,9 +97,9 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
     User user;
     try {
       RequestLifeCycle.begin((ComponentRequestLifecycle) organizationService);
-      user = organizationService.getUserHandler().findUserByName(remoteId);
+      user = organizationService.getUserHandler().findUserByName(remoteId, UserStatus.ANY);
     } catch (Exception e) {
-      LOG.warn("An error occured while getting identity from store", e);
+      LOG.warn("An error occurred while getting identity from store", e);
       return null;
     } finally {
       RequestLifeCycle.end();
