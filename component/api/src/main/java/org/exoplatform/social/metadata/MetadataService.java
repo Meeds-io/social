@@ -287,6 +287,26 @@ public interface MetadataService {
                                                                                       long limit) {
     throw new UnsupportedOperationException();
   }
+  
+  /**
+   * Retrieves the Metadata item attached to a given {@link Metadata} name, type
+   * and {@link MetadataItem} object type
+   *
+   * @param  metadataName     {@link Metadata} name
+   * @param  metadataTypeName {@link Metadata} type name
+   * @param  objectType       objectType {@link MetadataItem} objectType
+   * @param  offset           offset of ids to retrieve
+   * @param  limit            limit of ids to retrieve
+   * @return                  {@link List} of linked {@link MetadataItem}
+   */
+  default List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectTypeAndObjectId(String metadataName,
+                                                                                      String metadataTypeName,
+                                                                                      String objectType,
+                                                                                      long objectId,
+                                                                                      long offset,
+                                                                                      long limit) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Retrieves the Metadata item attached to a given {@link Metadata} name,

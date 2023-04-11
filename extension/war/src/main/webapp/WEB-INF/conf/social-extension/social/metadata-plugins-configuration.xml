@@ -101,6 +101,24 @@
       </init-params>
     </component-plugin>
     <component-plugin>
+      <name>AttachementMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>7</int>
+            </field>
+            <field name="name">
+              <string>attachement</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>UnreadMetadataPlugin</name>
       <set-method>addMetadataTypePlugin</set-method>
       <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>

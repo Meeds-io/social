@@ -42,6 +42,7 @@
             use-draft-management
             autofocus />
         </v-card-text>
+        <attach-image-component />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
             :params="extensionParams"
@@ -96,7 +97,8 @@ export default {
       originalBody: '',
       messageEdited: false,
       activityType: null,
-      loading: false
+      loading: false,
+      attachedFiles: null
     };
   },
   computed: {
@@ -226,8 +228,11 @@ export default {
         else {
           this.loading = true;
           this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
-            .then(() => {
-              document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
+            .then((data) => {
+              document.dispatchEvent(new CustomEvent('activity-created', {detail: {
+                activityId: data.id,
+                spaceId: data && data.activityStream && data.activityStream.space && data.activityStream.space.id || '',
+              }}));
               this.cleareActivityMessage();
               this.close();
             })
@@ -244,7 +249,7 @@ export default {
       if (localStorage.getItem('activity-message-activityComposer')) {
         localStorage.removeItem('activity-message-activityComposer');
       }
-    }
+    },
   },
 };
 </script>

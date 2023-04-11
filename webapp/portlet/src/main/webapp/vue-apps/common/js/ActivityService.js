@@ -82,6 +82,21 @@ export function createActivity(message, activityType, attachments, spaceId, temp
   });
 }
 
+export function attachFiles(activityId, spaceId, uploadIds) {
+  console.warn(uploadIds);
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachements/activity/${activityId}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    credentials: 'include',
+    body: JSON.stringify({
+      'spaceId': spaceId,
+      'uploadIds': uploadIds
+    })
+  });
+}
+
 export function shareActivity(activityId, message, templateParams, spaces) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/share`, {
     headers: {

@@ -94,6 +94,7 @@ export default {
   }),
   computed: {
     activitiesToDisplay() {
+      console.warn(this.activities && this.activities.filter(activity => activity && !activity.activityId) || []);
       return this.activities && this.activities.filter(activity => activity && !activity.activityId) || [];
     },
     activityStreamTypeClass() {
