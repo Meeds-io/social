@@ -210,13 +210,14 @@ export default {
         removePlugins = `${removePlugins},tagSuggester`;
       }
 
-      extraPlugins = `${extraPlugins},emoji,formatOption`;
+      extraPlugins = `${extraPlugins},emoji,formatOption,attachImage`;
       if (this.tagEnabled) {
         toolbar[0].push('tagSuggester');
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
       }
+      toolbar[0].push('attachImage');
       toolbar[0].unshift('formatOption');
 
       const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');

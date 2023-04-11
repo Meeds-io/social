@@ -374,6 +374,11 @@
       <key>org.exoplatform.social.metadata.favorite.FavoriteService</key>
       <type>org.exoplatform.social.core.metadata.favorite.FavoriteServiceImpl</type>
     </component>
+    
+    <component>
+      <key>org.exoplatform.social.metadata.attachement.AttachementService</key>
+      <type>org.exoplatform.social.core.metadata.attachement.AttachementServiceImpl</type>
+    </component>
 
     <component>
       <key>org.exoplatform.social.metadata.tag.TagService</key>
