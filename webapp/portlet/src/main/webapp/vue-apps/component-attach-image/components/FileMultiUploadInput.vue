@@ -38,7 +38,6 @@ export default {
   created() {
     document.addEventListener('open-file-explorer', () => {
       this.triggerFileClickEvent();
-      this.$uploadService.testUpload();
     });
     this.$root.$on('delete-file', this.removeUplodedFile);
   },
