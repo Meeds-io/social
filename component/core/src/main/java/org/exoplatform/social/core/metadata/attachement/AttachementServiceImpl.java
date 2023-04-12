@@ -19,27 +19,7 @@
 package org.exoplatform.social.core.metadata.attachement;
 
 import org.exoplatform.social.metadata.attachement.AttachementService;
-import org.exoplatform.social.metadata.attachement.model.Attachement;
-import org.exoplatform.social.metadata.attachement.model.AttachementObject;
-import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.MetadataKey;
-import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 
-public class AttachementServiceImpl implements AttachementService {
-
-  private final MetadataService metadataService;
-
-  public AttachementServiceImpl(MetadataService metadataService) {
-    this.metadataService = metadataService;
-  }
-
-  @Override
-  public void attachFiles(Attachement attachment) throws ObjectAlreadyExistsException {
-    long userIdentityId = attachment.getUserIdentityId();
-    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(), String.valueOf(userIdentityId), userIdentityId);
-    AttachementObject object = attachment.getObject();
-    metadataService.createMetadataItem(object, metadataKey, userIdentityId);
-  }
+public class AttachementServiceImpl implements AttachementService{
 
 }
