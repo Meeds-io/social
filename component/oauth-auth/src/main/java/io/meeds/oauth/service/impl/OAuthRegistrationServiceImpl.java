@@ -102,9 +102,9 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
 
     startTransaction();
     try {
-      User user = findUser(email);
+      User user = findUser(username);
       if (user == null) {
-        user = findUser(username);
+        user = findUser(email);
       }
       return user;
     } catch (Exception e) {
@@ -220,10 +220,8 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
                                                                       .append(lastname.replaceAll("\\s", ""))
                                                                       .toString()
                                                                       .toLowerCase();
-      return userNameBase;
     } else if (StringUtils.isNotBlank(email)) {
       userNameBase = email.split("@")[0].replaceAll("\\s", "");
-      return userNameBase;
     } else {
       userNameBase = "user1";
     }
@@ -245,7 +243,7 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
 
   private User findUser(String usernameOrEmail) throws Exception {
     User user = organizationService.getUserHandler().findUserByName(usernameOrEmail, UserStatus.ANY);
-    if (user == null && usernameOrEmail.contains("@")) {
+    if (user == null && usernameOrEmail != null && usernameOrEmail.contains("@")) {
       Query query = new Query();
       query.setEmail(usernameOrEmail);
       ListAccess<User> list = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
