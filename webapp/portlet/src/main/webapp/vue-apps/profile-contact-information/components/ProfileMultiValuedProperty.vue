@@ -31,7 +31,7 @@
           :key="i"
           :title="childProperty.value"
           class="text-no-wrap text-truncate">
-          <template v-if="childProperty.value && childProperty.visible && childProperty.active">
+          <template v-if="(childProperty.value && childProperty.visible && childProperty.active) || (property.multiValued && property.active && property.visible && childProperty.value)">
             <span v-if="childProperty.propertyName" class="pe-1 text-capitalize">
               {{ getResolvedName(childProperty) }}:
             </span>
