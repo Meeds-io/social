@@ -18,6 +18,17 @@
  */
 package org.exoplatform.social.metadata.attachement;
 
+import org.exoplatform.social.metadata.attachement.model.Attachement;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
+
 public interface AttachementService {
+
+  public static final MetadataType METADATA_TYPE = new MetadataType(7, "attachement");
+
+  public void attachFiles(Attachement attachment) throws ObjectAlreadyExistsException;
 
 }
