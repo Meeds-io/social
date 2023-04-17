@@ -38,7 +38,7 @@
         @click="openPeopleAdvancedFilterDrawer()">
         <v-icon small class="primary--text mr-1">fa-sliders-h</v-icon>
         <span class="d-none font-weight-regular caption d-sm-inline mr-1">
-          {{ $t('profile.label.search.openSearch') }}
+          {{ $t('pepole.advanced.filter.button.title') }}
           {{ advancedFilterCountDisplay }}
         </span>
       </v-btn>
