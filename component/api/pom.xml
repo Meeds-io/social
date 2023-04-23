@@ -23,7 +23,7 @@
   <parent>
     <artifactId>social-component</artifactId>
     <groupId>org.exoplatform.social</groupId>
-    <version>6.5.x-meed-SNAPSHOT</version>
+    <version>6.5.0-meed-20230423</version>
   </parent>
   <artifactId>social-component-api</artifactId>
   <name>eXo PLF:: Social API</name>
