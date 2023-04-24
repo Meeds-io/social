@@ -122,6 +122,7 @@ export default {
     interval: null,
     mouseEvent: false,
     allowClosing: true,
+    visibility: ['displayed', 'temporal']
   }),
   computed: {
     allowDisplayLevels() {
@@ -300,11 +301,11 @@ export default {
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
     },
     retrieveSiteNavigations() {
-      return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', 'displayed')
+      return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', this.visibility)
         .then(data => this.siteNavigations = data || []);
     },
     retrieveAdministrationNavigations() {
-      return this.$navigationService.getNavigations(null, 'group', null, 'displayed')
+      return this.$navigationService.getNavigations(null, 'group', null, this.visibility)
         .then(data => this.administrationNavigations = data || []);
     },
     retrieveRecentSpaces() {
