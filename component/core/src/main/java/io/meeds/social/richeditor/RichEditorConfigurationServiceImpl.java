@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.commons.cache.future.Loader;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.Deserializer;
 import org.exoplatform.services.cache.CacheService;
@@ -63,6 +64,9 @@ public class RichEditorConfigurationServiceImpl implements RichEditorConfigurati
         return appendFilesContent(instanceType);
       }
     }, configurationContentCache);
+    if (PropertyManager.isDevelopping()) {
+      configurationContentCache.setMaxSize(0);
+    }
   }
 
   @Override
@@ -76,7 +80,7 @@ public class RichEditorConfigurationServiceImpl implements RichEditorConfigurati
     if (richEditorConfigurations != null) {
       richEditorConfigurations.forEach(richEditorConfiguration -> {
         String instanceType = richEditorConfiguration.getInstanceType();
-        configurationFilesByType.computeIfAbsent(instanceType == null ? ALL_INSTANCES_KEY : instanceType,
+        configurationFilesByType.computeIfAbsent(StringUtils.isBlank(instanceType) ? ALL_INSTANCES_KEY : instanceType,
                                                  key -> new ArrayList<>())
                                 .addAll(richEditorConfigurations);
       });
@@ -85,31 +89,34 @@ public class RichEditorConfigurationServiceImpl implements RichEditorConfigurati
 
   protected String appendFilesContent(String instanceType) {
     StringBuilder fileContent = new StringBuilder();
+    appendFilesContent(fileContent, ALL_INSTANCES_KEY);
+    appendFilesContent(fileContent, instanceType);
+    return fileContent.toString();
+  }
+
+  private void appendFilesContent(StringBuilder fileContent, String instanceType) {
     List<RichEditorConfiguration> richEditorConfigurations = configurationFilesByType.get(instanceType);
     if (CollectionUtils.isNotEmpty(richEditorConfigurations)) {
-      richEditorConfigurations.forEach(richEditorConfiguration -> {
-        try {
-          InputStream is = configurationManager.getInputStream(richEditorConfiguration.getFilePath());
-          String content = IOUtils.toString(is, StandardCharsets.UTF_8);
-          // Avoid interpreting JS variables using JVM properties
-          // To do it, replace $ inside `` by ### before interpreting JVM properties
-          content = content.replaceAll("`(.*)\\$(.*)`", "`$1###$2`");
-          content = Deserializer.resolveVariables(content);
-          content = content.replaceAll("`(.*)###(.*)`", "`$1\\$$2`");
-          fileContent.append(content);
-        } catch (Exception e) {
-          LOG.warn("Error retrieving Rich Editor file content from path {}", richEditorConfiguration.getFilePath(), e);
-        }
-      });
+      appendFilesContent(fileContent, richEditorConfigurations);
     }
+  }
 
-    if (StringUtils.isBlank(instanceType) || StringUtils.equals(instanceType, ALL_INSTANCES_KEY)) {
-      String mainFileConfigurationContent = appendFilesContent(ALL_INSTANCES_KEY);
-      if (StringUtils.isNotBlank(mainFileConfigurationContent)) {
-        fileContent.append(mainFileConfigurationContent);
+  private void appendFilesContent(StringBuilder fileContent, List<RichEditorConfiguration> richEditorConfigurations) {
+    richEditorConfigurations.forEach(richEditorConfiguration -> {
+      try {
+        InputStream is = configurationManager.getInputStream(richEditorConfiguration.getFilePath());
+        String content = IOUtils.toString(is, StandardCharsets.UTF_8);
+        // Avoid interpreting JS variables using JVM properties
+        // To do it, replace $ inside `` by ### before interpreting JVM
+        // properties
+        content = content.replaceAll("`(.*)\\$(.*)`", "`$1###$2`");
+        content = Deserializer.resolveVariables(content);
+        content = content.replaceAll("`(.*)###(.*)`", "`$1\\$$2`");
+        fileContent.append(content);
+      } catch (Exception e) {
+        LOG.warn("Error retrieving Rich Editor file content from path {}", richEditorConfiguration.getFilePath(), e);
       }
-    }
-    return fileContent.toString();
+    });
   }
 
 }

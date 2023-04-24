@@ -22,7 +22,6 @@ import java.util.Date;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
@@ -32,6 +31,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
 import io.meeds.social.core.richeditor.RichEditorConfigurationService;
@@ -58,12 +58,14 @@ public class RichEditorConfigurationRest implements ResourceContainer {
 
   private RichEditorConfigurationService richEditorConfigurationService;
 
+  private boolean                        useCache;
+
   public RichEditorConfigurationRest(RichEditorConfigurationService richEditorConfigurationService) {
     this.richEditorConfigurationService = richEditorConfigurationService;
+    this.useCache = !PropertyManager.isDevelopping();
   }
 
   @GET
-  @Produces("text/javascript")
   @RolesAllowed("users")
   @Operation(summary = "Retrieves rich editor configuration Javascript file", method = "GET", description = "Returns list of tags")
   @ApiResponses(value = {
@@ -79,20 +81,22 @@ public class RichEditorConfigurationRest implements ResourceContainer {
                                              @QueryParam("v")
                                              String version) {
     EntityTag eTag = new EntityTag(String.valueOf(DEFAULT_LAST_MODIFED_HASH));
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    Response.ResponseBuilder builder = this.useCache ? request.evaluatePreconditions(eTag) : null;
     if (builder == null) {
       String richEditorConfiguration = this.richEditorConfigurationService.getRichEditorConfiguration(type);
-      builder = Response.ok(richEditorConfiguration, "text/javascript");
+      builder = Response.ok(richEditorConfiguration);
     }
-    builder.tag(eTag);
-    builder.lastModified(DEFAULT_LAST_MODIFED);
-    builder.cacheControl(CACHE_CONTROL);
-    // If the query has a lastModified parameter, it means that the client
-    // will change the lastModified entry when it really changes
-    // Which means that we can cache the image in browser side
-    // for a long time
-    if (StringUtils.isNotBlank(version)) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+    if (this.useCache) {
+      builder.tag(eTag);
+      builder.lastModified(DEFAULT_LAST_MODIFED);
+      builder.cacheControl(CACHE_CONTROL);
+      // If the query has a lastModified parameter, it means that the client
+      // will change the lastModified entry when it really changes
+      // Which means that we can cache the image in browser side
+      // for a long time
+      if (StringUtils.isNotBlank(version)) {
+        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      }
     }
     return builder.build();
   }

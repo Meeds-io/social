@@ -15,6 +15,7 @@
  */
 package io.meeds.social.core.richeditor;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,14 +28,16 @@ import lombok.Getter;
 public class RichEditorConfigurationPlugin extends BaseComponentPlugin {
 
   @Getter
-  private List<RichEditorConfiguration> richEditorConfigurations;
+  private List<RichEditorConfiguration> richEditorConfigurations = new ArrayList<>();
 
   public RichEditorConfigurationPlugin(InitParams params) {
     if (params != null) {
       Iterator<ObjectParameter> objectParamIterator = params.getObjectParamIterator();
       while (objectParamIterator.hasNext()) {
         ObjectParameter objectParameter = objectParamIterator.next();
-        richEditorConfigurations.add((RichEditorConfiguration) objectParameter.getObject());
+        if (objectParameter.getObject() instanceof RichEditorConfiguration richEditorConfiguration) {
+          richEditorConfigurations.add(richEditorConfiguration);
+        }
       }
     }
   }
