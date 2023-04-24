@@ -42,6 +42,7 @@
             use-draft-management
             autofocus />
         </v-card-text>
+        <attach-image-component />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
             :params="extensionParams"

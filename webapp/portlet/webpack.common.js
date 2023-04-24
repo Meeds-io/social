@@ -71,6 +71,7 @@ let config = {
     generalSettings: './src/main/webapp/vue-apps/general-settings/main.js',
     imageCropper: './src/main/webapp/vue-apps/component-image-crop/main.js',
     translationField: './src/main/webapp/vue-apps/component-translation-field/main.js',
+    attachImage: './src/main/webapp/vue-apps/component-attach-image/main.js'
   },
   module: {
     rules: [

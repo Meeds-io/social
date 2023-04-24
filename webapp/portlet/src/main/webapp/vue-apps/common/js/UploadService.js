@@ -35,6 +35,13 @@ export function abortUpload(uploadId) {
   });
 }
 
+export function testUpload() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachements/activity/1/1`, {
+    method: 'POST',
+    credentials: 'include'
+  });
+}
+
 export function upload(file, uploadId, signal) {
   if (!uploadId) {
     uploadId = generateRandomId();
