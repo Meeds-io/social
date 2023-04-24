@@ -87,6 +87,9 @@
     <type>org.exoplatform.social.rest.impl.favorite.FavoriteRest</type>
   </component>
   <component>
+    <type>org.exoplatform.social.rest.impl.attachement.AttachementRest</type>
+  </component>
+  <component>
     <type>org.exoplatform.social.rest.impl.tag.TagRest</type>
   </component>
   <component>
