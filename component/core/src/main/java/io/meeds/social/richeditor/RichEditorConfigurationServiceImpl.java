@@ -71,6 +71,9 @@ public class RichEditorConfigurationServiceImpl implements RichEditorConfigurati
 
   @Override
   public String getRichEditorConfiguration(String instanceType) {
+    if (StringUtils.isBlank(instanceType)) {
+      instanceType = ALL_INSTANCES_KEY;
+    }
     return configurationContentFutureCache.get(null, instanceType);
   }
 
@@ -90,7 +93,9 @@ public class RichEditorConfigurationServiceImpl implements RichEditorConfigurati
   protected String appendFilesContent(String instanceType) {
     StringBuilder fileContent = new StringBuilder();
     appendFilesContent(fileContent, ALL_INSTANCES_KEY);
-    appendFilesContent(fileContent, instanceType);
+    if (StringUtils.isNotBlank(instanceType)) {
+      appendFilesContent(fileContent, instanceType);
+    }
     return fileContent.toString();
   }
 
@@ -112,7 +117,7 @@ public class RichEditorConfigurationServiceImpl implements RichEditorConfigurati
         content = content.replaceAll("`(.*)\\$(.*)`", "`$1###$2`");
         content = Deserializer.resolveVariables(content);
         content = content.replaceAll("`(.*)###(.*)`", "`$1\\$$2`");
-        fileContent.append(content);
+        fileContent.append(content).append("\n");
       } catch (Exception e) {
         LOG.warn("Error retrieving Rich Editor file content from path {}", richEditorConfiguration.getFilePath(), e);
       }
