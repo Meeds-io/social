@@ -47,6 +47,9 @@ import org.exoplatform.social.core.space.spi.SpaceTemplateServiceTest;
 import org.exoplatform.social.metadata.MetadataServiceTest;
 import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
+
+import io.meeds.social.core.richeditor.RichEditorConfigurationServiceTest;
+
 import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
 import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
@@ -94,6 +97,7 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
   ActivityTagMetadataListenerTest.class,
   MetadataActivityProcessorTest.class,
   ImageThumbnailServiceImplTest.class,
+  RichEditorConfigurationServiceTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

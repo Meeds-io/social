@@ -111,6 +111,9 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
+    ckEditorConfigUrl() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/richeditor/configuration?type=${this.ckEditorType || 'default'}&v=${eXo.env.client.assetsVersion}`;
+    },
   },
   watch: {
     inputVal(val) {
@@ -238,7 +241,7 @@ export default {
       CKEDITOR.basePath = '/commons-extension/ckeditor/';
       const self = this;
       $(this.$refs.editor).ckeditor({
-        customConfig: '/commons-extension/ckeditorCustom/config.js',
+        customConfig: this.ckEditorConfigUrl,
         extraPlugins,
         removePlugins,
         toolbar,
