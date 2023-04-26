@@ -8,7 +8,7 @@
         <v-list-item class="ps-0">
           <v-list-item-content class="pt-0">
             <v-list-item-title class="mb-0 title">
-              <v-row no-gutters class="col-12">
+              <v-row no-gutters class="col-12 ma-0">
                 <v-col class="col-8 pb-0 pt-5">
                   <h4 class="font-weight-bold ma-0">{{ $t('social.spaces.administration.permissions.inviteNewExternal') }}</h4>
                 </v-col>
