@@ -67,6 +67,42 @@
         </object-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>BaseCKEditorConfiguration</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
+      <init-params>
+        <object-param>
+          <name>BaseCKEditorConfiguration</name>
+          <object type="io.meeds.social.core.richeditor.RichEditorConfiguration">
+            <field name="instanceType">
+              <string>java-variable-test</string>
+            </field>
+            <field name="filePath">
+              <string>jar:/ckeditor-config-java-variable-test.js</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>BaseCKEditorConfiguration</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
+      <init-params>
+        <object-param>
+          <name>BaseCKEditorConfiguration</name>
+          <object type="io.meeds.social.core.richeditor.RichEditorConfiguration">
+            <field name="instanceType">
+              <string>js-variable-test</string>
+            </field>
+            <field name="filePath">
+              <string>jar:/ckeditor-config-js-variable-test.js</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
