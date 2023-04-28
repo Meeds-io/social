@@ -1,0 +1,1 @@
+const javaProp = '@JVMProp{io.meeds.test.key:fake-value}';
