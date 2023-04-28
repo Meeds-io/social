@@ -25,10 +25,10 @@ CKEDITOR.editorConfig = function(config) {
   CKEDITOR.plugins.addExternal('attachImage', '/commons-extension/eXoPlugins/attachImage/', 'plugin.js');
   CKEDITOR.plugins.addExternal('googleDocPastePlugin', '/commons-extension/eXoPlugins/googleDocPastePlugin/', 'plugin.js')
 
-  const embedBaseApiEndpoint = '${io.meeds.iframely.url://ckeditor.iframe.ly/api/oembed?omit_script=1}'; // Java properties variable
+  const embedBaseApiEndpoint = '@JVMProp{io.meeds.iframely.url://ckeditor.iframe.ly/api/oembed?omit_script=1}';
   CKEDITOR.config.embed_provider = embedBaseApiEndpoint + (embedBaseApiEndpoint.includes('?') ? '&' : '?') + 'url={url}&callback={callback}';
 
-  const iframelyApiKey = '${io.meeds.iframely.key:}'; // Java properties variable
+  const iframelyApiKey = '@JVMProp{io.meeds.iframely.key:}';
   if (iframelyApiKey?.length && embedBaseApiEndpoint.includes('ckeditor.iframe.ly')) {
     CKEDITOR.config.embed_provider += '&api_key=' + iframelyApiKey;
   }

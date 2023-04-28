@@ -15,6 +15,12 @@
  */
 package io.meeds.social.core.richeditor;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.commons.io.IOUtils;
+
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 public class RichEditorConfigurationServiceTest extends AbstractCoreTest {
@@ -28,6 +34,27 @@ public class RichEditorConfigurationServiceTest extends AbstractCoreTest {
         // Test Default JS
         // Test Extension JS
         """.trim(), richEditorConfigurationService.getRichEditorConfiguration("test-extension").trim());
+  }
+
+  public void testGetRichEditorConfigurationWithJSVariables() throws IOException, Exception {
+    RichEditorConfigurationService richEditorConfigurationService = getContainer().getComponentInstanceOfType(RichEditorConfigurationService.class);
+    String jsConfiguration = richEditorConfigurationService.getRichEditorConfiguration("js-variable-test");
+    jsConfiguration = jsConfiguration.replace("// Test Default JS\n", "");
+    jsConfiguration = jsConfiguration.replaceAll("\n", "");
+    ConfigurationManager configurationManager = getContainer().getComponentInstanceOfType(ConfigurationManager.class);
+    String expectedConfiguration = IOUtils.toString(configurationManager.getInputStream("jar:/ckeditor-config-js-variable-test.js"), StandardCharsets.UTF_8);
+    assertEquals(expectedConfiguration, jsConfiguration);
+  }
+
+  public void testGetRichEditorConfigurationWithJavaVariables() {
+    String value = "test-value";
+    System.setProperty("io.meeds.test.key", value);
+
+    RichEditorConfigurationService richEditorConfigurationService = getContainer().getComponentInstanceOfType(RichEditorConfigurationService.class);
+    String jsConfiguration = richEditorConfigurationService.getRichEditorConfiguration("java-variable-test");
+    jsConfiguration = jsConfiguration.replace("// Test Default JS\n", "");
+    jsConfiguration = jsConfiguration.replaceAll("\n", "");
+    assertEquals("const javaProp = '" + value + "';", jsConfiguration);
   }
 
 }

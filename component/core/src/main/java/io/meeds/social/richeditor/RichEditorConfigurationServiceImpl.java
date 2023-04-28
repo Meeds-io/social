@@ -114,14 +114,14 @@ public class RichEditorConfigurationServiceImpl implements RichEditorConfigurati
         // Avoid interpreting JS variables using JVM properties
         // To do it, replace $ inside `` by ### before interpreting JVM
         // properties
-        content = content.replaceAll("`(.*)\\$(.*)`", "`$1###$2`");
+        content = content.replace("${", "@JSProp{");
+        content = content.replace("@JVMProp", "$");
         content = Deserializer.resolveVariables(content);
-        content = content.replaceAll("`(.*)###(.*)`", "`$1\\$$2`");
+        content = content.replace("@JSProp{", "${");
         fileContent.append(content).append("\n");
       } catch (Exception e) {
         LOG.warn("Error retrieving Rich Editor file content from path {}", richEditorConfiguration.getFilePath(), e);
       }
     });
   }
-
 }
