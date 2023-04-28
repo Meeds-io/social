@@ -69,7 +69,7 @@ export default {
     mobileNavigations: [],
     scope: 'ALL',
     globalScope: 'children',
-    visibility: 'displayed',
+    visibility: ['displayed', 'temporal'],
     siteType: 'PORTAL',
     exclude: 'global',
     tab: null,

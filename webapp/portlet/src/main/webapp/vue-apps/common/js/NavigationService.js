@@ -24,7 +24,9 @@ export function getNavigations(siteName, siteType, scope, visibility, exclude, n
     formData.append('scope', scope);
   }
   if (visibility) {
-    formData.append('visibility', visibility);
+    visibility.forEach(visibility => {
+      formData.append('visibility', visibility);
+    });
   }
   if (exclude) {
     formData.append('exclude', exclude);
