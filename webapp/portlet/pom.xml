@@ -23,7 +23,7 @@
   <parent>
     <artifactId>social-webapp</artifactId>
     <groupId>org.exoplatform.social</groupId>
-    <version>6.5.x-exo-SNAPSHOT</version>
+    <version>6.5.0-exo-20230430</version>
   </parent>
   <artifactId>social-webapp-portlet</artifactId>
   <packaging>war</packaging>
