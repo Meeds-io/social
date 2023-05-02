@@ -296,6 +296,22 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
 
   @Override
+  public List<String> getManagerRoleSpaceIds(String identityId,
+                                            int offset,
+                                            int limit) throws SpaceStorageException {
+    Identity identity = identityStorage.findIdentityById(identityId);
+    List<Long> spaceIds = spaceMemberDAO.getSpaceIdsByUserRole(identity.getRemoteId(), Status.MANAGER, offset, limit);
+
+    List<String> ids = new LinkedList<>();
+    if (spaceIds != null && !spaceIds.isEmpty()) {
+      for (Long spaceId : spaceIds) {
+        ids.add(String.valueOf(spaceId));
+      }
+    }
+    return ids;
+  }
+
+  @Override
   public List<Space> getMemberSpaces(String userId) throws SpaceStorageException {
     return getMemberSpaces(userId, 0, -1);
   }
