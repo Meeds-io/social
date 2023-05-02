@@ -767,6 +767,17 @@ public interface SpaceStorage {
   public List<String> getMemberRoleSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
 
   /**
+   * Retrieves the list of {@link Space} technical identifiers
+   *
+   * @param identityId user {@link Identity} technical identifier
+   * @param offset The starting point
+   * @param limit The limitation of returned results
+   * @return {@link List} of {@link Space} technical identifiers
+   * @throws SpaceStorageException
+   */
+  public List<String> getManagerRoleSpaceIds(String identityId, int offset, int limit) throws SpaceStorageException;
+
+  /**
    * @param spaceId
    * @return
    * @throws SpaceStorageException

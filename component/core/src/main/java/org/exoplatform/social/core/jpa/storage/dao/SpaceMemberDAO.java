@@ -71,6 +71,19 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
       throw new UnsupportedOperationException();
     }
 
+    /**
+     * Retrieves the list of {@link Space} technical identifiers switch status
+     *
+     * @param username user remote id
+     * @param status equals to MEMBER, MANAGER, PENDING, INVITED or IGNORED
+     * @param offset The starting point
+     * @param limit The limitation of returned results
+     * @return {@link List} of {@link Space} technical identifiers of type {@link Long}
+     */
+    default List<Long> getSpaceIdsByUserRole(String username, Status status, int offset, int limit) {
+        throw new UnsupportedOperationException();
+    }
+
   /**
    * Sort user identity remote ids
    * 
