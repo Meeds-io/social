@@ -50,7 +50,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
-import org.exoplatform.social.metadata.attachment.model.ObjectAttachedResourceList;
+import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
@@ -94,7 +94,7 @@ public class AttachmentRest implements ResourceContainer {
   })
   public Response createAttachments(
                                     @RequestBody(description = "Attached files to be created", required = true)
-                                    ObjectAttachedResourceList attachment) {
+                                    ObjectUploadResourceList attachment) {
     String objectType = attachment.getObjectType();
     if (StringUtils.isBlank(objectType)) {
       return Response.status(Status.BAD_REQUEST).entity("attachment.objectTypeRequired").type(MediaType.TEXT_PLAIN).build();

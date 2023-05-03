@@ -25,7 +25,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.metadata.AttachmentPlugin;
-import org.exoplatform.social.metadata.attachment.model.ObjectAttachedResourceList;
+import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
@@ -38,7 +38,7 @@ public interface AttachmentService {
   /**
    * Attach a list of files to an entity: activity, comment, task...
    *
-   * @param  attachment              {@link ObjectAttachedResourceList} to store
+   * @param  attachment              {@link ObjectUploadResourceList} to store
    * @param  userAclIdentity         user ACL identity retrieved used
    *                                   {@link IdentityRegistry}
    * @return                         {@link ObjectAttachmentOperationReport}
@@ -48,10 +48,10 @@ public interface AttachmentService {
    *                                   id doesn't have "write" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectAttachedResourceList}
+   *                                   {@link ObjectUploadResourceList}
    *                                   doesn't exists
    */
-  ObjectAttachmentOperationReport createAttachments(ObjectAttachedResourceList attachment,
+  ObjectAttachmentOperationReport createAttachments(ObjectUploadResourceList attachment,
                                                     Identity userAclIdentity) throws IllegalAccessException,
                                                                               ObjectNotFoundException;
 
@@ -71,10 +71,11 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectAttachedResourceList}
+   *                                   {@link ObjectUploadResourceList}
    *                                   doesn't exists
    */
-  ObjectAttachmentList getAttachments(String objectType, String objectId,
+  ObjectAttachmentList getAttachments(String objectType,
+                                      String objectId,
                                       Identity userAclIdentity) throws ObjectNotFoundException,
                                                                 IllegalAccessException;
 
@@ -95,7 +96,7 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectAttachedResourceList}
+   *                                   {@link ObjectUploadResourceList}
    *                                   doesn't exists
    */
   ObjectAttachmentDetail getAttachment(String objectType,
@@ -116,18 +117,21 @@ public interface AttachmentService {
    *                                   image/*
    * @param  userAclIdentity         user ACL identity retrieved used
    *                                   {@link IdentityRegistry}
-   * @return                         {@link InputStream} of attached image
+   * @return                         {@link InputStream} of an attached file
    * @throws IllegalAccessException  when user identified by its
    *                                   {@link org.exoplatform.social.core.identity.model.Identity}
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectAttachedResourceList}
+   *                                   {@link ObjectUploadResourceList}
    *                                   doesn't exists
    * @throws IOException             when an error occurs while reading attached
    *                                   file content
    */
-  InputStream getAttachmentInputStream(String objectType, String objectId, String fileId, String imageDimensions,
+  InputStream getAttachmentInputStream(String objectType,
+                                       String objectId,
+                                       String fileId,
+                                       String imageDimensions,
                                        Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException,
                                                                  IOException;
 

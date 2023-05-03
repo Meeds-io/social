@@ -44,7 +44,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.AttachmentPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
-import org.exoplatform.social.metadata.attachment.model.ObjectAttachedResourceList;
+import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
@@ -91,7 +91,7 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
-  public ObjectAttachmentOperationReport createAttachments(ObjectAttachedResourceList attachmentList,
+  public ObjectAttachmentOperationReport createAttachments(ObjectUploadResourceList attachmentList,
                                                            Identity userAclIdentity) throws IllegalAccessException,
                                                                                      ObjectNotFoundException {
     if (attachmentList == null) {

@@ -97,8 +97,7 @@ export default {
       originalBody: '',
       messageEdited: false,
       activityType: null,
-      loading: false,
-      attachedFiles: null
+      loading: false
     };
   },
   computed: {
@@ -206,6 +205,7 @@ export default {
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
+          .then(this.postSaveMessage)
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
             this.cleareActivityMessage();
@@ -228,11 +228,9 @@ export default {
         else {
           this.loading = true;
           this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
-            .then((data) => {
-              document.dispatchEvent(new CustomEvent('activity-created', {detail: {
-                activityId: data.id,
-                spaceId: data && data.activityStream && data.activityStream.space && data.activityStream.space.id || '',
-              }}));
+            .then(this.postSaveMessage)
+            .then((activity) => {
+              document.dispatchEvent(new CustomEvent('activity-created', {detail: activity?.id}));
               this.cleareActivityMessage();
               this.close();
             })
@@ -243,6 +241,21 @@ export default {
             })
             .finally(() => this.loading = false);
         }
+      }
+    },
+    postSaveMessage(activity) {
+      const postSaveOperations = extensionRegistry.loadExtensions('activity', 'postSave');
+      if (postSaveOperations?.length) {
+        const promises = [];
+        postSaveOperations.forEach(extension => {
+          if (extension.postSave) {
+            const result = extension.postSave(activity);
+            if (result?.then) {
+              promises.push(result);
+            }
+          }
+        });
+        return Promise.all(promises).then(() => activity);
       }
     },
     cleareActivityMessage() {

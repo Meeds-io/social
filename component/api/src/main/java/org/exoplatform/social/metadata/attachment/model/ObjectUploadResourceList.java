@@ -25,7 +25,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObjectAttachedResourceList implements Cloneable {
+public class ObjectUploadResourceList implements Cloneable {
 
   private List<String> uploadIds;
 
@@ -40,8 +40,8 @@ public class ObjectAttachedResourceList implements Cloneable {
   private String       parentObjectId;
 
   @Override
-  public ObjectAttachedResourceList clone() { // NOSONAR
-    return new ObjectAttachedResourceList(uploadIds, userIdentityId, spaceId, objectType, objectId, parentObjectId);
+  public ObjectUploadResourceList clone() { // NOSONAR
+    return new ObjectUploadResourceList(uploadIds, userIdentityId, spaceId, objectType, objectId, parentObjectId);
   }
 
 }
