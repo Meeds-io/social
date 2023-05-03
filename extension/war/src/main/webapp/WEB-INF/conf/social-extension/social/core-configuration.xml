@@ -376,8 +376,8 @@
     </component>
     
     <component>
-      <key>org.exoplatform.social.metadata.attachement.AttachmentService</key>
-      <type>org.exoplatform.social.core.metadata.attachement.AttachmentServiceImpl</type>
+      <key>org.exoplatform.social.metadata.attachment.AttachmentService</key>
+      <type>org.exoplatform.social.core.metadata.attachment.AttachmentServiceImpl</type>
     </component>
 
     <component>

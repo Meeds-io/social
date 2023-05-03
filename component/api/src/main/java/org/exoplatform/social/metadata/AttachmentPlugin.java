@@ -18,16 +18,16 @@
  */
 package org.exoplatform.social.metadata;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.security.Identity;
 
 /**
- * A plugin that will be used by AttachmentServiceImpl to check the edit
- * and access permission of an attachement
+ * A plugin that will be used by AttachmentServiceImpl to check the edit and
+ * access permission of an attachment
  */
+public abstract class AttachmentPlugin extends BaseComponentPlugin {
 
-public abstract class AttachmentPermissionPlugin extends BaseComponentPlugin{
-  
   /**
    * @return entity types that plugin handles
    */
@@ -36,20 +36,23 @@ public abstract class AttachmentPermissionPlugin extends BaseComponentPlugin{
   /**
    * Checks whether the user can access to an entity
    *
-   * @param userIdentity user identity
-   * @param entityId object technical unique identifier
-   * @return true if the user can access to an entity, else false.
+   * @param  userIdentity            user identity
+   * @param  entityId                object technical unique identifier
+   * @return                         true if the user can access to an entity,
+   *                                 else false.
+   * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
-  public abstract boolean hasAccessPermission(Identity userIdentity, String entityId);
-  
+  public abstract boolean hasAccessPermission(Identity userIdentity, String entityId) throws ObjectNotFoundException;
+
   /**
    * Checks whether the user can edit an entity
    *
-   * @param userIdentity user identity
-   * @param entityId object technical unique identifier
-   * @return true if the user can edit an entity, else false.
+   * @param  userIdentity            user identity
+   * @param  entityId                object technical unique identifier
+   * @return                         true if the user can edit an entity, else
+   *                                 false.
+   * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
-  public abstract boolean hasEditPermission(Identity userIdentity, String entityId);
-
+  public abstract boolean hasEditPermission(Identity userIdentity, String entityId) throws ObjectNotFoundException;
 
 }

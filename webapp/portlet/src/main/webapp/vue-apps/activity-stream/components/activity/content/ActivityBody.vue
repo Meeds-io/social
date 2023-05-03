@@ -74,7 +74,6 @@ export default {
   },
   methods: {
     retrieveActivityProperties() {
-      console.warn(this.activity);
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
     },
   },

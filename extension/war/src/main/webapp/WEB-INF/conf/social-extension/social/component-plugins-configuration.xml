@@ -164,13 +164,12 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.exoplatform.social.metadata.attachement.AttachmentService</target-component>
+    <target-component>org.exoplatform.social.metadata.attachment.AttachmentService</target-component>
     <component-plugin>
-      <name>ActivityAttachmentPermissionPlugin</name>
-      <set-method>addAttachmentPermissionPlugin</set-method>
-      <type>org.exoplatform.social.core.plugin.ActivityAttachmentPermissionPlugin</type>
+      <name>ActivityAttachmentPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.ActivityAttachmentPlugin</type>
     </component-plugin>
   </external-component-plugins>
-  
 
 </configuration>

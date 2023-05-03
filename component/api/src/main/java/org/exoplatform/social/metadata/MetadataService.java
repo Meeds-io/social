@@ -219,10 +219,24 @@ public interface MetadataService {
                                                 long creatorId);
 
   /**
-   * @param  object
+   * return {@link Set} of {@link Metadata} names associated to a given object
+   * 
+   * @param  object {@link MetadataObject} used to search items
    * @return        {@link Set} of {@link Metadata} name
    */
   Set<String> getMetadataNamesByObject(MetadataObject object);
+
+  /**
+   * return {@link List} of {@link Metadata} names associated to a given
+   * metadata type, object type and object id. The returned list is sorted
+   * descending by id.
+   * 
+   * @param  metadataTypeName
+   * @param  objectType
+   * @param  objectId
+   * @return {@link List} of metadata names
+   */
+  List<String> getMetadataNamesByMetadataTypeAndObject(String metadataTypeName, String objectType, String objectId);
 
   /**
    * Retrieves the list of Metadata attached to an object identified by its name
@@ -283,26 +297,6 @@ public interface MetadataService {
                                                                                       String metadataTypeName,
                                                                                       String objectType,
                                                                                       long spaceId,
-                                                                                      long offset,
-                                                                                      long limit) {
-    throw new UnsupportedOperationException();
-  }
-  
-  /**
-   * Retrieves the Metadata item attached to a given {@link Metadata} name, type
-   * and {@link MetadataItem} object type
-   *
-   * @param  metadataName     {@link Metadata} name
-   * @param  metadataTypeName {@link Metadata} type name
-   * @param  objectType       objectType {@link MetadataItem} objectType
-   * @param  offset           offset of ids to retrieve
-   * @param  limit            limit of ids to retrieve
-   * @return                  {@link List} of linked {@link MetadataItem}
-   */
-  default List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectTypeAndObjectId(String metadataName,
-                                                                                      String metadataTypeName,
-                                                                                      String objectType,
-                                                                                      long objectId,
                                                                                       long offset,
                                                                                       long limit) {
     throw new UnsupportedOperationException();

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2022 Meeds Association contact@meeds.io
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,42 +18,44 @@
  */
 package org.exoplatform.social.core.plugin;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.metadata.AttachmentPermissionPlugin;
+import org.exoplatform.social.metadata.AttachmentPlugin;
 
-public class ActivityAttachmentPermissionPlugin extends AttachmentPermissionPlugin {
+public class ActivityAttachmentPlugin extends AttachmentPlugin {
 
-  private static final String   ACTIVITY_ATTACHEMENT_TYPE = "activity";
+  private static final String   ACTIVITY_ATTACHMENT_TYPE = "activity";
 
   private final ActivityManager activityManager;
 
-  public ActivityAttachmentPermissionPlugin(ActivityManager activityManager) {
+  public ActivityAttachmentPlugin(ActivityManager activityManager) {
     this.activityManager = activityManager;
   }
 
   @Override
   public String getObjectType() {
-    return ACTIVITY_ATTACHEMENT_TYPE;
+    return ACTIVITY_ATTACHMENT_TYPE;
   }
 
   @Override
-  public boolean hasAccessPermission(Identity userIdentity, String objectId) {
-    ExoSocialActivity activity = activityManager.getActivity(String.valueOf(objectId));
-    if (activity == null) {
-      throw new IllegalStateException("Activity with id " + objectId + " wasn't found");
-    }
+  public boolean hasAccessPermission(Identity userIdentity, String activityId) throws ObjectNotFoundException {
+    ExoSocialActivity activity = getActivity(activityId);
+    return activityManager.isActivityViewable(activity, userIdentity);
+  }
+
+  @Override
+  public boolean hasEditPermission(Identity userIdentity, String activityId) throws ObjectNotFoundException {
+    ExoSocialActivity activity = getActivity(activityId);
     return activityManager.isActivityEditable(activity, userIdentity);
   }
-  
-  @Override
-  public boolean hasEditPermission(Identity userIdentity, String objectId) {
-    ExoSocialActivity activity = activityManager.getActivity(String.valueOf(objectId));
+
+  private ExoSocialActivity getActivity(String activityId) throws ObjectNotFoundException {
+    ExoSocialActivity activity = activityManager.getActivity(activityId);
     if (activity == null) {
-      throw new IllegalStateException("Activity with id " + objectId + " wasn't found");
+      throw new ObjectNotFoundException("Activity with id " + activityId + " wasn't found");
     }
-    return activityManager.isActivityEditable(activity, userIdentity);
+    return activity;
   }
 }
-

@@ -33,13 +33,16 @@ export default {
     }
   },
   created() {
-    document.addEventListener('activity-created', event => {
-      if (event?.detail) {
-        const uploadIds = [];
-        this.images.forEach(file => {
-          uploadIds.push(file.uploadId);
-        });
-        this.$activityService.attachFiles(event.detail.activityId, event.detail.spaceId, uploadIds);
+    extensionRegistry.registerExtension('activity', 'saveAction', {
+      key: 'attachment',
+      postSave: activity => {
+        if (activity?.id) {
+          const uploadIds = this.images.map(file => file.uploadId).filter(uploadId => !!uploadId);
+          if (uploadIds?.length) {
+            return this.$fileAttachmentService.createAttachments(activity?.id, event.detail.spaceId, uploadIds)
+              .finally(() => this.images = []);
+          }
+        }
       }
     });
   },

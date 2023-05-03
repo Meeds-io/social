@@ -300,7 +300,7 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, long offset, long limit) {

@@ -1,8 +1,8 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
- * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
- * 
+ *
+ * Copyright (C) 2023 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -11,23 +11,37 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import attachImageComponent from './components/attachImageComponent.vue';
-import FileMultiUploadInput from './components/FileMultiUploadInput.vue';
-import imageItems from './components/imageItems.vue';
-import imageItem from './components/imageItem.vue';
+package org.exoplatform.social.metadata.attachment.model;
 
-const components = {
-  'attach-image-component': attachImageComponent,
-  'file-multi-upload-input': FileMultiUploadInput,
-  'image-items': imageItems,
-  'image-item': imageItem
-};
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-for (const key in components) {
-  Vue.component(key, components[key]);
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ObjectAttachmentDetail implements Cloneable {
+
+  protected String id;
+
+  protected String name;
+
+  protected String mimetype;
+
+  protected long   size;
+
+  protected long   updated;
+
+  protected String updater;
+
+  @Override
+  public ObjectAttachmentDetail clone() { // NOSONAR
+    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater);
+  }
+
 }
