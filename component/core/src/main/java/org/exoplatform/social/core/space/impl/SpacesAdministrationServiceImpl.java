@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.portal.mop.PageType;
 import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.settings.SettingService;
@@ -233,7 +234,9 @@ public class SpacesAdministrationServiceImpl implements Startable, SpacesAdminis
                           .collect(Collectors.toList()),
                   page.getEditPermission(),
                   page.getMoveAppsPermissions(),
-                  page.getMoveContainersPermissions());
+                  page.getMoveContainersPermissions(),
+                  PageType.PAGE.name(),
+                  null);
           pageService.savePage(new PageContext(pageKey, pageState));
         }
       } finally {
