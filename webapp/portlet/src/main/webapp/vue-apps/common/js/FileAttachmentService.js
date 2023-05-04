@@ -32,8 +32,7 @@ export function getAttachments(objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}`, {
     method: 'GET',
     credentials: 'include',
-  })
-  .then(resp => {
+  }).then(resp => {
     if (resp && resp.ok) {
       return resp.json();
     } else {

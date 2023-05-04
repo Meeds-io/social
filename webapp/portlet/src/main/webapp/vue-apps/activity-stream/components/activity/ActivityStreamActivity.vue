@@ -179,6 +179,7 @@ export default {
         isActivityDetail: this.isActivityDetail,
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
+        objectTypes: 'activity',
         loading: this.loading,
       };
     },

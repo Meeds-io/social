@@ -39,7 +39,14 @@ export default {
         if (activity?.id) {
           const uploadIds = this.images.map(file => file.uploadId).filter(uploadId => !!uploadId);
           if (uploadIds?.length) {
-            return this.$fileAttachmentService.createAttachments(activity?.id, event.detail.spaceId, uploadIds)
+            const attachment = {
+              'objectId': activity?.id,
+              'spaceId': activity?.activityStream?.space?.id,
+              'uploadIds': uploadIds,
+              'objectType': 'activity',
+              
+            }; 
+            return this.$fileAttachmentService.createAttachments(attachment)
               .finally(() => this.images = []);
           }
         }

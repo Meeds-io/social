@@ -303,6 +303,16 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(long metadataType, MetadataObject object) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType,
+        object.getType(),
+        object.getId());
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
   public List<String> getMetadataObjectIds(String metadataType, String metadataName, String objectType, long offset, long limit) {
     MetadataType type = getMetadataType(metadataType);
     if (type == null) {

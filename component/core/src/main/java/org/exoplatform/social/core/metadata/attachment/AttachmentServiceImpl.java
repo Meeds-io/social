@@ -123,7 +123,7 @@ public class AttachmentServiceImpl implements AttachmentService {
       throw new IllegalStateException("User with id " + userIdentityId + " isn't valid");
     }
 
-    if (!hasEditPermission(userAclIdentity, FILE_API_NAMESPACE, FILE_API_NAMESPACE)) {
+    if (!hasEditPermission(userAclIdentity, objectType, objectId)) {
       throw new IllegalAccessException("User " + userAclIdentity.getUserId()
           + " doesn't have enough permissions to attach files on object " + objectType + "/" + objectId);
     }

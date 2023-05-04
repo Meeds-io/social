@@ -20,12 +20,16 @@ import AttachImageComponent from './components/AttachImageComponent.vue';
 import FileMultiUploadInput from './components/FileMultiUploadInput.vue';
 import ImageItems from './components/ImageItems.vue';
 import ImageItem from './components/ImageItem.vue';
+import AttachedItem from './components/AttachedItem.vue';
+import AttachedItems from './components/AttachedItems.vue';
 
 const components = {
   'attach-image-component': AttachImageComponent,
   'file-multi-upload-input': FileMultiUploadInput,
   'image-items': ImageItems,
-  'image-item': ImageItem
+  'image-item': ImageItem,
+  'attached-item': AttachedItem,
+  'attached-items': AttachedItems
 };
 
 for (const key in components) {

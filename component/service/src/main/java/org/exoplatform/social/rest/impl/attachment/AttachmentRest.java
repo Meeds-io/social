@@ -183,7 +183,7 @@ public class AttachmentRest implements ResourceContainer {
                                 @QueryParam("lastModified")
                                 String lastModified,
                                 @Parameter(description = "Resized avatar size. Use 0x0 for original size.")
-                                @DefaultValue("45x45")
+                                @DefaultValue("250x250")
                                 @QueryParam("size")
                                 String size,
                                 @Parameter(description = "Whether to add HTTP Header for download or not", required = true)

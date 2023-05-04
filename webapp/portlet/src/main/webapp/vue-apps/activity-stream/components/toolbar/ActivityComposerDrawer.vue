@@ -244,7 +244,7 @@ export default {
       }
     },
     postSaveMessage(activity) {
-      const postSaveOperations = extensionRegistry.loadExtensions('activity', 'postSave');
+      const postSaveOperations = extensionRegistry.loadExtensions('activity', 'saveAction');
       if (postSaveOperations?.length) {
         const promises = [];
         postSaveOperations.forEach(extension => {
