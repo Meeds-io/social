@@ -462,6 +462,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     if (settings != null) {
       filter.setExcludedIdentityList(Collections.singletonList(target));
+      settings.replaceAll((key, value) -> value.trim());
     }
     filter.setProfileSettings(settings);
     ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
