@@ -117,7 +117,7 @@
               <int>7</int>
             </field>
             <field name="name">
-              <string>attachment</string>
+              <string>attachments</string>
             </field>
           </object>
         </object-param>

@@ -30,7 +30,7 @@
       :width="4"
       :value="imageUploadProgress"
       color="primary">
-      {{ imageUploadProgress }}
+      {{ imageUploadProgress }}%
     </v-progress-circular>
   </v-card> 
   <v-card 

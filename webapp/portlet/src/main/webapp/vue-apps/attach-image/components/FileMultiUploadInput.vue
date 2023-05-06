@@ -17,17 +17,13 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-app>
-    <input 
-      id="attachedImagesField"
-      class="hidden"
-      ref="attachedImages"
-      type="file" 
-      name="attachedImages" 
-      accept="image/*"
-      multiple
-      @change="uploadFiles($refs.attachedImages.files)">
-  </v-app>
+  <v-file-input
+    id="attachedImagesField"
+    ref="attachedImages"
+    accept="image/*"
+    class="hidden"
+    multiple
+    @change="uploadFiles" />
 </template>
 <script>
 export default {
@@ -52,19 +48,14 @@ export default {
         return;
       } else {
         filesArray.forEach((file) => {
-          if (file.type && file.type.indexOf('image/') !== 0) {
-            this.$root.$emit('alert-message', this.$t('generalSettings.mustImage.label'), 'error');
-            return;
-          }
           if (file.size > this.maxFileSize) {
-            this.$root.$emit('alert-message', this.$t('generalSettings.logo.tooBigFile.label'), 'error');
+            this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.megabytes.label', {
+              0: Number.parseFloat(file.size / 1024 / 1024).toFixed(2).replace('.00', ''),
+              1: parseInt(this.maxFileSize / 1024 / 1024),
+            }), 'error');
             return;
           }
           if (file && file.size) {
-            if (file.type && file.type.indexOf('image/') !== 0) {
-              this.$root.$emit('alert-message', this.$t('imageCropDrawer.mustImage.label'), 'error');
-              return;
-            }
             const fileDetails = {
               id: null,
               uploadId: this.generateRandomUploadId(),
@@ -117,10 +108,12 @@ export default {
     removeUplodedFile(uploadId) {
       if (uploadId) {
         const fileIndex = this.filesArray.findIndex(f => f.uploadId === uploadId);
-        this.filesArray.splice(fileIndex, 1);
-        this.$emit('update-images', this.filesArray);
+        if (fileIndex >= 0) {
+          this.filesArray.splice(fileIndex, 1);
+          this.$emit('update-images', this.filesArray);
+          this.$uploadService.deleteUpload(uploadId);
+        }
       }
-      this.$uploadService.deleteUpload(uploadId);
     }
   }
 };

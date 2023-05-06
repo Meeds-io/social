@@ -53,12 +53,12 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>AttachImageCKEditorConfiguration</name>
+      <name>BaseCKEditorConfiguration</name>
       <set-method>addPlugin</set-method>
       <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
       <init-params>
         <object-param>
-          <name>AttachImageCKEditorConfiguration</name>
+          <name>BaseCKEditorConfiguration</name>
           <object type="io.meeds.social.core.richeditor.RichEditorConfiguration">
             <field name="instanceType">
               <string>activityContent</string>

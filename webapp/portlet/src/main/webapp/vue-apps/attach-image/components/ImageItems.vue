@@ -27,11 +27,12 @@
     </v-list-item>
     <v-list-item class="px-2">
       <v-btn
-        class="border-color"
+        class="border-color grey-background"
         outlined
         width="120"
         min-height="120"
-        max-height="120">
+        max-height="120"
+        @click="openFileExplorer">
         <v-icon class="primary--text">fa-plus</v-icon>
       </v-btn>
     </v-list-item>
@@ -48,6 +49,11 @@ export default {
   computed: {
     attachedImages() {
       return this.images;
+    }
+  },
+  methods: {
+    openFileExplorer() {
+      document.dispatchEvent(new CustomEvent('open-file-explorer')); 
     }
   }
 };

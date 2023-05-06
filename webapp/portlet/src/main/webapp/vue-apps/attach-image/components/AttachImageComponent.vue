@@ -47,6 +47,21 @@ export default {
               
             }; 
             return this.$fileAttachmentService.createAttachments(attachment)
+              .then(report => {
+                const uploadIdsErrors = Object.keys(report.errorByUploadId).map(uploadError => !!uploadError);
+                uploadIds.filter(uploadId => {
+                  const file = this.images.filter(file => file.uploadId === uploadId);
+                  if (uploadIdsErrors.includes(uploadId)) {
+                    this.$root.$emit('alert-message',  this.$t('attachImage.errorUpload.label', {
+                      0: file[0].name
+                    }), 'error');
+                  } else {
+                    this.$root.$emit('alert-message', this.$t('attachImage.successUpload.label', {
+                      0: file[0].name
+                    }), 'success');
+                  }
+                });
+              })
               .finally(() => this.images = []);
           }
         }

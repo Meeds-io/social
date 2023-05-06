@@ -12,7 +12,7 @@
       class="activity-attachment overflow-hidden d-flex flex-column border-box-sizing">
       <v-card-text class="activity-attachment-thumbnail d-flex flex-grow-1 pa-0">
         <img
-          :src="attachment.image"
+          :src="attachment.thumbnailUrl"
           class="mx-auto">
       </v-card-text>
       <v-expand-transition>

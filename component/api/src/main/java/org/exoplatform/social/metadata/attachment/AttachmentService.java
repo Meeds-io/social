@@ -33,7 +33,7 @@ import org.exoplatform.social.metadata.model.MetadataType;
 
 public interface AttachmentService {
 
-  public static final MetadataType METADATA_TYPE = new MetadataType(7, "attachment");
+  public static final MetadataType METADATA_TYPE = new MetadataType(7, "attachments");
 
   /**
    * Attach a list of files to an entity: activity, comment, task...

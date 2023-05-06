@@ -1,8 +1,8 @@
 <template>
-  <card-carousel parent-class="activity-files-parent">
+  <card-carousel v-if="attachmentsCount" parent-class="activity-files-parent">
     <attached-item
       v-for="(attachment, index) in attachments"
-      :key="index"
+      :key="attachment.id"
       :activity="activity"
       :index="index"
       :count="attachmentsCount"
@@ -20,10 +20,6 @@ export default {
       type: Object,
       default: null,
     },
-    objectTypes: {
-      type: String,
-      default: null
-    },
     previewHeight: {
       type: String,
       default: () => '152px',
@@ -35,14 +31,10 @@ export default {
   },
   computed: {
     attachments() {
-      const attachments = [];
-      this.activity.metadatas.attachment.forEach(attachment => {
-        const imageURL = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectTypes}/${this.activity.id}/${attachment.name}` || null;
-        attachments.push({
-          image: imageURL,
-        });
-      });
-      return attachments;
+      return this.activity?.metadatas?.attachments?.map(metadata => ({
+        id: metadata.name,
+        thumbnailUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${metadata.name}?size=120x120`,
+      })) || [];
     },
     attachmentsCount() {
       return this.attachments.length;

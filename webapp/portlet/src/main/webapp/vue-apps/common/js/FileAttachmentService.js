@@ -25,6 +25,12 @@ export function createAttachments(attachment) {
     method: 'POST',
     credentials: 'include',
     body: JSON.stringify(attachment)
+  }).then(resp => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error(`Error creating attachments, response code = ${resp.status}`);
+    }
   });
 }
 
