@@ -41,9 +41,9 @@ export default {
           return;
         }
         const uploadIds = this.images
+          .filter(file => file.progress === 100)
           .map(file => file.uploadId)
-          .filter(uploadId => !!uploadId)
-          .filter(file => file.progress === 100);
+          .filter(uploadId => !!uploadId);
         if (!uploadIds?.length) {
           return;
         }
