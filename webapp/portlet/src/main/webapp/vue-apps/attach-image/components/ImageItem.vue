@@ -65,10 +65,10 @@ export default {
   },
   computed: {
     imageItem() {
-      return this.image && this.image.src;
+      return this.image?.src;
     },
     imageUploadProgress() {
-      return this.image && this.image.progress;
+      return this.image?.progress;
     },
   },
   methods: {

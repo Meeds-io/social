@@ -55,7 +55,7 @@ export default {
             }), 'error');
             return;
           }
-          if (file && file.size) {
+          if (file?.size) {
             const fileDetails = {
               id: null,
               uploadId: this.generateRandomUploadId(),

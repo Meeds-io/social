@@ -52,7 +52,7 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'attachedItem',
   isEnabled: (params) => {
-    const activity = params && params.activity;
+    const activity = params?.activity;
     return activity?.metadatas?.attachments?.length;
   },
   vueComponent: Vue.options.components['attached-items'],

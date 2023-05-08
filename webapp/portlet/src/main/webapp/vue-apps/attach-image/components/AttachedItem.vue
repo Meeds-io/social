@@ -13,6 +13,7 @@
       <v-card-text class="activity-attachment-thumbnail d-flex flex-grow-1 pa-0">
         <img
           :src="attachment.thumbnailUrl"
+          alt="attached image"
           class="mx-auto">
       </v-card-text>
       <v-expand-transition>
@@ -88,7 +89,7 @@ export default {
       return this.index && (lastIndex && 'ms-2' || 'mx-2') || 'me-2';
     },
     previewActivity() {
-      return this.activity && this.activity.parentActivity || this.activity;
+      return this.activity?.parentActivity || this.activity;
     },
   },
   methods: {

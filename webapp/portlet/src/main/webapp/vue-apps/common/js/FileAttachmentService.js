@@ -26,7 +26,7 @@ export function createAttachments(attachment) {
     credentials: 'include',
     body: JSON.stringify(attachment)
   }).then(resp => {
-    if (resp && resp.ok) {
+    if (resp?.ok) {
       return resp.json();
     } else {
       throw new Error(`Error creating attachments, response code = ${resp.status}`);
@@ -39,7 +39,7 @@ export function getAttachments(objectType, objectId) {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
-    if (resp && resp.ok) {
+    if (resp?.ok) {
       return resp.json();
     } else {
       throw new Error(`Error retrieving attachments from server, response code = ${resp.status}`);
