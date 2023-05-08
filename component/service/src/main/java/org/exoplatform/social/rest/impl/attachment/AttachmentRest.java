@@ -157,9 +157,8 @@ public class AttachmentRest implements ResourceContainer {
 
   @GET
   @Path("{objectType}/{objectId}/{fileId}")
-  @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(summary = "Retrieves files of a given object identified by its id", description = "Retrieves files of a given object identified by its id", method = "GET")
+  @Operation(summary = "Retrieves file stream content attached to a given object identified by its id", description = "Retrieves file stream content attached to a given object identified by its id", method = "GET")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
@@ -209,45 +208,69 @@ public class AttachmentRest implements ResourceContainer {
       return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").build();
     }
 
-    Response.ResponseBuilder builder = null;
-    Long lastUpdated = attachmentDetail.getUpdated();
-    EntityTag eTag = new EntityTag(lastUpdated.hashCode() + "-" + size);
-    builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      InputStream attachmentInputStream;
-      try {
-        attachmentInputStream = attachmentService.getAttachmentInputStream(objectType,
-                                                                           objectId,
-                                                                           fileId,
-                                                                           size,
-                                                                           authenticatedUserIdentity);
-      } catch (IllegalAccessException e) {
-        return Response.status(Status.UNAUTHORIZED).build();
-      } catch (ObjectNotFoundException e) {
-        return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").build();
-      } catch (IOException e) {
-        return Response.status(Status.INTERNAL_SERVER_ERROR).entity("attachment.fileReadingError").build();
+    try {
+      Long lastUpdated = attachmentDetail.getUpdated();
+      EntityTag eTag = new EntityTag(lastUpdated.hashCode() + "-" + size);
+      Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+      if (builder == null) {
+        builder = buildAttachmentResponse(objectType,
+                                          objectId,
+                                          fileId,
+                                          size,
+                                          authenticatedUserIdentity,
+                                          attachmentDetail,
+                                          lastUpdated,
+                                          eTag);
       }
 
-      builder = Response.ok(attachmentInputStream, "image/png");
-      builder.cacheControl(CACHE_CONTROL);
-      builder.lastModified(new Date(lastUpdated));
-      builder.tag(eTag);
-    }
-
-    if (download) {
       String fileName = URLEncoder.encode(attachmentDetail.getName(), StandardCharsets.UTF_8).replace("+", "%20");
-      builder.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName);
-    }
+      if (download) {
+        builder.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName);
+      } else {
+        builder.header("Content-Disposition", "filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName);
+      }
 
-    // If the query has a lastModified parameter, it means that the client
-    // will change the lastModified entry when it really changes
-    // Which means that we can cache the image in browser side
-    // for a long time
-    if (StringUtils.isNotBlank(lastModified)) {
-      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      // If the query has a lastModified parameter, it means that the client
+      // will change the lastModified entry when it really changes
+      // Which means that we can cache the image in browser side
+      // for a long time
+      if (StringUtils.isNotBlank(lastModified)) {
+        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      }
+      return builder.build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").build();
+    } catch (IOException e) {
+      return Response.status(Status.INTERNAL_SERVER_ERROR).entity("attachment.fileReadingError").build();
     }
-    return builder.build();
+  }
+
+  private Response.ResponseBuilder buildAttachmentResponse(String objectType, // NOSONAR
+                                                           String objectId,
+                                                           String fileId,
+                                                           String size,
+                                                           Identity authenticatedUserIdentity,
+                                                           ObjectAttachmentDetail attachmentDetail,
+                                                           Long lastUpdated,
+                                                           EntityTag eTag) throws IllegalAccessException, ObjectNotFoundException,
+                                                                           IOException {
+    InputStream attachmentInputStream = attachmentService.getAttachmentInputStream(objectType,
+                                                                                   objectId,
+                                                                                   fileId,
+                                                                                   size,
+                                                                                   authenticatedUserIdentity);
+
+    String mimeType = attachmentDetail.getMimetype();
+    if (StringUtils.isBlank(mimeType)) {
+      mimeType = MediaType.APPLICATION_OCTET_STREAM;
+    }
+    Response.ResponseBuilder builder = Response.ok(attachmentInputStream).type(mimeType);
+    builder.cacheControl(CACHE_CONTROL);
+    builder.lastModified(new Date(lastUpdated));
+    builder.tag(eTag);
+    return builder;
   }
 
 }

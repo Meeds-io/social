@@ -18,59 +18,58 @@
 -->
 <template>
   <div class="px-3">
-    <file-multi-upload-input @update-images="upadateImage($event)" />
-    <image-items :images="attachedImages" />
+    <file-multi-upload-input @update-images="upadateImage" />
+    <image-items :images="images" />
   </div>
 </template>
 <script>
 export default {
-  data: () => ({
-    images: []
-  }),
-  computed: {
-    attachedImages() {
-      return this.images;
-    }
+  props: {
+    maxFileSize: {
+      type: Number,
+      default: 20097152
+    },
   },
+  data: () => ({
+    images: [],
+  }),
   created() {
     extensionRegistry.registerExtension('activity', 'saveAction', {
       key: 'attachment',
       postSave: activity => {
-        if (activity?.id) {
-          const uploadIds = this.images.map(file => file.uploadId).filter(uploadId => !!uploadId);
-          if (uploadIds?.length) {
-            const attachment = {
-              'objectId': activity?.id,
-              'spaceId': activity?.activityStream?.space?.id,
-              'uploadIds': uploadIds,
-              'objectType': 'activity',
-              
-            }; 
-            return this.$fileAttachmentService.createAttachments(attachment)
-              .then(report => {
-                const uploadIdsErrors = Object.keys(report.errorByUploadId).map(uploadError => !!uploadError);
-                uploadIds.filter(uploadId => {
-                  const file = this.images.filter(file => file.uploadId === uploadId);
-                  if (uploadIdsErrors.includes(uploadId)) {
-                    this.$root.$emit('alert-message',  this.$t('attachImage.errorUpload.label', {
-                      0: file[0].name
-                    }), 'error');
-                  } else {
-                    this.$root.$emit('alert-message', this.$t('attachImage.successUpload.label', {
-                      0: file[0].name
-                    }), 'success');
-                  }
-                });
-              })
-              .finally(() => this.images = []);
-          }
+        if (!activity?.id) {
+          return;
         }
+        const uploadIds = this.images
+          .map(file => file.uploadId)
+          .filter(uploadId => !!uploadId)
+          .filter(file => file.progress === 100);
+        if (!uploadIds?.length) {
+          return;
+        }
+        return this.$fileAttachmentService.createAttachments({
+          'objectType': 'activity',
+          'objectId': activity?.id,
+          'uploadIds': uploadIds,
+        })
+          .then(report => {
+            if (report.errorByUploadId?.length) {
+              const attachmentHtmlError = Object.keys(report.errorByUploadId)
+                .map(uploadId => {
+                  const attachment = this.images.find(file => file.uploadId === uploadId);
+                  return `- <strong>${attachment.name}</strong>: this.$t(report.errorByUploadId[uploadId])`;
+                })
+                .join('<br>');
+              this.$root.$emit('alert-message-html',  attachmentHtmlError, 'error');
+            }
+          })
+          .finally(() => this.images = []);
       }
     });
   },
   methods: {
-    upadateImage(event) {
-      this.images = event;
+    upadateImage(images) {
+      this.images = images;
     }
   }
 };

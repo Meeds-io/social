@@ -40,9 +40,10 @@
             context-name="activityComposer"
             use-extra-plugins
             use-draft-management
+            attachment-enabled
             autofocus />
         </v-card-text>
-        <attach-image-component />
+        <attach-image-component :maxFileSize="$root.maxFileSize" />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
             :params="extensionParams"

@@ -17,14 +17,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function createAttachments(attachment) {
+export function createAttachments(attachmentUploads) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments`, {
     headers: {
       'Content-Type': 'application/json'
     },
     method: 'POST',
     credentials: 'include',
-    body: JSON.stringify(attachment)
+    body: JSON.stringify(attachmentUploads)
   }).then(resp => {
     if (resp?.ok) {
       return resp.json();

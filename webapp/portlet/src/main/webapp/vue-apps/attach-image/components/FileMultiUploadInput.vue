@@ -27,9 +27,14 @@
 </template>
 <script>
 export default {
+  props: {
+    maxFileSize: {
+      type: Number,
+      default: 20097152
+    },
+  },
   data: () => ({
     filesArray: [],
-    maxFileSize: 20097152
   }),
   created() {
     document.addEventListener('open-file-explorer', () => {
@@ -49,7 +54,7 @@ export default {
       } else {
         filesArray.forEach((file) => {
           if (file.size > this.maxFileSize) {
-            this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.megabytes.label', {
+            this.$root.$emit('alert-message', this.$t('attachment.tooBigFile.label', {
               0: Number.parseFloat(file.size / 1024 / 1024).toFixed(2).replace('.00', ''),
               1: parseInt(this.maxFileSize / 1024 / 1024),
             }), 'error');
@@ -65,7 +70,7 @@ export default {
               progress: 0,
               file: file,
               finished: false,
-            }; 
+            };
             const self = this;
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -74,13 +79,13 @@ export default {
               this.$set(fileDetails, 'data', data);
               self.filesArray.push(fileDetails);
               self.$forceUpdate();
-            }; 
+            };
             reader.readAsDataURL(file);
             this.$emit('input', fileDetails.uploadId);
             this.$uploadService.upload(file, fileDetails.uploadId)
               .catch(error => this.$root.$emit('alert-message', this.$t(String(error)), 'error'));
             this.controlUpload(fileDetails);
-          } 
+          }
         });
         this.$emit('update-images', this.filesArray);
       }

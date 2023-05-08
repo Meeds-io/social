@@ -21,6 +21,7 @@ package org.exoplatform.social.metadata;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.core.space.model.Space;
 
 /**
  * A plugin that will be used by AttachmentServiceImpl to check the edit and
@@ -54,5 +55,26 @@ public abstract class AttachmentPlugin extends BaseComponentPlugin {
    * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
   public abstract boolean hasEditPermission(Identity userIdentity, String entityId) throws ObjectNotFoundException;
+
+  /**
+   * Retrieves the identity Id of the target audience for which the attachment
+   * will be accessible
+   * 
+   * @param  objectId                Object Identifier
+   * @return                         {@link org.exoplatform.social.core.identity.model.Identity}
+   *                                 Id as long
+   * @throws ObjectNotFoundException thrown when the object doesn't exists
+   */
+  public abstract long getAudienceId(String objectId) throws ObjectNotFoundException;
+
+  /**
+   * Retrieves the Space Id of the target space for which the attachment will be
+   * accessible
+   * 
+   * @param  objectId                Object Identifier
+   * @return                         {@link Space} Id as long
+   * @throws ObjectNotFoundException thrown when the object doesn't exists
+   */
+  public abstract long getSpaceId(String objectId) throws ObjectNotFoundException;
 
 }

@@ -31,8 +31,6 @@ public class ObjectUploadResourceList implements Cloneable {
 
   private long         userIdentityId;
 
-  private long         spaceId;
-
   private String       objectType;
 
   private String       objectId;
@@ -41,7 +39,7 @@ public class ObjectUploadResourceList implements Cloneable {
 
   @Override
   public ObjectUploadResourceList clone() { // NOSONAR
-    return new ObjectUploadResourceList(uploadIds, userIdentityId, spaceId, objectType, objectId, parentObjectId);
+    return new ObjectUploadResourceList(uploadIds, userIdentityId, objectType, objectId, parentObjectId);
   }
 
 }

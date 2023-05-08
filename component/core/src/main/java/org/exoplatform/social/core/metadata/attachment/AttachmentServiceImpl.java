@@ -61,7 +61,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   private static final String                 FILE_API_NAMESPACE            = "attachment";
 
-  private final Map<String, AttachmentPlugin> attachmentPermissionPluginMap = new HashMap<>();
+  private final Map<String, AttachmentPlugin> attachmentPlugins  = new HashMap<>();
 
   private IdentityManager                     identityManager;
 
@@ -87,7 +87,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   @Override
   public void addPlugin(AttachmentPlugin attachmentPermessionPlugin) {
-    this.attachmentPermissionPluginMap.put(attachmentPermessionPlugin.getObjectType(), attachmentPermessionPlugin);
+    this.attachmentPlugins.put(attachmentPermessionPlugin.getObjectType(), attachmentPermessionPlugin);
   }
 
   @Override
@@ -127,7 +127,6 @@ public class AttachmentServiceImpl implements AttachmentService {
       throw new IllegalAccessException("User " + userAclIdentity.getUserId()
           + " doesn't have enough permissions to attach files on object " + objectType + "/" + objectId);
     }
-    long spaceId = attachmentList.getSpaceId();
 
     ObjectAttachmentOperationReport report = new ObjectAttachmentOperationReport();
     uploadIds.stream()
@@ -144,7 +143,6 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                          objectType,
                                                          objectId,
                                                          parentObjectId,
-                                                         spaceId,
                                                          userIdentityId,
                                                          report));
     return report;
@@ -282,21 +280,20 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   @Override
   public boolean hasAccessPermission(Identity userIdentity, String objectType, String objectId) throws ObjectNotFoundException {
-    AttachmentPlugin attachmentPermessionPlugin = this.attachmentPermissionPluginMap.get(objectType);
-    return attachmentPermessionPlugin != null && attachmentPermessionPlugin.hasAccessPermission(userIdentity, objectId);
+    AttachmentPlugin attachmentPlugin = this.attachmentPlugins.get(objectType);
+    return attachmentPlugin != null && attachmentPlugin.hasAccessPermission(userIdentity, objectId);
   }
 
   @Override
   public boolean hasEditPermission(Identity userIdentity, String objectType, String objectId) throws ObjectNotFoundException {
-    AttachmentPlugin attachmentPermessionPlugin = this.attachmentPermissionPluginMap.get(objectType);
-    return attachmentPermessionPlugin != null && attachmentPermessionPlugin.hasEditPermission(userIdentity, objectId);
+    AttachmentPlugin attachmentPlugin = this.attachmentPlugins.get(objectType);
+    return attachmentPlugin != null && attachmentPlugin.hasEditPermission(userIdentity, objectId);
   }
 
   private void createAttachment(UploadResource uploadResource,
                                 String objectType,
                                 String objectId,
                                 String parentObjectId,
-                                long spaceId,
                                 long userIdentityId,
                                 ObjectAttachmentOperationReport report) {
     String fileDiskLocation = uploadResource.getStoreLocation();
@@ -311,14 +308,14 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                              String.valueOf(userIdentityId),
                                                              false,
                                                              inputStream));
-      long audienceId = spaceId > 0 ? spaceId : userIdentityId;
+
       MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(),
                                                 String.valueOf(fileItem.getFileInfo().getId()),
-                                                audienceId);
+                                                getAudienceId(objectType, objectId));
       MetadataObject object = new MetadataObject(objectType,
                                                  objectId,
                                                  parentObjectId,
-                                                 spaceId);
+                                                 getSpaceId(objectType, objectId));
       metadataService.createMetadataItem(object, metadataKey, userIdentityId);
     } catch (FileNotFoundException e) {
       LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
@@ -335,6 +332,16 @@ public class AttachmentServiceImpl implements AttachmentService {
     } finally {
       uploadService.removeUploadResource(uploadId);
     }
+  }
+
+  private long getAudienceId(String objectType, String objectId) throws ObjectNotFoundException {
+    AttachmentPlugin attachmentPlugin = this.attachmentPlugins.get(objectType);
+    return attachmentPlugin == null ? 0 : attachmentPlugin.getAudienceId(objectId);
+  }
+
+  private long getSpaceId(String objectType, String objectId) throws ObjectNotFoundException {
+    AttachmentPlugin attachmentPlugin = this.attachmentPlugins.get(objectType);
+    return attachmentPlugin == null ? 0 : attachmentPlugin.getSpaceId(objectId);
   }
 
   private FileInfo getAttachment(String objectType, String objectId, String fileId) {

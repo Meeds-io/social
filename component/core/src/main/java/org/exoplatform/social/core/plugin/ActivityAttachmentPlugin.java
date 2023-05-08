@@ -18,6 +18,8 @@
  */
 package org.exoplatform.social.core.plugin;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -49,6 +51,26 @@ public class ActivityAttachmentPlugin extends AttachmentPlugin {
   public boolean hasEditPermission(Identity userIdentity, String activityId) throws ObjectNotFoundException {
     ExoSocialActivity activity = getActivity(activityId);
     return activityManager.isActivityEditable(activity, userIdentity);
+  }
+
+  @Override
+  public long getAudienceId(String activityId) throws ObjectNotFoundException {
+    ExoSocialActivity activity = getParentActivity(activityId);
+    return StringUtils.isBlank(activity.getStreamId()) ? 0 : Long.parseLong(activity.getStreamId());
+  }
+
+  @Override
+  public long getSpaceId(String activityId) throws ObjectNotFoundException {
+    ExoSocialActivity activity = getParentActivity(activityId);
+    return StringUtils.isBlank(activity.getSpaceId()) ? 0 : Long.parseLong(activity.getSpaceId());
+  }
+
+  private ExoSocialActivity getParentActivity(String activityId) throws ObjectNotFoundException {
+    ExoSocialActivity activity = getActivity(activityId);
+    if (activity.isComment()) {
+      activity = getActivity(activity.getParentId());
+    }
+    return activity;
   }
 
   private ExoSocialActivity getActivity(String activityId) throws ObjectNotFoundException {
