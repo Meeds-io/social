@@ -844,7 +844,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
           }
         }
       }
-      activity.getTemplateParams().put("MESSAGE", activity.getTitle());
+      if (activity.getTemplateParams() != null) {
+        activity.getTemplateParams().put("MESSAGE", activity.getTitle());
+      }
     }
   }
 
