@@ -1,117 +1,145 @@
 package org.exoplatform.social.metadata.attachments;
 
-import org.exoplatform.commons.file.model.FileItem;
+import static org.junit.Assert.*;
+
+import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
 import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.metadata.attachment.AttachmentServiceImpl;
 import org.exoplatform.social.core.mock.MockUploadService;
-import org.exoplatform.social.core.test.AbstractCoreTest;
+import org.exoplatform.social.core.plugin.ActivityAttachmentPlugin;
+import org.exoplatform.social.metadata.AttachmentPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
 import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
 import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
-import org.exoplatform.upload.UploadService;
-import org.mockito.Mockito;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
+import org.exoplatform.upload.UploadResource;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-public class AttachmentsServiceTest extends AbstractCoreTest {
+@RunWith(MockitoJUnitRunner.class)
+public class AttachmentsServiceTest {
 
-  private Identity          johnIdentity;
+  private AttachmentService     attachmentService;
 
-  private AttachmentService attachmentService;
+  @Mock
+  private IdentityManager       identityManager;
 
-  private IdentityManager   identityManager;
+  @Mock
+  private MetadataService       metadataService;
 
-  private MetadataService   metadataService;
+  @Mock
+  private ImageThumbnailService imageThumbnailService;
 
-  private MockUploadService uploadService;
+  @Mock
+  private MockUploadService     uploadService;
 
-  private FileService       fileService;
+  @Mock
+  private FileService           fileService;
 
-  @Override
+  @Mock
+  private ActivityManager       activityManager;
+
+  @Before
   public void setUp() throws Exception {
-    super.setUp();
-    attachmentService = getContainer().getComponentInstanceOfType(AttachmentService.class);
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
-    metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
-    uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
-    fileService = getContainer().getComponentInstanceOfType(FileService.class);
-    johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    attachmentService = new AttachmentServiceImpl(metadataService,
+                                                  identityManager,
+                                                  fileService,
+                                                  imageThumbnailService,
+                                                  uploadService);
+
+    AttachmentPlugin attachmentPlugin = new ActivityAttachmentPlugin(activityManager);
+    attachmentService.addPlugin(attachmentPlugin);
   }
 
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
-
+  @Test
   public void testCreateAttachments() throws Exception {
-    List<String> uploadIds = Arrays.asList("testFile1", "testFile2");
-    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    List<String> uploadIds = Arrays.asList("test.png");
     String objectType = "activity";
     String objectId = "10";
     String parentObjectId = "5";
-    String spaceId = "1";
 
-    File file1 = new File(getClass().getClassLoader().getResource("testFile1").getFile());
-    File file2 = new File(getClass().getClassLoader().getResource("testFile2").getFile());
+    Identity johnIdentity = Mockito.mock(Identity.class);
+    Mockito.when(johnIdentity.isEnable()).thenReturn(true);
+    Mockito.when(johnIdentity.isDeleted()).thenReturn(false);
 
-    byte[] contentFile1 = Files.readAllBytes(file1.toPath());
-    byte[] contentFile2 = Files.readAllBytes(file2.toPath());
-    FileItem fileItem1 = new FileItem(null,
-                                      "testFile1",
-                                      "image/jpg",
-                                      "attachment",
-                                      contentFile1.length,
-                                      new Date(),
-                                      johnIdentity.getRemoteId(),
-                                      false,
-                                      new ByteArrayInputStream(contentFile1));
+    org.exoplatform.services.security.Identity userACLIdentity = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    ExoSocialActivity activity = Mockito.mock(ExoSocialActivityImpl.class);
+    Mockito.when(activityManager.getActivity(objectId)).thenReturn(activity);
 
-    fileItem1 = fileService.writeFile(fileItem1);
+    Mockito.when(activityManager.isActivityEditable(activity, userACLIdentity)).thenReturn(true);
 
-    FileItem fileItem2 = new FileItem(null,
-                                      "testFile2",
-                                      "image/png",
-                                      "attachment",
-                                      contentFile1.length,
-                                      new Date(),
-                                      johnIdentity.getRemoteId(),
-                                      false,
-                                      new ByteArrayInputStream(contentFile2));
-
-    fileItem2 = fileService.writeFile(fileItem2);
-
-    MetadataObject metadataObject = new MetadataObject(objectType, objectId, parentObjectId, Long.parseLong(spaceId));
-
+    Mockito.when(identityManager.getIdentity("1")).thenReturn(johnIdentity);
+    ObjectUploadResourceList attachmentsList = new ObjectUploadResourceList(uploadIds, 1L, objectType, objectId, parentObjectId);
+    MetadataObject metadataObject = new MetadataObject(objectType, objectId, parentObjectId, Long.parseLong("1"));
     List<MetadataItem> attachedFilesMetadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject("attachments",
                                                                                                             metadataObject);
-
     assertEquals(0, attachedFilesMetadataItems.size());
 
-    MetadataKey metadataKey = new MetadataKey("attachments", String.valueOf(fileItem1.getFileInfo().getId()), userIdentityId);
-    MetadataKey metadataKey1 = new MetadataKey("attachments", String.valueOf(fileItem2.getFileInfo().getId()), userIdentityId);
+    UploadResource uploadResource = new UploadResource("test.png");
+    File file = new File(getClass().getClassLoader().getResource("test.png").getFile());
+    assertNotNull(file);
+    uploadResource.setFileName("test.png");
+    uploadResource.setStoreLocation(file.getPath());
+    uploadResource.setMimeType("image/png");
+    uploadResource.setEstimatedSize(0);
+    when(uploadService.getUploadResource(any())).thenReturn(uploadResource);
 
-    ObjectUploadResourceList attachmentList = new ObjectUploadResourceList(uploadIds,
-                                                                           userIdentityId,
-                                                                           objectType,
-                                                                           objectId,
-                                                                           parentObjectId);
-    org.exoplatform.services.security.Identity ownerIdentity = Mockito.mock(org.exoplatform.services.security.Identity.class);
-    attachmentService.createAttachments(attachmentList, ownerIdentity);
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(null, userACLIdentity));
 
-    metadataService.createMetadataItem(metadataObject, metadataKey, userIdentityId);
-    metadataService.createMetadataItem(metadataObject, metadataKey1, userIdentityId);
+    assertThrows(IllegalArgumentException.class, // NOSONAR
+                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(null,
+                                                                                        1L,
+                                                                                        objectType,
+                                                                                        objectId,
+                                                                                        parentObjectId),
+                                                           userACLIdentity));
 
+    assertThrows(IllegalArgumentException.class, // NOSONAR
+                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(uploadIds,
+                                                                                        -1,
+                                                                                        objectType,
+                                                                                        objectId,
+                                                                                        parentObjectId),
+                                                           userACLIdentity));
+
+    assertThrows(IllegalArgumentException.class, // NOSONAR
+                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(uploadIds,
+                                                                                        1L,
+                                                                                        null,
+                                                                                        objectId,
+                                                                                        parentObjectId),
+                                                           userACLIdentity));
+
+    assertThrows(IllegalArgumentException.class, // NOSONAR
+                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(uploadIds,
+                                                                                        1L,
+                                                                                        objectType,
+                                                                                        null,
+                                                                                        parentObjectId),
+                                                           userACLIdentity));
+
+    attachmentService.createAttachments(attachmentsList, userACLIdentity);
     attachedFilesMetadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject("attachments", metadataObject);
-    assertEquals(2, attachedFilesMetadataItems.size());
+    assertEquals(1, attachedFilesMetadataItems.size());
   }
 
 }
