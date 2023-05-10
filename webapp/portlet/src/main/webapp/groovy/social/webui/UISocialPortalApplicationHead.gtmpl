@@ -65,4 +65,5 @@
 
      eXo.env.portal.SpaceHomeLayoutResetEnabled = <%=featureService.isFeatureActiveForUser("SpaceHomeLayoutReset", userName)%>;
      eXo.env.portal.postToNetworkEnabled = <%=featureService.isFeatureActiveForUser("PostToNetwork", userName)%>;
+     eXo.env.portal.editorAttachImageEnabled = <%=featureService.isFeatureActiveForUser("EditorAttachImage", userName)%>;
 </script>
