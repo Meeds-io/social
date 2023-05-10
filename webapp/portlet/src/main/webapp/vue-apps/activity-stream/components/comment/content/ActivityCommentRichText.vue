@@ -21,6 +21,7 @@
           suggestor-type-of-relation="mention_comment"
           use-extra-plugins
           autofocus
+          :attachment-enabled="false"
           @ready="handleEditorReady" />
         <extension-registry-components
           :params="extensionParams"
