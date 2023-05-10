@@ -19,6 +19,7 @@ import * as brandingService from './js/brandingService.js';
 import * as navigationService from '../common/js/NavigationService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
 import * as profileLabelService from '../common/js/ProfileLabelService.js';
+import * as fileAttachmentService from '../common/js/FileAttachmentService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -91,6 +92,9 @@ window.Object.defineProperty(Vue.prototype, '$profileLabelService', {
 });
 window.Object.defineProperty(Vue.prototype, '$navigationService', {
   value: navigationService,
+});
+window.Object.defineProperty(Vue.prototype, '$fileAttachmentService', {
+  value: fileAttachmentService,
 });
 
 if (eXo.env.portal.userIdentityId) {
