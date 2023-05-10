@@ -87,6 +87,10 @@ export default {
       type: Boolean,
       default: true
     },
+    attachmentEnabled: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {
@@ -94,7 +98,8 @@ export default {
       inputVal: null,
       editor: null,
       displayPlaceholder: true,
-      baseUrl: eXo.env.server.portalBaseURL
+      baseUrl: eXo.env.server.portalBaseURL,
+      enableAttachImage: eXo.env.portal.editorAttachImageEnabled
     };
   },
   computed: {
@@ -224,6 +229,10 @@ export default {
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
+      }
+      if (this.attachmentEnabled && this.enableAttachImage) {
+        extraPlugins = `${extraPlugins},attachImage`;
+        toolbar[0].push('attachImage');
       }
       toolbar[0].unshift('formatOption');
 
