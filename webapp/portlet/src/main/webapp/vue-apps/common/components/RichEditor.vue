@@ -92,6 +92,10 @@ export default {
       type: Number,
       default: () => 500,
     },
+    attachmentEnabled: {
+      type: Boolean,
+      default: true
+    },
   },
   data: () => ({
     SMARTPHONE_LANDSCAPE_WIDTH: 768,
@@ -99,6 +103,7 @@ export default {
     oembedParams: null,
     editor: null,
     baseUrl: eXo.env.server.portalBaseURL,
+    enableAttachImage: eXo.env.portal.editorAttachImageEnabled,
   }),
   computed: {
     buttonId() {
@@ -237,6 +242,10 @@ export default {
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
+      }
+      if (this.attachmentEnabled && this.enableAttachImage) {
+        extraPlugins = `${extraPlugins},attachImage`;
+        toolbar[0].push('attachImage');
       }
       toolbar[0].unshift('formatOption');
 
