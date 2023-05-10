@@ -519,7 +519,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
       // Expected
     }
     List<String> metadataNames = metadataService.getMetadataNamesByMetadataTypeAndObject(userMetadataType.getName(),
-        objectType,objectId);
+                                                                                         objectType,
+                                                                                         objectId);
     assertNotNull(metadataNames);
     assertEquals(1, metadataNames.size());
   }
