@@ -16,11 +16,19 @@
 package org.exoplatform.social.core.metadata.storage;
 
 import java.math.BigInteger;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Tuple;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
@@ -32,8 +40,6 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
-
-import javax.persistence.Tuple;
 
 public class MetadataStorage {
 
@@ -118,7 +124,7 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public List<MetadataItem> getMetadataItemsByMetaDataTypeAndCreator(long metadataType, long creatorId, long offset, long limit) {
@@ -129,7 +135,7 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public int countMetadataItemsByMetadataTypeAndCreator(long metadataType, long creatorId) {
@@ -150,11 +156,10 @@ public class MetadataStorage {
   public Map<Long, Long> countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(long metadataType,
                                                                                  long creatorId,
                                                                                  List<Long> spacesIds) {
-    Map<Long, Long> metadataCountBySpace = metadataItemDAO.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(metadataType,
-                                                                                                                   creatorId,
-                                                                                                                   spacesIds);
+    return metadataItemDAO.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(metadataType,
+                                                                                   creatorId,
+                                                                                   spacesIds);
 
-    return metadataCountBySpace;
   }
 
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
@@ -175,7 +180,7 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String metadataName,
@@ -198,7 +203,7 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public MetadataItem deleteMetadataItemById(long id) {
@@ -236,7 +241,7 @@ public class MetadataStorage {
     for (MetadataItemEntity metadataItemEntity : metadataItemEntities) {
       deleteMetadataItemById(metadataItemEntity.getId());
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
@@ -244,7 +249,7 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
@@ -258,7 +263,7 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public Set<String> getMetadataNamesByObject(MetadataObject object) {
@@ -300,7 +305,17 @@ public class MetadataStorage {
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
-    return metadataItemEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(long metadataType, MetadataObject object) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType,
+        object.getType(),
+        object.getId());
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
   public List<String> getMetadataObjectIds(String metadataType,
@@ -333,7 +348,7 @@ public class MetadataStorage {
       throw new IllegalStateException("Metadata type with name " + metadataTypeName + " isn't defined");
     }
     List<MetadataEntity> metadatasEntities = metadataDAO.getMetadatas(metadataType.getId(), limit);
-    return metadatasEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadatasEntities.stream().map(this::fromEntity).toList();
   }
 
   public List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
@@ -347,7 +362,7 @@ public class MetadataStorage {
         }
       }
     }
-    return metadatasEntities.stream().map(this::fromEntity).collect(Collectors.toList());
+    return metadatasEntities.stream().map(this::fromEntity).toList();
   }
 
   public MetadataType getMetadataType(String name) {

@@ -85,6 +85,10 @@ export default {
       type: Boolean,
       default: true
     },
+    attachmentEnabled: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {
@@ -219,6 +223,10 @@ export default {
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
+      }
+      if (this.attachmentEnabled) {
+        extraPlugins = `${extraPlugins},attachImage`;
+        toolbar[0].push('attachImage');
       }
       toolbar[0].unshift('formatOption');
 
