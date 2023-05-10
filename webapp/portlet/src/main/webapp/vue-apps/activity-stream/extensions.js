@@ -49,6 +49,16 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   rank: 1000,
 });
 
+extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+  id: 'attachedItem',
+  isEnabled: (params) => {
+    const activity = params?.activity;
+    return activity?.metadatas?.attachments?.length;
+  },
+  vueComponent: Vue.options.components['attached-items'],
+  rank: 15,
+});
+
 
 const defaultActivityOptions = {
   getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
