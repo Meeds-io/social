@@ -22,7 +22,6 @@ CKEDITOR.editorConfig = function(config) {
   CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
   CKEDITOR.plugins.addExternal('tagSuggester', '/commons-extension/eXoPlugins/tagSuggester/', 'plugin.js');
   CKEDITOR.plugins.addExternal('formatOption', '/commons-extension/eXoPlugins/formatOption/', 'plugin.js');
-  CKEDITOR.plugins.addExternal('attachImage', '/commons-extension/eXoPlugins/attachImage/', 'plugin.js');
   CKEDITOR.plugins.addExternal('googleDocPastePlugin', '/commons-extension/eXoPlugins/googleDocPastePlugin/', 'plugin.js')
 
   const embedBaseApiEndpoint = '@JVMProp{io.meeds.iframely.url://ckeditor.iframe.ly/api/oembed?omit_script=1}';
