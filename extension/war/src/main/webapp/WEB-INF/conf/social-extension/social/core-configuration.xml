@@ -411,6 +411,11 @@
       <key>org.exoplatform.social.metadata.favorite.FavoriteService</key>
       <type>org.exoplatform.social.core.metadata.favorite.FavoriteServiceImpl</type>
     </component>
+    
+    <component>
+      <key>org.exoplatform.social.metadata.attachment.AttachmentService</key>
+      <type>org.exoplatform.social.core.metadata.attachment.AttachmentServiceImpl</type>
+    </component>
 
     <component>
       <key>org.exoplatform.social.metadata.tag.TagService</key>
@@ -743,6 +748,18 @@
             <property name="exo.feature.newLeftNavigationDrawer.enabled" value="${exo.feature.newLeftNavigationDrawer.enabled:false}" />
             <property name="exo.feature.PostToNetwork.enabled" value="${exo.feature.PostToNetwork.enabled:false}" />
           </properties-param>
+        </init-params>
+    </component>
+
+    <component>
+        <key>EditorAttachImageFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>EditorAttachImageFeatureProperties</name>
+                <description>Editor attach image plugin Feature enablement flag</description>
+                <property name="exo.feature.EditorAttachImage.enabled" value="${exo.feature.EditorAttachImage.enabled:false}" />
+            </properties-param>
         </init-params>
     </component>
 

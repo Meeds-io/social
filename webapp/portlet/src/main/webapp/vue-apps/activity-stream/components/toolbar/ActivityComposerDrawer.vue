@@ -125,8 +125,13 @@
             context-name="activityComposer"
             use-extra-plugins
             use-draft-management
+            attachment-enabled
             autofocus />
         </v-card-text>
+        <attach-image-component
+          :maxFileSize="$root.maxFileSize"
+          @attachments-uploading="canPostActivity = true"
+          @attachments-deleted="canPostActivity = false" />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
             :params="extensionParams"
@@ -187,6 +192,7 @@ export default {
       audienceChoice: 'yourNetwork',
       audience: '',
       username: eXo.env.portal.userName,
+      canPostActivity: false
     };
   },
   computed: {
@@ -217,7 +223,7 @@ export default {
       return this.drawer && this.$refs[this.CK_EDITOR_ID] || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience);
+      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience) && !this.canPostActivity;
     },
     spaceSuggesterLabels() {
       return {
@@ -304,6 +310,7 @@ export default {
         this.ckEditorInstance.unload();
       }
       this.$nextTick().then(() => {
+        this.canPostActivity = false;
         this.$refs.activityComposerDrawer.close();
         this.$root.$emit('message-composer-closed');
       });
@@ -321,6 +328,7 @@ export default {
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
+          .then(this.postSaveMessage)
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
             this.cleareActivityMessage();
@@ -342,12 +350,13 @@ export default {
             document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
           } else {
             document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
-          }          
+          }
         } else {
           this.loading = true;
-          this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
-            .then(() => {
-              document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
+          this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
+            .then(this.postSaveMessage)
+            .then((activity) => {
+              document.dispatchEvent(new CustomEvent('activity-created', {detail: activity?.id}));
               this.cleareActivityMessage();
               this.resetAudienceChoice();
               this.close();
@@ -359,6 +368,21 @@ export default {
             })
             .finally(() => this.loading = false);
         }
+      }
+    },
+    postSaveMessage(activity) {
+      const postSaveOperations = extensionRegistry.loadExtensions('activity', 'saveAction');
+      if (postSaveOperations?.length) {
+        const promises = [];
+        postSaveOperations.forEach(extension => {
+          if (extension.postSave) {
+            const result = extension.postSave(activity);
+            if (result?.then) {
+              promises.push(result);
+            }
+          }
+        });
+        return Promise.all(promises).then(() => activity);
       }
     },
     cleareActivityMessage() {

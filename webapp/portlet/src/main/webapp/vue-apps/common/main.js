@@ -20,6 +20,7 @@ import * as navigationService from '../common/js/NavigationService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
 import * as profileLabelService from '../common/js/ProfileLabelService.js';
 import * as siteService from './js/SiteService.js';
+import * as fileAttachmentService from '../common/js/FileAttachmentService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -95,6 +96,9 @@ window.Object.defineProperty(Vue.prototype, '$navigationService', {
 });
 window.Object.defineProperty(Vue.prototype, '$siteService', {
   value: siteService,
+});
+window.Object.defineProperty(Vue.prototype, '$fileAttachmentService', {
+  value: fileAttachmentService,
 });
 
 if (eXo.env.portal.userIdentityId) {
