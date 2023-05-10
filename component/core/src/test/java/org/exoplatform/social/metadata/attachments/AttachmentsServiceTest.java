@@ -1,17 +1,21 @@
 package org.exoplatform.social.metadata.attachments;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
+import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +26,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.metadata.attachment.AttachmentServiceImpl;
 import org.exoplatform.social.core.mock.MockUploadService;
@@ -40,7 +43,9 @@ import org.exoplatform.upload.UploadResource;
 @RunWith(MockitoJUnitRunner.class)
 public class AttachmentsServiceTest {
 
-  private static final String UPLOAD_ID = "1248TestUploadId";
+  private static final String   UPLOAD_ID        = "1248TestUploadId";
+
+  private static final long     FILE_ID          = 12l;
 
   private static final String   USER_NAME        = "testuser";
 
@@ -72,9 +77,6 @@ public class AttachmentsServiceTest {
 
   @Mock
   private FileService           fileService;
-
-  @Mock
-  private ActivityManager       activityManager;
 
   @Mock
   private AttachmentPlugin      attachmentPlugin;
@@ -162,11 +164,9 @@ public class AttachmentsServiceTest {
 
     assertThrows(IllegalAccessException.class, () -> attachmentService.createAttachments(attachmentsList, userACLIdentity));
 
-    long fileId = 12l;
-
     when(fileService.writeFile(any())).thenAnswer(invocation -> {
       FileItem fileItem = invocation.getArgument(0, FileItem.class);
-      fileItem.getFileInfo().setId(fileId);
+      fileItem.getFileInfo().setId(FILE_ID);
       return fileItem;
     });
 
@@ -178,15 +178,110 @@ public class AttachmentsServiceTest {
                  0,
                  report.getErrorByUploadId().size());
 
-    MetadataKey metadataKey = new MetadataKey(AttachmentService.METADATA_TYPE.getName(),
-                                              String.valueOf(fileId),
-                                              AUDIENCE_ID);
-    MetadataObject object = new MetadataObject(OBJECT_TYPE,
-                                               OBJECT_ID,
-                                               PARENT_OBJECT_ID,
-                                               SPACE_ID);
+    MetadataKey metadataKey = new MetadataKey(AttachmentService.METADATA_TYPE.getName(), String.valueOf(FILE_ID), AUDIENCE_ID);
+    MetadataObject object = new MetadataObject(OBJECT_TYPE, OBJECT_ID, PARENT_OBJECT_ID, SPACE_ID);
 
     verify(metadataService, times(1)).createMetadataItem(object, metadataKey, Long.parseLong(USER_IDENTITY_ID));
+  }
+
+  @Test
+  public void testGetAttachments() throws ObjectNotFoundException, IllegalAccessException {
+    List<String> fileIds = Arrays.asList(String.valueOf(FILE_ID));
+
+    Identity userIdentity = Mockito.mock(Identity.class);
+    when(userIdentity.isEnable()).thenReturn(true);
+    when(userIdentity.isDeleted()).thenReturn(false);
+
+    org.exoplatform.services.security.Identity userACLIdentity = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    when(userACLIdentity.getUserId()).thenReturn(USER_NAME);
+    when(identityManager.getOrCreateUserIdentity(USER_NAME)).thenReturn(userIdentity);
+
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(null, null, null));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(null, OBJECT_ID, userACLIdentity));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(OBJECT_TYPE, null, userACLIdentity));
+
+    when(attachmentPlugin.hasAccessPermission(userACLIdentity, OBJECT_ID)).thenReturn(true);
+
+    when(metadataService.getMetadataNamesByMetadataTypeAndObject("attachments", OBJECT_TYPE, OBJECT_ID)).thenReturn(fileIds);
+
+    FileInfo fileInfo = Mockito.mock(FileInfo.class);
+    when(fileService.getFileInfo(FILE_ID)).thenReturn(fileInfo);
+    when(fileInfo.getUpdatedDate()).thenReturn(new Date());
+    ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, OBJECT_ID, userACLIdentity);
+    assertNotNull(objectAttachmentList);
+    assertEquals(1, objectAttachmentList.getAttachments().size());
+  }
+
+  @Test
+  public void testGetAttachment() throws ObjectNotFoundException, IllegalAccessException {
+    String fileId = String.valueOf(FILE_ID);
+    List<String> fileIds = Arrays.asList(String.valueOf(FILE_ID));
+    Identity userIdentity = Mockito.mock(Identity.class);
+    when(userIdentity.isEnable()).thenReturn(true);
+    when(userIdentity.isDeleted()).thenReturn(false);
+
+    org.exoplatform.services.security.Identity userACLIdentity = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    when(userACLIdentity.getUserId()).thenReturn(USER_NAME);
+    when(identityManager.getOrCreateUserIdentity(USER_NAME)).thenReturn(userIdentity);
+
+    when(attachmentPlugin.hasAccessPermission(userACLIdentity, OBJECT_ID)).thenReturn(true);
+
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachment(null, null, null, null));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachment(null, OBJECT_ID, fileId, userACLIdentity));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.getAttachment(OBJECT_TYPE, null, fileId, userACLIdentity));
+
+    when(metadataService.getMetadataNamesByMetadataTypeAndObject("attachments", OBJECT_TYPE, OBJECT_ID)).thenReturn(fileIds);
+    FileInfo fileInfo = Mockito.mock(FileInfo.class);
+    when(fileService.getFileInfo(FILE_ID)).thenReturn(fileInfo);
+    when(fileInfo.getUpdatedDate()).thenReturn(new Date());
+
+    ObjectAttachmentDetail objectAttachmentDetail = attachmentService.getAttachment(OBJECT_TYPE,
+                                                                                    OBJECT_ID,
+                                                                                    fileId,
+                                                                                    userACLIdentity);
+    assertNotNull(objectAttachmentDetail);
+  }
+
+  @Test
+  public void testGetAttachmentInputStream() throws Exception {
+    String imageDimensions = "125x125";
+    String fileId = String.valueOf(FILE_ID);
+    List<String> fileIds = Arrays.asList(String.valueOf(FILE_ID));
+    Identity userIdentity = Mockito.mock(Identity.class);
+    when(userIdentity.isEnable()).thenReturn(true);
+    when(userIdentity.isDeleted()).thenReturn(false);
+
+    org.exoplatform.services.security.Identity userACLIdentity = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    when(userACLIdentity.getUserId()).thenReturn(USER_NAME);
+    when(identityManager.getOrCreateUserIdentity(USER_NAME)).thenReturn(userIdentity);
+
+    when(attachmentPlugin.hasAccessPermission(userACLIdentity, OBJECT_ID)).thenReturn(true);
+
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachmentInputStream(null, null, null, null, null));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.getAttachmentInputStream(null, OBJECT_ID, fileId, imageDimensions, userACLIdentity));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.getAttachmentInputStream(OBJECT_ID, null, fileId, imageDimensions, userACLIdentity));
+
+    when(metadataService.getMetadataNamesByMetadataTypeAndObject("attachments", OBJECT_TYPE, OBJECT_ID)).thenReturn(fileIds);
+
+    FileInfo fileInfo = Mockito.mock(FileInfo.class);
+    when(fileService.getFileInfo(FILE_ID)).thenReturn(fileInfo);
+
+    FileItem fileItem = Mockito.mock(FileItem.class);
+    when(fileService.getFile(FILE_ID)).thenReturn(fileItem);
+    when(fileInfo.getMimetype()).thenReturn("image/");
+
+    FileItem thumbnailFileItem = Mockito.mock(FileItem.class);
+    when(imageThumbnailService.getOrCreateThumbnail(fileItem, userIdentity, 125, 125)).thenReturn(thumbnailFileItem);
+
+    InputStream attachmentInputStream = Mockito.mock(InputStream.class);
+    when(thumbnailFileItem.getAsStream()).thenReturn(attachmentInputStream);
+    InputStream attachmentInputStream1 = attachmentService.getAttachmentInputStream(OBJECT_TYPE, OBJECT_ID, fileId, imageDimensions, userACLIdentity);
+    assertNotNull(attachmentInputStream);
+    assertNotNull(attachmentInputStream1);
+    assertEquals(attachmentInputStream,attachmentInputStream1);
   }
 
 }
