@@ -45,13 +45,12 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`,
 ];
 
-export function init(initialData, initialLimit) {
+export function init(maxFileSize) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({
         data: {
-          initialData,
-          initialLimit,
+          maxFileSize,
           activityBaseLink: activityBaseLink,
           selectedActivityId: null,
           selectedCommentId: null,
@@ -60,7 +59,7 @@ export function init(initialData, initialLimit) {
         created() {
           this.replyToComment = window.location.hash.includes('#comment-reply');
         },
-        template: `<activity-stream id="${appId}" :initial-limit="initialLimit" :initial-data="initialData" />`,
+        template: `<activity-stream id="${appId}" />`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
       }, `#${appId}`, 'Stream');
