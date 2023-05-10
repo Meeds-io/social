@@ -62,4 +62,5 @@
 
      eXo.env.portal.SpaceHomeLayoutResetEnabled = <%=featureService.isFeatureActiveForUser("SpaceHomeLayoutReset", userName)%>;
      eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
+     eXo.env.portal.editorAttachImageEnabled = <%=PropertyManager.getProperty("exo.feature.EditorAttachImage.enabled")%>;
 </script>
