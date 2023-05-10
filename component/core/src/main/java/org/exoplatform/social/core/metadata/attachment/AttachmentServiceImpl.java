@@ -56,10 +56,10 @@ import org.exoplatform.upload.UploadService;
 
 public class AttachmentServiceImpl implements AttachmentService {
 
-  private static final Log                    LOG                           =
+  private static final Log                    LOG                =
                                                   ExoLogger.getLogger(AttachmentServiceImpl.class);
 
-  private static final String                 FILE_API_NAMESPACE            = "attachment";
+  private static final String                 FILE_API_NAMESPACE = "attachment";
 
   private final Map<String, AttachmentPlugin> attachmentPlugins  = new HashMap<>();
 

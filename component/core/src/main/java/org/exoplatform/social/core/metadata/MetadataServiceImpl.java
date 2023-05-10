@@ -370,8 +370,8 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public List<String> getMetadataNamesByMetadataTypeAndObject(String metadataTypeName, String objectType, String objectId) {
     MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     List<MetadataItem> metadataItems = this.metadataStorage.getMetadataItemsByMetadataTypeAndObject(metadataType.getId(),
-                                                                                                new MetadataObject(objectType,
-                                                                                                                   objectId));
+                                                                                                    new MetadataObject(objectType,
+                                                                                                                       objectId));
     return metadataItems.stream()
                         .map(MetadataItem::getMetadata)
                         .map(Metadata::getName)

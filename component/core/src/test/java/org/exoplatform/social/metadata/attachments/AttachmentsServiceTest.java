@@ -278,10 +278,14 @@ public class AttachmentsServiceTest {
 
     InputStream attachmentInputStream = Mockito.mock(InputStream.class);
     when(thumbnailFileItem.getAsStream()).thenReturn(attachmentInputStream);
-    InputStream attachmentInputStream1 = attachmentService.getAttachmentInputStream(OBJECT_TYPE, OBJECT_ID, fileId, imageDimensions, userACLIdentity);
+    InputStream attachmentInputStream1 = attachmentService.getAttachmentInputStream(OBJECT_TYPE,
+                                                                                    OBJECT_ID,
+                                                                                    fileId,
+                                                                                    imageDimensions,
+                                                                                    userACLIdentity);
     assertNotNull(attachmentInputStream);
     assertNotNull(attachmentInputStream1);
-    assertEquals(attachmentInputStream,attachmentInputStream1);
+    assertEquals(attachmentInputStream, attachmentInputStream1);
   }
 
 }

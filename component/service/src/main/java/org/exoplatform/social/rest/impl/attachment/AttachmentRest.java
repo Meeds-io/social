@@ -90,7 +90,8 @@ public class AttachmentRest implements ResourceContainer {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized request")
+      @ApiResponse(responseCode = "401", description = "Unauthorized request"),
+      @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public Response createAttachments(
                                     @RequestBody(description = "Attached files to be created", required = true)
@@ -129,7 +130,8 @@ public class AttachmentRest implements ResourceContainer {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized request")
+      @ApiResponse(responseCode = "401", description = "Unauthorized request"),
+      @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public Response getAttachments(
                                  @Parameter(description = "Object type: activity, task, notes ...", required = true)
@@ -162,7 +164,8 @@ public class AttachmentRest implements ResourceContainer {
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized request")
+      @ApiResponse(responseCode = "401", description = "Unauthorized request"),
+      @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public Response getAttachment(
                                 @Context

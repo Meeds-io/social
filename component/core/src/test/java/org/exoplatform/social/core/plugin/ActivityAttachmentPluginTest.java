@@ -33,7 +33,7 @@ public class ActivityAttachmentPluginTest {
     ExoSocialActivity activity = Mockito.mock(ExoSocialActivity.class);
     when(activityManager.getActivity(activityId)).thenReturn(activity);
     when(activityManager.isActivityEditable(activity, userIdentity)).thenReturn(true);
-    assertTrue(activityAttachmentplugin.hasEditPermission(userIdentity,activityId));
+    assertTrue(activityAttachmentplugin.hasEditPermission(userIdentity, activityId));
   }
 
   @Test
@@ -43,7 +43,7 @@ public class ActivityAttachmentPluginTest {
     ExoSocialActivity activity = Mockito.mock(ExoSocialActivity.class);
     when(activityManager.getActivity(activityId)).thenReturn(activity);
     when(activityManager.isActivityEditable(activity, userIdentity)).thenReturn(true);
-    assertTrue(activityAttachmentplugin.hasEditPermission(userIdentity,activityId));
+    assertTrue(activityAttachmentplugin.hasEditPermission(userIdentity, activityId));
   }
 
 }

@@ -48,8 +48,8 @@ public interface AttachmentService {
    *                                   id doesn't have "write" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList}
-   *                                   doesn't exists
+   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   exists
    */
   ObjectAttachmentOperationReport createAttachments(ObjectUploadResourceList attachment,
                                                     Identity userAclIdentity) throws IllegalAccessException,
@@ -71,8 +71,8 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList}
-   *                                   doesn't exists
+   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   exists
    */
   ObjectAttachmentList getAttachments(String objectType,
                                       String objectId,
@@ -96,8 +96,8 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList}
-   *                                   doesn't exists
+   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   exists
    */
   ObjectAttachmentDetail getAttachment(String objectType,
                                        String objectId,
@@ -123,8 +123,8 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList}
-   *                                   doesn't exists
+   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   exists
    * @throws IOException             when an error occurs while reading attached
    *                                   file content
    */
