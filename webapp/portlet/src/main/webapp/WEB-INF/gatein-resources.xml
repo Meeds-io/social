@@ -1907,6 +1907,9 @@
       <module>extensionRegistry</module>
     </depends>
     <depends>
+      <module>attachImage</module>
+    </depends>
+    <depends>
       <module>commons-cometd3</module>
       <as>cCometd</as>
     </depends>
@@ -1935,6 +1938,32 @@
     <depends>
       <module>cropper</module>
       <as>Cropper</as>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>jQuery</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>attachImage</name>
+    <script>
+      <path>/js/attachImage.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
     </depends>
     <depends>
       <module>jquery</module>
