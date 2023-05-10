@@ -1,3 +1,5 @@
+<%@page import="org.exoplatform.social.core.manager.IdentityManager"%>
+<%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
 <%@page import="org.exoplatform.social.core.space.model.Space"%>
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
@@ -6,7 +8,8 @@
 <%
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
-  PortalContainer portalContainer = PortalContainer.getCurrentInstance(session.getServletContext());
+  IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
+  int maxUploadSize = identityManager.getImageUploadLimit();
   String activityId = rcontext.getRequest().getParameter("id");
   Space space = SpaceUtils.getSpaceByContext();
   long limitToDisplay = 10;
@@ -42,7 +45,7 @@
       </div>
     </div>
     <script type="text/javascript">
-      require(['SHARED/ActivityStream'], app => app.init());
+      require(['SHARED/ActivityStream'], app => app.init(<%=maxUploadSize%>));
     </script>
   </div>
 </div>
