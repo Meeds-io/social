@@ -129,6 +129,29 @@
       </init-params>
     </component-plugin>
     <component-plugin>
+      <name>AttachmentMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>7</int>
+            </field>
+            <field name="name">
+              <string>attachments</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>UnreadMetadataPlugin</name>
       <set-method>addMetadataTypePlugin</set-method>
       <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
