@@ -40,7 +40,7 @@ export default {
       handler: function() {
         const uploadImages = this.images.filter(file => file.progress === 100).length;
         if (this.images.length > 0 && uploadImages === this.images.length) {
-          this.$emit('attachments-uploaded');
+          this.$emit('attachments-uploading');
         }
       },
     }

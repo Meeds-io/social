@@ -45,7 +45,7 @@
         </v-card-text>
         <attach-image-component 
           :maxFileSize="$root.maxFileSize"
-          @attachments-uploaded="canPostActivity = true" />
+          @attachments-uploading="canPostActivity = true" />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
             :params="extensionParams"
