@@ -24,6 +24,7 @@ import ChangesReminder from './components/ChangesReminder.vue';
 import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
+import TranslationDrawer from './components/TranslationDrawer.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -54,6 +55,7 @@ const components = {
   'unread-badge': UnreadBadge,
   'alert-notifications': Notifications,
   'ripple-hover-button': RippleHoverButton,
+  'translation-drawer': TranslationDrawer,
 };
 
 for (const key in components) {
