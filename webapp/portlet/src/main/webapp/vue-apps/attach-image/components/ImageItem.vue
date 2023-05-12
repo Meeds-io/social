@@ -47,8 +47,8 @@
     <v-card-actions class="position-absolute t-0 r-0">
       <v-btn 
         class="ml-0" 
-        icon 
-        small
+        fab 
+        x-small
         @click="deleteFile()">
         <v-icon class="error-color" small>fa-trash</v-icon>
       </v-btn>

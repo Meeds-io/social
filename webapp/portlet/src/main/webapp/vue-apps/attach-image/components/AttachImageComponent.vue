@@ -27,50 +27,80 @@ export default {
   props: {
     maxFileSize: {
       type: Number,
-      default: 20097152
+      default: 20971520,
     },
   },
   data: () => ({
     images: [],
   }),
+  watch: {
+    images: {
+      deep: true,
+      immediate: true,
+      handler: function() {
+        const uploadedImages = this.images.filter(file => file.progress === 100).length;
+        if (this.images.length > 0) {
+          if (uploadedImages === this.images.length) {
+            this.$emit('attachments-uploading');
+          }
+        } else {
+          this.$emit('attachments-deleted');
+        }
+      },
+    }
+  },
   created() {
     extensionRegistry.registerExtension('activity', 'saveAction', {
       key: 'attachment',
-      postSave: activity => {
+      canPostActivity: () => {
+        const uploadIds = this.images
+          .filter((file) => file.progress === 100)
+          .map((file) => file.uploadId)
+          .filter((uploadId) => !!uploadId);
+        return uploadIds?.length;
+      },
+      postSave: (activity) => {
         if (!activity?.id) {
           return;
         }
         const uploadIds = this.images
-          .filter(file => file.progress === 100)
-          .map(file => file.uploadId)
-          .filter(uploadId => !!uploadId);
+          .filter((file) => file.progress === 100)
+          .map((file) => file.uploadId)
+          .filter((uploadId) => !!uploadId);
         if (!uploadIds?.length) {
           return;
         }
-        return this.$fileAttachmentService.createAttachments({
-          'objectType': 'activity',
-          'objectId': activity?.id,
-          'uploadIds': uploadIds,
-        })
-          .then(report => {
+        return this.$fileAttachmentService
+          .createAttachments({
+            objectType: 'activity',
+            objectId: activity?.activityId || activity?.id,
+            uploadIds: uploadIds,
+          })
+          .then((report) => {
             if (report.errorByUploadId?.length) {
               const attachmentHtmlError = Object.keys(report.errorByUploadId)
-                .map(uploadId => {
-                  const attachment = this.images.find(file => file.uploadId === uploadId);
+                .map((uploadId) => {
+                  const attachment = this.images.find(
+                    (file) => file.uploadId === uploadId
+                  );
                   return `- <strong>${attachment.name}</strong>: this.$t(report.errorByUploadId[uploadId])`;
                 })
                 .join('<br>');
-              this.$root.$emit('alert-message-html',  attachmentHtmlError, 'error');
+              this.$root.$emit(
+                'alert-message-html',
+                attachmentHtmlError,
+                'error'
+              );
             }
           })
-          .finally(() => this.images = []);
-      }
+          .finally(() => (this.images = []));
+      },
     });
   },
   methods: {
     upadateImage(images) {
       this.images = images;
-    }
-  }
+    },
+  },
 };
 </script>
