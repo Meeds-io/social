@@ -33,7 +33,7 @@ export default {
     attachments() {
       return this.activity?.metadatas?.attachments?.map(metadata => ({
         id: metadata.name,
-        thumbnailUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${metadata.name}?size=120x120`,
+        thumbnailUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${metadata.name}?size=250x250`,
       })) || [];
     },
     attachmentsCount() {
