@@ -14,7 +14,7 @@
         <img
           :src="attachment.thumbnailUrl"
           alt="attached image"
-          class="mx-auto">
+          class="ma-auto full-width">
       </v-card-text>
       <v-expand-transition>
         <v-card

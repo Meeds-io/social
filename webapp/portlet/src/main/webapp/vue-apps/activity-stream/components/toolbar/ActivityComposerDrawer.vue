@@ -43,7 +43,9 @@
             attachment-enabled
             autofocus />
         </v-card-text>
-        <attach-image-component :maxFileSize="$root.maxFileSize" />
+        <attach-image-component 
+          :maxFileSize="$root.maxFileSize"
+          @attachments-uploaded="canPostActivity = true" />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
             :params="extensionParams"
@@ -98,7 +100,8 @@ export default {
       originalBody: '',
       messageEdited: false,
       activityType: null,
-      loading: false
+      loading: false, 
+      canPostActivity: false
     };
   },
   computed: {
@@ -136,7 +139,7 @@ export default {
       return this.drawer && this.$refs[this.CK_EDITOR_ID] || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited);
+      return ((!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited)) && !this.canPostActivity;
     },
   },
   watch: {
@@ -189,6 +192,7 @@ export default {
         this.ckEditorInstance.unload();
       }
       this.$nextTick().then(() => {
+        this.canPostActivity = false;
         this.$refs.activityComposerDrawer.close();
         this.$root.$emit('message-composer-closed');
       });
