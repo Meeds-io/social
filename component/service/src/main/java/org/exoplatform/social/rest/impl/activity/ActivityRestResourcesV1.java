@@ -345,8 +345,13 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       ActivityEntity activityEntity = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
       builder = Response.ok(activityEntity.getDataEntity(), MediaType.APPLICATION_JSON);
       builder.tag(eTag);
-      builder.lastModified(new Date(cacheTime));
-      builder.expires(new Date(cacheTime));
+      Date cacheTimeDate = new Date(computeLastUpdated(activity));
+      builder.lastModified(cacheTimeDate);
+      // Set cache control header to no-cache
+      CacheControl cacheControl = new CacheControl();
+      cacheControl.setNoCache(true);
+      cacheControl.setPrivate(true);
+      builder.cacheControl(cacheControl);
     }
     return builder.build();
   }
@@ -1045,6 +1050,25 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
       cacheTime = posterIdentity.getCacheTime() + cacheTime * 32;
     }
     return cacheTime;
+  }
+
+  private long computeLastUpdated(ExoSocialActivity activity) {
+    long lastUpdate = activity.getCacheTime();
+    String prettyId = activity.getActivityStream().getPrettyId();
+    Identity streamOwnerIdentity;
+    if (activity.getActivityStream().getType() == Type.SPACE) {
+      streamOwnerIdentity = identityManager.getOrCreateSpaceIdentity(prettyId);
+    } else {
+      streamOwnerIdentity = identityManager.getOrCreateUserIdentity(prettyId);
+    }
+    if (streamOwnerIdentity != null) {
+      lastUpdate = streamOwnerIdentity.getCacheTime() > lastUpdate ? streamOwnerIdentity.getCacheTime() : lastUpdate;
+    }
+    Identity posterIdentity = identityManager.getIdentity(activity.getPosterId());
+    if (posterIdentity != null) {
+      lastUpdate = posterIdentity.getCacheTime() > lastUpdate ? posterIdentity.getCacheTime() : lastUpdate;
+    }
+    return lastUpdate;
   }
 
 }
