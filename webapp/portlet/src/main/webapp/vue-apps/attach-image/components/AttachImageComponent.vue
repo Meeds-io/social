@@ -38,9 +38,13 @@ export default {
       deep: true,
       immediate: true,
       handler: function() {
-        const uploadImages = this.images.filter(file => file.progress === 100).length;
-        if (this.images.length > 0 && uploadImages === this.images.length) {
-          this.$emit('attachments-uploading');
+        const uploadedImages = this.images.filter(file => file.progress === 100).length;
+        if (this.images.length > 0) {
+          if (uploadedImages === this.images.length) {
+            this.$emit('attachments-uploading');
+          }
+        } else {
+          this.$emit('attachments-deleted');
         }
       },
     }
