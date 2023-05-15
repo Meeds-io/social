@@ -22,6 +22,7 @@
     ref="attachedImages"
     accept="image/*"
     class="hidden"
+    clearable
     multiple
     @change="uploadFiles" />
 </template>
@@ -48,6 +49,7 @@ export default {
     },
     uploadFiles(files) {
       this.$root.$emit('close-alert-message');
+      this.filesArray = [];
       const filesArray = Array.from(files);
       if (files.length === 0) {
         return;
