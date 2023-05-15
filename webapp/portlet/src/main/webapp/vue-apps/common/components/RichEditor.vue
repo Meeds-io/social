@@ -82,7 +82,7 @@ export default {
     },
     attachmentEnabled: {
       type: Boolean,
-      default: true
+      default: false
     },
   },
   data() {
