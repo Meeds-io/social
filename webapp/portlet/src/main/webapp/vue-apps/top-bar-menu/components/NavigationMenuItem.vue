@@ -30,7 +30,8 @@
       <v-tab
         class="mx-auto text-caption text-break"
         v-bind="attrs"
-        :href="`${baseSiteUri}${navigation.uri}`"
+        :href="navigationNodeUri"
+        :target="navigationNodeTarget"
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         @click.stop="checkLink(navigation, $event)"
@@ -90,7 +91,13 @@ export default {
     },
     hasPage() {
       return !!this.navigation?.pageKey;
-    }
+    },
+    navigationNodeUri() {
+      return this.navigation?.pageLink || `${this.baseSiteUri}${this.navigation.uri}`;
+    },
+    navigationNodeTarget() {
+      return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+    },
   },
   methods: {
     updateNavigationState(value) {
