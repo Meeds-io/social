@@ -46,3 +46,15 @@ export function getAttachments(objectType, objectId) {
     }
   });
 }
+
+export function getAttachment(objectType, objectId, fileId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}/${fileId}?size=0x0&download=true`, {
+    method: 'GET',
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error(`Error retrieving attachments from server, response code = ${resp.status}`);
+    }
+    return resp;
+  });
+}
+
