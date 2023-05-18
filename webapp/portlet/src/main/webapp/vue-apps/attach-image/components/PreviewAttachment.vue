@@ -1,3 +1,19 @@
+<!--
+  This file is part of the Meeds project (https://meeds.io/).
+  Copyright (C) 2023 Meeds Association
+  contact@meeds.io
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
 <template>
   <div>
     <v-dialog
@@ -28,17 +44,25 @@
         class="transparent">
         <div class="previewContainer ">
           <v-carousel 
-            v-model="currentIndex"
+            v-model="currentAttchmentId"
             :id="`previewCarousel-${activityId}`"
-            class="AttachmentCarouselPreview"
-            hide-delimiters
+            class="AttachmentCarouselPreview white border-radius"
             :touchless="true"
+            :value="currentAttchmentId"
             height="100%"
-            @change="currentIndex = $event">
+            reverse-transition="fade-transition"
+            transition="fade-transition"
+            hide-delimiters 
+            :show-arrows-on-hover="!isMobile">
             <v-carousel-item
-              v-for="(attachment, index) in attachments"
-              :key="index"
-              :src="attachment.thumbnailUrl" />
+              v-for="attachment in attachments"
+              :key="attachment.id"
+              :value="attachment.id">
+              <v-img 
+                :src="attachment.thumbnailUrl" 
+                aspect-ratio="2"
+                contain />
+            </v-carousel-item>
           </v-carousel>
         </div>
       </v-card>
@@ -56,7 +80,7 @@ export default {
   },
   data: () => ({
     dialog: false,
-    currentIndex: 0, 
+    currentAttchmentId: 0, 
     filename: '',
     url: '#',
     objectType: 'activity'
@@ -71,10 +95,9 @@ export default {
         document.dispatchEvent(new CustomEvent('modalClosed'));
       }
     },
-    currentIndex() {
+    currentAttchmentId() {
       if (this.attachments?.length) {
-        const attachmentInPreview = this.attachments[this.currentIndex].id;
-        this.downloadAttachment(attachmentInPreview);
+        this.downloadAttachment(this.currentAttchmentId);
       }
       
     }
@@ -82,6 +105,9 @@ export default {
   computed: {
     activityId() {
       return this.activity?.id;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     }
   },
   created() {
@@ -93,9 +119,9 @@ export default {
         this.dialog = false;
       }
     },
-    open(attachments, index) {
+    open(attachments, id) {
       this.attachments = attachments;
-      this.currentIndex = index;
+      this.currentAttchmentId = id;
       this.dialog = true;
     },
     close() {

@@ -10,7 +10,7 @@
         :preview-width="previewWidth"
         :preview-height="previewHeight"
         class="activity-file-item clickable"
-        @preview-attachment="openPreview(index)" />
+        @preview-attachment="openPreview(attachment.id)" />
     </card-carousel>
     <preview-attachment 
       v-if="attachmentsCount"
