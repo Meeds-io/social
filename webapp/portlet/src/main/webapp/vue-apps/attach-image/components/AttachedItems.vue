@@ -12,7 +12,7 @@
         class="activity-file-item clickable"
         @preview-attachment="openPreview(attachment.id)" />
     </card-carousel>
-    <preview-attachment 
+    <attachment-preview-dialog 
       v-if="attachmentsCount"
       ref="attachmentPreview"
       :activity="activity" /> 
@@ -36,7 +36,7 @@ export default {
     },
   },
   data: () => ({
-    previewAttachment: []
+    previewAttachments: []
   }),
   computed: {
     attachments() {
@@ -50,12 +50,12 @@ export default {
     },
   },
   methods: {
-    openPreview(index) {
-      this.previewAttachment = this.activity?.metadatas?.attachments?.map(metadata => ({
+    openPreview(attachmentId) {
+      this.previewAttachments = this.activity?.metadatas?.attachments?.map(metadata => ({
         id: metadata.name,
         thumbnailUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${metadata.name}?size=0x0&download=true`,
       })) || [];
-      this.$refs.attachmentPreview.open(this.previewAttachment, index);
+      this.$refs.attachmentPreview.open(this.previewAttachments, attachmentId);
     },
   }
 };

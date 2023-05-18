@@ -18,53 +18,53 @@
   <div>
     <v-dialog
       v-model="dialog"
-      width="84vw"
       :persistent="false"
+      width="84vw"
       overlay-opacity="0.9"
       content-class="uiPopup overflow-y-initial "
       max-width="80vw">
       <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
-        <a 
-          class="icon-large-size white--text"
-          aria-hidden="true"
+        <v-btn 
           :href="url" 
-          :download="filename">
+          :download="filename"
+          icon
+          class="icon-large-size white--text"
+          aria-hidden="true">
           <i class="fas fa-download"></i>
-        </a>
-        <a
+        </v-btn>
+        <v-btn
+          icon
           class="icon-large-size white--text ml-4"
           aria-hidden="true"
           @click="close">
           <i class="fas fa-times"></i>
-        </a>
+        </v-btn>
       </div>
       <v-card 
         flat
         max-height="80vh"
         class="transparent">
-        <div class="previewContainer ">
-          <v-carousel 
-            v-model="currentAttchmentId"
-            :id="`previewCarousel-${activityId}`"
-            class="AttachmentCarouselPreview white border-radius"
-            :touchless="true"
-            :value="currentAttchmentId"
-            height="100%"
-            reverse-transition="fade-transition"
-            transition="fade-transition"
-            hide-delimiters 
-            :show-arrows-on-hover="!isMobile">
-            <v-carousel-item
-              v-for="attachment in attachments"
-              :key="attachment.id"
-              :value="attachment.id">
-              <v-img 
-                :src="attachment.thumbnailUrl" 
-                aspect-ratio="2"
-                contain />
-            </v-carousel-item>
-          </v-carousel>
-        </div>
+        <v-carousel 
+          v-model="currentAttchmentId"
+          :id="`previewCarousel-${activityId}`"
+          :touchless="true"
+          :value="currentAttchmentId"
+          :show-arrows-on-hover="!isMobile"
+          reverse-transition="fade-transition"
+          transition="fade-transition"
+          hide-delimiters                        
+          height="80vh"
+          class="AttachmentCarouselPreview white border-radius">
+          <v-carousel-item
+            v-for="attachment in attachments"
+            :key="attachment.id"
+            :value="attachment.id">
+            <v-img 
+              :src="attachment.thumbnailUrl" 
+              aspect-ratio="2"
+              contain />
+          </v-carousel-item>
+        </v-carousel>
       </v-card>
     </v-dialog>
   </div>
@@ -111,14 +111,13 @@ export default {
     }
   },
   created() {
-    document.onkeydown = this.closePreviewAttachment;
-  },
-  methods: {
-    closePreviewAttachment(event) {
-      if (event && event.key === 'Escape') {
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
         this.dialog = false;
       }
-    },
+    });
+  },
+  methods: {
     open(attachments, id) {
       this.attachments = attachments;
       this.currentAttchmentId = id;
