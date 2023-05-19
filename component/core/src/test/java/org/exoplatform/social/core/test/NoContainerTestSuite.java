@@ -33,6 +33,7 @@ import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 import org.exoplatform.social.metadata.attachments.AttachmentsServiceTest;
+import org.exoplatform.social.core.processor.AttachmentActivityProcessorTest;
 import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
 
 @RunWith(Suite.class)
@@ -51,6 +52,7 @@ import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
     UserProfileComparatorTest.class,
     ActivityIndexingServiceConnectorTest.class,
     ActivitySearchConnectorTest.class,
+    AttachmentActivityProcessorTest.class,
 })
 public class NoContainerTestSuite {
 
