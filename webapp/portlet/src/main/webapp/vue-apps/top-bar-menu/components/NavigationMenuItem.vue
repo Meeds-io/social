@@ -28,11 +28,11 @@
     offset-y>
     <template #activator="{ attrs }">
       <v-tab
+        v-if="hasPage || hasChildren && childrenHasPage"
         class="mx-auto text-caption text-break"
         v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
-        :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
@@ -41,23 +41,19 @@
           {{ navigation.label }}
         </span>
         <v-btn
-          v-if="hasPage && hasChildren"
+          v-if="hasChildren && childrenHasPage"
           icon
           @click.stop.prevent="openDropMenu">
           <v-icon size="20">
             fa-angle-down
           </v-icon>
         </v-btn>
-        <v-icon
-          class="pa-3"
-          v-else-if="hasChildren"
-          size="20">
-          fa-angle-down
-        </v-icon>
       </v-tab>
     </template>
     <navigation-menu-sub-item
-      :navigation="navigation.children"
+      v-for="children in navigation.children"
+      :key="children.id"
+      :navigation="children"
       :base-site-uri="baseSiteUri"
       :parent-navigation-uri="navigation.uri"
       @update-navigation-state="updateNavigationState" />
@@ -98,6 +94,9 @@ export default {
     navigationNodeTarget() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
+    childrenHasPage() {
+      return this.checkChildrenHasPage(this.navigation);
+    }
   },
   methods: {
     updateNavigationState(value) {
@@ -130,6 +129,22 @@ export default {
           this.showMenu = false;
         }, 100);
       }
+    },
+    checkChildrenHasPage(navigation) {
+      let childrenHasPage = false;
+      navigation.children.forEach(child => {
+        if (childrenHasPage === true) {
+          return;
+        }
+        if (child.pageKey) {
+          childrenHasPage = true;
+        } else if (child.children.length > 0) {
+          childrenHasPage = this.checkChildrenHasPage(child);
+        } else {
+          childrenHasPage = false;
+        }
+      });
+      return childrenHasPage;
     }
   }
 };
