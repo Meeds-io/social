@@ -124,12 +124,6 @@ export default {
     },
     close() {
       this.dialog = false;
-    },
-    downloadAttachment(id) {
-      this.$fileAttachmentService.getAttachment(this.objectType,this.activity.id,id)
-        .then(resp => {
-          this.filename = resp.headers.get('Content-Disposition').split(';')[0].split('=')[1].replaceAll('"', '');
-        });
     }
   }
 };
