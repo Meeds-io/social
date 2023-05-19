@@ -26,9 +26,9 @@
     <v-list-item
       v-if="hasPage || hasChildren && childrenHasPage"
       class="pt-0 pb-0"
-      :href="`${baseSiteUri}${navigation.uri}`"
+      :href="navigationNodeUri"
       @click.stop="checkLink(navigation, $event)"
-      :link="!!navigation.pageKey">
+      :link="!!hasPage">
       <v-menu
         content-class="topBar-navigation-drop-sub-menu"
         rounded
@@ -95,7 +95,10 @@ export default {
     },
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
-    }
+    },
+    navigationNodeUri() {
+      return `${this.baseSiteUri}${this.navigation.uri}`;
+    },
   },
   methods: {
     checkLink(navigation, e) {
