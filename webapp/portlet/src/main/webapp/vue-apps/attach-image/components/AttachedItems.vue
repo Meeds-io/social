@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <card-carousel v-if="attachmentsCount" parent-class="activity-files-parent">
+  <div v-if="attachmentsCount">
+    <card-carousel parent-class="activity-files-parent">
       <attached-item
         v-for="(attachment, index) in attachments"
         :key="attachment.id"
@@ -13,7 +13,6 @@
         @preview-attachment="openPreview(attachment.id)" />
     </card-carousel>
     <attachment-preview-dialog 
-      v-if="attachmentsCount"
       ref="attachmentPreview"
       :activity="activity" /> 
   </div>

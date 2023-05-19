@@ -15,59 +15,57 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <div>
-    <v-dialog
-      v-model="dialog"
-      :persistent="false"
-      width="84vw"
-      overlay-opacity="0.9"
-      content-class="uiPopup overflow-y-initial "
-      max-width="80vw">
-      <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
-        <v-btn 
-          :href="url" 
-          :download="filename"
-          icon
-          class="icon-large-size white--text"
-          aria-hidden="true">
-          <i class="fas fa-download"></i>
-        </v-btn>
-        <v-btn
-          icon
-          class="icon-large-size white--text ml-4"
-          aria-hidden="true"
-          @click="close">
-          <i class="fas fa-times"></i>
-        </v-btn>
-      </div>
-      <v-card 
-        flat
-        max-height="80vh"
-        class="transparent">
-        <v-carousel 
-          v-model="currentAttchmentId"
-          :id="`previewCarousel-${activityId}`"
-          :touchless="true"
-          :value="currentAttchmentId"
-          :show-arrows-on-hover="!isMobile"
-          reverse-transition="fade-transition"
-          transition="fade-transition"
-          hide-delimiters                        
-          height="80vh"
-          class="AttachmentCarouselPreview white border-radius">
-          <v-carousel-item
-            v-for="attachment in attachments"
-            :key="attachment.id"
-            :value="attachment.id">
-            <v-img 
-              :src="attachment.thumbnailUrl" 
-              aspect-ratio="2"
-              contain />
-          </v-carousel-item>
-        </v-carousel>
-      </v-card>
-    </v-dialog>
-  </div>
+  <v-dialog
+    v-model="dialog"
+    :persistent="false"
+    width="84vw"
+    overlay-opacity="0.9"
+    content-class="uiPopup overflow-y-initial "
+    max-width="80vw">
+    <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
+      <v-btn 
+        :href="attachmentURL" 
+        :download="filename"
+        icon
+        class="icon-large-size white--text"
+        aria-hidden="true">
+        <i class="fas fa-download"></i>
+      </v-btn>
+      <v-btn
+        icon
+        class="icon-large-size white--text ml-4"
+        aria-hidden="true"
+        @click="close">
+        <i class="fas fa-times"></i>
+      </v-btn>
+    </div>
+    <v-card 
+      flat
+      max-height="80vh"
+      class="transparent">
+      <v-carousel 
+        v-model="currentAttchmentId"
+        :id="`previewCarousel-${activityId}`"
+        :touchless="true"
+        :value="currentAttchmentId"
+        :show-arrows-on-hover="!isMobile"
+        reverse-transition="fade-transition"
+        transition="fade-transition"
+        hide-delimiters                        
+        height="80vh"
+        class="AttachmentCarouselPreview white border-radius">
+        <v-carousel-item
+          v-for="attachment in attachments"
+          :key="attachment.id"
+          :value="attachment.id">
+          <v-img 
+            :src="attachment.thumbnailUrl" 
+            aspect-ratio="2"
+            contain />
+        </v-carousel-item>
+      </v-carousel>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -82,7 +80,6 @@ export default {
     dialog: false,
     currentAttchmentId: 0, 
     filename: '',
-    url: '#',
     objectType: 'activity'
   }),
   watch: {
@@ -105,6 +102,9 @@ export default {
   computed: {
     activityId() {
       return this.activity?.id;
+    },
+    attachmentURL() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${this.currentAttchmentId}?size=0x0&download=true`;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
@@ -130,11 +130,6 @@ export default {
       this.$fileAttachmentService.getAttachment(this.objectType,this.activity.id,id)
         .then(resp => {
           this.filename = resp.headers.get('Content-Disposition').split(';')[0].split('=')[1].replaceAll('"', '');
-          resp.blob().then(blob => {
-            if (blob != null) {
-              this.url = URL.createObjectURL(blob);
-            }
-          });
         });
     }
   }
