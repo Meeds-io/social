@@ -52,6 +52,7 @@ export default {
     openPreview(attachmentId) {
       this.previewAttachments = this.activity?.metadatas?.attachments?.map(metadata => ({
         id: metadata.name,
+        filename: metadata.properties.fileName,
         thumbnailUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${metadata.name}?size=0x0&download=true`,
       })) || [];
       this.$refs.attachmentPreview.open(this.previewAttachments, attachmentId);

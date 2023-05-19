@@ -25,7 +25,7 @@
     <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
       <v-btn 
         :href="attachmentURL" 
-        :download="filename"
+        :download="attachmentFilename"
         icon
         class="icon-large-size white--text"
         aria-hidden="true">
@@ -60,7 +60,8 @@
           :value="attachment.id">
           <v-img 
             :src="attachment.thumbnailUrl" 
-            aspect-ratio="2"
+            :aspect-ratio="2"
+            height="80vh"
             contain />
         </v-carousel-item>
       </v-carousel>
@@ -91,12 +92,6 @@ export default {
         this.$emit('dialog-closed');
         document.dispatchEvent(new CustomEvent('modalClosed'));
       }
-    },
-    currentAttchmentId() {
-      if (this.attachments?.length) {
-        this.downloadAttachment(this.currentAttchmentId);
-      }
-      
     }
   },
   computed: {
@@ -106,6 +101,9 @@ export default {
     attachmentURL() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${this.currentAttchmentId}?size=0x0&download=true`;
     },
+    attachmentFilename() {
+      return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttchmentId).finename || this.filename;
+    }, 
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     }
@@ -121,6 +119,7 @@ export default {
     open(attachments, id) {
       this.attachments = attachments;
       this.currentAttchmentId = id;
+      this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
       this.dialog = true;
     },
     close() {
