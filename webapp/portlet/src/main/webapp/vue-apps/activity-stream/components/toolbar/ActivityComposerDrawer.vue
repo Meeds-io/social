@@ -128,9 +128,9 @@
             attachment-enabled
             autofocus />
         </v-card-text>
-        <attach-image-component
-          :maxFileSize="$root.maxFileSize"
-          @attachments-uploading="canPostActivity = true"
+        <attach-image-component 
+          :max-file-size="$root.maxFileSize"
+          @attachments-uploading="canPostActivity = true" 
           @attachments-deleted="canPostActivity = false" />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
