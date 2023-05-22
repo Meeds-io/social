@@ -52,7 +52,6 @@ import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
     UserProfileComparatorTest.class,
     ActivityIndexingServiceConnectorTest.class,
     ActivitySearchConnectorTest.class,
-    AttachmentActivityProcessorTest.class,
 })
 public class NoContainerTestSuite {
 
