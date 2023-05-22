@@ -1658,6 +1658,20 @@
   </module>
 
   <module>
+    <name>animationComponents</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/animationComponents.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
+
+  <module>
     <name>popover</name>
     <load-group>popoverGRP</load-group>
     <script>
