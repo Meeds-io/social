@@ -26,6 +26,9 @@
     color="transparent"
     elevation="0"
     app>
+    <confeti-animation
+      v-if="confeti"
+      class="z-index-modal overflow-hidden" />
     <v-alert
       :type="alertType"
       :max-width="maxWidth"
@@ -37,7 +40,7 @@
       dismissible
       colored-border
       @input="closeAlertIfDismissed">
-      <div class="d-flex flex-nowrap align-center full-width">
+      <div class="d-flex flex-nowrap align-center full-width overflow-hidden">
         <span
           v-if="useHtml"
           class="text--lighten-1 flex-grow-1 pe-4"
@@ -71,6 +74,7 @@ export default {
     timeout: 10000,
     alertMessage: null,
     useHtml: false,
+    confeti: false,
     alertType: null,
     alertLink: null,
     alertLinkCallback: null,
@@ -105,6 +109,15 @@ export default {
         this.openAlert(alertObj);
       }
     });
+    document.addEventListener('alert-message-html-confeti', (event) => {
+      const alertObj = event?.detail && Object.assign({
+        useHtml: true,
+        confeti: true,
+      }, event?.detail);
+      if (alertObj) {
+        this.openAlert(alertObj);
+      }
+    });
     document.addEventListener('close-alert-message', () => {
       this.closeAlert();
     });
@@ -128,6 +141,17 @@ export default {
         alertLinkTooltip: linkTooltip,
       });
     });
+    this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip) => {
+      this.openAlert({
+        confeti: true,
+        useHtml: true,
+        alertType: type,
+        alertMessage: message,
+        alertLinkCallback: linkCallback,
+        alertLinkIcon: linkIcon,
+        alertLinkTooltip: linkTooltip,
+      });
+    });
     this.$root.$on('close-alert-message', this.closeAlert);
   },
   methods: {
@@ -135,6 +159,7 @@ export default {
       this.closeAlert();
       this.$nextTick().then(() => {
         this.useHtml = params.useHtml || false;
+        this.confeti = params.confeti || false;
         this.alertLink = params.alertLink || null;
         this.alertMessage = params.alertMessage || null;
         this.alertLinkIcon = params.alertLinkIcon || null;
