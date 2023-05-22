@@ -54,14 +54,15 @@
           v-if="alertLink || alertLinkCallback"
           :href="alertLink"
           :title="alertLinkTooltip"
+          :class="alertLinkText && 'primary--text' || 'secondary--text'"
           name="closeSnackbarButton"
           target="_blank"
           rel="nofollow noreferrer noopener"
-          class="secondary--text"
           icon
           link
           @click="linkCallback">
-          <v-icon>{{ alertLinkIcon }}</v-icon>
+          <div v-if="alertLinkText" class="text-none mt-1">{{ alertLinkText }}</div>
+          <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
         </v-btn>
       </div>
     </v-alert>
@@ -79,6 +80,7 @@ export default {
     alertLink: null,
     alertLinkCallback: null,
     alertLinkIcon: null,
+    alertLinkText: null,
     alertLinkTooltip: null,
     timeoutInstance: null,
     maxIconsSize: '20px',
@@ -162,6 +164,7 @@ export default {
         this.confeti = params.confeti || false;
         this.alertLink = params.alertLink || null;
         this.alertMessage = params.alertMessage || null;
+        this.alertLinkText = params.alertLinkText || null;
         this.alertLinkIcon = params.alertLinkIcon || null;
         this.alertType = params.alertType || 'info';
         this.alertLinkTooltip = params.alertLinkTooltip || null;
