@@ -23,8 +23,25 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
-import org.exoplatform.social.core.jpa.storage.*;
-import org.exoplatform.social.core.jpa.storage.dao.*;
+import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
+import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
+import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
+import org.exoplatform.social.core.jpa.storage.ActivityManagerRDBMSTest;
+import org.exoplatform.social.core.jpa.storage.IdentityStorageTest;
+import org.exoplatform.social.core.jpa.storage.ProfileLabelStorageTest;
+import org.exoplatform.social.core.jpa.storage.ProfileSettingStorageTest;
+import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImplTest;
+import org.exoplatform.social.core.jpa.storage.RDBMSRelationshipManagerTest;
+import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageTest;
+import org.exoplatform.social.core.jpa.storage.RelationshipStorageTest;
+import org.exoplatform.social.core.jpa.storage.SpaceActivityRDBMSPublisherTest;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityDAOTest;
+import org.exoplatform.social.core.jpa.storage.dao.IdentityDAOTest;
+import org.exoplatform.social.core.jpa.storage.dao.ProfileLabelDAOTest;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceDAOTest;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAOTest;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAOTest;
+import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAOTest;
 import org.exoplatform.social.core.listeners.ActivityMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ActivityTagMetadataListenerTest;
 import org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImplTest;
@@ -32,6 +49,7 @@ import org.exoplatform.social.core.manager.ActivityManagerTest;
 import org.exoplatform.social.core.manager.IdentityManagerTest;
 import org.exoplatform.social.core.manager.RelationshipManagerTest;
 import org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImplTest;
+import org.exoplatform.social.core.processor.AttachmentActivityProcessorTest;
 import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
 import org.exoplatform.social.core.processor.MetadataActivityProcessorTest;
 import org.exoplatform.social.core.processor.OSHtmlSanitizerProcessorTest;
@@ -51,10 +69,6 @@ import org.exoplatform.social.metadata.tag.TagServiceTest;
 
 import io.meeds.social.core.richeditor.RichEditorConfigurationServiceTest;
 import io.meeds.social.translation.service.TranslationServiceTest;
-
-import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
-import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
-import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
 
 @SuiteClasses({
   ActivityDAOTest.class,
@@ -101,7 +115,8 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
   TranslationServiceTest.class,
-  UserPasswordHashMigrationTest.class
+  UserPasswordHashMigrationTest.class,
+  AttachmentActivityProcessorTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
