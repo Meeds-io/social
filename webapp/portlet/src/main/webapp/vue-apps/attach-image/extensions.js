@@ -16,5 +16,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import './initComponents.js';
-import './extensions.js';
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'attachment-dialog',
+  vueComponent: Vue.options.components['attachment-preview-dialog'],
+  rank: 50,
+});
