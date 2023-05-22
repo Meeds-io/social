@@ -28,7 +28,7 @@
     app>
     <confeti-animation
       v-if="confeti"
-      class="z-index-modal overflow-hidden" />
+      class="overflow-hidden" />
     <v-alert
       :type="alertType"
       :max-width="maxWidth"
