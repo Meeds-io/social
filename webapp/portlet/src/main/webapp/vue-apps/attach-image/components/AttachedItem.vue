@@ -7,10 +7,12 @@
       :loading="loading"
       height="210px"
       max-height="210px"
-      width="252px"
+      :width="previewWidth"
       max-width="100%"
       class="activity-attachment overflow-hidden d-flex flex-column border-box-sizing">
-      <v-card-text class="activity-attachment-thumbnail d-flex flex-grow-1 pa-0">
+      <v-card-text 
+        class="activity-attachment-thumbnail d-flex flex-grow-1 pa-0"
+        @click="$emit('preview-attachment')">
         <img
           :src="attachment.thumbnailUrl"
           alt="attached image"
