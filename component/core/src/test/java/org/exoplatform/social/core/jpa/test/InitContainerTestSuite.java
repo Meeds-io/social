@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.test;
 
+import org.exoplatform.social.core.processor.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -31,10 +32,6 @@ import org.exoplatform.social.core.manager.ActivityManagerTest;
 import org.exoplatform.social.core.manager.IdentityManagerTest;
 import org.exoplatform.social.core.manager.RelationshipManagerTest;
 import org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImplTest;
-import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
-import org.exoplatform.social.core.processor.MetadataActivityProcessorTest;
-import org.exoplatform.social.core.processor.OSHtmlSanitizerProcessorTest;
-import org.exoplatform.social.core.processor.TemplateParamsProcessorTest;
 import org.exoplatform.social.core.profile.ProfilePropertyServiceTest;
 import org.exoplatform.social.core.search.SearchServiceTest;
 import org.exoplatform.social.core.search.SortingTest;
@@ -98,6 +95,7 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
   MetadataActivityProcessorTest.class,
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
+  AttachmentActivityProcessorTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
