@@ -22,6 +22,7 @@ import ImageItems from './components/ImageItems.vue';
 import ImageItem from './components/ImageItem.vue';
 import AttachedItem from './components/AttachedItem.vue';
 import AttachedItems from './components/AttachedItems.vue';
+import AttachmentPreviewDialog from './components/AttachmentPreviewDialog.vue';
 
 const components = {
   'attach-image-component': AttachImageComponent,
@@ -29,7 +30,8 @@ const components = {
   'image-items': ImageItems,
   'image-item': ImageItem,
   'attached-item': AttachedItem,
-  'attached-items': AttachedItems
+  'attached-items': AttachedItems,
+  'attachment-preview-dialog': AttachmentPreviewDialog
 };
 
 for (const key in components) {
