@@ -42,14 +42,6 @@
     );
   }
 
-  $box-shadow: ();
-  @for $i from 0 through $particles {
-    $box-shadow: $box-shadow,
-      random($width)- $width / 2 + px
-      random($height)- $height / 2 + px
-      #{random-color()};
-  }
-
   .confeti-animation-parent {
     transform: translateY(50%);
   }
@@ -95,9 +87,6 @@
       opacity: 1;
     }
     to {
-      width: 0;
-      height: 0;
-      transform: translateY(-75px);
       opacity: 0;
     }
   }
