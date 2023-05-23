@@ -18,7 +18,7 @@
   <v-dialog
     v-model="dialog"
     :persistent="false"
-    width="84vw"
+    width="80vw"
     overlay-opacity="0.9"
     content-class="uiPopup overflow-y-initial "
     max-width="80vw">
@@ -27,13 +27,15 @@
         :href="attachmentURL" 
         :download="attachmentFilename"
         icon
-        class="icon-large-size white--text"
+        class="white--text"
+        :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
         aria-hidden="true">
         <i class="fas fa-download"></i>
       </v-btn>
       <v-btn
         icon
-        class="icon-large-size white--text ml-4"
+        class="white--text ml-4"
+        :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
         aria-hidden="true"
         @click="close">
         <i class="fas fa-times"></i>
@@ -41,27 +43,26 @@
     </div>
     <v-card 
       flat
-      max-height="80vh"
+      :max-height="!isMobile && '80vh' || '75vh'"
       class="transparent">
       <v-carousel 
-        v-model="currentAttchmentId"
         :id="`previewCarousel-${activityId}`"
-        :touchless="true"
+        v-model="currentAttchmentId"
         :value="currentAttchmentId"
-        :show-arrows-on-hover="!isMobile"
-        reverse-transition="fade-transition"
-        transition="fade-transition"
-        hide-delimiters                        
-        height="80vh"
+        :show-arrows-on-hover="!isMobile"                       
+        :height="!isMobile && '80vh' || '75vh'"
+        hide-delimiters   
         class="AttachmentCarouselPreview white border-radius">
         <v-carousel-item
           v-for="attachment in attachments"
           :key="attachment.id"
-          :value="attachment.id">
+          :value="attachment.id"
+          reverse-transition="fade-transition"
+          transition="fade-transition">
           <v-img 
             :src="attachment.thumbnailUrl" 
             :aspect-ratio="2"
-            height="80vh"
+            :height="!isMobile && '80vh' || '75vh'"
             contain />
         </v-carousel-item>
       </v-carousel>
@@ -113,6 +114,12 @@ export default {
       if (event.key === 'Escape') {
         this.dialog = false;
       }
+      if (event.key === 'ArrowLeft') {
+        document.querySelector('.v-window__prev button').click();
+      }
+      if (event.key === 'ArrowRight') {
+        document.querySelector('.v-window__next button').click();
+      }
     });
   },
   methods: {
@@ -124,7 +131,7 @@ export default {
     },
     close() {
       this.dialog = false;
-    }
+    },
   }
 };
 </script>
