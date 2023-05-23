@@ -115,10 +115,10 @@ export default {
         this.dialog = false;
       }
       if (event.key === 'ArrowLeft') {
-        document.querySelector('.v-window__prev button').click();
+        document.querySelector('.v-window__next button').click();
       }
       if (event.key === 'ArrowRight') {
-        document.querySelector('.v-window__next button').click();
+        document.querySelector('.v-window__prev button').click();
       }
     });
   },
