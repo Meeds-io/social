@@ -1,20 +1,15 @@
 <template>
   <div v-if="attachmentsCount">
-    <card-carousel parent-class="activity-files-parent">
+    <card-carousel parent-class="activity-files-parent mx-n2">
       <attached-item
-        v-for="(attachment, index) in attachments"
+        v-for="attachment in attachments"
         :key="attachment.id"
-        :activity="activity"
-        :index="index"
         :attachment="attachment"
         :preview-width="previewWidth"
         :preview-height="previewHeight"
-        class="activity-file-item clickable"
+        class="activity-file-item"
         @preview-attachment="openPreview(attachment.id)" />
     </card-carousel>
-    <attachment-preview-dialog 
-      ref="attachmentPreview"
-      :activity="activity" /> 
   </div>
 </template>
 
@@ -35,7 +30,7 @@ export default {
     },
   },
   data: () => ({
-    previewAttachments: []
+    objectType: 'activity',
   }),
   computed: {
     attachments() {
@@ -47,10 +42,13 @@ export default {
     attachmentsCount() {
       return this.attachments.length;
     },
+    objectId() {
+      return this.activity?.id;
+    },
   },
   methods: {
     openPreview(attachmentId) {
-      this.previewAttachments = this.activity?.metadatas?.attachments?.map(metadata => ({
+      const previewAttachments = this.activity?.metadatas?.attachments?.map(metadata => ({
         id: metadata.name,
         filename: metadata.properties.fileName,
         fileSize: metadata.properties.fileSize,
@@ -58,7 +56,8 @@ export default {
         fileUpdateDate: metadata.properties.fileUpdateDate,
         thumbnailUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.activity.id}/${metadata.name}?size=0x0&download=true`,
       })) || [];
-      this.$refs.attachmentPreview.open(this.previewAttachments, attachmentId);
+
+      this.$root.$emit('open-attachments-preview', this.objectType, this.objectId, previewAttachments, attachmentId);
     },
   }
 };
