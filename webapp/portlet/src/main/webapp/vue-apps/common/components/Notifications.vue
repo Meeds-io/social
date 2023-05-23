@@ -26,6 +26,9 @@
     color="transparent"
     elevation="0"
     app>
+    <confeti-animation
+      v-if="confeti"
+      class="overflow-hidden" />
     <v-alert
       :type="alertType"
       :max-width="maxWidth"
@@ -51,14 +54,15 @@
           v-if="alertLink || alertLinkCallback"
           :href="alertLink"
           :title="alertLinkTooltip"
+          :class="alertLinkText && 'primary--text' || 'secondary--text'"
           name="closeSnackbarButton"
           target="_blank"
           rel="nofollow noreferrer noopener"
-          class="secondary--text"
           icon
           link
           @click="linkCallback">
-          <v-icon>{{ alertLinkIcon }}</v-icon>
+          <div v-if="alertLinkText" class="text-none mt-1">{{ alertLinkText }}</div>
+          <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
         </v-btn>
       </div>
     </v-alert>
@@ -71,10 +75,12 @@ export default {
     timeout: 10000,
     alertMessage: null,
     useHtml: false,
+    confeti: false,
     alertType: null,
     alertLink: null,
     alertLinkCallback: null,
     alertLinkIcon: null,
+    alertLinkText: null,
     alertLinkTooltip: null,
     timeoutInstance: null,
     maxIconsSize: '20px',
@@ -105,6 +111,15 @@ export default {
         this.openAlert(alertObj);
       }
     });
+    document.addEventListener('alert-message-html-confeti', (event) => {
+      const alertObj = event?.detail && Object.assign({
+        useHtml: true,
+        confeti: true,
+      }, event?.detail);
+      if (alertObj) {
+        this.openAlert(alertObj);
+      }
+    });
     document.addEventListener('close-alert-message', () => {
       this.closeAlert();
     });
@@ -128,6 +143,17 @@ export default {
         alertLinkTooltip: linkTooltip,
       });
     });
+    this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip) => {
+      this.openAlert({
+        confeti: true,
+        useHtml: true,
+        alertType: type,
+        alertMessage: message,
+        alertLinkCallback: linkCallback,
+        alertLinkIcon: linkIcon,
+        alertLinkTooltip: linkTooltip,
+      });
+    });
     this.$root.$on('close-alert-message', this.closeAlert);
   },
   methods: {
@@ -135,8 +161,10 @@ export default {
       this.closeAlert();
       this.$nextTick().then(() => {
         this.useHtml = params.useHtml || false;
+        this.confeti = params.confeti || false;
         this.alertLink = params.alertLink || null;
         this.alertMessage = params.alertMessage || null;
+        this.alertLinkText = params.alertLinkText || null;
         this.alertLinkIcon = params.alertLinkIcon || null;
         this.alertType = params.alertType || 'info';
         this.alertLinkTooltip = params.alertLinkTooltip || null;

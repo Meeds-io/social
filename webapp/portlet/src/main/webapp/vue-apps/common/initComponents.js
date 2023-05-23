@@ -120,6 +120,15 @@ Vue.createApp = function(params, el, appName) {
         alertLinkTooltip: linkTooltip,
       }}));
     });
+    vueApp.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip) => {
+      document.dispatchEvent(new CustomEvent('alert-message-html-confeti', {detail: {
+        alertType: type,
+        alertMessage: message,
+        alertLinkCallback: linkCallback,
+        alertLinkIcon: linkIcon,
+        alertLinkTooltip: linkTooltip,
+      }}));
+    });
     vueApp.$root.$on('close-alert-message', () => {
       document.dispatchEvent(new CustomEvent('close-alert-message'));
     });
