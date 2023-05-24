@@ -53,7 +53,8 @@
           v-model="currentAttchmentId"
           ref="attachmentsCarousel"
           :value="currentAttchmentId"
-          :show-arrows-on-hover="!isMobile"                       
+          :show-arrows-on-hover="!isMobile"
+          :show-arrows="attachments.length > 1"                         
           :height="!isMobile && '80vh' || '75vh'"
           hide-delimiters   
           class="AttachmentCarouselPreview white border-radius">
