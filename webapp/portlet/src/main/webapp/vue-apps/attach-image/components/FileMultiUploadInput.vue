@@ -36,9 +36,11 @@ export default {
   },
   data: () => ({
     filesArray: [],
+    newUpload: false
   }),
   created() {
-    document.addEventListener('open-file-explorer', () => {
+    document.addEventListener('open-file-explorer', (event) => {
+      this.newUpload = event?.detail?.additionalUpload ? true : false;
       this.triggerFileClickEvent();
     });
     this.$root.$on('delete-file', this.removeUplodedFile);
@@ -49,7 +51,9 @@ export default {
     },
     uploadFiles(files) {
       this.$root.$emit('close-alert-message');
-      this.filesArray = [];
+      if (!this.newUpload) {
+        this.filesArray = [];
+      }
       const filesArray = Array.from(files);
       if (files.length === 0) {
         return;
