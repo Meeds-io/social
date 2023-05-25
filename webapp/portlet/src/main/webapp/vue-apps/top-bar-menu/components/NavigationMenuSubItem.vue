@@ -24,13 +24,11 @@
     class="pa-0"
     dense>
     <v-list-item
+      v-if="hasPage || hasChildren && childrenHasPage"
       class="pt-0 pb-0"
-      v-for="children in navigation"
-      :key="children.id"
-      :href="`${baseSiteUri}${children.uri}`"
-      :disabled="!children.pageKey && !children.children?.length"
-      @click.stop="checkLink(children, $event)"
-      :link="!!children.pageKey">
+      :href="navigationNodeUri"
+      @click.stop="checkLink(navigation, $event)"
+      :link="!!hasPage">
       <v-menu
         content-class="topBar-navigation-drop-sub-menu"
         rounded
@@ -40,12 +38,12 @@
           <v-list-item-title
             class="pt-5 pb-5 text-caption"
             v-bind="attrs"
-            v-text="children.label" />
+            v-text="navigation.label" />
           <v-list-item-icon
-            v-if="children.children?.length"
+            v-if="hasChildren && childrenHasPage"
             class="ms-0 me-n2 ma-auto full-height">
             <v-btn
-              v-on="children.children?.length && on"
+              v-on="on"
               icon
               @click.stop.prevent>
               <v-icon
@@ -56,7 +54,9 @@
           </v-list-item-icon>
         </template>
         <navigation-menu-sub-item
-          :navigation="children.children"
+          v-for="children in navigation.children"
+          :key="children.id"
+          :navigation="children"
           :parent-navigation-uri="parentNavigationUri"
           :base-site-uri="baseSiteUri"
           @update-navigation-state="updateNavigationState" />
@@ -86,6 +86,20 @@ export default {
       default: null
     }
   },
+  computed: {
+    hasChildren() {
+      return this.navigation?.children?.length;
+    },
+    hasPage() {
+      return !!this.navigation?.pageKey;
+    },
+    childrenHasPage() {
+      return this.checkChildrenHasPage(this.navigation);
+    },
+    navigationNodeUri() {
+      return `${this.baseSiteUri}${this.navigation.uri}`;
+    },
+  },
   methods: {
     checkLink(navigation, e) {
       if (!navigation.pageKey) {
@@ -97,6 +111,22 @@ export default {
     updateNavigationState(value) {
       this.$emit('update-navigation-state', value);
     },
+    checkChildrenHasPage(navigation) {
+      let childrenHasPage = false;
+      navigation.children.forEach(child => {
+        if (childrenHasPage === true) {
+          return;
+        }
+        if (child.pageKey) {
+          childrenHasPage = true;
+        } else if (child.children.length > 0) {
+          childrenHasPage = this.checkChildrenHasPage(child);
+        } else {
+          childrenHasPage = false;
+        }
+      });
+      return childrenHasPage;
+    }
   }
 };
 </script>
