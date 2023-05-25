@@ -31,6 +31,7 @@
         :key="nav.id"
         :value="nav.id"
         :href="nav.uri"
+        :target="nav?.target === 'SAME_TAB' && '_self' || '_blank'"
         class="spaceNavigationTab">
         {{ nav.label }}
       </v-tab>
