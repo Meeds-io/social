@@ -2056,9 +2056,6 @@ public class SpaceUtils {
     if (userNode == null) {
       return null;
     }
-    if (isHomeNavigation(userNode)) {
-      return resourceBundle.getString("UISpaceMenu.label.SpaceHomePage");
-    }
     String id = userNode.getId();
     String nodeLabel = userNode.getLabel();
     if (nodeLabel != null) {
