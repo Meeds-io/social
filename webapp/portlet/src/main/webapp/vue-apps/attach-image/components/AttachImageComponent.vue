@@ -93,7 +93,10 @@ export default {
               );
             }
           })
-          .finally(() => (this.images = []));
+          .finally(() => {
+            this.images = [];
+            this.$root.$emit('delete-uploaded-files');
+          });
       },
     });
   },
