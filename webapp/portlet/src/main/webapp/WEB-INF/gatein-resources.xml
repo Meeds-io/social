@@ -1669,6 +1669,26 @@
     <depends>
       <module>vuetify</module>
     </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>applicationToolbarComponent</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/applicationToolbarComponent.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
   </module>
 
   <module>
