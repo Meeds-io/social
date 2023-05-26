@@ -30,7 +30,7 @@
         v-for="nav in navigations"
         :key="nav.id"
         :value="nav.id"
-        :href="nav.uri"
+        :href="urlVerify(nav.uri)"
         :target="nav?.target === 'SAME_TAB' && '_self' || '_blank'"
         class="spaceNavigationTab">
         {{ nav.label }}
@@ -111,6 +111,12 @@ export default {
       this.$nextTick().then(() => {
         window.setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
       });
+    },
+    urlVerify(url) {
+      if (!(url.indexOf('javascript:') === 0 || url.indexOf('/portal') === 0)) {
+        url = `//${url}`;
+      }
+      return url ;
     },
   },
 };
