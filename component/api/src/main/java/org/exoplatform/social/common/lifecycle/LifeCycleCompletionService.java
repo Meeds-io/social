@@ -75,16 +75,8 @@ public class LifeCycleCompletionService implements Startable {
       this.configAsyncExecution = DEFAULT_ASYNC_EXECUTION;
     }
 
+    this.executor = Executors.newFixedThreadPool(this.configThreadNumber);
 
-    //
-    if (configAsyncExecution) {
-      this.executor = Executors.newFixedThreadPool(this.configThreadNumber);
-    }
-    else {
-      this.executor = new DirectExecutor();
-    }
-
-    //
     this.ecs = new ExecutorCompletionService(executor);
 
   }
@@ -115,13 +107,4 @@ public class LifeCycleCompletionService implements Startable {
       ((ExecutorService) executor).shutdown();
     }
   };
-
-  private class DirectExecutor implements Executor {
-
-    public void execute(final Runnable runnable) {
-      if (Thread.interrupted()) throw new RuntimeException();
-
-      runnable.run();
-    }
-  }
 }
