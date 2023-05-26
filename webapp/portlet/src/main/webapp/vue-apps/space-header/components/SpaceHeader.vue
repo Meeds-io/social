@@ -69,7 +69,8 @@
           v-for="nav in navigations"
           :key="nav.id"
           :value="nav.id"
-          :href="nav.uri"
+          :href="urlVerify(nav.uri)"
+          :target="nav?.target === 'SAME_TAB' && '_self' || '_blank'"
           class="spaceNavigationTab">
           {{ nav.label }}
         </v-tab>
@@ -194,6 +195,12 @@ export default {
           this.$emit('banner-changed', space.bannerUrl);
           this.$root.$emit('alert-message', this.$t('UIPopupBannerUploader.title.BannerDeleted'), 'success');
         });
+    },
+    urlVerify(url) {
+      if (!(url.indexOf('javascript:') === 0 && url.indexOf('portal') === 0)) {
+        url = `//${url}`;
+      }
+      return url ;
     },
   },
 };

@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.PageType;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
@@ -49,9 +51,19 @@ public class SpaceMenuPortlet extends GenericPortlet {
                                                                   currentUser);
       request.setAttribute("navigations", navigations);
 
-      Map<String, String> navigationMap = navigations.stream()
-                                                     .collect(Collectors.toMap(UserNode::getId,
-                                                                               userNode -> SpaceUtils.getUri(userNode)));
+      Map<String, String> navigationMap = new HashMap<>();
+      navigations.stream().forEach(userNode -> {
+        if (userNode.getPageRef() != null) {
+          Page navigationNodePage = SpaceUtils.getLayoutService().getPage(userNode.getPageRef());
+          if (PageType.LINK.equals(PageType.valueOf(navigationNodePage.getType()))) {
+            navigationMap.put(userNode.getId(), navigationNodePage.getLink());
+          } else {
+            navigationMap.put(userNode.getId(), SpaceUtils.getUri(userNode));
+          }
+        } else {
+          navigationMap.put(userNode.getId(), SpaceUtils.getUri(userNode));
+        }
+      });
       request.setAttribute("navigationsUri", navigationMap);
 
       UserNode selectedUserNode = Util.getUIPortal().getSelectedUserNode();
