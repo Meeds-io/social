@@ -1,54 +1,88 @@
 <template>
-  <div v-if="!retrieveExtraInformation" class="d-flex flex-nowrap position-relative">
-    <exo-user-avatar
-      v-for="user in usersToDisplay"
-      :key="user"
-      :identity="user"
-      :size="iconSize"
-      :extra-class="'mx-1'"
-      :popover="popover"
-      avatar />
-    <v-avatar
-      v-if="notDisplayedItems"
-      :size="iconSize"
-      :class="avatarOverlayPosition && 'position-relative' || 'position-absolute'"
-      :style="overlayStyle"
-      class="notDisplayedIdentitiesOverlay clickable"
+  <v-hover>
+    <v-card
+      v-if="!retrieveExtraInformation"
+      slot-scope="{ hover }"
+      :class="hover && clickable && 'light-grey-background'"
+      :ripple="clickable"
+      class="d-flex flex-nowrap position-relative"
+      color="transparent"
+      flat
       @click="$emit('open-detail')">
-      <div class="notDisplayedIdentities d-flex align-center justify-center">
-        +{{ notDisplayedItems }}
-      </div>
-    </v-avatar>
-  </div>
-  <div v-else class="d-flex flex-nowrap position-relative">
-    <exo-user-avatar
-      v-for="user in usersToDisplay"
-      :key="user"
-      :profile-id="user.userName"
-      :size="iconSize"
-      :extra-class="'mx-1'"
-      :popover="popover"
-      avatar />
-    <v-avatar
-      v-if="notDisplayedItems"
-      :size="iconSize"
-      :class="avatarOverlayPosition && 'position-relative' || 'position-absolute'"
-      :style="overlayStyle"
-      class="notDisplayedIdentitiesOverlay clickable"
+      <exo-user-avatar
+        v-for="(user, index) in usersToDisplay"
+        :key="`${user}_${index}`"
+        :identity="user"
+        :size="iconSize"
+        :extra-class="'mx-1'"
+        :popover="popover"
+        :clickable="clickable"
+        avatar
+        @avatar-click="$emit('open-detail', user)" />
+      <v-btn
+        v-if="showMoreAvatarsNumber"
+        :height="iconSize"
+        :width="iconSize"
+        fab
+        depressed>
+        <v-avatar
+          :size="iconSize"
+          class="notDisplayedIdentitiesOverlay"
+          @click="$emit('open-detail')">
+          <div class="notDisplayedIdentities d-flex align-center justify-center caption">
+            +{{ showMoreAvatarsNumber }}
+          </div>
+        </v-avatar>
+      </v-btn>
+    </v-card>
+    <v-card
+      v-else
+      slot-scope="{ hover }"
+      :class="hover && clickable && 'light-grey-background'"
+      :ripple="clickable"
+      class="d-flex flex-nowrap position-relative"
+      color="transparent"
+      flat
       @click="$emit('open-detail')">
-      <div class="notDisplayedIdentities d-flex align-center justify-center">
-        +{{ notDisplayedItems }}
-      </div>
-    </v-avatar>
-  </div>
+      <exo-user-avatar
+        v-for="(user, index) in usersToDisplay"
+        :key="`${user}_${index}`"
+        :profile-id="user.userName"
+        :size="iconSize"
+        :extra-class="'mx-1'"
+        :popover="popover"
+        :clickable="clickable"
+        avatar
+        @avatar-click="$emit('open-detail', user)" />
+      <v-btn
+        v-if="showMoreAvatarsNumber"
+        :height="iconSize"
+        :width="iconSize"
+        fab
+        depressed>
+        <v-avatar
+          :size="iconSize"
+          class="notDisplayedIdentitiesOverlay"
+          @click="$emit('open-detail')">
+          <div class="notDisplayedIdentities d-flex align-center justify-center caption">
+            +{{ showMoreAvatarsNumber }}
+          </div>
+        </v-avatar>
+      </v-btn>
+    </v-card>
+  </v-hover>
 </template>
 
 <script>
 export default {
   props: {
     users: {
-      type: Object,
+      type: Array,
       default: () => null,
+    },
+    clickable: {
+      type: Boolean,
+      default: () => false,
     },
     max: {
       type: Number,
@@ -73,20 +107,26 @@ export default {
     retrieveExtraInformation: {
       type: Boolean,
       default: () => false
-    }
+    },
   },
   computed: {
     usersToDisplay() {
       return this.users && this.users.slice(0, this.max);
     },
-    notDisplayedItems() {
+    totalUsersCount() {
       if (this.defaultLength) {
-        return this.defaultLength > this.max ? this.defaultLength - this.max : 0;
+        return this.defaultLength;
       } else {
-        return this.users && this.users.length > this.max ? this.users.length - this.max : 0;
+        return this.users && this.users.length;
       }
     },
-    overlayStyle(){
+    remainingAvatarsCount() {
+      return this.totalUsersCount > this.max ? this.totalUsersCount - this.max : 0;
+    },
+    showMoreAvatarsNumber() {
+      return this.remainingAvatarsCount > 99 ? 99 : this.remainingAvatarsCount;
+    },
+    overlayStyle() {
       if (!this.avatarOverlayPosition) {
         return `right: ${this.iconSize + 4}px !important`;
       } 
