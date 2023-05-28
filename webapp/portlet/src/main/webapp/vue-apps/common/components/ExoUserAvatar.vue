@@ -1,15 +1,19 @@
 <template>
-  <div 
+  <div
     v-if="popover"
-    v-identity-popover="userIdentity"
+    v-identity-popover="popoverIdentity"
     class="profile-popover user-wrapper"
     :class="extraClass">
-    <a 
+    <component
       v-if="avatar"
+      :is="clickable && 'v-btn' || 'a'"
       :id="id"
+      :fab="clickable"
+      :depressed="clickable"
       :href="profileUrl"
+      :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
-      :class="avatarClass">
+      @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
         :class="pullLeft"
@@ -20,13 +24,17 @@
           loading="lazy"
           role="presentation">
       </v-avatar>
-    </a>
-    <a 
+    </component>
+    <component
       v-else-if="fullname"
+      :is="clickable && 'v-btn' || 'a'"
       :id="id"
+      :fab="clickable"
+      :depressed="clickable"
       :href="profileUrl"
-      :class="pullLeft"
-      class="d-flex align-start text-truncate">
+      :class="componentClass"
+      class="d-flex align-start text-truncate"
+      @click="clickable && $emit('avatar-click', $event)">
       <span
         v-if="userFullname"
         :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
@@ -37,13 +45,17 @@
       <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
-    </a>
-    <a
+    </component>
+    <component
       v-else
+      :is="clickable && 'v-btn' || 'a'"
       :id="id"
+      :fab="clickable"
+      :depressed="clickable"
       :href="profileUrl"
+      :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
-      :class="itemsAlignStyle">
+      @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
         class="ma-0">
@@ -68,18 +80,22 @@
       <template v-if="$slots.actions">
         <slot name="actions"></slot>
       </template>
-    </a>
+    </component>
   </div>
   <div 
     v-else
     class="profile-popover user-wrapper"
     :class="extraClass">
-    <a 
+    <component 
       v-if="avatar"
+      :is="clickable && 'v-btn' || 'a'"
       :id="id"
+      :fab="clickable"
+      :depressed="clickable"
       :href="profileUrl"
+      :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
-      :class="avatarClass">
+      @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
         :class="pullLeft"
@@ -90,13 +106,17 @@
           loading="lazy"
           role="presentation">
       </v-avatar>
-    </a>
-    <a 
+    </component>
+    <component 
       v-else-if="fullname"
+      :is="clickable && 'v-btn' || 'a'"
       :id="id"
+      :fab="clickable"
+      :depressed="clickable"
       :href="profileUrl"
-      :class="pullLeft"
-      class="d-flex align-start text-truncate">
+      :class="componentClass"
+      class="d-flex align-start text-truncate"
+      @click="clickable && $emit('avatar-click', $event)">
       <span
         v-if="userFullname"
         :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
@@ -107,13 +127,17 @@
       <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
-    </a>
-    <a
+    </component>
+    <component
       v-else
+      :is="clickable && 'v-btn' || 'a'"
       :id="id"
+      :fab="clickable"
+      :depressed="clickable"
       :href="profileUrl"
+      :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
-      :class="itemsAlignStyle">
+      @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
         class="ma-0">
@@ -138,7 +162,7 @@
       <template v-if="$slots.actions">
         <slot name="actions"></slot>
       </template>
-    </a>
+    </component>
   </div>
 </template>
 
@@ -150,6 +174,10 @@ export default {
     identity: {
       type: Object,
       default: () => null,
+    },
+    clickable: {
+      type: Boolean,
+      default: () => false,
     },
     profileId: {
       type: String,
@@ -227,36 +255,39 @@ export default {
   },
 
   computed: {
+    userIdentity() {
+      return this.retrievedIdentity || this.identity;
+    },
     identityId() {
-      return this.identity?.id || this.retrievedIdentity?.id;
+      return this.userIdentity?.id;
     },
     username() {
-      return this.identity?.username || this.retrievedIdentity?.username || this.profileId;
+      return this.userIdentity?.username ||  this.userIdentity?.userName || this.profileId;
     },
     enabled() {
-      return this.identity?.enabled || this.retrievedIdentity?.enabled;  
+      return this.userIdentity?.enabled;  
     },  
     deleted() {
-      return this.identity?.deleted || this.retrievedIdentity?.deleted;
+      return this.userIdentity?.deleted;
     },    
     userFullname() {
-      return this.identity?.fullname || this.retrievedIdentity?.fullname;
+      return this.userIdentity?.fullname;
     },
     position() {
-      return this.identity?.position || this.retrievedIdentity?.position;
+      return this.userIdentity?.position;
     },
     avatarUrl() {
-      return this.identity?.avatar || this.retrievedIdentity?.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`;
+      return this.userIdentity?.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`;
     },
     profileUrl() {
-      if ( this.url ) {
+      if (this.url && !this.clickable) {
         return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
       } else {
         return null;
       }
     },
     isExternal() {
-      return this.identity?.external === 'true' || this.retrievedIdentity?.external === 'true';
+      return this.userIdentity?.external === 'true';
     },
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
@@ -279,7 +310,7 @@ export default {
         identityId: this.username,        
       };
     },
-    userIdentity() {
+    popoverIdentity() {
       return {
         id: this.identityId,
         username: this.username,
@@ -293,11 +324,25 @@ export default {
     },
     pullLeft() {
       return this.isMobile && ' ' || 'pull-left';
-    }
+    },
+    componentClass() {
+      return `${this.avatarClass || ''} ${this.clickable && 'width-auto height-auto' || ''} ${this.fullname ? this.pullLeft : (!this.avatar && this.itemsAlignStyle || '')}`;
+    },
+    mustRetrieveIdentity() {
+      return !this.identity
+          || !this.identityId
+          || !this.username
+          || !this.userFullname
+          || !this.identity.avatar
+          || !this.identity.hasOwnProperty('enabled')
+          || !this.identity.hasOwnProperty('deleted')
+          || !this.identity.hasOwnProperty('position')
+          || !this.identity.hasOwnProperty('external');
+    },
   },
   created() {
-    if (this.profileId) {
-      this.$userService.getUser(this.profileId)
+    if (this.username && this.mustRetrieveIdentity) {
+      this.$userService.getUser(this.username)
         .then(user => this.retrievedIdentity = user);
     }
   },
