@@ -3,12 +3,14 @@
     :class="{ 'border-color': !hover }"
     :loading="loading"
     :width="previewWidth"
+    :elevation="hover ? 4 : 0"
     class="attachment-card-item overflow-hidden d-flex flex-column border-box-sizing mx-2"
     height="210px"
     max-height="210px"
     max-width="100%"
-    hover
-    @click="$emit('preview-attachment')">
+    @click="$emit('preview-attachment')"
+    @mouseenter="hover = true"
+    @mouseleave="hover = false">
     <v-card-text class="attachment-card-item-thumbnail d-flex flex-grow-1 pa-0">
       <img
         :src="attachment.thumbnailUrl"
@@ -66,6 +68,7 @@ export default {
   data: () => ({
     loading: false,
     invalid: false,
+    hover: false
   }),
   methods: {
     closeErrorBox(event) {
