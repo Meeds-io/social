@@ -197,7 +197,7 @@ export default {
         });
     },
     urlVerify(url) {
-      if (!(url.indexOf('javascript:') === 0 && url.indexOf('portal') === 0)) {
+      if (!url.match(/^((https?:\/\/))|(javascript:)|(\/portal\/)/)) {
         url = `//${url}`;
       }
       return url ;
