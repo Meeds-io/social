@@ -23,16 +23,10 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -247,6 +241,44 @@ public class AttachmentRest implements ResourceContainer {
       return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").build();
     } catch (IOException e) {
       return Response.status(Status.INTERNAL_SERVER_ERROR).entity("attachment.fileReadingError").build();
+    }
+  }
+
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(
+      summary = "Deletes a metadata item identified by its id",
+      description = "Deletes a metadata item identified by its id",
+      method = "DELETE"
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input"),
+          @ApiResponse(responseCode = "404", description = "Not found"),
+          @ApiResponse(responseCode = "401", description = "Unauthorized"),
+      }
+  )
+  public Response deleteAttachments(
+                                    @RequestBody(description = "Attached files to be deleted", required = true)
+                                    List<String> fileIds) {
+    if (CollectionUtils.isEmpty(fileIds)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+                     .entity("attachment.fileIds")
+                     .type(MediaType.TEXT_PLAIN)
+                     .build();
+    }
+    long currentIdentityId = RestUtils.getCurrentUserIdentityId();
+    if (currentIdentityId == 0) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+    try {
+      attachmentService.deleteAttachments(fileIds, currentIdentityId);
+      return Response.noContent().build();
+    } catch (IllegalArgumentException e) {
+      return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").build();
     }
   }
 

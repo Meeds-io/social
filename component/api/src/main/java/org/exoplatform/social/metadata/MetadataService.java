@@ -67,6 +67,15 @@ public interface MetadataService {
   Metadata deleteMetadataById(long metadataId);
 
   /**
+   * Deletes a {@link Metadata} by a given {@link MetadataKey} metadataKey
+   *
+   * @param metadataKey {@link MetadataKey} that contains {@link MetadataType} name {@link Metadata} name and {@link Metadata}
+   *                    audience
+   */
+  void deleteMetadataByName(MetadataKey metadataKey);
+
+
+  /**
    * Deletes all {@link MetadataItem} by a given {@link Space} identifier
    * 
    * @param  spaceId {@link Space} technical identifier

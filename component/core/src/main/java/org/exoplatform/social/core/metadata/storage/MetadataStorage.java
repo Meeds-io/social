@@ -257,6 +257,11 @@ public class MetadataStorage {
     }
   }
 
+  public void deleteMetadataByName(MetadataKey metadataKey) {
+    Metadata metadata = getMetadataByKey(metadataKey);
+    deleteMetadataById(metadata.getId());
+  }
+
   public List<MetadataItem> deleteByMetadataTypeAndSpaceIdAndCreatorId(long metadataType, long spaceId, long userIdentityId) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByTypeAndSpaceIdAndCreatorId(metadataType,
                                                                                                                  spaceId,
