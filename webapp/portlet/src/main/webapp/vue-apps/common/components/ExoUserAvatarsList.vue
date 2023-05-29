@@ -17,8 +17,7 @@
         :extra-class="'mx-1'"
         :popover="popover"
         :clickable="clickable"
-        avatar
-        @avatar-click="$emit('open-detail', user)" />
+        avatar />
       <v-btn
         v-if="showMoreAvatarsNumber"
         :height="iconSize"
@@ -27,8 +26,7 @@
         depressed>
         <v-avatar
           :size="iconSize"
-          class="notDisplayedIdentitiesOverlay"
-          @click="$emit('open-detail')">
+          class="notDisplayedIdentitiesOverlay">
           <div class="notDisplayedIdentities d-flex align-center justify-center caption">
             +{{ showMoreAvatarsNumber }}
           </div>
@@ -52,8 +50,7 @@
         :extra-class="'mx-1'"
         :popover="popover"
         :clickable="clickable"
-        avatar
-        @avatar-click="$emit('open-detail', user)" />
+        avatar />
       <v-btn
         v-if="showMoreAvatarsNumber"
         :height="iconSize"
@@ -62,8 +59,7 @@
         depressed>
         <v-avatar
           :size="iconSize"
-          class="notDisplayedIdentitiesOverlay"
-          @click="$emit('open-detail')">
+          class="notDisplayedIdentitiesOverlay">
           <div class="notDisplayedIdentities d-flex align-center justify-center caption">
             +{{ showMoreAvatarsNumber }}
           </div>
