@@ -18,7 +18,7 @@
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation">
+          :alt="`Avatar de ${userFullname}`">
       </v-avatar>
     </a>
     <a 
@@ -51,7 +51,7 @@
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation">
+          :alt="`Avatar de ${userFullname}`">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
