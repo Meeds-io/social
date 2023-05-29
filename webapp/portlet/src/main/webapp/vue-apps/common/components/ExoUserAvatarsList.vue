@@ -113,6 +113,9 @@ export default {
     usersToDisplay() {
       return this.users && this.users.slice(0, this.max);
     },
+    displayedUsersCount() {
+      return this.usersToDisplay?.length || 0;
+    },
     totalUsersCount() {
       if (this.defaultLength) {
         return this.defaultLength;
@@ -121,7 +124,7 @@ export default {
       }
     },
     remainingAvatarsCount() {
-      return this.totalUsersCount > this.max ? this.totalUsersCount - this.max : 0;
+      return this.totalUsersCount > this.displayedUsersCount ? this.totalUsersCount - this.displayedUsersCount : 0;
     },
     showMoreAvatarsNumber() {
       return this.remainingAvatarsCount > 99 ? 99 : this.remainingAvatarsCount;
