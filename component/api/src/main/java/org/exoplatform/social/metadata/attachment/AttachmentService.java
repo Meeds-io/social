@@ -20,6 +20,7 @@ package org.exoplatform.social.metadata.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
@@ -57,7 +58,7 @@ public interface AttachmentService {
 
   /**
    * Retrieves the list of attachments of a given object identified by its id
-   * 
+   *
    * @param  objectType              object type, can be of any type: activity,
    *                                   comment, notes...
    * @param  objectId                object technical unique identifier
@@ -82,7 +83,7 @@ public interface AttachmentService {
   /**
    * Retrieve an attached file to a dedicated object identified by its type and
    * id
-   * 
+   *
    * @param  objectType              object type, can be of any type: activity,
    *                                   comment, notes...
    * @param  objectId                object technical unique identifier
@@ -108,7 +109,7 @@ public interface AttachmentService {
   /**
    * Retrieves the input stream of an attached file to a dedicated object
    * identified by its type and id
-   * 
+   *
    * @param  objectType              object type, can be of any type: activity,
    *                                   comment, notes...
    * @param  objectId                object technical unique identifier
@@ -134,6 +135,16 @@ public interface AttachmentService {
                                        String imageDimensions,
                                        Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException,
                                                                  IOException;
+
+  /**
+   * Deletes an existing attachments by its id
+   *
+   * @param fileIds           attachments file identifier
+   * @param currentIdentityId user {@link org.exoplatform.social.core.identity.model.Identity} technical identifier
+   * @throws IllegalArgumentException when params are not valid
+   */
+  void deleteAttachments(List<String> fileIds,
+                         Long currentIdentityId) throws IllegalArgumentException;
 
   /**
    * Checks whether the user have access permission to a given object identified
@@ -170,7 +181,7 @@ public interface AttachmentService {
   /**
    * Add an Attachment Permission Plugin that will serve to make an ACL for a
    * given object type
-   * 
+   *
    * @param attachmentPermissionPlugin {@link AttachmentPlugin}
    */
   void addPlugin(AttachmentPlugin attachmentPermissionPlugin);

@@ -205,7 +205,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   click: (activity, activityTypeExtension) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
-      .then(() => document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id})))
+      .then(() => document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity})))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
