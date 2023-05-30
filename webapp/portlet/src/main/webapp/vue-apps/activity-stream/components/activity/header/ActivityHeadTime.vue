@@ -25,14 +25,14 @@
             v-if="isActivityEdited"
             :value="activity.updateDate"
             :short="isMobile"
-            :class="truncateText"
+            :class="[truncateText, textNone]"
             label="UIActivity.label.EditedFrom"
             class="text-capitalize-first-letter text-light-color relativeDateFormatClass" />
           <relative-date-format
             v-else
             :value="activity.createDate"
             :short="isMobile"
-            :class="truncateText"
+            :class="[truncateText, textNone]"
             class="text-capitalize-first-letter text-light-color relativeDateFormatClass" />
         </v-btn>
       </template>
@@ -97,6 +97,9 @@ export default {
     },
     truncateText() {
       return !this.isMobile && 'text-truncate' || ' ';
+    },
+    textNone() {
+      return eXo.env.portal.language === 'de' && 'text-none' || '';
     }
   },
 };
