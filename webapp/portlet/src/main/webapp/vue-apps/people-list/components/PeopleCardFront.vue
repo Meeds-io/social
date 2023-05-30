@@ -336,9 +336,9 @@ export default {
   watch: {
     displayActionMenu(newVal) {
       if (newVal) {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
+        document.getElementById('peopleCard'.concat(this.user.id)).style.zIndex = 3;
       } else {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
+        document.getElementById('peopleCard'.concat(this.user.id)).style.zIndex = 0;
       }
     },
   },
