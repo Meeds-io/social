@@ -12,7 +12,7 @@
             <v-col
               v-for="user in filteredPeople"
               :key="user.id"
-              :id="'peopleCard'.concate(user.id)"
+              :id="`peopleCardItem${user.id}`"
               cols="12"
               md="6"
               lg="4"
