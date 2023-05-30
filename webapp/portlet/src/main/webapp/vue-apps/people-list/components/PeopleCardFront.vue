@@ -338,7 +338,7 @@ export default {
       if (newVal) {
         document.getElementById('peopleCard'.concat(this.user.id)).style.zIndex = 3;
       } else {
-        document.getElementById('peopleCard'.concat(this.user.id)).style.zIndex = 0;
+        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
       }
     },
   },
