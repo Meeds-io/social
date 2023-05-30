@@ -72,7 +72,7 @@ public interface MetadataService {
    * @param metadataKey {@link MetadataKey} that contains {@link MetadataType} name {@link Metadata} name and {@link Metadata}
    *                    audience
    */
-  void deleteMetadataByName(MetadataKey metadataKey);
+  void deleteMetadataByKey(MetadataKey metadataKey);
 
 
   /**

@@ -257,7 +257,7 @@ public class MetadataStorage {
     }
   }
 
-  public void deleteMetadataByName(MetadataKey metadataKey) {
+  public void deleteMetadataByKey(MetadataKey metadataKey) {
     Metadata metadata = getMetadataByKey(metadataKey);
     deleteMetadataById(metadata.getId());
   }
