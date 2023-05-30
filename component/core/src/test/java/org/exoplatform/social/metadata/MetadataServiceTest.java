@@ -1074,7 +1074,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
 
-    metadataService.deleteMetadataItemsByObject(new MetadataObject("objectType11", "objectId1"));
+    metadataService.deleteMetadataItemsByObject(new MetadataObject("objectType11", "objectId1"), false);
 
     metadataItems = getMetadataItemsByObject("objectType11", "objectId1");
     assertNotNull(metadataItems);

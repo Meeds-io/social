@@ -118,7 +118,7 @@ export default {
   created() {
     this.streamFilter = !this.spaceId && localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
     document.addEventListener('activity-favorite-removed', event => {
-      const favoriteActivity = event && event.detail && event.detail;
+      const favoriteActivity = event?.detail;
       if (this.streamFilter === 'user_favorite_stream') {
         this.$set(favoriteActivity, 'deleted', true);
         const self = this;
@@ -131,7 +131,7 @@ export default {
       }
     });
     document.addEventListener('activity-deleted', event => {
-      const activityId = event && event.detail;
+      const activityId = event?.detail;
       if (this.activityId === activityId) {
         this.isDeleted = true;
         const activity = this.activities.find(obj => activityId === obj.id);

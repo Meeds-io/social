@@ -178,11 +178,6 @@
       <type>org.exoplatform.social.core.listeners.ActivityTagMetadataListener</type>
     </component-plugin>
     <component-plugin>
-      <name>ActivityMetadataListener</name>
-      <set-method>registerActivityListener</set-method>
-      <type>org.exoplatform.social.core.listeners.ActivityAttachmentMetadataListener</type>
-    </component-plugin>
-    <component-plugin>
       <name>MetadataActivityProcessor</name>
       <set-method>addProcessorPlugin</set-method>
       <type>org.exoplatform.social.core.processor.MetadataActivityProcessor</type>
@@ -248,6 +243,15 @@
       <name>file.deleted</name>
       <set-method>addListener</set-method>
       <type>org.exoplatform.social.core.listeners.ThumbnailFileListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>metadataItem.deleted</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.social.core.listeners.FileAttachmentListener</type>
     </component-plugin>
   </external-component-plugins>
 
