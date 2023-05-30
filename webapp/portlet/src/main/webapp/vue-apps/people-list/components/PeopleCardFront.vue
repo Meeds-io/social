@@ -333,6 +333,15 @@ export default {
     publisherRolePromotionFeatureEnabled: eXo.env.portal.PublisherRolePromotionFeatureEnabled,
     bottomMenu: false
   }),
+  watch: {
+    displayActionMenu(newVal) {
+      if (newVal) {
+        document.getElementById('peopleCard'.concat(this.user.id)).style.zIndex = 3;
+      } else {
+        document.getElementById('peopleCard'.concat(this.user.id)).style.zIndex = 0;
+      }
+    },
+  },
   computed: {
     isSameUser() {
       return this.user && this.user.username === eXo.env.portal.userName;
