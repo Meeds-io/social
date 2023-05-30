@@ -102,11 +102,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
-  public void deleteMetadataByName(MetadataKey metadataKey) {
+  public void deleteMetadataByKey(MetadataKey metadataKey) {
     if (metadataKey == null) {
       throw new IllegalArgumentException("Metadata key is mandatory");
     }
-    this.metadataStorage.deleteMetadataByName(metadataKey);
+    this.metadataStorage.deleteMetadataByKey(metadataKey);
   }
 
   @Override

@@ -289,7 +289,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     for (String fileId : fileIds) {
       fileService.deleteFile(Long.parseLong(fileId));
       MetadataKey metadataKey = new MetadataKey(String.valueOf(METADATA_TYPE.getName()), fileId, currentIdentityId);
-      metadataService.deleteMetadataByName(metadataKey);
+      metadataService.deleteMetadataByKey(metadataKey);
     }
   }
 
