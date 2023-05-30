@@ -241,44 +241,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(0, metadatas.size());
   }
 
-  public void testDeleteMetadataByKey() {
-    long creatorId = Long.parseLong(johnIdentity.getId());
-    long audienceId = creatorId;
-    String metadata1Name = "testMetadata1";
-    Metadata metadata1 = metadataService.createMetadata(newMetadataInstance(audienceId,
-                                                                            creatorId,
-                                                                            metadata1Name,
-                                                                            null,
-                                                                            userMetadataType),
-                                                        creatorId);
-    String metadata2Name = "testMetadata2";
-    Metadata metadata2 = metadataService.createMetadata(newMetadataInstance(audienceId,
-                                                                            creatorId,
-                                                                            metadata2Name,
-                                                                            null,
-                                                                            userMetadataType),
-                                                        creatorId);
-    List<Metadata> metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
-    assertEquals(2, metadatas.size());
-    assertEquals(metadata1Name, metadatas.get(0).getName());
-    assertThrows(IllegalArgumentException.class, () -> metadataService.deleteMetadataByKey(null));
-
-    MetadataKey metadataKey1 = new MetadataKey(userMetadataType.getName(), "testMetadata1", audienceId);
-
-    metadataService.deleteMetadataByKey(metadataKey1);
-    metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
-
-    assertEquals(1, metadatas.size());
-    assertEquals(metadata2Name, metadatas.get(0).getName());
-
-    MetadataKey metadataKey2 = new MetadataKey(userMetadataType.getName(), "testMetadata2", audienceId);
-
-    metadataService.deleteMetadataByKey(metadataKey2);
-    metadatas = metadataService.getMetadatas(userMetadataType.getName(), -1);
-
-    assertEquals(0, metadatas.size());
-  }
-
   public void testCreateMetadataItem() throws Exception { // NOSONAR
     long creatorId = Long.parseLong(johnIdentity.getId());
     long audienceId = creatorId;

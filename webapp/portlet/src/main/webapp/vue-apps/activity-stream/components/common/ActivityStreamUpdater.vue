@@ -75,7 +75,7 @@ export default {
       this.init();
     },
     broadcastActivityDeleted(activity) {
-      document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
+      document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity}));
     },
     broadcastCommentDeleted(activityId, spaceId, commentId, parentCommentId) {
       document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: {

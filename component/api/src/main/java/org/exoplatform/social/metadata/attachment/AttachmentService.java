@@ -137,16 +137,6 @@ public interface AttachmentService {
                                                                  IOException;
 
   /**
-   * Deletes an existing attachments by its id
-   *
-   * @param fileIds           attachments file identifier
-   * @param currentIdentityId user {@link org.exoplatform.social.core.identity.model.Identity} technical identifier
-   * @throws IllegalArgumentException when params are not valid
-   */
-  void deleteAttachments(List<String> fileIds,
-                         Long currentIdentityId) throws IllegalArgumentException;
-
-  /**
    * Checks whether the user have access permission to a given object identified
    * by its id
    *

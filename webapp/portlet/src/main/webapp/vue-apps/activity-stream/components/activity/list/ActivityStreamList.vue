@@ -131,10 +131,7 @@ export default {
       }
     });
     document.addEventListener('activity-deleted', event => {
-      const activityId = event && event.detail  && event.detail.id;
-      if (event?.detail?.metadatas?.attachments) {
-        this.$fileAttachmentService.deleteAttachments(event.detail.metadatas.attachments.map((attachment) => attachment.name));
-      }
+      const activityId = event && event.detail  && event.detail;
       if (this.activityId === activityId) {
         this.isDeleted = true;
         const activity = this.activities.find(obj => activityId === obj.id);

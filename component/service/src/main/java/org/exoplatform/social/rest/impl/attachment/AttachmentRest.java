@@ -244,44 +244,6 @@ public class AttachmentRest implements ResourceContainer {
     }
   }
 
-  @DELETE
-  @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
-  @Operation(
-      summary = "Deletes a metadata item identified by its id",
-      description = "Deletes a metadata item identified by its id",
-      method = "DELETE"
-  )
-  @ApiResponses(
-      value = {
-          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
-          @ApiResponse(responseCode = "500", description = "Internal server error"),
-          @ApiResponse(responseCode = "400", description = "Invalid query input"),
-          @ApiResponse(responseCode = "404", description = "Not found"),
-          @ApiResponse(responseCode = "401", description = "Unauthorized"),
-      }
-  )
-  public Response deleteAttachments(
-                                    @RequestBody(description = "Attached files to be deleted", required = true)
-                                    List<String> fileIds) {
-    if (CollectionUtils.isEmpty(fileIds)) {
-      return Response.status(Response.Status.BAD_REQUEST)
-                     .entity("attachment.fileIds")
-                     .type(MediaType.TEXT_PLAIN)
-                     .build();
-    }
-    long currentIdentityId = RestUtils.getCurrentUserIdentityId();
-    if (currentIdentityId == 0) {
-      return Response.status(Response.Status.UNAUTHORIZED).build();
-    }
-    try {
-      attachmentService.deleteAttachments(fileIds, currentIdentityId);
-      return Response.noContent().build();
-    } catch (IllegalArgumentException e) {
-      return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").build();
-    }
-  }
-
   private Response.ResponseBuilder buildAttachmentResponse(String objectType, // NOSONAR
                                                            String objectId,
                                                            String fileId,
