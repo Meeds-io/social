@@ -279,21 +279,6 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
-  public void deleteAttachments(List<String> fileIds, Long currentIdentityId) throws IllegalArgumentException {
-    if (CollectionUtils.isEmpty(fileIds)) {
-      throw new IllegalArgumentException("fileIds is mandatory");
-    }
-    if (currentIdentityId <= 0) {
-      throw new IllegalArgumentException("User identity id is mandatory");
-    }
-    for (String fileId : fileIds) {
-      fileService.deleteFile(Long.parseLong(fileId));
-      MetadataKey metadataKey = new MetadataKey(String.valueOf(METADATA_TYPE.getName()), fileId, currentIdentityId);
-      metadataService.deleteMetadataByKey(metadataKey);
-    }
-  }
-
-  @Override
   public boolean hasAccessPermission(Identity userIdentity, String objectType, String objectId) throws ObjectNotFoundException {
     AttachmentPlugin attachmentPlugin = this.attachmentPlugins.get(objectType);
     return attachmentPlugin != null && attachmentPlugin.hasAccessPermission(userIdentity, objectId);

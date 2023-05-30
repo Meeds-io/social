@@ -182,6 +182,11 @@
       <type>org.exoplatform.social.core.listeners.ActivityTagMetadataListener</type>
     </component-plugin>
     <component-plugin>
+      <name>ActivityMetadataListener</name>
+      <set-method>registerActivityListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ActivityAttachmentMetadataListener</type>
+    </component-plugin>
+    <component-plugin>
       <name>MetadataActivityProcessor</name>
       <set-method>addProcessorPlugin</set-method>
       <type>org.exoplatform.social.core.processor.MetadataActivityProcessor</type>

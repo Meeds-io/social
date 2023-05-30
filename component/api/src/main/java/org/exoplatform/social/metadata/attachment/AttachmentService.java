@@ -20,7 +20,6 @@ package org.exoplatform.social.metadata.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
@@ -135,16 +134,6 @@ public interface AttachmentService {
                                        String imageDimensions,
                                        Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException,
                                                                  IOException;
-
-  /**
-   * Deletes an existing attachments by its id
-   *
-   * @param fileIds           attachments file identifier
-   * @param currentIdentityId user {@link org.exoplatform.social.core.identity.model.Identity} technical identifier
-   * @throws IllegalArgumentException when params are not valid
-   */
-  void deleteAttachments(List<String> fileIds,
-                         Long currentIdentityId) throws IllegalArgumentException;
 
   /**
    * Checks whether the user have access permission to a given object identified

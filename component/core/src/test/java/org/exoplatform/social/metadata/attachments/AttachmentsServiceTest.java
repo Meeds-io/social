@@ -16,7 +16,6 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
-import org.exoplatform.social.metadata.model.Metadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -287,18 +286,6 @@ public class AttachmentsServiceTest {
     assertNotNull(attachmentInputStream);
     assertNotNull(attachmentInputStream1);
     assertEquals(attachmentInputStream, attachmentInputStream1);
-  }
-
-  @Test
-  public void testDeleteAttachments() {
-    String fileId = String.valueOf(FILE_ID);
-    List<String> fileIds = Arrays.asList(String.valueOf(FILE_ID));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.deleteAttachments(null, 1l));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.deleteAttachments(fileIds, -1l));
-    MetadataKey metadataKey = new MetadataKey("attachments", fileId, Long.parseLong(USER_IDENTITY_ID));
-
-    attachmentService.deleteAttachments(fileIds, Long.parseLong(USER_IDENTITY_ID));
-    verify(metadataService, times(1)).deleteMetadataByKey(metadataKey);
   }
 
 }

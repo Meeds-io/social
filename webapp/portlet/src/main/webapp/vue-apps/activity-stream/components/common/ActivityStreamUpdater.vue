@@ -74,8 +74,8 @@ export default {
       this.$emit('loadActivities', this.updatedActivities.size);
       this.init();
     },
-    broadcastActivityDeleted(activity) {
-      document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
+    broadcastActivityDeleted(activityId) {
+      document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activityId}));
     },
     broadcastCommentDeleted(activityId, spaceId, commentId, parentCommentId) {
       document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: {
