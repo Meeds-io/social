@@ -1,6 +1,5 @@
 <template>
   <v-app v-if="loaded" role="main">
-    <activity-notification-alerts />
     <activity-stream-toolbar
       v-if="canPostInitialized"
       :can-post="canPost"
