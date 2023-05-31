@@ -194,7 +194,7 @@ public interface MetadataService {
    *                 and an objectId (the object technical identifier. In
    *                 general we use here the DB identifier of the object).
    */
-  void deleteMetadataItemsByObject(MetadataObject object, boolean broadcast);
+  void deleteMetadataItemsByObject(MetadataObject object);
 
   /**
    * Deletes all metadata items by {@link MetadataType} and spaceId and

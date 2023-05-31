@@ -44,7 +44,7 @@ public class ActivityMetadataListener extends ActivityListenerPlugin {
     // Cleanup all related Metadatas of the activity once deleted
     String activityId = event.getActivityId();
     metadataService.deleteMetadataItemsByObject(new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
-                                                                   activityId), true);
+                                                                   activityId));
     metadataService.deleteMetadataItemsByParentObject(new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
                                                                          null,
                                                                          activityId));

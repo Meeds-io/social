@@ -18,12 +18,12 @@ package org.exoplatform.social.core.listeners;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
+import org.exoplatform.social.metadata.attachment.AttachmentService;
+import org.exoplatform.social.metadata.model.MetadataItem;
 
-import java.util.Set;
+import java.util.List;
 
-public class FileAttachmentListener extends Listener<Set<String>, String> {
-
-  private static final String FILE_DELETED_EVENT = "metadataItem.deleted";
+public class FileAttachmentListener extends Listener<Long,List<MetadataItem>> {
 
   private FileService fileService;
 
@@ -32,13 +32,12 @@ public class FileAttachmentListener extends Listener<Set<String>, String> {
   }
 
   @Override
-  public void onEvent(Event<Set<String>, String> event) throws Exception {
-    String eventName = event.getEventName();
-    if(eventName == FILE_DELETED_EVENT) {
-      Set<String> fileIds = event.getSource();
-      fileIds.forEach(fileId -> {
-        fileService.deleteFile(Long.parseLong(fileId));
-      });
-    }
+  public void onEvent(Event<Long, List<MetadataItem>> event) throws Exception {
+    List<MetadataItem> metadataItems = event.getData();
+    metadataItems.forEach(metadataItem -> {
+      if (metadataItem.getMetadata().getType().getName().equals(AttachmentService.METADATA_TYPE.getName())) {
+        fileService.deleteFile(Long.parseLong(metadataItem.getMetadata().getName()));
+      }
+    });
   }
 }
