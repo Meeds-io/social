@@ -46,6 +46,7 @@ import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
 
 import io.meeds.social.core.richeditor.RichEditorConfigurationServiceTest;
+import io.meeds.social.translation.service.TranslationServiceTest;
 
 import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
@@ -96,6 +97,7 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
   AttachmentActivityProcessorTest.class,
+  TranslationServiceTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

@@ -20,7 +20,7 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
-    id="translationDrawer"
+    id="cropperDrawer"
     allow-expand
     right
     disable-pull-to-refresh
