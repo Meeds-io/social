@@ -15,17 +15,24 @@
  */
 package org.exoplatform.social.core.listeners;
 
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.commons.file.services.FileStorageException;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
+import java.io.IOException;
 import java.util.List;
 
-public class FileAttachmentListener extends Listener<Long,List<MetadataItem>> {
+public class FileAttachmentListener extends Listener<Long, List<MetadataItem>> {
 
-  private FileService fileService;
+  private static final Log LOG = ExoLogger.getLogger(FileAttachmentListener.class);
+
+  private FileService      fileService;
 
   public FileAttachmentListener(FileService fileService) {
     this.fileService = fileService;
@@ -36,7 +43,15 @@ public class FileAttachmentListener extends Listener<Long,List<MetadataItem>> {
     List<MetadataItem> metadataItems = event.getData();
     metadataItems.forEach(metadataItem -> {
       if (metadataItem.getMetadata().getType().getName().equals(AttachmentService.METADATA_TYPE.getName())) {
-        fileService.deleteFile(Long.parseLong(metadataItem.getMetadata().getName()));
+        long fileId = Long.parseLong(metadataItem.getMetadata().getName());
+        try {
+          FileItem fileItem = fileService.getFile(fileId);
+          if (fileItem != null) {
+            fileService.deleteFile(fileId);
+          }
+        } catch (FileStorageException e) {
+          LOG.warn("Error reading file with id " + fileId, e);
+        }
       }
     });
   }

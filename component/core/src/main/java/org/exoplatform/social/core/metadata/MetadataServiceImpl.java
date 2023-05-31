@@ -193,11 +193,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public void deleteMetadataItemsByObject(MetadataObject object) {
     List<MetadataItem> metadataItems = this.metadataStorage.getMetadataItemsByObject(object);
     this.metadataStorage.deleteMetadataItemsByObject(object);
-      try {
-        this.listenerService.broadcast("social.metadataItem.deleted", 0l, metadataItems);
-      } catch (Exception e) {
-        LOG.warn("Error while broadcasting event for metadata delete", e);
-      }
+    try {
+      this.listenerService.broadcast("social.metadataItem.deleted", 0l, metadataItems);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata delete", e);
+    }
   }
 
   @Override

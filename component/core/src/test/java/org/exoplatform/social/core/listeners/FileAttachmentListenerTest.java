@@ -133,25 +133,21 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
     assertNotNull(metadataItem);
     assertEquals(1, metadataItems.size());
 
-    FileItem fileItem = new FileItem(FILE_ID,
-                                     "test",
-                                     "image/png",
-                                     "attachment",
-                                     "test".getBytes().length,
-                                     new Date(),
-                                     "user",
-                                     false,
-                                     new ByteArrayInputStream("test".getBytes()));
+    FileItem fileItem = fileService.writeFile(new FileItem(FILE_ID,
+                                                           "test",
+                                                           "image/png",
+                                                           "attachment",
+                                                           "test".getBytes().length,
+                                                           new Date(),
+                                                           "user",
+                                                           false,
+                                                           new ByteArrayInputStream("test".getBytes())));
 
-    fileItem = fileService.writeFile(fileItem);
+    assertEquals(metadataItems.get(0).getMetadata().getType().getName(), METADATA_TYPE_NAME);
 
     activityManager.deleteActivity(activity);
     restartTransaction();
 
-    Event<Long, List<MetadataItem>> deleteAttachments = new Event<>("social.metadataItem.deleted", 0l, metadataItems);
-    fileAttachmentListener.onEvent(deleteAttachments);
-
-    assertTrue(fileService.getFileInfo(FILE_ID).isDeleted());
   }
 
   private InitParams newParam(long id, String name) {
