@@ -67,16 +67,8 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     validateAndGetMetadataType(metadata.getType().getName());
     validateUserIdentityId(userIdentityId);
 
-    metadata.setType(metadata.getType());
     metadata.setCreatorId(userIdentityId);
-    metadata.setProperties(metadata.getProperties());
-    metadata = metadataStorage.createMetadata(metadata);
-    try {
-      this.listenerService.broadcast("social.metadata.created", userIdentityId, metadata);
-    } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata creation", e);
-    }
-    return metadata;
+    return createMetadataAndBroadcast(metadata, userIdentityId);
   }
 
   @Override
@@ -140,53 +132,29 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                          MetadataKey metadataKey,
                                          Map<String, String> properties,
                                          long userIdentityId) throws ObjectAlreadyExistsException {
-    if (metadataObject == null) {
-      throw new IllegalArgumentException("Metadata Item Object is mandatory");
-    }
-    if (StringUtils.isBlank(metadataObject.getType())) {
-      throw new IllegalArgumentException("Metadata Item Object Type is mandatory");
-    }
-    if (StringUtils.isBlank(metadataObject.getId())) {
-      throw new IllegalArgumentException("Metadata Item Object Id is mandatory");
-    }
-    if (metadataKey == null) {
-      throw new IllegalArgumentException("Metadata Key is mandatory");
-    }
-    if (StringUtils.isBlank(metadataKey.getName())) {
-      throw new IllegalArgumentException("Metadata Name is mandatory");
-    }
-    String metadataTypeName = metadataKey.getType();
-    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     validateUserIdentityId(userIdentityId);
-
-    Metadata metadata = getMetadataByKey(metadataKey);
-    if (metadata == null) {
-      metadata = new Metadata();
-      metadata.setName(metadataKey.getName());
-      metadata.setType(metadataType);
-      metadata.setAudienceId(metadataKey.getAudienceId());
-      metadata = createMetadata(metadata, userIdentityId);
-    }
+    Metadata metadata = checkAndCreateMetadata(metadataObject, metadataKey, userIdentityId);
     MetadataItem metadataItem = new MetadataItem(0,
                                                  metadata,
                                                  metadataObject,
                                                  userIdentityId,
                                                  System.currentTimeMillis(),
                                                  properties);
-    if (!isAllowMultipleItemsPerObject(metadataTypeName)) {
-      List<MetadataItem> storedMetadataItems = metadataStorage.getMetadataItemsByMetadataAndObject(metadata.getId(),
-                                                                                                   metadataItem.getObject());
-      if (!storedMetadataItems.isEmpty()) {
-        throw new ObjectAlreadyExistsException(storedMetadataItems.get(0));
-      }
-    }
-    metadataItem = metadataStorage.createMetadataItem(metadataItem);
-    try {
-      this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
-    } catch (Exception e) {
-      LOG.warn("Error while broadcasting event for metadata item creation", e);
-    }
-    return metadataItem;
+    return createMetadataItem(metadataItem, userIdentityId);
+  }
+
+  @Override
+  public MetadataItem createMetadataItem(MetadataObject metadataObject,
+                                         MetadataKey metadataKey,
+                                         Map<String, String> properties) throws ObjectAlreadyExistsException {
+    Metadata metadata = checkAndCreateMetadata(metadataObject, metadataKey, 0);
+    MetadataItem metadataItem = new MetadataItem(0,
+                                                 metadata,
+                                                 metadataObject,
+                                                 0,
+                                                 System.currentTimeMillis(),
+                                                 properties);
+    return createMetadataItem(metadataItem, 0);
   }
 
   @Override
@@ -300,6 +268,21 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName,
                                                                                metadataTypeName,
                                                                                objectType,
+                                                                               offset,
+                                                                               limit);
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                           String metadataTypeName,
+                                                                           String objectType,
+                                                                           String objectId,
+                                                                           long offset,
+                                                                           long limit) {
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName,
+                                                                               metadataTypeName,
+                                                                               objectType,
+                                                                               objectId,
                                                                                offset,
                                                                                limit);
   }
@@ -511,6 +494,66 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   @Override
   public void stop() {
     // Nothing to stop
+  }
+
+  private Metadata checkAndCreateMetadata(MetadataObject metadataObject,
+                                          MetadataKey metadataKey,
+                                          long userIdentityId) throws ObjectAlreadyExistsException {
+    if (metadataObject == null) {
+      throw new IllegalArgumentException("Metadata Item Object is mandatory");
+    }
+    if (StringUtils.isBlank(metadataObject.getType())) {
+      throw new IllegalArgumentException("Metadata Item Object Type is mandatory");
+    }
+    if (StringUtils.isBlank(metadataObject.getId())) {
+      throw new IllegalArgumentException("Metadata Item Object Id is mandatory");
+    }
+    if (metadataKey == null) {
+      throw new IllegalArgumentException("Metadata Key is mandatory");
+    }
+    if (StringUtils.isBlank(metadataKey.getName())) {
+      throw new IllegalArgumentException("Metadata Name is mandatory");
+    }
+    String metadataTypeName = metadataKey.getType();
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+
+    Metadata metadata = getMetadataByKey(metadataKey);
+    if (metadata == null) {
+      metadata = new Metadata();
+      metadata.setName(metadataKey.getName());
+      metadata.setType(metadataType);
+      metadata.setAudienceId(metadataKey.getAudienceId());
+      metadata.setCreatorId(userIdentityId);
+      metadata = createMetadataAndBroadcast(metadata, userIdentityId);
+    }
+    if (!isAllowMultipleItemsPerObject(metadata.getTypeName())) {
+      List<MetadataItem> storedMetadataItems = metadataStorage.getMetadataItemsByMetadataAndObject(metadata.getId(),
+                                                                                                   metadataObject);
+      if (!storedMetadataItems.isEmpty()) {
+        throw new ObjectAlreadyExistsException(storedMetadataItems.get(0));
+      }
+    }
+    return metadata;
+  }
+
+  private Metadata createMetadataAndBroadcast(Metadata metadata, long userIdentityId) {
+    metadata = metadataStorage.createMetadata(metadata);
+    try {
+      this.listenerService.broadcast("social.metadata.created", userIdentityId, metadata);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata creation", e);
+    }
+    return metadata;
+  }
+
+  private MetadataItem createMetadataItem(MetadataItem metadataItem, long userIdentityId) {
+    metadataItem = metadataStorage.createMetadataItem(metadataItem);
+    try {
+      this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata item creation", e);
+    }
+    return metadataItem;
   }
 
   private MetadataItem shareMetadataItem(MetadataObject metadataObject,

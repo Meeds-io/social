@@ -183,6 +183,29 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                           String metadataTypeName,
+                                                                           String objectType,
+                                                                           String objectId,
+                                                                           long offset,
+                                                                           long limit) {
+    MetadataType metadataType = getMetadataType(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
+    }
+    List<MetadataItemEntity> metadataItemEntities =
+                                                  metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName,
+                                                                                                                 metadataType.getId(),
+                                                                                                                 objectType,
+                                                                                                                 objectId,
+                                                                                                                 offset,
+                                                                                                                 limit);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String metadataName,
                                                                                      String metadataTypeName,
                                                                                      String objectType,
