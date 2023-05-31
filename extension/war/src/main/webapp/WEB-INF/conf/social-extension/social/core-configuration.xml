@@ -153,6 +153,16 @@
     </component>
 
     <component>
+      <key>io.meeds.social.translation.storage.TranslationStorage</key>
+      <type>io.meeds.social.translation.storage.cache.CachedTranslationStorage</type>
+    </component>
+
+    <component>
+      <key>io.meeds.social.translation.service.TranslationService</key>
+      <type>io.meeds.social.translation.service.TranslationServiceImpl</type>
+    </component>
+
+    <component>
         <type>org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage</type>
     </component>
 
