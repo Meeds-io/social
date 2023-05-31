@@ -78,10 +78,7 @@ export default {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
     },
     displayAlert(message, type) {
-      this.$root.$emit('notification-alert', {
-        message,
-        type: type || 'success',
-      });
+      this.$root.$emit('alert-message', message, type || 'success');
     },
   }
 };
