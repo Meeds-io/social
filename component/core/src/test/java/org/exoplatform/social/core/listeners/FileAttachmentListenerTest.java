@@ -15,10 +15,13 @@
  */
 package org.exoplatform.social.core.listeners;
 
+import org.apache.ecs.wml.Meta;
+import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
+import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -64,6 +67,8 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
 
   private FileService             fileService;
 
+  private FileAttachmentListener  fileAttachmentListener;
+
   private List<ExoSocialActivity> tearDownActivityList;
 
   @Override
@@ -74,6 +79,7 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     fileService = getContainer().getComponentInstanceOfType(FileService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
+    fileAttachmentListener = new FileAttachmentListener(fileService);
     if (metadataService.getMetadataTypeByName(METADATA_TYPE_NAME) == null) {
       MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(2659, METADATA_TYPE_NAME)) {
         @Override
@@ -140,8 +146,10 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
     fileItem = fileService.writeFile(fileItem);
 
     activityManager.deleteActivity(activity);
-
     restartTransaction();
+
+    Event<Long, List<MetadataItem>> deleteAttachments = new Event<>("social.metadataItem.deleted", 0l, metadataItems);
+    fileAttachmentListener.onEvent(deleteAttachments);
 
     assertTrue(fileService.getFileInfo(FILE_ID).isDeleted());
   }
