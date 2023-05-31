@@ -118,6 +118,32 @@
         </object-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>TranslationMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>255</int>
+            </field>
+            <field name="name">
+              <string>translation</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>

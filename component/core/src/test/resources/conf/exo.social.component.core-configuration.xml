@@ -123,6 +123,16 @@
     <type>org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO</type>
   </component>
 
+  <component>
+    <key>io.meeds.social.translation.storage.TranslationStorage</key>
+    <type>io.meeds.social.translation.storage.cache.CachedTranslationStorage</type>
+  </component>
+
+  <component>
+    <key>io.meeds.social.translation.service.TranslationService</key>
+    <type>io.meeds.social.translation.service.TranslationServiceImpl</type>
+  </component>
+
    <!--
     Activity storage components.
   -->
@@ -492,6 +502,32 @@
             </field>
             <field name="name">
               <string>thumbnail</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>TranslationMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>255</int>
+            </field>
+            <field name="name">
+              <string>translation</string>
             </field>
           </object>
         </object-param>

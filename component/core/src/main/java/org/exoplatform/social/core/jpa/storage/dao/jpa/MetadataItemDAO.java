@@ -151,6 +151,28 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
+  public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                                 long metadataType,
+                                                                                 String objectType,
+                                                                                 String objectId,
+                                                                                 long offset,
+                                                                                 long limit) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObjectTypeAndId",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_NAME, metadataName);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
+    if (offset > 0) {
+      query.setFirstResult((int) offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    return query.getResultList();
+  }
+
   public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String metadataName,
                                                                                            long metadataType,
                                                                                            String objectType,
@@ -270,7 +292,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       return result.stream()
                    .map(tuple -> (String) tuple.get(0))
                    .distinct()
-                   .collect(Collectors.toList());
+                   .toList();
     }
   }
 

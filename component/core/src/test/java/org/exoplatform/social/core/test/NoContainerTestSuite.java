@@ -30,7 +30,6 @@ import org.exoplatform.social.core.image.ImageUtilsTest;
 import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
-import org.exoplatform.social.core.search.SearchServiceTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 
