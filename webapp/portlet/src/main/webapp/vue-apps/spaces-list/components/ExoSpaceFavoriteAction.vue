@@ -78,10 +78,7 @@ export default {
       this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
     },
     displayAlert(message, type) {
-      document.dispatchEvent(new CustomEvent('notification-alert', {detail: {
-        message,
-        type: type || 'success',
-      }}));
+      this.$root.$emit('alert-message', message, type || 'success');
     },
   },
 };

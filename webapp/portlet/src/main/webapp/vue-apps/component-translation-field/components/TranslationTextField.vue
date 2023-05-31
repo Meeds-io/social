@@ -17,15 +17,31 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <div class="translation-text-field">
+  <div v-if="translationConfiguration" class="translation-text-field">
+    <div v-if="$slots.default" class="d-flex flex-column">
+      <div class="position-relative d-flex flex-grow-1 justify-end">
+        <v-btn
+          :title="iconTitle"
+          :class="buttonClass"
+          class="position-absolute z-index-one me-3"
+          icon
+          @click="openDrawer">
+          <v-icon :color="iconColor">fas fa-language</v-icon>
+        </v-btn>
+      </div>
+      <slot></slot>
+    </div>
     <v-text-field
-      v-if="isI18N"
+      v-else-if="isI18N"
       :id="id"
       :name="id"
       :placeholder="placeholder"
       :value="$t(defaultLanguageValue)"
-      class="border-box-sizing pt-0"
+      :autofocus="autofocus"
+      :maxlength="maxlength"
+      class="border-box-sizing width-auto pt-0"
       type="text"
+      hide-details
       outlined
       readonly
       dense>
@@ -46,8 +62,11 @@
       :placeholder="placeholder"
       :required="required"
       :aria-required="required"
-      class="border-box-sizing pt-0"
+      :autofocus="autofocus"
+      :maxlength="maxlength"
+      class="border-box-sizing width-auto pt-0"
       type="text"
+      hide-details
       outlined
       dense>
       <template #append>
@@ -63,10 +82,16 @@
     <translation-drawer
       ref="translationDrawer"
       v-model="valuesPerLanguage"
+      :object-type="objectType"
+      :object-id="objectId"
+      :field-name="fieldName"
       :drawer-title="drawerTitle"
-      :default-language="defaultLanguage"
-      :supported-languages="supportedLanguages"
-      @input="$emit('input', $event)" />
+      :default-language="defaultLocale"
+      :supported-languages="supportedLocales"
+      :back-icon="backIcon"
+      :max-length="maxlength"
+      :rich-editor="richEditor"
+      @input="emitUpdateValues" />
   </div>
 </template>
 <script>
@@ -96,18 +121,61 @@ export default {
       type: Array,
       default: null,
     },
+    objectType: {
+      type: String,
+      default: null,
+    },
+    objectId: {
+      type: String,
+      default: null,
+    },
+    fieldValue: {
+      type: String,
+      default: null,
+    },
+    fieldName: {
+      type: String,
+      default: null,
+    },
+    backIcon: {
+      type: Boolean,
+      default: false,
+    },
+    autofocus: {
+      type: Boolean,
+      default: false,
+    },
     required: {
       type: Boolean,
       default: false,
+    },
+    richEditor: {
+      type: Boolean,
+      default: false,
+    },
+    buttonClass: {
+      type: String,
+      default: null,
+    },
+    maxlength: {
+      type: Number,
+      default: () => 255,
     },
   },
   data: () => ({
     defaultLanguageValue: null,
     valuesPerLanguage: {},
+    translationConfiguration: null,
   }),
   computed: {
     isI18N() {
       return this.$te(this.defaultLanguageValue);
+    },
+    defaultLocale() {
+      return this.defaultLanguage || this.translationConfiguration?.defaultLanguage;
+    },
+    supportedLocales() {
+      return this.supportedLanguages || this.translationConfiguration?.supportedLanguages;
     },
     translationsCount() {
       return Object.keys(this.valuesPerLanguage).length;
@@ -118,25 +186,64 @@ export default {
     iconTitle() {
       return this.translationsCount > 1 ? this.$t('translationDrawer.existingTranslationsTooltip', {0: this.translationsCount - 1}) : this.$t('translationDrawer.noTranslationsTooltip');
     },
+    serverSideFetch() {
+      return this.objectType && this.objectId && this.fieldName;
+    },
   },
   watch: {
     value: {
       immediate: true,
       handler: function() {
         this.valuesPerLanguage = this.value && JSON.parse(JSON.stringify(this.value)) || {};
-        this.defaultLanguageValue = this.valuesPerLanguage[this.defaultLanguage] || '';
+        this.defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale] || '';
       },
     },
     defaultLanguageValue() {
-      if (this.defaultLanguageValue !== this.valuesPerLanguage[this.defaultLanguage]) {
-        this.valuesPerLanguage[this.defaultLanguage] = this.defaultLanguageValue;
-        this.$emit('input', this.valuesPerLanguage);
+      if (this.defaultLocale && (!this.defaultLanguageValue || this.defaultLanguageValue !== this.valuesPerLanguage[this.defaultLocale])) {
+        this.updateTranslationMap();
       }
     },
   },
+  created() {
+    this.$translationService.getTranslationConfiguration()
+      .then(configuration => this.translationConfiguration = configuration)
+      .then(() => this.serverSideFetch && this.$translationService.getTranslations(this.objectType, this.objectId, this.fieldName))
+      .then(translations => {
+        if (this.serverSideFetch && translations && Object.keys(translations).length) {
+          this.valuesPerLanguage = translations;
+        } else {
+          this.valuesPerLanguage = this.value && JSON.parse(JSON.stringify(this.value)) || {};
+        }
+      })
+      .then(() => this.init())
+      .then(() => this.$nextTick())
+      .finally(() => this.$emit('initialized'));
+  },
   methods: {
+    init() {
+      if (this.valuesPerLanguage[this.defaultLocale]) {
+        this.defaultLanguageValue = this.valuesPerLanguage[this.defaultLocale];
+      } else {
+        this.defaultLanguageValue = this.fieldValue || this.valuesPerLanguage[this.defaultLocale] || '';
+      }
+      this.updateTranslationMap();
+    },
+    updateTranslationMap() {
+      this.valuesPerLanguage[this.defaultLocale] = this.defaultLanguageValue || '';
+      this.$emit('input', this.valuesPerLanguage);
+      this.$emit('update:field-value', this.defaultLanguageValue);
+    },
+    emitUpdateValues() {
+      this.defaultLanguageValue = this.valuesPerLanguage[this.defaultLocale];
+      this.$emit('input', this.valuesPerLanguage);
+      this.$emit('update:field-value', this.defaultLanguageValue);
+    },
     openDrawer() {
       this.$refs.translationDrawer.open();
+    },
+    // To keep, used by parent to update value in case of need
+    setValue(value) {
+      this.defaultLanguageValue = value;
     },
   },
 };

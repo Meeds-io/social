@@ -145,6 +145,28 @@ public interface MetadataService {
                                   long userIdentityId) throws ObjectAlreadyExistsException;
 
   /**
+   * Creates a new Metadata Item. When the metadata with the designated key
+   * doesn't exists, it will create a new one
+   *
+   * @param  metadataObject               object to store
+   * @param  metadataKey                  {@link MetadataKey} that contains
+   *                                        {@link MetadataType} name
+   *                                        {@link Metadata} name and
+   *                                        {@link Metadata} audience
+   * @param  properties                   {@link Map} properties of
+   *                                        {@link MetadataItem}
+   * @return                              Created {@link MetadataItem}
+   * @throws ObjectAlreadyExistsException when the {@link MetadataTypePlugin}
+   *                                        doesn't allow multiple objects per
+   *                                        {@link Metadata} and an object is
+   *                                        already associated to the designated
+   *                                        {@link Metadata}
+   */
+  MetadataItem createMetadataItem(MetadataObject metadataObject,
+                                  MetadataKey metadataKey,
+                                  Map<String, String> properties) throws ObjectAlreadyExistsException;
+
+  /**
    * @param  itemId                  {@link MetadataItem} technical identifier
    * @param  userIdentityId          {@link Identity} technical identifier
    *                                   designating the user making the operation
@@ -264,6 +286,25 @@ public interface MetadataService {
   List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
                                                                     String metadataTypeName,
                                                                     String objectType,
+                                                                    long offset,
+                                                                    long limit);
+
+  /**
+   * Retrieves the Metadata item attached to a given {@link Metadata} name, type
+   * and {@link MetadataItem} object type
+   *
+   * @param  metadataName     {@link Metadata} name
+   * @param  metadataTypeName {@link Metadata} type name
+   * @param  objectType       {@link MetadataItem} objectType
+   * @param  objectId         {@link MetadataItem} objectId
+   * @param  offset           offset of ids to retrieve
+   * @param  limit            limit of ids to retrieve
+   * @return                  {@link List} of linked {@link MetadataItem}
+   */
+  List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObject(String metadataName,
+                                                                    String metadataTypeName,
+                                                                    String objectType,
+                                                                    String objectId,
                                                                     long offset,
                                                                     long limit);
 

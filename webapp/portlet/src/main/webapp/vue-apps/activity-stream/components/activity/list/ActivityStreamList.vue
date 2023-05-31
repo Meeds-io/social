@@ -319,10 +319,7 @@ export default {
       this.loadActivityIds();
     },
     displayAlert(message, type) {
-      document.dispatchEvent(new CustomEvent('notification-alert', {detail: {
-        message,
-        type: type || 'success',
-      }}));
+      this.$root.$emit('alert-message', message, type || 'success');
     },
   },
 };
