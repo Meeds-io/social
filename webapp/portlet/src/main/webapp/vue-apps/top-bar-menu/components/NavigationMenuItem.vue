@@ -147,7 +147,7 @@ export default {
       return childrenHasPage;
     },
     urlVerify(url) {
-      if (!url.match(/^((https?:\/\/))|(javascript:)|(\/portal\/)/)) {
+      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
         url = `//${url}`;
       }
       return url ;
