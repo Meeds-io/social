@@ -246,6 +246,17 @@
                         <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.SpacesCache.cacheMode:replication}</string></field>
                     </object>
                 </object-param>
+                <object-param>
+                    <name>social.translation</name>
+                    <description>The Cache configuration for the TranslationStorage</description>
+                    <object type="org.exoplatform.services.cache.impl.infinispan.generic.GenericExoCacheConfig">
+                        <field name="name"><string>social.translation</string></field>
+                        <field name="strategy" profiles="cluster"><string>${exo.cache.social.TranslationCache.strategy:LIRS}</string></field>
+                        <field name="maxSize"><int>${exo.cache.social.TranslationCache.MaxNodes:5000}</int></field>
+                        <field name="liveTime"><long>${exo.cache.social.TranslationCache.TimeToLive:86400}</long></field>
+                        <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.TranslationCache.cacheMode:replication}</string></field>
+                    </object>
+                </object-param>
 
             </init-params>
         </component-plugin>

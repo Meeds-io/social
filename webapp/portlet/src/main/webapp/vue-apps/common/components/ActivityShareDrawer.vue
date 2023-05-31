@@ -126,11 +126,16 @@ export default {
       this.sharing = true;
       this.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
         .then(() => {
-          this.$root.$emit('activity-shared', this.activityId, this.spaces.map(space => ({
+          const spaces = this.spaces.map(space => ({
             prettyName: space.remoteId,
             displayName: space && space.profile && space.profile.fullName,
             avatarUrl: space && space.profile && space.profile.avatarUrl,
-          })), this.currentApp);
+          }));
+          this.$root.$emit('activity-shared', this.activityId, spaces, this.currentApp);
+          if (spaces && spaces.length > 0) {
+            const spaceDisplayNames = spaces.map(space => space.displayName || '');
+            this.$root.$emit('alert-message', `${this.$t('UIActivity.share.message')} ${spaceDisplayNames.join(', ')}`, 'success');
+          }
           this.close();
           this.clear();
         })

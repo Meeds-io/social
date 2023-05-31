@@ -43,6 +43,8 @@ import org.exoplatform.social.service.rest.UtilTest;
 import org.exoplatform.social.service.rest.api.VersionResourcesTest;
 import org.exoplatform.social.service.rest.notification.IntranetNotificationsRestServiceTest;
 
+import io.meeds.social.translation.rest.TranslationRestResourcesTest;
+
 @RunWith(Suite.class)
 @SuiteClasses({
   SpaceRestServiceTest.class,
@@ -64,7 +66,8 @@ import org.exoplatform.social.service.rest.notification.IntranetNotificationsRes
   UserRestResourcesTest.class,
   GroupSpaceBindingRestServiceTest.class,
   FavoriteRestTest.class,
-  })
+  TranslationRestResourcesTest.class,
+})
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
   
