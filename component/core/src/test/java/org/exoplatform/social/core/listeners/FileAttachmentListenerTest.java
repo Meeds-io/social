@@ -75,7 +75,7 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
     fileService = getContainer().getComponentInstanceOfType(FileService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     if (metadataService.getMetadataTypeByName(METADATA_TYPE_NAME) == null) {
-      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(2654, METADATA_TYPE_NAME)) {
+      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(2659, METADATA_TYPE_NAME)) {
         @Override
         public boolean isAllowMultipleItemsPerObject() {
           return true;
@@ -143,7 +143,7 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
 
     restartTransaction();
 
-    assertNull(fileService.getFile(fileItem.getFileInfo().getId()));
+    assertTrue(fileService.getFileInfo(FILE_ID).isDeleted());
   }
 
   private InitParams newParam(long id, String name) {
