@@ -109,6 +109,7 @@
             ref="translationEditor"
             :value="translations[language]"
             :max-length="maxLength"
+            :tag-enabled="false"
             autofocus
             @input="updateValue(language, $event)" />
         </v-col>
