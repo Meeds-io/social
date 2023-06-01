@@ -15,9 +15,11 @@
  */
 package org.exoplatform.social.core.listeners;
 
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.file.services.FileStorageException;
+import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.log.ExoLogger;
@@ -28,7 +30,8 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import java.io.IOException;
 import java.util.List;
 
-public class FileAttachmentListener extends Listener<Long, List<MetadataItem>> {
+@Asynchronous
+public class FileAttachmentListener extends Listener<Long, MetadataItem> {
 
   private static final Log LOG = ExoLogger.getLogger(FileAttachmentListener.class);
 
@@ -39,20 +42,19 @@ public class FileAttachmentListener extends Listener<Long, List<MetadataItem>> {
   }
 
   @Override
-  public void onEvent(Event<Long, List<MetadataItem>> event) throws Exception {
-    List<MetadataItem> metadataItems = event.getData();
-    metadataItems.forEach(metadataItem -> {
-      if (metadataItem.getMetadata().getType().getName().equals(AttachmentService.METADATA_TYPE.getName())) {
-        long fileId = Long.parseLong(metadataItem.getMetadata().getName());
-        try {
-          FileItem fileItem = fileService.getFile(fileId);
-          if (fileItem != null) {
-            fileService.deleteFile(fileId);
-          }
-        } catch (FileStorageException e) {
-          LOG.warn("Error reading file with id " + fileId, e);
+  @ExoTransactional
+  public void onEvent(Event<Long, MetadataItem> event) throws Exception {
+    MetadataItem metadataItem = event.getData();
+    if (metadataItem.getMetadata().getType().getName().equals(AttachmentService.METADATA_TYPE.getName())) {
+      long fileId = Long.parseLong(metadataItem.getMetadata().getName());
+      try {
+        FileItem fileItem = fileService.getFile(fileId);
+        if (fileItem != null) {
+          fileService.deleteFile(fileId);
         }
+      } catch (FileStorageException e) {
+        LOG.warn("Error deleting file with id " + fileId, e);
       }
-    });
+    }
   }
 }
