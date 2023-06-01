@@ -27,6 +27,7 @@ import org.exoplatform.social.core.jpa.storage.*;
 import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.listeners.ActivityMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ActivityTagMetadataListenerTest;
+import org.exoplatform.social.core.listeners.FileAttachmentListenerTest;
 import org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImplTest;
 import org.exoplatform.social.core.manager.ActivityManagerTest;
 import org.exoplatform.social.core.manager.IdentityManagerTest;
@@ -93,6 +94,7 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
   TagServiceTest.class,
   ActivityMetadataListenerTest.class,
   ActivityTagMetadataListenerTest.class,
+  FileAttachmentListenerTest.class,
   MetadataActivityProcessorTest.class,
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
