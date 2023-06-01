@@ -27,9 +27,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
-import java.io.IOException;
-import java.util.List;
-
 @Asynchronous
 public class FileAttachmentListener extends Listener<Long, MetadataItem> {
 
@@ -45,7 +42,7 @@ public class FileAttachmentListener extends Listener<Long, MetadataItem> {
   @ExoTransactional
   public void onEvent(Event<Long, MetadataItem> event) throws Exception {
     MetadataItem metadataItem = event.getData();
-    if (metadataItem.getMetadata().getType().getName().equals(AttachmentService.METADATA_TYPE.getName())) {
+    if (metadataItem.getMetadata().getType().getName() == AttachmentService.METADATA_TYPE.getName()) {
       long fileId = Long.parseLong(metadataItem.getMetadata().getName());
       try {
         FileItem fileItem = fileService.getFile(fileId);
@@ -53,7 +50,7 @@ public class FileAttachmentListener extends Listener<Long, MetadataItem> {
           fileService.deleteFile(fileId);
         }
       } catch (FileStorageException e) {
-        LOG.warn("Error deleting file with id " + fileId, e);
+        LOG.warn("Error deleting file with id {}", fileId, e);
       }
     }
   }

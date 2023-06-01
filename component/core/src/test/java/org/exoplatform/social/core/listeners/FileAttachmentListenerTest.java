@@ -15,73 +15,83 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import org.apache.ecs.wml.Meta;
-import org.exoplatform.commons.file.model.FileInfo;
-import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
-import org.exoplatform.services.listener.Event;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.metadata.attachment.AttachmentServiceImpl;
+import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
+import org.exoplatform.social.metadata.AttachmentPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
-import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataKey;
-import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.attachment.AttachmentService;
+import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
+import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
 import org.exoplatform.social.metadata.model.MetadataType;
+import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
+import org.exoplatform.upload.UploadService;
 
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.*;
 
 public class FileAttachmentListenerTest extends AbstractCoreTest {
 
-  private static final Log        LOG                = ExoLogger.getLogger(FileAttachmentListenerTest.class);
+  private static final String                        METADATA_TYPE_NAME = "attachments";
 
-  private static final String     METADATA_TYPE_NAME = "attachments";
+  private static final Long                          AUDIENCE_ID        = 5L;
 
-  private static final Long       FILE_ID            = 12L;
+  private static final String                        PARENT_OBJECT_ID   = "7";
 
-  private static final Long       AUDIENCE_ID        = 5L;
+  private static final String                        OBJECT_ID          = "10";
 
-  private static final String     PARENT_OBJECT_ID   = "7";
+  private static final long                          SPACE_ID           = 7l;
 
-  private Identity                johnIdentity;
+  private Identity                                   demoIdentity;
 
-  private ActivityManager         activityManager;
+  private org.exoplatform.services.security.Identity userAclIdentity;
 
-  private IdentityManager         identityManager;
+  private ActivityManager                            activityManager;
 
-  private MetadataService         metadataService;
+  private IdentityManager                            identityManager;
 
-  private MetadataDAO             metadataDAO;
+  private MetadataService                            metadataService;
 
-  private FileService             fileService;
+  private FileService                                fileService;
 
-  private FileAttachmentListener  fileAttachmentListener;
+  private ImageThumbnailService                      imageThumbnailService;
 
-  private List<ExoSocialActivity> tearDownActivityList;
+  private MockUploadService                          uploadService;
+
+  private AttachmentService                          attachmentService;
+
+  private List<ExoSocialActivity>                    tearDownActivityList;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
+    InitParams initParams = newParam(58458, METADATA_TYPE_NAME);
+
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     fileService = getContainer().getComponentInstanceOfType(FileService.class);
-    metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
-    fileAttachmentListener = new FileAttachmentListener(fileService);
+    uploadService = (MockUploadService) ExoContainerContext.getService(UploadService.class);
+
+    File tempFile = File.createTempFile("image", "temp");
+    uploadService.createUploadResource("1234", tempFile.getPath(), "cover.png", "image/png");
+
     if (metadataService.getMetadataTypeByName(METADATA_TYPE_NAME) == null) {
-      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(2659, METADATA_TYPE_NAME)) {
+      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(initParams) {
         @Override
         public boolean isAllowMultipleItemsPerObject() {
           return true;
@@ -92,10 +102,21 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
           return true;
         }
       };
+
+      demoIdentity = identityManager.getOrCreateUserIdentity("demo");
       metadataService.addMetadataTypePlugin(userMetadataTypePlugin);
     }
 
-    johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    attachmentService = new AttachmentServiceImpl(metadataService,
+                                                  identityManager,
+                                                  fileService,
+                                                  imageThumbnailService,
+                                                  uploadService);
+
+    userAclIdentity =
+                    new org.exoplatform.services.security.Identity("demo",
+                                                                   Collections.singleton(new MembershipEntry("/platform/users")));
+
     tearDownActivityList = new ArrayList<>();
   }
 
@@ -103,8 +124,6 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
   public void tearDown() throws Exception {
     end();
     begin();
-    identityManager.deleteIdentity(johnIdentity);
-    metadataDAO.deleteAll();
 
     for (ExoSocialActivity activity : tearDownActivityList) {
       activityManager.deleteActivity(activity.getId());
@@ -113,41 +132,52 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
   }
 
   public void testDeleteActivity() throws Exception {
+
     String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
+    String userId = demoIdentity.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activity.setPosterId(userId);
+    activityManager.saveActivityNoReturn(demoIdentity, activity);
 
-    long creatorId = Long.parseLong(johnIdentity.getId());
-    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME, String.valueOf(FILE_ID), AUDIENCE_ID);
-    MetadataObject metadataObject = new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
-                                                       activity.getId(),
-                                                       PARENT_OBJECT_ID);
-    MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
-    assertNotNull(metadataItem);
-    assertTrue(metadataItem.getId() > 0);
+    long creatorId = Long.parseLong(demoIdentity.getId());
 
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
-    assertNotNull(metadataItem);
-    assertEquals(1, metadataItems.size());
+    List<String> uploadIds = Collections.singletonList("1234");
 
-    FileItem fileItem = fileService.writeFile(new FileItem(FILE_ID,
-                                                           "test",
-                                                           "image/png",
-                                                           "attachment",
-                                                           "test".getBytes().length,
-                                                           new Date(),
-                                                           "user",
-                                                           false,
-                                                           new ByteArrayInputStream("test".getBytes())));
+    ObjectUploadResourceList attachmentsList = new ObjectUploadResourceList(uploadIds,
+                                                                            creatorId,
+                                                                            "activity",
+                                                                            activity.getId(),
+                                                                            PARENT_OBJECT_ID);
 
-    assertEquals(metadataItems.get(0).getMetadata().getType().getName(), METADATA_TYPE_NAME);
+    AttachmentPlugin attachmentPlugin = mock(AttachmentPlugin.class);
+
+    when(attachmentPlugin.getAudienceId(OBJECT_ID)).thenReturn(AUDIENCE_ID);
+    when(attachmentPlugin.getSpaceId(OBJECT_ID)).thenReturn(SPACE_ID);
+    when(attachmentPlugin.getObjectType()).thenReturn("activity");
+
+    attachmentService.addPlugin(attachmentPlugin);
+
+    when(attachmentPlugin.hasEditPermission(userAclIdentity, activity.getId())).thenReturn(true);
+    when(attachmentPlugin.hasAccessPermission(userAclIdentity, activity.getId())).thenReturn(true);
+
+    attachmentService.createAttachments(attachmentsList, userAclIdentity);
+
+    ObjectAttachmentList attachmentList = attachmentService.getAttachments("activity", activity.getId(), userAclIdentity);
+    assertFalse(attachmentList.getAttachments().isEmpty());
+
+    long attachFileId = Long.parseLong(attachmentList.getAttachments().get(0).getId());
+
+    assertNotNull(fileService.getFile(attachFileId));
 
     activityManager.deleteActivity(activity);
-    restartTransaction();
 
+    attachmentList = attachmentService.getAttachments("activity", activity.getId(), userAclIdentity);
+    assertTrue(attachmentList.getAttachments().isEmpty());
+
+    assertTrue(fileService.getFile(attachFileId).getFileInfo().isDeleted());
+    restartTransaction();
   }
 
   private InitParams newParam(long id, String name) {
