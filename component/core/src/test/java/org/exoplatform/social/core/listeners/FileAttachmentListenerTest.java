@@ -79,7 +79,7 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    InitParams initParams = newParam(58458, METADATA_TYPE_NAME);
+    InitParams initParams = newParam(7l, METADATA_TYPE_NAME);
 
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);

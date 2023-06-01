@@ -42,7 +42,7 @@ public class FileAttachmentListener extends Listener<Long, MetadataItem> {
   @ExoTransactional
   public void onEvent(Event<Long, MetadataItem> event) throws Exception {
     MetadataItem metadataItem = event.getData();
-    if (metadataItem.getMetadata().getType().getName() == AttachmentService.METADATA_TYPE.getName()) {
+    if (AttachmentService.METADATA_TYPE.equals(metadataItem.getMetadata().getType())) {
       long fileId = Long.parseLong(metadataItem.getMetadata().getName());
       try {
         FileItem fileItem = fileService.getFile(fileId);
