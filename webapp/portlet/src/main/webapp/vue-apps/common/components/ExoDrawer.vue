@@ -15,7 +15,7 @@
     height="100%"
     max-height="100%"
     max-width="100vw"
-    class="drawerParent">
+    class="drawerParent overflow-initial">
     <v-container
       v-if="initialized || eager"
       fill-height
