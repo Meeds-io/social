@@ -57,7 +57,7 @@ public interface AttachmentService {
 
   /**
    * Retrieves the list of attachments of a given object identified by its id
-   * 
+   *
    * @param  objectType              object type, can be of any type: activity,
    *                                   comment, notes...
    * @param  objectId                object technical unique identifier
@@ -82,7 +82,7 @@ public interface AttachmentService {
   /**
    * Retrieve an attached file to a dedicated object identified by its type and
    * id
-   * 
+   *
    * @param  objectType              object type, can be of any type: activity,
    *                                   comment, notes...
    * @param  objectId                object technical unique identifier
@@ -108,7 +108,7 @@ public interface AttachmentService {
   /**
    * Retrieves the input stream of an attached file to a dedicated object
    * identified by its type and id
-   * 
+   *
    * @param  objectType              object type, can be of any type: activity,
    *                                   comment, notes...
    * @param  objectId                object technical unique identifier
@@ -170,7 +170,7 @@ public interface AttachmentService {
   /**
    * Add an Attachment Permission Plugin that will serve to make an ACL for a
    * given object type
-   * 
+   *
    * @param attachmentPermissionPlugin {@link AttachmentPlugin}
    */
   void addPlugin(AttachmentPlugin attachmentPermissionPlugin);
