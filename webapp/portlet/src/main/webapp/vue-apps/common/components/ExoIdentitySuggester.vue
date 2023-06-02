@@ -202,6 +202,12 @@ export default {
         return null;
       },
     },
+    sugesterClass: {
+      type: String,
+      default: function() {
+        return null;
+      },
+    },
     typeOfRelations: {
       type: String,
       default: function() {
@@ -245,7 +251,7 @@ export default {
     autocompleteClass() {
       const requiredClass = this.required && !this.value && 'required-field invalid' || this.required && 'required-field' || '';
       const sugesterStyleClass = this.filterStyle && 'identitySuggesterFilterStyle' || 'identitySuggesterInputStyle';
-      return `${requiredClass} ${sugesterStyleClass}`;
+      return `${requiredClass} ${sugesterStyleClass} ${this.sugesterClass || ''}`;
     },
     displaySearchPlaceHolder() {
       return this.labels.searchPlaceholder && !this.searchStarted;
