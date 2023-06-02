@@ -1,6 +1,6 @@
 <template>
   <div v-if="attachmentsCount">
-    <card-carousel parent-class="activity-files-parent mx-n2">
+    <card-carousel parent-class="activity-files-parent">
       <attached-item
         v-for="attachment in attachments"
         :key="attachment.id"
