@@ -18,19 +18,22 @@
 -->
 <template>
   <div v-if="translationConfiguration" class="translation-text-field">
-    <div v-if="$slots.default" class="d-flex flex-column">
-      <div class="position-relative d-flex flex-grow-1 justify-end">
+    <div v-if="$slots.default || $slots.title" class="d-flex">
+      <div v-if="$slots.title" class="flex-grow-1">
+        <slot name="title"></slot>
+      </div>
+      <div class="d-flex me-n1">
         <v-btn
           :title="iconTitle"
           :class="buttonClass"
-          class="position-absolute z-index-one me-3"
+          class="mt-n1 pt-2px"
           icon
           @click="openDrawer">
-          <v-icon :color="iconColor">fas fa-language</v-icon>
+          <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
         </v-btn>
       </div>
-      <slot></slot>
     </div>
+    <slot v-if="$slots.default"></slot>
     <v-text-field
       v-else-if="isI18N"
       :id="id"
@@ -39,19 +42,23 @@
       :value="$t(defaultLanguageValue)"
       :autofocus="autofocus"
       :maxlength="maxlength"
+      :rules="rules"
       class="border-box-sizing width-auto pt-0"
       type="text"
       hide-details
       outlined
       readonly
       dense>
-      <template #append>
-        <v-btn
-          class="mt-n2 pt-2px"
-          icon
-          @click="defaultLanguageValue = null">
-          <v-icon :color="iconColor">far fa-times-circle</v-icon>
-        </v-btn>
+      <template v-if="!$slots.title" #append>
+        <div class="mt-n2">
+          <v-btn
+            :title="iconTitle"
+            class="my-auto pt-2px"
+            icon
+            @click="defaultLanguageValue = null">
+            <v-icon :color="iconColor">far fa-times-circle</v-icon>
+          </v-btn>
+        </div>
       </template>
     </v-text-field>
     <v-text-field
@@ -64,19 +71,22 @@
       :aria-required="required"
       :autofocus="autofocus"
       :maxlength="maxlength"
+      :rules="rules"
       class="border-box-sizing width-auto pt-0"
       type="text"
       hide-details
       outlined
       dense>
       <template #append>
-        <v-btn
-          :title="iconTitle"
-          class="mt-n2 pt-2px"
-          icon
-          @click="openDrawer">
-          <v-icon :color="iconColor">fas fa-language</v-icon>
-        </v-btn>
+        <div v-if="!$slots.title" class="mt-n2">
+          <v-btn
+            :title="iconTitle"
+            class="my-auto pt-2px"
+            icon
+            @click="openDrawer">
+            <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
+          </v-btn>
+        </div>
       </template>
     </v-text-field>
     <translation-drawer
@@ -160,6 +170,10 @@ export default {
     maxlength: {
       type: Number,
       default: () => 255,
+    },
+    rules: {
+      type: Array,
+      default: null,
     },
   },
   data: () => ({
