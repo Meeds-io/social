@@ -53,11 +53,7 @@ export default {
   },
   methods: {
     openFileExplorer() {
-      document.dispatchEvent(new CustomEvent('open-file-explorer', {
-        detail: {
-          additionalUpload: true
-        }
-      })); 
+      document.dispatchEvent(new CustomEvent('open-file-explorer')); 
     }
   }
 };
