@@ -160,6 +160,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.saveComment(activity, comment);
 
     assertTrue(comment.getPostedTime() == comment.getUpdated().getTime());
+    //Wait for 1 ms to make sure that the dates differs
+    sleep(1);
 
     comment.setTitle("comment updated");
     comment.setUpdated(new Date().getTime());
