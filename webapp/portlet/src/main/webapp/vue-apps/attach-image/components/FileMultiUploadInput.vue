@@ -35,15 +35,17 @@ export default {
     },
   },
   data: () => ({
-    filesArray: [],
-    newUpload: false
+    filesArray: []
   }),
   created() {
-    document.addEventListener('open-file-explorer', (event) => {
-      this.newUpload = event?.detail?.additionalUpload ? true : false;
+    document.addEventListener('open-file-explorer', () => {
       this.triggerFileClickEvent();
     });
     this.$root.$on('delete-file', this.removeUplodedFile);
+    this.$root.$on('delete-uploaded-files', () => {
+      this.filesArray = [];
+    });
+
   },
   methods: {
     triggerFileClickEvent() {
@@ -51,9 +53,6 @@ export default {
     },
     uploadFiles(files) {
       this.$root.$emit('close-alert-message');
-      if (!this.newUpload) {
-        this.filesArray = [];
-      }
       const filesArray = Array.from(files);
       if (files.length === 0) {
         return;
