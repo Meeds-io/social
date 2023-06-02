@@ -191,7 +191,13 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public void deleteMetadataItemsByObject(MetadataObject object) {
+    List<MetadataItem> metadataItems = this.metadataStorage.getMetadataItemsByObject(object);
     this.metadataStorage.deleteMetadataItemsByObject(object);
+    if (CollectionUtils.isNotEmpty(metadataItems)) {
+      for (MetadataItem metadataItem : metadataItems) {
+        broadcastDeleted(metadataItem, 0l);
+      }
+    }
   }
 
   @Override
