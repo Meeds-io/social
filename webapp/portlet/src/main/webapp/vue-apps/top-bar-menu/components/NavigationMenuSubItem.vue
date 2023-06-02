@@ -27,6 +27,7 @@
       v-if="hasPage || hasChildren && childrenHasPage"
       class="pt-0 pb-0"
       :href="navigationNodeUri"
+      :target="navigationNodeTarget"
       @click.stop="checkLink(navigation, $event)"
       :link="!!hasPage">
       <v-menu
@@ -97,7 +98,10 @@ export default {
       return this.checkChildrenHasPage(this.navigation);
     },
     navigationNodeUri() {
-      return `${this.baseSiteUri}${this.navigation.uri}`;
+      return this.navigation?.pageLink && this.urlVerify(this.navigation?.pageLink) || `${this.baseSiteUri}${this.navigation.uri}`;
+    },
+    navigationNodeTarget() {
+      return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
   },
   methods: {
@@ -126,7 +130,13 @@ export default {
         }
       });
       return childrenHasPage;
-    }
+    },
+    urlVerify(url) {
+      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
+        url = `//${url}`;
+      }
+      return url ;
+    },
   }
 };
 </script>
