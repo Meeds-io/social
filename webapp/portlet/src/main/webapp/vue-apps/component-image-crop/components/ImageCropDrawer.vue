@@ -20,15 +20,14 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
+    :go-back-button="backIcon"
     id="cropperDrawer"
     allow-expand
     right
     disable-pull-to-refresh
     @closed="resetCropper">
     <template #title>
-      <span class="text-capitalize-first-letter">
-        {{ $t(title) }}
-      </span>
+      {{ $t(title) }}
     </template>
     <template #content>
       <v-card
@@ -185,6 +184,10 @@ export default {
     maxImageWidth: {
       type: Number,
       default: () => 1280,
+    },
+    backIcon: {
+      type: Boolean,
+      default: false,
     },
     drawerTitle: {
       type: String,

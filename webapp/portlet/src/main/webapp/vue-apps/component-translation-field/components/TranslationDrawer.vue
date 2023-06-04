@@ -195,7 +195,7 @@ export default {
         .sort((a, b) => this.supportedLanguages[a].localeCompare(this.supportedLanguages[b]));
     },
     remainingLanguages() {
-      return this.languages.slice().filter(lang => this.existingLanguages.indexOf(lang) < 0);
+      return this.languages && this.languages.slice().filter(lang => this.existingLanguages.indexOf(lang) < 0) || [];
     },
     hasRemainingLanguages() {
       return this.remainingLanguages.length > 0;

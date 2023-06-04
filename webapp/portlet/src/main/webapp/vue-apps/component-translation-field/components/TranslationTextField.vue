@@ -69,8 +69,8 @@
       :aria-required="required"
       :autofocus="autofocus"
       :maxlength="maxlength"
-      :rules="rules"
-      :hide-details="!defaultLanguageValue || !rules.length"
+      :rules="rules || []"
+      :hide-details="hasRulesValidation"
       class="border-box-sizing width-auto pt-0"
       type="text"
       outlined
@@ -183,6 +183,9 @@ export default {
     isI18N() {
       return this.$te(this.defaultLanguageValue);
     },
+    hasRulesValidation() {
+      return !this.defaultLanguageValue || !this.rules?.length;
+    },
     defaultLocale() {
       return this.defaultLanguage || this.translationConfiguration?.defaultLanguage;
     },
@@ -190,7 +193,7 @@ export default {
       return this.supportedLanguages || this.translationConfiguration?.supportedLanguages;
     },
     translationsCount() {
-      return Object.keys(this.valuesPerLanguage).length;
+      return this.valuesPerLanguage && Object.keys(this.valuesPerLanguage).length || 0;
     },
     iconColor() {
       return this.translationsCount > 1 ? 'primary' : '';
