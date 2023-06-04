@@ -55,8 +55,8 @@
           :href="alertLink"
           :title="alertLinkTooltip"
           :class="alertLinkText && 'primary--text' || 'secondary--text'"
+          :target="alertLinkTarget || '_blank'"
           name="closeSnackbarButton"
-          target="_blank"
           rel="nofollow noreferrer noopener"
           icon
           link
@@ -81,6 +81,7 @@ export default {
     alertLinkCallback: null,
     alertLinkIcon: null,
     alertLinkText: null,
+    alertLinkTarget: null,
     alertLinkTooltip: null,
     timeoutInstance: null,
     maxIconsSize: '20px',
@@ -165,6 +166,7 @@ export default {
         this.alertLink = params.alertLink || null;
         this.alertMessage = params.alertMessage || null;
         this.alertLinkText = params.alertLinkText || null;
+        this.alertLinkTarget = params.alertLinkTarget || null;
         this.alertLinkIcon = params.alertLinkIcon || null;
         this.alertType = params.alertType || 'info';
         this.alertLinkTooltip = params.alertLinkTooltip || null;
