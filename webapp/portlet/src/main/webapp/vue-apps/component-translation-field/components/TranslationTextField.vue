@@ -41,8 +41,6 @@
       :placeholder="placeholder"
       :value="$t(defaultLanguageValue)"
       :autofocus="autofocus"
-      :maxlength="maxlength"
-      :rules="rules"
       class="border-box-sizing width-auto pt-0"
       type="text"
       hide-details
@@ -72,9 +70,9 @@
       :autofocus="autofocus"
       :maxlength="maxlength"
       :rules="rules"
+      :hide-details="!defaultLanguageValue || !rules.length"
       class="border-box-sizing width-auto pt-0"
       type="text"
-      hide-details
       outlined
       dense>
       <template #append>
