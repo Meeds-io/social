@@ -111,7 +111,7 @@ export default {
       this.group = group;
       this.emailChannel = this.settings && this.settings.emailChannel;
 
-      this.listChannelOptions = this.settings?.channelCheckBoxList?.filter(channelChoice => channelChoice.allowed && channelChoice.pluginId === this.plugin.type)
+      this.listChannelOptions = this.settings?.channelCheckBoxList?.filter(channelChoice => channelChoice.channelActive && channelChoice.allowed && channelChoice.pluginId === this.plugin.type)
         .map(channelChoice => JSON.parse(JSON.stringify(channelChoice))) || [];
 
       const digestChoice = this.settings && this.settings.emailDigestChoices && this.settings.emailDigestChoices.find(choice => choice && choice.channelActive && choice.channelId === this.emailChannel && choice.pluginId === this.plugin.type);
