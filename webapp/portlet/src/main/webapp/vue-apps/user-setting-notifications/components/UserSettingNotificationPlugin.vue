@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="isEnabledNotifications.length">
     <v-divider />
 
     <v-list-item dense>
@@ -78,6 +78,9 @@ export default {
     },
     enabledNotifications() {
       return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.active && choice.channelActive && choice.pluginId === this.plugin.type);
+    },
+    isEnabledNotifications() {
+      return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.channelActive && choice.pluginId === this.plugin.type);
     },
     enabledNotificationLabels() {
       return this.enabledNotifications && this.enabledNotifications.map(plugin => this.settings.channelLabels[plugin.channelId]);
