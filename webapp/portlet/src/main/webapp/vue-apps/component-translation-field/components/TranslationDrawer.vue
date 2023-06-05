@@ -22,7 +22,7 @@
     v-model="drawer"
     id="translationDrawer"
     :go-back-button="backIcon"
-    allow-expand
+    :allow-expand="!noExpandIcon"
     right
     fixed
     disable-pull-to-refresh
@@ -177,6 +177,10 @@ export default {
       default: false,
     },
     richEditor: {
+      type: Boolean,
+      default: false,
+    },
+    noExpandIcon: {
       type: Boolean,
       default: false,
     },

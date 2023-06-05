@@ -99,6 +99,7 @@
       :back-icon="backIcon"
       :max-length="maxlength"
       :rich-editor="richEditor"
+      :no-expand-icon="noExpandIcon"
       @input="emitUpdateValues" />
   </div>
 </template>
@@ -172,6 +173,10 @@ export default {
     rules: {
       type: Array,
       default: null,
+    },
+    noExpandIcon: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
