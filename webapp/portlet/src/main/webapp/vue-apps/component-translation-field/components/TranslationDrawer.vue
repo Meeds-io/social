@@ -47,11 +47,13 @@
               @click.prevent.stop="openOrCloseEditor(index)">
               <v-icon size="24">{{ editorIndex === index && 'fa-chevron-up' || 'fa-chevron-down' }}</v-icon>
             </v-btn>
-            <div
+            <v-card
               v-if="editorIndex !== index"
+              max-height="2em"
               v-sanitized-html="translations[language] || ''"
-              class="text-truncate full-width mt-2">
-            </div>
+              class="d-flex text-truncate full-width mt-2"
+              flat>
+            </v-card>
           </v-card>
           <v-text-field
             v-else
