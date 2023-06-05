@@ -1,5 +1,5 @@
 <template>
-  <div v-if="manageNotification" class="border-radius border-color ma-4">
+  <div v-if="manageNotification && isEnabledNotificationGroup" class="border-radius border-color ma-4">
     <v-list-item dense>
       <v-list-item-content>
         <v-list-item-title class="text-color font-weight-bold subtitle-1">
@@ -34,6 +34,9 @@ export default {
       default: false,
     },
   },
+  data: () => ({
+    isEnabledNotificationGroup: true,
+  }),
   computed: {
     label() {
       return this.settings && this.settings.groupsLabels && this.settings.groupsLabels[this.group.groupId];
@@ -42,6 +45,20 @@ export default {
       return this.group && this.group.pluginInfos && this.group.pluginInfos.length ;
     },
   },
+  created() {
+    this.init();
+  },
+  methods: {
+    init() {
+      const listPlugins = [];
+      this.group?.pluginInfos?.forEach(plugin => {
+        if (this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.channelActive && choice.pluginId === plugin.type).length) {
+          listPlugins.push(plugin);
+        }
+      });
+      this.isEnabledNotificationGroup = listPlugins && listPlugins.length;
+    }
+  }
 };
 </script>
 
