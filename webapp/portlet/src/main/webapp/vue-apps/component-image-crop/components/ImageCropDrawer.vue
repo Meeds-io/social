@@ -21,8 +21,8 @@
     ref="drawer"
     v-model="drawer"
     :go-back-button="backIcon"
+    :allow-expand="!noExpandIcon"
     id="cropperDrawer"
-    allow-expand
     right
     disable-pull-to-refresh
     @closed="resetCropper">
@@ -186,6 +186,10 @@ export default {
       default: () => 1280,
     },
     backIcon: {
+      type: Boolean,
+      default: false,
+    },
+    noExpandIcon: {
       type: Boolean,
       default: false,
     },
