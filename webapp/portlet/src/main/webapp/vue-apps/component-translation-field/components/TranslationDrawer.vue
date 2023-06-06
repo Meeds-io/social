@@ -52,8 +52,7 @@
               max-height="2em"
               v-sanitized-html="translations[language] || ''"
               class="d-flex text-truncate full-width mt-2"
-              flat>
-            </v-card>
+              flat />
           </v-card>
           <v-text-field
             v-else
