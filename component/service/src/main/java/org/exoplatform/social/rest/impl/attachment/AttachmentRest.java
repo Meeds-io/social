@@ -23,16 +23,10 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -50,7 +44,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
-import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
+import org.exoplatform.social.metadata.attachment.model.FileAttachmentResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
@@ -95,7 +89,7 @@ public class AttachmentRest implements ResourceContainer {
   })
   public Response createAttachments(
                                     @RequestBody(description = "Attached files to be created", required = true)
-                                    ObjectUploadResourceList attachment) {
+                                    FileAttachmentResourceList attachment) {
     String objectType = attachment.getObjectType();
     if (StringUtils.isBlank(objectType)) {
       return Response.status(Status.BAD_REQUEST).entity("attachment.objectTypeRequired").type(MediaType.TEXT_PLAIN).build();
@@ -119,6 +113,39 @@ public class AttachmentRest implements ResourceContainer {
       return Response.status(Status.UNAUTHORIZED).entity("attachment.unauthorizedAccess").type(MediaType.TEXT_PLAIN).build();
     } catch (ObjectNotFoundException e) {
       return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").type(MediaType.TEXT_PLAIN).build();
+    }
+  }
+
+  @PUT
+  @RolesAllowed("users")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Deletes a file attached to an object, identified by its identifier", description = "Deletes a file attached to an object, identified by its identifier", method = "DELETE")
+  @ApiResponses(value = { 
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized request"),
+      @ApiResponse(responseCode = "404", description = "Not found"), })
+  public Response updateAttachments(
+                                    @RequestBody(description = "Attached files to be deleted", required = true)
+                                    FileAttachmentResourceList attachment) {
+
+    String objectType = attachment.getObjectType();
+    if (StringUtils.isBlank(objectType)) {
+      return Response.status(Status.BAD_REQUEST).entity("attachment.objectTypeRequired").type(MediaType.TEXT_PLAIN).build();
+    }
+    String objectId = attachment.getObjectId();
+    if (StringUtils.isBlank(objectId)) {
+      return Response.status(Status.BAD_REQUEST).entity("attachment.objectIdRequired").type(MediaType.TEXT_PLAIN).build();
+    }
+    attachment.setUserIdentityId(RestUtils.getCurrentUserIdentityId());
+    try {
+      Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+      ObjectAttachmentOperationReport report = attachmentService.updateAttachments(attachment, authenticatedUserIdentity);
+      return Response.ok(report).type(MediaType.APPLICATION_JSON).build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 
@@ -249,7 +276,6 @@ public class AttachmentRest implements ResourceContainer {
       return Response.status(Status.INTERNAL_SERVER_ERROR).entity("attachment.fileReadingError").build();
     }
   }
-
   private Response.ResponseBuilder buildAttachmentResponse(String objectType, // NOSONAR
                                                            String objectId,
                                                            String fileId,
