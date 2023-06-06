@@ -18,8 +18,11 @@
 -->
 <template>
   <div class="px-3">
-    <file-multi-upload-input @update-images="upadateImage" />
-    <image-items :images="images" />
+    <attachments-multi-upload-input @update-images="upadateImage" />
+    <image-items 
+      :object-id="objectId"
+      :object-type="objectType"
+      :images="attachedFiles" />
   </div>
 </template>
 <script>
@@ -29,6 +32,18 @@ export default {
       type: Number,
       default: 20971520,
     },
+    objectId: {
+      type: String,
+      default: null
+    },
+    objectType: {
+      type: String,
+      default: null
+    },
+    attachments: {
+      type: Array,
+      default: null
+    }
   },
   data: () => ({
     images: [],
@@ -49,16 +64,19 @@ export default {
       },
     }
   },
+  computed: {
+    attachedFiles() {
+      if (this.attachments.length) {
+        this.attachments.forEach(attachment => {
+          attachment.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${attachment.name}?size=120x120`;
+        });
+      }
+      return [...this.attachments, ...this.images];
+    }
+  },
   created() {
     extensionRegistry.registerExtension('activity', 'saveAction', {
       key: 'attachment',
-      canPostActivity: () => {
-        const uploadIds = this.images
-          .filter((file) => file.progress === 100)
-          .map((file) => file.uploadId)
-          .filter((uploadId) => !!uploadId);
-        return uploadIds?.length;
-      },
       postSave: (activity) => {
         if (!activity?.id) {
           return;
@@ -72,7 +90,7 @@ export default {
         }
         return this.$fileAttachmentService
           .createAttachments({
-            objectType: 'activity',
+            objectType: this.objectType,
             objectId: activity?.activityId || activity?.id,
             uploadIds: uploadIds,
           })
@@ -94,16 +112,37 @@ export default {
             }
           })
           .finally(() => {
-            this.images = [];
+            this.clearFiles();
             this.$root.$emit('delete-uploaded-files');
           });
+      }
+    });
+    extensionRegistry.registerExtension('activity', 'updateAction', {
+      key: 'attachment',
+      postUpdate: (activity) => {
+        if (!activity?.id) {
+          return;
+        }
+        const attachments = activity?.metadatas?.attachments || [];
+        let fileIds = [];
+        if (attachments.length) {
+          fileIds = attachments.map((file) => file.name).filter((name) => !!name);
+        }
+        const objectId = activity.id;
+        const objectType = this.objectType;
+        return this.$fileAttachmentService
+          .updateAttachments(objectType, objectId, fileIds);
       },
     });
   },
+
   methods: {
     upadateImage(images) {
       this.images = images;
     },
+    clearFiles() {
+      this.images = [];
+    }
   },
 };
 </script>

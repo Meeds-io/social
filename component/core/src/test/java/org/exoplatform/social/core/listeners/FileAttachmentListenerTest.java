@@ -19,6 +19,7 @@ import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -32,8 +33,8 @@ import org.exoplatform.social.metadata.AttachmentPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
+import org.exoplatform.social.metadata.attachment.model.FileAttachmentResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
-import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
 import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.upload.UploadService;
@@ -74,6 +75,8 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
 
   private AttachmentService                          attachmentService;
 
+  private ListenerService                            listenerService;
+
   private List<ExoSocialActivity>                    tearDownActivityList;
 
   @Override
@@ -86,6 +89,7 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     fileService = getContainer().getComponentInstanceOfType(FileService.class);
     uploadService = (MockUploadService) ExoContainerContext.getService(UploadService.class);
+    listenerService = getContainer().getComponentInstanceOfType(ListenerService.class);
 
     File tempFile = File.createTempFile("image", "temp");
     uploadService.createUploadResource("1234", tempFile.getPath(), "cover.png", "image/png");
@@ -111,7 +115,8 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
                                                   identityManager,
                                                   fileService,
                                                   imageThumbnailService,
-                                                  uploadService);
+                                                  uploadService,
+                                                  listenerService);
 
     userAclIdentity =
                     new org.exoplatform.services.security.Identity("demo",
@@ -144,12 +149,14 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
     long creatorId = Long.parseLong(demoIdentity.getId());
 
     List<String> uploadIds = Collections.singletonList("1234");
+    List<String> fileIds = Collections.singletonList("12");
 
-    ObjectUploadResourceList attachmentsList = new ObjectUploadResourceList(uploadIds,
-                                                                            creatorId,
-                                                                            "activity",
-                                                                            activity.getId(),
-                                                                            PARENT_OBJECT_ID);
+    FileAttachmentResourceList attachmentsList = new FileAttachmentResourceList(uploadIds,
+                                                                                fileIds,
+                                                                                creatorId,
+                                                                                "activity",
+                                                                                activity.getId(),
+                                                                                PARENT_OBJECT_ID);
 
     AttachmentPlugin attachmentPlugin = mock(AttachmentPlugin.class);
 
