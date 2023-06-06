@@ -127,13 +127,14 @@
               <template #activator="{on}">
                 <v-text-field
                   id="applicationToolbarFilterInput"
+                  ref="applicationToolbarFilterInput"
                   v-model="term"
                   :placeholder="rightTextFilter.placeholder"
                   :autofocus="autofocusTextFilter"
                   :height="isMobile && 24 || 36"
                   :prepend-inner-icon="term && 'fa-filter primary--text' || 'fa-filter icon-default-color'"
                   class="flex-grow-1 full-height pa-0 ms-4"
-                  clear-icon="fa-times primary--text mb-2 mb-sm-0"
+                  clear-icon="fa-times fa-1x primary--text position-absolute absolute-vertical-center"
                   autocomplete="off"
                   hide-details
                   clearable
@@ -458,7 +459,20 @@ export default {
       }
     },
   },
+  created() {
+    if (this.showTextFilter) {
+      document.addEventListener('keydown', this.clearSearch);
+    }
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.clearSearch);
+  },
   methods: {
+    clearSearch(event) {
+      if (event?.key === 'Escape' && this.$refs?.applicationToolbarFilterInput?.isFocused) {
+        this.term = null;
+      }
+    },
     emitToggle(value) {
       // Differ emitting event to not block button status change
       window.setTimeout(
