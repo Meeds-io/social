@@ -47,4 +47,18 @@ export function getAttachments(objectType, objectId) {
   });
 }
 
+export function updateAttachments(objectType, objectId, fileIds) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}`, {
+    headers: {
+      'Content-type': 'application/json'
+    },
+    method: 'PUT',
+    credentials: 'include',
+    body: JSON.stringify(fileIds)
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
 
