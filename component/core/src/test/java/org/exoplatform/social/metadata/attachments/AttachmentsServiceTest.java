@@ -2,20 +2,22 @@ package org.exoplatform.social.metadata.attachments;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.social.metadata.attachment.model.FileAttachmentResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
+import org.exoplatform.social.metadata.model.Metadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +35,6 @@ import org.exoplatform.social.metadata.AttachmentPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
-import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
@@ -81,13 +82,17 @@ public class AttachmentsServiceTest {
   @Mock
   private AttachmentPlugin      attachmentPlugin;
 
+  @Mock
+  private ListenerService       listenerService;
+
   @Before
   public void setUp() throws Exception {
     attachmentService = new AttachmentServiceImpl(metadataService,
                                                   identityManager,
                                                   fileService,
                                                   imageThumbnailService,
-                                                  uploadService);
+                                                  uploadService,
+                                                  listenerService);
     when(attachmentPlugin.getAudienceId(OBJECT_ID)).thenReturn(AUDIENCE_ID);
     when(attachmentPlugin.getSpaceId(OBJECT_ID)).thenReturn(SPACE_ID);
     when(attachmentPlugin.getObjectType()).thenReturn(OBJECT_TYPE);
@@ -107,11 +112,12 @@ public class AttachmentsServiceTest {
     when(userACLIdentity.getUserId()).thenReturn(USER_NAME);
 
     Mockito.when(identityManager.getIdentity(USER_IDENTITY_ID)).thenReturn(userIdentity);
-    ObjectUploadResourceList attachmentsList = new ObjectUploadResourceList(uploadIds,
-                                                                            1L,
-                                                                            OBJECT_TYPE,
-                                                                            OBJECT_ID,
-                                                                            PARENT_OBJECT_ID);
+    FileAttachmentResourceList attachmentsList = new FileAttachmentResourceList(uploadIds,
+                                                                              null,
+                                                                              1L,
+                                                                              OBJECT_TYPE,
+                                                                              OBJECT_ID,
+                                                                              PARENT_OBJECT_ID);
     MetadataObject metadataObject =
                                   new MetadataObject(OBJECT_TYPE, OBJECT_ID, PARENT_OBJECT_ID, Long.parseLong(USER_IDENTITY_ID));
     List<MetadataItem> attachedFilesMetadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject("attachments",
@@ -130,8 +136,9 @@ public class AttachmentsServiceTest {
 
     assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(null, userACLIdentity));
 
-    assertThrows(IllegalArgumentException.class, // NOSONAR
-                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(null,
+    assertThrows(IllegalAccessException.class, // NOSONAR
+                 () -> attachmentService.createAttachments(new FileAttachmentResourceList(null,
+                                                                                        null,
                                                                                         1L,
                                                                                         OBJECT_TYPE,
                                                                                         OBJECT_ID,
@@ -139,7 +146,8 @@ public class AttachmentsServiceTest {
                                                            userACLIdentity));
 
     assertThrows(IllegalArgumentException.class, // NOSONAR
-                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(uploadIds,
+                 () -> attachmentService.createAttachments(new FileAttachmentResourceList(uploadIds,
+                                                                                        null,
                                                                                         -1,
                                                                                         OBJECT_TYPE,
                                                                                         OBJECT_ID,
@@ -147,7 +155,8 @@ public class AttachmentsServiceTest {
                                                            userACLIdentity));
 
     assertThrows(IllegalArgumentException.class, // NOSONAR
-                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(uploadIds,
+                 () -> attachmentService.createAttachments(new FileAttachmentResourceList(uploadIds,
+                                                                                        null,
                                                                                         1L,
                                                                                         null,
                                                                                         OBJECT_ID,
@@ -155,7 +164,8 @@ public class AttachmentsServiceTest {
                                                            userACLIdentity));
 
     assertThrows(IllegalArgumentException.class, // NOSONAR
-                 () -> attachmentService.createAttachments(new ObjectUploadResourceList(uploadIds,
+                 () -> attachmentService.createAttachments(new FileAttachmentResourceList(uploadIds,
+                                                                                        null,
                                                                                         1L,
                                                                                         OBJECT_TYPE,
                                                                                         null,
@@ -286,6 +296,129 @@ public class AttachmentsServiceTest {
     assertNotNull(attachmentInputStream);
     assertNotNull(attachmentInputStream1);
     assertEquals(attachmentInputStream, attachmentInputStream1);
+  }
+
+  @Test
+  public void testUpdateAttachments() throws Exception {
+
+    List<String> fileIds = new ArrayList<>();
+    List<String> uploadIds = new ArrayList<>();
+
+    Identity userIdentity = Mockito.mock(Identity.class);
+    when(userIdentity.isEnable()).thenReturn(true);
+    when(userIdentity.isDeleted()).thenReturn(false);
+
+    org.exoplatform.services.security.Identity userACLIdentity = Mockito.mock(org.exoplatform.services.security.Identity.class);
+
+    Mockito.when(identityManager.getIdentity(USER_IDENTITY_ID)).thenReturn(userIdentity);
+    FileAttachmentResourceList attachmentsList = new FileAttachmentResourceList(uploadIds,
+                                                                                fileIds,
+                                                                                1L,
+                                                                                OBJECT_TYPE,
+                                                                                OBJECT_ID,
+                                                                                PARENT_OBJECT_ID);
+
+    when(attachmentPlugin.hasEditPermission(userACLIdentity, OBJECT_ID)).thenReturn(true);
+
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.updateAttachments(null, userACLIdentity));
+
+    assertThrows(IllegalArgumentException.class, // NOSONAR
+                 () -> attachmentService.updateAttachments(new FileAttachmentResourceList(null,
+                                                                                          fileIds,
+                                                                                          -1,
+                                                                                          OBJECT_TYPE,
+                                                                                          OBJECT_ID,
+                                                                                          PARENT_OBJECT_ID),
+                                                           userACLIdentity));
+
+    assertThrows(IllegalStateException.class, // NOSONAR
+                 () -> attachmentService.updateAttachments(new FileAttachmentResourceList(uploadIds,
+                                                                                          fileIds,
+                                                                                          2L,
+                                                                                          null,
+                                                                                          OBJECT_ID,
+                                                                                          PARENT_OBJECT_ID),
+                                                           userACLIdentity));
+
+    assertThrows(IllegalStateException.class, // NOSONAR
+                 () -> attachmentService.updateAttachments(new FileAttachmentResourceList(null,
+                                                                                          fileIds,
+                                                                                          2L,
+                                                                                          OBJECT_TYPE,
+                                                                                          null,
+                                                                                          PARENT_OBJECT_ID),
+                                                           userACLIdentity));
+
+    MetadataItem metadataItem = Mockito.mock(MetadataItem.class);
+    Metadata metadata = Mockito.mock(Metadata.class);
+    when(metadataItem.getMetadata()).thenReturn(metadata);
+    when(metadata.getName()).thenReturn(String.valueOf(FILE_ID));
+
+    MetadataObject metadataObject = new MetadataObject(OBJECT_TYPE, OBJECT_ID);
+
+    List<MetadataItem> existingAttachments = new ArrayList<>();
+    existingAttachments.add(metadataItem);
+
+    when(metadataService.getMetadataItemsByMetadataTypeAndObject(AttachmentService.METADATA_TYPE.getName(),
+                                                                 metadataObject)).thenReturn(existingAttachments);
+
+    List<MetadataItem> attachmentToDelete = new ArrayList<>();
+    attachmentToDelete.add(metadataItem);
+
+    when(metadataItem.getId()).thenReturn(12L);
+
+    when(metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(String.valueOf(FILE_ID),
+                                                                        AttachmentService.METADATA_TYPE.getName(),
+                                                                        OBJECT_TYPE,
+                                                                        OBJECT_ID,
+                                                                        0,
+                                                                        0)).thenReturn(existingAttachments);
+
+    ObjectAttachmentOperationReport report;
+    report = attachmentService.updateAttachments(attachmentsList, userACLIdentity);
+    verify(metadataService, times(1)).deleteMetadataItem(metadataItem.getId(), true);
+
+    fileIds.add(String.valueOf(FILE_ID));
+
+    MetadataItem metadataItem1 = Mockito.mock(MetadataItem.class);
+    Metadata metadata1 = Mockito.mock(Metadata.class);
+    when(metadata1.getName()).thenReturn(String.valueOf(FILE_ID));
+    when(metadataItem1.getMetadata()).thenReturn(metadata1);
+
+    existingAttachments.remove(metadataItem);
+    existingAttachments.add(metadataItem1);
+
+    report = attachmentService.updateAttachments(attachmentsList, userACLIdentity);
+
+    verify(metadataService, never()).deleteMetadataItem(metadataItem1.getId(), true);
+
+    uploadIds.add(UPLOAD_ID);
+
+    UploadResource uploadResource = new UploadResource(UPLOAD_ID);
+    File file = new File(getClass().getClassLoader().getResource("test.png").getFile());
+    assertNotNull(file);
+    uploadResource.setFileName("test.png");
+    uploadResource.setStoreLocation(file.getPath());
+    uploadResource.setMimeType("image/png");
+    uploadResource.setEstimatedSize(0);
+
+    when(uploadService.getUploadResource(UPLOAD_ID)).thenReturn(uploadResource);
+
+    when(fileService.writeFile(any())).thenAnswer(invocation -> {
+      FileItem fileItem = invocation.getArgument(0, FileItem.class);
+      fileItem.getFileInfo().setId(FILE_ID);
+      return fileItem;
+    });
+
+    report = attachmentService.updateAttachments(attachmentsList, userACLIdentity);
+    assertNotNull(report);
+    assertEquals("Attachment error report should be empty, but was: " + report.getErrorByUploadId(),
+                 0,
+                 report.getErrorByUploadId().size());
+
+    MetadataKey metadataKey = new MetadataKey(AttachmentService.METADATA_TYPE.getName(), String.valueOf(FILE_ID), AUDIENCE_ID);
+    MetadataObject object = new MetadataObject(OBJECT_TYPE, OBJECT_ID, PARENT_OBJECT_ID, SPACE_ID);
+    verify(metadataService, times(1)).createMetadataItem(object, metadataKey, Long.parseLong(USER_IDENTITY_ID));
   }
 
 }
