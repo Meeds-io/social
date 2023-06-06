@@ -20,12 +20,13 @@ package org.exoplatform.social.metadata.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.metadata.AttachmentPlugin;
-import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
+import org.exoplatform.social.metadata.attachment.model.FileAttachmentResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
@@ -38,7 +39,7 @@ public interface AttachmentService {
   /**
    * Attach a list of files to an entity: activity, comment, task...
    *
-   * @param  attachment              {@link ObjectUploadResourceList} to store
+   * @param  attachment              {@link FileAttachmentResourceList} to store
    * @param  userAclIdentity         user ACL identity retrieved used
    *                                   {@link IdentityRegistry}
    * @return                         {@link ObjectAttachmentOperationReport}
@@ -48,12 +49,26 @@ public interface AttachmentService {
    *                                   id doesn't have "write" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   {@link FileAttachmentResourceList} doesn't
    *                                   exists
    */
-  ObjectAttachmentOperationReport createAttachments(ObjectUploadResourceList attachment,
+  ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachment,
                                                     Identity userAclIdentity) throws IllegalAccessException,
                                                                               ObjectNotFoundException;
+
+  /**
+   * Updates attached files with its ids linked to a given object
+   *
+   * @param  attachment              {@link FileAttachmentResourceList} to store
+   * @param  userAclIdentity         user ACL making the update
+   * @throws ObjectNotFoundException when the object doesn't exist
+   * @throws IllegalAccessException  when user identified by its
+   *                                 {@link org.exoplatform.social.core.identity.model.Identity}
+   *                                 id can't modify attachments
+   */
+  ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachment,
+                                                    Identity userAclIdentity) throws ObjectNotFoundException,
+                                                                              IllegalAccessException;
 
   /**
    * Retrieves the list of attachments of a given object identified by its id
@@ -71,7 +86,7 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   {@link FileAttachmentResourceList} doesn't
    *                                   exists
    */
   ObjectAttachmentList getAttachments(String objectType,
@@ -96,7 +111,7 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   {@link FileAttachmentResourceList} doesn't
    *                                   exists
    */
   ObjectAttachmentDetail getAttachment(String objectType,
@@ -104,6 +119,7 @@ public interface AttachmentService {
                                        String fileId,
                                        Identity userAclIdentity) throws ObjectNotFoundException,
                                                                  IllegalAccessException;
+
 
   /**
    * Retrieves the input stream of an attached file to a dedicated object
@@ -123,7 +139,7 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link ObjectUploadResourceList} doesn't
+   *                                   {@link FileAttachmentResourceList} doesn't
    *                                   exists
    * @throws IOException             when an error occurs while reading attached
    *                                   file content
