@@ -1,8 +1,37 @@
 <template>
-  <div class="uiNotFoundActivity mx-auto mt-8">
-    <div class="notfoundActivity"></div>
-    <h3 class="text-sub-title font-weight-bold mt-6">
+  <v-card
+    min-height="75vh"
+    class="full-width d-flex flex-column align-center justify-center py-8 px-4 border-box-sizing"
+    flat>
+    <v-icon size="100" color="primary">
+      far fa-question-circle
+    </v-icon>
+    <div class="text-color headline mt-6">
       {{ $t('UIUserActivitiesDisplay.label.activityNotFound') }}
-    </h3>
-  </div>
+    </div>
+    <v-card
+      class="text-color mt-6 d-none d-sm-inline title"
+      max-width="80%"
+      min-width="50vw"
+      flat>
+      {{ $t('activity.notFound.message') }}
+    </v-card>
+    <v-btn
+      :href="activityStreamUrl"
+      class="btn btn-primary mt-6"
+      large>
+      <span class="text-none title">
+        {{ $t('activity.notFound.button.exploreActivities') }}
+      </span>
+    </v-btn>
+  </v-card>
 </template>
+<script>
+export default {
+  data: () =>({
+    activityStreamUrl: eXo.env.portal.isExternal === 'true' ?
+      `${eXo.env.portal.context}/${eXo.env.portal.portalName}/external-stream`
+      : `${eXo.env.portal.context}/${eXo.env.portal.portalName}/stream`,
+  }),
+};
+</script>
