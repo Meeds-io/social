@@ -41,11 +41,17 @@ export default {
     document.addEventListener('open-file-explorer', () => {
       this.triggerFileClickEvent();
     });
-    this.$root.$on('delete-file', this.removeUplodedFile);
     this.$root.$on('delete-uploaded-files', () => {
       this.filesArray = [];
     });
-
+    this.$root.$on('delete-uploaded-file', (file) => {
+      if (file?.uploadId) {
+        const fileIndex = this.filesArray.findIndex(f => f.uploadId === file.uploadId);
+        this.filesArray.splice(fileIndex, 1);
+        this.$emit('update-images', this.filesArray);
+        this.$uploadService.deleteUpload(file.uploadId);
+      }
+    });
   },
   methods: {
     triggerFileClickEvent() {
@@ -115,16 +121,6 @@ export default {
       const now = Date.now();
       return `${random}-${now}`;
     },
-    removeUplodedFile(uploadId) {
-      if (uploadId) {
-        const fileIndex = this.filesArray.findIndex(f => f.uploadId === uploadId);
-        if (fileIndex >= 0) {
-          this.filesArray.splice(fileIndex, 1);
-          this.$emit('update-images', this.filesArray);
-          this.$uploadService.deleteUpload(uploadId);
-        }
-      }
-    }
   }
 };
 </script>

@@ -23,7 +23,9 @@
       :key="index"
       class="px-2">
       <image-item 
-        :image="image" />
+        :image="image"
+        :object-id="objectId"
+        :object-type="objectType" />
     </v-list-item>
     <v-list-item class="px-2">
       <v-btn
@@ -44,7 +46,15 @@ export default {
     images: {
       type: Array,
       default: () => null
-    }
+    },
+    objectId: {
+      type: String,
+      default: null
+    },
+    objectType: {
+      type: String,
+      default: null
+    },
   },
   computed: {
     attachedImages() {
