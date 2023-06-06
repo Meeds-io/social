@@ -36,6 +36,7 @@ import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.file.services.FileStorageException;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
@@ -44,10 +45,11 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.AttachmentPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.attachment.AttachmentService;
-import org.exoplatform.social.metadata.attachment.model.ObjectUploadResourceList;
+import org.exoplatform.social.metadata.attachment.model.FileAttachmentResourceList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
+import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
@@ -56,8 +58,7 @@ import org.exoplatform.upload.UploadService;
 
 public class AttachmentServiceImpl implements AttachmentService {
 
-  private static final Log                    LOG                =
-                                                  ExoLogger.getLogger(AttachmentServiceImpl.class);
+  private static final Log                    LOG                = ExoLogger.getLogger(AttachmentServiceImpl.class);
 
   private static final String                 FILE_API_NAMESPACE = "attachment";
 
@@ -73,16 +74,20 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   private UploadService                       uploadService;
 
+  private ListenerService                     listenerService;
+
   public AttachmentServiceImpl(MetadataService metadataService,
                                IdentityManager identityManager,
                                FileService fileService,
                                ImageThumbnailService imageThumbnailService,
-                               UploadService uploadService) {
+                               UploadService uploadService,
+                               ListenerService listenerService) {
     this.metadataService = metadataService;
     this.identityManager = identityManager;
     this.imageThumbnailService = imageThumbnailService;
     this.fileService = fileService;
     this.uploadService = uploadService;
+    this.listenerService = listenerService;
   }
 
   @Override
@@ -91,17 +96,12 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
-  public ObjectAttachmentOperationReport createAttachments(ObjectUploadResourceList attachmentList,
+  public ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachmentList,
                                                            Identity userAclIdentity) throws IllegalAccessException,
                                                                                      ObjectNotFoundException {
     if (attachmentList == null) {
       throw new IllegalArgumentException("Attachment is mandatory");
     }
-    List<String> uploadIds = attachmentList.getUploadIds();
-    if (CollectionUtils.isEmpty(uploadIds)) {
-      throw new IllegalArgumentException("Attachment uploadIds is mandatory");
-    }
-    uploadIds = uploadIds.stream().distinct().toList();
 
     long userIdentityId = attachmentList.getUserIdentityId();
     if (userIdentityId <= 0) {
@@ -128,23 +128,72 @@ public class AttachmentServiceImpl implements AttachmentService {
           + " doesn't have enough permissions to attach files on object " + objectType + "/" + objectId);
     }
 
-    ObjectAttachmentOperationReport report = new ObjectAttachmentOperationReport();
-    uploadIds.stream()
-             .map(uploadId -> {
-               UploadResource uploadedResource = uploadService.getUploadResource(uploadId);
-               if (uploadedResource == null) {
-                 LOG.warn("Uploaded resource with id " + uploadId + " wasn't found");
-                 report.addError(uploadId, "attachment.uploadIdNotFound");
-               }
-               return uploadedResource;
-             })
-             .filter(Objects::nonNull)
-             .forEach(uploadResource -> createAttachment(uploadResource,
-                                                         objectType,
-                                                         objectId,
-                                                         parentObjectId,
-                                                         userIdentityId,
-                                                         report));
+    List<String> uploadIds = attachmentList.getUploadIds();
+    if (CollectionUtils.isEmpty(uploadIds)) {
+      throw new IllegalArgumentException("Attachment uploadIds is mandatory");
+    }
+    return attachUploadFiles(uploadIds, objectType, objectId, parentObjectId, userIdentityId);
+  }
+
+  @Override
+  public ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachmentList,
+                                                           Identity userAclIdentity) throws ObjectNotFoundException,
+                                                                                     IllegalArgumentException,
+                                                                                     IllegalAccessException {
+
+    if (attachmentList == null) {
+      throw new IllegalArgumentException("Attachment is mandatory");
+    }
+
+    long userIdentityId = attachmentList.getUserIdentityId();
+    if (userIdentityId <= 0) {
+      throw new IllegalArgumentException("User identity id is mandatory");
+    }
+
+    org.exoplatform.social.core.identity.model.Identity userIdentity =
+                                                                     identityManager.getIdentity(String.valueOf(userIdentityId));
+
+    if (userIdentity == null || userIdentity.isDeleted() || !userIdentity.isEnable()) {
+      throw new IllegalStateException("User with id " + userIdentityId + " isn't valid");
+    }
+    
+    String objectType = attachmentList.getObjectType();
+    if (StringUtils.isBlank(objectType)) {
+      throw new IllegalArgumentException("Object type is mandatory");
+    }
+    String objectId = attachmentList.getObjectId();
+    if (StringUtils.isBlank(objectId)) {
+      throw new IllegalArgumentException("Object identifier is mandatory");
+    }
+
+    if (!hasEditPermission(userAclIdentity, objectType, objectId)) {
+      throw new IllegalAccessException("User " + userAclIdentity.getUserId() + " doesn't have enough permissions to delete files "
+          + " from object " + objectType + "/" + objectId);
+    }
+    
+    MetadataObject metadataObject = new MetadataObject(objectType, objectId);
+
+    List<MetadataItem> existingAttachments =
+                                           metadataService.getMetadataItemsByMetadataTypeAndObject(AttachmentService.METADATA_TYPE.getName(),
+                                                                                                   metadataObject);
+    if (!existingAttachments.isEmpty()) {
+      List<String> existingFileIds = existingAttachments.stream()
+                                                        .map(existingAttachment -> existingAttachment.getMetadata().getName())
+                                                        .toList();
+      List<String> remainingFileIds = attachmentList.getFileIds();
+      List<String> fileToDelete = existingFileIds.stream().filter(fileId -> !remainingFileIds.contains(fileId)).toList();
+      for (String fileId : fileToDelete) {
+        deleteAttachment(objectType, objectId, fileId);
+      }
+    }
+
+    String parentObjectId = attachmentList.getParentObjectId();
+
+    List<String> uploadIds = attachmentList.getUploadIds();
+    ObjectAttachmentOperationReport report = null;
+    if (!uploadIds.isEmpty()) {
+      report = attachUploadFiles(uploadIds, objectType, objectId, parentObjectId, userIdentityId);
+    }
     return report;
   }
 
@@ -316,7 +365,12 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                  objectId,
                                                  parentObjectId,
                                                  getSpaceId(objectType, objectId));
-      metadataService.createMetadataItem(object, metadataKey, userIdentityId);
+      MetadataItem createdMetadataItem = metadataService.createMetadataItem(object, metadataKey, userIdentityId);
+      try {
+        this.listenerService.broadcast("attachment.created", userIdentityId, createdMetadataItem);
+      } catch (Exception e) {
+        LOG.warn("Error while broadcasting event for attachment metadata item created", e);
+      }
     } catch (FileNotFoundException e) {
       LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
       report.addError(uploadId, "attachment.uploadIdFileNotExistsError");
@@ -353,4 +407,54 @@ public class AttachmentServiceImpl implements AttachmentService {
     return fileInfo;
   }
 
+  private void deleteAttachment(String objectType,
+                                String objectId,
+                                String fileId) throws ObjectNotFoundException, IllegalAccessException {
+
+    List<MetadataItem> metadataItemToDelete =
+                                            metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(fileId,
+                                                                                                           AttachmentService.METADATA_TYPE.getName(),
+                                                                                                           objectType,
+                                                                                                           objectId,
+                                                                                                           0,
+                                                                                                           0);
+    if (!metadataItemToDelete.isEmpty()) {
+      MetadataItem attachmentMetadataItemToDelete = metadataItemToDelete.get(0);
+      metadataService.deleteMetadataItem(attachmentMetadataItemToDelete.getId(), true);
+      broadcastAttachmentDeleted(attachmentMetadataItemToDelete, 0l);
+    }
+  }
+
+  private ObjectAttachmentOperationReport attachUploadFiles(List<String> uploadIds,
+                                                            String objectType,
+                                                            String objectId,
+                                                            String parentObjectId,
+                                                            long userIdentityId) {
+    uploadIds = uploadIds.stream().distinct().toList();
+    ObjectAttachmentOperationReport report = new ObjectAttachmentOperationReport();
+    uploadIds.stream().map(uploadId -> {
+      UploadResource uploadedResource = uploadService.getUploadResource(uploadId);
+      if (uploadedResource == null) {
+        LOG.warn("Uploaded resource with id " + uploadId + " wasn't found");
+        report.addError(uploadId, "attachment.uploadIdNotFound");
+      }
+      return uploadedResource;
+    })
+             .filter(Objects::nonNull)
+             .forEach(uploadResource -> createAttachment(uploadResource,
+                                                         objectType,
+                                                         objectId,
+                                                         parentObjectId,
+                                                         userIdentityId,
+                                                         report));
+    return report;
+  }
+
+  private void broadcastAttachmentDeleted(MetadataItem attachmentMetadataItem, long userIdentityId) {
+    try {
+      this.listenerService.broadcast("attachment.deleted", userIdentityId, attachmentMetadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for attachment metadata item deleted", e);
+    }
+  }
 }
