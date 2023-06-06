@@ -21,3 +21,14 @@ extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers',
   vueComponent: Vue.options.components['attachment-preview-dialog'],
   rank: 50,
 });
+
+extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+  id: 'attachedItem',
+  isEnabled: (params) => {
+    const activity = params?.activity;
+    return activity?.metadatas?.attachments?.length;
+  },
+  vueComponent: Vue.options.components['attached-items'],
+  rank: 15,
+});
+
