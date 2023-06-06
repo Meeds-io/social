@@ -49,16 +49,6 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   rank: 1000,
 });
 
-extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
-  id: 'attachedItem',
-  isEnabled: (params) => {
-    const activity = params?.activity;
-    return activity?.metadatas?.attachments?.length;
-  },
-  vueComponent: Vue.options.components['attached-items'],
-  rank: 15,
-});
-
 
 const defaultActivityOptions = {
   getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
@@ -180,6 +170,7 @@ extensionRegistry.registerExtension('activity', 'action', {
       ckEditorType: `editActivity${activity.id}`,
       activityBody: bodyToEdit,
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
+      attachments: activity?.metadatas?.attachments ? window.JSON.parse(window.JSON.stringify(activity.metadatas.attachments)) : null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
       activityType: activity.type
     }}));

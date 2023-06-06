@@ -49,7 +49,7 @@
         class="ml-0" 
         fab 
         x-small
-        @click="deleteFile()">
+        @click="deleteFile">
         <v-icon class="error-color" small>fa-trash</v-icon>
       </v-btn>
     </v-card-actions>
@@ -61,7 +61,15 @@ export default {
     image: {
       type: String,
       default: ''
-    }
+    },
+    objectId: {
+      type: String,
+      default: null
+    },
+    objectType: {
+      type: String,
+      default: null
+    },
   },
   computed: {
     imageItem() {
@@ -70,10 +78,17 @@ export default {
     imageUploadProgress() {
       return this.image?.progress;
     },
+    fileId() {
+      return !this.image?.uploadId ? this.image?.name : '';
+    }
   },
   methods: {
     deleteFile() {
-      this.$root.$emit('delete-file', this.image.uploadId);
+      if (this.fileId) {
+        this.$root.$emit('delete-attached-file', this.image);
+      } else {
+        this.$root.$emit('delete-uploaded-file', this.image);
+      }
     }
   }
 };
