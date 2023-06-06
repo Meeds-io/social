@@ -45,6 +45,9 @@
         </v-card-text>
         <attach-image-component 
           :max-file-size="$root.maxFileSize"
+          :object-id="activityId"
+          :attachments="attachments"
+          object-type="activity"
           @attachments-uploading="canPostActivity = true" 
           @attachments-deleted="canPostActivity = false" />
         <v-card-actions class="d-flex px-4">
@@ -95,6 +98,7 @@ export default {
       spaceId: null,
       message: '',
       files: null,
+      attachments: null,
       templateParams: {},
       drawer: false,
       activityBodyEdited: false,
@@ -158,6 +162,13 @@ export default {
     document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
+    this.$root.$on('delete-attached-file', (file) => {
+      if (file?.name) {
+        const fileIndex = this.attachments.findIndex(f => f.name === file.name);
+        this.attachments.splice(fileIndex, 1);
+        this.canPostActivity = true;
+      }
+    });
   },
   methods: {
     isActivityBodyEdited(event) {
@@ -172,13 +183,15 @@ export default {
         this.spaceId = params.spaceId;
         this.templateParams = params.activityParams || params.templateParams || {};
         this.files = params.files || [];
-        this.activityType = params.activityType;
+        this.attachments = params.attachments || [];
+        this.activityType = params.activityType || 'activity';
       } else {
         this.activityId = null;
         this.spaceId = null;
         this.message = '';
         this.templateParams = {};
         this.files = [];
+        this.attachments = [];
         this.activityType = [];
       }
       this.$nextTick().then(() => {
@@ -211,11 +224,12 @@ export default {
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
-          .then(this.postSaveMessage)
-          .then(() => {
-            document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
-            this.cleareActivityMessage();
-            this.close();
+          .then((activity) => {
+            this.postSaveMessage(activity).then(this.postUpdateMessage(activity)).then(() => {
+              document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
+              this.cleareActivityMessage();
+              this.close();
+            });
           })
           .catch(error => {
             // eslint-disable-next-line no-console
@@ -262,6 +276,26 @@ export default {
           }
         });
         return Promise.all(promises).then(() => activity);
+      } else {
+        return Promise.resolve(null);
+      }
+    },
+    postUpdateMessage(activity) {
+      const postUpdateOperations = extensionRegistry.loadExtensions('activity', 'updateAction');
+      if (postUpdateOperations?.length) {
+        const promises = [];
+        postUpdateOperations.forEach(extension => {
+          if (extension.postUpdate) {
+            activity.metadatas.attachments = this.attachments;
+            const result = extension.postUpdate(activity);
+            if (result?.then) {
+              promises.push(result);
+            }
+          }
+        });
+        return Promise.all(promises).then(() => activity);
+      } else {
+        return Promise.resolve(null);
       }
     },
     cleareActivityMessage() {
