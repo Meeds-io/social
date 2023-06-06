@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import AttachImageComponent from './components/AttachImageComponent.vue';
-import FileMultiUploadInput from './components/FileMultiUploadInput.vue';
+import AttachmentsMultiUploadInput from './components/AttachmentsMultiUploadInput.vue';
 import ImageItems from './components/ImageItems.vue';
 import ImageItem from './components/ImageItem.vue';
 import AttachedItem from './components/AttachedItem.vue';
@@ -26,7 +26,7 @@ import AttachmentPreviewDialog from './components/AttachmentPreviewDialog.vue';
 
 const components = {
   'attach-image-component': AttachImageComponent,
-  'file-multi-upload-input': FileMultiUploadInput,
+  'attachments-multi-upload-input': AttachmentsMultiUploadInput,
   'image-items': ImageItems,
   'image-item': ImageItem,
   'attached-item': AttachedItem,
