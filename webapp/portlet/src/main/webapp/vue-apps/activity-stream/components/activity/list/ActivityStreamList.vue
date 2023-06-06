@@ -33,7 +33,7 @@
         indeterminate
         class="mx-auto my-10" />
     </div>
-    <template v-else-if="!activityId && !isDeleted">
+    <template v-else-if="!isDeleted">
       <activity-not-found v-if="activityId" />
       <template v-else-if="!error">
         <activity-stream-empty-message-filter v-if="streamFilter && streamFilter !== 'all_stream'" :stream-filter="streamFilter" />
