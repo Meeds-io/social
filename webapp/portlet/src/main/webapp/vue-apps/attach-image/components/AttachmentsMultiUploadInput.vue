@@ -54,6 +54,7 @@ export default {
     uploadFiles(files) {
       this.$root.$emit('close-alert-message');
       const filesArray = Array.from(files);
+      console.warn('files to display:', filesArray);
       if (files.length === 0) {
         return;
       } else {

@@ -47,4 +47,14 @@ export function getAttachments(objectType, objectId) {
   });
 }
 
+export function deleteAttachment(objectType, objectId,fileId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}/${fileId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
 

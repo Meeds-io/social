@@ -180,6 +180,7 @@ extensionRegistry.registerExtension('activity', 'action', {
       ckEditorType: `editActivity${activity.id}`,
       activityBody: bodyToEdit,
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
+      attachments: activity?.metadatas?.attachments || null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
       activityType: activity.type
     }}));

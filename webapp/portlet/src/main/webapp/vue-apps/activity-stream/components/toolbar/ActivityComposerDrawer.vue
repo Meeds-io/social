@@ -45,6 +45,8 @@
         </v-card-text>
         <attach-image-component 
           :max-file-size="$root.maxFileSize"
+          :object-id="activityId"
+          :attached-files="attachments"
           @attachments-uploading="canPostActivity = true" 
           @attachments-deleted="canPostActivity = false" />
         <v-card-actions class="d-flex px-4">
@@ -95,6 +97,7 @@ export default {
       spaceId: null,
       message: '',
       files: null,
+      attachments: null,
       templateParams: {},
       drawer: false,
       activityBodyEdited: false,
@@ -172,6 +175,7 @@ export default {
         this.spaceId = params.spaceId;
         this.templateParams = params.activityParams || params.templateParams || {};
         this.files = params.files || [];
+        this.attachments = params.attachments || [];
         this.activityType = params.activityType;
       } else {
         this.activityId = null;
@@ -179,6 +183,7 @@ export default {
         this.message = '';
         this.templateParams = {};
         this.files = [];
+        this.attachments = [];
         this.activityType = [];
       }
       this.$nextTick().then(() => {

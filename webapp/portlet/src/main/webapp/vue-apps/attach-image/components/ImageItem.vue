@@ -61,7 +61,11 @@ export default {
     image: {
       type: String,
       default: ''
-    }
+    },
+    objectId: {
+      type: String,
+      default: null
+    },
   },
   computed: {
     imageItem() {
@@ -70,10 +74,17 @@ export default {
     imageUploadProgress() {
       return this.image?.progress;
     },
+    fileId() {
+      return this.image?.name;
+    }
   },
   methods: {
     deleteFile() {
-      this.$root.$emit('delete-file', this.image.uploadId);
+      if (this.image.uploadId) {
+        this.$root.$emit('delete-file', this.image.uploadId);
+      } else {
+        this.$fileAttachmentService.deleteAttachment('activity', this.objectId, this.fileId);
+      }
     }
   }
 };

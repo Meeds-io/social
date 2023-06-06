@@ -187,6 +187,37 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
+  public void deleteAttachment(String objectType,
+                               String objectId,
+                               String fileId,
+                               Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException {
+
+    if (StringUtils.isBlank(objectType)) {
+      throw new IllegalArgumentException("Object type is mandatory");
+    }
+    if (StringUtils.isBlank(objectId)) {
+      throw new IllegalArgumentException("Object id is mandatory");
+    }
+    if (StringUtils.isBlank(fileId)) {
+      throw new IllegalArgumentException("File id is mandatory");
+    }
+    org.exoplatform.social.core.identity.model.Identity userIdentity =
+                                                                     identityManager.getOrCreateUserIdentity(userAclIdentity.getUserId());
+
+    if (userIdentity == null || userIdentity.isDeleted() || !userIdentity.isEnable()) {
+      throw new IllegalStateException("User with id " + userAclIdentity.getUserId() + " isn't valid");
+    }
+
+    if (!hasAccessPermission(userAclIdentity, objectType, objectId)) {
+      throw new IllegalAccessException("User " + userAclIdentity.getUserId()
+          + " doesn't have enough permissions to attach files on object " + objectType + "/" + objectId);
+    }
+
+    MetadataObject metadataObject = new MetadataObject(objectType, objectId, null, getSpaceId(objectType, objectId));
+    metadataService.deleteMetadataItemsByObject(metadataObject);
+  }
+
+  @Override
   public ObjectAttachmentDetail getAttachment(String objectType,
                                               String objectId,
                                               String fileId,

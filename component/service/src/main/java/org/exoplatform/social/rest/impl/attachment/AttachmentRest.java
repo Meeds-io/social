@@ -25,14 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -247,6 +240,51 @@ public class AttachmentRest implements ResourceContainer {
       return Response.status(Status.NOT_FOUND).entity("attachment.objectNotFound").build();
     } catch (IOException e) {
       return Response.status(Status.INTERNAL_SERVER_ERROR).entity("attachment.fileReadingError").build();
+    }
+  }
+
+  @DELETE
+  @Path("{objectType}/{objectId}/{fileId}")
+  @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Delete a file linked to a given object identified by its id", description = "Delete a file linked to a given object identified by its id", method = "DELETE")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized request"),
+      @ApiResponse(responseCode = "404", description = "Not found"), })
+  public Response deleteAttachment(
+                                   @Parameter(description = "Object type : activity, task, note...", required = true)
+                                   @PathParam("objectType")
+                                   String objectType,
+                                   @Parameter(description = "Identifier of object from which file will be deleted", required = true)
+                                   @PathParam("objectId")
+                                   String objectId,
+                                   @Parameter(description = "Identifier of file will be deleted", required = true)
+                                   @PathParam("fileId")
+                                   String fileId) {
+
+    if (StringUtils.isBlank(objectType)) {
+      return Response.status(Status.BAD_REQUEST).entity("Object type is required").build();
+    }
+    if (StringUtils.isBlank(objectId)) {
+      return Response.status(Status.BAD_REQUEST).entity("Object Id is required").build();
+    }
+    if (StringUtils.isBlank(fileId)) {
+      return Response.status(Status.BAD_REQUEST).entity("File id is required").build();
+    }
+
+    long currentIdentityId = RestUtils.getCurrentUserIdentityId();
+    if (currentIdentityId <= 0) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
+    Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
+    try {
+      attachmentService.deleteAttachment(objectType, objectId,fileId,authenticatedUserIdentity);
+      return Response.noContent().build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 

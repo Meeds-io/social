@@ -106,6 +106,26 @@ public interface AttachmentService {
                                                                  IllegalAccessException;
 
   /**
+   * Delete an attached file with its id linked to a giver object
+   *
+   * @param objectType               object type can be of any type: activity,
+   *                                 comment, note...
+   * @param objectId                 object technical unique identifier
+   * @param fileId                   attachment file identifier
+   * @param userAclIdentity          user ACL identity retrieve used
+   *                                 {@link IdentityRegistry}
+   * @throws ObjectNotFoundException when the object identified by its is doesn't
+   *                                 exist
+   * @throws IllegalAccessException when user identified by its
+   *                                {@link org.exoplatform.social.core.identity.model.Identity}
+   *                                id  doesn't have "read" permission ofselected object
+   */
+  void deleteAttachment(String objectType,
+                        String objectId,
+                        String fileId,
+                        Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
    * Retrieves the input stream of an attached file to a dedicated object
    * identified by its type and id
    *

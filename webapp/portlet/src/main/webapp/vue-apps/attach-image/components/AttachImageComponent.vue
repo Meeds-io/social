@@ -18,8 +18,8 @@
 -->
 <template>
   <div class="px-3">
-    <file-multi-upload-input @update-images="upadateImage" />
-    <image-items :images="images" />
+    <attachments-multi-upload-input @update-images="upadateImage" />
+    <image-items :object-id="objectId" :images="attachments" />
   </div>
 </template>
 <script>
@@ -29,6 +29,14 @@ export default {
       type: Number,
       default: 20971520,
     },
+    objectId: {
+      type: String,
+      default: null
+    },
+    attachedFiles: {
+      type: Array,
+      default: null
+    }
   },
   data: () => ({
     images: [],
@@ -47,6 +55,18 @@ export default {
           this.$emit('attachments-deleted');
         }
       },
+    }
+  },
+  computed: {
+    attachments() {
+      if (this.attachedFiles.length) {
+        this.attachedFiles.forEach(attachment => {
+          attachment.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/activity/${this.objectId}/${attachment.name}?size=120x120`;
+        });
+        return [...this.attachedFiles, ...this.images];
+      } else {
+        return this.images;
+      }
     }
   },
   created() {
@@ -94,7 +114,7 @@ export default {
             }
           })
           .finally(() => {
-            this.images = [];
+            this.clearFiles();
             this.$root.$emit('delete-uploaded-files');
           });
       },
@@ -104,6 +124,9 @@ export default {
     upadateImage(images) {
       this.images = images;
     },
+    clearFiles() {
+      this.images = [];
+    }
   },
 };
 </script>

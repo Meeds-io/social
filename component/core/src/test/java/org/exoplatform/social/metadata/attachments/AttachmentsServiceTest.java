@@ -288,4 +288,31 @@ public class AttachmentsServiceTest {
     assertEquals(attachmentInputStream, attachmentInputStream1);
   }
 
+  @Test
+  public void testDeleteAttachment() throws ObjectNotFoundException, IllegalAccessException {
+
+    String fileId = String.valueOf(FILE_ID);
+    Identity userIdentity = Mockito.mock(Identity.class);
+    when(userIdentity.isEnable()).thenReturn(true);
+    when(userIdentity.isDeleted()).thenReturn(false);
+
+    org.exoplatform.services.security.Identity userACLIdentity = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    when(userACLIdentity.getUserId()).thenReturn(USER_NAME);
+    when(identityManager.getOrCreateUserIdentity(USER_NAME)).thenReturn(userIdentity);
+
+    when(attachmentPlugin.hasAccessPermission(userACLIdentity, OBJECT_ID)).thenReturn(true);
+
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.deleteAttachment(null, null, null, null));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.deleteAttachment(null, OBJECT_ID, fileId, userACLIdentity));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.deleteAttachment(OBJECT_TYPE, null, fileId, userACLIdentity));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.deleteAttachment(OBJECT_TYPE, OBJECT_ID, null, userACLIdentity));
+    MetadataObject  metadataObject= new MetadataObject(OBJECT_TYPE, OBJECT_ID, null, SPACE_ID);
+    attachmentService.deleteAttachment(OBJECT_TYPE, OBJECT_ID,fileId,userACLIdentity);
+    verify(metadataService, times(1)).deleteMetadataItemsByObject(metadataObject);
+
+  }
+
 }
