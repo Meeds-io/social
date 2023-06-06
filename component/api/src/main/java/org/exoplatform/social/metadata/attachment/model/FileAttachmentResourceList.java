@@ -25,9 +25,11 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObjectUploadResourceList implements Cloneable {
+public class FileAttachmentResourceList implements Cloneable {
 
   private List<String> uploadIds;
+
+  private List<String> fileIds;
 
   private long         userIdentityId;
 
@@ -38,8 +40,8 @@ public class ObjectUploadResourceList implements Cloneable {
   private String       parentObjectId;
 
   @Override
-  public ObjectUploadResourceList clone() { // NOSONAR
-    return new ObjectUploadResourceList(uploadIds, userIdentityId, objectType, objectId, parentObjectId);
+  public FileAttachmentResourceList clone() { // NOSONAR
+    return new FileAttachmentResourceList(uploadIds, fileIds, userIdentityId, objectType, objectId, parentObjectId);
   }
 
 }
