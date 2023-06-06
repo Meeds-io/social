@@ -23,6 +23,7 @@
     :left="!$vuetify.rtl"
     :right="$vuetify.rtl"
     :timeout="timeout"
+    class="z-index-modal"
     color="transparent"
     elevation="0"
     app>
@@ -32,7 +33,7 @@
     <v-alert
       :type="alertType"
       :max-width="maxWidth"
-      class="white position-relative"
+      class="white position-relative z-index-modal"
       border="left"
       elevation="2"
       light
