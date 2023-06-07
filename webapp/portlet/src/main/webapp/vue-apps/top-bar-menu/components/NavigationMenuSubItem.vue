@@ -34,6 +34,9 @@
         content-class="topBar-navigation-drop-sub-menu"
         rounded
         :left="$vuetify.rtl"
+        :value="value"
+        open-on-hover
+        bottom
         offset-x>
         <template #activator="{ attrs, on }">
           <v-list-item-title
@@ -46,7 +49,7 @@
             <v-btn
               v-on="on"
               icon
-              @click.stop.prevent>
+              @click.stop.prevent="value = !value">
               <v-icon
                 size="18">
                 {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
@@ -71,6 +74,7 @@ export default {
   data() {
     return {
       showMenu: false,
+      value: false,
     };
   },
   props: {
