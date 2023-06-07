@@ -25,7 +25,7 @@
     rounded
     content-class="topBar-navigation-drop-menu"
     :left="$vuetify.rtl"
-    :open-on-hover="isOpenOnHover"
+    :open-on-hover="isOpenedOnHover"
     bottom
     offset-y>
     <template #activator="{ on, attrs }">
@@ -69,7 +69,7 @@ export default {
   data () {
     return {
       showMenu: false,
-      isOpenOnHover: true,
+      isOpenedOnHover: true,
     };
   },
   props: {
@@ -84,7 +84,7 @@ export default {
   },
   watch: {
     showMenu() {
-      this.isOpenOnHover = !this.showMenu;
+      this.isOpenedOnHover = !this.showMenu;
       this.$root.$emit('close-sibling-drop-menus', this); 
     }
   },
