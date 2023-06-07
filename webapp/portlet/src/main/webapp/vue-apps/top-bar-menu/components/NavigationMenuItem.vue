@@ -1,4 +1,4 @@
-<!--
+z<!--
    * This file is part of the Meeds project (https://meeds.io/).
    *
    * Copyright (C) 2023 Meeds Association
@@ -34,6 +34,7 @@
         :class="`mx-auto text-caption text-break ${extraClass} ${notClickable}`"
         v-on="on"
         v-bind="attrs"
+        class="mx-auto text-caption text-break"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :link="hasPage"
@@ -45,6 +46,7 @@
         </span>
         <v-btn
           v-if="hasChildren && childrenHasPage"
+          v-on="on"
           icon
           @click.stop.prevent="openDropMenu"
           @mouseover="showMenu = true">
