@@ -247,7 +247,7 @@ export default {
         this.close();
       }
     },
-    close() {
+    close(event) {
       if (this.confirmClose) {
         if (this.$refs.closeConfirmDialog) {
           if (event) {
