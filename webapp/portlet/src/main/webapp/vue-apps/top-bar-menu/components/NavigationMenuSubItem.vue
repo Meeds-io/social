@@ -42,9 +42,11 @@
         offset-x>
         <template #activator="{ attrs, on }">
           <v-list-item-title
+            v-on="on"
             v-bind="attrs"
-            class="pt-5 pb-5 text-caption"
-            v-text="navigation.label" />
+            :class="hasPage ? 'pt-5 pb-5 text-caption' : 'pt-5 pb-5 text-caption not-clickable'"
+            v-text="navigation.label"
+            @mouseleave="showMenu = false" />
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
             class="ms-0 me-n2 ma-auto full-height">

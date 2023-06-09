@@ -39,6 +39,7 @@
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
         <span
+          v-on="on"
           class="text-truncate-3">
           {{ navigation.label }}
         </span>
