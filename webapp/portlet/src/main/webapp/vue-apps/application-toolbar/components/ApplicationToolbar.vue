@@ -348,13 +348,10 @@ export default {
           && this.rightFilterButton?.text;
     },
     rightInputsCount() {
-      return this.filtersCount
-        || (
-          (this.hasTextFilter && 1 || 0)
+      return (this.hasTextFilter && 1 || 0)
           + (this.hasSelectBoxFilter && 1 || 0)
           + (this.hasButtonFilter && 1 || 0)
-          + (this.$slots.right && 1 || 0)
-        );
+          + (this.$slots.right && 1 || 0);
     },
     hideRightInputs() {
       return !this.hideConeButton && !this.expandFilter && (this.isMobile || this.rightInputsCount > this.maxRightElementsExpand);
@@ -472,6 +469,12 @@ export default {
       if (event?.key === 'Escape' && this.$refs?.applicationToolbarFilterInput?.isFocused) {
         this.term = null;
       }
+    },
+    setTerm(value) {
+      this.term = value;
+    },
+    selectToggle(value) {
+      this.toggle = value;
     },
     emitToggle(value) {
       // Differ emitting event to not block button status change
