@@ -2,8 +2,8 @@
   <div
     v-if="popover"
     v-identity-popover="popoverIdentity"
-    class="profile-popover user-wrapper"
-    :class="extraClass">
+    class="profile-popover user-wrapper text-truncate"
+    :class="parentClass">
     <component
       v-if="avatar"
       :is="clickable && 'v-btn' || 'a'"
@@ -16,8 +16,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
-        :class="pullLeft"
-        class="ma-0">
+        class="ma-0 flex-shrink-0">
         <img
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
@@ -84,8 +83,8 @@
   </div>
   <div 
     v-else
-    class="profile-popover user-wrapper"
-    :class="extraClass">
+    class="profile-popover user-wrapper text-truncate"
+    :class="parentClass">
     <component 
       v-if="avatar"
       :is="clickable && 'v-btn' || 'a'"
@@ -98,8 +97,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
-        :class="pullLeft"
-        class="ma-0">
+        class="ma-0 flex-shrink-0">
         <img
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
@@ -253,7 +251,6 @@ export default {
       retrievedIdentity: null,
     };
   },
-
   computed: {
     userIdentity() {
       return this.retrievedIdentity || this.identity;
@@ -298,6 +295,9 @@ export default {
     itemsAlignStyle() {
       return `${this.alignTop && 'align-start' || 'align-center'}`;
     },
+    parentClass() {
+      return this.avatar && `${this.extraClass} flex-shrink-0` || this.extraClass || '';
+    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
     },
@@ -322,11 +322,8 @@ export default {
         external: this.isExternal,
       };
     },
-    pullLeft() {
-      return this.isMobile && ' ' || 'pull-left';
-    },
     componentClass() {
-      return `${this.avatarClass || ''} ${this.clickable && 'width-auto height-auto' || ''} ${this.fullname ? this.pullLeft : (!this.avatar && this.itemsAlignStyle || '')}`;
+      return `${this.avatarClass || ''} ${this.clickable && 'width-auto height-auto' || ''} ${this.fullname ? '' : (!this.avatar && this.itemsAlignStyle || '')}`;
     },
     mustRetrieveIdentity() {
       return !this.identity
