@@ -17,3 +17,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
+import * as translationService from './js/TranslationService.js';
+
+window.Object.defineProperty(Vue.prototype, '$translationService', {
+  value: translationService,
+});

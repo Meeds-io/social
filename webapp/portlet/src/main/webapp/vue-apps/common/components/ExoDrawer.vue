@@ -15,7 +15,7 @@
     height="100%"
     max-height="100%"
     max-width="100vw"
-    class="drawerParent">
+    class="drawerParent overflow-initial">
     <v-container
       v-if="initialized || eager"
       fill-height
@@ -23,7 +23,16 @@
       <v-layout column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
-            <v-list-item class="pe-0">
+            <v-list-item
+              :class="goBackButton && 'ps-1'"
+              class="pe-0">
+              <v-list-item-action v-if="goBackButton" class="drawerIcons me-2">
+                <v-btn icon @click="close()">
+                  <v-icon size="20">
+                    {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
+                  </v-icon>
+                </v-btn>
+              </v-list-item-action>
               <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
                 <slot name="title"></slot>
               </v-list-item-content>
@@ -97,6 +106,10 @@ export default {
       default: () => false,
     },
     eager: {
+      type: Boolean,
+      default: () => false,
+    },
+    goBackButton: {
       type: Boolean,
       default: () => false,
     },
@@ -234,7 +247,7 @@ export default {
         this.close();
       }
     },
-    close() {
+    close(event) {
       if (this.confirmClose) {
         if (this.$refs.closeConfirmDialog) {
           if (event) {

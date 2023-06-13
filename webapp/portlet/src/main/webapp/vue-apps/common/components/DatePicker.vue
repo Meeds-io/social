@@ -10,10 +10,10 @@
       :disabled="disabled"
       :top="top"
       :left="left"
+      :attach="attach"
+      :allow-overflow="allowOverflow"
       class="datePickerMenu"
       transition="scale-transition"
-      :attach="attach"
-      allow-overflow
       offset-y
       eager>
       <input
@@ -127,6 +127,12 @@ export default {
       },
     },
     attach: {
+      type: Boolean,
+      default: function() {
+        return true;
+      },
+    },
+    allowOverflow: {
       type: Boolean,
       default: function() {
         return true;

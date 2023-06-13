@@ -18,6 +18,8 @@ let config = {
     new VueLoaderPlugin()
   ],
   entry: {
+    animationComponents: './src/main/webapp/vue-apps/animations/main.js',
+    applicationToolbarComponent: './src/main/webapp/vue-apps/application-toolbar/main.js',
     commonVueComponents: './src/main/webapp/vue-apps/common/main.js',
     login: './src/main/webapp/vue-apps/login/main.js',
     loginCommon: './src/main/webapp/vue-apps/login-common/main.js',
@@ -85,6 +87,14 @@ let config = {
         test: /\.vue$/,
         use: [
           'vue-loader',
+        ]
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader'
         ]
       }
     ]

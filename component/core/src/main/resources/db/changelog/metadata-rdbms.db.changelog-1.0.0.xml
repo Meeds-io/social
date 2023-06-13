@@ -153,4 +153,16 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="metadata" id="1.0.0-10" dbms="mysql">
+    <sql>
+      ALTER TABLE SOC_METADATA_PROPERTIES MODIFY COLUMN VALUE longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    </sql>
+  </changeSet>
+
+  <changeSet author="metadata" id="1.0.0-11" dbms="mysql">
+    <sql>
+      ALTER TABLE SOC_METADATA_ITEMS_PROPERTIES MODIFY COLUMN VALUE longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>

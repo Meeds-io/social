@@ -21,25 +21,45 @@
     ref="drawer"
     v-model="drawer"
     id="translationDrawer"
-    allow-expand
+    :go-back-button="backIcon"
+    :allow-expand="!noExpandIcon"
     right
-    disable-pull-to-refresh>
+    fixed
+    disable-pull-to-refresh
+    @closed="reset">
     <template #title>
-      <span class="text-capitalize-first-letter">
-        {{ $t(title) }}
-      </span>
+      {{ $t(title) }}
     </template>
     <template v-if="translations" #content>
       <v-row
-        v-for="language in existingLanguages"
+        v-for="(language, index) in existingLanguages"
         :key="language"
         class="mx-0 mb-0 mt-4 max-width-fit"
         no-gutters>
         <v-col cols="8" class="px-2">
+          <v-card
+            v-if="richEditor"
+            class="text-truncate border-color rounder full-height pe-2 d-flex align-center"
+            flat
+            @click="openOrCloseEditor(index)">
+            <v-btn
+              icon
+              @click.prevent.stop="openOrCloseEditor(index)">
+              <v-icon size="24">{{ editorIndex === index && 'fa-chevron-up' || 'fa-chevron-down' }}</v-icon>
+            </v-btn>
+            <v-card
+              v-if="editorIndex !== index"
+              max-height="2em"
+              v-sanitized-html="translations[language] || ''"
+              class="d-flex text-truncate full-width mt-2"
+              flat />
+          </v-card>
           <v-text-field
+            v-else
             :name="`${language}-translation-value`"
             :value="translations[language]"
             :autofocus="language === defaultLanguage && 'autofocus'"
+            :disabled="loading"
             class="border-box-sizing pt-0"
             type="text"
             outlined
@@ -82,6 +102,18 @@
             </div>
           </div>
         </v-col>
+        <v-col
+          v-if="richEditor && editorIndex === index"
+          class="px-2 py-4"
+          cols="12">
+          <rich-editor
+            ref="translationEditor"
+            :value="translations[language]"
+            :max-length="maxLength"
+            :tag-enabled="false"
+            autofocus
+            @input="updateValue(language, $event)" />
+        </v-col>
       </v-row>
     </template>
     <template #footer>
@@ -93,6 +125,7 @@
           {{ $t('translationDrawer.cancel') }}
         </v-btn>
         <v-btn
+          :loading="loading"
           class="btn btn-primary"
           @click="apply">
           {{ $t('translationDrawer.apply') }}
@@ -120,11 +153,45 @@ export default {
       type: Object,
       default: null,
     },
+    objectType: {
+      type: String,
+      default: null,
+    },
+    objectId: {
+      type: String,
+      default: null,
+    },
+    fieldName: {
+      type: String,
+      default: null,
+    },
+    maxLength: {
+      type: Number,
+      default: () => 255,
+    },
+    save: {
+      type: Boolean,
+      default: false,
+    },
+    backIcon: {
+      type: Boolean,
+      default: false,
+    },
+    richEditor: {
+      type: Boolean,
+      default: false,
+    },
+    noExpandIcon: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     drawer: false,
+    loading: false,
     title: null,
     translations: null,
+    editorIndex: null,
     existingLanguages: [],
   }),
   computed: {
@@ -133,25 +200,50 @@ export default {
         .sort((a, b) => this.supportedLanguages[a].localeCompare(this.supportedLanguages[b]));
     },
     remainingLanguages() {
-      return this.languages.slice().filter(lang => this.existingLanguages.indexOf(lang) < 0);
+      return this.languages && this.languages.slice().filter(lang => this.existingLanguages.indexOf(lang) < 0) || [];
     },
     hasRemainingLanguages() {
       return this.remainingLanguages.length > 0;
+    },
+    serverSideFetch() {
+      return this.objectType && this.objectId && this.fieldName;
+    },
+  },
+  watch: {
+    loading() {
+      if (this.loading) {
+        this.$refs.drawer.startLoading();
+      } else {
+        this.$refs.drawer.endLoading();
+      }
     },
   },
   methods: {
     open() {
       this.title = this.drawerTitle || 'translationDrawer.defaultTitle';
+      this.editorIndex = null;
       this.translations = this.value && JSON.parse(JSON.stringify(this.value)) || {};
       this.refreshExistingLanguages(true);
       this.$refs.drawer.open();
     },
     apply() {
-      this.$emit('input', this.translations);
-      this.close();
+      if (this.serverSideFetch && this.save) {
+        this.loading = true;
+        this.$translationService.saveTranslations(this.objectType, this.objectId, this.fieldName, this.translations)
+          .then(() => {
+            this.$emit('input', this.translations);
+            this.close();
+          })
+          .finally(() => this.loading = false);
+      } else {
+        this.$emit('input', this.translations);
+        this.close();
+      }
     },
     close() {
       this.$refs.drawer.close();
+    },
+    reset() {
       this.translations = null;
     },
     refreshExistingLanguages(sort) {
@@ -190,6 +282,13 @@ export default {
     },
     updateValue(language, value) {
       this.translations[language] = value;
+    },
+    openOrCloseEditor(index) {
+      if (this.editorIndex === index) {
+        this.editorIndex = null;
+      } else {
+        this.editorIndex = index;
+      }
     },
   },
 };
