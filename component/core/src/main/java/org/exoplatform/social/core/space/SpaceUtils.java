@@ -474,7 +474,6 @@ public class SpaceUtils {
       UserNode parentNode = renamedNode.getParent();
       String newNodeLabel = space.getDisplayName();
       String newNodeName = SpaceUtils.cleanString(newNodeLabel);
-      renamedNode.setLabel(newNodeLabel);
       renamedNode.setName(newNodeName);
 
       Page page = layoutService.getPage(renamedNode.getPageRef().format());
