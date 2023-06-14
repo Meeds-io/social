@@ -112,12 +112,6 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     LOG.debug("Profile banner of user {} has been updated", event.getProfile().getIdentity().getId());
   }
 
-
-  @Override
-  public void basicInfoUpdated(ProfileLifeCycleEvent event) {
-    publishActivity(event, BASIC_INFO_UPDATED);
-  }
-
   @Override
   public void contactSectionUpdated(ProfileLifeCycleEvent event) {
     publishActivity(event, CONTACT_UPDATED);
@@ -128,11 +122,6 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     publishActivity(event, EX_SECTION_UPDATED);
   }
 
-  @Override
-  public void headerSectionUpdated(ProfileLifeCycleEvent event) {
-    publishActivity(event, POSITION_TITLE_ID);
-  }
-  
   private ExoSocialActivity createComment(String title, String titleId, Identity identity, String position) {
     ExoSocialActivityImpl comment = new ExoSocialActivityImpl();
     comment.setTitle(title);

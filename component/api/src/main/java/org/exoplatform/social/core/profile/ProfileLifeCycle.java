@@ -63,40 +63,44 @@ public class ProfileLifeCycle extends AbstractLifeCycle<ProfileListener, Profile
     }
   }
   
-  public void aboutMeUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.ABOUT_ME, username, profile));
+  public void aboutMeUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.ABOUT_ME, profile, username, modifierUsername);
   }
 
-  public void avatarUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.AVATAR_UPDATED, username, profile));
+  public void avatarUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.AVATAR_UPDATED, profile, username, modifierUsername);
   }
 
-  public void bannerUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.BANNER_UPDATED, username, profile));
+  public void bannerUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.BANNER_UPDATED, profile, username, modifierUsername);
   }
 
-  public void technicalUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.TECHNICAL_UPDATED, username, profile));
+  public void technicalUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.TECHNICAL_UPDATED, profile, username, modifierUsername);
   }
 
-  public void basicUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.BASIC_UPDATED, username, profile));
+  public void basicUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.BASIC_UPDATED, profile, username, modifierUsername);
   }
 
-  public void contactUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.CONTACT_UPDATED, username, profile));
+  public void contactUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.CONTACT_UPDATED, profile, username, modifierUsername);
   }
 
-  public void experienceUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.EXPERIENCE_UPDATED, username, profile));
+  public void experienceUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.EXPERIENCE_UPDATED, profile, username, modifierUsername);
   }
 
-  public void headerUpdated(String username, Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.HEADER_UPDATED, username, profile));
+  public void headerUpdated(String username, Profile profile, String modifierUsername) {
+    broadcast(Type.HEADER_UPDATED, profile, username, modifierUsername);
   }
   
   public void createProfile(Profile profile) {
-    broadcast(new ProfileLifeCycleEvent(Type.CREATED, profile.getIdentity().getRemoteId(), profile));
+    broadcast(Type.CREATED, profile, profile.getIdentity().getRemoteId(), null);
+  }
+
+  private void broadcast(Type type, Profile profile, String username, String modifierUsername) {
+    broadcast(new ProfileLifeCycleEvent(type, username, profile, modifierUsername));
   }
 
 }
