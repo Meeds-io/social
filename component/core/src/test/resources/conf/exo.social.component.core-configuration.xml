@@ -162,7 +162,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.upload.UploadService</key>
     <type>org.exoplatform.social.core.mock.MockUploadService</type>
     <init-params>
       <value-param>
@@ -1345,4 +1344,5 @@
   </external-component-plugins>
 
   <remove-configuration>org.exoplatform.commons.search.index.IndexingOperationProcessor</remove-configuration>
+  <remove-configuration>org.exoplatform.mock.MockUploadService</remove-configuration>
 </configuration>
