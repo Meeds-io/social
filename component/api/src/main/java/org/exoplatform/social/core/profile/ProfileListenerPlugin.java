@@ -22,7 +22,7 @@ import org.exoplatform.social.common.lifecycle.AbstractListenerPlugin;
 /**
  * Convenience class to write and wire {@link ProfileListener} plugin. <br>
  * This base class is a valid {@link ComponentPlugin} and implements {@link ProfileListener}.
- * @see org.exoplatform.social.core.manager.IdentityManager#registerProfileListener(ProfileListener)
+ * @see org.exoplatform.social.core.manager.IdentityManager#registerProfileListener(ProfileListenerPlugin)
  */
 public abstract class ProfileListenerPlugin extends AbstractListenerPlugin implements ProfileListener {
 
@@ -34,41 +34,31 @@ public abstract class ProfileListenerPlugin extends AbstractListenerPlugin imple
   /**
    * {@inheritDoc}
    */
-  public abstract void avatarUpdated(ProfileLifeCycleEvent event);
+  public void avatarUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * {@inheritDoc}
    */
-  public abstract void bannerUpdated(ProfileLifeCycleEvent event);
+  public void bannerUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * {@inheritDoc}
    */
-  public void basicInfoUpdated(ProfileLifeCycleEvent event) {}
+  public void contactSectionUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * {@inheritDoc}
    */
-  public abstract void contactSectionUpdated(ProfileLifeCycleEvent event);
+  public void experienceSectionUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * {@inheritDoc}
    */
-  public abstract void experienceSectionUpdated(ProfileLifeCycleEvent event);
+  public void createProfile(ProfileLifeCycleEvent event) {}
 
   /**
    * {@inheritDoc}
    */
-  public void headerSectionUpdated(ProfileLifeCycleEvent event) {}
-  
-  /**
-   * {@inheritDoc}
-   */
-  public abstract void createProfile(ProfileLifeCycleEvent event);
-
-  /**
-   * {@inheritDoc}
-   */
-  public void technicalUpdated(ProfileLifeCycleEvent event) {};
+  public void technicalUpdated(ProfileLifeCycleEvent event) {}
 
 }
