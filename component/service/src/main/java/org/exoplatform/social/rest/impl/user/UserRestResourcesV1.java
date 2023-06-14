@@ -872,7 +872,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         profile.setListUpdateTypes(Arrays.asList(UpdateType.BANNER));
         profile.setBannerUrl("DEFAULT_BANNER");
         profile.removeProperty(name);
-        identityManager.updateProfile(profile, true);
+        identityManager.updateProfile(profile, getCurrentUser(), true);
       } else{
         updateProfileField(profile, fieldName, value, true);
       }
@@ -1743,7 +1743,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         String fieldName = ProfileEntity.getFieldName(name);
         updateProfileField(profile, fieldName, value, false);
       }
-      identityManager.updateProfile(profile, true);
+      identityManager.updateProfile(profile, getCurrentUser(), true);
     }
   }
 
@@ -1863,7 +1863,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
         profile.setProperty(name, attachment);
         if (save) {
-          identityManager.updateProfile(profile, true);
+          identityManager.updateProfile(profile, getCurrentUser(), true);
         }
       } finally {
         uploadService.removeUploadResource(value.toString());
@@ -1890,7 +1890,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
 
       if (save) {
-        identityManager.updateProfile(profile, true);
+        identityManager.updateProfile(profile, getCurrentUser(), true);
       }
     } else if (Profile.CONTACT_PHONES.equals(name)) {
       @SuppressWarnings("unchecked")
@@ -1914,7 +1914,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
 
       if (save) {
-        identityManager.updateProfile(profile, true);
+        identityManager.updateProfile(profile, getCurrentUser(), true);
       }
     } else if (Profile.CONTACT_URLS.equals(name)) {
       @SuppressWarnings("unchecked")
@@ -1936,7 +1936,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
 
       if (save) {
-        identityManager.updateProfile(profile, true);
+        identityManager.updateProfile(profile, getCurrentUser(), true);
       }
     } else if (Profile.EXPERIENCES.equals(name)) {
       @SuppressWarnings("unchecked")
@@ -1960,12 +1960,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         profile.setProperty(Profile.EXPERIENCES, experienceMaps);
       }
       if (save) {
-        identityManager.updateProfile(profile, true);
+        identityManager.updateProfile(profile, getCurrentUser(), true);
       }
     } else {
       profile.setProperty(name, value);
       if (save) {
-        identityManager.updateProfile(profile, true);
+        identityManager.updateProfile(profile, getCurrentUser(), true);
       }
     }
   }
