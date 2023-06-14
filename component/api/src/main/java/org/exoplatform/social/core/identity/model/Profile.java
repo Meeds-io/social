@@ -174,30 +174,30 @@ public class Profile {
     BANNER,
     TECHNICAL;
 
-    public void updateActivity(ProfileLifeCycle profileLifeCycle, Profile profile) {
+    public void updateActivity(ProfileLifeCycle profileLifeCycle, Profile profile, String modifierUsername) {
       switch (this) {
       case ABOUT_ME: {
-        profileLifeCycle.aboutMeUpdated(profile.getIdentity().remoteId, profile);
+        profileLifeCycle.aboutMeUpdated(profile.getIdentity().remoteId, profile, modifierUsername);
         break;
       }
       case CONTACT: {
-        profileLifeCycle.contactUpdated(profile.getIdentity().getRemoteId(), profile);
+        profileLifeCycle.contactUpdated(profile.getIdentity().getRemoteId(), profile, modifierUsername);
         break;
       }
       case EXPERIENCES: {
-        profileLifeCycle.experienceUpdated(profile.getIdentity().getRemoteId(), profile);
+        profileLifeCycle.experienceUpdated(profile.getIdentity().getRemoteId(), profile, modifierUsername);
         break;
       }
       case AVATAR: {
-        profileLifeCycle.avatarUpdated(profile.getIdentity().getRemoteId(), profile);
+        profileLifeCycle.avatarUpdated(profile.getIdentity().getRemoteId(), profile, modifierUsername);
         break;
       }
       case BANNER: {
-        profileLifeCycle.bannerUpdated(profile.getIdentity().getRemoteId(), profile);
+        profileLifeCycle.bannerUpdated(profile.getIdentity().getRemoteId(), profile, modifierUsername);
         break;
       }
       case TECHNICAL: {
-        profileLifeCycle.technicalUpdated(profile.getIdentity().getRemoteId(), profile);
+        profileLifeCycle.technicalUpdated(profile.getIdentity().getRemoteId(), profile, modifierUsername);
         break;
       }
       default:
