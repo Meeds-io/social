@@ -33,16 +33,6 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
   private static final Log LOG = ExoLogger.getLogger(ProfileESListenerImpl.class);
 
   @Override
-  public void headerSectionUpdated(ProfileLifeCycleEvent event) {
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    String id = event.getProfile().getIdentity().getId();
-
-    LOG.debug("Notifying indexing service for profile header information update id={}", id);
-
-    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
-  }
-
-  @Override
   public void avatarUpdated(ProfileLifeCycleEvent event) {
     IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
     String id = event.getProfile().getIdentity().getId();
@@ -55,16 +45,6 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
   @Override
   public void bannerUpdated(ProfileLifeCycleEvent event) {
     LOG.debug("Profile banner of user {} has been updated", event.getProfile().getIdentity().getId());
-  }
-
-  @Override
-  public void basicInfoUpdated(ProfileLifeCycleEvent event) {
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    String id = event.getProfile().getIdentity().getId();
-
-    LOG.debug("Notifying indexing service for the basic information update id={}", id);
-
-    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
   }
 
   @Override
