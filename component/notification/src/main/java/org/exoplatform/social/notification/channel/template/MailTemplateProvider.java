@@ -751,10 +751,8 @@ public class MailTemplateProvider extends TemplateProvider {
           SocialNotificationUtils.processInforSendTo(map, first.getKey().getId(), remoteId);
         }
 
-        String portalName = System.getProperty("exo.notifications.portalname", "eXo");
-
-        templateContext.put("PORTAL_NAME", portalName);
-        templateContext.put("PORTAL_HOME", SocialNotificationUtils.buildRedirecUrl("portal_home", portalName, portalName));
+        templateContext.put("PORTAL_NAME", NotificationPluginUtils.getBrandingPortalName());
+        templateContext.put("PORTAL_HOME", SocialNotificationUtils.buildRedirecUrl("portal_home", "home", ""));
 
         writer.append(SocialNotificationUtils.getMessageByIds(map, templateContext, "new_user"));
       } catch (IOException e) {
@@ -1020,7 +1018,7 @@ public class MailTemplateProvider extends TemplateProvider {
       Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, sender, true);
       Profile userProfile = identity.getProfile();
 
-      templateContext.put("PORTAL_NAME", System.getProperty("exo.notifications.portalname", "eXo"));
+      templateContext.put("PORTAL_NAME", NotificationPluginUtils.getBrandingPortalName());
       templateContext.put("USER", Utils.addExternalFlag(identity));
       String subject = TemplateUtils.processSubject(templateContext);
 
