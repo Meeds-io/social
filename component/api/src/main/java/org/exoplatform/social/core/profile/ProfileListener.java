@@ -44,14 +44,6 @@ public interface ProfileListener extends LifeCycleListener<ProfileLifeCycleEvent
   public void bannerUpdated(ProfileLifeCycleEvent event) ;
 
   /**
-   * basic account info of the profile are updated
-   * @param event
-   * @deprecated not used anymore. Will be removed in next major version release.
-   */
-  @Deprecated
-  public void basicInfoUpdated(ProfileLifeCycleEvent event);
-
-  /**
    * contact information of the profile is updated
    * @param event
    */
@@ -64,14 +56,6 @@ public interface ProfileListener extends LifeCycleListener<ProfileLifeCycleEvent
   public void experienceSectionUpdated(ProfileLifeCycleEvent event);
 
   /**
-   * header section of the profile is updated
-   * @param event
-   * @deprecated not used anymore. Will be removed in next major version release.
-   */
-  @Deprecated
-  public void headerSectionUpdated(ProfileLifeCycleEvent event) ;
-  
-  /**
    * new profile created
    * @param event
    */
@@ -83,6 +67,25 @@ public interface ProfileListener extends LifeCycleListener<ProfileLifeCycleEvent
    */
   public void technicalUpdated(ProfileLifeCycleEvent event);
 
-  ;
+  /**
+   * basic account info of the profile are updated
+   * 
+   * @param      event
+   * @deprecated       Use {@link #contactSectionUpdated(ProfileLifeCycleEvent)}
+   *                   instead. not used anymore. Will be removed in next major
+   *                   version release.
+   */
+  @Deprecated(forRemoval = true, since = "1.5.0")
+  default void basicInfoUpdated(ProfileLifeCycleEvent event) {}
+
+  /**
+   * header section of the profile is updated
+   * @param event
+   * @deprecated       Use {@link #contactSectionUpdated(ProfileLifeCycleEvent)}
+   *                   instead. not used anymore. Will be removed in next major
+   *                   version release.
+   */
+  @Deprecated(forRemoval = true, since = "1.5.0")
+  default void headerSectionUpdated(ProfileLifeCycleEvent event) {}
 
 }
