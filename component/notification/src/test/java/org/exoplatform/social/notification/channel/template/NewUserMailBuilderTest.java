@@ -99,8 +99,8 @@ public class NewUserMailBuilderTest extends AbstractPluginTest {
     ctx.setNotificationInfo(newUserNotification.setTo("mary"));
     MessageInfo info = buildMessageInfo(ctx);
     
-    assertSubject(info, "USER_1 gtn has joined eXo");
-    assertBody(info, "New user on eXo");
+    assertSubject(info, "USER_1 gtn has joined " + MailUtils.getSenderName());
+    assertBody(info, "New user on " + MailUtils.getSenderName());
     //
     removeUser("user_1");
   }
