@@ -42,22 +42,12 @@ public class ProfileNotificationImpl extends ProfileListenerPlugin {
   }
 
   @Override
-  public void basicInfoUpdated(ProfileLifeCycleEvent event) {
-
-  }
-
-  @Override
   public void contactSectionUpdated(ProfileLifeCycleEvent event) {
 
   }
 
   @Override
   public void experienceSectionUpdated(ProfileLifeCycleEvent event) {
-
-  }
-
-  @Override
-  public void headerSectionUpdated(ProfileLifeCycleEvent event) {
 
   }
 
