@@ -19,6 +19,8 @@ package org.exoplatform.social.core.profile;
 import org.exoplatform.social.common.lifecycle.LifeCycleEvent;
 import org.exoplatform.social.core.identity.model.Profile;
 
+import lombok.Getter;
+
 
 /**
  * event propagated along the {@link org.exoplatform.social.core.profile.ProfileLifeCycle}
@@ -30,7 +32,16 @@ public class ProfileLifeCycleEvent extends LifeCycleEvent<String, Profile> {
 
   public enum Type {ABOUT_ME, AVATAR_UPDATED, BASIC_UPDATED, CONTACT_UPDATED, EXPERIENCE_UPDATED, HEADER_UPDATED, CREATED, BANNER_UPDATED, TECHNICAL_UPDATED}
 
-  private Type type;
+  private Type   type;
+
+  @Getter
+  private String modifierUsername;
+
+  public ProfileLifeCycleEvent(Type type, String user, Profile profile, String modifierUsername) {
+    super(user, profile);
+    this.type = type;
+    this.modifierUsername = modifierUsername;
+  }
 
   public ProfileLifeCycleEvent(Type type, String user, Profile profile) {
     super(user, profile);

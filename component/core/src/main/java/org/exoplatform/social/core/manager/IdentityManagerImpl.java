@@ -246,12 +246,17 @@ public class IdentityManagerImpl implements IdentityManager {
   }
 
   @Override
-  public void updateProfile(Profile specificProfile, boolean broadcastChanges) {
+  public void updateProfile(Profile profile, boolean broadcastChanges) {
+    updateProfile(profile, null, broadcastChanges);
+  }
+
+  @Override
+  public void updateProfile(Profile specificProfile, String modifierUsername, boolean broadcastChanges) {
     if (broadcastChanges) {
       detectChanges(specificProfile);
     }
     identityStorage.updateProfile(specificProfile);
-    broadcastUpdateProfileEvent(specificProfile);
+    broadcastUpdateProfileEvent(specificProfile, modifierUsername);
     this.getIdentityProvider(specificProfile.getIdentity().getProviderId()).onUpdateProfile(specificProfile);
   }
 
@@ -666,18 +671,6 @@ public class IdentityManagerImpl implements IdentityManager {
     return this.identityStorage;
   }
 
-  /**
-   * Broadcasts update profile event depending on type of update. 
-   * 
-   * @param profile
-   * @since 1.2.0-GA
-   */
-  protected void broadcastUpdateProfileEvent(Profile profile) {
-    for (UpdateType type : profile.getListUpdateTypes()) {
-      type.updateActivity(profileLifeCycle, profile);
-    }
-  }
-
   @Override
   public void processEnabledIdentity(String remoteId, boolean isEnable) {
     Identity identity = getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, false);
@@ -710,6 +703,19 @@ public class IdentityManagerImpl implements IdentityManager {
                                      String sortField,
                                      String sortDirection) {
     return sortIdentities(identityRemoteIds, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true);
+  }
+
+  /**
+   * Broadcasts update profile event depending on type of update. 
+   * 
+   * @param profile
+   * @param modifierUsername 
+   * @since 1.2.0-GA
+   */
+  protected void broadcastUpdateProfileEvent(Profile profile, String modifierUsername) {
+    for (UpdateType type : profile.getListUpdateTypes()) {
+      type.updateActivity(profileLifeCycle, profile, modifierUsername);
+    }
   }
 
   private String getValue(String value) {
