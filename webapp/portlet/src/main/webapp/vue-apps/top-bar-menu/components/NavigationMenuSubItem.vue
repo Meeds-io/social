@@ -33,13 +33,9 @@
       :link="!!hasPage">
       <v-menu
         v-model="showMenu"
+        content-class="topBar-navigation-drop-sub-menu"
         rounded
-        :position-x="positionX"
-        :position-y="positionY"
-        transition="slide-x-reverse-transition"
-        absolute
         :left="$vuetify.rtl"
-        :open-on-hover="isOpenedOnHover"
         offset-x>
         <template #activator="{ attrs, on }">
           <v-list-item-title
@@ -62,8 +58,7 @@
             <v-btn
               v-on="on"
               icon
-              @click.stop.prevent="showMenu = !showMenu"
-              @mouseover="showMenu = true">
+              @click.stop.prevent>
               <v-icon
                 size="18">
                 {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
@@ -87,10 +82,7 @@
 export default {
   data() {
     return {
-      isOpenedOnHover: true,
       showMenu: false,
-      positionX: 0,
-      positionY: 0,
     };
   },
   props: {
