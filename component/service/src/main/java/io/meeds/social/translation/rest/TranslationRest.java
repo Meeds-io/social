@@ -27,8 +27,10 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -103,17 +105,19 @@ public class TranslationRest implements ResourceContainer {
     return builder.build();
   }
 
-  private Map<String, String> getSupportedLocales(Locale defaultLocale) {
-    return localeConfigService.getLocalConfigs() == null ? Collections.singletonMap(defaultLocale.toLanguageTag(),
-                                                                                    getLocaleDisplayName(defaultLocale,
-                                                                                                         defaultLocale))
-                                                         : localeConfigService.getLocalConfigs()
-                                                                              .stream()
-                                                                              .filter(localeConfig -> !StringUtils.equals(localeConfig.getLocaleName(),
-                                                                                                                          "ma"))
-                                                                              .collect(Collectors.toMap(LocaleConfig::getLocaleName,
-                                                                                                        localeConfig -> getLocaleDisplayName(defaultLocale,
-                                                                                                                                             localeConfig.getLocale())));
+  @PUT
+  @Path("configuration/defaultLanguage")
+  @RolesAllowed("administrators")
+  @Operation(summary = "Saves new default language for product", method = "PUT", description = "Saves new default language for product")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+  })
+  public Response saveDefaultLanguage(
+                                      @Parameter(description = "Default language to save", required = true)
+                                      @FormParam("lang")
+                                      String lang) {
+    localeConfigService.saveDefaultLocaleConfig(lang);
+    return Response.noContent().build();
   }
 
   @GET
@@ -209,6 +213,19 @@ public class TranslationRest implements ResourceContainer {
     } catch (ObjectNotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
     }
+  }
+
+  private Map<String, String> getSupportedLocales(Locale defaultLocale) {
+    return localeConfigService.getLocalConfigs() == null ? Collections.singletonMap(defaultLocale.toLanguageTag(),
+                                                                                    getLocaleDisplayName(defaultLocale,
+                                                                                                         defaultLocale))
+                                                         : localeConfigService.getLocalConfigs()
+                                                                              .stream()
+                                                                              .filter(localeConfig -> !StringUtils.equals(localeConfig.getLocaleName(),
+                                                                                                                          "ma"))
+                                                                              .collect(Collectors.toMap(LocaleConfig::getLocaleName,
+                                                                                                        localeConfig -> getLocaleDisplayName(defaultLocale,
+                                                                                                                                             localeConfig.getLocale())));
   }
 
   private String getLocaleDisplayName(Locale defaultLocale, Locale locale) {
