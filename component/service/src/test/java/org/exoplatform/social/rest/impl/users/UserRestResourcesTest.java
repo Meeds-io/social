@@ -31,6 +31,7 @@ import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.search.UserSearchService;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.user.UserStateService;
@@ -58,6 +59,7 @@ import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
+import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
 
@@ -84,8 +86,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private MockUploadService   uploadService;
 
   private UserSearchService   userSearchService;
-  
-  private ImageThumbnailService imageThumbnailService;
+
+  private ImageThumbnailService        imageThumbnailService;
+
+  private PasswordRecoveryService      passwordRecoveryService;
+
+  private LocaleConfigService          localeConfigService;
 
   private Identity            rootIdentity;
 
@@ -116,6 +122,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
+    passwordRecoveryService = getContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
+    localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
     rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
     johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
     maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
@@ -140,7 +148,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                       uploadService,
                                                                       userSearchService,
                                                                       imageThumbnailService,
-                                                                      profilePropertyService);
+                                                                      profilePropertyService,
+                                                                      passwordRecoveryService,
+                                                                      localeConfigService);
     registry(userRestResourcesV1);
   }
 
@@ -222,7 +232,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                     uploadService,
                                                                     userSearchService,
                                                                     imageThumbnailService,
-                                                                    profilePropertyService);
+                                                                    profilePropertyService,
+                                                                    passwordRecoveryService,
+                                                                    localeConfigService);
     registry(userRestResources);
 
     //when
