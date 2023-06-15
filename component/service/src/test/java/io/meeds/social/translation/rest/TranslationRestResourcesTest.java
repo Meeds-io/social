@@ -1,11 +1,16 @@
 package io.meeds.social.translation.rest;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 import io.meeds.social.translation.model.TranslationConfiguration;
@@ -122,6 +127,61 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
     assertNotNull(responseEntity);
     assertNotNull(responseEntity.getDefaultLanguage());
     assertNotNull(responseEntity.getSupportedLanguages());
+  }
+
+  public void testSaveDefaultLanguageConfiguration() throws Exception {
+    startSessionAs(username);
+    setTranslationPlugin(false, false, spaceId, audienceId);
+
+    ContainerResponse response = getResponse("GET", getConfigurationUrl(), null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    TranslationConfiguration responseEntity = (TranslationConfiguration) response.getEntity();
+    assertNotNull(responseEntity);
+    assertEquals("en", responseEntity.getDefaultLanguage());
+
+    response = saveDefaultLocale("fr");
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    response = getResponse("GET", getConfigurationUrl(), null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    responseEntity = (TranslationConfiguration) response.getEntity();
+    assertNotNull(responseEntity);
+    assertEquals("fr", responseEntity.getDefaultLanguage());
+
+    response = saveDefaultLocale("");
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    response = getResponse("GET", getConfigurationUrl(), null);
+    responseEntity = (TranslationConfiguration) response.getEntity();
+    assertNotNull(responseEntity);
+    assertEquals("en", responseEntity.getDefaultLanguage());
+
+    response = saveDefaultLocale("en");
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    response = getResponse("GET", getConfigurationUrl(), null);
+    responseEntity = (TranslationConfiguration) response.getEntity();
+    assertNotNull(responseEntity);
+    assertEquals("en", responseEntity.getDefaultLanguage());
+  }
+
+  private ContainerResponse saveDefaultLocale(String locale) throws UnsupportedEncodingException, Exception {
+    ContainerResponse response;
+    byte[] formDataInput = ("lang=" + locale).getBytes("UTF-8");
+
+    MultivaluedMap<String, String> h = new MultivaluedMapImpl();
+    h.putSingle("content-type", MediaType.APPLICATION_FORM_URLENCODED);
+    h.putSingle("content-length", "" + formDataInput.length);
+
+    response = service("PUT", getConfigurationUrl() + "/defaultLanguage", "", h, formDataInput);
+    return response;
   }
 
   private String getConfigurationUrl() {
