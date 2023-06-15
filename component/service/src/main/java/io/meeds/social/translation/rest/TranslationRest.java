@@ -27,8 +27,10 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -38,7 +40,6 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -61,16 +62,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Path("social/translations")
 @Tag(name = "translations", description = "Manages User Translations of stored fields for all type of persisted entities")
 public class TranslationRest implements ResourceContainer {
-
-  // 1 year
-  private static final int          CACHE_IN_SECONDS       = 365 * 24 * 3600;
-
-  private static final int          CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
-
-  private static final CacheControl CACHE_CONTROL          = new CacheControl();
-  static {
-    CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
-  }
 
   private TranslationService  translationService;
 
@@ -96,24 +87,22 @@ public class TranslationRest implements ResourceContainer {
     Map<String, String> supportedLocales = getSupportedLocales(defaultLocale);
     TranslationConfiguration translationConfiguration = new TranslationConfiguration(defaultLocale.toLanguageTag(),
                                                                                      supportedLocales);
-    ResponseBuilder builder = Response.ok(translationConfiguration);
-    builder.lastModified(new Date());
-    builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
-    builder.cacheControl(CACHE_CONTROL);
-    return builder.build();
+    return Response.ok(translationConfiguration).build();
   }
 
-  private Map<String, String> getSupportedLocales(Locale defaultLocale) {
-    return localeConfigService.getLocalConfigs() == null ? Collections.singletonMap(defaultLocale.toLanguageTag(),
-                                                                                    getLocaleDisplayName(defaultLocale,
-                                                                                                         defaultLocale))
-                                                         : localeConfigService.getLocalConfigs()
-                                                                              .stream()
-                                                                              .filter(localeConfig -> !StringUtils.equals(localeConfig.getLocaleName(),
-                                                                                                                          "ma"))
-                                                                              .collect(Collectors.toMap(LocaleConfig::getLocaleName,
-                                                                                                        localeConfig -> getLocaleDisplayName(defaultLocale,
-                                                                                                                                             localeConfig.getLocale())));
+  @PUT
+  @Path("configuration/defaultLanguage")
+  @RolesAllowed("administrators")
+  @Operation(summary = "Saves new default language for product", method = "PUT", description = "Saves new default language for product")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+  })
+  public Response saveDefaultLanguage(
+                                      @Parameter(description = "Default language to save", required = true)
+                                      @FormParam("lang")
+                                      String lang) {
+    localeConfigService.saveDefaultLocaleConfig(lang);
+    return Response.noContent().build();
   }
 
   @GET
@@ -209,6 +198,19 @@ public class TranslationRest implements ResourceContainer {
     } catch (ObjectNotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
     }
+  }
+
+  private Map<String, String> getSupportedLocales(Locale defaultLocale) {
+    return localeConfigService.getLocalConfigs() == null ? Collections.singletonMap(defaultLocale.toLanguageTag(),
+                                                                                    getLocaleDisplayName(defaultLocale,
+                                                                                                         defaultLocale))
+                                                         : localeConfigService.getLocalConfigs()
+                                                                              .stream()
+                                                                              .filter(localeConfig -> !StringUtils.equals(localeConfig.getLocaleName(),
+                                                                                                                          "ma"))
+                                                                              .collect(Collectors.toMap(LocaleConfig::getLocaleName,
+                                                                                                        localeConfig -> getLocaleDisplayName(defaultLocale,
+                                                                                                                                             localeConfig.getLocale())));
   }
 
   private String getLocaleDisplayName(Locale defaultLocale, Locale locale) {

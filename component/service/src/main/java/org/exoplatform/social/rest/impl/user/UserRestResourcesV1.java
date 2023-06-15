@@ -69,15 +69,12 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
-import org.exoplatform.social.rest.entity.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
 
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -85,7 +82,6 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -99,6 +95,7 @@ import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.organization.search.UserSearchService;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.user.UserStateService;
@@ -113,6 +110,7 @@ import org.exoplatform.social.core.model.Attachment;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -125,6 +123,17 @@ import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.api.UserRestResources;
+import org.exoplatform.social.rest.entity.ActivityEntity;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.ExperienceEntity;
+import org.exoplatform.social.rest.entity.IMEntity;
+import org.exoplatform.social.rest.entity.PhoneEntity;
+import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
+import org.exoplatform.social.rest.entity.URLEntity;
+import org.exoplatform.social.rest.entity.UserEntity;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -208,6 +217,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private ProfilePropertyService profilePropertyService;
 
+  private PasswordRecoveryService passwordRecoveryService;
+
+  private LocaleConfigService localeConfigService;
+
   private static final Log LOG = ExoLogger.getLogger(UserRestResourcesV1.class);
 
   private byte[]              defaultUserAvatar = null;
@@ -228,7 +241,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                              UploadService uploadService,
                              UserSearchService userSearchService,
                              ImageThumbnailService imageThumbnailService,
-                             ProfilePropertyService profilePropertyService) {
+                             ProfilePropertyService profilePropertyService,
+                             PasswordRecoveryService passwordRecoveryService,
+                             LocaleConfigService localeConfigService) {
     this.userACL = userACL;
     this.activityRestResourcesV1 = activityRestResourcesV1;
     this.organizationService = organizationService;
@@ -240,6 +255,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     this.userSearchService = userSearchService;
     this.imageThumbnailService = imageThumbnailService;
     this.profilePropertyService = profilePropertyService;
+    this.passwordRecoveryService = passwordRecoveryService;
+    this.localeConfigService = localeConfigService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
@@ -336,7 +353,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
         ListAccess<User> usersListAccess = null;
         User[] users;
-        OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
         List<String> groupIds = organizationService.getMembershipHandler()
                                                    .findMembershipsByUser(userId)
                                                    .stream()
@@ -1357,7 +1373,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     List<DataEntity> spaceInfos = new ArrayList<DataEntity>();
-    ListAccess<Space> listAccess = CommonsUtils.getService(SpaceService.class).getMemberSpaces(id);
+    ListAccess<Space> listAccess = spaceService.getMemberSpaces(id);
 
     for (Space space : listAccess.load(offset, limit)) {
       SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, id, uriInfo.getPath(), expand);
@@ -1403,7 +1419,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    ListAccess<Space> commonSpacesAccessList = CommonsUtils.getService(SpaceService.class).getCommonSpaces(userId,profileId);
+    ListAccess<Space> commonSpacesAccessList = spaceService.getCommonSpaces(userId,profileId);
 
     List<DataEntity> commonSpaceInfos = Arrays.stream(commonSpacesAccessList.load(offset, limit))
             .map(space -> EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand).getDataEntity())
@@ -1817,11 +1833,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   }
 
   private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws Exception {
-    PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-    LayoutService layoutService = CommonsUtils.getService(LayoutService.class);
-    String currentSiteName = CommonsUtils.getCurrentSite().getName();
-    String currentSiteLocale = layoutService.getPortalConfig(currentSiteName).getLocale();
-    Locale locale = new Locale(currentSiteLocale);
+    Locale locale = localeConfigService.getDefaultLocaleConfig().getLocale();
     boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
     if (onBoardingEmailSent) {
       Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
