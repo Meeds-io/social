@@ -54,7 +54,7 @@
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.visibility.'+space.visibility) }} </td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
         <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
-        <td class="center actionContainer">
+        <td class="center actionContainer d-flex">
           <a
             :title="$t('social.spaces.administration.manageSpaces.actions.bind')"
             v-if="canBindGroupsAndSpaces"
@@ -83,6 +83,19 @@
             @click="deleteSpaceById(space.id, index)">
             <i class="uiIconDeleteUser uiIconLightGray"></i>
           </a>
+          <v-btn
+              v-if="siteNavigationAdded"
+              outlined
+              icon
+              class="mx-2">
+            <v-icon
+              class="mb-2"
+              color="primary"
+              size="18"
+              @click="openSiteNavigationDrawer(space.groupId)">
+              fas fa-sitemap
+              </v-icon>
+          </v-btn>
         </td>
       </tr>
     </table> 
@@ -200,6 +213,7 @@ export default {
       showConfirmMessageModal: false,
       restoringHomeLayout: null,
       resetSpaceHomeLayoutEnabled: eXo.env.portal.SpaceHomeLayoutResetEnabled,
+      siteNavigationAdded: eXo.env.portal.siteNavigationAdded,
       spaces: [],
       spaceName: '',
       spaceToBind: null,
@@ -389,6 +403,13 @@ export default {
         .catch(() => this.$root.$emit('alert-message', this.$t('social.spaces.administration.restore.spaceHomeLayout.error'), 'error'))
         .finally(() => this.restoringHomeLayout = null);
     },
+    openSiteNavigationDrawer(siteName) {
+      const params = {
+        siteName: siteName,
+        siteType: 'GROUP'
+      };
+      document.dispatchEvent(new CustomEvent('open-site-navigation-drawer',{detail: params}));
+    }
   }
 };
 </script>
