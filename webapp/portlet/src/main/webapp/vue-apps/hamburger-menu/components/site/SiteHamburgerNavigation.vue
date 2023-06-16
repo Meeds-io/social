@@ -38,6 +38,7 @@
             :selected="nav.selected"
             :href="nav.fullUri"
             :class="homeLink === nav.fullUri && 'UserPageLinkHome' || 'UserPageLink'"
+            :target="nav.uriTarget"
             link>
             <v-list-item-icon class="flex align-center flex-grow-0 my-2">
               <i :class="nav.iconClass"></i>
@@ -100,7 +101,8 @@ export default {
       this.navigations.forEach(nav => {
         const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
         nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
-        nav.fullUri = `${this.BASE_SITE_URI}${nav.uri}`;
+        nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || `${this.BASE_SITE_URI}${nav.uri}`;
+        nav.uriTarget = nav?.target === 'SAME_TAB' && '_self' || '_blank';
       });
       return this.navigations.slice();
     },
@@ -134,6 +136,12 @@ export default {
         this.selectedNavigation = nav;
         this.$refs.confirmDialog.open();
       }
+    },
+    urlVerify(url) {
+      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
+        url = `//${url}`;
+      }
+      return url ;
     },
   }
 };

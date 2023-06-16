@@ -37,6 +37,9 @@ if (navigations != null) {
           out.print("\",");
           out.print("\"uri\": \"");
           out.print(navigationsUri.get(userNode.getId()));
+          out.print("\",");
+          out.print("\"target\": \"");
+          out.print(userNode.getTarget());
           out.print("\"");
           out.print("}");
           if (navIterator.hasNext()) {
