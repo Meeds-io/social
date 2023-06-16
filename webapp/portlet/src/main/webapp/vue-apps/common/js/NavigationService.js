@@ -34,7 +34,7 @@ export function getNavigations(siteName, siteType, scope, visibility, exclude, n
   if (nodeId) {
     formData.append('nodeId', nodeId);
   }
-  formData.append('expandPageDetails', true);
+  formData.append('expand', true);
 
   const params = new URLSearchParams(formData).toString();
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/${siteType || 'portal'}?${params}`, {
