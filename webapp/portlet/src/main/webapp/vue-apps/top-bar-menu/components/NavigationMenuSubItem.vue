@@ -48,12 +48,14 @@
             v-bind="attrs"
             class="pt-5 pb-5 text-caption"
             v-text="navigation.label"
-            @mouseleave="showMenu = false" />
+            @mouseleave="showMenu = false"
+            @mouseover="showMenu = true" />
           <v-list-item-title
             v-else
             class="pt-5 pb-5 text-caption not-clickable"
             v-text="navigation.label"
-            @mouseleave="showMenu = false" />
+            @mouseleave="showMenu = false"
+            @mouseover="showMenu = true" />
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
             class="ms-0 me-n2 ma-auto full-height">

@@ -31,26 +31,20 @@
     <template #activator="{ on, attrs }">
       <v-tab
         v-if="hasPage || hasChildren && childrenHasPage"
-        class="mx-auto text-caption text-break"
-        :class="extraClass"
+        :class="`mx-auto text-caption text-break ${extraClass} ${notClickable}`"
+        v-on="on"
+        v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :link="hasPage"
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
         <span
-          v-if="hasPage"
-          v-on="on"
-          v-bind="attrs"
-          :class="text-truncate-3">
+          class="text-truncate-3">
           {{ navigation.label }}
         </span>
-        <span
-          v-else
-          class="text-truncate-3 not-clickable">{{ navigation.label }}</span>
         <v-btn
           v-if="hasChildren && childrenHasPage"
-          v-on="on"
           icon
           @click.stop.prevent="openDropMenu"
           @mouseover="showMenu = true">
@@ -99,6 +93,12 @@ export default {
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   computed: {
+    notClickable() {
+      return `${this.hasPage ? ' ' : ' not-clickable ' }`;
+    },
+    extraClass() {
+      return `${this.showMenu ? ' light-grey-background ' : ' ' }`;
+    },
     hasChildren() {
       return this.navigation?.children?.length;
     },
