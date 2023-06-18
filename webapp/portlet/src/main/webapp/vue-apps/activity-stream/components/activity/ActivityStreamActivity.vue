@@ -5,13 +5,14 @@
     :space-id="spaceId"
     class="white border-radius activity-detail flex flex-column"
     @read="unreadMetadata = null">
-    <v-progress-circular
-      v-if="displayLoading"
-      color="primary"
-      size="32"
-      indeterminate
-      class="mx-auto my-10" />
-    <template v-if="!noExtension && extendedComponent">
+    <div v-if="displayLoading" class="d-flex">
+      <v-progress-circular
+        color="primary"
+        size="32"
+        indeterminate
+        class="mx-auto my-10" />
+    </div>
+    <template v-else-if="!noExtension && extendedComponent">
       <activity-head
         v-if="!extendedComponent.overrideHeader"
         :activity="activity"
