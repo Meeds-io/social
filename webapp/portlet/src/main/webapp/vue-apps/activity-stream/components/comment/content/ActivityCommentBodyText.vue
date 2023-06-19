@@ -52,7 +52,13 @@ export default {
       return this.comment && this.comment.id;
     },
     extendedComponent() {
+      return this.activityExtendedComponent || this.commentExtendedComponent;
+    },
+    activityExtendedComponent() {
       return this.commentTypeExtension && this.commentTypeExtension.getExtendedComponent && this.commentTypeExtension.getExtendedComponent(this.activity, this.isActivityDetail);
+    },
+    commentExtendedComponent() {
+      return this.commentTypeExtension && this.commentTypeExtension.getCommentExtendedComponent && this.commentTypeExtension.getCommentExtendedComponent(this.activity, this.comment, this.isActivityDetail);
     },
     extendedComponentOptions() {
       return this.extendedComponent && {
