@@ -25,11 +25,14 @@
     rounded
     content-class="topBar-navigation-drop-menu"
     :left="$vuetify.rtl"
+    :open-on-hover="isOpenedOnHover"
+    bottom
     offset-y>
-    <template #activator="{ attrs }">
+    <template #activator="{ on, attrs }">
       <v-tab
         v-if="hasPage || hasChildren && childrenHasPage"
-        class="mx-auto text-caption text-break"
+        :class="`mx-auto text-caption text-break ${extraClass} ${notClickable}`"
+        v-on="on"
         v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
@@ -43,7 +46,8 @@
         <v-btn
           v-if="hasChildren && childrenHasPage"
           icon
-          @click.stop.prevent="openDropMenu">
+          @click.stop.prevent="openDropMenu"
+          @mouseover="showMenu = true">
           <v-icon size="20">
             fa-angle-down
           </v-icon>
@@ -65,6 +69,7 @@ export default {
   data () {
     return {
       showMenu: false,
+      isOpenedOnHover: true,
     };
   },
   props: {
@@ -77,11 +82,23 @@ export default {
       default: null
     }
   },
+  watch: {
+    showMenu() {
+      this.isOpenedOnHover = !this.showMenu;
+      this.$root.$emit('close-sibling-drop-menus', this); 
+    }
+  },
   created() {
     document.addEventListener('click', this.handleCloseMenu);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   computed: {
+    notClickable() {
+      return `${this.hasPage ? ' ' : ' not-clickable ' }`;
+    },
+    extraClass() {
+      return `${this.showMenu ? ' light-grey-background ' : ' ' }`;
+    },
     hasChildren() {
       return this.navigation?.children?.length;
     },
