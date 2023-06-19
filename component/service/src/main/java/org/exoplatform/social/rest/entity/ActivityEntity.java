@@ -40,6 +40,7 @@ public class ActivityEntity extends BaseEntity {
     setLink(activity.getPermaLink());
     setType(activity.getType());
     setFiles(activity.getFiles());
+    setHidden(activity.isHidden());
     setSharedActions(activity.getShareActions());
     setTemplateParams(activity.getTemplateParams());
   }
@@ -136,6 +137,14 @@ public class ActivityEntity extends BaseEntity {
 
   public boolean isPinned() {
     return (Boolean) getProperty("pinned");
+  }
+
+  public void setHidden(boolean hidden) {
+    setProperty("hidden", hidden);
+  }
+
+  public boolean isHidden() {
+    return (Boolean) getProperty("hidden");
   }
 
   public String getPinDate() {
