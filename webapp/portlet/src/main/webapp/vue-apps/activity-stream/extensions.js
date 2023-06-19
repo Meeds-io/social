@@ -278,7 +278,12 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   confirmTitleKey: 'UIActivity.label.Confirmation',
   confirmOkKey: 'UIActivity.label.Confirm_Delete_Activity-Button',
   confirmCancelKey: 'UIActivity.label.Cancel_Delete_Activity-Button',
-  isEnabled: (activity, comment) => comment.canDelete === 'true',
+  isEnabled: (activity, comment, commentTypeExtension) => {
+    if (commentTypeExtension.canDelete && !commentTypeExtension.canDelete(activity, comment)) {
+      return false;
+    }
+    return comment.canDelete === 'true';
+  },
   click: (activity, comment) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(comment?.id)
@@ -297,18 +302,18 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   labelKey: 'UIActivity.label.Edit',
   icon: 'fa-edit',
   rank: 10,
-  isEnabled: (activity, comment, activityTypeExtension) => {
-    if (activityTypeExtension.canEdit) {
-      if (activityTypeExtension.forceCanEditOverwrite) {
-        return activityTypeExtension.canEdit(comment);
-      } else if (!activityTypeExtension.canEdit(comment)) {
+  isEnabled: (activity, comment, commentTypeExtension) => {
+    if (commentTypeExtension.canEdit) {
+      if (commentTypeExtension.forceCanEditOverwrite) {
+        return commentTypeExtension.canEdit(comment);
+      } else if (!commentTypeExtension.canEdit(comment)) {
         return false;
       }
     }
     return comment.canEdit === 'true';
   },
-  click: (activity, comment, activityTypeExtension) => {
-    const bodyToEdit = activityTypeExtension.getBodyToEdit && activityTypeExtension.getBodyToEdit(comment) || activityTypeExtension.getBody(comment);
+  click: (activity, comment, commentTypeExtension) => {
+    const bodyToEdit = commentTypeExtension.getBodyToEdit && commentTypeExtension.getBodyToEdit(comment) || commentTypeExtension.getBody(comment);
     document.dispatchEvent(new CustomEvent('activity-comment-edit', {detail: {
       activity,
       comment,
