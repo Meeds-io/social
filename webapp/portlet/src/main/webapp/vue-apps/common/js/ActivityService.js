@@ -44,6 +44,17 @@ export function getActivityById(id, expand) {
   });
 }
 
+export function unhideActivity(id) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/unhide`, {
+    method: 'PUT',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function getActivityComments(id, sortDescending, offset, limit, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?returnSize=true&sortDescending=${sortDescending || false}&offset=${offset || 0}&limit=${limit || 10}&expand=${expand || ''}`, {
     method: 'GET',
