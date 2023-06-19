@@ -59,7 +59,7 @@ export default {
   }),
   computed: {
     enabledActions() {
-      return this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.activityTypeExtension));
+      return this.activityActions && Object.values(this.activityActions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.activityTypeExtension, this.isActivityDetail));
     },
   },
   created() {

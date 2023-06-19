@@ -202,10 +202,59 @@ extensionRegistry.registerExtension('activity', 'action', {
     }
     return activity.canDelete === 'true';
   },
-  click: (activity, activityTypeExtension) => {
+  click: (activity, activityTypeExtension, isActivityDetail) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
-      .then(() => document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id})))
+      .then(() => {
+        if (activityTypeExtension.hideOnDelete && isActivityDetail) {
+          document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id}));
+        } else {
+          document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
+        }
+      })
+      .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'hide',
+  rank: 30,
+  labelKey: 'UIActivity.label.Hide',
+  icon: 'fa-eye-slash',
+  confirmDialog: true,
+  confirmMessageKey: 'UIActivity.msg.Are_You_Sure_To_Hide_This_Activity',
+  confirmTitleKey: 'UIActivity.label.Confirmation',
+  confirmOkKey: 'UIActivity.label.Confirm_Delete_Activity-Button',
+  confirmCancelKey: 'UIActivity.label.Cancel_Delete_Activity-Button',
+  isEnabled: (activity, activityTypeExtension) => {
+    return !activity.hidden && activity.canDelete === 'true' && activityTypeExtension.canHide && activityTypeExtension.canHide(activity);
+  },
+  click: (activity, activityTypeExtension, isActivityDetail) => {
+    document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+    return Vue.prototype.$activityService.deleteActivity(activity.id, true)
+      .then(() => {
+        if (isActivityDetail) {
+          document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id}));
+        } else {
+          document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
+        }
+      })
+      .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'publish-stream',
+  rank: 30,
+  labelKey: 'UIActivity.label.Publish',
+  icon: 'fa-eye',
+  isEnabled: (activity, activityTypeExtension) => {
+    return activity.hidden && activity.canEdit === 'true' && activityTypeExtension.canUnhide && activityTypeExtension.canUnhide(activity);
+  },
+  click: activity => {
+    document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+    return Vue.prototype.$activityService.unhideActivity(activity.id)
+      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });

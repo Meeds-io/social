@@ -1,9 +1,10 @@
 <template>
-  <div class="d-inline-flex ms-lg-4">
+  <div :class="canComment && 'd-inline-flex' || 'd-none'" class="ms-lg-4">
     <!-- Added for mobile -->
     <v-tooltip :disabled="isMobile" bottom>
       <template #activator="{ on, attrs }">
         <v-btn
+          v-if="canComment"
           :id="`CommentLink${activityId}`"
           :class="commentTextColorClass"
           class="pa-0 mt-0"
@@ -40,11 +41,20 @@ export default {
       type: Object,
       default: null,
     },
+    activityTypeExtension: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     hasCommented: false,
   }),
   computed: {
+    canComment() {
+      return !this.activityTypeExtension
+        || !this.activityTypeExtension.canComment
+        || this.activityTypeExtension.canComment(this.activity);
+    },
     activityId() {
       return this.activity && this.activity.id;
     },

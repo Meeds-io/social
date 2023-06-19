@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex ms-lg-4">
+  <div :class="isShareable && 'd-inline-flex' || 'd-none'" class="ms-lg-4">
     <!-- Added for mobile -->
     <v-tooltip :disabled="isMobile" bottom>
       <template #activator="{ on, attrs }">
