@@ -246,7 +246,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'publish-stream',
   rank: 30,
-  labelKey: 'UIActivity.label.Publish',
+  labelKey: 'UIActivity.label.Unhide',
   icon: 'fa-eye',
   isEnabled: (activity, activityTypeExtension) => {
     return activity.hidden && activity.canEdit === 'true' && activityTypeExtension.canUnhide && activityTypeExtension.canUnhide(activity);
