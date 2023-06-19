@@ -18,6 +18,7 @@
       <activity-actions
         :activity="activity"
         :activity-type-extension="activityTypeExtension"
+        :is-activity-detail="isActivityDetail"
         class="px-4" />
     </div>
   </div>
