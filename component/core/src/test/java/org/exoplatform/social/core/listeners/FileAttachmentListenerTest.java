@@ -172,12 +172,12 @@ public class FileAttachmentListenerTest extends AbstractCoreTest {
     assertNotNull(fileService.getFile(attachFileId));
 
     activityManager.deleteActivity(activity);
+    restartTransaction();
 
     attachmentList = attachmentService.getAttachments("activity", activity.getId(), userAclIdentity);
     assertTrue(attachmentList.getAttachments().isEmpty());
 
     assertTrue(fileService.getFile(attachFileId).getFileInfo().isDeleted());
-    restartTransaction();
   }
 
   private InitParams newParam(long id, String name) {
