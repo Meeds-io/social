@@ -730,6 +730,41 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertNotNull("Should be able to access activity even when hidden", activity);
   }
 
+  public void testUnhideActivityById() throws Exception {
+    startSessionAs("root");
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("test activity");
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
+    assertEquals(1, activities.getSize());
+    
+    ContainerResponse response = service("DELETE",
+                                         "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "?hide=true", "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    ActivityEntity result = getBaseEntity(response.getEntity(), ActivityEntity.class);
+    assertEquals("test activity", result.getTitle());
+
+    activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
+    assertEquals(0, activities.getSize());
+
+    response = service("PUT",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + activity.getId() + "/unhide",
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    activities = activityManager.getActivityFeedWithListAccess(rootIdentity);
+    assertEquals(1, activities.getSize());
+
+    activity = activityManager.getActivity(activity.getId());
+    assertNotNull("Should be able to access activity even when hidden", activity);
+  }
+
   public void testPinActivityById() throws Exception {
     startSessionAs("mary");
 
