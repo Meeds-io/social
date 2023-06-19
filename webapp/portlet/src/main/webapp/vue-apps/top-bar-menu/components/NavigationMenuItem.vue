@@ -45,6 +45,7 @@
         </span>
         <v-btn
           v-if="hasChildren && childrenHasPage"
+          v-on="on"
           icon
           @click.stop.prevent="openDropMenu"
           @mouseover="showMenu = true">
