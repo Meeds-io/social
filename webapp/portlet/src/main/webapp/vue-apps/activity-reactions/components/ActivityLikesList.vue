@@ -1,8 +1,8 @@
 <template>
   <div v-if="likers.length" class="likers-list">
     <activity-liker-item
-      v-for="(liker , i) in likers"
-      :key="i"
+      v-for="liker in likers"
+      :key="liker.id"
       :liker="liker" />
   </div>
 </template>
