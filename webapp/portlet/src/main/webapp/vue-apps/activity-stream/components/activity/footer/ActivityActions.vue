@@ -20,12 +20,17 @@ export default {
       type: Object,
       default: null,
     },
+    isActivityDetail: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     params() {
       return {
         activity: this.activity,
         activityTypeExtension: this.activityTypeExtension,
+        isActivityDetail: this.isActivityDetail,
       };
     },
     actionBarBorderClass() {
