@@ -335,6 +335,10 @@ extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', 
 
 extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
   id: 'comment',
+  isEnabled: (params) => params.activity
+        && (!params.activityTypeExtension
+        || !params.activityTypeExtension.canComment
+        || params.activityTypeExtension.canComment(params.activity)),
   vueComponent: Vue.options.components['activity-comment-action'],
   rank: 20,
 });
@@ -347,7 +351,10 @@ extensionRegistry.registerComponent('ActivityHeader', 'activity-header-action', 
 
 extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
   id: 'share',
-  isEnabled: (params) => params.activity && !params.activity.originalActivity,
+  isEnabled: (params) => params.activity
+        && !params.activity.originalActivity
+        && params.activityTypeExtension?.canShare
+        && params.activityTypeExtension.canShare(params.activity),
   vueComponent: Vue.options.components['activity-share-action'],
   rank: 100,
 });
