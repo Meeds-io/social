@@ -16,22 +16,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import AttachImageComponent from './components/AttachImageComponent.vue';
-import AttachmentsMultiUploadInput from './components/AttachmentsMultiUploadInput.vue';
-import ImageItems from './components/ImageItems.vue';
-import ImageItem from './components/ImageItem.vue';
-import AttachedItem from './components/AttachedItem.vue';
-import AttachedItems from './components/AttachedItems.vue';
-import AttachmentPreviewDialog from './components/AttachmentPreviewDialog.vue';
+import ImageInput from './components/form/ImageInput.vue';
+import ImageInputMultiUpload from './components/form/ImageInputMultiUpload.vue';
+import ImageInputItems from './components/form/ImageInputItems.vue';
+import ImageInputItem from './components/form/ImageInputItem.vue';
+
+import ImageItems from './components/view/ImageItems.vue';
+import ImageItem from './components/view/ImageItem.vue';
+
+import ImagePreviewDialog from './components/preview/ImagePreviewDialog.vue';
+import ImagePreviewItem from './components/preview/ImagePreviewItem.vue';
 
 const components = {
-  'attach-image-component': AttachImageComponent,
-  'attachments-multi-upload-input': AttachmentsMultiUploadInput,
-  'image-items': ImageItems,
-  'image-item': ImageItem,
-  'attached-item': AttachedItem,
-  'attached-items': AttachedItems,
-  'attachment-preview-dialog': AttachmentPreviewDialog
+  'attachments-image-input': ImageInput,
+  'attachments-image-input-multi-upload': ImageInputMultiUpload,
+  'attachments-image-input-items': ImageInputItems,
+  'attachments-image-input-item': ImageInputItem,
+  'attachments-image-items': ImageItems,
+  'attachments-image-item': ImageItem,
+  'attachments-image-preview-dialog': ImagePreviewDialog,
+  'attachments-image-preview-item': ImagePreviewItem,
 };
 
 for (const key in components) {
