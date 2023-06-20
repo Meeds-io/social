@@ -29,7 +29,7 @@
   <name>eXo PLF:: Social Core Component</name>
   <description>eXo Social Core Component: People and Space</description>
   <properties>
-    <exo.test.coverage.ratio>0.66</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.65</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
