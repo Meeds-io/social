@@ -59,6 +59,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " mi.metadata.id = :metadataId AND"
         + " mi.objectType = :objectType AND"
         + " mi.objectId = :objectId"
+        + " ORDER BY mi.id ASC"
 )
 @NamedQuery(
     name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObject",
@@ -66,6 +67,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " mi.metadata.type = :metadataType AND"
         + " mi.objectType = :objectType AND"
         + " mi.objectId = :objectId"
+        + " ORDER BY mi.id ASC"
 )
 @NamedQuery(
     name = "SocMetadataItemEntity.getMetadataObjectIds",
