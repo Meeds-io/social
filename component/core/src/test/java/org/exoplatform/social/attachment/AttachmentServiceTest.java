@@ -17,7 +17,6 @@
  */
 package org.exoplatform.social.attachment;
 
-import static org.exoplatform.social.attachment.AttachmentService.ATTACHMENTS_CREATED_EVENT;
 import static org.exoplatform.social.attachment.AttachmentService.ATTACHMENTS_DELETED_EVENT;
 import static org.exoplatform.social.attachment.AttachmentService.ATTACHMENTS_UPDATED_EVENT;
 import static org.exoplatform.social.attachment.AttachmentService.ATTACHMENT_CREATED_EVENT;
@@ -103,7 +102,6 @@ public class AttachmentServiceTest extends AbstractCoreTest {
       };
       listenerService.addListener(ATTACHMENT_CREATED_EVENT, listener);
       listenerService.addListener(ATTACHMENT_DELETED_EVENT, listener);
-      listenerService.addListener(ATTACHMENTS_CREATED_EVENT, listener);
       listenerService.addListener(ATTACHMENTS_UPDATED_EVENT, listener);
       listenerService.addListener(ATTACHMENTS_DELETED_EVENT, listener);
 
@@ -142,52 +140,6 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     objectId = "objectId" + RANDOM.nextInt();
   }
 
-  public void testCreateAttachments() throws Exception {
-    String identityId = identityManager.getOrCreateUserIdentity(USERNAME).getId();
-
-    Identity userAcl = startSessionAndRegisterAs(USERNAME);
-    FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
-    attachmentList.setFileIds(null);
-
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(null, userAcl));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(attachmentList, null));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(attachmentList, userAcl));
-    attachmentList.setUserIdentityId(Long.parseLong(identityId));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(attachmentList, userAcl));
-    attachmentList.setObjectType(OBJECT_TYPE);
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(attachmentList, userAcl));
-    attachmentList.setObjectId(objectId);
-    assertThrows(IllegalAccessException.class, () -> attachmentService.createAttachments(attachmentList, userAcl));
-    hasViewPermission.set(true);
-    assertThrows(IllegalAccessException.class, () -> attachmentService.createAttachments(attachmentList, userAcl));
-    hasEditPermission.set(true);
-    hasViewPermission.set(false);
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.createAttachments(attachmentList, userAcl));
-    attachmentList.setUploadIds(Collections.singletonList(UPLOAD_ID));
-    uploadResource();
-
-    assertListenerCount(0l, 0l, 0l, 0l, 0l);
-
-    ObjectAttachmentOperationReport report = attachmentService.createAttachments(attachmentList, userAcl);
-    assertNotNull(report);
-    assertTrue(report.getErrorByUploadId().isEmpty());
-
-    assertListenerCount(1l, 0l, 1l, 0l, 0l);
-
-    ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
-    assertNotNull(objectAttachmentList);
-
-    List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
-    assertEquals(1, attachments.size());
-    ObjectAttachmentDetail attachmentDetail = attachments.get(0);
-    assertNotNull(attachmentDetail);
-    assertEquals(FILE_NAME, attachmentDetail.getName());
-    assertEquals(MIME_TYPE, attachmentDetail.getMimetype());
-    assertNotNull(attachmentDetail.getId());
-    assertTrue(attachmentDetail.getUpdated() > 0);
-    assertEquals(identityId, attachmentDetail.getUpdater());
-  }
-
   public void testUpdateAttachments() throws Exception { // NOSONAR
 
     Identity userAcl = startSessionAndRegisterAs(USERNAME);
@@ -198,25 +150,25 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
     attachmentList.setFileIds(Collections.singletonList(fileId));
 
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.updateAttachments(null, userAcl));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.updateAttachments(attachmentList, null));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.updateAttachments(attachmentList, userAcl));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(null, userAcl));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(attachmentList, null));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
     attachmentList.setUserIdentityId(Long.parseLong(identityId));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.updateAttachments(attachmentList, userAcl));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
     attachmentList.setObjectType(OBJECT_TYPE);
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.updateAttachments(attachmentList, userAcl));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
     attachmentList.setObjectId(objectId);
-    assertThrows(IllegalAccessException.class, () -> attachmentService.updateAttachments(attachmentList, userAcl));
+    assertThrows(IllegalAccessException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
     hasViewPermission.set(true);
-    assertThrows(IllegalAccessException.class, () -> attachmentService.updateAttachments(attachmentList, userAcl));
+    assertThrows(IllegalAccessException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
     hasEditPermission.set(true);
     hasViewPermission.set(false);
 
-    assertListenerCount(1l, 0l, 1l, 0l, 0l);
+    assertListenerCount(1l, 0l, 1l, 0l);
 
-    ObjectAttachmentOperationReport report = attachmentService.updateAttachments(attachmentList, userAcl);
+    ObjectAttachmentOperationReport report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNull(report);
-    assertListenerCount(1l, 0l, 1l, 1l, 0l);
+    assertListenerCount(1l, 0l, 2l, 0l);
 
     ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     assertNotNull(objectAttachmentList);
@@ -234,10 +186,10 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     attachmentList.setFileIds(Collections.singletonList(fileId));
     attachmentList.setUploadIds(Collections.singletonList(UPLOAD_ID));
     uploadResource();
-    report = attachmentService.updateAttachments(attachmentList, userAcl);
+    report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNotNull(report);
     assertTrue(report.getErrorByUploadId().isEmpty());
-    assertListenerCount(2l, 0l, 1l, 2l, 0l);
+    assertListenerCount(2l, 0l, 3l, 0l);
 
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     assertNotNull(objectAttachmentList);
@@ -246,6 +198,7 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertEquals(2, attachments.size());
     attachmentDetail = attachments.get(0);
     assertNotNull(attachmentDetail);
+    assertEquals(fileId, attachments.get(0).getId());
     assertEquals(FILE_NAME, attachmentDetail.getName());
     assertEquals(MIME_TYPE, attachmentDetail.getMimetype());
     assertNotNull(attachmentDetail.getId());
@@ -254,9 +207,9 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
     attachmentList.setFileIds(Collections.singletonList(fileId));
     attachmentList.setUploadIds(null);
-    report = attachmentService.updateAttachments(attachmentList, userAcl);
+    report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNull(report);
-    assertListenerCount(2l, 1l, 1l, 3l, 0l);
+    assertListenerCount(2l, 1l, 4l, 0l);
 
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     attachments = objectAttachmentList.getAttachments();
@@ -274,9 +227,9 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
     attachmentList.setFileIds(null);
     attachmentList.setUploadIds(null);
-    report = attachmentService.updateAttachments(attachmentList, userAcl);
+    report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNull(report);
-    assertListenerCount(2l, 2l, 1l, 4l, 0l);
+    assertListenerCount(2l, 2l, 5l, 0l);
 
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     attachments = objectAttachmentList.getAttachments();
@@ -366,14 +319,14 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertNotNull(objectAttachmentList);
     List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
     assertEquals(1, attachments.size());
-    assertListenerCount(1l, 0l, 1l, 0l, 0l);
+    assertListenerCount(1l, 0l, 1l, 0l);
 
     attachmentService.deleteAttachments(OBJECT_TYPE, objectId);
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     assertNotNull(objectAttachmentList);
     attachments = objectAttachmentList.getAttachments();
     assertEquals(0, attachments.size());
-    assertListenerCount(1l, 1l, 1l, 0l, 1l);
+    assertListenerCount(1l, 1l, 1l, 1l);
 
     ObjectAttachmentDetail attachment = attachmentService.getAttachment(OBJECT_TYPE, objectId, fileId);
     assertNull(attachment);
@@ -396,7 +349,7 @@ public class AttachmentServiceTest extends AbstractCoreTest {
       attachmentList.setUploadIds(Collections.singletonList(UPLOAD_ID));
       uploadResource();
 
-      attachmentService.createAttachments(attachmentList);
+      attachmentService.saveAttachments(attachmentList);
       ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
       return objectAttachmentList.getAttachments().get(0).getId();
     } finally {
@@ -406,12 +359,10 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
   private void assertListenerCount(long createdCount,
                                    long deletedCount,
-                                   long createdListCount,
                                    long updatedListCount,
                                    long deletedListCount) {
     assertEquals(createdCount, eventCounts.getOrDefault(ATTACHMENT_CREATED_EVENT, 0l).longValue());
     assertEquals(deletedCount, eventCounts.getOrDefault(ATTACHMENT_DELETED_EVENT, 0l).longValue());
-    assertEquals(createdListCount, eventCounts.getOrDefault(ATTACHMENTS_CREATED_EVENT, 0l).longValue());
     assertEquals(updatedListCount, eventCounts.getOrDefault(ATTACHMENTS_UPDATED_EVENT, 0l).longValue());
     assertEquals(deletedListCount, eventCounts.getOrDefault(ATTACHMENTS_DELETED_EVENT, 0l).longValue());
   }
