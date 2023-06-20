@@ -20,6 +20,8 @@ package org.exoplatform.social.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Set;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
@@ -38,37 +40,9 @@ public interface AttachmentService {
 
   public static final String       ATTACHMENT_DELETED_EVENT  = "attachment.deleted";
 
-  public static final String       ATTACHMENTS_CREATED_EVENT = "attachments.created";
-
   public static final String       ATTACHMENTS_UPDATED_EVENT = "attachments.updated";
 
   public static final String       ATTACHMENTS_DELETED_EVENT = "attachments.deleted";
-
-  /**
-   * Attach a list of files to an object (activity, comment, task...)
-   *
-   * @param  attachment              {@link FileAttachmentResourceList} to store
-   * @param  userAclIdentity         user ACL {@link Identity}
-   * @return                         {@link ObjectAttachmentOperationReport}
-   *                                 containing error codes/messages by uploadId
-   * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link FileAttachmentResourceList}
-   *                                   doesn't exists
-   * @throws IllegalAccessException  when user doesn't have "write" permission
-   *                                   on selected object
-   */
-  ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachment,
-                                                    Identity userAclIdentity) throws IllegalAccessException,
-                                                                              ObjectNotFoundException;
-
-  /**
-   * Attach a list of files to an object (activity, comment, task...)
-   *
-   * @param  attachment {@link FileAttachmentResourceList} to store
-   * @return            {@link ObjectAttachmentOperationReport} containing error
-   *                    codes/messages by uploadId
-   */
-  ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachment);
 
   /**
    * Makes an update of attached files to an object (activity, comment, task...)
@@ -84,9 +58,9 @@ public interface AttachmentService {
    * @throws IllegalAccessException  when user doesn't have "write" permission
    *                                   on selected object
    */
-  ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachment,
-                                                    Identity userAclIdentity) throws ObjectNotFoundException,
-                                                                              IllegalAccessException;
+  ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachment,
+                                                  Identity userAclIdentity) throws ObjectNotFoundException,
+                                                                            IllegalAccessException;
 
   /**
    * Makes an update of attached files to an object (activity, comment, task...)
@@ -96,7 +70,7 @@ public interface AttachmentService {
    * @param  attachment {@link FileAttachmentResourceList} to store
    * @return            {@link ObjectAttachmentOperationReport}
    */
-  ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachment);
+  ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachment);
 
   /**
    * Delete attachments of a given object identified by its type and id
@@ -188,8 +162,6 @@ public interface AttachmentService {
    *                           notes...
    * @param  objectId        object technical unique identifier
    * @param  fileId          attachment file identifier
-   * @param  userAclIdentity user ACL identity retrieved used
-   *                           {@link IdentityRegistry}
    * @return                 {@link ObjectAttachmentDetail} corresponding to a
    *                         given object, else null
    */
@@ -266,5 +238,10 @@ public interface AttachmentService {
    * @param attachmentPermissionPlugin {@link AttachmentPlugin}
    */
   void addPlugin(AttachmentPlugin attachmentPermissionPlugin);
+
+  /**
+   * @return the {@link List} of supported object types
+   */
+  Set<String> getSupportedObjectTypes();
 
 }

@@ -16,19 +16,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
-  id: 'attachment-dialog',
-  vueComponent: Vue.options.components['attachment-preview-dialog'],
-  rank: 50,
-});
 
-extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
-  id: 'attachedItem',
-  isEnabled: (params) => {
-    const activity = params?.activity;
-    return activity?.metadatas?.attachments?.length;
-  },
-  vueComponent: Vue.options.components['attached-items'],
-  rank: 15,
-});
+import * as fileAttachmentService from './js/FileAttachmentService.js';
 
+window.Object.defineProperty(Vue.prototype, '$fileAttachmentService', {
+  value: fileAttachmentService,
+});
