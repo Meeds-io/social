@@ -164,7 +164,7 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>org.exoplatform.social.metadata.attachment.AttachmentService</target-component>
+    <target-component>org.exoplatform.social.attachment.AttachmentService</target-component>
     <component-plugin>
       <name>ActivityAttachmentPlugin</name>
       <set-method>addPlugin</set-method>
