@@ -60,8 +60,10 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   private final Log LOG = ExoLogger.getLogger(AbstractCoreTest.class);
 
   protected SpaceService spaceService;
-  protected IdentityManager identityManager;
-  
+
+  protected IdentityManager  identityManager;
+
+  protected IdentityRegistry identityRegistry;
   
   @Override
   protected void setUp() throws Exception {
@@ -70,6 +72,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     //
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
+    identityRegistry = getContainer().getComponentInstanceOfType(IdentityRegistry.class);
 
     deleteAllSpaces();
   }
@@ -151,16 +154,21 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     
   }
 
-  protected void startSessionAs(String user) {
-    Identity identity = new Identity(user, Collections.EMPTY_LIST);
-    ConversationState state = new ConversationState(identity);
-    ConversationState.setCurrent(state);
+  protected Identity startSessionAndRegisterAs(String user) {
+    Identity userAcl = startSessionAs(user, Collections.singleton(new MembershipEntry("/platform/users", "member")));
+    identityRegistry.register(userAcl);
+    return userAcl;
   }
 
-  protected void startSessionAs(String user, Collection<MembershipEntry> memberships) {
+  protected Identity startSessionAs(String user) {
+    return startSessionAs(user, Collections.singleton(new MembershipEntry("/platform/users", "member")));
+  }
+
+  protected Identity startSessionAs(String user, Collection<MembershipEntry> memberships) {
     Identity identity = new Identity(user, memberships);
     ConversationState state = new ConversationState(identity);
     ConversationState.setCurrent(state);
+    return identity;
   }
 
   public Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
