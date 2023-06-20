@@ -49,7 +49,6 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   rank: 1000,
 });
 
-
 const defaultActivityOptions = {
   getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
   getSourceLink: activity => activity && activity.templateParams && !activity.templateParams.html && activity.templateParams.link,
@@ -170,7 +169,6 @@ extensionRegistry.registerExtension('activity', 'action', {
       ckEditorType: `editActivity${activity.id}`,
       activityBody: bodyToEdit,
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
-      attachments: activity?.metadatas?.attachments ? window.JSON.parse(window.JSON.stringify(activity.metadatas.attachments)) : null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
       activityType: activity.type
     }}));
@@ -304,4 +302,20 @@ extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-f
   id: 'reply',
   vueComponent: Vue.options.components['activity-comment-reply-action'],
   rank: 20,
+});
+
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'attachment-dialog',
+  vueComponent: Vue.options.components['attachments-image-preview-dialog'],
+  rank: 50,
+});
+
+extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+  id: 'attachedItem',
+  isEnabled: (params) => {
+    const activity = params?.activity;
+    return activity?.metadatas?.attachments?.length;
+  },
+  vueComponent: Vue.options.components['activity-image-attachments'],
+  rank: 15,
 });
