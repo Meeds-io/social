@@ -2,6 +2,7 @@
   import org.exoplatform.ws.frameworks.cometd.ContinuationService;
   import org.mortbay.cometd.continuation.EXoContinuationBayeux;
   import org.exoplatform.commons.api.settings.ExoFeatureService;
+  import org.exoplatform.social.attachment.AttachmentService;
   import org.exoplatform.social.core.space.SpaceUtils;
   import org.exoplatform.social.webui.Utils;
   import org.apache.commons.lang.StringUtils;
@@ -11,7 +12,7 @@
   import org.exoplatform.social.core.search.SearchConnector;
   import org.exoplatform.commons.utils.PropertyManager;
   import java.util.TimeZone;
-  import java.util.HashSet;
+  import java.util.Set;
 
   def rcontext = _ctx.getRequestContext();
   Space space = SpaceUtils.getSpaceByContext();
@@ -19,10 +20,12 @@
   TimeZone timezone = Utils.getViewerTimezone();
   ContinuationService continuationService = uicomponent.getApplicationComponent(ContinuationService.class);
   EXoContinuationBayeux continuationBayeux = uicomponent.getApplicationComponent(EXoContinuationBayeux.class);
+  AttachmentService attachmentService = uicomponent.getApplicationComponent(AttachmentService.class);
   ExoFeatureService featureService = uicomponent.getApplicationComponent(ExoFeatureService.class);
   def userName = rcontext.getRemoteUser();
   String cometdToken = userName == null ? "" : continuationService.getUserToken(userName);
   String cometdContext = continuationBayeux.getCometdContextName();
+  Set<String> supportedAttachmentObjectTypes = attachmentService.getSupportedObjectTypes();
 %>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
@@ -62,4 +65,5 @@
      eXo.env.portal.SpaceHomeLayoutResetEnabled = <%=featureService.isFeatureActiveForUser("SpaceHomeLayoutReset", userName)%>;
      eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
      eXo.env.portal.editorAttachImageEnabled = <%=PropertyManager.getProperty("exo.feature.EditorAttachImage.enabled")%>;
+     eXo.env.portal.attachmentObjectTypes = ['<%=StringUtils.join(supportedAttachmentObjectTypes, "', '")%>'];
 </script>

@@ -1,18 +1,20 @@
 <!--
-  This file is part of the Meeds project (https://meeds.io/).
-  Copyright (C) 2023 Meeds Association
-  contact@meeds.io
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 3 of the License, or (at your option) any later version.
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-  You should have received a copy of the GNU Lesser General Public License
-  along with this program; if not, write to the Free Software Foundation,
-  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ This file is part of the Meeds project (https://meeds.io/).
+ 
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
   <v-dialog
@@ -26,11 +28,11 @@
       <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
         <v-btn
           id="preview-attachment-download"
-          :href="attachmentURL" 
+          :href="downloadURL"
           :download="attachmentFilename"
+          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
           icon
           class="white--text"
-          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
           aria-hidden="true">
           <i class="fas fa-download"></i>
         </v-btn>
@@ -50,9 +52,8 @@
         class="transparent">
         <v-carousel
           :id="`previewCarousel-${objectType}`"
-          v-model="currentAttchmentId"
           ref="attachmentsCarousel"
-          :value="currentAttchmentId"
+          v-model="currentAttachmentId"
           :show-arrows-on-hover="!isMobile"
           :show-arrows="attachments.length > 1"                         
           :height="!isMobile && '80vh' || '75vh'"
@@ -64,25 +65,23 @@
             :value="attachment.id"
             reverse-transition="fade-transition"
             transition="fade-transition">
-            <v-img 
-              :src="attachment.thumbnailUrl" 
-              :aspect-ratio="2"
-              :height="!isMobile && '80vh' || '75vh'"
-              contain />
+            <attachments-image-preview-item
+              :attachment="attachment"
+              :object-type="objectType"
+              :object-id="objectId" />
           </v-carousel-item>
         </v-carousel>
       </v-card>
     </template>
   </v-dialog>
 </template>
-
 <script>
 export default {
   data: () => ({
     dialog: false,
-    currentAttchmentId: 0, 
+    currentAttachmentId: 0, 
     filename: '',
-    objectType: ''
+    objectType: '',
   }),
   watch: {
     dialog() {
@@ -96,15 +95,15 @@ export default {
     }
   },
   computed: {
-    attachmentURL() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttchmentId}?size=0x0&download=true`;
+    downloadURL() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
     },
     attachmentFilename() {
-      return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttchmentId).finename || this.filename;
+      return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
     }, 
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
-    }
+    },
   },
   created() {
     this.$root.$on('open-attachments-preview', this.open);
@@ -125,7 +124,7 @@ export default {
       this.objectType = objectType;
       this.objectId = objectId;
       this.attachments = attachments;
-      this.currentAttchmentId = id;
+      this.currentAttachmentId = id;
       this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
       this.dialog = true;
     },
@@ -134,10 +133,9 @@ export default {
       this.objectType = null;
       this.objectId = null;
       this.attachments = null;
-      this.currentAttchmentId = null;
+      this.currentAttachmentId = null;
       this.filename = null;
     },
   }
 };
 </script>
-
