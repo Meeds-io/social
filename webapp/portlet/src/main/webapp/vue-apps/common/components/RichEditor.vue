@@ -22,6 +22,13 @@
         <i class="uiIconMessageLength"></i>
       </div>
     </div>
+    <attachments-image-input
+      v-if="attachmentEnabled"
+      ref="attachmentsInput"
+      :max-file-size="maxFileSize"
+      :object-type="objectType"
+      :object-id="objectId"
+      @changed="$emit('attachments-edited', $event)" />
   </div>
 </template>
 
@@ -92,7 +99,19 @@ export default {
       type: Number,
       default: () => 500,
     },
-    attachmentEnabled: {
+    maxFileSize: {
+      type: Number,
+      default: () => 20971520,
+    },
+    objectType: {
+      type: String,
+      default: null
+    },
+    objectId: {
+      type: String,
+      default: null
+    },
+    disableImageAttachment: {
       type: Boolean,
       default: false
     },
@@ -103,7 +122,6 @@ export default {
     oembedParams: null,
     editor: null,
     baseUrl: eXo.env.server.portalBaseURL,
-    enableAttachImage: eXo.env.portal.editorAttachImageEnabled,
   }),
   computed: {
     buttonId() {
@@ -123,6 +141,9 @@ export default {
     },
     ckEditorConfigUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/richeditor/configuration?type=${this.ckEditorType || 'default'}&v=${eXo.env.client.assetsVersion}`;
+    },
+    attachmentEnabled() {
+      return !this.disableImageAttachment && eXo.env.portal.editorAttachImageEnabled && this.objectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.objectType) >= 0;
     },
   },
   watch: {
@@ -197,6 +218,9 @@ export default {
       window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], function() {
         self.initCKEditorInstance(reset, textValue || self.value);
       });
+      if (this.$refs.attachmentsInput) {
+        this.$refs.attachmentsInput.init();
+      }
     },
     initCKEditorInstance(reset, textValue) {
       this.inputVal = this.getContentToEdit(textValue);
@@ -243,7 +267,7 @@ export default {
       if (!this.isMobile) {
         toolbar[0].push('emoji');
       }
-      if (this.attachmentEnabled && this.enableAttachImage) {
+      if (this.attachmentEnabled) {
         extraPlugins = `${extraPlugins},attachImage`;
         toolbar[0].push('attachImage');
       }
@@ -322,6 +346,9 @@ export default {
       if (this.editor) {
         this.editor.destroy(true);
       }
+      if (this.$refs.attachmentsInput) {
+        this.$refs.attachmentsInput.reset();
+      }
     },
     initCKEditorData: function(message) {
       this.inputVal = message && this.getContentToEdit(message) || '';
@@ -370,6 +397,11 @@ export default {
         };
       } else {
         this.oembedParams = null;
+      }
+    },
+    saveAttachments() {
+      if (this.$refs.attachmentsInput) {
+        return this.$refs.attachmentsInput.save();
       }
     },
     getContentToEdit(content) {
