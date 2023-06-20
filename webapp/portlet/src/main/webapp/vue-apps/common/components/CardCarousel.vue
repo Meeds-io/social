@@ -19,7 +19,8 @@
     <v-card
       class="carousel-middle-parent scrollbar-width-none d-flex px-0 pb-4 pt-2 overflow-x-scroll"
       flat
-      @scroll="computeProperties">
+      @scroll="computeProperties"
+      @resize="computeProperties">
       <div :class="parentClass" class="carousel-last-parent d-flex ma-auto">
         <slot></slot>
       </div>
@@ -66,6 +67,9 @@ export default {
       this.computeProperties();
     }, 500);
     window.onresize = this.computeProperties;
+  },
+  updated() {
+    this.computeProperties();
   },
   methods: {
     stopPropagation(event) {
