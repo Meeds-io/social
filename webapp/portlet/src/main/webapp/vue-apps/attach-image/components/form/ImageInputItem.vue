@@ -84,11 +84,7 @@ export default {
   },
   methods: {
     deleteFile() {
-      if (this.fileId) {
-        this.$root.$emit('delete-attached-file', this.image);
-      } else {
-        this.$root.$emit('delete-uploaded-file', this.image);
-      }
+      this.$emit('delete', this.image);
     }
   }
 };
