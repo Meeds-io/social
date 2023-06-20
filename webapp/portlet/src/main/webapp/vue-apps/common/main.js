@@ -19,8 +19,11 @@ import * as brandingService from './js/brandingService.js';
 import * as navigationService from '../common/js/NavigationService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
 import * as profileLabelService from '../common/js/ProfileLabelService.js';
+<<<<<<< HEAD
 import * as siteService from './js/SiteService.js';
 import * as fileAttachmentService from '../common/js/FileAttachmentService.js';
+=======
+>>>>>>> ba98fae8c0 (feat: Make Image Attachment Form & View Components Generic & re-usable - MEED-2038 - Meeds-io/MIPs#53 (#2597))
 
 // get overrided components if exists
 if (extensionRegistry) {
