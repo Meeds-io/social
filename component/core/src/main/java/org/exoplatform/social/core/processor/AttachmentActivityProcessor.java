@@ -22,20 +22,21 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
-import org.exoplatform.commons.file.model.FileInfo;
-import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.social.attachment.AttachmentService;
+import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.metadata.attachment.AttachmentService;
+import org.exoplatform.social.core.plugin.ActivityAttachmentPlugin;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
 public class AttachmentActivityProcessor extends BaseActivityProcessorPlugin {
-  private FileService fileService;
 
-  public AttachmentActivityProcessor(FileService fileService, InitParams params) {
+  private AttachmentService attachmentService;
+
+  public AttachmentActivityProcessor(AttachmentService attachmentService, InitParams params) {
     super(params);
-    this.fileService = fileService;
+    this.attachmentService = attachmentService;
   }
 
   public void processActivity(ExoSocialActivity activity) {
@@ -43,17 +44,17 @@ public class AttachmentActivityProcessor extends BaseActivityProcessorPlugin {
         && CollectionUtils.isNotEmpty(activity.getMetadatas().get(AttachmentService.METADATA_TYPE.getName()))) {
       List<MetadataItem> attachmentMetadataItems = activity.getMetadatas().get(AttachmentService.METADATA_TYPE.getName());
       attachmentMetadataItems.forEach(metadataItem -> {
-        long fileId = Long.parseLong(metadataItem.getMetadata().getName());
-        FileInfo fileInfo = fileService.getFileInfo(fileId);
+        String fileId = metadataItem.getMetadata().getName();
+        ObjectAttachmentDetail attachment = attachmentService.getAttachment(ActivityAttachmentPlugin.ACTIVITY_ATTACHMENT_TYPE, activity.getId(), fileId);
         Map<String, String> properties = metadataItem.getMetadata().getProperties();
         if (MapUtils.isEmpty(properties)) {
           properties = new HashMap<>();
           metadataItem.setProperties(properties);
         }
-        properties.put("fileName", fileInfo.getName());
-        properties.put("fileSize", String.valueOf(fileInfo.getSize()));
-        properties.put("fileMimeType", fileInfo.getMimetype());
-        properties.put("fileUpdateDate", String.valueOf(fileInfo.getUpdatedDate().getTime()));
+        properties.put("fileName", attachment.getName());
+        properties.put("fileSize", String.valueOf(attachment.getSize()));
+        properties.put("fileMimeType", attachment.getMimetype());
+        properties.put("fileUpdateDate", String.valueOf(attachment.getUpdated()));
       });
     }
   }
