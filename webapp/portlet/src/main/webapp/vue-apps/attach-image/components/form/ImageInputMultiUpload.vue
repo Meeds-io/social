@@ -31,29 +31,32 @@ export default {
   props: {
     maxFileSize: {
       type: Number,
-      default: 20971520
+      default: () => 20971520,
     },
   },
   data: () => ({
     filesArray: []
   }),
+  watch: {
+    filesArray() {
+      this.$emit('update:images', this.filesArray);
+    },
+  },
   created() {
-    document.addEventListener('open-file-explorer', () => {
-      this.triggerFileClickEvent();
-    });
-    this.$root.$on('delete-uploaded-files', () => {
-      this.filesArray = [];
-    });
-    this.$root.$on('delete-uploaded-file', (file) => {
-      if (file?.uploadId) {
-        const fileIndex = this.filesArray.findIndex(f => f.uploadId === file.uploadId);
-        this.filesArray.splice(fileIndex, 1);
-        this.$emit('update-images', this.filesArray);
-        this.$uploadService.deleteUpload(file.uploadId);
-      }
-    });
+    document.addEventListener('open-file-explorer', this.triggerFileClickEvent);
+  },
+  beforeDestroy() {
+    document.removeEventListener('open-file-explorer', this.triggerFileClickEvent);
   },
   methods: {
+    reset() {
+      this.filesArray = [];
+    },
+    deleteFile(uploadId) {
+      const fileIndex = this.filesArray.findIndex(f => f.uploadId === uploadId);
+      this.filesArray.splice(fileIndex, 1);
+      this.$uploadService.deleteUpload(uploadId);
+    },
     triggerFileClickEvent() {
       document.getElementById('attachedImagesField').click();
     },
