@@ -1,3 +1,21 @@
+<!--
+ This file is part of the Meeds project (https://meeds.io/).
+ 
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ 
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
 <template>
   <v-card
     :class="{ 'border-color': !hover }"
@@ -9,11 +27,13 @@
     max-height="210px"
     max-width="100%"
     @click="$emit('preview-attachment')"
+    @focus="hover = true"
+    @blur="hover = false"
     @mouseenter="hover = true"
     @mouseleave="hover = false">
     <v-card-text class="attachment-card-item-thumbnail d-flex flex-grow-1 pa-0">
       <img
-        :src="attachment.thumbnailUrl"
+        :src="thumbnailUrl"
         alt="attached image"
         class="ma-auto full-width">
     </v-card-text>
@@ -52,17 +72,26 @@ export default {
       type: Object,
       default: null,
     },
-    count: {
-      type: Number,
-      default: 0,
+    objectType: {
+      type: String,
+      default: null,
+    },
+    objectId: {
+      type: String,
+      default: null,
     },
     previewHeight: {
-      type: String,
-      default: () => '152px',
+      type: Number,
+      default: () => 50,
     },
     previewWidth: {
-      type: String,
-      default: () => '250px',
+      type: Number,
+      default: () => 50,
+    },
+  },
+  computed: {
+    thumbnailUrl() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?size=${this.previewHeight}x${this.previewWidth}`;
     },
   },
   data: () => ({
