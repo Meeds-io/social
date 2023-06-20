@@ -48,6 +48,10 @@
     <type>org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImpl</type>
   </component>
 
+  <component>
+    <type>org.exoplatform.social.core.attachment.storage.FileAttachmentStorage</type>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
     <component-plugin>
@@ -107,6 +111,15 @@
           </value-param>
        </init-params>
       </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.attachment.AttachmentService</target-component>
+    <component-plugin>
+      <name>ActivityAttachmentPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.ActivityAttachmentPlugin</type>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
