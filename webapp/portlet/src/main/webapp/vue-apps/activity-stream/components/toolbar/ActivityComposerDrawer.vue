@@ -114,27 +114,23 @@
         <v-card-text>
           <rich-editor
             v-if="drawer"
-            :ref="CK_EDITOR_ID"
+            ref="activityContent"
             v-model="message"
             :max-length="MESSAGE_MAX_LENGTH"
             :template-params="templateParams"
             :placeholder="composerPlaceholder"
+            :object-type="metadataObjectType"
+            :object-id="metadataObjectId"
+            :max-file-size="$root.maxFileSize"
             :suggester-space-u-r-l="spaceURL"
             class="activityRichEditor"
             ck-editor-type="activityContent"
             context-name="activityComposer"
             use-extra-plugins
             use-draft-management
-            attachment-enabled
-            autofocus />
+            autofocus
+            @attachments-edited="attachmentsEdit" />
         </v-card-text>
-        <attach-image-component 
-          :max-file-size="$root.maxFileSize"
-          :object-id="activityId"
-          :attachments="attachments"
-          object-type="activity"
-          @attachments-uploading="canPostActivity = true"
-          @attachments-deleted="canPostActivity = false" />
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
             :params="extensionParams"
@@ -177,26 +173,25 @@ export default {
     return {
       MESSAGE_MAX_LENGTH: 1300,
       MESSAGE_TIMEOUT: 5000,
-      CK_EDITOR_ID: 'activityContent',
       activityId: null,
       spaceId: null,
       spaceURL: eXo.env.portal.spaceUrl,
       message: '',
       files: null,
-      attachments: null,
       templateParams: {},
       drawer: false,
       activityBodyEdited: false,
+      activityAttachmentsEdited: false,
       originalBody: '',
       messageEdited: false,
       activityType: null,
       loading: false,
+      attachments: null,
       activityToolbarAction: false,
       postToNetwork: eXo.env.portal.postToNetworkEnabled,
       audienceChoice: 'yourNetwork',
       audience: '',
       username: eXo.env.portal.userName,
-      canPostActivity: false
     };
   },
   computed: {
@@ -224,15 +219,21 @@ export default {
       return this.message && this.message.length && this.$utils.htmlToText(this.message).length || 0;
     },
     ckEditorInstance() {
-      return this.drawer && this.$refs[this.CK_EDITOR_ID] || null;
+      return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience) && !this.canPostActivity;
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience);
+    },
+    metadataObjectId() {
+      return this.templateParams?.metadataObjectId || this.activityId;
+    },
+    metadataObjectType() {
+      return this.templateParams?.metadataObjectType || 'activity';
     },
     spaceSuggesterLabels() {
       return {
-        placeholder: this.$t('activity.composer.audience.placeholder'),
-        noDataLabel: this.$t('activity.composer.audience.noDataLabel'),
+        placeholder: this.\u0024t('activity.composer.audience.placeholder'),
+        noDataLabel: this.\u0024t('activity.composer.audience.noDataLabel'),
       };
     },
     audienceTypesDisplay() {
@@ -264,6 +265,13 @@ export default {
         this.messageEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(this.originalBody);
       }
     },
+    drawer() {
+      if (this.drawer) {
+        document.dispatchEvent(new CustomEvent('activity-composer-opened'));
+      } else {
+        document.dispatchEvent(new CustomEvent('activity-composer-closed'));
+      }
+    },
     audience() {
       this.spaceId = this.audience?.spaceId || '';
       this.spaceURL = this.audience?.remoteId || '';
@@ -278,17 +286,14 @@ export default {
     document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
-    this.$root.$on('delete-attached-file', (file) => {
-      if (file?.name) {
-        const fileIndex = this.attachments.findIndex(f => f.name === file.name);
-        this.attachments.splice(fileIndex, 1);
-        this.canPostActivity = true;
-      }
-    });
   },
   methods: {
     isActivityBodyEdited(event) {
       this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+    },
+    attachmentsEdit(attachments) {
+      this.attachments = attachments;
+      this.activityAttachmentsEdited = true;
     },
     open(params) {
       params = params && params.detail;
@@ -299,8 +304,8 @@ export default {
         this.spaceId = params.spaceId;
         this.templateParams = params.activityParams || params.templateParams || {};
         this.files = params.files || [];
-        this.attachments = params.attachments || [];
         this.activityType = params.activityType;
+        this.attachments = this.templateParams?.metadatas?.attachments;
         this.activityToolbarAction = params.activityToolbarAction;
       } else {
         this.activityId = null;
@@ -308,7 +313,6 @@ export default {
         this.message = '';
         this.templateParams = {};
         this.files = [];
-        this.attachments = [];
         this.activityType = [];
       }
       this.$nextTick().then(() => {
@@ -323,7 +327,6 @@ export default {
         this.ckEditorInstance.unload();
       }
       this.$nextTick().then(() => {
-        this.canPostActivity = false;
         this.$refs.activityComposerDrawer.close();
         this.$root.$emit('message-composer-closed');
       });
@@ -341,7 +344,8 @@ export default {
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
-          .then(this.postSaveMessage)
+          .then(this.postUpdateMessage)
+          .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
             this.cleareActivityMessage();
@@ -367,9 +371,15 @@ export default {
         } else {
           this.loading = true;
           this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
+            .then(activity => {
+              this.activityId = activity.id;
+              this.templateParams = activity.templateParams;
+              return this.$nextTick().then(() => activity);
+            })
             .then(this.postSaveMessage)
-            .then((activity) => {
-              document.dispatchEvent(new CustomEvent('activity-created', {detail: activity?.id}));
+            .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
+            .then(() => {
+              document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               this.cleareActivityMessage();
               this.resetAudienceChoice();
               this.close();
@@ -397,7 +407,7 @@ export default {
         });
         return Promise.all(promises).then(() => activity);
       } else {
-        return Promise.resolve(null);
+        return Promise.resolve(activity);
       }
     },
     postUpdateMessage(activity) {
@@ -406,7 +416,6 @@ export default {
         const promises = [];
         postUpdateOperations.forEach(extension => {
           if (extension.postUpdate) {
-            activity.metadatas.attachments = this.attachments;
             const result = extension.postUpdate(activity);
             if (result?.then) {
               promises.push(result);
@@ -415,7 +424,7 @@ export default {
         });
         return Promise.all(promises).then(() => activity);
       } else {
-        return Promise.resolve(null);
+        return Promise.resolve(activity);
       }
     },
     cleareActivityMessage() {

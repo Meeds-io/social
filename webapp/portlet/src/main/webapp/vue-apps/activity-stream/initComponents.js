@@ -19,6 +19,7 @@ import ActivityBody from './components/activity/content/ActivityBody.vue';
 import ActivityLink from './components/activity/content/ActivityLink.vue';
 import ActivityShare from './components/activity/content/ActivityShare.vue';
 import ActivityEmbeddedHTML from './components/activity/content/ActivityEmbeddedHTML.vue';
+import ActivityImageAttachments from './components/activity/content/ActivityImageAttachments.vue';
 import ActivityFooter from './components/activity/footer/ActivityFooter.vue';
 import ActivityShareInformation from './components/activity/footer/ActivityShareInformation.vue';
 import ActivityActions from './components/activity/footer/ActivityActions.vue';
@@ -66,6 +67,7 @@ const components = {
   'activity-link': ActivityLink,
   'activity-share': ActivityShare,
   'activity-embedded-html': ActivityEmbeddedHTML,
+  'activity-image-attachments': ActivityImageAttachments,
   'activity-footer': ActivityFooter,
   'activity-share-information': ActivityShareInformation,
   'activity-actions': ActivityActions,

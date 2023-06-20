@@ -1,8 +1,8 @@
 <!--
  This file is part of the Meeds project (https://meeds.io/).
- 
+
  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
- 
+
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -11,60 +11,42 @@
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  Lesser General Public License for more details.
- 
+
  You should have received a copy of the GNU Lesser General Public License
  along with this program; if not, write to the Free Software Foundation,
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <card-carousel v-if="attachedImages.length">
-    <v-list-item 
-      v-for="(image, index) in attachedImages" 
-      :key="index"
-      class="px-2">
-      <image-item 
-        :image="image"
-        :object-id="objectId"
-        :object-type="objectType" />
-    </v-list-item>
-    <v-list-item class="px-2">
-      <v-btn
-        class="border-color grey-background"
-        outlined
-        width="120"
-        min-height="120"
-        max-height="120"
-        @click="openFileExplorer">
-        <v-icon class="primary--text">fa-plus</v-icon>
-      </v-btn>
-    </v-list-item>
-  </card-carousel>
+  <v-img
+    :src="thumbnailUrl"
+    :aspect-ratio="2"
+    :height="!isMobile && '80vh' || '75vh'"
+    contain />
 </template>
 <script>
 export default {
   props: {
-    images: {
-      type: Array,
-      default: () => null
-    },
-    objectId: {
-      type: String,
-      default: null
+    attachment: {
+      type: Object,
+      default: null,
     },
     objectType: {
       type: String,
-      default: null
+      default: null,
+    },
+    objectId: {
+      type: String,
+      default: null,
     },
   },
   computed: {
-    attachedImages() {
-      return this.images;
+    thumbnailUrl() {
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}`;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     }
   },
-  methods: {
-    openFileExplorer() {
-      document.dispatchEvent(new CustomEvent('open-file-explorer')); 
-    }
-  }
 };
 </script>
+
