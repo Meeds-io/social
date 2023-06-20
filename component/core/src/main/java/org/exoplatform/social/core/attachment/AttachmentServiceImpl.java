@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -86,43 +87,20 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
-  public ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachmentList,
-                                                           Identity userAclIdentity) throws IllegalAccessException,
-                                                                                     ObjectNotFoundException {
-    checkEditPermissions(attachmentList, userAclIdentity);
-    return createAttachments(attachmentList);
+  public Set<String> getSupportedObjectTypes() {
+    return this.attachmentPlugins.keySet();
   }
 
   @Override
-  public ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachmentList) {
-    long userIdentityId = attachmentList.getUserIdentityId();
-    String userName = getUserName(userIdentityId);
-    String objectType = attachmentList.getObjectType();
-    String objectId = attachmentList.getObjectId();
-
-    List<String> uploadIds = attachmentList.getUploadIds();
-    if (CollectionUtils.isEmpty(uploadIds)) {
-      throw new IllegalArgumentException("Attachment uploadIds is mandatory");
-    }
-    ObjectAttachmentOperationReport report = attachUploadFiles(uploadIds,
-                                                               objectType,
-                                                               objectId,
-                                                               attachmentList.getParentObjectId(),
-                                                               userIdentityId);
-    broadcastAttachmentsChange(ATTACHMENTS_CREATED_EVENT, objectType, objectId, userName);
-    return report;
-  }
-
-  @Override
-  public ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachmentList,
+  public ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachmentList,
                                                            Identity userAclIdentity) throws ObjectNotFoundException,
                                                                                      IllegalAccessException {
     checkEditPermissions(attachmentList, userAclIdentity);
-    return updateAttachments(attachmentList);
+    return saveAttachments(attachmentList);
   }
 
   @Override
-  public ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachmentList) {
+  public ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachmentList) {
     long userIdentityId = attachmentList.getUserIdentityId();
     String username = getUserName(userIdentityId);
     String objectType = attachmentList.getObjectType();
@@ -403,7 +381,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     if (CollectionUtils.isNotEmpty(metadataItemToDelete)) {
       metadataItemToDelete.forEach(metadataItem -> {
         try {
-          metadataService.deleteMetadataItem(metadataItem.getId(), false);
+          metadataService.deleteMetadataItem(metadataItem.getId(), true);
           attachmentStorage.deleteAttachment(new ObjectAttachmentId(fileId, objectType, objectId));
         } catch (Exception e) {
           LOG.warn("Error while deleting metadata ite {} for attachment deletion. Continue processing object attachments update.",
