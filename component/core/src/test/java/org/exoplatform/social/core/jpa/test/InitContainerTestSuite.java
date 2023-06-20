@@ -23,6 +23,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
+import org.exoplatform.social.attachment.AttachmentServiceTest;
 import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
 import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
@@ -44,7 +45,6 @@ import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAOTest;
 import org.exoplatform.social.core.listeners.ActivityMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ActivityTagMetadataListenerTest;
-import org.exoplatform.social.core.listeners.FileAttachmentListenerTest;
 import org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImplTest;
 import org.exoplatform.social.core.manager.ActivityManagerTest;
 import org.exoplatform.social.core.manager.IdentityManagerTest;
@@ -114,7 +114,6 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   TagServiceTest.class,
   ActivityMetadataListenerTest.class,
   ActivityTagMetadataListenerTest.class,
-  FileAttachmentListenerTest.class,
   MetadataActivityProcessorTest.class,
   ObserverServiceTest.class,
   ImageThumbnailServiceImplTest.class,
@@ -123,6 +122,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   UserPasswordHashMigrationTest.class,
   ActivityOberverPluginTest.class,
   AttachmentActivityProcessorTest.class,
+  AttachmentServiceTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
