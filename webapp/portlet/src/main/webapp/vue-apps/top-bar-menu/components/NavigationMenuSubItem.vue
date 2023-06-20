@@ -28,25 +28,42 @@
       class="pt-0 pb-0"
       :href="navigationNodeUri"
       :target="navigationNodeTarget"
+      :class="extraClass"
       @click.stop="checkLink(navigation, $event)"
       :link="!!hasPage">
       <v-menu
-        content-class="topBar-navigation-drop-sub-menu"
+        v-model="showMenu"
         rounded
+        :position-x="positionX"
+        :position-y="positionY"
+        transition="slide-x-reverse-transition"
+        absolute
         :left="$vuetify.rtl"
+        :open-on-hover="isOpenedOnHover"
         offset-x>
         <template #activator="{ attrs, on }">
           <v-list-item-title
-            class="pt-5 pb-5 text-caption"
+            v-if="hasPage"
+            v-on="on"
             v-bind="attrs"
-            v-text="navigation.label" />
+            class="pt-5 pb-5 text-caption"
+            v-text="navigation.label"
+            @mouseleave="showMenu = false"
+            @mouseover="showMenu = true" />
+          <v-list-item-title
+            v-else
+            class="pt-5 pb-5 text-caption not-clickable"
+            v-text="navigation.label"
+            @mouseleave="showMenu = false"
+            @mouseover="showMenu = true" />
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
             class="ms-0 me-n2 ma-auto full-height">
             <v-btn
               v-on="on"
               icon
-              @click.stop.prevent>
+              @click.stop.prevent="showMenu = !showMenu"
+              @mouseover="showMenu = true">
               <v-icon
                 size="18">
                 {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
@@ -70,7 +87,10 @@
 export default {
   data() {
     return {
+      isOpenedOnHover: true,
       showMenu: false,
+      positionX: 0,
+      positionY: 0,
     };
   },
   props: {
@@ -87,6 +107,18 @@ export default {
       default: null
     }
   },
+  watch: {
+    showMenu() {
+      this.isOpenedOnHover = !this.showMenu;
+      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
+      this.positionY = this.$el.getBoundingClientRect().top + 10;
+      this.$root.$emit('close-sibling-drop-menus-children', this);
+    }
+  },
+  created() {
+    window.addEventListener('resize', this.updateSize);
+    this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
+  },
   computed: {
     hasChildren() {
       return this.navigation?.children?.length;
@@ -102,6 +134,9 @@ export default {
     },
     navigationNodeTarget() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+    },
+    extraClass() {
+      return `${this.showMenu ? ' light-grey-background ' : ' ' }`;
     },
   },
   methods: {
@@ -137,6 +172,14 @@ export default {
       }
       return url ;
     },
+    handleCloseSiblingMenus(emitter) {
+      if (!emitter.navigationNodeUri.includes(this.navigationNodeUri) && this.showMenu) {
+        this.showMenu = false;
+      }
+    },
+    updateSize() {
+      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right) ;
+    }
   }
 };
 </script>
