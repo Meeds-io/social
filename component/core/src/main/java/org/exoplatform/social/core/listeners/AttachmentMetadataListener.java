@@ -16,26 +16,20 @@
 package org.exoplatform.social.core.listeners;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
-import org.exoplatform.commons.file.model.FileItem;
-import org.exoplatform.commons.file.services.FileService;
-import org.exoplatform.commons.file.services.FileStorageException;
 import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.social.metadata.attachment.AttachmentService;
+import org.exoplatform.social.attachment.AttachmentService;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
 @Asynchronous
-public class FileAttachmentListener extends Listener<Long, MetadataItem> {
+public class AttachmentMetadataListener extends Listener<Long, MetadataItem> {
 
-  private static final Log LOG = ExoLogger.getLogger(FileAttachmentListener.class);
+  private AttachmentService attachmentService;
 
-  private FileService      fileService;
-
-  public FileAttachmentListener(FileService fileService) {
-    this.fileService = fileService;
+  public AttachmentMetadataListener(AttachmentService attachmentService) {
+    this.attachmentService = attachmentService;
   }
 
   @Override
@@ -43,15 +37,10 @@ public class FileAttachmentListener extends Listener<Long, MetadataItem> {
   public void onEvent(Event<Long, MetadataItem> event) throws Exception {
     MetadataItem metadataItem = event.getData();
     if (AttachmentService.METADATA_TYPE.equals(metadataItem.getMetadata().getType())) {
-      long fileId = Long.parseLong(metadataItem.getMetadata().getName());
-      try {
-        FileItem fileItem = fileService.getFile(fileId);
-        if (fileItem != null) {
-          fileService.deleteFile(fileId);
-        }
-      } catch (FileStorageException e) {
-        LOG.warn("Error deleting file with id {}", fileId, e);
-      }
+      MetadataObject object = metadataItem.getObject();
+      String fileId = metadataItem.getMetadata().getName();
+      attachmentService.deleteAttachment(object.getType(), object.getId(), fileId);
     }
   }
+
 }
