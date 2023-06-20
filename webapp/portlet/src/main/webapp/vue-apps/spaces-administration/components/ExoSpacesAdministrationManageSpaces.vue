@@ -84,10 +84,10 @@
             <i class="uiIconDeleteUser uiIconLightGray"></i>
           </a>
           <extension-registry-components
-            v-if="space.canEdit"
             name="manageSpaceActions"
             type="manage-space-actions"
-            :params="{ iconColor: 'primary',
+            :params="{ disabled: !space.canEdit,
+                       iconColor: 'primary',
                        siteName: space.groupId,
                        siteType: 'GROUP'}" />
         </td>
