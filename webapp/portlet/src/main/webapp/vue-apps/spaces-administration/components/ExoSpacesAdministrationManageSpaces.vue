@@ -83,19 +83,13 @@
             @click="deleteSpaceById(space.id, index)">
             <i class="uiIconDeleteUser uiIconLightGray"></i>
           </a>
-          <v-btn
-              v-if="siteNavigationAdded"
-              outlined
-              icon
-              class="mx-2">
-            <v-icon
-              class="mb-2"
-              color="primary"
-              size="18"
-              @click="openSiteNavigationDrawer(space.groupId)">
-              fas fa-sitemap
-              </v-icon>
-          </v-btn>
+          <extension-registry-components
+            v-if="space.canEdit"
+            name="manageSpaceActions"
+            type="manage-space-actions"
+            :params="{ iconColor: 'primary',
+                       siteName: space.groupId,
+                       siteType: 'GROUP'}" />
         </td>
       </tr>
     </table> 
@@ -213,7 +207,6 @@ export default {
       showConfirmMessageModal: false,
       restoringHomeLayout: null,
       resetSpaceHomeLayoutEnabled: eXo.env.portal.SpaceHomeLayoutResetEnabled,
-      siteNavigationAdded: eXo.env.portal.siteNavigationAdded,
       spaces: [],
       spaceName: '',
       spaceToBind: null,
@@ -403,13 +396,6 @@ export default {
         .catch(() => this.$root.$emit('alert-message', this.$t('social.spaces.administration.restore.spaceHomeLayout.error'), 'error'))
         .finally(() => this.restoringHomeLayout = null);
     },
-    openSiteNavigationDrawer(siteName) {
-      const params = {
-        siteName: siteName,
-        siteType: 'GROUP'
-      };
-      document.dispatchEvent(new CustomEvent('open-site-navigation-drawer',{detail: params}));
-    }
   }
 };
 </script>
