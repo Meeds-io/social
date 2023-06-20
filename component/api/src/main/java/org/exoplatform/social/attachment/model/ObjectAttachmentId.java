@@ -16,9 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.metadata.attachment.model;
-
-import java.util.List;
+package org.exoplatform.social.attachment.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,17 +25,22 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObjectAttachmentList implements Cloneable {
+public class ObjectAttachmentId implements Cloneable {
 
-  private List<ObjectAttachmentDetail> attachments;
+  private String fileId;
 
-  private String                       objectType;
+  private String objectType;
 
-  private String                       objectId;
+  private String objectId;
+
+  public ObjectAttachmentId(String objectType, String objectId) {
+    this.objectType = objectType;
+    this.objectId = objectId;
+  }
 
   @Override
-  public ObjectAttachmentList clone() { // NOSONAR
-    return new ObjectAttachmentList(attachments, objectType, objectId);
+  public ObjectAttachmentId clone() { // NOSONAR
+    return new ObjectAttachmentId(fileId, objectType, objectId);
   }
 
 }
