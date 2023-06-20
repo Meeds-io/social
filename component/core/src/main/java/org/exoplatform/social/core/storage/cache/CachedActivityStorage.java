@@ -2163,4 +2163,14 @@ public class CachedActivityStorage implements ActivityStorage {
     }
   }
 
+  public boolean clearActivityByMetadataObject(String objectType, String objectId) {
+    ActivityMetadataCacheSelector metadataCacheSelector = new ActivityMetadataCacheSelector(objectType, objectId);
+    try {
+      exoActivityCache.select(metadataCacheSelector);
+    } catch (Exception e) {
+      LOG.error("Error clearing cache of activities having using metadata object {}/{}", objectType, objectId, e);
+    }
+    return metadataCacheSelector.isFound();
+  }
+
 }
