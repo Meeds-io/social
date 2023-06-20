@@ -17,9 +17,23 @@
 
 package org.exoplatform.social.core.storage.cache.model.data;
 
-import java.util.*;
+import static org.exoplatform.social.core.activity.model.ExoSocialActivityImpl.ACTIVITY_METADATA_OBJECT_ID_PARAM;
+import static org.exoplatform.social.core.activity.model.ExoSocialActivityImpl.ACTIVITY_METADATA_OBJECT_TYPE_PARAM;
+import static org.exoplatform.social.core.activity.model.ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE;
 
-import org.exoplatform.social.core.activity.model.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.exoplatform.social.core.activity.model.ActivityFile;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
+import org.exoplatform.social.core.activity.model.ActivityStream;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
 /**
@@ -50,7 +64,7 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
   private final String titleId;
   private final String bodyId;
   private final String type;
-  private final Map templateParams;
+  private final Map<String, String> templateParams;
   private final Map<String, Object> linkedProcessedEntities;
   private final String externalId;
   private final String url;
@@ -224,6 +238,27 @@ public class ActivityData implements CacheData<ExoSocialActivity> {
     return pinAuthorId;
   }
 
+  public String getMetadataObjectType() {
+    if (hasSpecificMetadataObject()) {
+      return templateParams.get(ACTIVITY_METADATA_OBJECT_TYPE_PARAM);
+    } else {
+      return DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE;
+    }
+  }
+
+  public String getMetadataObjectId() {
+    if (hasSpecificMetadataObject()) {
+      return templateParams.get(ACTIVITY_METADATA_OBJECT_ID_PARAM);
+    } else {
+      return getId();
+    }
+  }
+
+  public boolean hasSpecificMetadataObject() {
+    return templateParams != null
+        && templateParams.containsKey(ACTIVITY_METADATA_OBJECT_TYPE_PARAM)
+        && !DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE.equals(templateParams.get(ACTIVITY_METADATA_OBJECT_TYPE_PARAM));
+  }
 
   @Override
   public boolean equals(Object o) {
