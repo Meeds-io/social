@@ -16,59 +16,106 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.exoplatform.social.metadata.attachment;
+package org.exoplatform.social.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.social.metadata.AttachmentPlugin;
-import org.exoplatform.social.metadata.attachment.model.FileAttachmentResourceList;
-import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentDetail;
-import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentList;
-import org.exoplatform.social.metadata.attachment.model.ObjectAttachmentOperationReport;
+import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
+import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
+import org.exoplatform.social.attachment.model.ObjectAttachmentList;
+import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
 import org.exoplatform.social.metadata.model.MetadataType;
 
 public interface AttachmentService {
 
-  public static final MetadataType METADATA_TYPE = new MetadataType(7, "attachments");
+  public static final MetadataType METADATA_TYPE             = new MetadataType(7, "attachments");
+
+  public static final String       ATTACHMENT_CREATED_EVENT  = "attachment.created";
+
+  public static final String       ATTACHMENT_DELETED_EVENT  = "attachment.deleted";
+
+  public static final String       ATTACHMENTS_CREATED_EVENT = "attachments.created";
+
+  public static final String       ATTACHMENTS_UPDATED_EVENT = "attachments.updated";
+
+  public static final String       ATTACHMENTS_DELETED_EVENT = "attachments.deleted";
 
   /**
-   * Attach a list of files to an entity: activity, comment, task...
+   * Attach a list of files to an object (activity, comment, task...)
    *
    * @param  attachment              {@link FileAttachmentResourceList} to store
-   * @param  userAclIdentity         user ACL identity retrieved used
-   *                                   {@link IdentityRegistry}
+   * @param  userAclIdentity         user ACL {@link Identity}
    * @return                         {@link ObjectAttachmentOperationReport}
    *                                 containing error codes/messages by uploadId
-   * @throws IllegalAccessException  when user identified by its
-   *                                   {@link org.exoplatform.social.core.identity.model.Identity}
-   *                                   id doesn't have "write" permission of
-   *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link FileAttachmentResourceList} doesn't
-   *                                   exists
+   *                                   {@link FileAttachmentResourceList}
+   *                                   doesn't exists
+   * @throws IllegalAccessException  when user doesn't have "write" permission
+   *                                   on selected object
    */
   ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachment,
                                                     Identity userAclIdentity) throws IllegalAccessException,
                                                                               ObjectNotFoundException;
 
   /**
-   * Updates attached files with its ids linked to a given object
+   * Attach a list of files to an object (activity, comment, task...)
+   *
+   * @param  attachment {@link FileAttachmentResourceList} to store
+   * @return            {@link ObjectAttachmentOperationReport} containing error
+   *                    codes/messages by uploadId
+   */
+  ObjectAttachmentOperationReport createAttachments(FileAttachmentResourceList attachment);
+
+  /**
+   * Makes an update of attached files to an object (activity, comment, task...)
+   * by adding newly uploaded files and deletes attachments not listed in
+   * attached fileIds
    *
    * @param  attachment              {@link FileAttachmentResourceList} to store
    * @param  userAclIdentity         user ACL making the update
-   * @throws ObjectNotFoundException when the object doesn't exist
-   * @throws IllegalAccessException  when user identified by its
-   *                                 {@link org.exoplatform.social.core.identity.model.Identity}
-   *                                 id can't modify attachments
+   * @return                         {@link ObjectAttachmentOperationReport}
+   * @throws ObjectNotFoundException when the object identified by its id in
+   *                                   {@link FileAttachmentResourceList}
+   *                                   doesn't exists
+   * @throws IllegalAccessException  when user doesn't have "write" permission
+   *                                   on selected object
    */
   ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachment,
                                                     Identity userAclIdentity) throws ObjectNotFoundException,
                                                                               IllegalAccessException;
+
+  /**
+   * Makes an update of attached files to an object (activity, comment, task...)
+   * by adding newly uploaded files and deletes attachments not listed in
+   * attached fileIds
+   *
+   * @param  attachment {@link FileAttachmentResourceList} to store
+   * @return            {@link ObjectAttachmentOperationReport}
+   */
+  ObjectAttachmentOperationReport updateAttachments(FileAttachmentResourceList attachment);
+
+  /**
+   * Delete attachments of a given object identified by its type and id
+   * 
+   * @param objectType object type, can be of any type: activity, comment,
+   *                     notes...
+   * @param objectId   object technical unique identifier
+   */
+  void deleteAttachments(String objectType, String objectId);
+
+  /**
+   * Delete attachment of a given object identified by its type and id
+   * 
+   * @param objectType object type, can be of any type: activity, comment,
+   *                     notes...
+   * @param objectId   object technical unique identifier
+   * @param fileId     attachment file identifier
+   */
+  void deleteAttachment(String objectType, String objectId, String fileId);
 
   /**
    * Retrieves the list of attachments of a given object identified by its id
@@ -86,13 +133,26 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link FileAttachmentResourceList} doesn't
-   *                                   exists
+   *                                   {@link FileAttachmentResourceList}
+   *                                   doesn't exists
    */
   ObjectAttachmentList getAttachments(String objectType,
                                       String objectId,
                                       Identity userAclIdentity) throws ObjectNotFoundException,
                                                                 IllegalAccessException;
+
+  /**
+   * Retrieves the list of attachments of a given object identified by its id
+   *
+   * @param  objectType object type, can be of any type: activity, comment,
+   *                      notes...
+   * @param  objectId   object technical unique identifier
+   * @return            {@link ObjectAttachmentList} with the list of attached
+   *                    files. If no attached files, it will return an object
+   *                    containing empty list
+   */
+  ObjectAttachmentList getAttachments(String objectType,
+                                      String objectId);
 
   /**
    * Retrieve an attached file to a dedicated object identified by its type and
@@ -111,8 +171,8 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link FileAttachmentResourceList} doesn't
-   *                                   exists
+   *                                   {@link FileAttachmentResourceList}
+   *                                   doesn't exists
    */
   ObjectAttachmentDetail getAttachment(String objectType,
                                        String objectId,
@@ -120,6 +180,22 @@ public interface AttachmentService {
                                        Identity userAclIdentity) throws ObjectNotFoundException,
                                                                  IllegalAccessException;
 
+  /**
+   * Retrieve an attached file to a dedicated object identified by its type and
+   * id
+   *
+   * @param  objectType      object type, can be of any type: activity, comment,
+   *                           notes...
+   * @param  objectId        object technical unique identifier
+   * @param  fileId          attachment file identifier
+   * @param  userAclIdentity user ACL identity retrieved used
+   *                           {@link IdentityRegistry}
+   * @return                 {@link ObjectAttachmentDetail} corresponding to a
+   *                         given object, else null
+   */
+  ObjectAttachmentDetail getAttachment(String objectType,
+                                       String objectId,
+                                       String fileId);
 
   /**
    * Retrieves the input stream of an attached file to a dedicated object
@@ -139,8 +215,8 @@ public interface AttachmentService {
    *                                   id doesn't have "read" permission of
    *                                   selected object
    * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link FileAttachmentResourceList} doesn't
-   *                                   exists
+   *                                   {@link FileAttachmentResourceList}
+   *                                   doesn't exists
    * @throws IOException             when an error occurs while reading attached
    *                                   file content
    */
