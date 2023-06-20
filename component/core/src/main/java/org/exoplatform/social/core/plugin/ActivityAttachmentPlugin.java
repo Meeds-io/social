@@ -22,13 +22,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.attachment.AttachmentPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.metadata.AttachmentPlugin;
 
 public class ActivityAttachmentPlugin extends AttachmentPlugin {
 
-  private static final String   ACTIVITY_ATTACHMENT_TYPE = "activity";
+  public static final String    ACTIVITY_ATTACHMENT_TYPE = "activity";
 
   private final ActivityManager activityManager;
 
