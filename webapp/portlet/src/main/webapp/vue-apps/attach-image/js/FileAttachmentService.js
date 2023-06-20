@@ -17,19 +17,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function createAttachments(attachmentUploads) {
+export function saveAttachments(attachmentResource) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments`, {
     headers: {
       'Content-Type': 'application/json'
     },
-    method: 'POST',
+    method: 'PUT',
     credentials: 'include',
-    body: JSON.stringify(attachmentUploads)
+    body: JSON.stringify(attachmentResource)
   }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
-      throw new Error(`Error creating attachments, response code = ${resp.status}`);
+      throw new Error(`Error updating attachments, response code = ${resp.status}`);
     }
   });
 }
@@ -46,19 +46,3 @@ export function getAttachments(objectType, objectId) {
     }
   });
 }
-
-export function updateAttachments(objectType, objectId, fileIds) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}`, {
-    headers: {
-      'Content-type': 'application/json'
-    },
-    method: 'PUT',
-    credentials: 'include',
-    body: JSON.stringify(fileIds)
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
