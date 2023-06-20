@@ -16,11 +16,22 @@
 
 package org.exoplatform.social.core.processor;
 
-import org.apache.commons.collections.MapUtils;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.ActivityManager;
@@ -28,17 +39,11 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
-import org.exoplatform.social.metadata.model.*;
-
-import org.exoplatform.commons.file.services.FileService;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
-
-import java.util.*;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
+import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
 
 public class AttachmentActivityProcessorTest extends AbstractCoreTest {
 
@@ -58,8 +63,6 @@ public class AttachmentActivityProcessorTest extends AbstractCoreTest {
 
   private IdentityManager         identityManager;
 
-  private FileService             fileService;
-
   private MetadataService         metadataService;
 
   private MetadataDAO             metadataDAO;
@@ -76,7 +79,6 @@ public class AttachmentActivityProcessorTest extends AbstractCoreTest {
     InitParams initParams = newParam(58467, METADATA_TYPE_NAME);
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
-    fileService = getContainer().getComponentInstanceOfType(FileService.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     if (metadataService.getMetadataTypeByName(METADATA_TYPE_NAME) == null) {
