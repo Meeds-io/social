@@ -27,14 +27,12 @@ import org.exoplatform.social.core.identity.IdentityResultTest;
 import org.exoplatform.social.core.identity.model.GlobalIdTest;
 import org.exoplatform.social.core.identity.model.IdentityTest;
 import org.exoplatform.social.core.image.ImageUtilsTest;
+import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
 import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
-import org.exoplatform.social.metadata.attachments.AttachmentsServiceTest;
-import org.exoplatform.social.core.processor.AttachmentActivityProcessorTest;
-import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -47,7 +45,6 @@ import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
     ActivityIteratorTest.class,
     IdentityResultTest.class,
     GettingStartedServiceTest.class,
-    AttachmentsServiceTest.class,
     ActivityAttachmentPluginTest.class,
     UserProfileComparatorTest.class,
     ActivityIndexingServiceConnectorTest.class,
