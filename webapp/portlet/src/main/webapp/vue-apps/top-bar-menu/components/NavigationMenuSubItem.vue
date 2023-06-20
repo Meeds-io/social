@@ -108,7 +108,7 @@ export default {
     }
   },
   watch: {
-    showMenu(){
+    showMenu() {
       this.isOpenedOnHover = !this.showMenu;
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
       this.positionY = this.$el.getBoundingClientRect().top + 10;
@@ -177,7 +177,7 @@ export default {
         this.showMenu = false;
       }
     },
-    updateSize(){
+    updateSize() {
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right) ;
     }
   }
