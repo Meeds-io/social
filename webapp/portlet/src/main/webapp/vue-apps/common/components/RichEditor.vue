@@ -1,32 +1,41 @@
 <template>
-  <div class="richEditor">
-    <div
-      v-if="displayPlaceholder"
-      @click="setFocus"
-      class="caption text-sub-title position-absolute t-0 pa-5 ma-1px full-width">
-      {{ placeholder }}
+  <div>
+    <div class="richEditor">
+      <div
+        v-if="displayPlaceholder"
+        @click="setFocus"
+        class="caption text-sub-title position-absolute t-0 pa-5 ma-1px full-width">
+        {{ placeholder }}
+      </div>
+      <textarea
+        ref="editor"
+        :id="ckEditorType"
+        v-model="inputVal"
+        :placeholder="placeholder"
+        cols="30"
+        rows="10"
+        class="textarea"></textarea>
+      <v-progress-circular
+        v-if="!editorReady"
+        :width="3"
+        indeterminate
+        class="loadingRing position-absolute" />
+      <div
+        :v-show="editorReady"
+        :id="buttonId"
+        :class="!validLength && 'tooManyChars' || ''"
+        class="activityCharsCount">
+        {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
+        <i class="uiIconMessageLength"></i>
+      </div>
     </div>
-    <textarea
-      ref="editor"
-      :id="ckEditorType"
-      v-model="inputVal"
-      :placeholder="placeholder"
-      cols="30"
-      rows="10"
-      class="textarea"></textarea>
-    <v-progress-circular
-      v-if="!editorReady"
-      :width="3"
-      indeterminate
-      class="loadingRing position-absolute" />
-    <div
-      :v-show="editorReady"
-      :id="buttonId"
-      :class="!validLength && 'tooManyChars' || ''"
-      class="activityCharsCount">
-      {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
-      <i class="uiIconMessageLength"></i>
-    </div>
+    <attachments-image-input
+      v-if="attachmentEnabled"
+      ref="attachmentsInput"
+      :max-file-size="maxFileSize"
+      :object-type="objectType"
+      :object-id="objectId"
+      @changed="$emit('attachments-edited', $event)" />
   </div>
 </template>
 
@@ -85,7 +94,19 @@ export default {
       type: Boolean,
       default: true
     },
-    attachmentEnabled: {
+    maxFileSize: {
+      type: Number,
+      default: () => 20971520,
+    },
+    objectType: {
+      type: String,
+      default: null
+    },
+    objectId: {
+      type: String,
+      default: null
+    },
+    disableImageAttachment: {
       type: Boolean,
       default: false
     },
@@ -97,7 +118,6 @@ export default {
       editor: null,
       displayPlaceholder: true,
       baseUrl: eXo.env.server.portalBaseURL,
-      enableAttachImage: eXo.env.portal.editorAttachImageEnabled
     };
   },
   computed: {
@@ -118,6 +138,9 @@ export default {
     },
     ckEditorConfigUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/richeditor/configuration?type=${this.ckEditorType || 'default'}&v=${eXo.env.client.assetsVersion}`;
+    },
+    attachmentEnabled() {
+      return !this.disableImageAttachment && eXo.env.portal.editorAttachImageEnabled && this.objectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.objectType) >= 0;
     },
   },
   watch: {
@@ -180,6 +203,9 @@ export default {
       window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], function() {
         self.initCKEditorInstance(reset, textValue);
       });
+      if (this.$refs.attachmentsInput) {
+        this.$refs.attachmentsInput.init();
+      }
     },
     initCKEditorInstance(reset, textValue) {
       this.inputVal = this.replaceWithSuggesterClass(textValue);
@@ -225,7 +251,7 @@ export default {
       if (!this.isMobile) {
         toolbar[0].push('emoji');
       }
-      if (this.attachmentEnabled && this.enableAttachImage) {
+      if (this.attachmentEnabled) {
         extraPlugins = `${extraPlugins},attachImage`;
         toolbar[0].push('attachImage');
       }
@@ -303,6 +329,9 @@ export default {
     destroyCKEditor: function () {
       if (this.editor) {
         this.editor.destroy(true);
+      }
+      if (this.$refs.attachmentsInput) {
+        this.$refs.attachmentsInput.reset();
       }
     },
     computePlaceHolderVisibility() {
@@ -387,6 +416,11 @@ export default {
         }
       } else if (!embedResponse) {
         this.cleanupOembed();
+      }
+    },
+    saveAttachments() {
+      if (this.$refs.attachmentsInput) {
+        return this.$refs.attachmentsInput.save();
       }
     },
     cleanupOembed: function() {
