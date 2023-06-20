@@ -28,7 +28,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -43,7 +42,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -71,18 +69,22 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = VersionResources.VERSION_ONE + "/social/attachments", description = "Managing attachments for any type of data")
 public class AttachmentRest implements ResourceContainer {
 
-  private static final String       ATTACHMENT_UNAUTHORIZED_ACCESS_MESSAGE = "attachment.unauthorizedAccess";
+  private static final String       ATTACHMENT_OBJECT_ID_REQUIRED_MESSAGE   = "attachment.objectIdRequired";
 
-  private static final String       ATTACHMENT_OBJECT_NOT_FOUND_MESSAGE    = "attachment.objectNotFound";
+  private static final String       ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE = "attachment.objectTypeRequired";
 
-  private static final CacheControl CACHE_CONTROL                          = new CacheControl();
+  private static final String       ATTACHMENT_UNAUTHORIZED_ACCESS_MESSAGE  = "attachment.unauthorizedAccess";
+
+  private static final String       ATTACHMENT_OBJECT_NOT_FOUND_MESSAGE     = "attachment.objectNotFound";
+
+  private static final CacheControl CACHE_CONTROL                           = new CacheControl();
 
   // 7 days
-  private static final int          CACHE_IN_SECONDS                       = 7 * 86400;
+  private static final int          CACHE_IN_SECONDS                        = 7 * 86400;
 
-  private static final int          CACHE_IN_MILLI_SECONDS                 = CACHE_IN_SECONDS * 1000;
+  private static final int          CACHE_IN_MILLI_SECONDS                  = CACHE_IN_SECONDS * 1000;
 
-  private static final Log          LOG                                    = ExoLogger.getLogger(AttachmentRest.class);
+  private static final Log          LOG                                     = ExoLogger.getLogger(AttachmentRest.class);
 
   private AttachmentService         attachmentService;
 
@@ -90,54 +92,6 @@ public class AttachmentRest implements ResourceContainer {
     this.attachmentService = attachmentService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
-  }
-
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
-  @Operation(summary = "Attach files to a given object identified by its id", description = "Attach files to a given object identified by its id", method = "POST")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized request"),
-      @ApiResponse(responseCode = "404", description = "Not found"),
-  })
-  public Response createAttachments(
-                                    @RequestBody(description = "Object file Attachments", required = true)
-                                    FileAttachmentResourceList attachmentResource) {
-    String objectType = attachmentResource.getObjectType();
-    if (StringUtils.isBlank(objectType)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectTypeRequired").type(MediaType.TEXT_PLAIN).build();
-    }
-    String objectId = attachmentResource.getObjectId();
-    if (StringUtils.isBlank(objectId)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectIdRequired").type(MediaType.TEXT_PLAIN).build();
-    }
-    if (CollectionUtils.isEmpty(attachmentResource.getUploadIds())) {
-      return Response.status(Response.Status.BAD_REQUEST)
-                     .entity("attachment.uploadIdRequired")
-                     .type(MediaType.TEXT_PLAIN)
-                     .build();
-    }
-    long currentUserIdentityId = RestUtils.getCurrentUserIdentityId();
-    attachmentResource.setUserIdentityId(currentUserIdentityId);
-    try {
-      Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
-      ObjectAttachmentOperationReport report = attachmentService.createAttachments(attachmentResource, authenticatedUserIdentity);
-      return Response.ok(report).type(MediaType.APPLICATION_JSON).build();
-    } catch (IllegalAccessException e) {
-      LOG.debug("Unautorized access for user {} to update attachments {}", currentUserIdentityId, attachmentResource, e);
-      return Response.status(Status.UNAUTHORIZED)
-                     .entity(ATTACHMENT_UNAUTHORIZED_ACCESS_MESSAGE)
-                     .type(MediaType.TEXT_PLAIN)
-                     .build();
-    } catch (ObjectNotFoundException e) {
-      LOG.debug("Object not found while processing user {} operation for attachments update {}",
-                currentUserIdentityId,
-                attachmentResource,
-                e);
-      return Response.status(Status.NOT_FOUND).entity(ATTACHMENT_OBJECT_NOT_FOUND_MESSAGE).type(MediaType.TEXT_PLAIN).build();
-    }
   }
 
   @PUT
@@ -151,24 +105,27 @@ public class AttachmentRest implements ResourceContainer {
       @ApiResponse(responseCode = "401", description = "Unauthorized request"),
       @ApiResponse(responseCode = "404", description = "Not found"),
   })
-  public Response updateAttachments(
-                                    @RequestBody(description = "Object file Attachments", required = true)
-                                    FileAttachmentResourceList attachmentResource) {
+  public Response saveAttachments(
+                                  @RequestBody(description = "Object file Attachments", required = true)
+                                  FileAttachmentResourceList attachmentResource) {
 
     String objectType = attachmentResource.getObjectType();
     if (StringUtils.isBlank(objectType)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectTypeRequired").type(MediaType.TEXT_PLAIN).build();
+      return Response.status(Status.BAD_REQUEST)
+                     .entity(ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE)
+                     .type(MediaType.TEXT_PLAIN)
+                     .build();
     }
     String objectId = attachmentResource.getObjectId();
     if (StringUtils.isBlank(objectId)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectIdRequired").type(MediaType.TEXT_PLAIN).build();
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_ID_REQUIRED_MESSAGE).type(MediaType.TEXT_PLAIN).build();
     }
     long currentUserIdentityId = RestUtils.getCurrentUserIdentityId();
     attachmentResource.setUserIdentityId(currentUserIdentityId);
     try {
       Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
-      ObjectAttachmentOperationReport report = attachmentService.updateAttachments(attachmentResource, authenticatedUserIdentity);
-      return Response.ok(report).type(MediaType.APPLICATION_JSON).build();
+      ObjectAttachmentOperationReport report = attachmentService.saveAttachments(attachmentResource, authenticatedUserIdentity);
+      return Response.ok(report == null ? "{}" : report).build();
     } catch (IllegalAccessException e) {
       LOG.debug("Unautorized access for user {} to update attachments {}", currentUserIdentityId, attachmentResource, e);
       return Response.status(Status.UNAUTHORIZED)
@@ -203,10 +160,16 @@ public class AttachmentRest implements ResourceContainer {
                                  @PathParam("objectId")
                                  String objectId) {
     if (StringUtils.isBlank(objectType)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectTypeRequired").type(MediaType.APPLICATION_JSON).build();
+      return Response.status(Status.BAD_REQUEST)
+                     .entity(ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
     }
     if (StringUtils.isBlank(objectId)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectIdRequired").type(MediaType.APPLICATION_JSON).build();
+      return Response.status(Status.BAD_REQUEST)
+                     .entity(ATTACHMENT_OBJECT_ID_REQUIRED_MESSAGE)
+                     .type(MediaType.APPLICATION_JSON)
+                     .build();
     }
     try {
       Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
@@ -250,17 +213,17 @@ public class AttachmentRest implements ResourceContainer {
                                 @QueryParam("lastModified")
                                 String lastModified,
                                 @Parameter(description = "Resized avatar size. Use 0x0 for original size.")
-                                @DefaultValue("250x250")
+                                @DefaultValue("0x0")
                                 @QueryParam("size")
                                 String size,
                                 @Parameter(description = "Whether to add HTTP Header for download or not", required = true)
-                                @PathParam("download")
+                                @QueryParam("download")
                                 boolean download) {
     if (StringUtils.isBlank(objectType)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectTypeRequired").build();
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE).build();
     }
     if (StringUtils.isBlank(objectId)) {
-      return Response.status(Status.BAD_REQUEST).entity("attachment.objectIdRequired").build();
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_ID_REQUIRED_MESSAGE).build();
     }
     Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
 
