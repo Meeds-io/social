@@ -359,9 +359,7 @@ public class CachedActivityStorage implements ActivityStorage {
    * {@inheritDoc}
    */
   public void deleteActivity(final String activityId) throws ActivityStorageException {
-
     //
-    ExoSocialActivity a = storage.getActivity(activityId);
     storage.deleteActivity(activityId);
 
     //
@@ -2159,6 +2157,16 @@ public class CachedActivityStorage implements ActivityStorage {
     } catch (Exception e) {
       LOG.error("Error clearing cache of activities having attachment with id {}", attachmentId, e);
     }
+  }
+
+  public boolean clearActivityByMetadataObject(String objectType, String objectId) {
+    ActivityMetadataCacheSelector metadataCacheSelector = new ActivityMetadataCacheSelector(objectType, objectId);
+    try {
+      exoActivityCache.select(metadataCacheSelector);
+    } catch (Exception e) {
+      LOG.error("Error clearing cache of activities having using metadata object {}/{}", objectType, objectId, e);
+    }
+    return metadataCacheSelector.isFound();
   }
 
 }
