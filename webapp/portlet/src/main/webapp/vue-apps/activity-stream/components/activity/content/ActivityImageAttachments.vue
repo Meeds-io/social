@@ -67,12 +67,14 @@ export default {
     document.addEventListener('attachments-updated', this.updateActivity);
   },
   beforeDestroy() {
-    document.removeEventListener('attachments-updated', this.updateActivity);
+    window.setTimeout(() => {
+      document.removeEventListener('attachments-updated', this.updateActivity);
+    }, 200);
   },
   methods: {
     updateActivity(event) {
-      if (event?.detail?.objectType === this.metadataObjectType && this.metadataObjectId === event?.detail?.objectId) {
-        document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
+      if (this.attachments && event?.detail?.objectType === this.metadataObjectType && this.metadataObjectId === event?.detail?.objectId) {
+        this.activity.metadatas.attachments = null;
       }
     },
   },
