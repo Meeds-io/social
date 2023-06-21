@@ -150,8 +150,11 @@ export default {
         this.$emit('input', val);
       }
     },
-    validLength() {
-      this.$emit('validity-updated', this.validLength);
+    validLength: {
+      immediate: true,
+      handler() {
+        this.$emit('validity-updated', this.validLength);
+      },
     },
     editorReady() {
       if (this.editorReady) {
