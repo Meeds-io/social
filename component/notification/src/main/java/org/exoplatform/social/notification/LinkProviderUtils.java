@@ -180,6 +180,16 @@ public static final String RESOURCE_URL = "social/notifications";
   }
 
   /**
+   * Get the portal base url
+   *
+   * @return base url like : http://localhost:8080/portal
+   */
+  public static String getBaseUrl() {
+    String portal = PortalContainer.getCurrentPortalContainerName();
+    return new StringBuffer(CommonsUtils.getCurrentDomain()).append("/").append(portal).toString();
+  }
+
+  /**
    * Get the url with the login redirection
    *
    * @param type
