@@ -16,170 +16,119 @@
 
 package org.exoplatform.social.core.processor;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.exoplatform.commons.file.model.FileInfo;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ObjectParameter;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
+import org.exoplatform.social.attachment.AttachmentService;
+import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
+import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
+import org.exoplatform.social.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.manager.ActivityManager;
-import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.mock.MockUploadService;
+import org.exoplatform.social.core.plugin.ActivityAttachmentPlugin;
 import org.exoplatform.social.core.test.AbstractCoreTest;
-import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.MetadataTypePlugin;
-import org.exoplatform.social.metadata.model.Metadata;
-import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataKey;
-import org.exoplatform.social.metadata.model.MetadataObject;
-import org.exoplatform.social.metadata.model.MetadataType;
+import org.exoplatform.upload.UploadService;
 
 public class AttachmentActivityProcessorTest extends AbstractCoreTest {
 
-  private static final Log        LOG                = ExoLogger.getLogger(AttachmentActivityProcessorTest.class);
+  private static final String     MIME_TYPE = "image/png";
 
-  private static final String     METADATA_TYPE_NAME = "attachments";
+  private static final String     FILE_NAME = "cover.png";
 
-  private static final Long       FILE_ID            = 12l;
+  private static final String     UPLOAD_ID = "1234";
 
-  private static final Long       AUDIENCE_ID        = 5l;
+  private Identity                demoIdentity;
 
-  private static final String     PARENT_OBJECT_ID   = "7";
-
-  private Identity                johnIdentity;
+  private MockUploadService       uploadService;
 
   private ActivityManager         activityManager;
 
-  private IdentityManager         identityManager;
-
-  private MetadataService         metadataService;
-
-  private MetadataDAO             metadataDAO;
+  private AttachmentService       attachmentService;
 
   private List<ExoSocialActivity> tearDownActivityList;
 
   @Override
   public void setUp() throws Exception {
-    try {
-      super.setUp();
-    } catch (Exception e) {
-      LOG.error("Error initializing parent Test class", e);
-    }
-    InitParams initParams = newParam(58467, METADATA_TYPE_NAME);
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
+    super.setUp();
+    attachmentService = getContainer().getComponentInstanceOfType(AttachmentService.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
-    metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
-    metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
-    if (metadataService.getMetadataTypeByName(METADATA_TYPE_NAME) == null) {
-      MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(initParams) {
-        @Override
-        public boolean isAllowMultipleItemsPerObject() {
-          return true;
-        }
-
-        @Override
-        public boolean isShareable() {
-          return true;
-        }
-      };
-      metadataService.addMetadataTypePlugin(userMetadataTypePlugin);
-    }
-    johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
+    demoIdentity = identityManager.getOrCreateUserIdentity("demo");
     tearDownActivityList = new ArrayList<>();
   }
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
-    identityManager.deleteIdentity(johnIdentity);
-    metadataDAO.deleteAll();
+    restartTransaction();
 
     for (ExoSocialActivity activity : tearDownActivityList) {
-      try {
-        activityManager.deleteActivity(activity.getId());
-      } catch (Exception e) {
-        LOG.warn("can not delete activity with id: " + activity.getId());
-      }
+      activityManager.deleteActivity(activity.getId());
     }
 
     super.tearDown();
   }
 
   public void testGetActivityWithAttachmentsMetadataObject() throws Exception {
+    String username = demoIdentity.getRemoteId();
 
     ExoSocialActivity activity = new ExoSocialActivityImpl();
-    String userId = johnIdentity.getId();
-    activity.setTitle("activity title");
-    activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    // test for reserving order of map values for i18n activity
+    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    templateParams.put("key1", "value 1");
+    templateParams.put("key2", "value 2");
+    templateParams.put("key3", "value 3");
+    activity.setTemplateParams(templateParams);
+    activity.setTitle("");
+    activity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(demoIdentity, activity);
     tearDownActivityList.add(activity);
 
-    long creatorId = Long.parseLong(johnIdentity.getId());
+    String fileId = createAttachment(username, activity.getId());
 
-    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME, String.valueOf(FILE_ID), AUDIENCE_ID);
-    MetadataObject metadataObject = new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
-                                                       activity.getId(),
-                                                       PARENT_OBJECT_ID);
-    MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
-    assertNotNull(metadataItem);
-    assertTrue(metadataItem.getId() > 0);
+    ObjectAttachmentList objectAttachmentList =
+                                              attachmentService.getAttachments(ActivityAttachmentPlugin.ACTIVITY_ATTACHMENT_TYPE,
+                                                                               activity.getId());
+    assertNotNull(objectAttachmentList);
 
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
-    assertEquals(1, metadataItems.size());
-
-    activity = activityManager.getActivity(activity.getId());
-
-    assertNotNull(activity.getMetadatas());
-    assertEquals(1, activity.getMetadatas().size());
-    assertNotNull(activity.getMetadatas().get(METADATA_TYPE_NAME));
-
-    FileInfo fileInfo = mock(FileInfo.class);
-
-    Map<String, String> properties = new HashMap<>();
-
-    Metadata metadata = metadataItem.getMetadata();
-    metadata.setProperties(properties);
-
-    metadataItem.setProperties(properties);
-
-    String fileName = "attchmentFileName";
-    Long fileSize = 20894l;
-    String fileMimeType = "image/png";
-    Date today = new Date();
-
-    when(fileInfo.getName()).thenReturn(fileName);
-    when(fileInfo.getSize()).thenReturn(fileSize);
-    when(fileInfo.getMimetype()).thenReturn(fileMimeType);
-    when(fileInfo.getUpdatedDate()).thenReturn(today);
-
-    properties.put("fileName", fileName);
-    properties.put("fileSize", String.valueOf(fileSize));
-    properties.put("fileMimeType", fileMimeType);
-    properties.put("fileUpdateDate", String.valueOf(today.getTime()));
-
-    assertNotNull(activity.getMetadatas().get(METADATA_TYPE_NAME).get(0).getProperties());
+    List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
+    assertEquals(1, attachments.size());
+    ObjectAttachmentDetail attachmentDetail = attachments.get(0);
+    assertNotNull(attachmentDetail);
+    assertEquals(FILE_NAME, attachmentDetail.getName());
+    assertEquals(MIME_TYPE, attachmentDetail.getMimetype());
+    assertEquals(fileId, attachmentDetail.getId());
+    assertTrue(attachmentDetail.getUpdated() > 0);
+    assertEquals(demoIdentity.getId(), attachmentDetail.getUpdater());
   }
 
-  private InitParams newParam(long id, String name) {
-    InitParams params = new InitParams();
-    MetadataType metadataType = new MetadataType(id, name);
-    ObjectParameter parameter = new ObjectParameter();
-    parameter.setName("metadataType");
-    parameter.setObject(metadataType);
-    params.addParameter(parameter);
-    return params;
+  private String createAttachment(String username, String activityId) throws IOException, Exception {
+    String identityId = identityManager.getOrCreateUserIdentity(username).getId();
+    FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
+    attachmentList.setFileIds(null);
+    attachmentList.setUserIdentityId(Long.parseLong(identityId));
+    attachmentList.setObjectType(ActivityAttachmentPlugin.ACTIVITY_ATTACHMENT_TYPE);
+    attachmentList.setObjectId(activityId);
+    attachmentList.setUploadIds(Collections.singletonList(UPLOAD_ID));
+    uploadResource();
+
+    attachmentService.saveAttachments(attachmentList);
+    ObjectAttachmentList objectAttachmentList =
+                                              attachmentService.getAttachments(ActivityAttachmentPlugin.ACTIVITY_ATTACHMENT_TYPE,
+                                                                               activityId);
+    return objectAttachmentList.getAttachments().get(0).getId();
+  }
+
+  private void uploadResource() throws IOException, Exception {
+    File tempFile = File.createTempFile("image", "temp");
+    uploadService.createUploadResource(UPLOAD_ID, tempFile.getPath(), FILE_NAME, MIME_TYPE);
   }
 
 }
