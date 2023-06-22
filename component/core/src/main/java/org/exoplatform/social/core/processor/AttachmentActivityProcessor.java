@@ -27,7 +27,6 @@ import org.exoplatform.social.attachment.AttachmentService;
 import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.plugin.ActivityAttachmentPlugin;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
 public class AttachmentActivityProcessor extends BaseActivityProcessorPlugin {
@@ -45,9 +44,15 @@ public class AttachmentActivityProcessor extends BaseActivityProcessorPlugin {
       List<MetadataItem> attachmentMetadataItems = activity.getMetadatas().get(AttachmentService.METADATA_TYPE.getName());
       attachmentMetadataItems.forEach(metadataItem -> {
         String fileId = metadataItem.getMetadata().getName();
-        ObjectAttachmentDetail attachment = attachmentService.getAttachment(ActivityAttachmentPlugin.ACTIVITY_ATTACHMENT_TYPE, activity.getId(), fileId);
+        String objectId = activity.getMetadataObjectId();
+        String objectType = activity.getMetadataObjectType();
+        ObjectAttachmentDetail attachment = attachmentService.getAttachment(objectType, objectId, fileId);
+        if (attachment == null) {
+          return;
+        }
+
         Map<String, String> properties = metadataItem.getMetadata().getProperties();
-        if (MapUtils.isEmpty(properties)) {
+        if (properties == null) {
           properties = new HashMap<>();
           metadataItem.setProperties(properties);
         }
