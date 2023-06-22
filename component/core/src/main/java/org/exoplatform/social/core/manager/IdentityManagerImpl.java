@@ -504,7 +504,9 @@ public class IdentityManagerImpl implements IdentityManager {
         return result;
       }
     } else {
-      if (identityFoundByRemoteProvider == null && !result.isDeleted()) {
+      if (identityFoundByRemoteProvider == null
+          && !result.isDeleted()
+          && (System.currentTimeMillis() - result.getCacheTime()) > 1000) {
         LOG.warn("Identity with remoteId " + remoteId + " not found in remote provider " + providerId
             + " but his social identity is not marked as deleted",
                  new IllegalStateException("Identity with provider '" + providerId + "' and remoteId '" + remoteId
