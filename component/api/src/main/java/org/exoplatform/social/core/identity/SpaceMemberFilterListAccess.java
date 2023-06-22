@@ -110,8 +110,9 @@ public class SpaceMemberFilterListAccess implements ListAccess<Identity> {
       profileFilter.setFirstCharFieldName(manager.getFirstCharacterFiltering());
     }
     List<Identity> identities;
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type, offset, limit);    
-    return identities.toArray(new Identity[identities.size()]);
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type, offset, limit);
+    List<Identity> filteredIdentities = identities.stream().distinct().toList();
+    return filteredIdentities.toArray(new Identity[filteredIdentities.size()]);
   }
 
   /**
