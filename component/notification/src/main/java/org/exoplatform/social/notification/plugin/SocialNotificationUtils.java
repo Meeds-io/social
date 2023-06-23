@@ -361,6 +361,7 @@ public class SocialNotificationUtils {
 
     templateContext.put("FIRSTNAME", firstName);
     templateContext.put("FOOTER_LINK", redirectUrl);
+    templateContext.put("COMPANY_LINK", LinkProviderUtils.getBaseUrl());
   }
 
   public static String processImageTitle(String body, String placeholder) {
