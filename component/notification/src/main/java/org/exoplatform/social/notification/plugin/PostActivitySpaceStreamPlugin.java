@@ -16,25 +16,23 @@
  */
 package org.exoplatform.social.notification.plugin;
 
-import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.Utils;
 
 public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
-  
+
+  public static final String ID = "PostActivitySpaceStreamPlugin";
+
   public PostActivitySpaceStreamPlugin(InitParams initParams) {
     super(initParams);
   }
 
-  public static final String ID = "PostActivitySpaceStreamPlugin";
-  
   @Override
   public String getId() {
     return ID;
@@ -43,39 +41,35 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
   @Override
   public NotificationInfo makeNotification(NotificationContext ctx) {
     try {
-      
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
       String originalTitle = ctx.value(SocialNotificationUtils.ORIGINAL_TITLE);
       Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
       String poster = Utils.getUserId(activity.getPosterId());
-      
+
       return NotificationInfo.instance()
-                                .key(getId())
-                                .with(SocialNotificationUtils.POSTER.getKey(), poster)
-                                .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
-                                .with(SocialNotificationUtils.ORIGINAL_TITLE.getKey(), originalTitle)
-                                .to(Utils.getDestinataires(activity, space)).end();
+                             .key(getId())
+                             .with(SocialNotificationUtils.POSTER.getKey(), poster)
+                             .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
+                             .with(SocialNotificationUtils.ORIGINAL_TITLE.getKey(), originalTitle)
+                             .to(Utils.getDestinataires(activity, space))
+                             .end();
     } catch (Exception e) {
       ctx.setException(e);
     }
-    
+
     return null;
   }
 
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-
-    if (!Utils.isActivityNotificationsEnabled(activity.getType())) {
+    if (!Utils.getActivityManager().isNotificationEnabled(activity)) {
       return false;
     }
 
-    Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), false);
-    //if the space is not null and it's not the default activity of space, then it's valid to make notification 
-    if (spaceIdentity != null && activity.getPosterId().equals(spaceIdentity.getId()) == false) {
-      return true;
-    }
-
-    return false;
+    Identity spaceIdentity = Utils.getIdentityManager().getOrCreateSpaceIdentity(activity.getStreamOwner());
+    // if the space is not null and it's not the default activity of space, then
+    // it's valid to make notification
+    return spaceIdentity != null && !activity.getPosterId().equals(spaceIdentity.getId());
   }
 }

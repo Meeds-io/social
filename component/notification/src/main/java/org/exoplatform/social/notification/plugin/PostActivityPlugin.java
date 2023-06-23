@@ -25,12 +25,12 @@ import org.exoplatform.social.notification.Utils;
 
 public class PostActivityPlugin extends BaseNotificationPlugin {
 
+  public static final String ID = "PostActivityPlugin";
+
   public PostActivityPlugin(InitParams initParams) {
     super(initParams);
   }
 
-  public static final String ID = "PostActivityPlugin";
-  
   @Override
   public String getId() {
     return ID;
@@ -42,25 +42,25 @@ public class PostActivityPlugin extends BaseNotificationPlugin {
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
 
       return NotificationInfo.instance()
-          .to(activity.getStreamOwner())
-          .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(activity.getPosterId()))
-          .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
-          .key(getId()).end();
-      
+                             .to(activity.getStreamOwner())
+                             .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(activity.getPosterId()))
+                             .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
+                             .key(getId())
+                             .end();
+
     } catch (Exception e) {
       ctx.setException(e);
     }
-    
+
     return null;
   }
 
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-    if (activity.getStreamOwner().equals(Utils.getUserId(activity.getPosterId())) || Utils.isSpaceActivity(activity)) {
-      return false;
-    }
-    return true;
+    return Utils.getActivityManager().isNotificationEnabled(activity)
+        && !activity.getStreamOwner().equals(Utils.getUserId(activity.getPosterId()))
+        && !Utils.isSpaceActivity(activity);
   }
 
 }
