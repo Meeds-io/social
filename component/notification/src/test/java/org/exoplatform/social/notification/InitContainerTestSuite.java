@@ -29,6 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
   RequestJoinSpaceMailBuilderTest.class,
   SpaceInvitationMailBuilderTest.class,
   LikeMailBuilderTest.class,
+  LikeCommentMailBuilderTest.class,
   LinkProviderUtilsTest.class,
   MailTemplateProviderTest.class,
   WebTemplateProviderTest.class,

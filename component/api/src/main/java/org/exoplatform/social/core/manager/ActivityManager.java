@@ -21,6 +21,7 @@ import java.util.List;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
@@ -382,6 +383,15 @@ public interface ActivityManager {
    */
   void addProcessorPlugin(BaseActivityProcessorPlugin activityProcessorPlugin);
 
+  /**
+   * Adds an Activity Type options such as activity notification enabling
+   * 
+   * @param plugin {@link ActivityTypePlugin}
+   */
+  default void addActivityTypePlugin(ActivityTypePlugin plugin) {
+    // No operation
+  }
+
   void addActivityEventListener(ActivityListenerPlugin activityListenerPlugin);
 
   /**
@@ -463,6 +473,15 @@ public interface ActivityManager {
    * @return true if the activity type is enabled
    */
   default boolean isActivityTypeEnabled(String activityType) {
+    return true;
+  }
+
+  /**
+   * @param  activity {@link ExoSocialActivity}
+   * @return          true if the Activity Type reuses the default activity
+   *                  notifications, else false.
+   */
+  default boolean isNotificationEnabled(ExoSocialActivity activity) {
     return true;
   }
 

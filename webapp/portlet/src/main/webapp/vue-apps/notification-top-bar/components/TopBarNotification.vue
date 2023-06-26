@@ -1,3 +1,23 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-app id="NotificationPopoverPortlet">
     <v-flex>
@@ -34,14 +54,11 @@
           </template>
           <template v-if="notificationsSize" slot="content">
             <div class="notifDrawerItems">
-              <a
+              <top-bar-notification-item
                 v-for="(notif, i) in notifications"
                 :key="i"
                 :id="'notifItem-'+i"
-                v-sanitized-html="notif.notification"
-                class="notifDrawerItem"
-                @mouseenter="applyActions(`notifItem-`+i)">
-              </a>
+                :notif="notif" />
             </div>
           </template>
           <template v-else-if="!loading" slot="content">
@@ -82,9 +99,6 @@
   </v-app>
 </template>
 <script>
-const SLIDE_UP = 300;
-const SLIDE_UP_MORE = 600;
-
 export default {
   data () {
     return {
@@ -157,107 +171,6 @@ export default {
     },
     navigateTo(pagelink) {
       location.href=`${ eXo.env.portal.context }/${ eXo.env.portal.portalName }/${ pagelink }` ;
-    },
-    applyActions(item) {
-      $(`#${item}`).find('li').each(function () {
-        let dataLink = $(this).find('.contentSmall:first').data('link');
-        if (typeof dataLink === 'undefined') {
-          dataLink = $(this).find('.media').children('a').attr('href');
-          
-        }
-        if (dataLink.includes('/portal/g/') || dataLink.includes('/portal/rest/')){
-          dataLink.replace(/\/portal\//,`${eXo.env.portal.context}/`);
-        } else {
-          dataLink.replace(/\/portal\/([a-zA-Z0-9_-]+)\//, `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`);
-        }
-        const linkId = dataLink.split(`${eXo.env.portal.context}/`);
-        const dataId = $(this).data('id').toString();
-        const dataDetails = $(this).data('details') && $(this).data('details').toString() ? $(this).data('details').toString() : null;
-        if (linkId != null && linkId.length >1 ) {
-          if (linkId[0].includes('/view_full_activity/')) {
-            const id = linkId[0].split('/view_full_activity/')[1];
-            $(this).parent().attr('href', `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${id}`);
-          } else {
-            $(this).parent().attr('href', `${eXo.env.portal.context}/${linkId[1]}`);
-          }
-        } else if (dataDetails !== 'notification-details-drawer') {
-          $(this).parent().attr('href', dataLink.replace(/^\/rest\//,`${eXo.env.portal.context}/rest/`));
-        }
-
-        // ------------- Open details drawer
-
-        $(this).find('.open-details-drawer').off('click').on('click', function(evt) {
-          evt.preventDefault();
-          evt.stopPropagation();
-          const notificationDetails = $(this).data('notification-details');
-          document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
-          if ($(this).closest('[data-details]').hasClass('unread')) {
-            $(this).closest('[data-details]').removeClass('unread').addClass('read');
-          }
-          Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
-        });
-
-        // ----------------- Mark as read
-        $(this).on('click', function() {
-          if ($(this).hasClass('unread')) {
-            $(this).removeClass('unread').addClass('read');
-          }
-          Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
-        });
-
-        // ------------- hide notif
-        $(this).find('.remove-item').off('click')
-          .on('click', function(evt) {
-            evt.preventDefault();
-            evt.stopPropagation();
-            Vue.prototype.$notificationService.updateNotification(dataId,'hide');
-            $(this).parents('li:first').slideUp(SLIDE_UP);
-          });
-
-        // ------------- Accept request
-
-        $(this).find('.action-item').off('click')
-          .on('click', function(evt) {
-            evt.stopPropagation();
-            let restURl = $(this).data('rest');
-            if (restURl.indexOf('?') >= 0 ) {
-              restURl += '&';
-            } 
-            else {
-              restURl += '?';
-            }
-            restURl += `portal:csrf=${eXo.env.portal.csrfToken}`;
-            if (restURl && restURl.length > 0) {
-              $.ajax(restURl).done(function () {
-                $(document).trigger('exo-invitation-updated');
-              });
-            }
-            Vue.prototype.$notificationService.updateNotification(dataId,'hide');
-            $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
-          });
-
-        // ------------- Refuse request
-
-        $(this).find('.cancel-item').off('click')
-          .on('click', function(evt) {
-            evt.stopPropagation();
-            let restCancelURl = $(this).data('rest');
-            if (restCancelURl.indexOf('?') >= 0 ) {
-              restCancelURl += '&';
-            }
-            else {
-              restCancelURl += '?';
-            }
-            restCancelURl += `portal:csrf=${eXo.env.portal.csrfToken}`;
-            if (restCancelURl && restCancelURl.length > 0) {
-              $.ajax(restCancelURl).done(function () {
-                $(document).trigger('exo-invitation-updated');
-              });
-            }
-            Vue.prototype.$notificationService.updateNotification(dataId,'hide');
-            $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
-          });
-      });
     },
     notificationUpdated(event) {
       if (event && event.detail) {

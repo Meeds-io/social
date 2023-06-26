@@ -32,6 +32,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.*;
 import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess.ActivityType;
@@ -111,6 +112,8 @@ public class ActivityManagerImpl implements ActivityManager {
   public static final String          MANDATORY_USER_IDENTITY_ID     = "userIdentityId is mandatory";
 
   private Set<String>                 systemActivityTypes            = new HashSet<>();
+
+  private List<String>                disabledTypeNotifications      = new ArrayList<>();
 
   private Set<String>                 systemActivityTitleIds         = new HashSet<>(Arrays.asList("has_joined",
                                                                                                    "space_avatar_edited",
@@ -676,6 +679,13 @@ public class ActivityManagerImpl implements ActivityManager {
     this.addProcessor(plugin);
   }
 
+  @Override
+  public void addActivityTypePlugin(ActivityTypePlugin plugin) {
+    if (StringUtils.isNotBlank(plugin.getActivityType()) && !plugin.isEnableNotification()) {
+      disabledTypeNotifications.add(plugin.getActivityType());
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -831,6 +841,14 @@ public class ActivityManagerImpl implements ActivityManager {
   @Override
   public boolean isActivityTypeEnabled(String activityType) {
     return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
+  }
+
+  @Override
+  public boolean isNotificationEnabled(ExoSocialActivity activity) {
+    return activity != null
+        && !activity.isHidden()
+        && (StringUtils.isBlank(activity.getType())
+            || !disabledTypeNotifications.contains(activity.getType()));
   }
 
   @Override
