@@ -680,7 +680,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
   };
 
-  /** Defines the template builder for LikePlugin*/
+  /** Defines the template builder for LikeCommentPlugin*/
   private AbstractTemplateBuilder likeComment = new AbstractTemplateBuilder() {
     @Override
     protected MessageInfo makeMessage(NotificationContext ctx) {
