@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 
@@ -38,7 +37,6 @@ import org.exoplatform.commons.api.notification.service.setting.PluginSettingSer
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.RootContainer.PortalContainerPostInitTask;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
@@ -53,7 +51,6 @@ import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 import org.exoplatform.social.notification.plugin.SpaceWebNotificationPlugin;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 
 @SuppressWarnings("removal")
@@ -231,7 +228,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
     }
     List<String> spacesId = spaceService.getMemberSpacesIds(username, 0, -1);
     if (CollectionUtils.isNotEmpty(spacesId)) {
-      spaceIds = spacesId.stream().map(e -> Long.parseLong(e)).toList();
+      spaceIds = spacesId.stream().map(Long::parseLong).toList();
     }
     return metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
                                                                                    Long.parseLong(userIdentity.getId()),
