@@ -134,17 +134,17 @@ public class Utils {
    * @param receivers The list of users receiving the notification message.
    * @param activityPosterId Id of the activity poster.
    * @param posterId Id of the user who has commented.
+   * @param spaceId Activity space id
    */
-  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posterId , String spaceId) {
+  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posterId, String spaceId) {
+    if (activityPosterId.equals(posterId)) {
+      return;
+    }
     String activityPosterRemoteId = Utils.getUserId(activityPosterId);
     SpaceService spaceService = getSpaceService();
-    Space space = spaceService.getSpaceById(spaceId);
-    boolean isMember = true;
-    if (space != null) {
-      isMember = spaceService.isMember(space, activityPosterRemoteId);
-    }
-    if (!activityPosterId.equals(posterId) && isMember) {
-
+    if (spaceId == null
+        || spaceService.isSuperManager(activityPosterRemoteId)
+        || spaceService.isMember(spaceService.getSpaceById(spaceId), activityPosterRemoteId)) {
       receivers.add(activityPosterRemoteId);
     }
   }
@@ -169,7 +169,7 @@ public class Utils {
       String userName = getUserId(user);
       boolean isMember = true;
       if(space != null) {
-        isMember = spaceService.isMember(space, userName);
+        isMember = spaceService.isMember(space, userName) || spaceService.isSuperManager(userName);
       }
       if (!user.equals(poster) && isMember) {
         destinataires.add(userName);
@@ -218,7 +218,7 @@ public class Utils {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, false);
       boolean isMember = true;
       if (space != null) {
-        isMember = spaceService.isMember(space, remoteId);
+        isMember = spaceService.isMember(space, remoteId) || spaceService.isSuperManager(remoteId);
       }
       if (identity != null && !posterRemoteId.equals(remoteId) && isMember) {
         mentioners.add(remoteId);
