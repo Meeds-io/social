@@ -24,7 +24,6 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.model.MetadataObject;
-import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 
 public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlugin {
@@ -42,7 +41,7 @@ public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlug
   public SpaceWebNotificationItem getSpaceApplicationItem(NotificationInfo notification) {
     String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
     ExoSocialActivity activity = activityManager.getActivity(activityId);
-    if (!Utils.getActivityManager().isNotificationEnabled(activity)) {
+    if (activity == null) {
       return null;
     }
 

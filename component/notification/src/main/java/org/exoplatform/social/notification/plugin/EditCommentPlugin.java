@@ -69,10 +69,6 @@ public class EditCommentPlugin extends BaseNotificationPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
-    if (!Utils.getActivityManager().isNotificationEnabled(comment)) {
-      return false;
-    }
-
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
 
     if (isSubComment && comment.getParentCommentId() == null) {

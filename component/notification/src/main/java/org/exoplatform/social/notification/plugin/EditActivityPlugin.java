@@ -49,9 +49,6 @@ public class EditActivityPlugin extends BaseNotificationPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-    if (!Utils.getActivityManager().isNotificationEnabled(activity)) {
-      return false;
-    }
     Identity spaceIdentity = Utils.getIdentityManager().getOrCreateSpaceIdentity(activity.getStreamOwner());
     // if the space is not null and it's not the default activity of space, then
     // it's valid to make notification
