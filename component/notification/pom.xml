@@ -30,7 +30,7 @@
   <name>eXo PLF:: Social Notification Component</name>
   <description>eXo Social Notification Component</description>
   <properties>
-    <exo.test.coverage.ratio>0.61</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.62</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <dependency>
@@ -51,11 +51,16 @@
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
+        <groupId>com.jcabi</groupId>
+        <artifactId>jcabi-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <includes>
             <include>**/InitContainerTestSuite.java</include>
+            <include>**/InitContainerWithSettingsTestSuite.java</include>
           </includes>
         </configuration>
       </plugin>
