@@ -57,88 +57,90 @@ import org.exoplatform.social.core.storage.api.ActivityStorage;
 public class ActivityManagerImpl implements ActivityManager {
 
   /** Logger */
-  private static final Log            LOG                             = ExoLogger.getLogger(ActivityManagerImpl.class);
+  private static final Log                LOG                            = ExoLogger.getLogger(ActivityManagerImpl.class);
 
   /** The activityStorage. */
-  protected ActivityStorage           activityStorage;
+  protected ActivityStorage               activityStorage;
 
   /** identityManager to get identity for saving and getting activities */
-  protected IdentityManager           identityManager;
+  protected IdentityManager               identityManager;
 
-  protected RelationshipManager       relationshipManager;
+  protected RelationshipManager           relationshipManager;
 
-  private UserACL                     userACL;
+  private UserACL                         userACL;
 
   /** spaceService */
-  protected SpaceService              spaceService;
+  protected SpaceService                  spaceService;
 
-  protected ActivityLifeCycle         activityLifeCycle               = new ActivityLifeCycle();
+  protected ActivityLifeCycle             activityLifeCycle              = new ActivityLifeCycle();
 
   /**
    * The list of enabled/disabled activity types by exo properties.
    */
-  private static Map<String, Boolean> activityTypesRegistry           = new HashMap<>();
+  private static Map<String, Boolean>     activityTypesRegistry          = new HashMap<>();
 
   /**
    * Exo property pattern used for disable activity type
    */
-  private static final String         ACTIVITY_TYPE_PROPERTY_PATTERN  = "exo\\.activity-type\\..*\\.enabled";
+  private static final String             ACTIVITY_TYPE_PROPERTY_PATTERN = "exo\\.activity-type\\..*\\.enabled";
 
   /**
    * Exo property pattern prefix
    */
-  private static final String         PREFIX                          = "exo.activity-type.";
+  private static final String             PREFIX                         = "exo.activity-type.";
 
   /**
    * Exo property pattern suffix
    */
-  private static final String         SUFFIX                          = ".enabled";
+  private static final String             SUFFIX                         = ".enabled";
 
   /**
    * exo property for editing activity permission
    */
-  public static final String          ENABLE_EDIT_ACTIVITY           = "exo.edit.activity.enabled";
+  public static final String              ENABLE_EDIT_ACTIVITY           = "exo.edit.activity.enabled";
 
-  public static final String          ENABLE_EDIT_COMMENT            = "exo.edit.comment.enabled";
+  public static final String              ENABLE_EDIT_COMMENT            = "exo.edit.comment.enabled";
 
-  public static final String          ENABLE_USER_COMPOSER           = "userStreamComposer.enabled";
+  public static final String              ENABLE_USER_COMPOSER           = "userStreamComposer.enabled";
 
-  public static final String          ENABLE_MANAGER_EDIT_ACTIVITY   = "exo.manager.edit.activity.enabled";
+  public static final String              ENABLE_MANAGER_EDIT_ACTIVITY   = "exo.manager.edit.activity.enabled";
 
-  public static final String          ENABLE_MANAGER_EDIT_COMMENT    = "exo.manager.edit.comment.enabled";
+  public static final String              ENABLE_MANAGER_EDIT_COMMENT    = "exo.manager.edit.comment.enabled";
 
-  public static final String          MANDATORY_ACTIVITY_ID          = "activityId is mandatory";
+  public static final String              MANDATORY_ACTIVITY_ID          = "activityId is mandatory";
 
-  public static final String          MANDATORY_USER_IDENTITY_ID     = "userIdentityId is mandatory";
+  public static final String              MANDATORY_USER_IDENTITY_ID     = "userIdentityId is mandatory";
 
-  private Set<String>                 systemActivityTypes            = new HashSet<>();
+  private Set<String>                     systemActivityTypes            = new HashSet<>();
 
-  private List<String>                disabledTypeNotifications      = new ArrayList<>();
+  private List<String>                    disabledTypeNotifications      = new ArrayList<>();
 
-  private Set<String>                 systemActivityTitleIds         = new HashSet<>(Arrays.asList("has_joined",
-                                                                                                   "space_avatar_edited",
-                                                                                                   "space_description_edited",
-                                                                                                   "space_renamed",
-                                                                                                   "manager_role_revoked",
-                                                                                                   "manager_role_granted"));
+  private Map<String, ActivityTypePlugin> activityTypePlugins            = new HashMap<>();
 
-  private int                         maxUploadSize                   = 10;
+  private Set<String>                     systemActivityTitleIds         = new HashSet<>(Arrays.asList("has_joined",
+                                                                                                       "space_avatar_edited",
+                                                                                                       "space_description_edited",
+                                                                                                       "space_renamed",
+                                                                                                       "manager_role_revoked",
+                                                                                                       "manager_role_granted"));
 
-  private boolean                     enableEditActivity              = true;
+  private int                             maxUploadSize                  = 10;
 
-  private boolean                     enableEditComment               = true;
+  private boolean                         enableEditActivity             = true;
 
-  private boolean                     enableUserComposer              = true;
+  private boolean                         enableEditComment              = true;
 
-  public static final String          SEPARATOR_REGEX                 = "\\|@\\|";
+  private boolean                         enableUserComposer             = true;
 
-  public static final String          ID                              = "id";
+  public static final String              SEPARATOR_REGEX                = "\\|@\\|";
 
-  public static final String          STORAGE                         = "storage";
+  public static final String              ID                             = "id";
 
-  public static final String          FILE                            = "file";
+  public static final String              STORAGE                        = "storage";
 
-  public static final String          REMOVABLE                       = "removable";
+  public static final String              FILE                           = "file";
+
+  public static final String              REMOVABLE                      = "removable";
 
   public ActivityManagerImpl(ActivityStorage activityStorage,
                              IdentityManager identityManager,
@@ -684,6 +686,7 @@ public class ActivityManagerImpl implements ActivityManager {
     if (StringUtils.isNotBlank(plugin.getActivityType()) && !plugin.isEnableNotification()) {
       disabledTypeNotifications.add(plugin.getActivityType());
     }
+    activityTypePlugins.put(plugin.getActivityType(), plugin);
   }
 
   /**
@@ -757,68 +760,84 @@ public class ActivityManagerImpl implements ActivityManager {
     if (identity == null) {
       return false;
     }
-    if (StringUtils.equals(identity.getId(), activity.getPosterId())
-        || StringUtils.equals(identity.getId(), activity.getUserId())) {
-      return true;
-    }
-    ActivityStream activityStream = null;
     if (activity.isComment()) {
+      if (StringUtils.equals(identity.getId(), activity.getPosterId())
+          || StringUtils.equals(identity.getId(), activity.getUserId())) {
+        return true;
+      }
       ExoSocialActivity parentActivity = getActivity(activity.getParentId());
       if (parentActivity == null) {
         return false;
       }
       return isActivityViewable(parentActivity, viewer);
-    } else {
-      activityStream = activity.getActivityStream();
     }
-    if (activityStream != null) {
-      if (ActivityStream.Type.SPACE.equals(activityStream.getType())) {
-        return isSpaceMember(viewer, activityStream.getPrettyId());
-      } else if (ActivityStream.Type.USER.equals(activityStream.getType())
-          && (StringUtils.equals(activityStream.getPrettyId(), username)
-              || isConnectedWithUserWithName(activityStream.getPrettyId(), username))) {
-        return true;
+    ActivityTypePlugin activityTypePlugin = getActivityTypePlugin(activity.getType());
+    if (activityTypePlugin != null) {
+      try {
+        return activityTypePlugin.isActivityViewable(activity, viewer);
+      } catch (UnsupportedOperationException e) {
+        // Not implemented, thus ignore exception
       }
     }
-    return StringUtils.equals(userACL.getSuperUser(), username)
-        || viewer.isMemberOf(userACL.getAdminGroups())
-        || hasMentioned(activity, username)
-        || isConnectedWithUserWithId(activity.getPosterId(), username)
-        || spaceService.isSuperManager(username);
+    if (StringUtils.equals(identity.getId(), activity.getPosterId())
+        || StringUtils.equals(identity.getId(), activity.getUserId())) {
+      return true;
+    }
+    ActivityStream activityStream = activity.getActivityStream();
+    if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
+      return isSpaceMember(viewer, activityStream.getPrettyId());
+    } else {
+      return StringUtils.equals(userACL.getSuperUser(), username)
+          || viewer.isMemberOf(userACL.getAdminGroups())
+          || hasMentioned(activity, username)
+          || isConnectedWithUserWithId(activity.getPosterId(), username)
+          || spaceService.isSuperManager(username);
+    }
   }
 
   @Override
   public boolean isActivityEditable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
-    if (activity != null) {
-      boolean enableEdit;
-      if (activity.isComment()) {
-        enableEdit = enableEditComment;
-      } else {
-        enableEdit = enableEditActivity;
-      }
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, viewer.getUserId());
-      if (enableEdit && identity != null && StringUtils.equals(identity.getId(), activity.getPosterId())) {
-        return !isAutomaticActivity(activity);
+    if (activity == null
+        || (!enableEditComment && activity.isComment())
+        || (!enableEditActivity && !activity.isComment())) {
+      return false;
+    }
+    ActivityTypePlugin activityTypePlugin = getActivityTypePlugin(activity.getType());
+    if (activityTypePlugin != null) {
+      try {
+        return activityTypePlugin.isActivityEditable(activity, viewer);
+      } catch (UnsupportedOperationException e) {
+        // Not implemented, thus ignore exception
       }
     }
-    return false;
+    Identity identity = identityManager.getOrCreateUserIdentity(viewer.getUserId());
+    return identity != null
+        && StringUtils.equals(identity.getId(), activity.getPosterId())
+        && !isAutomaticActivity(activity);
   }
 
   @Override
-  public boolean isActivityDeletable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
+  public boolean isActivityDeletable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) { // NOSONAR
     String username = viewer.getUserId();
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
     if (identity == null) {
       return false;
     }
-    boolean isRemovable = true;
     if (activity.getTemplateParams().containsKey(REMOVABLE)) {
       String removable = activity.getTemplateParams().get(REMOVABLE);
-      if (StringUtils.isNotBlank(removable)) {
-        isRemovable = Boolean.parseBoolean(removable);
+      if (StringUtils.isNotBlank(removable) && !Boolean.parseBoolean(removable)) {
+        return false;
       }
     }
-    if (StringUtils.equals(identity.getId(), activity.getPosterId()) && isRemovable) {
+    ActivityTypePlugin activityTypePlugin = getActivityTypePlugin(activity.getType());
+    if (activityTypePlugin != null) {
+      try {
+        return activityTypePlugin.isActivityDeletable(activity, viewer);
+      } catch (UnsupportedOperationException e) {
+        // Not implemented, thus ignore exception
+      }
+    }
+    if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
       return true;
     }
     ActivityStream activityStream = null;
@@ -828,11 +847,14 @@ public class ActivityManagerImpl implements ActivityManager {
     } else {
       activityStream = activity.getActivityStream();
     }
+
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return isManagerOrSpaceManager(viewer, activityStream.getPrettyId());
+    } else {
+      return StringUtils.equals(userACL.getSuperUser(), username)
+          || viewer.isMemberOf(userACL.getAdminGroups())
+          || spaceService.isSuperManager(username);
     }
-    return StringUtils.equals(userACL.getSuperUser(), username) || viewer.isMemberOf(userACL.getAdminGroups())
-        || spaceService.isSuperManager(username);
   }
 
   /**
@@ -976,6 +998,10 @@ public class ActivityManagerImpl implements ActivityManager {
             + space.getDisplayName());
       }
     }
+  }
+
+  private ActivityTypePlugin getActivityTypePlugin(String type) {
+    return activityTypePlugins.containsKey(type) ? activityTypePlugins.get(type) : null;
   }
 
 }
