@@ -619,21 +619,9 @@ public class MailTemplateProvider extends TemplateProvider {
 
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
       templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(activity));
-      String body;
-      if(activity.isComment()) {
-        ExoSocialActivity activityOfComment = Utils.getActivityManager().getParentActivity(activity);
-        templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activityOfComment.getId()));
-        templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity", activityOfComment.getId()));
-        String commentTitle = getI18N(activity, new Locale(language)).getTitle();
-        commentTitle = SocialNotificationUtils.processImageTitle(commentTitle, imagePlaceHolder);
-        templateContext.put("ACTIVITY", NotificationUtils.processLinkTitle(commentTitle));
-        body = TemplateUtils.processGroovy(templateContext);
-      } else {
-        templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activity.getId()));
-        templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity", activity.getId()));
-        body = SocialNotificationUtils.getBody(ctx, templateContext, activity);
-      }
-
+      templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activity.getId()));
+      templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity", activity.getId()));
+      String body = SocialNotificationUtils.getBody(ctx, templateContext, activity);
 
       //binding the exception throws by processing template
       ctx.setException(templateContext.getException());
@@ -690,6 +678,89 @@ public class MailTemplateProvider extends TemplateProvider {
       return true;
     }
 
+  };
+
+  /** Defines the template builder for LikeCommentPlugin*/
+  private AbstractTemplateBuilder likeComment = new AbstractTemplateBuilder() {
+    @Override
+    protected MessageInfo makeMessage(NotificationContext ctx) {
+      MessageInfo messageInfo = new MessageInfo();
+
+      NotificationInfo notification = ctx.getNotificationInfo();
+
+      String language = getLanguage(notification);
+      TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+      SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+
+      String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+      ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+      Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, notification.getValueOwnerParameter("likersId"), true);
+      if (identity == null) {
+        return null;
+      }
+
+      templateContext.put("USER", Utils.addExternalFlag(identity));
+      String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
+      String title = SocialNotificationUtils.processImageTitle(activity.getTitle(), imagePlaceHolder);
+      String cleanedTitle = StringEscapeUtils.unescapeHtml4(title);
+      templateContext.put("SUBJECT", cleanedTitle);
+      String subject = TemplateUtils.processSubject(templateContext);
+
+      templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
+      templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(activity));
+      ExoSocialActivity activityOfComment = Utils.getActivityManager().getParentActivity(activity);
+      templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activityOfComment.getId()));
+      templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity", activityOfComment.getId()));
+      String commentTitle = getI18N(activity, new Locale(language)).getTitle();
+      commentTitle = SocialNotificationUtils.processImageTitle(commentTitle, imagePlaceHolder);
+      templateContext.put("ACTIVITY", NotificationUtils.processLinkTitle(commentTitle));
+      String body = TemplateUtils.processGroovy(templateContext);
+
+      //binding the exception throws by processing template
+      ctx.setException(templateContext.getException());
+      return messageInfo.subject(subject).body(body).end();
+    }
+
+    @Override
+    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
+      List<NotificationInfo> notifications = ctx.getNotificationInfos();
+      NotificationInfo first = notifications.get(0);
+      String language = getLanguage(first);
+      TemplateContext templateContext = new TemplateContext(first.getKey().getId(), language);
+      Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+      try {
+        for (NotificationInfo message : notifications) {
+          String activityId = message.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+          ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+          //
+          if (activity == null) {
+            continue;
+          }
+          if (activity.getPosterId() != null) {
+            Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
+            if (identity != null) {
+              if (message.getTo() != null && !message.getTo().equals(identity.getRemoteId())) {
+                continue;
+              }
+            }
+          }
+          //
+          String fromUser = message.getValueOwnerParameter("likersId");
+          Identity identityFrom = Utils.getService(IdentityManager.class).getOrCreateIdentity(OrganizationIdentityProvider.NAME, fromUser, false);
+          if (identityFrom == null || !Arrays.asList(activity.getLikeIdentityIds()).contains(identityFrom.getId())) {
+            continue;
+          }
+          //
+          SocialNotificationUtils.processInforSendTo(map, activityId, message.getValueOwnerParameter("likersId"));
+        }
+        writer.append(SocialNotificationUtils.getMessageByIds(map, templateContext));
+      } catch (IOException e) {
+        ctx.setException(e);
+        return false;
+      }
+      return true;
+    }
+    
   };
 
   /** Defines the template builder for NewUserPlugin*/
@@ -1218,7 +1289,7 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(ActivityReplyToCommentPlugin.ID), replyToComment);
     this.templateBuilders.put(PluginKey.key(ActivityMentionPlugin.ID), mention);
     this.templateBuilders.put(PluginKey.key(LikePlugin.ID), like);
-    this.templateBuilders.put(PluginKey.key(LikeCommentPlugin.ID), like);
+    this.templateBuilders.put(PluginKey.key(LikeCommentPlugin.ID), likeComment);
     this.templateBuilders.put(PluginKey.key(NewUserPlugin.ID), newUser);
     this.templateBuilders.put(PluginKey.key(PostActivityPlugin.ID), postActivity);
     this.templateBuilders.put(PluginKey.key(PostActivitySpaceStreamPlugin.ID), postActivitySpace);

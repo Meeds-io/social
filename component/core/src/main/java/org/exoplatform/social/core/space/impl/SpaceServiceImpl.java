@@ -789,7 +789,7 @@ public class SpaceServiceImpl implements SpaceService {
    * {@inheritDoc}
    */
   public boolean isMember(Space space, String userId) {
-    return ArrayUtils.contains(space.getMembers(), userId);
+    return space != null && ArrayUtils.contains(space.getMembers(), userId);
   }
 
   /**
@@ -1484,24 +1484,24 @@ public class SpaceServiceImpl implements SpaceService {
    * {@inheritDoc}
    */
   public boolean isManager(Space space, String userId) {
-    return ArrayUtils.contains(space.getManagers(), userId);
+    return space != null && ArrayUtils.contains(space.getManagers(), userId);
   }
   
   /**
    * {@inheritDoc}
    */
   public boolean isRedactor(Space space, String userId) {
-    return ArrayUtils.contains(space.getRedactors(), userId);
+    return space != null && ArrayUtils.contains(space.getRedactors(), userId);
   }
   
   @Override
   public boolean isPublisher(Space space, String userId) {
-    return ArrayUtils.contains(space.getPublishers(), userId);
+    return space != null && ArrayUtils.contains(space.getPublishers(), userId);
   }
 
   @Override
   public boolean hasRedactor(Space space) {
-    return space.getRedactors() != null && space.getRedactors().length > 0;
+    return space != null && space.getRedactors() != null && space.getRedactors().length > 0;
   }
 
   @Override

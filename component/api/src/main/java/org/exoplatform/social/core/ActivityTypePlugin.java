@@ -1,0 +1,46 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+package org.exoplatform.social.core;
+
+import org.exoplatform.container.component.BaseComponentPlugin;
+import org.exoplatform.container.xml.InitParams;
+
+import lombok.Getter;
+
+/**
+ * A plugin to allow extending A new Activity Type behavior such as enabling
+ * activity/comment type notification.
+ */
+public class ActivityTypePlugin extends BaseComponentPlugin {
+
+  public static final String ENABLE_NOTIFICATION_PARAM = "enableNotification";
+
+  public static final String ACTIVITY_TYPE_PARAM       = "type";
+
+  @Getter
+  protected String           activityType;
+
+  @Getter
+  protected boolean          enableNotification;
+
+  public ActivityTypePlugin(InitParams params) {
+    this.activityType = params.getValueParam(ACTIVITY_TYPE_PARAM).getValue();
+    this.enableNotification = Boolean.parseBoolean(params.getValueParam(ENABLE_NOTIFICATION_PARAM).getValue());
+  }
+
+}
