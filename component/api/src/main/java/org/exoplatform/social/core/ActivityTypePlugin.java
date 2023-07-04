@@ -19,6 +19,8 @@ package org.exoplatform.social.core;
 
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 
 import lombok.Getter;
 
@@ -39,8 +41,45 @@ public class ActivityTypePlugin extends BaseComponentPlugin {
   protected boolean          enableNotification;
 
   public ActivityTypePlugin(InitParams params) {
-    this.activityType = params.getValueParam(ACTIVITY_TYPE_PARAM).getValue();
-    this.enableNotification = Boolean.parseBoolean(params.getValueParam(ENABLE_NOTIFICATION_PARAM).getValue());
+    this.activityType = getParamValue(params, ACTIVITY_TYPE_PARAM, null);
+    this.enableNotification = Boolean.parseBoolean(getParamValue(params, ENABLE_NOTIFICATION_PARAM, "true"));
+  }
+
+  /**
+   * Return whether an activity is deletable or not
+   * 
+   * @param  activity        {@link ExoSocialActivity}
+   * @param  userAclIdentity user {@link Identity} making the change
+   * @return                 true is user can delete activity, else false
+   */
+  public boolean isActivityDeletable(ExoSocialActivity activity, Identity userAclIdentity) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Return whether an activity is editable or not
+   * 
+   * @param  activity        {@link ExoSocialActivity}
+   * @param  userAclIdentity user {@link Identity} making the change
+   * @return                 true is user can edit the activity, else false
+   */
+  public boolean isActivityEditable(ExoSocialActivity activity, Identity userAclIdentity) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Return whether an activity is viewable by a user or not
+   * 
+   * @param  activity        {@link ExoSocialActivity}
+   * @param  userAclIdentity user {@link Identity} making the change
+   * @return                 true is user can view the activity, else false
+   */
+  public boolean isActivityViewable(ExoSocialActivity activity, Identity userAclIdentity) {
+    throw new UnsupportedOperationException();
+  }
+
+  private String getParamValue(InitParams params, String paramName, String defaultValue) {
+    return params == null || !params.containsKey(paramName) ? defaultValue : params.getValueParam(paramName).getValue();
   }
 
 }
