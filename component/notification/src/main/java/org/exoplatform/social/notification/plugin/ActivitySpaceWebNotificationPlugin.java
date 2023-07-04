@@ -41,6 +41,10 @@ public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlug
   public SpaceWebNotificationItem getSpaceApplicationItem(NotificationInfo notification) {
     String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
     ExoSocialActivity activity = activityManager.getActivity(activityId);
+    if (activity == null) {
+      return null;
+    }
+
     MetadataObject metadataObject;
     if (activity.isComment()) {
       ExoSocialActivity parentActivity = activityManager.getActivity(activity.getParentId());

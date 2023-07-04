@@ -17,16 +17,17 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.util.*;
+import static org.mockito.Mockito.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.mockito.*;
 
-import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.xml.*;
 import org.exoplatform.portal.config.UserACL;
@@ -55,7 +56,6 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
-import org.exoplatform.upload.UploadService;
 
 /**
  * Unit Test for {@link ActivityManager}, including cache tests.
@@ -227,6 +227,37 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     Mockito.when(relationshipManager.getStatus(rootIdentity, maryIdentity)).thenReturn(Type.CONFIRMED);
 
     assertTrue(manager.isActivityViewable(activity, mary));
+  }
+
+  public void testActivityNotificationEnabling() {
+    ActivityStorage storage = Mockito.mock(ActivityStorage.class);
+    IdentityManager identityManager = Mockito.mock(IdentityManager.class);
+    RelationshipManager relationshipManager = Mockito.mock(RelationshipManager.class);
+    ActivityManager activityManager = new ActivityManagerImpl(storage,
+                                                              identityManager,
+                                                              spaceService,
+                                                              relationshipManager,
+                                                              null,
+                                                              null);
+    String activityType = "TestActivityType";
+    String activityType2 = "TestActivityType2";
+    String activityType3 = "TestActivityType3";
+
+    addActivityTypePlugin(activityManager, activityType, false);
+    addActivityTypePlugin(activityManager, activityType2, true);
+
+    assertFalse(activityManager.isNotificationEnabled(null));
+
+    ExoSocialActivity activity = mock(ExoSocialActivity.class);
+    assertTrue(activityManager.isNotificationEnabled(activity));
+    when(activity.getType()).thenReturn(activityType);
+    assertFalse(activityManager.isNotificationEnabled(activity));
+    when(activity.getType()).thenReturn(activityType2);
+    assertTrue(activityManager.isNotificationEnabled(activity));
+    when(activity.getType()).thenReturn(activityType3);
+    assertTrue(activityManager.isNotificationEnabled(activity));
+    when(activity.isHidden()).thenReturn(true);
+    assertFalse(activityManager.isNotificationEnabled(activity));
   }
 
   public void testActivityDeletable() {
@@ -1573,4 +1604,18 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     spaceService.saveSpace(space, true);
     return space;
   }
+
+  private void addActivityTypePlugin(ActivityManager activityManager, String activityType, boolean enabled) {
+    InitParams params = new InitParams();
+    ValueParam param = new ValueParam();
+    param.setName(ActivityTypePlugin.ACTIVITY_TYPE_PARAM);
+    param.setValue(activityType);
+    params.addParameter(param);
+    param = new ValueParam();
+    param.setName(ActivityTypePlugin.ENABLE_NOTIFICATION_PARAM);
+    param.setValue(String.valueOf(enabled));
+    params.addParameter(param);
+    activityManager.addActivityTypePlugin(new ActivityTypePlugin(params));
+  }
+
 }
