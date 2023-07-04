@@ -1,7 +1,9 @@
-import ExoTopBarNotification from './components/ExoTopBarNotification.vue';
+import TopBarNotification from './components/TopBarNotification.vue';
+import NotificationItem from './components/NotificationItem.vue';
 
 const components = {
-  'exo-top-bar-notification': ExoTopBarNotification,
+  'top-bar-notification': TopBarNotification,
+  'top-bar-notification-item': NotificationItem,
 };
 
 for (const key in components) {
