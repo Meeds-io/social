@@ -52,17 +52,15 @@ public class LikePlugin extends BaseNotificationPlugin {
     String likeTo = Utils.getUserId(activity.getPosterId());
     String spaceId = !activity.isComment() ? activity.getSpaceId()
             : Utils.getActivityManager().getParentActivity(activity).getSpaceId();
-    boolean isMember = false;
 
-    if (spaceId != null) {
-      SpaceService spaceService = Utils.getSpaceService();
+    SpaceService spaceService = Utils.getSpaceService();
+    if (spaceId != null && !spaceService.isSuperManager(likeTo)) {
       Space space = spaceService.getSpaceById(spaceId);
-      isMember = spaceService.isMember(space, likeTo);
+      if (!spaceService.isMember(space, likeTo)) {
+        return null;
+      }
     }
 
-    if (spaceId != null && !isMember) {
-      return null;
-    }
     return NotificationInfo.instance()
                                .to(likeTo)
                                .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())

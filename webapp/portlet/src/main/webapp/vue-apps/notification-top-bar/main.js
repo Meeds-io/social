@@ -42,9 +42,10 @@ export function init() {
     .then(() => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
-        template: `<exo-top-bar-notification id="${appId}"></exo-top-bar-notification>`,
+        template: `<top-bar-notification id="${appId}"></top-bar-notification>`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n: exoi18n.i18n,
       }, `#${appId}`, 'Topbar Notifications');
-    });
+    })
+    .finally(() => Vue.prototype.$utils.includeExtensions('NotificationPopoverExtension'));
 }
