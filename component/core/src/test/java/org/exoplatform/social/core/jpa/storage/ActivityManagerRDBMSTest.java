@@ -382,6 +382,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
 
     // manager is able to delete other user's activity
     assertTrue(activityManager.isActivityDeletable(activity, admin));
+
     // member is not able to delete other user's activity
     assertFalse(activityManager.isActivityDeletable(activity, mary));
     assertFalse(activityManager.isActivityDeletable(comment, mary));
@@ -403,6 +404,20 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertFalse(activityManager.isActivityDeletable(activity, james));
 
     Mockito.when(james.isMemberOf(acl.getAdminGroups())).thenReturn(true);
+    assertTrue(activityManager.isActivityDeletable(activity, james));
+
+    Map<String, String> templateParams = new HashMap<>();
+    when(activity.getTemplateParams()).thenReturn(templateParams);
+    templateParams.put(ActivityManagerImpl.REMOVABLE, "false");
+    assertFalse(activityManager.isActivityDeletable(activity, owner));
+    assertTrue(activityManager.isActivityDeletable(activity, admin));
+    assertTrue(activityManager.isActivityDeletable(activity, mary));
+    assertTrue(activityManager.isActivityDeletable(activity, james));
+
+    templateParams.put(ActivityManagerImpl.REMOVABLE, "true");
+    assertTrue(activityManager.isActivityDeletable(activity, owner));
+    assertTrue(activityManager.isActivityDeletable(activity, admin));
+    assertTrue(activityManager.isActivityDeletable(activity, mary));
     assertTrue(activityManager.isActivityDeletable(activity, james));
   }
 
