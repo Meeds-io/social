@@ -38,7 +38,6 @@ import org.exoplatform.social.core.activity.*;
 import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess.ActivityType;
 import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.space.model.Space;
@@ -786,6 +785,11 @@ public class ActivityManagerImpl implements ActivityManager {
     ActivityStream activityStream = activity.getActivityStream();
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return isSpaceMember(viewer, activityStream.getPrettyId());
+    } else if (activityStream != null
+        && ActivityStream.Type.USER.equals(activityStream.getType())
+        && (StringUtils.equals(activityStream.getPrettyId(), username)
+            || isConnectedWithUserWithName(activityStream.getPrettyId(), username))) {
+      return true;
     } else {
       return StringUtils.equals(userACL.getSuperUser(), username)
           || viewer.isMemberOf(userACL.getAdminGroups())
@@ -823,12 +827,6 @@ public class ActivityManagerImpl implements ActivityManager {
     if (identity == null) {
       return false;
     }
-    if (activity.getTemplateParams().containsKey(REMOVABLE)) {
-      String removable = activity.getTemplateParams().get(REMOVABLE);
-      if (StringUtils.isNotBlank(removable) && !Boolean.parseBoolean(removable)) {
-        return false;
-      }
-    }
     ActivityTypePlugin activityTypePlugin = getActivityTypePlugin(activity.getType());
     if (activityTypePlugin != null) {
       try {
@@ -838,6 +836,12 @@ public class ActivityManagerImpl implements ActivityManager {
       }
     }
     if (StringUtils.equals(identity.getId(), activity.getPosterId())) {
+      if (activity.getTemplateParams().containsKey(REMOVABLE)) {
+        String removable = activity.getTemplateParams().get(REMOVABLE);
+        if (StringUtils.isNotBlank(removable) && !Boolean.parseBoolean(removable)) {
+          return false;
+        }
+      }
       return true;
     }
     ActivityStream activityStream = null;
@@ -931,7 +935,7 @@ public class ActivityManagerImpl implements ActivityManager {
   }
 
   private boolean isConnectedWithUserWithName(String posterName, String username) {
-    Identity poster = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, posterName);
+    Identity poster = identityManager.getOrCreateUserIdentity(posterName);
     return isConnectedWithUser(poster, username);
   }
 
