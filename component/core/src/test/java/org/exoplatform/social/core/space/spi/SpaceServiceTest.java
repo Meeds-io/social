@@ -1759,6 +1759,39 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(Type.SPACE_REGISTRATION, spaceListenerPlugin.getEvents().get(0));
   }
 
+  public void testSpaceUserInvitation() throws Exception {
+    Space space = createSpace("spaceUserInvitation", "demo");
+
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      spaceService.addInvitedUser(space, john.getRemoteId());
+      tearDownSpaceList.add(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+
+    assertEquals(1, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.ADD_INVITED_USER, spaceListenerPlugin.getEvents().get(0));
+  }
+
+  public void testSpaceUserInvitationDeny() throws Exception {
+    Space space = createSpace("spaceUserInvitationDeny", "demo");
+    spaceService.addInvitedUser(space, john.getRemoteId());
+
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      spaceService.removeInvitedUser(space, john.getRemoteId());
+      tearDownSpaceList.add(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+
+    assertEquals(1, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.DENY_INVITED_USER, spaceListenerPlugin.getEvents().get(0));
+  }
+
   /**
    * Test
    * {@link SpaceService#createSpace(org.exoplatform.social.core.space.model.Space, String, List)}
