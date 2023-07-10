@@ -135,6 +135,9 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     case ADD_INVITED_USER:
       listener.addInvitedUser(event);
       break;
+    case DENY_INVITED_USER:
+      listener.removeInvitedUser(event);
+      break;
     case ADD_PENDING_USER:
       listener.addPendingUser(event);
       break;
@@ -215,7 +218,11 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
   public void addInvitedUser(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.ADD_INVITED_USER));
   }
-  
+
+  public void removeInvitedUser(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.DENY_INVITED_USER));
+  }
+
   public void addPendingUser(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.ADD_PENDING_USER));
   }
