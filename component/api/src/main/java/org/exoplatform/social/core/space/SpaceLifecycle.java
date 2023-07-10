@@ -20,6 +20,7 @@ import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
+
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 
 
@@ -36,8 +37,26 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
  */
 public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, SpaceLifeCycleEvent> {
 
+  private ThreadLocal<Type> currentEventThreadLocal = new ThreadLocal<>();
+
+  public void setCurrentEvent(Type type) {
+    if (currentEventThreadLocal.get() == null) {
+      currentEventThreadLocal.set(type);
+    }
+  }
+
+  public Type getCurrentEvent() {
+    return currentEventThreadLocal.get();
+  }
+
+  public void resetCurrentEvent(Type type) {
+    if (currentEventThreadLocal.get() == type) {
+      currentEventThreadLocal.remove();
+    }
+  }
+
   @Override
-  protected void dispatchEvent(SpaceLifeCycleListener listener, SpaceLifeCycleEvent event) {
+  protected void dispatchEvent(SpaceLifeCycleListener listener, SpaceLifeCycleEvent event) { // NOSONAR
     switch (event.getType()) {
     case SPACE_CREATED:
       listener.spaceCreated(event);
@@ -46,52 +65,78 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
       listener.spaceRemoved(event);
       break;
     case APP_ACTIVATED:
-      listener.applicationActivated(event);
+      if (isSpaceProperEvent(event)) {
+        listener.applicationActivated(event);
+      }
       break;
     case APP_DEACTIVATED:
-      listener.applicationDeactivated(event);
+      if (isSpaceProperEvent(event)) {
+        listener.applicationDeactivated(event);
+      }
       break;
     case APP_ADDED:
-      listener.applicationAdded(event);
+      if (isSpaceProperEvent(event)) {
+        listener.applicationAdded(event);
+      }
       break;
     case APP_REMOVED:
-      listener.applicationRemoved(event);
+      if (isSpaceProperEvent(event)) {
+        listener.applicationRemoved(event);
+      }
       break;
     case JOINED:
-      listener.joined(event);
+      if (isSpaceProperEvent(event)) {
+        listener.joined(event);
+      }
       break;
     case LEFT:
-      listener.left(event);
+      if (isSpaceProperEvent(event)) {
+        listener.left(event);
+      }
       break;
     case GRANTED_LEAD:
-      listener.grantedLead(event);
+      if (isSpaceProperEvent(event)) {
+        listener.grantedLead(event);
+      }
       break;
     case REVOKED_LEAD:
-      listener.revokedLead(event);
+      if (isSpaceProperEvent(event)) {
+        listener.revokedLead(event);
+      }
       break;
     case SPACE_RENAMED:
-      listener.spaceRenamed(event);
+      if (isSpaceProperEvent(event)) {
+        listener.spaceRenamed(event);
+      }
       break;
     case SPACE_DESCRIPTION_EDITED:
-      listener.spaceDescriptionEdited(event);
+      if (isSpaceProperEvent(event)) {
+        listener.spaceDescriptionEdited(event);
+      }
       break;
     case SPACE_AVATAR_EDITED:
       listener.spaceAvatarEdited(event);
       break;
+    case SPACE_BANNER_EDITED:
+      if (isSpaceProperEvent(event)) {
+        listener.spaceBannerEdited(event);
+      }
+      break;
     case SPACE_HIDDEN:
-      listener.spaceAccessEdited(event);
+      if (isSpaceProperEvent(event)) {
+        listener.spaceAccessEdited(event);
+      }
       break;
     case SPACE_REGISTRATION:
-      listener.spaceRegistrationEdited(event);
+      if (isSpaceProperEvent(event)) {
+        listener.spaceRegistrationEdited(event);
+      }
       break;
     case ADD_INVITED_USER:
       listener.addInvitedUser(event);
       break;
     case ADD_PENDING_USER:
       listener.addPendingUser(event);
-      break;
-    case SPACE_BANNER_EDITED:
-      listener.spaceBannerEdited(event);
       break;
     default:
       break;
@@ -174,4 +219,10 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
   public void addPendingUser(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.ADD_PENDING_USER));
   }
+
+  private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {
+    Type currentEvent = getCurrentEvent();
+    return currentEvent == null || currentEvent == event.getType();
+  }
+
 }
