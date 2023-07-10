@@ -55,6 +55,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.mock.SpaceListenerPluginMock;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -64,6 +65,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
@@ -1644,10 +1646,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("spaceListAccess.getSize() must return: 2", 2, spaceListAccess.getSize());
   }
 
-  /**
-   * Test
-   * {@link SpaceService#createSpace(org.exoplatform.social.core.space.model.Space, String, String)}
-   */
   public void testCreateSpaceWithManagersAndMembers() throws SpaceException {
     String[] managers = { "manager" };
     String[] members = { "member1", "member2", "member3" };
@@ -1673,6 +1671,92 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(2, space.getManagers().length);
     // 4 = 1 creator + 3 members
     assertEquals(4, space.getMembers().length);
+  }
+
+  public void testCreateSpaceEvent() throws SpaceException {
+    String[] managers = { "manager" };
+    String creator = "root";
+    String[] users = { "member1", "member2" };
+    List<Identity> invitedIdentities = new ArrayList<>(Arrays.asList(tom, dragon, hearBreaker));
+    Space space = new Space();
+    space.setDisplayName("testSpace");
+    space.setDescription("Space Description for Testing");
+    String shortName = SpaceUtils.cleanString(space.getDisplayName());
+    space.setGroupId("/spaces/" + shortName);
+    space.setManagers(managers);
+    space.setPrettyName(space.getDisplayName());
+    space.setPriority("3");
+    space.setRegistration("validation");
+    space.setTag("Space Tag for Testing");
+    space.setType("classic");
+    space.setUrl(shortName);
+    space.setVisibility("public");
+
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      spaceService.createSpace(space, creator, invitedIdentities);
+      tearDownSpaceList.add(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+
+    assertEquals(4, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.SPACE_CREATED, spaceListenerPlugin.getEvents().get(0));
+    assertEquals(Type.ADD_INVITED_USER, spaceListenerPlugin.getEvents().get(1));
+    assertEquals(Type.ADD_INVITED_USER, spaceListenerPlugin.getEvents().get(2));
+    assertEquals(Type.ADD_INVITED_USER, spaceListenerPlugin.getEvents().get(3));
+  }
+
+  public void testUpdateSpaceDescription() throws Exception {
+    Space space = createSpace("spaceUpdateDescription", "demo");
+
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      space.setDescription("Updated Description");
+      spaceService.updateSpace(space);
+      tearDownSpaceList.add(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+
+    assertEquals(1, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.SPACE_DESCRIPTION_EDITED, spaceListenerPlugin.getEvents().get(0));
+  }
+
+  public void testUpdateSpaceAccess() throws Exception {
+    Space space = createSpace("spaceUpdateAccess", "demo");
+
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      space.setVisibility(Space.HIDDEN);
+      spaceService.updateSpace(space);
+      tearDownSpaceList.add(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+
+    assertEquals(1, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.SPACE_HIDDEN, spaceListenerPlugin.getEvents().get(0));
+  }
+
+  public void testUpdateSpaceRegistration() throws Exception {
+    Space space = createSpace("spaceUpdateRegistration", "demo");
+
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      space.setRegistration(Space.VALIDATION);
+      spaceService.updateSpace(space);
+      tearDownSpaceList.add(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+
+    assertEquals(1, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.SPACE_REGISTRATION, spaceListenerPlugin.getEvents().get(0));
   }
 
   /**
@@ -3500,7 +3584,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setDescription("description of space" + spaceName);
     space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PRIVATE);
-    space.setRegistration(Space.OPEN);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     String[] managers = new String[] { creator };
     String[] members = new String[] { creator };
