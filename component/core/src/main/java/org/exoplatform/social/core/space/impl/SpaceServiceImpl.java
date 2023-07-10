@@ -483,6 +483,12 @@ public class SpaceServiceImpl implements SpaceService {
   private Set<String> getUsersToInvite(List<Identity> identities) {
     Set<String> invitedUserIds = new HashSet<>();
     for (Identity identity : identities) {
+      if (identity == null
+          || StringUtils.isBlank(identity.getRemoteId())
+          || StringUtils.isBlank(identity.getProviderId())) {
+        continue;
+      }
+      identity = identityManager.getOrCreateIdentity(identity.getProviderId(), identity.getRemoteId());
       if (identity == null || identity.isDeleted() || !identity.isEnable()) {
         continue;
       }
@@ -889,9 +895,16 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void setIgnored(String spaceId, String userId) {
-    spaceStorage.ignoreSpace(spaceId, userId);
-    removeWebNotifications(spaceId, userId);
+    spaceLifeCycle.setCurrentEvent(Type.DENY_INVITED_USER);
+    try {
+      spaceStorage.ignoreSpace(spaceId, userId);
+      spaceLifeCycle.removeInvitedUser(getSpaceById(spaceId), userId);
+      removeWebNotifications(spaceId, userId);
+    } finally {
+      spaceLifeCycle.resetCurrentEvent(Type.DENY_INVITED_USER);
+    }
   }
 
   @Override
@@ -1579,9 +1592,15 @@ public class SpaceServiceImpl implements SpaceService {
    */
   public void removeInvitedUser(Space space, String userId) {
     if (ArrayUtils.contains(space.getInvitedUsers(), userId)) {
-      space = this.removeInvited(space, userId);
-      this.updateSpace(space);
-      removeWebNotifications(space.getId(), userId);
+      spaceLifeCycle.setCurrentEvent(Type.DENY_INVITED_USER);
+      try {
+        space = this.removeInvited(space, userId);
+        this.updateSpace(space);
+        spaceLifeCycle.removeInvitedUser(space, userId);
+        removeWebNotifications(space.getId(), userId);
+      } finally {
+        spaceLifeCycle.resetCurrentEvent(Type.DENY_INVITED_USER);
+      }
     }
   }
 

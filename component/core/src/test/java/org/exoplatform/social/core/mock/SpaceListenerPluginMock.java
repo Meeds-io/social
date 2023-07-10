@@ -37,6 +37,11 @@ public class SpaceListenerPluginMock extends SpaceListenerPlugin {
   }
 
   @Override
+  public void removeInvitedUser(SpaceLifeCycleEvent event) {
+    events.add(Type.DENY_INVITED_USER);
+  }
+
+  @Override
   public void addPendingUser(SpaceLifeCycleEvent event) {
     events.add(Type.ADD_PENDING_USER);
   }
