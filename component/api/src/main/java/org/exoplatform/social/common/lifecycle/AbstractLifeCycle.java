@@ -76,7 +76,7 @@ public abstract class AbstractLifeCycle<T extends LifeCycleListener<E>, E extend
             try {
               dispatchEvent(listener, event);
             } catch (Exception e) {
-              LOG.debug(e.getMessage(), e);
+              LOG.warn("Error dispatching event", e);
             } finally {
               end();
             }
@@ -87,7 +87,7 @@ public abstract class AbstractLifeCycle<T extends LifeCycleListener<E>, E extend
         try {
           dispatchEvent(listener, event);
         } catch (Exception e) {
-          LOG.debug(e);
+          LOG.warn("Error dispatching event", e);
         }
       }
 
