@@ -733,6 +733,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
+      space.setEditor(RestUtils.getCurrentUser());
       spaceService.renameSpace(authenticatedUser, space, model.getDisplayName());
     }
 
@@ -791,6 +792,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
+    space.setEditor(authenticatedUser);
     spaceService.deleteSpace(space);
     
     return Response.ok().build();
@@ -1392,6 +1394,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                   String value) throws IOException {
     if (Profile.BANNER.equals(name) && StringUtils.equals(value, "DEFAULT_BANNER")) {
       space.setBannerAttachment(null);
+      space.setEditor(RestUtils.getCurrentUser());
       spaceService.updateSpaceBanner(space);
     } else if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
       UploadResource uploadResource = uploadService.getUploadResource(value);
@@ -1407,6 +1410,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             inputStream,
                                             System.currentTimeMillis());
           space.setAvatarAttachment(attachment);
+          space.setEditor(RestUtils.getCurrentUser());
           spaceService.updateSpaceAvatar(space);
         } else {
           BannerAttachment attachment = new BannerAttachment(null,
@@ -1415,6 +1419,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             inputStream,
                                             System.currentTimeMillis());
           space.setBannerAttachment(attachment);
+          space.setEditor(RestUtils.getCurrentUser());
           spaceService.updateSpaceBanner(space);
         }
       } finally {
