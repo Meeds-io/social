@@ -67,7 +67,7 @@ export default {
   },
   data: () => ({
     lastEditorOptions: null,
-    initializedComment: 0
+    initializedComment: 0,
   }),
   computed: {
     activityId() {
