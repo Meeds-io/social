@@ -227,7 +227,6 @@ export default {
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
-          .then(this.postUpdateMessage)
           .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
@@ -255,7 +254,6 @@ export default {
               this.templateParams = activity.templateParams;
               return this.$nextTick().then(() => activity);
             })
-            .then(this.postSaveMessage)
             .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
@@ -269,40 +267,6 @@ export default {
             })
             .finally(() => this.loading = false);
         }
-      }
-    },
-    postSaveMessage(activity) {
-      const postSaveOperations = extensionRegistry.loadExtensions('activity', 'saveAction');
-      if (postSaveOperations?.length) {
-        const promises = [];
-        postSaveOperations.forEach(extension => {
-          if (extension.postSave) {
-            const result = extension.postSave(activity);
-            if (result?.then) {
-              promises.push(result);
-            }
-          }
-        });
-        return Promise.all(promises).then(() => activity);
-      } else {
-        return Promise.resolve(activity);
-      }
-    },
-    postUpdateMessage(activity) {
-      const postUpdateOperations = extensionRegistry.loadExtensions('activity', 'updateAction');
-      if (postUpdateOperations?.length) {
-        const promises = [];
-        postUpdateOperations.forEach(extension => {
-          if (extension.postUpdate) {
-            const result = extension.postUpdate(activity);
-            if (result?.then) {
-              promises.push(result);
-            }
-          }
-        });
-        return Promise.all(promises).then(() => activity);
-      } else {
-        return Promise.resolve(activity);
       }
     },
     cleareActivityMessage() {

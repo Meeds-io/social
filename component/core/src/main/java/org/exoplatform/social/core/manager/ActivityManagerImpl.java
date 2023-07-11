@@ -435,7 +435,6 @@ public class ActivityManagerImpl implements ActivityManager {
     // as a solution we pass them throw the activity's template params
     String[] previousMentions = StringUtils.isEmpty(commentId) ? new String[0] : getActivity(commentId).getMentionedIds();
     activityStorage.saveComment(existingActivity, comment);
-
     if (StringUtils.isEmpty(commentId)) {
       activityLifeCycle.saveComment(comment);
     } else {
