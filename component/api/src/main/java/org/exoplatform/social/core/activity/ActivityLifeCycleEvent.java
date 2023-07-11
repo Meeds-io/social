@@ -33,7 +33,9 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
     DELETE_COMMENT,
     DELETE_ACTIVITY,
     SHARED_ACTIVITY,
-    HIDE_ACTIVITY
+    HIDE_ACTIVITY,
+    PIN_ACTIVITY,
+    UNPIN_ACTIVITY,
   }
 
   private Type              type;
