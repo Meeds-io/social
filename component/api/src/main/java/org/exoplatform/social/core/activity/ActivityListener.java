@@ -68,4 +68,12 @@ public interface ActivityListener extends LifeCycleListener<ActivityLifeCycleEve
     // By default, no behavior
   }
 
+  default void pinActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
+  default void unpinActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
 }
