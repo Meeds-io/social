@@ -70,7 +70,7 @@
         </object-param>
       </init-params>
     </component-plugin>
-        <component-plugin>
+    <component-plugin>
       <name>BaseCKEditorConfiguration</name>
       <set-method>addPlugin</set-method>
       <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
