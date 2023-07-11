@@ -558,7 +558,12 @@ public class ActivityManagerImpl implements ActivityManager {
     if (StringUtils.isBlank(userIdentityId)) {
       throw new IllegalArgumentException(MANDATORY_USER_IDENTITY_ID);
     }
-    return activityStorage.pinActivity(activityId, userIdentityId);
+    ExoSocialActivity activity = activityStorage.getActivity(activityId);
+    if (!activity.isPinned()) {
+      activity = activityStorage.pinActivity(activityId, userIdentityId);
+      activityLifeCycle.pinActivity(activity, userIdentityId);
+    }
+    return activity;
   }
 
   /**
@@ -569,7 +574,12 @@ public class ActivityManagerImpl implements ActivityManager {
     if (StringUtils.isBlank(activityId)) {
       throw new IllegalArgumentException(MANDATORY_ACTIVITY_ID);
     }
-    return activityStorage.unpinActivity(activityId);
+    ExoSocialActivity activity = activityStorage.getActivity(activityId);
+    if (activity.isPinned()) {
+      activity = activityStorage.unpinActivity(activityId);
+      activityLifeCycle.unpinActivity(activity);
+    }
+    return activity;
   }
 
   /**
