@@ -12,16 +12,20 @@
         <rich-editor
           ref="commentEditor"
           v-model="message"
-          :ck-editor-type="ckEditorId"
+          :ck-editor-id="ckEditorId"
+          ck-editor-type="activityComment"
           :max-length="$activityConstants.COMMENT_MAX_LENGTH"
           :placeholder="$t('activity.composer.placeholder')"
           :activity-id="activityId"
           :template-params="templateParams"
+          :object-id="metadataObjectId"
+          :object-type="metadataObjectType"
           context-name="activityComment"
           suggestor-type-of-relation="mention_comment"
           use-extra-plugins
           autofocus
-          @ready="handleEditorReady" />
+          @ready="handleEditorReady"
+          @attachments-edited="attachmentsEdit" />
         <extension-registry-components
           :params="extensionParams"
           name="ActivityComposerAction"
@@ -82,9 +86,12 @@ export default {
   data: () => ({
     initialized: false,
     commenting: false,
+    activityCommentAttachmentsEdited: false,
     message: null,
     avatarSize: '33px',
     files: [],
+    attachments: null,
+    comment: null
   }),
   created() {
     document.addEventListener('activity-composer-edited', (event) => this.files = event.detail);
@@ -101,10 +108,13 @@ export default {
       return !!this.commentId;
     },
     disableButton() {
-      return this.commenting || !this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>' || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
+      return this.commenting || ((!this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>') && !this.activityCommentAttachmentsEdited) || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
     },
     ckEditorId() {
       return `comment_${this.commentId || ''}_${this.parentCommentId || ''}_${this.activityId}`;
+    },
+    ckEditorInstance() {
+      return this.$refs.commentEditor || null;
     },
     entityId() {
       return this.commentId && this.commentId.replace('comment','');
@@ -120,6 +130,12 @@ export default {
         maxMessageLength: this.$activityConstants.COMMENT_MAX_LENGTH,
       };
     },
+    metadataObjectId() {
+      return this.templateParams?.metadataObjectId || this.commentId;
+    },
+    metadataObjectType() {
+      return this.templateParams?.metadataObjectType || 'activity';
+    },
   },
   mounted() {
     this.init();
@@ -128,6 +144,10 @@ export default {
     this.reset();
   },
   methods: {
+    attachmentsEdit(attachments) {
+      this.attachments = attachments;
+      this.activityCommentAttachmentsEdited = true;
+    },
     reset() {
       if (!this.initialized) {
         return;
@@ -194,6 +214,7 @@ export default {
       this.commenting = true;
       if (this.commentUpdate) {
         this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
           .then(comment => this.$root.$emit('activity-comment-updated', comment))
           .finally(() => {
             this.message = null;
@@ -201,7 +222,12 @@ export default {
           });
       } else {
         this.$activityService.createComment(this.activityId, this.parentCommentId, this.message,  this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
-          .then(comment => this.$root.$emit('activity-comment-created', comment))
+          .then((comment) => {
+            this.comment = comment;
+            this.commentId = comment.id;
+          })
+          .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
+          .then(() => this.$root.$emit('activity-comment-created', this.comment))
           .finally(() => {
             this.message = null;
             this.commenting = false;
