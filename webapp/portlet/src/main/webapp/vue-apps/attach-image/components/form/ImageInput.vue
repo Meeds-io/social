@@ -82,6 +82,7 @@ export default {
     triggerAttachmentsSave(event) {
       const objectType = event?.detail?.objectType;
       const objectId = event?.detail?.objectId;
+
       if (objectType !== this.objectType || objectId !== this.objectId) {
         return;
       }
