@@ -3,7 +3,7 @@
     <div class="richEditor">
       <textarea
         ref="editor"
-        :id="ckEditorType"
+        :id="ckEditorInstanceId"
         v-model="inputVal"
         cols="30"
         rows="10"
@@ -46,6 +46,10 @@ export default {
     maxLength: {
       type: Number,
       default: -1
+    },
+    ckEditorId: {
+      type: String,
+      default: ''
     },
     ckEditorType: {
       type: String,
@@ -124,6 +128,9 @@ export default {
     baseUrl: eXo.env.server.portalBaseURL,
   }),
   computed: {
+    ckEditorInstanceId() {
+      return this.ckEditorId ? this.ckEditorId : this.ckEditorType;
+    },
     buttonId() {
       return `btn_${this.ckEditorType}`;
     },
@@ -230,7 +237,7 @@ export default {
     },
     initCKEditorInstance(reset, textValue) {
       this.inputVal = this.getContentToEdit(textValue);
-      const editor = CKEDITOR.instances[this.ckEditorType];
+      const editor = CKEDITOR.instances[this.ckEditorInstanceId];
       if (editor) {
         editor.status = 'not-ready';
       }
@@ -314,7 +321,7 @@ export default {
         pasteFilter: 'p; a[!href]; strong; i', 
         on: {
           instanceReady: function () {
-            self.editor = CKEDITOR.instances[self.ckEditorType];
+            self.editor = CKEDITOR.instances[self.ckEditorInstanceId];
             $(self.editor.document.$)
               .find('.atwho-inserted')
               .each(function() {

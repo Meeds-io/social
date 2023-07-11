@@ -990,6 +990,10 @@ public class EntityBuilder {
     commentEntity.setCommentsCount(comment.getCommentedIds() == null ? 0 : comment.getCommentedIds().length);
     commentEntity.setHasCommented(ArrayUtils.contains(comment.getCommentedIds(), authentiatedUser.getId()));
     commentEntity.setHasLiked(ArrayUtils.contains(comment.getLikeIdentityIds(), authentiatedUser.getId()));
+    Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = retrieveMetadataItems(comment, authentiatedUser);
+    if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
+      commentEntity.setMetadatas(activityMetadatasToPublish);
+    }
     //
     if (!isBuildList) {
       updateCachedLastModifiedValue(comment.getUpdated());
@@ -1676,6 +1680,7 @@ public class EntityBuilder {
     }
     return organizationService;
   }
+
 
   public static RelationshipManager getRelationshipManager() {
     if (relationshipManager == null) {
