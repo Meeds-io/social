@@ -635,9 +635,6 @@ public class EntityBuilder {
           }
         }
         if (expandFields.contains(RestProperties.NAVIGATIONS_PERMISSION)) {
-
-
-
           UserPortalConfigService service =
                   ExoContainerContext.getService(UserPortalConfigService.class);
           PortalConfig sitePortalConfig = service.getDataStorage().getPortalConfig(new SiteKey(SiteType.GROUP, space.getGroupId()));
