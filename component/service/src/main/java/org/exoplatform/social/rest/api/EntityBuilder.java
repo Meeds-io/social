@@ -37,6 +37,10 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
@@ -629,6 +633,12 @@ public class EntityBuilder {
           if (MapUtils.isNotEmpty(unreadItems)) {
             spaceEntity.setUnreadItems(unreadItems);
           }
+        }
+        if (expandFields.contains(RestProperties.NAVIGATIONS_PERMISSION)) {
+          UserPortalConfigService service =
+                  ExoContainerContext.getService(UserPortalConfigService.class);
+          PortalConfig sitePortalConfig = service.getDataStorage().getPortalConfig(new SiteKey(SiteType.GROUP, space.getGroupId()));
+          spaceEntity.setCanEditNavigations(service.getUserACL().hasPermission(sitePortalConfig));
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
