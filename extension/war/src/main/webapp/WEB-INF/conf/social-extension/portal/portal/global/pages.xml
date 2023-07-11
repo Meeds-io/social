@@ -301,18 +301,12 @@
             <show-application-state>true</show-application-state>
           </portlet-application>
         </container>
-        <container id="ProfileStatsContainer" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+        <container template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <access-permissions>*:/platform/users</access-permissions>
-          <portlet-application>
-            <portlet>
-              <application-ref>gamification-portlets</application-ref>
-              <portlet-ref>ProfileStats</portlet-ref>
-            </portlet>
-            <title>Profile Stats</title>
-            <access-permissions>*:/platform/users</access-permissions>
-            <show-info-bar>false</show-info-bar>
-            <show-application-state>true</show-application-state>
-          </portlet-application>
+          <container id="stream-top-widgets-container" template="system:/groovy/portal/webui/container/UIAddOnContainer.gtmpl">
+            <name>stream-top-widgets-container</name>
+            <factory-id>addonContainer</factory-id>
+          </container>
         </container>
         <container id="stickyBlockDesktop" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <access-permissions>*:/platform/users</access-permissions>
@@ -341,6 +335,13 @@
             <show-application-state>false</show-application-state>
             <show-application-mode>false</show-application-mode>
           </portlet-application>
+          <container template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
+            <access-permissions>*:/platform/users</access-permissions>
+            <container id="stream-bottom-widgets-container" template="system:/groovy/portal/webui/container/UIAddOnContainer.gtmpl">
+              <name>stream-bottom-widgets-container</name>
+              <factory-id>addonContainer</factory-id>
+            </container>
+          </container>
         </container>
       </container>
     </container>
