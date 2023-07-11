@@ -97,6 +97,7 @@ export default {
       const fileIds = this.attachments
         .filter(file => file.id)
         .map(file => file.id);
+
       return this.$fileAttachmentService.saveAttachments({
         objectType: this.objectType,
         objectId: this.objectId,
