@@ -255,7 +255,7 @@ export default {
               this.templateParams = activity.templateParams;
               return this.$nextTick().then(() => activity);
             })
-            .then(this.postUpdateMessage)
+            .then(this.postSaveMessage)
             .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
