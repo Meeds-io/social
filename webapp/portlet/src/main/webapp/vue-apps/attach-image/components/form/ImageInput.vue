@@ -63,6 +63,12 @@ export default {
       this.$emit('changed', this.attachedFiles);
     },
   },
+  created() {
+    document.addEventListener('attachment-save', this.triggerAttachmentsSave);
+  },
+  beforeDestroy() {
+    document.removeEventListener('attachment-save', this.triggerAttachmentsSave);
+  },
   methods: {
     init() {
       if (this.objectType && this.objectId) {
@@ -72,6 +78,14 @@ export default {
     },
     reset() {
       this.attachments = [];
+    },
+    triggerAttachmentsSave(event) {
+      const objectType = event?.detail?.objectType;
+      const objectId = event?.detail?.objectId;
+      if (objectType !== this.objectType || objectId !== this.objectId) {
+        return;
+      }
+      return this.save();
     },
     save() {
       const uploadIds = this.images

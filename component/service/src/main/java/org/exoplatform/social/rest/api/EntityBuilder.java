@@ -1671,6 +1671,7 @@ public class EntityBuilder {
     return organizationService;
   }
 
+
   public static RelationshipManager getRelationshipManager() {
     if (relationshipManager == null) {
       relationshipManager = CommonsUtils.getService(RelationshipManager.class);

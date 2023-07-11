@@ -108,7 +108,6 @@ export default {
       return !!this.commentId;
     },
     disableButton() {
-      console.warn(this.activityCommentAttachmentsEdited);
       return this.commenting || ((!this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>') && !this.activityCommentAttachmentsEdited) || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
     },
     ckEditorId() {

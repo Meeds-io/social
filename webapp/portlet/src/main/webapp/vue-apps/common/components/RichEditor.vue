@@ -9,7 +9,7 @@
       </div>
       <textarea
         ref="editor"
-        :id="ckEditorID"
+        :id="ckEditorInstanceId"
         v-model="inputVal"
         :placeholder="placeholder"
         cols="30"
@@ -125,7 +125,7 @@ export default {
     };
   },
   computed: {
-    ckEditorID() {
+    ckEditorInstanceId() {
       return this.ckEditorId ? this.ckEditorId : this.ckEditorType;
     },
     buttonId() {
@@ -219,7 +219,7 @@ export default {
     },
     initCKEditorInstance(reset, textValue) {
       this.inputVal = this.replaceWithSuggesterClass(textValue);
-      this.editor = CKEDITOR.instances[this.ckEditorID];
+      this.editor = CKEDITOR.instances[this.ckEditorInstanceId];
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
           this.editor.destroy(true);
@@ -301,7 +301,7 @@ export default {
         pasteFilter: 'p; a[!href]; strong; i', 
         on: {
           instanceReady: function () {
-            self.editor = CKEDITOR.instances[self.ckEditorID];
+            self.editor = CKEDITOR.instances[self.ckEditorInstanceId];
             $(self.editor.document.$)
               .find('.atwho-inserted')
               .each(function() {
