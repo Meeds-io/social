@@ -71,4 +71,6 @@ public class RestProperties {
 
   public static final String UNREAD        = "unread";
 
+  public static final String NAVIGATIONS_PERMISSION        = "navigations_permission";
+
 }
