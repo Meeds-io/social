@@ -113,11 +113,23 @@ export default {
       });
     },
     urlVerify(url) {
-      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
+      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/) && this.isValidUrl(url) ) {
         url = `//${url}`;
       }
       return url ;
     },
+    isValidUrl(str) {
+      const pattern = new RegExp(
+        '^([a-zA-Z]+:\\/\\/)?' +
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+      '((\\d{1,3}\\.){3}\\d{1,3}))' +
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+      '(\\?[;&a-z\\d%_.~+=-]*)?' +
+      '(\\#[-a-z\\d_]*)?$',
+        'i'
+      );
+      return pattern.test(str);
+    }
   },
 };
 </script>
