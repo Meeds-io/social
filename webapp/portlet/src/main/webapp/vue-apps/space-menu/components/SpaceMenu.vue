@@ -83,6 +83,7 @@ export default {
                 nav.uri = oldNav.uri;
               } else if (nav.uri && nav.uri.indexOf('/') >= 0) {
                 nav.uri = nav.uri.split('/')[1];
+                nav.target = 'SAME_TAB';
               }
             });
             this.navigations = data;
