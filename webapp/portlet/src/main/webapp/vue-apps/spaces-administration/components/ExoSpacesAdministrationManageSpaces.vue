@@ -86,7 +86,7 @@
           <extension-registry-components
             name="manageSpaceActions"
             type="manage-space-actions"
-            :params="{ disabled: !space.canEdit,
+            :params="{ disabled: !space.canEditNavigations,
                        iconColor: 'primary',
                        siteName: space.groupId,
                        siteType: 'GROUP'}" />
