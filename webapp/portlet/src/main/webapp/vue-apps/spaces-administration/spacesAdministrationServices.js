@@ -1,13 +1,13 @@
 export function getSpaces() {
-  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_SPACE_API}?sort=date&order=desc&limit=${Vue.prototype.$spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=membersCount`, {credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_SPACE_API}?sort=date&order=desc&limit=${Vue.prototype.$spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=membersCount,navigations_permission`, {credentials: 'include'}).then(resp => resp.json());
 }
 
 export function searchSpaces(search) {
-  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_SPACE_API}?q=${search}&sort=date&order=desc&limit=${Vue.prototype.$spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=membersCount`, {credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_SPACE_API}?q=${search}&sort=date&order=desc&limit=${Vue.prototype.$spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=membersCount,navigations_permission`, {credentials: 'include'}).then(resp => resp.json());
 }
 
 export function getSpacesPerPage(offset) {
-  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_SPACE_API}?offset=${offset}&sort=date&order=desc&limit=${Vue.prototype.$spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=membersCount`, {credentials: 'include'}).then(resp => resp.json());
+  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_SPACE_API}?offset=${offset}&sort=date&order=desc&limit=${Vue.prototype.$spacesConstants.SPACES_PER_PAGE}&returnSize=true&expand=membersCount,navigations_permission`, {credentials: 'include'}).then(resp => resp.json());
 }
 
 export function deleteSpaceById(id) {

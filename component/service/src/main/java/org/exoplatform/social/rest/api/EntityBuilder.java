@@ -714,6 +714,13 @@ public class EntityBuilder {
           UserSetting userSetting = userSettingService.get(userId);
           spaceEntity.setIsMuted(String.valueOf(userSetting.isSpaceMuted(Long.parseLong(space.getId()))));
         }
+        
+        if (expandFields.contains(RestProperties.NAVIGATIONS_PERMISSION)) {
+          UserPortalConfigService service =
+                  ExoContainerContext.getService(UserPortalConfigService.class);
+          PortalConfig sitePortalConfig = service.getDataStorage().getPortalConfig(new SiteKey(SiteType.GROUP, space.getGroupId()));
+          spaceEntity.setCanEditNavigations(service.getUserACL().hasPermission(sitePortalConfig));
+        }
       }
       boolean isManager = spaceService.isManager(space, userId);
       boolean canEdit = isManager || spaceService.isSuperManager(userId);
