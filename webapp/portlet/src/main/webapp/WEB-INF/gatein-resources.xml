@@ -2003,7 +2003,7 @@
     <name>intranetNotification</name>
     <load-group>webNotificationsGRP</load-group>
     <script>
-      <path>/js/notification/IntranetNotification.js</path>
+      <path>/js/webuiNotification/IntranetNotification.js</path>
     </script>
     <depends>
       <module>webNotifications</module>
@@ -2018,7 +2018,7 @@
     <name>webNotifications</name>
     <load-group>webNotificationsGRP</load-group>
     <script>
-      <path>/js/notification/WebNotification.js</path>
+      <path>/js/webuiNotification/WebNotification.js</path>
     </script>
     <depends>
       <module>jquery</module>
