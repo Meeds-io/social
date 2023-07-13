@@ -81,6 +81,7 @@ export default {
               const oldNav = this.navigations.find(oldNav => oldNav.id === nav.id);
               if (oldNav) {
                 nav.uri = oldNav.uri;
+                nav.target = oldNav.target;
               } else if (nav.uri && nav.uri.indexOf('/') >= 0) {
                 nav.uri = nav.uri.split('/')[1];
                 nav.target = 'SAME_TAB';
