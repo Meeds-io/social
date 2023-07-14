@@ -135,8 +135,9 @@ export default {
     deleteComment() {
       this.retrieveComments();
     },
-    updateComment(comment, commentIndex) {
-      this.comments.splice(commentIndex, 1, comment);
+    updateComment() {
+      this.comments = [];
+      this.retrieveComments(true, false);
     },
     scrollToEnd() {
       this.initialized = true;
