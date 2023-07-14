@@ -188,10 +188,11 @@ export default {
     },
     commentEditOptions() {
       const commentToEdit = this.isEditingComment ? this.commentEditing : this.comment;
+      const commentTitle = commentToEdit.title ? commentToEdit.title : '';
       const messageToEdit = commentToEdit.contentToEdit
                             || (this.commentTypeExtension && this.commentTypeExtension.getBodyToEdit && this.commentTypeExtension.getBodyToEdit(commentToEdit))
-                            || this.commentToEdit.title
-                            || this.commentToEdit.body;
+                            || commentTitle
+                            || commentToEdit.body;
       return {
         activityId: this.activityId,
         parentCommentId: this.comment.parentCommentId || null,
