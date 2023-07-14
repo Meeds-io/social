@@ -214,8 +214,11 @@ export default {
       this.commenting = true;
       if (this.commentUpdate) {
         this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
+          .then((comment) => {
+            this.comment = comment;
+          })
           .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
-          .then(comment => this.$root.$emit('activity-comment-updated', comment))
+          .then(() => this.$root.$emit('activity-comment-updated', this.comment))
           .finally(() => {
             this.message = null;
             this.commenting = false;
