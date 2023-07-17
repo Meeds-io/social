@@ -14,12 +14,22 @@ public class ActivityESListener implements ActivityListener {
 
   @Override
   public void saveActivity(ActivityLifeCycleEvent event) {
-    reindexActivity(event.getActivity(), "save activity");
+    ExoSocialActivity activity = event.getActivity();
+    if (activity.isHidden()) {
+      unindexActivity(event.getActivity(), "hide activity");
+    } else {
+      reindexActivity(activity, "save activity");
+    }
   }
 
   @Override
   public void updateActivity(ActivityLifeCycleEvent event) {
-    reindexActivity(event.getActivity(), "update activity");
+    ExoSocialActivity activity = event.getActivity();
+    if (activity.isHidden()) {
+      unindexActivity(event.getActivity(), "hide activity");
+    } else {
+      reindexActivity(activity, "update activity");
+    }
   }
 
   @Override
