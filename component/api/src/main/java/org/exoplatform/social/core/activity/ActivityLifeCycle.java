@@ -87,20 +87,20 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
     broadcast(new ActivityLifeCycleEvent(Type.UPDATE_COMMENT, activity));
   }
   
-  public void likeActivity(ExoSocialActivity activity) {
-    broadcast(new ActivityLifeCycleEvent(Type.LIKE_ACTIVITY, activity));
+  public void likeActivity(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.LIKE_ACTIVITY, activity, userIdentityId));
   }
 
-  public void likeComment(ExoSocialActivity activity) {
-    broadcast(new ActivityLifeCycleEvent(Type.LIKE_COMMENT, activity));
+  public void likeComment(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.LIKE_COMMENT, activity, userIdentityId));
   }
 
-  public void deleteLikeActivity(ExoSocialActivity activity, String userId) {
-    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_ACTIVITY, activity, userId));
+  public void deleteLikeActivity(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_ACTIVITY, activity, userIdentityId));
   }
 
-  public void deleteLikeComment(ExoSocialActivity activity, String userId) {
-    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_COMMENT, activity, userId));
+  public void deleteLikeComment(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_COMMENT, activity, userIdentityId));
   }
 
   public void deleteActivity(ExoSocialActivity activity) {
