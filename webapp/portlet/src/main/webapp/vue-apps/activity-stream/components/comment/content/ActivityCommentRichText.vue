@@ -9,8 +9,6 @@
           role="presentation">
       </v-list-item-avatar>
       <v-list-item-content class="flex px-0 py-0 mb-2 flex-shrink-1 border-box-sizing rich-editor-content">
-        {{ ckEditorType }}
-        {{ metadataObjectType }}
         <rich-editor
           ref="commentEditor"
           v-model="message"
