@@ -13,7 +13,7 @@
           ref="commentEditor"
           v-model="message"
           :ck-editor-id="ckEditorId"
-          ck-editor-type="activityComment"
+          :ck-editor-type="ckEditorType"
           :max-length="$activityConstants.COMMENT_MAX_LENGTH"
           :placeholder="$t('activity.composer.placeholder')"
           :activity-id="activityId"
@@ -82,6 +82,10 @@ export default {
       type: Object,
       default: null,
     },
+    commentTypeExtension: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     initialized: false,
@@ -109,6 +113,11 @@ export default {
     },
     disableButton() {
       return this.commenting || ((!this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>') && !this.activityCommentAttachmentsEdited) || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
+    },
+    ckEditorType() {
+      return this.commentTypeExtension?.ckEditorType
+        || (this.metadataObjectType === 'activity' && 'activityComment')
+        || `activityComment_${this.metadataObjectType}`;
     },
     ckEditorId() {
       return `comment_${this.commentId || ''}_${this.parentCommentId || ''}_${this.activityId}`;
@@ -214,9 +223,7 @@ export default {
       this.commenting = true;
       if (this.commentUpdate) {
         this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
-          .then((comment) => {
-            this.comment = comment;
-          })
+          .then(comment => this.comment = comment)
           .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
           .then(() => this.$root.$emit('activity-comment-updated', this.comment))
           .finally(() => {
