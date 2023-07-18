@@ -50,6 +50,7 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 });
 
 const defaultActivityOptions = {
+  ckEditorType: 'activityComment',
   getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
   getSourceLink: activity => activity && activity.templateParams && !activity.templateParams.html && activity.templateParams.link,
   getTitle: activity => activity && activity.templateParams && (activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link) || '',

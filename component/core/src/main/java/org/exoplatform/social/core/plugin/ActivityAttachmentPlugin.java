@@ -74,7 +74,7 @@ public class ActivityAttachmentPlugin extends AttachmentPlugin {
   }
 
   private ExoSocialActivity getActivity(String activityId) throws ObjectNotFoundException {
-    ExoSocialActivity activity = activityManager.getActivity(activityId);
+    ExoSocialActivity activity = activityManager.getActivity(StringUtils.replace(activityId, "comment", ""));
     if (activity == null) {
       throw new ObjectNotFoundException("Activity with id " + activityId + " wasn't found");
     }

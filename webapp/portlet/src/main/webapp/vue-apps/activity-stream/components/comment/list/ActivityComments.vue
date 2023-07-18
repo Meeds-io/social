@@ -20,6 +20,7 @@
       class="mb-6"
       :activity-id="activityId"
       :space-id="spaceId"
+      :comment-type-extension="commentTypeExtension"
       :options="commentLastEditorOptions"
       :label="$t('UIActivity.label.Comment')" />
   </v-list>
@@ -84,6 +85,9 @@ export default {
     },
     commentsSize() {
       return this.comments.length;
+    },
+    commentTypeExtension() {
+      return this.commentTypes['default'];
     },
   },
   watch: {
