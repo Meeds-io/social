@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-hidden">
     <div class="richEditor">
       <div
         v-if="displayPlaceholder"
