@@ -519,9 +519,9 @@ public class ActivityManagerImpl implements ActivityManager {
     //broadcast is false : we don't want to launch update listeners for a like
     updateActivity(existingActivity, false);
     if(existingActivity.isComment()){
-      activityLifeCycle.likeComment(existingActivity);
+      activityLifeCycle.likeComment(existingActivity, identity.getId());
     } else {
-      activityLifeCycle.likeActivity(existingActivity);
+      activityLifeCycle.likeActivity(existingActivity, identity.getId());
     }
   }
 
