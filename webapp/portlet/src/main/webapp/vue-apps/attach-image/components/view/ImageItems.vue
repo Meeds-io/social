@@ -68,9 +68,9 @@ export default {
       return this.imageAttachments?.length || 0;
     },
     sortedAttachments() {
-      return this.attachmentsCount && this.imageAttachments.slice().sort((a1, a2) => {
-        return Number(a1.id) - Number(a2.id);
-      }) || [];
+      const sortedAttachments = this.attachmentsCount && this.imageAttachments.slice() || [];
+      sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
+      return sortedAttachments;
     },
   },
   created() {

@@ -44,36 +44,40 @@ public class ActivityAttachmentPlugin extends AttachmentPlugin {
   @Override
   public boolean hasAccessPermission(Identity userIdentity, String activityId) throws ObjectNotFoundException {
     ExoSocialActivity activity = getActivity(activityId);
-    return activityManager.isActivityViewable(activity, userIdentity);
+    return activity != null && activityManager.isActivityViewable(activity, userIdentity);
   }
 
   @Override
   public boolean hasEditPermission(Identity userIdentity, String activityId) throws ObjectNotFoundException {
     ExoSocialActivity activity = getActivity(activityId);
-    return activityManager.isActivityEditable(activity, userIdentity);
+    return activity != null && activityManager.isActivityEditable(activity, userIdentity);
   }
 
   @Override
   public long getAudienceId(String activityId) throws ObjectNotFoundException {
     ExoSocialActivity activity = getParentActivity(activityId);
-    return StringUtils.isBlank(activity.getStreamId()) ? 0 : Long.parseLong(activity.getStreamId());
+    return activity == null || StringUtils.isBlank(activity.getStreamId()) ? 0 : Long.parseLong(activity.getStreamId());
   }
 
   @Override
   public long getSpaceId(String activityId) throws ObjectNotFoundException {
     ExoSocialActivity activity = getParentActivity(activityId);
-    return StringUtils.isBlank(activity.getSpaceId()) ? 0 : Long.parseLong(activity.getSpaceId());
+    return activity == null || StringUtils.isBlank(activity.getSpaceId()) ? 0 : Long.parseLong(activity.getSpaceId());
   }
 
   private ExoSocialActivity getParentActivity(String activityId) throws ObjectNotFoundException {
     ExoSocialActivity activity = getActivity(activityId);
-    if (activity.isComment()) {
+    if (activity != null && activity.isComment()) {
       activity = getActivity(activity.getParentId());
     }
     return activity;
   }
 
   private ExoSocialActivity getActivity(String activityId) throws ObjectNotFoundException {
+    activityId = StringUtils.replace(activityId, "comment", "");
+    if (StringUtils.isBlank(activityId)) {
+      return null;
+    }
     ExoSocialActivity activity = activityManager.getActivity(activityId);
     if (activity == null) {
       throw new ObjectNotFoundException("Activity with id " + activityId + " wasn't found");
