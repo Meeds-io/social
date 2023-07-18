@@ -9,6 +9,7 @@
       <activity-comment-rich-text
         ref="commentEditRichEditor"
         :activity-id="activityId"
+        :comment-type-extension="commentTypeExtension"
         :space-id="spaceId"
         :parent-comment-id="comment.parentCommentId"
         :comment-id="comment.id"
@@ -99,6 +100,7 @@
         ref="commentRichEditor"
         class="col-auto pa-0 mt-0 mb-2 flex-shrink-1"
         :activity-id="activityId"
+        :comment-type-extension="commentTypeExtension"
         :space-id="spaceId"
         :parent-comment-id="parentCommentId"
         :label="$t('UIActivity.label.Comment')"
@@ -190,8 +192,9 @@ export default {
       const commentToEdit = this.isEditingComment ? this.commentEditing : this.comment;
       const messageToEdit = commentToEdit.contentToEdit
                             || (this.commentTypeExtension && this.commentTypeExtension.getBodyToEdit && this.commentTypeExtension.getBodyToEdit(commentToEdit))
-                            || this.commentToEdit.title
-                            || this.commentToEdit.body;
+                            || commentToEdit.title
+                            || commentToEdit.body
+                            || '';
       return {
         activityId: this.activityId,
         parentCommentId: this.comment.parentCommentId || null,
