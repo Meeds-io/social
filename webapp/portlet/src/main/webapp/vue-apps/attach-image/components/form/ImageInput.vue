@@ -73,7 +73,10 @@ export default {
     init() {
       if (this.objectType && this.objectId) {
         return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
-          .then(data => this.attachments = data?.attachments || []);
+          .then(data => this.attachments = data?.attachments || [])
+          .catch(() => this.reset());
+      } else {
+        this.reset();
       }
     },
     reset() {
