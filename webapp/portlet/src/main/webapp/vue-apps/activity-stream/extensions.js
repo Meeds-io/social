@@ -376,7 +376,17 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   id: 'attachedItem',
   isEnabled: (params) => {
     const activity = params?.activity;
-    return activity?.metadatas?.attachments?.length;
+    return !activity.activityId && activity?.metadatas?.attachments?.length;
+  },
+  vueComponent: Vue.options.components['activity-image-attachments'],
+  rank: 15,
+});
+
+extensionRegistry.registerComponent('CommentContent', 'comment-content-extensions', {
+  id: 'attachedItem',
+  isEnabled: (params) => {
+    const activity = params?.activity;
+    return activity.activityId && activity?.metadatas?.attachments?.length;
   },
   vueComponent: Vue.options.components['activity-image-attachments'],
   rank: 15,
