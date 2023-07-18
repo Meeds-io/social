@@ -60,7 +60,7 @@
           hide-delimiters   
           class="AttachmentCarouselPreview white border-radius">
           <v-carousel-item
-            v-for="attachment in attachments"
+            v-for="attachment in sortedAttachments"
             :key="attachment.id"
             :value="attachment.id"
             reverse-transition="fade-transition"
@@ -82,18 +82,8 @@ export default {
     currentAttachmentId: 0, 
     filename: '',
     objectType: '',
+    attachments: null,
   }),
-  watch: {
-    dialog() {
-      if (this.dialog) {
-        this.$emit('dialog-opened');
-        document.dispatchEvent(new CustomEvent('modalOpened'));
-      } else {
-        this.$emit('dialog-closed');
-        document.dispatchEvent(new CustomEvent('modalClosed'));
-      }
-    }
-  },
   computed: {
     downloadURL() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
@@ -104,6 +94,22 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
+    sortedAttachments() {
+      const sortedAttachments = this.attachments?.length && this.attachments.slice() || [];
+      sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
+      return sortedAttachments;
+    },
+  },
+  watch: {
+    dialog() {
+      if (this.dialog) {
+        this.$emit('dialog-opened');
+        document.dispatchEvent(new CustomEvent('modalOpened'));
+      } else {
+        this.$emit('dialog-closed');
+        document.dispatchEvent(new CustomEvent('modalClosed'));
+      }
+    }
   },
   created() {
     this.$root.$on('open-attachments-preview', this.open);
