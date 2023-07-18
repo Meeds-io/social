@@ -81,8 +81,10 @@ export default {
               const oldNav = this.navigations.find(oldNav => oldNav.id === nav.id);
               if (oldNav) {
                 nav.uri = oldNav.uri;
+                nav.target = oldNav.target;
               } else if (nav.uri && nav.uri.indexOf('/') >= 0) {
                 nav.uri = nav.uri.split('/')[1];
+                nav.target = 'SAME_TAB';
               }
             });
             this.navigations = data;
@@ -113,11 +115,23 @@ export default {
       });
     },
     urlVerify(url) {
-      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
+      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/) && this.isValidUrl(url) ) {
         url = `//${url}`;
       }
       return url ;
     },
+    isValidUrl(str) {
+      const pattern = new RegExp(
+        '^([a-zA-Z]+:\\/\\/)?' +
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+      '((\\d{1,3}\\.){3}\\d{1,3}))' +
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+      '(\\?[;&a-z\\d%_.~+=-]*)?' +
+      '(\\#[-a-z\\d_]*)?$',
+        'i'
+      );
+      return pattern.test(str);
+    }
   },
 };
 </script>
