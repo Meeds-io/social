@@ -51,6 +51,11 @@ public class ActivityMetadataListener extends ActivityListenerPlugin {
   }
 
   @Override
+  public void deleteComment(ActivityLifeCycleEvent event) {
+    deleteActivity(event);
+  }
+
+  @Override
   public void shareActivity(ActivityLifeCycleEvent event) {
     ExoSocialActivity targetActivity = event.getActivity();
     String targetActivityId = targetActivity.getId();
