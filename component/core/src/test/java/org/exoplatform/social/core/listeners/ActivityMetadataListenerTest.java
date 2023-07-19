@@ -160,6 +160,43 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     assertEquals(0, metadataItems.size());
   }
 
+  public void testDeleteComment() throws ObjectAlreadyExistsException {
+    String activityTitle = "activity title";
+    String userId = johnIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(userId);
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    ExoSocialActivity comment = new ExoSocialActivityImpl();
+    comment.setTitle(activityTitle);
+    comment.setUserId(userId);
+    comment.setPosterId(userId);
+    activityManager.saveComment(activity, comment);
+
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME,
+                                              "testMetadata2",
+                                              audienceId);
+    MetadataObject metadataObject = new MetadataObject(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
+                                                       comment.getId());
+    MetadataItem metadataItem = metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+    assertNotNull(metadataItem);
+    assertTrue(metadataItem.getId() > 0);
+
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
+    assertNotNull(metadataItem);
+    assertEquals(1, metadataItems.size());
+
+    activityManager.deleteComment(activity, comment);
+
+    restartTransaction();
+
+    metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
+    assertNotNull(metadataItem);
+    assertEquals(0, metadataItems.size());
+  }
+
   public void testShareActivity() throws Exception {
     Space originalSpace = createSpace("OriginalSpace",
                                       johnIdentity.getRemoteId(),
