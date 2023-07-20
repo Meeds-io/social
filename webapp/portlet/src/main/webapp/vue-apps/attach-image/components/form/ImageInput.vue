@@ -25,7 +25,8 @@
       @delete="deleteImage" />
     <attachments-image-input-multi-upload
       ref="uploadInput"
-      :images.sync="images" />
+      :images.sync="images"
+      @delete="deleteImage" />
   </div>
 </template>
 <script>
@@ -95,11 +96,11 @@ export default {
       const uploadIds = this.images
         .filter((file) => file.progress === 100)
         .map((file) => file.uploadId)
-        .filter((uploadId) => !!uploadId)
-        .reverse();
+        .filter((uploadId) => !!uploadId);
       const fileIds = this.attachments
         .filter(file => file.id)
         .map(file => file.id);
+      fileIds.sort((a1, a2) => Number(a1.id) - Number(a2.id));
 
       return this.$fileAttachmentService.saveAttachments({
         objectType: this.objectType,
