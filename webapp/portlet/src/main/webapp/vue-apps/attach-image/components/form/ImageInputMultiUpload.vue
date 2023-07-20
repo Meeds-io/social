@@ -137,7 +137,6 @@ export default {
     handlePasteFiles(event) {
       const files = event?.clipboardData?.files || event?.clipboardData?.items;
       if (files?.length) {
-        const files = event.clipboardData.files;
         const imageItems = Object.values(files).filter(file => file?.type?.includes('image/'));
         if (imageItems.length) {
           this.uploadFiles(imageItems);
