@@ -520,7 +520,7 @@ public class ProfileSearchConnector {
     Map<String, String> settings = filter.getProfileSettings();
     int settingsCount = 0 ;
     for (Map.Entry<String, String> entry : settings.entrySet()){
-      String inputKey = entry.getKey().trim().replace(" ", "\\\\\\\\ ");
+      String inputKey = entry.getKey().replace(" ", "\\\\\\\\ ");
       String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
       if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
         inputValue = inputValue.replace("\"", "");
