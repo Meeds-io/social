@@ -33,6 +33,10 @@ export default {
       type: Number,
       default: () => 20971520,
     },
+    disablePaste: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     filesArray: []
@@ -43,10 +47,14 @@ export default {
     },
   },
   created() {
-    document.addEventListener('open-file-explorer', this.triggerFileClickEvent);
+    document.addEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
+    if (!this.disablePaste) {
+      document.addEventListener('paste', this.handlePasteFiles);
+    }
   },
   beforeDestroy() {
-    document.removeEventListener('open-file-explorer', this.triggerFileClickEvent);
+    document.removeEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
+    document.removeEventListener('paste', this.handlePasteFiles);
   },
   methods: {
     reset() {
@@ -131,6 +139,15 @@ export default {
       const random = Math.round(Math.random() * 100000);
       const now = Date.now();
       return `${random}-${now}`;
+    },
+    handlePasteFiles(event) {
+      const files = event?.clipboardData?.files || event?.clipboardData?.items;
+      if (files?.length) {
+        const imageItems = Object.values(files).filter(file => file?.type?.includes('image/'));
+        if (imageItems.length) {
+          this.uploadFiles(imageItems);
+        }
+      }
     },
   }
 };
