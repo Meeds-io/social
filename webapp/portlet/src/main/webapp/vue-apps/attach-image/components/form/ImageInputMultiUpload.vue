@@ -44,6 +44,18 @@ export default {
   },
   created() {
     document.addEventListener('open-file-explorer', this.triggerFileClickEvent);
+    document.addEventListener('paste', event => {
+      if (event?.clipboardData?.files) {
+        const files = event.clipboardData.files;
+        const imageItems = [].slice.call(files).filter((item) => {
+          return item.type.indexOf('image') !== -1;
+        });
+        if (!imageItems.length) {
+          return;
+        }
+        this.uploadFiles(imageItems);
+      }
+    }); 
   },
   beforeDestroy() {
     document.removeEventListener('open-file-explorer', this.triggerFileClickEvent);
