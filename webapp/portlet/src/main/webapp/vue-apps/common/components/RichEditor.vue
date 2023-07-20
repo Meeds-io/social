@@ -30,11 +30,12 @@
       </div>
     </div>
     <attachments-image-input
-      v-if="attachmentEnabled"
+      v-if="displayAttachmentEditor"
       ref="attachmentsInput"
       :max-file-size="maxFileSize"
       :object-type="objectType"
       :object-id="objectId"
+      :disable-paste="disableImageAttachmentPaste"
       @changed="$emit('attachments-edited', $event)" />
   </div>
 </template>
@@ -114,6 +115,10 @@ export default {
       type: Boolean,
       default: false
     },
+    disableImageAttachmentPaste: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
@@ -149,6 +154,9 @@ export default {
     attachmentEnabled() {
       return !this.disableImageAttachment && eXo.env.portal.editorAttachImageEnabled && this.objectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.objectType) >= 0;
     },
+    displayAttachmentEditor() {
+      return this.attachmentEnabled && this.editorReady;
+    },
   },
   watch: {
     inputVal(val) {
@@ -169,6 +177,11 @@ export default {
         this.$emit('ready');
       } else {
         this.$emit('unloaded');
+      }
+    },
+    displayAttachmentEditor(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.$nextTick().then(() => this.$refs?.attachmentsInput?.init());
       }
     },
     value(val) {
@@ -210,18 +223,21 @@ export default {
   methods: {
     initCKEditor(reset, textValue) {
       const self = this;
+      this.editor = null;
       window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], function() {
         self.initCKEditorInstance(reset, textValue || self.value);
       });
-      if (this.$refs.attachmentsInput) {
-        this.$refs.attachmentsInput.init();
-      }
     },
     initCKEditorInstance(reset, textValue) {
       this.inputVal = this.replaceWithSuggesterClass(textValue);
-      this.editor = CKEDITOR.instances[this.ckEditorInstanceId];
+      const editor = CKEDITOR.instances[this.ckEditorInstanceId];
+      if (editor) {
+        editor.status = 'not-ready';
+      }
+      this.editor = editor;
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
+          editor.status = 'ready';
           this.editor.destroy(true);
         } else {
           this.initCKEditorData(textValue);
@@ -326,6 +342,15 @@ export default {
             self.inputVal = newData;
             if (!self.activityId && self.useDraftManagement && self.contextName) {
               localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
+            }
+          },
+          paste: function (evt) {
+            if (!self.disableImageAttachmentPaste && self.$refs?.attachmentsInput && evt.data.dataTransfer.getFilesCount() > 0) {
+              const files = [];
+              for (let i = 0; i < evt.data.dataTransfer.getFilesCount(); i++ ) {
+                files.push(evt.data.dataTransfer.getFile(i));
+              }
+              self.$refs.attachmentsInput.uploadFiles(files);
             }
           },
           destroy: function () {
