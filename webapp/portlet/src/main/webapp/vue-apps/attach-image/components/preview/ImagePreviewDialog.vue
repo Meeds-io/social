@@ -60,7 +60,7 @@
           hide-delimiters   
           class="AttachmentCarouselPreview white border-radius">
           <v-carousel-item
-            v-for="attachment in attachmentsToDisplay"
+            v-for="attachment in sortedAttachments"
             :key="attachment.id"
             :value="attachment.id"
             reverse-transition="fade-transition"
@@ -94,8 +94,10 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
-    attachmentsToDisplay() {
-      return this.attachments?.length && this.attachments.slice() || [];
+    sortedAttachments() {
+      const sortedAttachments = this.attachments?.length && this.attachments.slice() || [];
+      sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
+      return sortedAttachments;
     },
   },
   watch: {
