@@ -17,22 +17,32 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +57,10 @@ import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
-import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.activity.model.ActivitySearchResult;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -60,8 +72,21 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.entity.ActivityEntity;
+import org.exoplatform.social.rest.entity.ActivitySearchResultEntity;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.CommentEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.MetadataItemEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(VersionResources.VERSION_ONE + "/social/activities")
 @Tag(name = VersionResources.VERSION_ONE + "/social/activities", description = "Managing activities together with comments and likes")
@@ -105,7 +130,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
           @ApiResponse(responseCode = "500", description = "Internal server error"),
       }
   )
-  public Response getActivities(
+  public Response getActivities( // NOSONAR
                                 @Context UriInfo uriInfo,
                                 @Parameter(
                                     description = "Space technical identifier",
@@ -183,7 +208,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
         DataEntity dataEntity = new DataEntity();
         dataEntity.setProperty("id", id);
         return dataEntity;
-      }).collect(Collectors.toList());
+      }).toList();
       entitiesName = EntityBuilder.ACTIVITY_IDS_TYPE;
     } else {
       List<ExoSocialActivity> activities = null;
@@ -744,6 +769,34 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     return EntityBuilder.getResponse(collectionActivity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
+  @PUT
+  @Path("{activityId}/unhide")
+  @RolesAllowed("users")
+  @Operation(summary = "Unhides an activity to publish it in users stream", method = "PUT", description = "This unhides the given activity to publish it in users stream if the authenticated user has edit permissions")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized"),
+  })
+  public Response publishActivity(
+                                  @Context
+                                  UriInfo uriInfo,
+                                  @Parameter(description = "Activity id", required = true)
+                                  @PathParam("activityId")
+                                  String activityId) {
+    if (StringUtils.isBlank(activityId)) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    ExoSocialActivity activity = activityManager.getActivity(activityId);
+    if (!activityManager.isActivityEditable(activity, ConversationState.getCurrent().getIdentity())) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    activity.isHidden(false);
+    activityManager.updateActivity(activity, true);
+    return Response.noContent().build();
+  }
+
   @GET
   @Path("{activityId}/likes")
   @Produces(MediaType.APPLICATION_JSON)
@@ -997,7 +1050,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
         entity.setMetadatas(activityMetadatasToPublish);
       }
       return entity;
-    }).collect(Collectors.toList());
+    }).toList();
 
     return Response.ok(results).build();
   }

@@ -165,6 +165,16 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
   default void addInvitedUser(SpaceLifeCycleEvent event) {
     // No default implementation
   }
+
+  /**
+   * Invokes this method when a user declined invitation to join a space or the
+   * manager revoked invitation.
+   *
+   * @param event the space lifecycle event
+   */
+  default void removeInvitedUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
   
   /**
    * Invokes this method when a user request to join a space.

@@ -16,9 +16,7 @@
  */
 package org.exoplatform.social.notification;
 
-import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -64,14 +62,8 @@ public class Utils {
   
   private static final String styleCSS = " style=\"color: #2f5e92; text-decoration: none;\"";
 
-  /**
-   * Exo property name used for disable news activity notifications
-   */
-  private static final String DISABLED_ACTIVITY_TYPE_NOTIFICATIONS_PROPERTY_NAME = "exo.notifications.activity-type.disabled";
-  
-  @SuppressWarnings("unchecked")
   public static <T> T getService(Class<T> clazz) {
-    return (T) PortalContainer.getInstance().getComponentInstanceOfType(clazz);
+    return PortalContainer.getInstance().getComponentInstanceOfType(clazz);
   }
 
   /**
@@ -142,17 +134,17 @@ public class Utils {
    * @param receivers The list of users receiving the notification message.
    * @param activityPosterId Id of the activity poster.
    * @param posterId Id of the user who has commented.
+   * @param spaceId Activity space id
    */
-  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posterId , String spaceId) {
+  public static void sendToActivityPoster(Set<String> receivers, String activityPosterId, String posterId, String spaceId) {
+    if (activityPosterId.equals(posterId)) {
+      return;
+    }
     String activityPosterRemoteId = Utils.getUserId(activityPosterId);
     SpaceService spaceService = getSpaceService();
-    Space space = spaceService.getSpaceById(spaceId);
-    boolean isMember = true;
-    if (space != null) {
-      isMember = spaceService.isMember(space, activityPosterRemoteId);
-    }
-    if (!activityPosterId.equals(posterId) && isMember) {
-
+    if (spaceId == null
+        || spaceService.isSuperManager(activityPosterRemoteId)
+        || spaceService.isMember(spaceService.getSpaceById(spaceId), activityPosterRemoteId)) {
       receivers.add(activityPosterRemoteId);
     }
   }
@@ -177,7 +169,7 @@ public class Utils {
       String userName = getUserId(user);
       boolean isMember = true;
       if(space != null) {
-        isMember = spaceService.isMember(space, userName);
+        isMember = spaceService.isMember(space, userName) || spaceService.isSuperManager(userName);
       }
       if (!user.equals(poster) && isMember) {
         destinataires.add(userName);
@@ -226,7 +218,7 @@ public class Utils {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, false);
       boolean isMember = true;
       if (space != null) {
-        isMember = spaceService.isMember(space, remoteId);
+        isMember = spaceService.isMember(space, remoteId) || spaceService.isSuperManager(remoteId);
       }
       if (identity != null && !posterRemoteId.equals(remoteId) && isMember) {
         mentioners.add(remoteId);
@@ -310,21 +302,6 @@ public class Utils {
 
   public static RelationshipManager getRelationshipManager() {
     return getService(RelationshipManager.class);
-  }
-
-  /**
-   * Checks if the notification is enabled for activities of type activityType
-   *
-   * @param activityType type of activity to check if their notification is enabled
-   * @return true if the notification is enabled for this Activity Type
-   */
-  public static boolean isActivityNotificationsEnabled(String activityType) {
-    String disabledNotifications = PropertyManager.getProperty(DISABLED_ACTIVITY_TYPE_NOTIFICATIONS_PROPERTY_NAME);
-    if (StringUtils.isNotBlank(disabledNotifications)) {
-      String[] activityTypes = disabledNotifications.split(",");
-      return !Arrays.asList(activityTypes).contains(activityType);
-    }
-    return true;
   }
 
   /**

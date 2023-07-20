@@ -1,31 +1,33 @@
 <template>
-  <div class="richEditor">
-    <div
-      v-if="displayPlaceholder"
-      @click="setFocus"
-      class="caption text-sub-title position-absolute t-0 pa-5 ma-1px full-width">
-      {{ placeholder }}
-    </div>
-    <textarea
-      ref="editor"
-      :id="ckEditorType"
-      v-model="inputVal"
-      :placeholder="placeholder"
-      cols="30"
-      rows="10"
-      class="textarea"></textarea>
-    <v-progress-circular
-      v-if="!editorReady"
-      :width="3"
-      indeterminate
-      class="loadingRing position-absolute" />
-    <div
-      :v-show="editorReady"
-      :id="buttonId"
-      :class="!validLength && 'tooManyChars' || ''"
-      class="activityCharsCount">
-      {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
-      <i class="uiIconMessageLength"></i>
+  <div>
+    <div class="richEditor">
+      <div
+        v-if="displayPlaceholder"
+        @click="setFocus(true)"
+        class="caption text-sub-title position-absolute t-0 pa-5 ma-1px full-width">
+        {{ placeholder }}
+      </div>
+      <textarea
+        ref="editor"
+        :id="ckEditorType"
+        v-model="inputVal"
+        :placeholder="placeholder"
+        cols="30"
+        rows="10"
+        class="textarea"></textarea>
+      <v-progress-circular
+        v-if="!editorReady"
+        :width="3"
+        indeterminate
+        class="loadingRing position-absolute" />
+      <div
+        :v-show="editorReady"
+        :id="buttonId"
+        :class="!validLength && 'tooManyChars' || ''"
+        class="activityCharsCount">
+        {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
+        <i class="uiIconMessageLength"></i>
+      </div>
     </div>
   </div>
 </template>
@@ -122,8 +124,11 @@ export default {
         this.$emit('input', val);
       }
     },
-    validLength() {
-      this.$emit('validity-updated', this.validLength);
+    validLength: {
+      immediate: true,
+      handler() {
+        this.$emit('validity-updated', this.validLength);
+      },
     },
     editorReady() {
       if (this.editorReady) {
@@ -173,7 +178,7 @@ export default {
     initCKEditor(reset, textValue) {
       const self = this;
       window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], function() {
-        self.initCKEditorInstance(reset, textValue);
+        self.initCKEditorInstance(reset, textValue || self.value);
       });
     },
     initCKEditorInstance(reset, textValue) {
@@ -252,7 +257,7 @@ export default {
         activityId: this.activityId,
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
-        startupFocus: 'end',
+        startupFocus: this.autofocus && 'end',
         pasteFilter: 'p; a[!href]; strong; i', 
         on: {
           instanceReady: function () {
@@ -266,8 +271,7 @@ export default {
               });
 
             self.setEditorReady();
-
-            if (self.autofocus) {
+            if (this.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
           },
@@ -297,7 +301,7 @@ export default {
       }
     },
     computePlaceHolderVisibility() {
-      this.displayPlaceholder = this.editor?.status === 'ready' && !this.inputVal && !this.inputVal.trim();
+      this.displayPlaceholder = this.editor?.status === 'ready' && !this.inputVal?.trim()?.length;
     },
     replaceWithSuggesterClass: function(message) {
       const tempdiv = $('<div class=\'temp\'/>').html(message || '');
@@ -334,8 +338,8 @@ export default {
         this.$set(this.editor, 'status', 'ready');
       }, 200);
     },
-    setFocus: function() {
-      if (this.editorReady) {
+    setFocus(force) {
+      if (this.editorReady && (force || this.autofocus)) {
         window.setTimeout(() => {
           this.$nextTick().then(() => this.editor.focus());
         }, 200);

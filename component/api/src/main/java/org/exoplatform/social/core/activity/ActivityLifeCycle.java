@@ -62,6 +62,12 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
       case HIDE_ACTIVITY:
         listener.hideActivity(event);
         break;
+      case PIN_ACTIVITY:
+        listener.pinActivity(event);
+        break;
+      case UNPIN_ACTIVITY:
+        listener.unpinActivity(event);
+        break;
     }
   }
   
@@ -81,20 +87,20 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
     broadcast(new ActivityLifeCycleEvent(Type.UPDATE_COMMENT, activity));
   }
   
-  public void likeActivity(ExoSocialActivity activity) {
-    broadcast(new ActivityLifeCycleEvent(Type.LIKE_ACTIVITY, activity));
+  public void likeActivity(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.LIKE_ACTIVITY, activity, userIdentityId));
   }
 
-  public void likeComment(ExoSocialActivity activity) {
-    broadcast(new ActivityLifeCycleEvent(Type.LIKE_COMMENT, activity));
+  public void likeComment(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.LIKE_COMMENT, activity, userIdentityId));
   }
 
-  public void deleteLikeActivity(ExoSocialActivity activity, String userId) {
-    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_ACTIVITY, activity, userId));
+  public void deleteLikeActivity(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_ACTIVITY, activity, userIdentityId));
   }
 
-  public void deleteLikeComment(ExoSocialActivity activity, String userId) {
-    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_COMMENT, activity, userId));
+  public void deleteLikeComment(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.DELETE_LIKE_COMMENT, activity, userIdentityId));
   }
 
   public void deleteActivity(ExoSocialActivity activity) {
@@ -111,6 +117,14 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
 
   public void hideActivity(ExoSocialActivity activity) {
     broadcast(new ActivityLifeCycleEvent(Type.HIDE_ACTIVITY, activity));
+  }
+
+  public void pinActivity(ExoSocialActivity activity, String userIdentityId) {
+    broadcast(new ActivityLifeCycleEvent(Type.PIN_ACTIVITY, activity, userIdentityId));
+  }
+
+  public void unpinActivity(ExoSocialActivity activity) {
+    broadcast(new ActivityLifeCycleEvent(Type.UNPIN_ACTIVITY, activity));
   }
 
 }

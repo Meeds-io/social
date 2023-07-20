@@ -17,16 +17,19 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.mockito.Mockito.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.mockito.*;
 
-import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.xml.*;
 import org.exoplatform.portal.config.UserACL;
@@ -55,7 +58,6 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
-import org.exoplatform.upload.UploadService;
 
 /**
  * Unit Test for {@link ActivityManager}, including cache tests.
@@ -116,16 +118,16 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // prepare viewer
     org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(owner.getUserId()).thenReturn("demo");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("demo"))
            .thenReturn(new Identity("1"));
     org.exoplatform.services.security.Identity admin = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(admin.getUserId()).thenReturn("john");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("john"))
            .thenReturn(new Identity("2"));
     Mockito.when(admin.getGroups()).thenReturn(new HashSet<>(Arrays.asList("/platform/administrators")));
     org.exoplatform.services.security.Identity mary = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(mary.getUserId()).thenReturn("mary");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("mary"))
            .thenReturn(new Identity("3"));
 
     // no configuration
@@ -229,6 +231,102 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertTrue(manager.isActivityViewable(activity, mary));
   }
 
+  public void testActivityTypePlugin() {
+    ActivityStorage storage = Mockito.mock(ActivityStorage.class);
+    IdentityManager identityManager = Mockito.mock(IdentityManager.class);
+    UserACL acl = Mockito.mock(UserACL.class);
+    Mockito.when(acl.getAdminGroups()).thenReturn("/platform/administrators");
+
+    String specificActivityType = "SpecificActivityType";
+
+    // prepare activity
+    ExoSocialActivity activity = Mockito.mock(ExoSocialActivity.class);
+    Mockito.when(activity.isComment()).thenReturn(false);
+    Mockito.when(activity.getType()).thenReturn(specificActivityType);
+    Mockito.when(activity.getPosterId()).thenReturn("1");
+    // prepare viewer
+    org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
+    Mockito.when(owner.getUserId()).thenReturn("demo");
+    Mockito.when(identityManager.getOrCreateUserIdentity("demo"))
+           .thenReturn(new Identity("1"));
+
+    // no configuration
+    // by default: edit activity/comment are all enabled
+    ActivityManager manager = new ActivityManagerImpl(storage, identityManager, spaceService, relationshipManager, acl, null);
+    // owner
+    assertTrue(manager.isActivityEditable(activity, owner));
+    assertTrue(manager.isActivityViewable(activity, owner));
+    assertTrue(manager.isActivityDeletable(activity, owner));
+
+    AtomicBoolean viewwable = new AtomicBoolean(false);
+    AtomicBoolean editable = new AtomicBoolean(false);
+    AtomicBoolean deletable = new AtomicBoolean(false);
+    manager.addActivityTypePlugin(new ActivityTypePlugin(null) {
+      @Override
+      public String getActivityType() {
+        return specificActivityType;
+      }
+
+      @Override
+      public boolean isActivityEditable(ExoSocialActivity activity, org.exoplatform.services.security.Identity userAclIdentity) {
+        return editable.get();
+      }
+
+      @Override
+      public boolean isActivityDeletable(ExoSocialActivity activity, org.exoplatform.services.security.Identity userAclIdentity) {
+        return deletable.get();
+      }
+
+      @Override
+      public boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity userAclIdentity) {
+        return viewwable.get();
+      }
+    });
+
+    assertFalse(manager.isActivityEditable(activity, owner));
+    editable.set(true);
+    assertTrue(manager.isActivityEditable(activity, owner));
+
+    assertFalse(manager.isActivityViewable(activity, owner));
+    viewwable.set(true);
+    assertTrue(manager.isActivityViewable(activity, owner));
+
+    assertFalse(manager.isActivityDeletable(activity, owner));
+    deletable.set(true);
+    assertTrue(manager.isActivityDeletable(activity, owner));
+  }
+
+  public void testActivityNotificationEnabling() {
+    ActivityStorage storage = Mockito.mock(ActivityStorage.class);
+    IdentityManager identityManager = Mockito.mock(IdentityManager.class);
+    RelationshipManager relationshipManager = Mockito.mock(RelationshipManager.class);
+    ActivityManager activityManager = new ActivityManagerImpl(storage,
+                                                              identityManager,
+                                                              spaceService,
+                                                              relationshipManager,
+                                                              null,
+                                                              null);
+    String activityType = "TestActivityType";
+    String activityType2 = "TestActivityType2";
+    String activityType3 = "TestActivityType3";
+
+    addActivityTypePlugin(activityManager, activityType, false);
+    addActivityTypePlugin(activityManager, activityType2, true);
+
+    assertFalse(activityManager.isNotificationEnabled(null));
+
+    ExoSocialActivity activity = mock(ExoSocialActivity.class);
+    assertTrue(activityManager.isNotificationEnabled(activity));
+    when(activity.getType()).thenReturn(activityType);
+    assertFalse(activityManager.isNotificationEnabled(activity));
+    when(activity.getType()).thenReturn(activityType2);
+    assertTrue(activityManager.isNotificationEnabled(activity));
+    when(activity.getType()).thenReturn(activityType3);
+    assertTrue(activityManager.isNotificationEnabled(activity));
+    when(activity.isHidden()).thenReturn(true);
+    assertFalse(activityManager.isNotificationEnabled(activity));
+  }
+
   public void testActivityDeletable() {
     ActivityStorage storage = Mockito.mock(ActivityStorage.class);
     IdentityManager identityManager = Mockito.mock(IdentityManager.class);
@@ -262,20 +360,20 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // prepare viewer
     org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(owner.getUserId()).thenReturn("demo");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("demo"))
            .thenReturn(new Identity("1"));
     org.exoplatform.services.security.Identity admin = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(admin.getUserId()).thenReturn("john");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("john"))
            .thenReturn(new Identity("2"));
     Mockito.when(admin.getGroups()).thenReturn(new HashSet<>(Arrays.asList("/platform/administrators")));
     org.exoplatform.services.security.Identity mary = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(mary.getUserId()).thenReturn("mary");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("mary"))
            .thenReturn(new Identity("3"));
     org.exoplatform.services.security.Identity james = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(james.getUserId()).thenReturn("james");
-    Mockito.when(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "james"))
+    Mockito.when(identityManager.getOrCreateUserIdentity("james"))
            .thenReturn(new Identity("4"));
 
     // owner
@@ -284,6 +382,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
 
     // manager is able to delete other user's activity
     assertTrue(activityManager.isActivityDeletable(activity, admin));
+
     // member is not able to delete other user's activity
     assertFalse(activityManager.isActivityDeletable(activity, mary));
     assertFalse(activityManager.isActivityDeletable(comment, mary));
@@ -305,6 +404,20 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertFalse(activityManager.isActivityDeletable(activity, james));
 
     Mockito.when(james.isMemberOf(acl.getAdminGroups())).thenReturn(true);
+    assertTrue(activityManager.isActivityDeletable(activity, james));
+
+    Map<String, String> templateParams = new HashMap<>();
+    when(activity.getTemplateParams()).thenReturn(templateParams);
+    templateParams.put(ActivityManagerImpl.REMOVABLE, "false");
+    assertFalse(activityManager.isActivityDeletable(activity, owner));
+    assertTrue(activityManager.isActivityDeletable(activity, admin));
+    assertTrue(activityManager.isActivityDeletable(activity, mary));
+    assertTrue(activityManager.isActivityDeletable(activity, james));
+
+    templateParams.put(ActivityManagerImpl.REMOVABLE, "true");
+    assertTrue(activityManager.isActivityDeletable(activity, owner));
+    assertTrue(activityManager.isActivityDeletable(activity, admin));
+    assertTrue(activityManager.isActivityDeletable(activity, mary));
     assertTrue(activityManager.isActivityDeletable(activity, james));
   }
 
@@ -1573,4 +1686,18 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     spaceService.saveSpace(space, true);
     return space;
   }
+
+  private void addActivityTypePlugin(ActivityManager activityManager, String activityType, boolean enabled) {
+    InitParams params = new InitParams();
+    ValueParam param = new ValueParam();
+    param.setName(ActivityTypePlugin.ACTIVITY_TYPE_PARAM);
+    param.setValue(activityType);
+    params.addParameter(param);
+    param = new ValueParam();
+    param.setName(ActivityTypePlugin.ENABLE_NOTIFICATION_PARAM);
+    param.setValue(String.valueOf(enabled));
+    params.addParameter(param);
+    activityManager.addActivityTypePlugin(new ActivityTypePlugin(params));
+  }
+
 }
