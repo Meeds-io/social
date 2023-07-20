@@ -20,7 +20,7 @@
   <div v-if="attachmentsCount">
     <card-carousel parent-class="attachments-image-parent">
       <attachments-image-item
-        v-for="attachment in imageAttachments"
+        v-for="attachment in sortedAttachments"
         :key="attachment.id"
         :attachment="attachment"
         :object-type="objectType"
@@ -66,6 +66,11 @@ export default {
     },
     attachmentsCount() {
       return this.imageAttachments?.length || 0;
+    },
+    sortedAttachments() {
+      const sortedAttachments = this.attachmentsCount && this.imageAttachments.slice() || [];
+      sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
+      return sortedAttachments;
     },
   },
   created() {
