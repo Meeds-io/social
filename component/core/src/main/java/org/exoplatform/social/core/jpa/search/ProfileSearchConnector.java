@@ -520,6 +520,7 @@ public class ProfileSearchConnector {
     Map<String, String> settings = filter.getProfileSettings();
     int settingsCount = 0 ;
     for (Map.Entry<String, String> entry : settings.entrySet()){
+      String inputKey = entry.getKey().replace(" ", "\\\\ ");
       String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
       if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
         inputValue = inputValue.replace("\"", "");
@@ -531,11 +532,11 @@ public class ProfileSearchConnector {
           if (i != 0 ) {
             esExp.append(" AND ") ;
           }
-          esExp.append(entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splittedValue[i])).append(StorageUtils.ASTERISK_STR);
+          esExp.append(inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splittedValue[i])).append(StorageUtils.ASTERISK_STR);
         }
         esExp.append(")");
       } else {
-        esExp.append("( "+entry.getKey()+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
+        esExp.append("( "+inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
         esExp.append(")");
       }
       if ( settingsCount != settings.size()- 1 ) esExp.append(" AND ") ;
