@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     openFileExplorer() {
-      document.dispatchEvent(new CustomEvent('open-file-explorer')); 
+      document.dispatchEvent(new CustomEvent('attachments-image-open-file-explorer')); 
     }
   }
 };

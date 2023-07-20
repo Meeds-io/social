@@ -26,6 +26,7 @@
     <attachments-image-input-multi-upload
       ref="uploadInput"
       :images.sync="images"
+      :disable-paste="disablePaste"
       @delete="deleteImage" />
   </div>
 </template>
@@ -43,6 +44,10 @@ export default {
     objectType: {
       type: String,
       default: null
+    },
+    disablePaste: {
+      type: Boolean,
+      default: false
     },
   },
   data: () => ({

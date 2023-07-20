@@ -33,6 +33,10 @@ export default {
       type: Number,
       default: () => 20971520,
     },
+    disablePaste: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     filesArray: []
@@ -43,11 +47,13 @@ export default {
     },
   },
   created() {
-    document.addEventListener('open-file-explorer', this.triggerFileClickEvent);
+    if (!this.disablePaste) {
+      document.addEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
+    }
     document.addEventListener('paste', this.handlePasteFiles);
   },
   beforeDestroy() {
-    document.removeEventListener('open-file-explorer', this.triggerFileClickEvent);
+    document.removeEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
     document.removeEventListener('paste', this.handlePasteFiles); 
   },
   methods: {

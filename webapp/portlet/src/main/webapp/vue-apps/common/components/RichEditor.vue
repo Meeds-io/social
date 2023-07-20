@@ -35,6 +35,7 @@
       :max-file-size="maxFileSize"
       :object-type="objectType"
       :object-id="objectId"
+      :disable-paste="disableImageAttachmentPaste"
       @changed="$emit('attachments-edited', $event)" />
   </div>
 </template>
