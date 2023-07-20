@@ -96,28 +96,36 @@ export default {
             };
             reader.readAsDataURL(file);
             this.$emit('input', fileDetails.uploadId);
-            this.$uploadService.upload(file, fileDetails.uploadId)
-              .catch(error => this.$root.$emit('alert-message', this.$t(String(error)), 'error'));
-            this.controlUpload(fileDetails);
+            this.uploadFileToServer(file, fileDetails);
           }
         });
         this.$emit('update-images', this.filesArray);
       }
     },
-    uploadFileToServer(file) {
-      this.$uploadService.upload(file, file.uploadId);
-      this.controlUpload(file);
+    uploadFileToServer(file, fileDetails) {
+      try {
+        this.$uploadService.upload(file, fileDetails.uploadId)
+          .catch(error => this.handleUploadFileError(fileDetails, String(error)));
+        this.controlUpload(fileDetails);
+      } catch (e) {
+        this.handleUploadFileError(fileDetails, String(e));
+      }
     },
-    controlUpload(file) {
+    controlUpload(fileDetails) {
       window.setTimeout(() => {
-        this.$uploadService.getUploadProgress(file.uploadId)
+        this.$uploadService.getUploadProgress(fileDetails.uploadId)
           .then(percent => {
-            file.progress = Number(percent);
-            if (!file.progress || file.progress < 100) {
-              this.controlUpload(file);
+            fileDetails.progress = Number(percent);
+            if (!fileDetails.error && (!fileDetails.progress || fileDetails.progress < 100)) {
+              this.controlUpload(fileDetails);
             }
           });
       }, 200);
+    },
+    handleUploadFileError(fileDetails, errorKey) {
+      fileDetails.error = true;
+      this.$emit('delete', fileDetails);
+      this.$root.$emit('alert-message', this.$t(errorKey), 'error');
     },
     generateRandomUploadId() {
       const random = Math.round(Math.random() * 100000);
