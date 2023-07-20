@@ -44,21 +44,11 @@ export default {
   },
   created() {
     document.addEventListener('open-file-explorer', this.triggerFileClickEvent);
-    document.addEventListener('paste', event => {
-      if (event?.clipboardData?.files) {
-        const files = event.clipboardData.files;
-        const imageItems = [].slice.call(files).filter((item) => {
-          return item.type.indexOf('image') !== -1;
-        });
-        if (!imageItems.length) {
-          return;
-        }
-        this.uploadFiles(imageItems);
-      }
-    }); 
+    document.addEventListener('paste', this.handlePasteFiles);
   },
   beforeDestroy() {
     document.removeEventListener('open-file-explorer', this.triggerFileClickEvent);
+    document.removeEventListener('paste', this.handlePasteFiles); 
   },
   methods: {
     reset() {
@@ -143,6 +133,16 @@ export default {
       const random = Math.round(Math.random() * 100000);
       const now = Date.now();
       return `${random}-${now}`;
+    },
+    handlePasteFiles(event) {
+      const files = event?.clipboardData?.files || event?.clipboardData?.items;
+      if (files?.length) {
+        const files = event.clipboardData.files;
+        const imageItems = Object.values(files).filter(file => file?.type?.includes('image/'));
+        if (imageItems.length) {
+          this.uploadFiles(imageItems);
+        }
+      }
     },
   }
 };
