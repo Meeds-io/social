@@ -92,6 +92,9 @@ export default {
       }
       return this.save();
     },
+    uploadFiles(files) {
+      this.$refs.uploadInput.uploadFiles(files);
+    },
     save() {
       const uploadIds = this.images
         .filter((file) => file.progress === 100)
