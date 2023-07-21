@@ -27,7 +27,7 @@
             </span>
           </v-tooltip>
         </v-card-title>
-        <v-card-text><img :src="reminder.img"></v-card-text>
+        <v-card-text><img :src="reminder.img" alt=""></v-card-text>
         <v-card-text class="text-subtitle-1 font-weight-bold dark-grey-color">{{ reminder.title }}</v-card-text>
         <v-card-text>
           {{ reminder.description }}

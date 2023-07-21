@@ -738,9 +738,14 @@ public class Utils {
     return (space != null ? space.getId() : null);
   }
 
+  public static boolean isSpacesManager(Identity userIdentity) {
+    String username = userIdentity == null || !userIdentity.isUser() ? null : userIdentity.getRemoteId();
+    return StringUtils.isNotBlank(username) && ExoContainerContext.getService(SpaceService.class).isSuperManager(username);
+  }
+
   public static Space getSpaceByContext() {
     //
-    SpaceService spaceService = (SpaceService) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceService.class);
+    SpaceService spaceService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceService.class);
     PortalRequestContext pcontext = Util.getPortalRequestContext();
     if (!pcontext.getSiteType().equals(SiteType.GROUP) ||
         !pcontext.getSiteName().startsWith(SpaceUtils.SPACE_GROUP)) {
