@@ -21,7 +21,8 @@
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation">
+          role="presentation"
+          alt="">
       </v-avatar>
     </component>
     <component
@@ -62,7 +63,8 @@
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation">
+          role="presentation"
+          alt="">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
@@ -102,7 +104,8 @@
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation">
+          role="presentation"
+          alt="">
       </v-avatar>
     </component>
     <component 
@@ -143,7 +146,8 @@
           :src="avatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation">
+          role="presentation"
+          alt="">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
