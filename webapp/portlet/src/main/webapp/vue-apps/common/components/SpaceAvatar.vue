@@ -208,8 +208,15 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
     },
+    isSpaceMember() {
+      return eXo.env.portal.isSpacesManager
+        || this.space.isMember
+        || this.space.canEdit
+        || this.space?.members?.includes(eXo.env.portal.userName)
+        || this.space?.managers?.includes(eXo.env.portal.userName);
+    },
     notAccessibleSpace() {
-      return this.space && this.space.visibility === 'hidden' && !this.space.isMember;
+      return this.space && this.space.visibility === 'hidden' && !this.isSpaceMember;
     },
     defaultAvatarUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/default-image/avatar`;
