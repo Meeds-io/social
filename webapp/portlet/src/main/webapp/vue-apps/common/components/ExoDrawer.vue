@@ -181,6 +181,14 @@ export default {
         this.close();
       }
     },
+    isMobile: {
+      immediate: true,
+      handler: function() {
+        if (this.isMobile && this.expand) {
+          this.expand = false;
+        }
+      }
+    },
     expand() {
       this.$emit('expand-updated', this.expand);
     },
@@ -280,7 +288,9 @@ export default {
       this.loading = false;
     },
     toogleExpand() {
-      this.expand = !this.expand;
+      if (!this.isMobile && this.allowExpand) {
+        this.expand = !this.expand;
+      }
     },
   },
 };
