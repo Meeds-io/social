@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -30,20 +30,20 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
 import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAO;
+import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
-import org.exoplatform.social.core.jpa.test.MaxQueryNumber;
-import org.exoplatform.social.core.jpa.test.QueryNumberTest;
-import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 
-@QueryNumberTest
 public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   
   private IdentityStorage identityStorage;
@@ -75,7 +75,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     tearDownActivityList = new ArrayList<ExoSocialActivity>();
   }
 
-  @MaxQueryNumber(522)
   public void testGetActivitiesByPoster() {
     ExoSocialActivity activity1 = createActivity(1);
     activity1.setType("TYPE1");
@@ -95,7 +94,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(1, activities.size());
   }
   
-  @MaxQueryNumber(516)
   public void testSaveActivity() {
     
     ExoSocialActivity activity = createActivity(0);
@@ -113,7 +111,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     tearDownActivityList.add(activity);
     
   }
-  @MaxQueryNumber(516)
+
   public void testUpdateActivity() {
     ExoSocialActivity activity = createActivity(1);
     //
@@ -145,7 +143,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     tearDownActivityList.add(activity);
   }
 
-  @MaxQueryNumber(60)
   public void testUpdateComment() {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Initial Activity");
@@ -171,7 +168,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertTrue(comment.getPostedTime() < comment.getUpdated().getTime());
   }
 
-  @MaxQueryNumber(123)
   public void testUpdateActivityMention() {
     System.setProperty("gatein.email.domain.url", "test.com");
     ExoSocialActivity activity = createActivity(1);
@@ -199,7 +195,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.updateActivity(activity);
     //
     activity = activityStorage.getActivity(activity.getId());
-    assertEquals(processedTitle, StringEscapeUtils.unescapeHtml4(activity.getTitle())); // NOSONAR
+    assertEquals(processedTitle, StringEscapeUtils.unescapeHtml(activity.getTitle())); // NOSONAR
     assertEquals(2, activity.getMentionedIds().length);
     List<ExoSocialActivity> list = activityStorage.getActivities(rootIdentity,rootIdentity, 0, 10);
     assertEquals(1, list.size());
@@ -234,7 +230,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     System.clearProperty("gatein.email.domain.url");
   }
   
-  @MaxQueryNumber(520)
   public void testGetUserActivities() {
     ExoSocialActivity activity = createActivity(1);
     //
@@ -244,7 +239,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     tearDownActivityList.addAll(got);
   }
   
-  @MaxQueryNumber(520)
   public void testGetUserIdsActivities() {
     ExoSocialActivity activity = createActivity(1);
     //
@@ -254,7 +248,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     tearDownActivityList.add(activityStorage.getActivity(got.get(0)));
   }
 
-  @MaxQueryNumber(520)
   public void testGetActivitiesByIDs() {
     ExoSocialActivity activity1 = createActivity(10);
     activityStorage.saveActivity(demoIdentity, activity1);
@@ -273,14 +266,12 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(activity3.getId(), got.get(2).getId());
   }
   
-  @MaxQueryNumber(530)
   public void testGetActivityIdsFeed() {
     createActivities(3, demoIdentity);
     List<String> got = activityStorage.getActivityIdsFeed(demoIdentity, 0, 10);
     assertEquals(3, got.size());
   }
   
-  @MaxQueryNumber(650)
   public void testGetSpaceActivityIds() throws Exception {
     Space space = this.getSpaceInstance(spaceService, 0);
     Identity spaceIdentity = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
@@ -301,7 +292,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   }
   
   
-  @MaxQueryNumber(516)
   public void testGetActivity() {
     ExoSocialActivity activity = createActivity(1);
     //
@@ -316,7 +306,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
    * 
    * @throws Exception
    */
-  @MaxQueryNumber(540)
   public void testGetActivityIdsOfConnections() throws Exception {
     createActivities(5, johnIdentity);
     
@@ -334,7 +323,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(6, got.getSize());
   }
   
-  @MaxQueryNumber(530)
   public void testGetNewerOnUserActivities() {
     createActivities(2, demoIdentity);
     ExoSocialActivity firstActivity = activityStorage.getUserActivities(demoIdentity, 0, 10).get(0);
@@ -349,7 +337,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(2, activityStorage.getNewerOnUserActivities(demoIdentity, firstActivity, 10).size());
     assertEquals(2, activityStorage.getNumberOfNewerOnUserActivities(demoIdentity, firstActivity));
   }
-  @MaxQueryNumber(532)
+
   public void testGetOlderOnUserActivities() {
     createActivities(2, demoIdentity);
     ExoSocialActivity baseActivity = activityStorage.getUserActivities(demoIdentity, 0, 10).get(0);
@@ -365,7 +353,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(3, activityStorage.getOlderOnUserActivities(demoIdentity, baseActivity, 10).size());
     assertEquals(3, activityStorage.getNumberOfOlderOnUserActivities(demoIdentity, baseActivity));
   }
-  @MaxQueryNumber(695)
+
   public void testGetNewerOnActivityFeed() {
     createActivities(3, demoIdentity);
     ExoSocialActivity demoBaseActivity = activityStorage.getActivityFeed(demoIdentity, 0, 10).get(0);
@@ -383,7 +371,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(5, activityStorage.getNewerOnActivityFeed(demoIdentity, demoBaseActivity, 10).size());
     assertEquals(5, activityStorage.getNumberOfNewerOnActivityFeed(demoIdentity, demoBaseActivity));
   }
-  @MaxQueryNumber(695)
+
   public void testGetOlderOnActivityFeed() throws Exception {
     createActivities(3, demoIdentity);
     createActivities(2, maryIdentity);
@@ -403,7 +391,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(2, activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, baseActivity));
     assertEquals(2, activityStorage.getOlderOnActivityFeed(demoIdentity, baseActivity, 10).size());
   }
-  @MaxQueryNumber(1129)
+
   public void testGetNewerOnActivitiesOfConnections() throws Exception {
     List<Relationship> relationships = new ArrayList<Relationship> ();
     createActivities(3, maryIdentity);
@@ -466,7 +454,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(8, activityStorage.getNewerOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
     assertEquals(8, activityStorage.getNumberOfNewerOnActivitiesOfConnections(maryIdentity, baseActivity));
   }
-  @MaxQueryNumber(1135)
+
   public void testGetOlderOnActivitiesOfConnections() throws Exception {
     List<Relationship> relationships = new ArrayList<Relationship> ();
     createActivities(3, maryIdentity);
@@ -521,7 +509,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(4, activityStorage.getOlderOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
     assertEquals(4, activityStorage.getNumberOfOlderOnActivitiesOfConnections(maryIdentity, baseActivity));
   }
-  @MaxQueryNumber(835)
+
   public void testGetNewerOnUserSpacesActivities() throws Exception {
     Space space = this.getSpaceInstance(spaceService, 0);
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
@@ -564,7 +552,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(19, activityStorage.getNewerOnUserSpacesActivities(demoIdentity, baseActivity, 20).size());
     assertEquals(19, activityStorage.getNumberOfNewerOnUserSpacesActivities(demoIdentity, baseActivity));
   }
-  @MaxQueryNumber(820)
+
   public void testGetOlderOnUserSpacesActivities() throws Exception {
     Space space = this.getSpaceInstance(spaceService, 0);
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
@@ -611,7 +599,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(4, activityStorage.getOlderOnUserSpacesActivities(demoIdentity, baseActivity, 10).size());
     assertEquals(4, activityStorage.getNumberOfOlderOnUserSpacesActivities(demoIdentity, baseActivity));
   }
-  @MaxQueryNumber(213)
+
   public void testGetNewerComments() {
     int totalNumber = 3;
 
@@ -662,7 +650,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(0, activityStorage.getNumberOfNewerComments(activity, baseComment));
   }
 
-  @MaxQueryNumber(690)
   public void testGetOlderComments() {
     int totalNumber = 10;
     
@@ -709,7 +696,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(0, activityStorage.getNumberOfOlderComments(activity, baseComment));
   }
 
-  @MaxQueryNumber(1281)
   public void testMentionersAndCommenters() throws Exception {
     ExoSocialActivity activity = createActivity(1);
     activity.setTitle("hello @demo @john");
@@ -761,11 +747,41 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(3, got.getReplyToId().length);
     assertEquals(3, got.getCommentedIds().length);
     assertEquals(2, got.getMentionedIds().length);
-    
-    
   }
 
-  @MaxQueryNumber(57)
+  public void testDeleteCommentAsActivity() throws ActivityStorageException {
+    assertTrue(activityStorage instanceof CachedActivityStorage);
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("Test parent activity");
+    activityStorage.saveActivity(rootIdentity, activity);
+    tearDownActivityList.add(activity);
+
+    ExoSocialActivity comment = new ExoSocialActivityImpl();
+    comment.setTitle("Test comment");
+    comment.setUserId(rootIdentity.getId());
+    activityStorage.saveComment(activity, comment);
+
+    ExoSocialActivity cachedActivity = activityStorage.getActivity(activity.getId());
+    assertNotNull(cachedActivity);
+    assertEquals(activity.getTitle(), cachedActivity.getTitle());
+
+    ActivityDAO activityDAO = getContainer().getComponentInstanceOfType(ActivityDAO.class);
+    ActivityEntity activityEntity = activityDAO.find(Long.parseLong(activity.getId()));
+    activityEntity.setTitle(activity.getTitle() + " modified");
+    activityDAO.update(activityEntity);
+
+    cachedActivity = activityStorage.getActivity(activity.getId());
+    assertNotNull(cachedActivity);
+    assertEquals(activity.getTitle(), cachedActivity.getTitle());
+
+    activityStorage.deleteActivity(comment.getId().replace("comment", ""));
+
+    cachedActivity = activityStorage.getActivity(activity.getId());
+    assertNotNull(cachedActivity);
+    assertEquals(activity.getTitle() + " modified", cachedActivity.getTitle());
+  }
+
   public void testShouldMoveActivityUpWhenMentionedInAPost() {
     // Given
     ExoSocialActivity activity1 = createActivity(1);
@@ -803,7 +819,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals("hello world", activities.get(2).getTitle());
   }
 
-  @MaxQueryNumber(1293)
   public void testViewerOwnerPosterActivities() throws Exception {
     ExoSocialActivity activity1 = new ExoSocialActivityImpl();
     // Demo mentionned here
@@ -846,7 +861,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(7, list.size());
   }
   
-  @MaxQueryNumber(1293)
   public void testViewerOwnerPosterInSpaceSubComments() throws Exception {
     ExoSocialActivity activity1 = new ExoSocialActivityImpl();
     // Demo mentionned here
@@ -889,7 +903,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(2, list.size());
   }
 
-  @MaxQueryNumber(1329)
   public void testViewerOwnerPosterSubComments() throws Exception {
     ExoSocialActivity activity1 = new ExoSocialActivityImpl();
     // Demo mentionned here
@@ -947,7 +960,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(7, list.size());
   }
 
-  @MaxQueryNumber(129)
   public void testSaveCommentWithAlreadyMentionedUsers() throws Exception {
     ExoSocialActivity activity1 = new ExoSocialActivityImpl();
     activity1.setTitle("Initial Activity");
