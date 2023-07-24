@@ -21,6 +21,8 @@ import static org.exoplatform.social.core.storage.ActivityStorageException.Type.
 
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.services.cache.*;
 import org.exoplatform.services.log.ExoLogger;
@@ -359,14 +361,14 @@ public class CachedActivityStorage implements ActivityStorage {
    * {@inheritDoc}
    */
   public void deleteActivity(final String activityId) throws ActivityStorageException {
-
-    //
-    ExoSocialActivity a = storage.getActivity(activityId);
-    storage.deleteActivity(activityId);
-
-    //
-    ActivityKey key = new ActivityKey(activityId);
-    exoActivityCache.remove(key);
+    ExoSocialActivity activity = getActivity(activityId);
+    if (activity != null && StringUtils.isNotBlank(activity.getParentId())) {
+      deleteComment(activity.getParentId(), activityId);
+    } else {
+      storage.deleteActivity(activityId);
+      ActivityKey key = new ActivityKey(activityId);
+      exoActivityCache.remove(key);
+    }
   }
 
   /**
