@@ -2137,7 +2137,24 @@
       <adapter>
         (function() {
           <include>/js/lib/autolinker.min.js</include>
-          Vue.directive('autolinker',(el, binding) => el.innerHTML = Autolinker.link(binding.value, {sanitizeHtml: true}));
+          Vue.directive('autolinker',(el, binding) => el.innerHTML = Autolinker.link(binding.value, {
+            sanitizeHtml: true,
+            replaceFn : function (match) {
+              switch(match.getType()) {
+                case 'url' :
+                  if(match.getUrl().indexOf(window.location.origin) === 0) {
+                    return true;
+                  } else {
+                    const tag = match.buildTag();
+                    tag.setAttr('target', '_blank');
+                    tag.setAttr('rel', 'nofollow noopener noreferrer');
+                    return tag;
+                  }
+                default :
+                  return true;
+              }
+            }
+          }));
           return Autolinker;
         })();
       </adapter>

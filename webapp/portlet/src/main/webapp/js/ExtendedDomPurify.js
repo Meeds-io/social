@@ -20,7 +20,24 @@
   let ExtendedDomPurify = function() {
   };
   ExtendedDomPurify.prototype.purify = function(content) {
-    const pureHtml = DOMPurify.sanitize(Autolinker.link(content, { newWindow: true, email: false }), {
+    const pureHtml = DOMPurify.sanitize(Autolinker.link(content, {
+      email: false,
+      replaceFn : function (match) {
+        switch(match.getType()) {
+          case 'url' :
+            if(match.getUrl().indexOf(window.location.origin) === 0) {
+              return true;
+            } else {
+              const tag = match.buildTag();
+              tag.setAttr('target', '_blank');
+              tag.setAttr('rel', 'nofollow noopener noreferrer');
+              return tag;
+            }
+          default :
+            return true;
+        }
+      }
+    }), {
       USE_PROFILES: {
         html: true,
         SAFE_FOR_TEMPLATES: true,
