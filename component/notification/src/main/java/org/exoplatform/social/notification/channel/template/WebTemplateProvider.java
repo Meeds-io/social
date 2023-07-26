@@ -300,6 +300,9 @@ public class WebTemplateProvider extends TemplateProvider {
         LOG.debug("Comment of activity with id '{}' was removed but the notification with id'{}' is remaining", commentId, notification.getId());
         return null;
       }
+      if (!Utils.getActivityManager().isNotificationEnabled(comment, notification.getTo())) {
+        return null;
+      }
       String pluginId = notification.getKey().getId();
       
       TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), pluginId, language);
@@ -661,6 +664,9 @@ public class WebTemplateProvider extends TemplateProvider {
         LOG.debug("Activity with id '{}' doesn't exist. The related notification will be ignored", activityId);
         return null;
       }
+      if (!Utils.getActivityManager().isNotificationEnabled(activity, notification.getTo())) {
+        return null;
+      }
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
       Profile profile = identity.getProfile();
       templateContext.put("isIntranet", "true");
@@ -752,6 +758,9 @@ public class WebTemplateProvider extends TemplateProvider {
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
       if (activity == null) {
         LOG.debug("Notification related to activity with id '{}' couldn't be found. The related notification will be ignored", activityId);
+        return null;
+      }
+      if (!Utils.getActivityManager().isNotificationEnabled(activity, notification.getTo())) {
         return null;
       }
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);

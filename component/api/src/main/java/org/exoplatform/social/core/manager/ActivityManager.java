@@ -486,6 +486,16 @@ public interface ActivityManager {
   }
 
   /**
+   * @param  activity {@link ExoSocialActivity}
+   * @param  username User for whom the notification will be sent
+   * @return          true if the Activity Notification is enabled for a given
+   *                  user
+   */
+  default boolean isNotificationEnabled(ExoSocialActivity activity, String username) {
+    return true;
+  }
+
+  /**
    * Checks whether a user can post an activity in a specific stream of user Or
    * Space
    * 

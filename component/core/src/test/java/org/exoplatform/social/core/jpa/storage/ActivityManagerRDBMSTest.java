@@ -314,17 +314,21 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     addActivityTypePlugin(activityManager, activityType2, true);
 
     assertFalse(activityManager.isNotificationEnabled(null));
+    assertFalse(activityManager.isNotificationEnabled(null, null));
 
     ExoSocialActivity activity = mock(ExoSocialActivity.class);
     assertTrue(activityManager.isNotificationEnabled(activity));
+    assertTrue(activityManager.isNotificationEnabled(activity, null));
     when(activity.getType()).thenReturn(activityType);
-    assertFalse(activityManager.isNotificationEnabled(activity));
+    assertFalse(activityManager.isNotificationEnabled(activity, null));
     when(activity.getType()).thenReturn(activityType2);
-    assertTrue(activityManager.isNotificationEnabled(activity));
+    assertTrue(activityManager.isNotificationEnabled(activity, null));
+    assertFalse(activityManager.isNotificationEnabled(activity, "root3"));
+    assertTrue(activityManager.isNotificationEnabled(activity, "root2"));
     when(activity.getType()).thenReturn(activityType3);
-    assertTrue(activityManager.isNotificationEnabled(activity));
+    assertTrue(activityManager.isNotificationEnabled(activity, null));
     when(activity.isHidden()).thenReturn(true);
-    assertFalse(activityManager.isNotificationEnabled(activity));
+    assertFalse(activityManager.isNotificationEnabled(activity, null));
   }
 
   public void testActivityDeletable() {
@@ -1697,7 +1701,12 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     param.setName(ActivityTypePlugin.ENABLE_NOTIFICATION_PARAM);
     param.setValue(String.valueOf(enabled));
     params.addParameter(param);
-    activityManager.addActivityTypePlugin(new ActivityTypePlugin(params));
+    activityManager.addActivityTypePlugin(new ActivityTypePlugin(params) {
+      @Override
+      public boolean isEnableNotification(ExoSocialActivity activity, String username) {
+        return !StringUtils.equals(username, "root3") && super.isEnableNotification();
+      }
+    });
   }
 
 }
