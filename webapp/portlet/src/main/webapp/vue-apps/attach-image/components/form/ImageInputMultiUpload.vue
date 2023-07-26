@@ -33,6 +33,10 @@ export default {
       type: Number,
       default: () => 20971520,
     },
+    disablePaste: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     filesArray: []
@@ -43,10 +47,14 @@ export default {
     },
   },
   created() {
-    document.addEventListener('open-file-explorer', this.triggerFileClickEvent);
+    document.addEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
+    if (!this.disablePaste) {
+      document.addEventListener('paste', this.handlePasteFiles);
+    }
   },
   beforeDestroy() {
-    document.removeEventListener('open-file-explorer', this.triggerFileClickEvent);
+    document.removeEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
+    document.removeEventListener('paste', this.handlePasteFiles);
   },
   methods: {
     reset() {
@@ -131,6 +139,45 @@ export default {
       const random = Math.round(Math.random() * 100000);
       const now = Date.now();
       return `${random}-${now}`;
+    },
+    handlePasteFiles(event) {
+      const files = event?.clipboardData?.file?.length
+          && event?.clipboardData?.files
+           || event?.clipboardData?.items;
+      if (files?.length) {
+        const promises = [];
+        const imageItems = [];
+        for (const file of files) {
+          if (file?.type?.includes('image/')) {
+            const imageFile = file.getAsFile && file.getAsFile() || file;
+            if (imageFile) {
+              imageItems.push(imageFile);
+            }
+          } else {
+            const self = this;
+            promises.push(
+              new Promise(resolve => file.getAsString((s) => resolve.apply(self, [s])))
+                .then(filePath => {
+                  if (filePath.includes('.png')
+                      || filePath.includes('.jpeg')
+                      || filePath.includes('.jpg')
+                      || filePath.includes('.gif')
+                      || filePath.includes('.bmp')) {
+                    const imageFile = file.getAsFile && file.getAsFile() || file;
+                    if (imageFile) {
+                      imageItems.push(imageFile);
+                    }
+                  }
+                })
+            );
+          }
+        }
+        Promise.all(promises).then(() => {
+          if (imageItems.length) {
+            this.uploadFiles(imageItems);
+          }
+        });
+      }
     },
   }
 };
