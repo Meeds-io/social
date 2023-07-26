@@ -16,6 +16,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
+        :class="avatarClass"
         class="ma-0 flex-shrink-0">
         <img
           :src="avatarUrl"
@@ -58,6 +59,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
+        :class="avatarClass"
         class="ma-0">
         <img
           :src="avatarUrl"
@@ -99,6 +101,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
+        :class="avatarClass"
         class="ma-0 flex-shrink-0">
         <img
           :src="avatarUrl"
@@ -141,6 +144,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
+        :class="avatarClass"
         class="ma-0">
         <img
           :src="avatarUrl"
@@ -327,7 +331,7 @@ export default {
       };
     },
     componentClass() {
-      return `${this.avatarClass || ''} ${this.clickable && 'width-auto height-auto' || ''} ${this.fullname ? '' : (!this.avatar && this.itemsAlignStyle || '')}`;
+      return `${this.clickable && 'width-auto height-auto' || ''} ${this.fullname ? '' : (!this.avatar && this.itemsAlignStyle || '')}`;
     },
     mustRetrieveIdentity() {
       return !this.identity
