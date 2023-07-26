@@ -68,6 +68,19 @@ public class ActivityTypePlugin extends BaseComponentPlugin {
   }
 
   /**
+   * Makes a check whether the activity notification is enabled for a given user
+   * or not.
+   * 
+   * @param  activity {@link ExoSocialActivity}
+   * @param  username {@link org.exoplatform.social.core.identity.model.Identity}
+   *                    remote id
+   * @return          true if enabled, else false
+   */
+  public boolean isEnableNotification(ExoSocialActivity activity, String username) {
+    return isEnableNotification();
+  }
+
+  /**
    * Return whether an activity is viewable by a user or not
    * 
    * @param  activity        {@link ExoSocialActivity}
@@ -76,6 +89,16 @@ public class ActivityTypePlugin extends BaseComponentPlugin {
    */
   public boolean isActivityViewable(ExoSocialActivity activity, Identity userAclIdentity) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Return specific activity title
+   * 
+   * @param  activity {@link ExoSocialActivity}
+   * @return          activity title to use in notification by example
+   */
+  public String getActivityTitle(ExoSocialActivity activity) {
+    return activity.getTitle();
   }
 
   private String getParamValue(InitParams params, String paramName, String defaultValue) {

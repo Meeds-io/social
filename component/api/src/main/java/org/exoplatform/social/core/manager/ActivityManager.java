@@ -486,6 +486,16 @@ public interface ActivityManager {
   }
 
   /**
+   * @param  activity {@link ExoSocialActivity}
+   * @param  username User for whom the notification will be sent
+   * @return          true if the Activity Notification is enabled for a given
+   *                  user
+   */
+  default boolean isNotificationEnabled(ExoSocialActivity activity, String username) {
+    return true;
+  }
+
+  /**
    * Checks whether a user can post an activity in a specific stream of user Or
    * Space
    * 
@@ -554,6 +564,27 @@ public interface ActivityManager {
    */
   default Identity getActivityStreamOwnerIdentity(String activityId) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Return specific activity title
+   * 
+   * @param  activityId {@link ExoSocialActivity} identifier
+   * @return            activity title if specific type
+   */
+  default String getActivityTitle(String activityId) {
+    ExoSocialActivity activity = getActivity(activityId);
+    return getActivityTitle(activity);
+  }
+
+  /**
+   * Return specific activity title
+   * 
+   * @param  activity {@link ExoSocialActivity}
+   * @return          activity title if specific type
+   */
+  default String getActivityTitle(ExoSocialActivity activity) {
+    return activity == null ? null : activity.getTitle();
   }
 
 }

@@ -112,8 +112,6 @@ public class ActivityManagerImpl implements ActivityManager {
 
   private Set<String>                     systemActivityTypes            = new HashSet<>();
 
-  private List<String>                    disabledTypeNotifications      = new ArrayList<>();
-
   private Map<String, ActivityTypePlugin> activityTypePlugins            = new HashMap<>();
 
   private Set<String>                     systemActivityTitleIds         = new HashSet<>(Arrays.asList("has_joined",
@@ -279,6 +277,19 @@ public class ActivityManagerImpl implements ActivityManager {
    */
   public ExoSocialActivity getActivity(String activityId) {
     return activityStorage.getActivity(activityId);
+  }
+
+  @Override
+  public String getActivityTitle(ExoSocialActivity activity) {
+    if (activity == null) {
+      return null;
+    }
+    ActivityTypePlugin activityTypePlugin = getActivityTypePlugin(activity.getType());
+    if (activityTypePlugin == null) {
+      return activity.getTitle();
+    } else {
+      return activityTypePlugin.getActivityTitle(activity);
+    }
   }
 
   /**
@@ -692,9 +703,6 @@ public class ActivityManagerImpl implements ActivityManager {
 
   @Override
   public void addActivityTypePlugin(ActivityTypePlugin plugin) {
-    if (StringUtils.isNotBlank(plugin.getActivityType()) && !plugin.isEnableNotification()) {
-      disabledTypeNotifications.add(plugin.getActivityType());
-    }
     activityTypePlugins.put(plugin.getActivityType(), plugin);
   }
 
@@ -881,10 +889,25 @@ public class ActivityManagerImpl implements ActivityManager {
 
   @Override
   public boolean isNotificationEnabled(ExoSocialActivity activity) {
-    return activity != null
-        && !activity.isHidden()
-        && (StringUtils.isBlank(activity.getType())
-            || !disabledTypeNotifications.contains(activity.getType()));
+    if (activity == null || activity.isHidden()) {
+      return false;
+    }
+    if (StringUtils.isBlank(activity.getType())) {
+      return true;
+    }
+    ActivityTypePlugin activityTypePlugin = getActivityTypePlugin(activity.getType());
+    return activityTypePlugin == null
+        || activityTypePlugin.isEnableNotification();
+  }
+
+  @Override
+  public boolean isNotificationEnabled(ExoSocialActivity activity, String username) {
+    if (!isNotificationEnabled(activity)) {
+      return false;
+    }
+    ActivityTypePlugin activityTypePlugin = getActivityTypePlugin(activity.getType());
+    return activityTypePlugin == null
+        || activityTypePlugin.isEnableNotification(activity, username);
   }
 
   @Override
