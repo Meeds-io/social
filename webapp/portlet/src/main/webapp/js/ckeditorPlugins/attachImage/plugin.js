@@ -7,7 +7,7 @@ CKEDITOR.plugins.add( 'attachImage', {
   init: function( editor ) {
     editor.addCommand('attachImage', {
       exec: function() {
-        document.dispatchEvent(new CustomEvent('open-file-explorer')); 
+        document.dispatchEvent(new CustomEvent('attachments-image-open-file-explorer'));
       }
     });
 
