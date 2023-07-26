@@ -141,12 +141,42 @@ export default {
       return `${random}-${now}`;
     },
     handlePasteFiles(event) {
-      const files = event?.clipboardData?.files || event?.clipboardData?.items;
+      const files = event?.clipboardData?.files?.length
+          && event?.clipboardData?.files
+           || event?.clipboardData?.items;
       if (files?.length) {
-        const imageItems = Object.values(files).filter(file => file?.type?.includes('image/'));
-        if (imageItems.length) {
-          this.uploadFiles(imageItems);
+        const promises = [];
+        const imageItems = [];
+        for (const file of files) {
+          if (file?.type?.includes('image/')) {
+            const imageFile = file.getAsFile && file.getAsFile() || file;
+            if (imageFile) {
+              imageItems.push(imageFile);
+            }
+          } else {
+            const self = this;
+            promises.push(
+              new Promise(resolve => file.getAsString((s) => resolve.apply(self, [s])))
+                .then(filePath => {
+                  if (filePath.includes('.png')
+                      || filePath.includes('.jpeg')
+                      || filePath.includes('.jpg')
+                      || filePath.includes('.gif')
+                      || filePath.includes('.bmp')) {
+                    const imageFile = file.getAsFile && file.getAsFile() || file;
+                    if (imageFile) {
+                      imageItems.push(imageFile);
+                    }
+                  }
+                })
+            );
+          }
         }
+        Promise.all(promises).then(() => {
+          if (imageItems.length) {
+            this.uploadFiles(imageItems);
+          }
+        });
       }
     },
   }
