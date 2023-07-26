@@ -1,7 +1,7 @@
 import ExoDrawer from './components/ExoDrawer.vue';
 import ExoConfirmDialog from './components/ExoConfirmDialog.vue';
 import ExoUserAvatarsList from './components/ExoUserAvatarsList.vue';
-import ExoUserAvatar from './components/ExoUserAvatar.vue';
+import UserAvatar from './components/UserAvatar.vue';
 import SpaceAvatar from './components/SpaceAvatar.vue';
 import ExoIdentitySuggester from './components/ExoIdentitySuggester.vue';
 import RichEditor from './components/RichEditor.vue';
@@ -28,9 +28,11 @@ import RippleHoverButton from './components/RippleHoverButton.vue';
 const components = {
   'card-carousel': CardCarousel,
   'exo-user-avatars-list': ExoUserAvatarsList,
-  'exo-user-avatar': ExoUserAvatar,
+  // FIXME should be deleted, deprecated, use user-avatar instead
+  'exo-user-avatar': UserAvatar,
   // FIXME should be deleted, deprecated, use space-avatar instead
   'exo-space-avatar': SpaceAvatar,
+  'user-avatar': UserAvatar,
   'space-avatar': SpaceAvatar,
   'exo-drawer': ExoDrawer,
   'activity-share-drawer': ActivityShareDrawer,
