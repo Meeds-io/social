@@ -244,6 +244,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     Mockito.when(activity.isComment()).thenReturn(false);
     Mockito.when(activity.getType()).thenReturn(specificActivityType);
     Mockito.when(activity.getPosterId()).thenReturn("1");
+    Mockito.when(activity.getTitle()).thenReturn("Activity title");
     // prepare viewer
     org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
     Mockito.when(owner.getUserId()).thenReturn("demo");
@@ -257,6 +258,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertTrue(manager.isActivityEditable(activity, owner));
     assertTrue(manager.isActivityViewable(activity, owner));
     assertTrue(manager.isActivityDeletable(activity, owner));
+    assertEquals("Activity title", manager.getActivityTitle(activity));
 
     AtomicBoolean viewwable = new AtomicBoolean(false);
     AtomicBoolean editable = new AtomicBoolean(false);
@@ -281,6 +283,11 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
       public boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity userAclIdentity) {
         return viewwable.get();
       }
+
+      @Override
+      public String getActivityTitle(ExoSocialActivity activity) {
+        return "Activity Plugin title";
+      }
     });
 
     assertFalse(manager.isActivityEditable(activity, owner));
@@ -294,6 +301,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertFalse(manager.isActivityDeletable(activity, owner));
     deletable.set(true);
     assertTrue(manager.isActivityDeletable(activity, owner));
+    assertEquals("Activity Plugin title", manager.getActivityTitle(activity));
   }
 
   public void testActivityNotificationEnabling() {
@@ -314,17 +322,21 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     addActivityTypePlugin(activityManager, activityType2, true);
 
     assertFalse(activityManager.isNotificationEnabled(null));
+    assertFalse(activityManager.isNotificationEnabled(null, null));
 
     ExoSocialActivity activity = mock(ExoSocialActivity.class);
     assertTrue(activityManager.isNotificationEnabled(activity));
+    assertTrue(activityManager.isNotificationEnabled(activity, null));
     when(activity.getType()).thenReturn(activityType);
-    assertFalse(activityManager.isNotificationEnabled(activity));
+    assertFalse(activityManager.isNotificationEnabled(activity, null));
     when(activity.getType()).thenReturn(activityType2);
-    assertTrue(activityManager.isNotificationEnabled(activity));
+    assertTrue(activityManager.isNotificationEnabled(activity, null));
+    assertFalse(activityManager.isNotificationEnabled(activity, "root3"));
+    assertTrue(activityManager.isNotificationEnabled(activity, "root2"));
     when(activity.getType()).thenReturn(activityType3);
-    assertTrue(activityManager.isNotificationEnabled(activity));
+    assertTrue(activityManager.isNotificationEnabled(activity, null));
     when(activity.isHidden()).thenReturn(true);
-    assertFalse(activityManager.isNotificationEnabled(activity));
+    assertFalse(activityManager.isNotificationEnabled(activity, null));
   }
 
   public void testActivityDeletable() {
@@ -1697,7 +1709,12 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     param.setName(ActivityTypePlugin.ENABLE_NOTIFICATION_PARAM);
     param.setValue(String.valueOf(enabled));
     params.addParameter(param);
-    activityManager.addActivityTypePlugin(new ActivityTypePlugin(params));
+    activityManager.addActivityTypePlugin(new ActivityTypePlugin(params) {
+      @Override
+      public boolean isEnableNotification(ExoSocialActivity activity, String username) {
+        return !StringUtils.equals(username, "root3") && super.isEnableNotification();
+      }
+    });
   }
 
 }
