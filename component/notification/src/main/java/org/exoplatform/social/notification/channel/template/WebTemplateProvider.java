@@ -193,6 +193,9 @@ public class WebTemplateProvider extends TemplateProvider {
           return null;
         }
       }
+      if (!Utils.getActivityManager().isNotificationEnabled(replyToComment, notification.getTo())) {
+        return null;
+      }
 
       notification.with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId());
       notification.with(SocialNotificationUtils.COMMENT_ID.getKey(), comment.getId());
@@ -207,10 +210,10 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
-      templateContext.put("COMMENT", NotificationUtils.getNotificationActivityTitle(comment.getTitle(), activity.getType()));
-      templateContext.put("COMMENT_REPLY", isPopupOverOnly ? cutStringByMaxLength(replyToComment.getTitle(), 30) : 
-                                                                               replyToComment.getTitle());
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
+      templateContext.put("COMMENT", NotificationUtils.getNotificationActivityTitle(getActivityTitle(comment), activity.getType()));
+      templateContext.put("COMMENT_REPLY", isPopupOverOnly ? cutStringByMaxLength(getActivityTitle(replyToComment), 30)
+                                                           : getActivityTitle(replyToComment));
       List<String> users = SocialNotificationUtils.mergeUsers(notification, SocialNotificationUtils.POSTER.getKey(), activity.getId(), notification.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey()));
       
       //
@@ -300,6 +303,9 @@ public class WebTemplateProvider extends TemplateProvider {
         LOG.debug("Comment of activity with id '{}' was removed but the notification with id'{}' is remaining", commentId, notification.getId());
         return null;
       }
+      if (!Utils.getActivityManager().isNotificationEnabled(comment, notification.getTo())) {
+        return null;
+      }
       String pluginId = notification.getKey().getId();
       
       TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), pluginId, language);
@@ -309,8 +315,8 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
-      templateContext.put("COMMENT", isPopupOverOnly ? cutStringByMaxLength(comment.getTitle(), 30) : comment.getTitle());
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
+      templateContext.put("COMMENT", isPopupOverOnly ? cutStringByMaxLength(getActivityTitle(comment), 30) : getActivityTitle(comment));
       List<String> users = SocialNotificationUtils.mergeUsers(notification, SocialNotificationUtils.POSTER.getKey(), activity.getId(), notification.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey()));
       
       //
@@ -409,8 +415,8 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
-      templateContext.put("COMMENT", isPopupOverOnly ? cutStringByMaxLength(comment.getTitle(), 30) : comment.getTitle());
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
+      templateContext.put("COMMENT", isPopupOverOnly ? cutStringByMaxLength(getActivityTitle(comment), 30) : getActivityTitle(comment));
       List<String> users = SocialNotificationUtils.mergeUsers(notification, SocialNotificationUtils.POSTER.getKey(), activity.getId(), notification.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey()));
 
       //
@@ -497,7 +503,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
       List<String> users = SocialNotificationUtils.mergeUsers(notification, SocialNotificationUtils.POSTER.getKey(), activity.getId(), notification.getValueOwnerParameter(SocialNotificationUtils.POSTER.getKey()));
 
       //
@@ -575,10 +581,10 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
       
       // In case of mention on a comment, we need provide the id of the activity, not of the comment
-      String activityTitle = activity.getTitle();
+      String activityTitle = getActivityTitle(activity);
       if (activity.isComment()) {
         ExoSocialActivity parentActivity = Utils.getActivityManager().getParentActivity(activity);
-        activityTitle = parentActivity.getTitle();
+        activityTitle = getActivityTitle(parentActivity);
         activityId = parentActivity.getId();
         templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProvider.getSingleActivityUrl(activityId + "#comment-" + activity.getId()));
       } else {
@@ -661,6 +667,9 @@ public class WebTemplateProvider extends TemplateProvider {
         LOG.debug("Activity with id '{}' doesn't exist. The related notification will be ignored", activityId);
         return null;
       }
+      if (!Utils.getActivityManager().isNotificationEnabled(activity, notification.getTo())) {
+        return null;
+      }
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
       Profile profile = identity.getProfile();
       templateContext.put("isIntranet", "true");
@@ -670,7 +679,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
       templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
       templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProvider.getSingleActivityUrl(activity.getId()));
@@ -719,7 +728,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
       templateContext.put("SPACE", space.getDisplayName());
       templateContext.put("SPACE_URL", LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", "")));
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
@@ -754,6 +763,9 @@ public class WebTemplateProvider extends TemplateProvider {
         LOG.debug("Notification related to activity with id '{}' couldn't be found. The related notification will be ignored", activityId);
         return null;
       }
+      if (!Utils.getActivityManager().isNotificationEnabled(activity, notification.getTo())) {
+        return null;
+      }
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
       Profile profile = identity.getProfile();
       Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), true);
@@ -769,7 +781,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
       templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("AVATAR", profile.getAvatarUrl() != null ? profile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
       templateContext.put("SPACE", space.getDisplayName());
       templateContext.put("SPACE_URL", LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", "")));
       templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
@@ -981,7 +993,7 @@ public class WebTemplateProvider extends TemplateProvider {
       templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
       templateContext.put("NOTIFICATION_ID", notification.getId());
       templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(activity.getTitle(), activity.getType()));
+      templateContext.put("ACTIVITY", NotificationUtils.getNotificationActivityTitle(getActivityTitle(activity), activity.getType()));
       templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProvider.getSingleActivityUrl(activity.getId()));
 
       if(activity.isComment()) {
@@ -1022,5 +1034,9 @@ public class WebTemplateProvider extends TemplateProvider {
     protected boolean makeDigest(NotificationContext ctx, Writer writer) {
       return false;
     }
+  }
+
+  private String getActivityTitle(ExoSocialActivity activity) {
+    return Utils.getActivityManager().getActivityTitle(activity);
   }
 }
