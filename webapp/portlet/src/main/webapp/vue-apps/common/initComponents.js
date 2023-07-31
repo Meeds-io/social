@@ -24,6 +24,7 @@ import ChangesReminder from './components/ChangesReminder.vue';
 import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
+import FileDropZoneOverlay from './components/FileDropZoneOverlay.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -58,6 +59,7 @@ const components = {
   'unread-badge': UnreadBadge,
   'alert-notifications': Notifications,
   'ripple-hover-button': RippleHoverButton,
+  'file-drop-zone-overlay': FileDropZoneOverlay,
 };
 
 for (const key in components) {
