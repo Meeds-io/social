@@ -59,9 +59,9 @@
             color="primary" />
           <v-divider v-else class="my-0" />
         </template>
-        <v-flex :class="bottomDrawer && 'pt-4'" class="drawerContent flex-grow-1 overflow-auto border-box-sizing position-relative">
+        <v-flex :class="bottomDrawer && 'pt-4'" class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
           <slot name="content"></slot>
-          <file-drop-zone-overlay />    
+          <attach-image-draggable-zone />    
         </v-flex>
         <template v-if="$slots.footer">
           <v-divider class="my-0" />

@@ -391,4 +391,3 @@ extensionRegistry.registerComponent('CommentContent', 'comment-content-extension
   vueComponent: Vue.options.components['activity-image-attachments'],
   rank: 15,
 });
-
