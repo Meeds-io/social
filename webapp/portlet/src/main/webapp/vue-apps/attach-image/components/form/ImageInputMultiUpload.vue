@@ -51,12 +51,12 @@ export default {
     if (!this.disablePaste) {
       document.addEventListener('paste', this.handlePasteFiles);
     }
-    document.addEventListener('attach-image-drop-files', this.handleDropFiles);
+    document.addEventListener('attachments-drop-files', this.handleDropFiles);
   },
   beforeDestroy() {
     document.removeEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
     document.removeEventListener('paste', this.handlePasteFiles);
-    document.removeEventListener('attach-image-drop-files', this.handleDropFiles);
+    document.removeEventListener('attachments-drop-files', this.handleDropFiles);
   },
   methods: {
     reset() {

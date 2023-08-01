@@ -24,7 +24,7 @@ import ChangesReminder from './components/ChangesReminder.vue';
 import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
-import AttachImageDraggableZone from './components/AttachImageDraggableZone.vue';
+import AttachmentsDraggableZone from './components/AttachmentsDraggableZone.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -59,7 +59,7 @@ const components = {
   'unread-badge': UnreadBadge,
   'alert-notifications': Notifications,
   'ripple-hover-button': RippleHoverButton,
-  'attach-image-draggable-zone': AttachImageDraggableZone,
+  'attachments-draggable-zone': AttachmentsDraggableZone,
 };
 
 for (const key in components) {
@@ -196,12 +196,10 @@ Vue.directive('cacheable', {
 Vue.directive('draggable', {
   bind(el, binding) {
     let counter = 0;
-    const dropZoneBindingValue = binding?.value;
-    const dropZoneParentElement = dropZoneBindingValue?.parentElementId ? document.getElementById(dropZoneBindingValue.parentElementId) : el;
-    const attachmentEnabled = dropZoneBindingValue?.attachmentEnabled;
-    if (attachmentEnabled) {
+    const enabled = binding?.value;
+    if (enabled) {
       ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'].forEach((event) => {
-        dropZoneParentElement.addEventListener(event, (e) => {
+        el.addEventListener(event, (e) => {
           if (e?.dataTransfer) {
             e.preventDefault();
             e.stopPropagation();
@@ -209,29 +207,29 @@ Vue.directive('draggable', {
         });
       });
       ['dragenter', 'dragstart'].forEach((event) => {
-        dropZoneParentElement.addEventListener(event, (e) => {
+        el.addEventListener(event, (e) => {
           if (e?.dataTransfer) {
             counter++;
-            document.dispatchEvent(new CustomEvent('attach-image-show-drop-zone'));
+            document.dispatchEvent(new CustomEvent('attachments-show-drop-zone'));
           }
         });
       });
       ['dragleave', 'dragend'].forEach((event) => {
-        dropZoneParentElement.addEventListener(event, (e) => {
+        el.addEventListener(event, (e) => {
           if (e?.dataTransfer) {
             counter--;
             if (counter === 0) {
-              document.dispatchEvent(new CustomEvent('attach-image-hide-drop-zone'));
+              document.dispatchEvent(new CustomEvent('attachments-hide-drop-zone'));
             }
           }
         });
       });
-      dropZoneParentElement.addEventListener('drop', (e) => {
+      el.addEventListener('drop', (e) => {
         if (e?.dataTransfer) {
           counter--;
           if (counter === 0) {
-            document.dispatchEvent(new CustomEvent('attach-image-drop-files',{detail: e?.dataTransfer.files || []}));
-            document.dispatchEvent(new CustomEvent('attach-image-hide-drop-zone'));
+            document.dispatchEvent(new CustomEvent('attachments-drop-files',{detail: e?.dataTransfer.files || []}));
+            document.dispatchEvent(new CustomEvent('attachments-hide-drop-zone'));
           }
         }
       });

@@ -61,7 +61,7 @@
         </template>
         <v-flex :class="bottomDrawer && 'pt-4'" class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
           <slot name="content"></slot>
-          <attach-image-draggable-zone />    
+          <attachments-draggable-zone />    
         </v-flex>
         <template v-if="$slots.footer">
           <v-divider class="my-0" />

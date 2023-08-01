@@ -41,12 +41,12 @@ export default {
     }
   },
   created() {
-    document.addEventListener('attach-image-show-drop-zone', this.showDropZone);
-    document.addEventListener('attach-image-hide-drop-zone', this.hideDropZone);
+    document.addEventListener('attachments-show-drop-zone', this.showDropZone);
+    document.addEventListener('attachments-hide-drop-zone', this.hideDropZone);
   },
   beforeDestroy() {
-    document.removeEventListener('attach-image-show-drop-zone', this.showDropZone);
-    document.removeEventListener('attach-image-hide-drop-zone', this.hideDropZone);
+    document.removeEventListener('attachments-show-drop-zone', this.showDropZone);
+    document.removeEventListener('attachments-hide-drop-zone', this.hideDropZone);
   },
   methods: {
     showDropZone() {

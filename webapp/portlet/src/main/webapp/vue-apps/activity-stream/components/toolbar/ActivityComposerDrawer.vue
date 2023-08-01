@@ -19,6 +19,7 @@
     id="activityComposerDrawer"
     ref="activityComposerDrawer"
     v-model="drawer"
+    v-draggable="enabled"
     disable-pull-to-refresh
     right
     fixed>
@@ -26,10 +27,7 @@
       {{ $t('activity.composer.title') }}
     </template>
     <template #content>
-      <v-card 
-        flat
-        class="full-height" 
-        v-draggable="draggableObjectParam">
+      <v-card flat>
         <v-card-text>
           <rich-editor
             v-if="drawer"
@@ -151,11 +149,8 @@ export default {
     metadataObjectType() {
       return this.templateParams?.metadataObjectType || 'activity';
     },
-    draggableObjectParam() {
-      return {
-        attachmentEnabled: eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0,
-        parentElementId: 'activityComposerDrawer'
-      };
+    enabled() {
+      return eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0;
     },
   },
   watch: {
