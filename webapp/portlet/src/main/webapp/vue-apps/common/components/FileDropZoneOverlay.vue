@@ -37,16 +37,16 @@ export default {
   },
   computed: {
     displayDropZone() {
-      return this.dropEnabled && this.isDisplayed;
+      return this.isDisplayed;
     }
   },
   created() {
-    document.addEventListener('show-drop-zone', this.showDropZone);
-    document.addEventListener('hide-drop-zone', this.hideDropZone);
+    document.addEventListener('attach-image-show-drop-zone', this.showDropZone);
+    document.addEventListener('attach-image-hide-drop-zone', this.hideDropZone);
   },
   beforeDestroy() {
-    document.removeEventListener('show-drop-zone', this.showDropZone);
-    document.removeEventListener('hide-drop-zone', this.hideDropZone);
+    document.removeEventListener('attach-image-show-drop-zone', this.showDropZone);
+    document.removeEventListener('attach-image-hide-drop-zone', this.hideDropZone);
   },
   methods: {
     showDropZone() {

@@ -192,3 +192,49 @@ Vue.directive('cacheable', {
     }, 10000);
   },
 });
+
+Vue.directive('draggable', {
+  bind(el, binding) {
+    let counter = 0;
+    const dropZoneBindingValue = binding?.value;
+    const dropZoneParentElement = dropZoneBindingValue?.parentElementId ? document.getElementById(dropZoneBindingValue.parentElementId) : el;
+    const attachmentEnabled = dropZoneBindingValue?.attachmentEnabled;
+    if (attachmentEnabled) {
+      ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'].forEach((event) => {
+        dropZoneParentElement.addEventListener(event, (e) => {
+          if (e?.dataTransfer) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        });
+      });
+      ['dragenter', 'dragstart'].forEach((event) => {
+        dropZoneParentElement.addEventListener(event, (e) => {
+          if (e?.dataTransfer) {
+            counter++;
+            document.dispatchEvent(new CustomEvent('attach-image-show-drop-zone'));
+          }
+        });
+      });
+      ['dragleave', 'dragend'].forEach((event) => {
+        dropZoneParentElement.addEventListener(event, (e) => {
+          if (e?.dataTransfer) {
+            counter--;
+            if (counter === 0) {
+              document.dispatchEvent(new CustomEvent('attach-image-hide-drop-zone'));
+            }
+          }
+        });
+      });
+      dropZoneParentElement.addEventListener('drop', (e) => {
+        if (e?.dataTransfer) {
+          counter--;
+          if (counter === 0) {
+            document.dispatchEvent(new CustomEvent('attach-image-drop-files',{detail: e?.dataTransfer.files || []}));
+            document.dispatchEvent(new CustomEvent('attach-image-hide-drop-zone'));
+          }
+        }
+      });
+    }
+  }
+});

@@ -61,6 +61,7 @@
         </template>
         <v-flex :class="bottomDrawer && 'pt-4'" class="drawerContent flex-grow-1 overflow-auto border-box-sizing position-relative">
           <slot name="content"></slot>
+          <file-drop-zone-overlay />    
         </v-flex>
         <template v-if="$slots.footer">
           <v-divider class="my-0" />

@@ -26,7 +26,10 @@
       {{ $t('activity.composer.title') }}
     </template>
     <template #content>
-      <v-card flat>
+      <v-card 
+        flat
+        class="full-height" 
+        v-draggable="draggableObjectParam">
         <v-card-text>
           <rich-editor
             v-if="drawer"
@@ -64,10 +67,6 @@
           </extension-registry-components>
         </v-card-text>
       </v-card>
-      <extension-registry-components
-        :params="dropFilesParams"
-        name="ActivityComposerDropZone"
-        type="activity-composer-drop-zone" />
     </template>
     <template slot="footer">
       <div class="d-flex">
@@ -152,12 +151,10 @@ export default {
     metadataObjectType() {
       return this.templateParams?.metadataObjectType || 'activity';
     },
-    attachmentEnabled() {
-      return eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0;
-    },
-    dropFilesParams() {
+    draggableObjectParam() {
       return {
-        dropEnabled: this.attachmentEnabled
+        attachmentEnabled: eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0,
+        parentElementId: 'activityComposerDrawer'
       };
     },
   },
@@ -216,10 +213,6 @@ export default {
         this.messageEdited = false;
         this.$refs.activityComposerDrawer.open();
         document.dispatchEvent(new CustomEvent('message-composer-opened'));
-        if (this.attachmentEnabled) {
-          const dropZone = document.getElementById('activityComposerDrawer');
-          this.dropFiles(dropZone);
-        }
       });
     },
     close() {
@@ -320,15 +313,6 @@ export default {
         return Promise.all(promises).then(() => activity);
       } else {
         return Promise.resolve(activity);
-      }
-    },
-    dropFiles(el) {
-      const componentIsLoaded = extensionRegistry.loadComponents('ActivityComposerDropZone') || [];
-      if (componentIsLoaded?.length) {
-        const component = componentIsLoaded[0];
-        if (component?.componentOptions?.dropFiles) {
-          component.componentOptions.dropFiles(el);
-        }
       }
     },
     cleareActivityMessage() {
