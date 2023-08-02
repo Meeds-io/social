@@ -51,10 +51,12 @@ export default {
     if (!this.disablePaste) {
       document.addEventListener('paste', this.handlePasteFiles);
     }
+    document.addEventListener('attachments-drop-files', this.handleDropFiles);
   },
   beforeDestroy() {
     document.removeEventListener('attachments-image-open-file-explorer', this.triggerFileClickEvent);
     document.removeEventListener('paste', this.handlePasteFiles);
+    document.removeEventListener('attachments-drop-files', this.handleDropFiles);
   },
   methods: {
     reset() {
@@ -179,6 +181,20 @@ export default {
         });
       }
     },
+    handleDropFiles(event) {
+      const files = event?.detail;
+      if (files?.length) {
+        const imageItems = [];
+        for (const file of files) {
+          if (file?.type?.includes('image/')) {
+            imageItems.push(file);
+          }
+        }
+        if (imageItems.length) {
+          this.uploadFiles(imageItems);
+        }
+      }
+    }
   }
 };
 </script>
