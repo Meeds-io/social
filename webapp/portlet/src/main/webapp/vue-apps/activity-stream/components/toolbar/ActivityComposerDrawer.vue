@@ -19,7 +19,7 @@
     id="activityComposerDrawer"
     ref="activityComposerDrawer"
     v-model="drawer"
-    v-draggable="enabled"
+    v-draggable="metadataObjectType"
     disable-pull-to-refresh
     right
     fixed>
@@ -148,10 +148,7 @@ export default {
     },
     metadataObjectType() {
       return this.templateParams?.metadataObjectType || 'activity';
-    },
-    enabled() {
-      return eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0;
-    },
+    }
   },
   watch: {
     message(newVal, oldVal) {

@@ -1,6 +1,7 @@
 <template>
   <exo-drawer
     ref="activityCommentsDrawer"
+    v-draggable="'activity'"
     :temporary="temporaryDrawer"
     id="activityCommentsDrawer"
     allow-expand

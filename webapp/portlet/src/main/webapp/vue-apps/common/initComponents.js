@@ -196,7 +196,8 @@ Vue.directive('cacheable', {
 Vue.directive('draggable', {
   bind(el, binding) {
     let counter = 0;
-    const enabled = binding?.value;
+    const objectType = binding?.value;
+    const enabled = eXo.env.portal.editorAttachImageEnabled && objectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(objectType) >= 0;
     if (enabled) {
       ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'].forEach((event) => {
         el.addEventListener(event, (e) => {
