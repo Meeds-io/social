@@ -24,6 +24,7 @@ import ChangesReminder from './components/ChangesReminder.vue';
 import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
+import AttachmentsDraggableZone from './components/AttachmentsDraggableZone.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -58,6 +59,7 @@ const components = {
   'unread-badge': UnreadBadge,
   'alert-notifications': Notifications,
   'ripple-hover-button': RippleHoverButton,
+  'attachments-draggable-zone': AttachmentsDraggableZone,
 };
 
 for (const key in components) {
@@ -189,4 +191,48 @@ Vue.directive('cacheable', {
       vnode.componentInstance.$root.$emit('application-mount', true);
     }, 10000);
   },
+});
+
+Vue.directive('draggable', {
+  bind(el, binding) {
+    let counter = 0;
+    const enabled = binding?.value;
+    if (enabled) {
+      ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'].forEach((event) => {
+        el.addEventListener(event, (e) => {
+          if (e?.dataTransfer) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        });
+      });
+      ['dragenter', 'dragstart'].forEach((event) => {
+        el.addEventListener(event, (e) => {
+          if (e?.dataTransfer) {
+            counter++;
+            document.dispatchEvent(new CustomEvent('attachments-show-drop-zone'));
+          }
+        });
+      });
+      ['dragleave', 'dragend'].forEach((event) => {
+        el.addEventListener(event, (e) => {
+          if (e?.dataTransfer) {
+            counter--;
+            if (counter === 0) {
+              document.dispatchEvent(new CustomEvent('attachments-hide-drop-zone'));
+            }
+          }
+        });
+      });
+      el.addEventListener('drop', (e) => {
+        if (e?.dataTransfer) {
+          counter--;
+          if (counter === 0) {
+            document.dispatchEvent(new CustomEvent('attachments-drop-files',{detail: e?.dataTransfer.files || []}));
+            document.dispatchEvent(new CustomEvent('attachments-hide-drop-zone'));
+          }
+        }
+      });
+    }
+  }
 });
