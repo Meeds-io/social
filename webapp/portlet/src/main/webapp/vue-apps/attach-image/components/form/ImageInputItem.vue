@@ -55,6 +55,13 @@
       max-height="120" />
     <v-card-actions class="position-absolute t-0 r-0">
       <v-btn 
+        class="mr-1" 
+        fab 
+        x-small
+        @click="openImageCropDrawer">
+        <v-icon class="icon-default-color" small>fa-edit</v-icon>
+      </v-btn>
+      <v-btn 
         class="ml-0" 
         fab 
         x-small
@@ -94,7 +101,10 @@ export default {
   methods: {
     deleteFile() {
       this.$emit('delete', this.image);
-    }
+    },
+    openImageCropDrawer() {
+      document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{detail: this.imageItem}));
+    },
   }
 };
 </script>

@@ -241,6 +241,9 @@ export default {
     height() {
       return parseInt((this.width + 32) * 9 / 16) - 32;
     },
+    imageCropSrc() {
+      return this.src;
+    }
   },
   watch: {
     imageData() {
@@ -270,7 +273,7 @@ export default {
   methods: {
     open() {
       this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
-      this.imageData = this.src || null;
+      this.imageData = this.imageCropSrc || null;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
