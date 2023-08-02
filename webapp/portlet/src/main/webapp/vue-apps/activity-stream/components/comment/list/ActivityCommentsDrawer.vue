@@ -1,7 +1,7 @@
 <template>
   <exo-drawer
     ref="activityCommentsDrawer"
-    v-draggable="'activity'"
+    v-draggable="enabled"
     :temporary="temporaryDrawer"
     id="activityCommentsDrawer"
     allow-expand
@@ -85,6 +85,7 @@ export default {
     pageSize: 10,
     page: 1,
     pagesCount: 1,
+    objectType: 'activity'
   }),
   computed: {
     commentsTitle() {
@@ -98,6 +99,9 @@ export default {
         return this.$t('activity.commentsCount', {0: this.commentsSize});
       }
     },
+    enabled() {
+      return eXo.env.portal.editorAttachImageEnabled && eXo.env.portal.attachmentObjectTypes?.indexOf(this.objectType) >= 0;
+    }
   },
   created() {
     document.addEventListener('activity-comments-display', this.displayActivityComments);
