@@ -1008,6 +1008,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
           updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
+          if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME) || profileProperty.getPropertyName().equals(Profile.LAST_NAME) ) {
+            profile = getUserIdentity(username).getProfile();
+          }
         } else {
           switch (profileProperty.getPropertyName()) {
             case Profile.CONTACT_PHONES:
