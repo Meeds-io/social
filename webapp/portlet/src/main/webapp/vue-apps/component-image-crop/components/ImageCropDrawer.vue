@@ -56,7 +56,7 @@
         <div class="d-flex mt-4">
           <div :title="$t('imageCropDrawer.uploadImage')" class="flex-grow-0">
             <v-file-input
-              v-if="!resetInput"
+              v-if="displayUploadIcon"
               :title="$t('imageCropDrawer.uploadImage')"
               id="imageFileInput"
               ref="imageFileInput"
@@ -148,6 +148,18 @@
             </v-btn>
           </div>
         </div>
+        <div v-if="displayAltText" class="d-flex flex-column mt-4">
+          <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
+            {{ $t('imageCropDrawer.altText.title') }}
+          </div>
+          <div class="flex-grow-1 d-flex">
+            <extended-textarea
+              v-model="imageAltText"
+              class="pt-0"
+              :max-length="altTextMaxLength"
+              :placeholder="$t('imageCropDrawer.altText.placeholder')" />
+          </div>
+        </div>
       </v-card>
     </template>
     <template #footer>
@@ -185,6 +197,10 @@ export default {
       type: Number,
       default: () => 1280,
     },
+    altTextMaxLength: {
+      type: Number,
+      default: () => 1000,
+    },
     backIcon: {
       type: Boolean,
       default: false,
@@ -204,6 +220,18 @@ export default {
     circle: {
       type: Boolean,
       default: false,
+    },
+    canUpload: {
+      type: Boolean,
+      default: true,
+    },
+    displayAltText: {
+      type: Boolean,
+      default: false,
+    },
+    altText: {
+      type: String,
+      default: '',
     },
     rounded: {
       type: Boolean,
@@ -241,8 +269,8 @@ export default {
     height() {
       return parseInt((this.width + 32) * 9 / 16) - 32;
     },
-    imageCropSrc() {
-      return this.src;
+    displayUploadIcon() {
+      return !this.resetInput && this.canUpload;
     }
   },
   watch: {
@@ -271,9 +299,9 @@ export default {
     },
   },
   methods: {
-    open() {
+    open(imageItem) {
       this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
-      this.imageData = this.imageCropSrc || null;
+      this.imageData = imageItem || this.src || null;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {

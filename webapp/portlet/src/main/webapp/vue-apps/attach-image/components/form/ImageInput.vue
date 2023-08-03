@@ -71,6 +71,11 @@ export default {
   },
   created() {
     document.addEventListener('attachment-save', this.triggerAttachmentsSave);
+    this.$root.$on('attachments-update-cropped-image', (event) => {
+      if (event?.detail) {
+        this.updateImage(event?.detail);
+      }
+    });
   },
   beforeDestroy() {
     document.removeEventListener('attachment-save', this.triggerAttachmentsSave);
@@ -149,6 +154,20 @@ export default {
         if (index >= 0) {
           this.attachments.splice(index, 1);
           this.attachments = this.attachments.slice();
+        }
+      }
+    },
+    updateImage(updatedImage) {
+      if (updatedImage.oldUploadId?.length) {
+        const index = this.images.findIndex(file => file.uploadId === updatedImage.oldUploadId);
+        this.images[index].src = updatedImage?.src;
+        this.images[index] = updatedImage;
+      } else if (updatedImage.id?.length) {
+        const index = this.attachments.findIndex(file => file.id === updatedImage.id);
+        if (index >= 0) {
+          this.attachments.splice(index, 1);
+          this.attachments = this.attachments.slice();
+          this.images.push(updatedImage);
         }
       }
     },

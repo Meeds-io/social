@@ -47,7 +47,7 @@
     class="position-relative" 
     flat>
     <v-img
-      :src="imageItem"
+      :src="imageItem.src"
       class="white--text align-end"
       gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
       width="120"
@@ -89,7 +89,7 @@ export default {
   },
   computed: {
     imageItem() {
-      return this.image?.src;
+      return this.image;
     },
     imageUploadProgress() {
       return this.image?.progress;
