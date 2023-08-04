@@ -23,13 +23,9 @@
     height="52"
     flat
     dense>
-    <v-row class="d-flex flex-nowrap" no-gutters>
-      <v-col 
-        cols="9" 
-        lg="8" 
-        md="6" 
-        xl="9">
-        <div v-if="userCanPost" class="openLink d-flex flex-row">
+    <div class="d-flex full-width">
+      <div class="flex-grow-1">
+        <div v-if="userCanPost" class="openLink d-flex flex-row pe-10">
           <exo-user-avatar
             v-if="user"
             :identity="user"
@@ -50,19 +46,13 @@
             {{ $t('activity.toolbar.title') }}
           </v-card-text>
         </div>
-      </v-col>
-      <v-col 
-        cols="3" 
-        lg="4" 
-        md="6" 
-        xl="3">
-        <div
-          v-if="streamFilterEnabled"
-          class="ms-auto my-auto">
-          <activity-stream-filter />
-        </div>
-      </v-col>
-    </v-row>
+      </div>
+      <div 
+        v-if="streamFilterEnabled"
+        class="my-auto">
+        <activity-stream-filter />
+      </div>
+    </div>
   </v-toolbar>
 </template>
 
@@ -117,7 +107,7 @@ export default {
       return this.canFilter;
     },
     displayToolbar() {
-      return this.userCanPost || this.streamFilterEnabled;
+      return (this.userCanPost || this.streamFilterEnabled) &&this.user;
     },
   },
   created() {
