@@ -107,12 +107,12 @@ export default {
       return this.canFilter;
     },
     displayToolbar() {
-      return (this.userCanPost || this.streamFilterEnabled) &&this.user;
+      return (this.userCanPost || this.streamFilterEnabled) && this.user;
     },
   },
   created() {
     if (!this.user) {
-      this.$userService.getUser(eXo.env.portal.profileOwner)
+      this.$userService.getUser(eXo.env.portal.userName)
         .then(user => this.user = user);
     }
   },
