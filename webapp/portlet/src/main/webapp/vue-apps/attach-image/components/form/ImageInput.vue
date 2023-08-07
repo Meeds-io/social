@@ -53,10 +53,11 @@ export default {
   data: () => ({
     images: [],
     attachments: [],
+    attachmentUpdated: true
   }),
   computed: {
     attachedFiles() {
-      if (this.attachments.length) {
+      if (this.attachments.length && this.attachmentUpdated) {
         this.attachments.forEach(attachment => {
           attachment.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${attachment.id}?size=120x120`;
         });
@@ -84,7 +85,9 @@ export default {
     init() {
       if (this.objectType && this.objectId) {
         return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
-          .then(data => this.attachments = data?.attachments || [])
+          .then(data => {
+            this.attachments = data?.attachments || [];
+          })
           .catch(() => this.reset());
       } else {
         this.reset();
@@ -106,20 +109,25 @@ export default {
       this.$refs.uploadInput.uploadFiles(files);
     },
     save() {
-      const uploadIds = this.images
+      const uploadedFiles = this.images
         .filter((file) => file.progress === 100)
-        .map((file) => file.uploadId)
-        .filter((uploadId) => !!uploadId);
-      const fileIds = this.attachments
+        .map((file) => ({
+          uploadId: file.uploadId,
+          altText: file?.altText || ''
+        }));
+      const attachedFiles = this.attachments
         .filter(file => file.id)
-        .map(file => file.id);
-      fileIds.sort((a1, a2) => Number(a1.id) - Number(a2.id));
-
+        .map(file => ({
+          id: file.id,
+          uploadId: file?.uploadId || '' ,
+          altText: file?.altText || ''
+        }));
+      attachedFiles.sort((a1, a2) => Number(a1.id) - Number(a2.id));
       return this.$fileAttachmentService.saveAttachments({
         objectType: this.objectType,
         objectId: this.objectId,
-        uploadIds,
-        fileIds,
+        uploadedFiles,
+        attachedFiles,
       }).then((report) => {
         if (report?.errorByUploadId?.length) {
           const attachmentHtmlError = Object.keys(report.errorByUploadId)
@@ -137,6 +145,7 @@ export default {
         }}));
       }).finally(() => {
         this.images = [];
+        this.attachmentUpdated = true;
         if (this.$refs.uploadInput) {
           this.$refs.uploadInput.reset();
         }
@@ -152,6 +161,7 @@ export default {
       } else if (image.id) {
         const index = this.attachments.findIndex(file => file.id === image.id);
         if (index >= 0) {
+          this.attachmentUpdated = true;
           this.attachments.splice(index, 1);
           this.attachments = this.attachments.slice();
         }
@@ -165,9 +175,10 @@ export default {
       } else if (updatedImage.id?.length) {
         const index = this.attachments.findIndex(file => file.id === updatedImage.id);
         if (index >= 0) {
-          this.attachments.splice(index, 1);
+          this.attachmentUpdated = false;
+          this.attachments[index].src = updatedImage?.src;
+          this.attachments[index] = updatedImage;
           this.attachments = this.attachments.slice();
-          this.images.push(updatedImage);
         }
       }
     },

@@ -24,9 +24,11 @@
     :max-image-width="maxFileSize"
     :crop-options="cropOptions"
     :can-upload="false"
+    :image-alt-text="imageAltText"
     display-alt-text
     @input="uploadId = $event"
-    @data="updateImageData($event)" />
+    @data="updateImageData($event)"
+    @alt-text="altText = $event" />
 </template>
 
 <script>
@@ -40,12 +42,16 @@ export default {
       },
       uploadId: null,
       maxFileSize: 20971520,
+      altText: null
     };
   },
   computed: {
     imageCropperSrc() {
       return this.imageItem?.src;
     },
+    imageAltText() {
+      return this.imageItem?.altText || '';
+    }
   },
   created() {
     document.addEventListener('attachments-image-open-crop-drawer', this.openAttachmentCropDrawer);
@@ -54,7 +60,7 @@ export default {
     openAttachmentCropDrawer(event) {
       if (event?.detail) {
         this.imageItem = event?.detail;
-        this.$refs.attachedImageCropDrawer.open(this.imageCropperSrc);
+        this.$refs.attachedImageCropDrawer.open(this.imageCropperSrc, this.imageAltText);
       }
     },
     updateImageData(imageData) {
@@ -65,9 +71,10 @@ export default {
           id: this.imageItem?.id ? this.imageItem?.id : '',
           progress: 100,
           oldUploadId: this.imageItem?.uploadId?  this.imageItem?.uploadId : '',
+          altText: this.altText ? this.altText : ''
         }});
       }
-    }
+    },
   },
 };
 </script>

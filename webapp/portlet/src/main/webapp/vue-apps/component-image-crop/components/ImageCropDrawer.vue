@@ -154,10 +154,11 @@
           </div>
           <div class="flex-grow-1 d-flex">
             <extended-textarea
-              v-model="imageAltText"
+              v-model="alternativeText"
               class="pt-0"
               :max-length="altTextMaxLength"
-              :placeholder="$t('imageCropDrawer.altText.placeholder')" />
+              :placeholder="$t('imageCropDrawer.altText.placeholder')"
+              @input="$emit('alt-text',alternativeText)" />
           </div>
         </div>
       </v-card>
@@ -229,7 +230,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    altText: {
+    imageAltText: {
       type: String,
       default: '',
     },
@@ -258,6 +259,7 @@ export default {
     imageData: null,
     resetInput: false,
     sendingImage: false,
+    alternativeText: null
   }),
   computed: {
     aspectRatio() {
@@ -271,7 +273,7 @@ export default {
     },
     displayUploadIcon() {
       return !this.resetInput && this.canUpload;
-    }
+    },
   },
   watch: {
     imageData() {
@@ -297,11 +299,13 @@ export default {
         this.$nextTick().then(() => this.init(true));
       }
     },
+
   },
   methods: {
-    open(imageItem) {
+    open(imageItem, imageAltText) {
       this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
       this.imageData = imageItem || this.src || null;
+      this.alternativeText = imageAltText || null;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {

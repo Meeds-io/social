@@ -38,10 +38,11 @@ public class ObjectAttachmentDetail implements Cloneable {
   private long   updated;
 
   private String updater;
+  private String altText;
 
   @Override
   public ObjectAttachmentDetail clone() { // NOSONAR
-    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater);
+    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater,altText);
   }
 
 }
