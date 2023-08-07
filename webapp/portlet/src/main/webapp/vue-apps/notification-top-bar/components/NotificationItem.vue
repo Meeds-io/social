@@ -88,7 +88,6 @@ export default {
         // ------------- Open details drawer
         $(this).find('.open-details-drawer').off('click').on('click', function(evt) {
           evt.preventDefault();
-          evt.stopPropagation();
           const notificationDetails = $(this).data('notification-details');
           document.dispatchEvent(new CustomEvent('open-notification-details-drawer', {detail: notificationDetails}));
           if ($(this).closest('[data-details]').hasClass('unread')) {
@@ -96,9 +95,9 @@ export default {
           }
           Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
         });
-
+        const selfs = self;
         // ----------------- Mark as read
-        $(this).off('click').on('click', function() {
+        $(`#${selfs.id}`).on('click', function() {
           if ($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
@@ -106,16 +105,14 @@ export default {
         });
 
         // ------------- hide notif
-        $(this).find('.remove-item').off('click').on('click', function(evt) {
+        $(`#${selfs.id}`).on('click', '.remove-item', function(evt) {
           evt.preventDefault();
-          evt.stopPropagation();
           Vue.prototype.$notificationService.updateNotification(dataId,'hide');
           $(this).parents('li:first').slideUp(SLIDE_UP);
         });
 
         // ------------- Accept request
-        $(this).find('.action-item').off('click').on('click', function(evt) {
-          evt.stopPropagation();
+        $(`#${selfs.id}`).on('click', '.action-item', function(evt) {
           evt.preventDefault();
           let restURl = $(this).data('rest');
           if (restURl.indexOf('?') >= 0 ) {
@@ -128,15 +125,16 @@ export default {
           if (restURl && restURl.length > 0) {
             $.ajax(restURl).done(function () {
               $(document).trigger('exo-invitation-updated');
+            }).then((resp) => {
+              if (resp.body) {
+                Vue.prototype.$notificationService.updateNotification(null,'resetNew');
+              }
             });
           }
-          Vue.prototype.$notificationService.updateNotification(dataId,'hide');
-          $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
         });
 
         // ------------- Refuse request
-        $(this).find('.cancel-item').off('click').on('click', function(evt) {
-          evt.stopPropagation();
+        $(`#${selfs.id}`).on('click', '.cancel-item', function(evt) {
           evt.preventDefault();
           let restCancelURl = $(this).data('rest');
           if (restCancelURl.indexOf('?') >= 0 ) {
