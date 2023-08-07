@@ -103,12 +103,15 @@ public class RelationshipNotificationImpl extends RelationshipListenerPlugin {
       Map<String, String> ownerParameter = new HashMap<String, String>();
       ownerParameter.put("status", "accepted");
       ownerParameter.put("sender", senderId);
-      for (NotificationInfo info : webNotifs) {
-        info.setOwnerParameter(ownerParameter);
-        info.key(pluginKey);
-        info.setFrom(senderId);
-        info.setTo(receiverId);
-        updateNotification(info);
+      NotificationInfo info =  webNotifs.get(0);
+      webNotifs.remove(0);
+      info.setOwnerParameter(ownerParameter);
+      info.key(pluginKey);
+      info.setFrom(senderId);
+      info.setTo(receiverId);
+      updateNotification(info);
+      for (NotificationInfo notificationInfo : webNotifs) {
+        webNotificationService.remove(notificationInfo.getId());
       }
     } else {
       LOG.error("Cannot update web notfication. WebNotificationService is null");
