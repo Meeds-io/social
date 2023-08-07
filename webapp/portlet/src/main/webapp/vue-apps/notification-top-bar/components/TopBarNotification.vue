@@ -40,7 +40,8 @@
           ref="drawerNotificationDrawer"
           class="notifDrawer"
           body-classes="hide-scroll"
-          right>
+          right
+          @closed="closeDrawer">
           <template slot="title">
             {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
           </template>
@@ -167,7 +168,10 @@ export default {
     },
     closeDrawer() {
       this.$refs.drawerNotificationDrawer.close();
-      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+      this.$nextTick().then(() => {
+        this.$root.$emit('application-loaded');
+        this.badge = 0;
+      });
     },
     navigateTo(pagelink) {
       location.href=`${ eXo.env.portal.context }/${ eXo.env.portal.portalName }/${ pagelink }` ;
