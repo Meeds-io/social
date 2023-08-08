@@ -23,23 +23,36 @@
     height="52"
     flat
     dense>
-    <v-flex class="d-flex">
-      <div v-if="userCanPost" class="openLink my-auto pa-0 font-weight-bold text-truncate">
-        <a @click="openComposerDrawer(true)" class="hover-underline primary--text">
-          <i class="uiIconEdit me-1"></i>{{ composerButtonLabel }}
-        </a>
+    <div class="d-flex full-width">
+      <div class="flex-grow-1">
+        <div v-if="userCanPost" class="openLink d-flex flex-row pe-10">
+          <exo-user-avatar
+            v-if="user"
+            :identity="user"
+            class="d-flex align-center ms-1 me-3"
+            size="40"
+            avatar />
+          <v-text-field
+            @click="openComposerDrawer(true)"
+            :placeholder="$t('activity.composer.post.placeholder')"
+            class="pt-0 rounded-pill"
+            height="30"
+            hide-details
+            outlined
+            dense />
+        </div>
+        <div v-else>
+          <v-card-text class="text-sub-title text-uppercase center px-0">
+            {{ $t('activity.toolbar.title') }}
+          </v-card-text>
+        </div>
       </div>
-      <div v-else>
-        <v-card-text class="text-sub-title text-uppercase center px-0">
-          {{ $t('activity.toolbar.title') }}
-        </v-card-text>
-      </div>
-      <div
+      <div 
         v-if="streamFilterEnabled"
-        class="ms-auto my-auto">
+        class="my-auto">
         <activity-stream-filter />
       </div>
-    </v-flex>
+    </div>
   </v-toolbar>
 </template>
 
@@ -71,6 +84,11 @@ export default {
       default: false
     },
   },
+  data() {
+    return {
+      user: null,
+    };
+  },
   computed: {
     composerButtonLabel() {
       if (eXo.env.portal.spaceDisplayName){
@@ -89,8 +107,14 @@ export default {
       return this.canFilter;
     },
     displayToolbar() {
-      return this.userCanPost || this.streamFilterEnabled;
+      return (this.userCanPost || this.streamFilterEnabled) && this.user;
     },
+  },
+  created() {
+    if (!this.user) {
+      this.$userService.getUser(eXo.env.portal.userName)
+        .then(user => this.user = user);
+    }
   },
   methods: {
     openComposerDrawer() {
