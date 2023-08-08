@@ -90,8 +90,8 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   @Override
   public ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachmentList,
-                                                           Identity userAclIdentity) throws ObjectNotFoundException,
-                                                                                     IllegalAccessException {
+                                                         Identity userAclIdentity) throws ObjectNotFoundException,
+                                                                                   IllegalAccessException {
     checkEditPermissions(attachmentList, userAclIdentity);
     return saveAttachments(attachmentList);
   }
@@ -133,6 +133,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     if (CollectionUtils.isNotEmpty(uploadedFiles)) {
       report = attachUploadFiles(uploadedFiles, objectType, objectId, parentObjectId, userIdentityId);
     }
+
     broadcastAttachmentsChange(ATTACHMENTS_UPDATED_EVENT, objectType, objectId, username);
     return report;
   }
@@ -397,6 +398,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             properties.put("alt", uploadedAttachmentDetail.getAltText());
             attachmentItemMetadata.setProperties(properties);
           }
+          metadataService.updateMetadataItem(attachmentItemMetadata, userIdentityId);
         }
         broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
                                   String.valueOf(attachmentId),
