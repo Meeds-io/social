@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.test;
 
+import org.exoplatform.social.core.upgrade.UserPasswordHashMigrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -100,6 +101,7 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
   TranslationServiceTest.class,
+  UserPasswordHashMigrationTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
