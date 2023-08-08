@@ -28,6 +28,7 @@
   <import>war:/conf/social-extension/portal/resource-bundle-configuration.xml</import>
   <import>war:/conf/social-extension/portal/dynamic-container-configuration.xml</import>
   <import>war:/conf/social-extension/portal/application-registry-configuration.xml</import>
+  <import>war:/conf/social-extension/portal/upgrade-plugins-configuration.xml</import>
   <import>war:/conf/social-extension/social/social-configuration.xml</import>
   <import>war:/conf/social-extension/social/spaces-templates-configuration.xml</import>
   <import>war:/conf/social-extension/social/component-plugins-configuration.xml</import>
@@ -47,5 +48,4 @@
   <import>war:/conf/social-extension/portal/navigation-categories-configuration.xml</import>
 
   <import>war:/conf/social-extension/social/profileproperty/profile-property-configuration.xml</import>
-
 </configuration>
