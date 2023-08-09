@@ -20,6 +20,7 @@
 
 package org.exoplatform.social.core.listeners;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -126,6 +127,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
       Group newPropertyNameGroup = getOrCreateGroup(propertyName, profileGroup);
       try {
         Group newPropertyValueGroup = getOrCreateGroup(propertyValue, newPropertyNameGroup);
+        removeUserFromExistingPropertyGroup(newPropertyNameGroup, user);
         addUserToGroup(newPropertyValueGroup, user);
       } catch (Exception e) {
         LOG.error("Error while adding property value group {} under property Group {}",
@@ -173,6 +175,20 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     }
   }
 
+  private void removeUserFromExistingPropertyGroup(Group group, User user) throws Exception {
+    Collection<Group> groups = organizationService.getGroupHandler().findGroups(group);
+    if (!groups.isEmpty()) {
+      MembershipHandler memberShipHandler = organizationService.getMembershipHandler();
+      for (Group gr : groups){
+        Membership memberShip = memberShipHandler.findMembershipByUserGroupAndType(user.getUserName(),
+                gr.getId(),
+                MEMBER);
+        if (memberShip != null) {
+          memberShipHandler.removeMembership(memberShip.getId(), true);
+        }
+      }
+    }
+  }
   private String buildGroupId(Group parentGroup, String groupName) {
     if (parentGroup == null) {
       return "/" + groupName.toLowerCase();
