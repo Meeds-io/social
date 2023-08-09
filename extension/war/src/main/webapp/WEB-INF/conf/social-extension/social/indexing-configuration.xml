@@ -83,7 +83,7 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias" />
-          <property name="index_current" value="profile_v2" />
+          <property name="index_current" value="profile_v3" />
         </properties-param>
       </init-params>
     </component-plugin>
