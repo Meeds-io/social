@@ -32,6 +32,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.picketlink.idm.api.IdentitySession;
 import org.picketlink.idm.api.PersistenceManager;
+import org.picketlink.idm.api.User;
+import org.picketlink.idm.impl.api.model.SimpleUser;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -104,6 +106,8 @@ public class UserPasswordHashMigrationTest {
 
     IdentitySession identitySession = mock(IdentitySession.class);
     PersistenceManager persistenceManager = mock(PersistenceManager.class);
+    User user = new SimpleUser("userId");
+    when(persistenceManager.findUser(anyString())).thenReturn(user);
     ExtendedAttributeManager extendedAttributeManager = mock(ExtendedAttributeManager.class);
     when(identitySession.getPersistenceManager()).thenReturn(persistenceManager);
     when(picketLinkIDMService.getIdentitySession()).thenReturn(identitySession);
