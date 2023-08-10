@@ -38,11 +38,7 @@ import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
-import org.exoplatform.social.attachment.model.ObjectAttachmentId;
-import org.exoplatform.social.attachment.model.ObjectAttachmentList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
+import org.exoplatform.social.attachment.model.*;
 import org.exoplatform.social.core.attachment.storage.FileAttachmentStorage;
 import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
@@ -148,7 +144,9 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
     String identityId = identityManager.getOrCreateUserIdentity(USERNAME).getId();
     FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
-    attachmentList.setFileIds(Collections.singletonList(fileId));
+    FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
+    fileAttachmentObject.setId(fileId);
+    attachmentList.setAttachedFiles(Collections.singletonList(fileAttachmentObject));
 
     assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(null, userAcl));
     assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(attachmentList, null));
@@ -183,8 +181,12 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertTrue(attachmentDetail.getUpdated() > 0);
     assertEquals(identityId, attachmentDetail.getUpdater());
 
-    attachmentList.setFileIds(Collections.singletonList(fileId));
-    attachmentList.setUploadIds(Collections.singletonList(UPLOAD_ID));
+    FileAttachmentObject fileUploadedObject = new FileAttachmentObject();
+    fileUploadedObject.setUploadId(UPLOAD_ID);
+    fileUploadedObject.setAltText("");
+    attachmentList.setUploadedFiles(Collections.singletonList(fileUploadedObject));
+    attachmentList.setAttachedFiles(Collections.singletonList(fileAttachmentObject));
+
     uploadResource();
     report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNotNull(report);
@@ -205,8 +207,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertTrue(attachmentDetail.getUpdated() > 0);
     assertEquals(identityId, attachmentDetail.getUpdater());
 
-    attachmentList.setFileIds(Collections.singletonList(fileId));
-    attachmentList.setUploadIds(null);
+    attachmentList.setAttachedFiles(Collections.singletonList(fileAttachmentObject));
+    attachmentList.setUploadedFiles(null);
     report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNull(report);
     assertListenerCount(2l, 1l, 4l, 0l);
@@ -225,8 +227,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     ObjectAttachmentDetail attachment = attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, objectId));
     assertNotNull(attachment);
 
-    attachmentList.setFileIds(null);
-    attachmentList.setUploadIds(null);
+    attachmentList.setAttachedFiles(null);
+    attachmentList.setUploadedFiles(null);
     report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNull(report);
     assertListenerCount(2l, 2l, 5l, 0l);
@@ -341,12 +343,15 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     try {
       String identityId = identityManager.getOrCreateUserIdentity(username).getId();
       FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
-      attachmentList.setFileIds(null);
+      attachmentList.setAttachedFiles(null);
       attachmentList.setUserIdentityId(Long.parseLong(identityId));
       attachmentList.setObjectType(OBJECT_TYPE);
       attachmentList.setObjectId(objectId);
       hasEditPermission.set(true);
-      attachmentList.setUploadIds(Collections.singletonList(UPLOAD_ID));
+      FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
+      fileAttachmentObject.setUploadId(UPLOAD_ID);
+      fileAttachmentObject.setAltText("Test alternative text");
+      attachmentList.setUploadedFiles(Collections.singletonList(fileAttachmentObject));
       uploadResource();
 
       attachmentService.saveAttachments(attachmentList);

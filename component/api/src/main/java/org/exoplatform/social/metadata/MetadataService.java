@@ -173,6 +173,14 @@ public interface MetadataService {
    * @return               Deleted {@link MetadataItem}
    */
   MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId);
+
+  /**
+   * @param  itemId                  {@link MetadataItem} technical identifier
+   * @param  userIdentityId          {@link Identity} technical identifier
+   *                                   designating the user making the operation
+   * @return                         Deleted {@link MetadataItem}
+   * @throws ObjectNotFoundException when the {@link MetadataItem} isn't found
+   */
   MetadataItem deleteMetadataItem(long itemId, long userIdentityId) throws ObjectNotFoundException;
 
   /**
