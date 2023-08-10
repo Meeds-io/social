@@ -93,7 +93,7 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
         try {
           String saltString = Hex.encodeHexString(generateRandomSalt());
           User user = picketLinkIDMService.getIdentitySession().getPersistenceManager().findUser(userName);
-          if (picketLinkIDMService.getExtendedAttributeManager().getAttribute(userName, PASSWORD_SALT_USER_ATTRIBUTE) == null) {
+          if (user != null && picketLinkIDMService.getExtendedAttributeManager().getAttribute(userName, PASSWORD_SALT_USER_ATTRIBUTE) == null) {
             picketLinkIDMService.getExtendedAttributeManager().addAttribute(userName, PASSWORD_SALT_USER_ATTRIBUTE, saltString);
             picketLinkIDMService.getExtendedAttributeManager().updatePassword(user, passwordHash);
           }
