@@ -66,8 +66,8 @@
         </v-card-text>
         <v-card-text>
           <extension-registry-components
-            name="ActivityComposerKudos"
-            type="activity-composer-kudos-item" />
+            name="ComposerAction"
+            type="composer-action-item" />
         </v-card-text>
       </v-card>
     </template>
