@@ -16,34 +16,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.exoplatform.social.attachment.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.exoplatform.upload.UploadResource;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObjectAttachmentDetail implements Cloneable {
+public class UploadedAttachmentDetail implements Cloneable {
 
-  private String id;
+  private String         id;
 
-  private String name;
+  private UploadResource uploadedResource;
 
-  private String mimetype;
-
-  private long   size;
-
-  private long   updated;
-
-  private String updater;
-
-  private String altText;
+  private String         altText;
 
   @Override
-  public ObjectAttachmentDetail clone() { // NOSONAR
-    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater, altText);
+  public UploadedAttachmentDetail clone() { // NOSONAR
+    return new UploadedAttachmentDetail(id, uploadedResource, altText);
   }
-
 }

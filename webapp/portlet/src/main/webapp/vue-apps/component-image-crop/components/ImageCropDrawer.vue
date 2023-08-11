@@ -56,7 +56,7 @@
         <div class="d-flex mt-4">
           <div :title="$t('imageCropDrawer.uploadImage')" class="flex-grow-0">
             <v-file-input
-              v-if="!resetInput"
+              v-if="displayUploadIcon"
               :title="$t('imageCropDrawer.uploadImage')"
               id="imageFileInput"
               ref="imageFileInput"
@@ -148,6 +148,19 @@
             </v-btn>
           </div>
         </div>
+        <div v-if="alt" class="d-flex flex-column mt-4">
+          <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
+            {{ $t('imageCropDrawer.altText.title') }}
+          </div>
+          <div class="flex-grow-1 d-flex">
+            <extended-textarea
+              v-model="alternativeText"
+              class="pt-0"
+              :max-length="altTextMaxLength"
+              :placeholder="$t('imageCropDrawer.altText.placeholder')"
+              @input="$emit('alt-text',alternativeText)" />
+          </div>
+        </div>
       </v-card>
     </template>
     <template #footer>
@@ -185,6 +198,10 @@ export default {
       type: Number,
       default: () => 1280,
     },
+    altTextMaxLength: {
+      type: Number,
+      default: () => 1000,
+    },
     backIcon: {
       type: Boolean,
       default: false,
@@ -204,6 +221,18 @@ export default {
     circle: {
       type: Boolean,
       default: false,
+    },
+    canUpload: {
+      type: Boolean,
+      default: true,
+    },
+    alt: {
+      type: Boolean,
+      default: false,
+    },
+    defaultAltText: {
+      type: String,
+      default: '',
     },
     rounded: {
       type: Boolean,
@@ -230,6 +259,7 @@ export default {
     imageData: null,
     resetInput: false,
     sendingImage: false,
+    alternativeText: null
   }),
   computed: {
     aspectRatio() {
@@ -240,6 +270,9 @@ export default {
     },
     height() {
       return parseInt((this.width + 32) * 9 / 16) - 32;
+    },
+    displayUploadIcon() {
+      return !this.resetInput && this.canUpload;
     },
   },
   watch: {
@@ -266,11 +299,13 @@ export default {
         this.$nextTick().then(() => this.init(true));
       }
     },
+
   },
   methods: {
-    open() {
+    open(imageItem, imageAltText) {
       this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
-      this.imageData = this.src || null;
+      this.imageData = imageItem || this.src || null;
+      this.alternativeText = imageAltText || null;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
