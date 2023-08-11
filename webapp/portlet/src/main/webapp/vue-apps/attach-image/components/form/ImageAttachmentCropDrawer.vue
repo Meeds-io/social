@@ -24,8 +24,8 @@
     :max-image-width="maxFileSize"
     :crop-options="cropOptions"
     :can-upload="false"
-    :image-alt-text="imageAltText"
-    display-alt-text
+    :default-alt-text="imageAltText"
+    alt
     @input="uploadId = $event"
     @data="updateImageData($event)"
     @alt-text="altText = $event" />
@@ -42,7 +42,8 @@ export default {
       },
       uploadId: null,
       maxFileSize: 20971520,
-      altText: null
+      altText: null,
+      
     };
   },
   computed: {
@@ -65,14 +66,14 @@ export default {
     },
     updateImageData(imageData) {
       if (imageData) {
-        this.$root.$emit('attachments-update-cropped-image', {detail: { 
+        document.dispatchEvent(new CustomEvent('attachment-update', {detail: { 
           src: imageData,
           uploadId: this.uploadId,
           id: this.imageItem?.id ? this.imageItem?.id : '',
           progress: 100,
           oldUploadId: this.imageItem?.uploadId?  this.imageItem?.uploadId : '',
           altText: this.altText ? this.altText : ''
-        }});
+        }}));
       }
     },
   },

@@ -72,14 +72,11 @@ export default {
   },
   created() {
     document.addEventListener('attachment-save', this.triggerAttachmentsSave);
-    this.$root.$on('attachments-update-cropped-image', (event) => {
-      if (event?.detail) {
-        this.updateImage(event?.detail);
-      }
-    });
+    document.addEventListener('attachment-update', this.updateImage);
   },
   beforeDestroy() {
     document.removeEventListener('attachment-save', this.triggerAttachmentsSave);
+    document.removeEventListener('attachment-update', this.updateImage);
   },
   methods: {
     init() {
@@ -167,18 +164,21 @@ export default {
         }
       }
     },
-    updateImage(updatedImage) {
-      if (updatedImage.oldUploadId?.length) {
-        const index = this.images.findIndex(file => file.uploadId === updatedImage.oldUploadId);
-        this.images[index].src = updatedImage?.src;
-        this.images[index] = updatedImage;
-      } else if (updatedImage.id?.length) {
-        const index = this.attachments.findIndex(file => file.id === updatedImage.id);
-        if (index >= 0) {
-          this.attachmentUpdated = false;
-          this.attachments[index].src = updatedImage?.src;
-          this.attachments[index] = updatedImage;
-          this.attachments = this.attachments.slice();
+    updateImage(event) {
+      if (event?.detail) {
+        const updatedImage = event.detail;
+        if (updatedImage.oldUploadId?.length) {
+          const index = this.images.findIndex(file => file.uploadId === updatedImage.oldUploadId);
+          this.images[index].src = updatedImage?.src;
+          this.images[index] = updatedImage;
+        } else if (updatedImage.id?.length) {
+          const index = this.attachments.findIndex(file => file.id === updatedImage.id);
+          if (index >= 0) {
+            this.attachmentUpdated = false;
+            this.attachments[index].src = updatedImage?.src;
+            this.attachments[index] = updatedImage;
+            this.attachments = this.attachments.slice();
+          }
         }
       }
     },

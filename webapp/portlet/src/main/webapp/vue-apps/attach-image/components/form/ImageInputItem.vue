@@ -89,7 +89,6 @@ export default {
   },
   computed: {
     imageItem() {
-      console.warn('this.image', this.image);
       return this.image;
     },
     imageUploadProgress() {

@@ -148,7 +148,7 @@
             </v-btn>
           </div>
         </div>
-        <div v-if="displayAltText" class="d-flex flex-column mt-4">
+        <div v-if="alt" class="d-flex flex-column mt-4">
           <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
             {{ $t('imageCropDrawer.altText.title') }}
           </div>
@@ -226,11 +226,11 @@ export default {
       type: Boolean,
       default: true,
     },
-    displayAltText: {
+    alt: {
       type: Boolean,
       default: false,
     },
-    imageAltText: {
+    defaultAltText: {
       type: String,
       default: '',
     },

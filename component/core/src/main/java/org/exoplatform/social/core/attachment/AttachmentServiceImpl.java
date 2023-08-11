@@ -341,7 +341,7 @@ public class AttachmentServiceImpl implements AttachmentService {
       return uploadedAttachmentDetail;
     })
                  .filter(Objects::nonNull)
-                 .forEach(uploadedAttachmentDetail -> createAttachment(uploadedAttachmentDetail,
+                 .forEach(uploadedAttachmentDetail -> saveAttachment(uploadedAttachmentDetail,
                                                                        objectType,
                                                                        objectId,
                                                                        parentObjectId,
@@ -350,15 +350,16 @@ public class AttachmentServiceImpl implements AttachmentService {
     return report;
   }
 
-  private void createAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
-                                String objectType,
-                                String objectId,
-                                String parentObjectId,
-                                long userIdentityId,
-                                ObjectAttachmentOperationReport report) {
+  private void saveAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
+                              String objectType,
+                              String objectId,
+                              String parentObjectId,
+                              long userIdentityId,
+                              ObjectAttachmentOperationReport report) {
     UploadResource uploadResource = uploadedAttachmentDetail.getUploadedResource();
     String fileDiskLocation = uploadResource.getStoreLocation();
     String uploadId = uploadResource.getUploadId();
+    String altText = uploadedAttachmentDetail.getAltText();
     Long attachmentId =
                       !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ? Long.parseLong(uploadedAttachmentDetail.getId())
                                                                                : null;
@@ -371,40 +372,9 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                          inputStream,
                                                          userIdentityId);
       if (attachmentId == null) {
-        MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(), fileId, getAudienceId(objectType, objectId));
-        MetadataObject object = new MetadataObject(objectType, objectId, parentObjectId, getSpaceId(objectType, objectId));
-        Map<String, String> properties = new HashMap<String, String>();
-        properties.put("alt", uploadedAttachmentDetail.getAltText());
-        metadataService.createMetadataItem(object, metadataKey, properties, userIdentityId);
-        broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
-                                  metadataKey.getName(),
-                                  objectType,
-                                  objectId,
-                                  getUserName(userIdentityId));
+        createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, altText);
       } else {
-        List<MetadataItem> attachmentItem =
-                                          metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(uploadedAttachmentDetail.getId(),
-                                                                                                         AttachmentService.METADATA_TYPE.getName(),
-                                                                                                         objectType,
-                                                                                                         objectId,
-                                                                                                         0,
-                                                                                                         0);
-        if (CollectionUtils.isNotEmpty(attachmentItem)) {
-          MetadataItem attachmentItemMetadata = attachmentItem.get(0);
-          if (attachmentItemMetadata.getProperties() != null && !attachmentItemMetadata.getProperties().isEmpty()) {
-            attachmentItemMetadata.getProperties().put("alt", uploadedAttachmentDetail.getAltText());
-          } else {
-            Map<String, String> properties = new HashMap<>();
-            properties.put("alt", uploadedAttachmentDetail.getAltText());
-            attachmentItemMetadata.setProperties(properties);
-          }
-          metadataService.updateMetadataItem(attachmentItemMetadata, userIdentityId);
-        }
-        broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
-                                  String.valueOf(attachmentId),
-                                  objectType,
-                                  objectId,
-                                  getUserName(userIdentityId));
+        updateAttachment(fileId, objectType, objectId,userIdentityId, altText);
       }
 
     } catch (FileNotFoundException e) {
@@ -418,6 +388,58 @@ public class AttachmentServiceImpl implements AttachmentService {
       report.addError(uploadId, "attachment.uploadIdNotAttachedError");
     } finally {
       uploadService.removeUploadResource(uploadId);
+    }
+  }
+
+  private void createAttachment(String fileId,
+                                String objectType,
+                                String objectId,
+                                String parentObjectId,
+                                long userIdentityId,
+                                String altText) throws Exception {
+    MetadataKey metadataKey = null;
+    metadataKey = new MetadataKey(METADATA_TYPE.getName(), fileId, getAudienceId(objectType, objectId));
+    MetadataObject object = new MetadataObject(objectType,
+                                               objectId,
+                                               parentObjectId,
+                                               getSpaceId(objectType, objectId));
+    Map<String, String> properties = new HashMap<String, String>();
+    properties.put("alt", altText);
+    metadataService.createMetadataItem(object,
+                                       metadataKey,
+                                       properties,
+                                       userIdentityId);
+    broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
+                              metadataKey.getName(),
+                              objectType,
+                              objectId,
+                              getUserName(userIdentityId));
+
+  }
+
+  private void updateAttachment(String fileId,
+                                String objectType,
+                                String objectId,
+                                long userIdentityId,
+                                String altText) {
+    List<MetadataItem> attachmentItem =
+                                      metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(fileId,
+                                                                                                     AttachmentService.METADATA_TYPE.getName(),
+                                                                                                     objectType,
+                                                                                                     objectId,
+                                                                                                     0,
+                                                                                                     0);
+    if (CollectionUtils.isNotEmpty(attachmentItem)) {
+      MetadataItem attachmentItemMetadata = attachmentItem.get(0);
+      if (attachmentItemMetadata.getProperties() != null && !attachmentItemMetadata.getProperties().isEmpty()) {
+        attachmentItemMetadata.getProperties().put("alt", altText);
+      } else {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("alt", altText);
+        attachmentItemMetadata.setProperties(properties);
+      }
+      metadataService.updateMetadataItem(attachmentItemMetadata, userIdentityId);
+      broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT, fileId, objectType, objectId, getUserName(userIdentityId));
     }
   }
 
