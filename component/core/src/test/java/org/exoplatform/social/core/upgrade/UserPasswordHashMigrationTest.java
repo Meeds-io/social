@@ -38,7 +38,6 @@ import org.picketlink.idm.impl.api.model.SimpleUser;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,16 +54,10 @@ public class UserPasswordHashMigrationTest {
   @Mock
   private PicketLinkIDMService      picketLinkIDMService;
 
-  private SecureRandomService       secureRandomService;
-
-  private PortalContainer           container;
-
   private UserPasswordHashMigration userPasswordHashMigration;
 
   @Before
   public void setUp() {
-    container = PortalContainer.getInstance();
-    secureRandomService = container.getComponentInstanceOfType(SecureRandomService.class);
     InitParams initParams = new InitParams();
     ValueParam valueParam = new ValueParam();
     valueParam.setName("product.group.id");
@@ -88,7 +81,6 @@ public class UserPasswordHashMigrationTest {
     initParams.addParameter(newAppIdvalueParam);
     userPasswordHashMigration = new UserPasswordHashMigration(entityManagerService,
                                                               picketLinkIDMService,
-                                                              secureRandomService,
                                                               initParams);
   }
 
@@ -108,7 +100,10 @@ public class UserPasswordHashMigrationTest {
     PersistenceManager persistenceManager = mock(PersistenceManager.class);
     User user = new SimpleUser("userId");
     when(persistenceManager.findUser(anyString())).thenReturn(user);
+    Argon2IdPasswordEncoder encoder = mock(Argon2IdPasswordEncoder.class);
+    when(encoder.generateRandomSalt()).thenReturn("testSalt".getBytes());
     ExtendedAttributeManager extendedAttributeManager = mock(ExtendedAttributeManager.class);
+    when(extendedAttributeManager.getDefaultCredentialEncoder()).thenReturn(encoder);
     when(identitySession.getPersistenceManager()).thenReturn(persistenceManager);
     when(picketLinkIDMService.getIdentitySession()).thenReturn(identitySession);
     when(picketLinkIDMService.getExtendedAttributeManager()).thenReturn(extendedAttributeManager);
