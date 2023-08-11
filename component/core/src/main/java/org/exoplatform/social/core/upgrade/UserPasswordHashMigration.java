@@ -16,7 +16,9 @@
  */
 package org.exoplatform.social.core.upgrade;
 
+import lombok.Getter;
 import org.apache.commons.codec.binary.Hex;
+import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
@@ -26,16 +28,14 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.idm.PicketLinkIDMService;
+import org.exoplatform.web.security.hash.Argon2IdPasswordEncoder;
 import org.exoplatform.web.security.security.SecureRandomService;
 import org.picketlink.idm.api.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class UserPasswordHashMigration extends UpgradeProductPlugin {
 
@@ -47,31 +47,24 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
 
   private final PicketLinkIDMService picketLinkIDMService;
 
-  private final SecureRandomService  secureRandomService;
-
   private static final String        PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt128";
 
   private static final String        DEFAULT_ENCODER              = "org.exoplatform.web.security.hash.Argon2IdPasswordEncoder";
 
   public UserPasswordHashMigration(EntityManagerService entityManagerService,
                                    PicketLinkIDMService picketLinkIDMService,
-                                   SecureRandomService secureRandomService,
                                    InitParams initParams) {
     super(initParams);
     this.entityManagerService = entityManagerService;
     this.picketLinkIDMService = picketLinkIDMService;
-    this.secureRandomService = secureRandomService;
   }
 
   @Override
   public void processUpgrade(String s, String s1) {
     LOG.info("Start upgrade of users passwords hashing algorithm");
-    long startupTime = System.currentTimeMillis();
 
     PortalContainer container = PortalContainer.getInstance();
-    AtomicInteger updatedPasswords = new AtomicInteger();
     EntityManager entityManager = this.entityManagerService.getEntityManager();
-    int totalSize;
     try {
       String sqlString = "SELECT jbid_io.NAME, jbid_io_creden.TEXT  FROM"
           + " (jbid_io_creden INNER JOIN jbid_io ON jbid_io_creden.IDENTITY_OBJECT_ID = jbid_io.ID)"
@@ -82,53 +75,55 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
       RequestLifeCycle.begin(container);
       Query nativeQuery = entityManager.createNativeQuery(sqlString);
       List<Object[]> result = nativeQuery.getResultList();
-      AtomicLong chunckStartTime = new AtomicLong(System.currentTimeMillis());
-      updatedPasswords.set(0);
-      List<String> userWithErrors = new ArrayList<>();
-      totalSize = result.size();
-      result.forEach(item -> {
-        String userName = (String) item[0];
-        String passwordHash = (String) item[1];
+      UpgradeReport upgradeReport = new UpgradeReport(result.size());
 
-        try {
-          String saltString = Hex.encodeHexString(generateRandomSalt());
-          User user = picketLinkIDMService.getIdentitySession().getPersistenceManager().findUser(userName);
-          if (user != null && picketLinkIDMService.getExtendedAttributeManager().getAttribute(userName, PASSWORD_SALT_USER_ATTRIBUTE) == null) {
-            picketLinkIDMService.getExtendedAttributeManager().addAttribute(userName, PASSWORD_SALT_USER_ATTRIBUTE, saltString);
-            picketLinkIDMService.getExtendedAttributeManager().updatePassword(user, passwordHash);
-          }
-          int current = updatedPasswords.incrementAndGet();
-          if (current % CHUNCK == 0) {
-            if (picketLinkIDMService.getIdentitySession().getTransaction() != null) {
-              picketLinkIDMService.getIdentitySession().getTransaction().commit();
-            }
-            LOG.info("{}/{} passwords have been updated ({} ms for the chunck)",
-                     current,
-                     totalSize,
-                     System.currentTimeMillis() - chunckStartTime.get());
-            chunckStartTime.set(System.currentTimeMillis());
-          }
-        } catch (Exception e) {
-          userWithErrors.add(userName);
-          LOG.error("Error while creating attribute salt and updating password hash for user : {}", userName, e);
-        }
-      });
+      result.forEach(item -> fixUser(item, upgradeReport));
 
       LOG.info("End upgrade of users passwords hashing algorithm. {} passwords has been updated. {} users where not treated due to error. It took {} ms",
-               totalSize - userWithErrors.size(),
-               userWithErrors.size(),
-               (System.currentTimeMillis() - startupTime));
-      if (!userWithErrors.isEmpty()) {
-        LOG.error("Users with not modified password : {}", userWithErrors);
+               upgradeReport.getSuccess(),
+               upgradeReport.getFailure(),
+               upgradeReport.getDurationInMillis());
+      if (!upgradeReport.getFailedUser().isEmpty()) {
+        LOG.error("Users with not modified password : {}", upgradeReport.getFailedUser());
         throw new IllegalStateException("UserPasswordHashMigration upgrade failed due to previous errors");
       }
     } catch (Exception e) {
-      LOG.error("Error while getting old users passwords hash", e);
       throw new IllegalStateException("UserPasswordHashMigration upgrade failed due to previous errors");
     } finally {
       RequestLifeCycle.end();
     }
 
+  }
+
+  @ExoTransactional
+  private void fixUser(Object[] item, UpgradeReport upgradeReport) {
+    String userName = (String) item[0];
+    String passwordHash = (String) item[1];
+
+    try {
+      User user = picketLinkIDMService.getIdentitySession().getPersistenceManager().findUser(userName);
+      String saltString = Hex.encodeHexString(generateRandomSalt());
+      if (user != null && picketLinkIDMService.getExtendedAttributeManager().getAttribute(userName, PASSWORD_SALT_USER_ATTRIBUTE) == null) {
+        picketLinkIDMService.getExtendedAttributeManager().addAttribute(userName, PASSWORD_SALT_USER_ATTRIBUTE, saltString);
+        picketLinkIDMService.getExtendedAttributeManager().updatePassword(user, passwordHash);
+      }
+      upgradeReport.incrementSuccess();
+      int count = upgradeReport.getFailure()+upgradeReport.getSuccess();
+      if (count % CHUNCK == 0) {
+        if (picketLinkIDMService.getIdentitySession().getTransaction() != null) {
+          picketLinkIDMService.getIdentitySession().getTransaction().commit();
+        }
+        LOG.info("{}/{} passwords have been updated ({} ms for the chunck)",
+                 count,
+                 upgradeReport.total,
+                 upgradeReport.getChunkDurationInMillis());
+        upgradeReport.resetChunckTime();
+      }
+    } catch (Exception e) {
+      upgradeReport.incrementFailure();
+      upgradeReport.addFailUser(userName);
+      LOG.error("Error while creating attribute salt and updating password hash for user : {}", userName, e);
+    }
   }
 
   @Override
@@ -149,9 +144,61 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
   }
 
   private byte[] generateRandomSalt() {
-    SecureRandom secureRandom = secureRandomService.getSecureRandom();
-    byte[] salt = new byte[16];
-    secureRandom.nextBytes(salt);
-    return salt;
+    try {
+      if (picketLinkIDMService.getExtendedAttributeManager()
+                              .getDefaultCredentialEncoder()
+                              .getClass()
+                              .getName()
+                              .equals(DEFAULT_ENCODER)) {
+        Argon2IdPasswordEncoder encoder = (Argon2IdPasswordEncoder) picketLinkIDMService.getExtendedAttributeManager()
+                                                                                        .getDefaultCredentialEncoder();
+        return encoder.generateRandomSalt();
+      } else {
+        return new byte[0];
+      }
+    } catch (Exception e) {
+      LOG.error("Error for generating salt",e);
+      return new byte[0];
+    }
+
+  }
+
+  public static class UpgradeReport {
+    private long startTime = System.currentTimeMillis();
+    @Getter
+    private int total;
+    @Getter
+    private int success;
+    @Getter
+    private int failure;
+    @Getter
+    private long startChunckTime = System.currentTimeMillis();
+    @Getter
+    private List<String> failedUser = new ArrayList<>();
+
+    public UpgradeReport(int total) {
+      this.total = total;
+    }
+    public void incrementSuccess() {
+      success++;
+    }
+    public void incrementFailure() {
+      failure++;
+    }
+    public long getDurationInMillis() {
+      return System.currentTimeMillis() - startTime;
+    }
+
+    public long getChunkDurationInMillis() {
+      return System.currentTimeMillis() - startChunckTime;
+    }
+
+    public void resetChunckTime() {
+      startChunckTime = System.currentTimeMillis();
+    }
+
+    public void addFailUser(String username) {
+      failedUser.add(username);
+    }
   }
 }
