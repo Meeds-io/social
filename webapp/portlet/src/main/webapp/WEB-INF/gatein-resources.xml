@@ -1998,6 +1998,9 @@
       <module>extensionRegistry</module>
     </depends>
     <depends>
+      <module>imageCropper</module>
+    </depends>
+    <depends>
       <module>vuetify</module>
     </depends>
     <depends>
