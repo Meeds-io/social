@@ -47,13 +47,20 @@
     class="position-relative" 
     flat>
     <v-img
-      :src="imageItem"
+      :src="imageItem.src"
       class="white--text align-end"
       gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
       width="120"
       min-height="120"
       max-height="120" />
     <v-card-actions class="position-absolute t-0 r-0">
+      <v-btn 
+        class="mr-1" 
+        fab 
+        x-small
+        @click="openImageCropDrawer">
+        <v-icon class="icon-default-color" small>fa-edit</v-icon>
+      </v-btn>
       <v-btn 
         class="ml-0" 
         fab 
@@ -82,7 +89,7 @@ export default {
   },
   computed: {
     imageItem() {
-      return this.image?.src;
+      return this.image;
     },
     imageUploadProgress() {
       return this.image?.progress;
@@ -94,7 +101,10 @@ export default {
   methods: {
     deleteFile() {
       this.$emit('delete', this.image);
-    }
+    },
+    openImageCropDrawer() {
+      document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{detail: this.imageItem}));
+    },
   }
 };
 </script>

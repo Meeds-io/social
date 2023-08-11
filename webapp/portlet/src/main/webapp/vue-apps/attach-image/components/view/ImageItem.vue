@@ -34,7 +34,7 @@
     <v-card-text class="attachment-card-item-thumbnail d-flex flex-grow-1 pa-0">
       <img
         :src="thumbnailUrl"
-        alt="attached image"
+        :alt="attachmentAlt"
         class="ma-auto full-width">
     </v-card-text>
     <v-expand-transition>
@@ -93,6 +93,9 @@ export default {
     thumbnailUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?size=${this.previewHeight}x${this.previewWidth}`;
     },
+    attachmentAlt() {
+      return this.attachment?.alt || 'attached image';
+    }
   },
   data: () => ({
     loading: false,
