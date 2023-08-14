@@ -21,7 +21,7 @@
     ref="attachedImageCropDrawer"
     :drawer-title="$t('attachment.imageCropDrawer.title')"
     :src="imageCropperSrc"
-    :max-image-width="maxFileSize"
+    :max-file-size="maxFileSize"
     :crop-options="cropOptions"
     :can-upload="false"
     :default-alt-text="imageAltText"
@@ -30,7 +30,6 @@
     @data="updateImageData($event)"
     @alt-text="altText = $event" />
 </template>
-
 <script>
 export default {
   data () {

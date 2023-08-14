@@ -376,6 +376,11 @@ public class AttachmentServiceImpl implements AttachmentService {
       } else {
         updateAttachment(fileId, objectType, objectId,userIdentityId, altText);
       }
+      broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
+                                fileId,
+                                objectType,
+                                objectId,
+                                getUserName(userIdentityId));
 
     } catch (FileNotFoundException e) {
       LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
@@ -409,12 +414,6 @@ public class AttachmentServiceImpl implements AttachmentService {
                                        metadataKey,
                                        properties,
                                        userIdentityId);
-    broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
-                              metadataKey.getName(),
-                              objectType,
-                              objectId,
-                              getUserName(userIdentityId));
-
   }
 
   private void updateAttachment(String fileId,
@@ -439,7 +438,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         attachmentItemMetadata.setProperties(properties);
       }
       metadataService.updateMetadataItem(attachmentItemMetadata, userIdentityId);
-      broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT, fileId, objectType, objectId, getUserName(userIdentityId));
     }
   }
 
