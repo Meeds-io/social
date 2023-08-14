@@ -64,6 +64,11 @@
             </template>
           </extension-registry-components>
         </v-card-text>
+        <v-card-text>
+          <extension-registry-components
+            name="ComposerAction"
+            type="composer-action-item" />
+        </v-card-text>
       </v-card>
     </template>
     <template slot="footer">
