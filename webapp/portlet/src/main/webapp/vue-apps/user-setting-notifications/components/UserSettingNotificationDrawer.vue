@@ -21,6 +21,7 @@
               v-model="channels[pluginOption.channelId]"
               :name="pluginOption.channelId"
               :disabled="!pluginOption.channelActive"
+              :id="pluginOption.channelId"
               hide-details
               dense
               class="mt-0" />
