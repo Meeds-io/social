@@ -21,7 +21,7 @@
     ref="attachedImageCropDrawer"
     :drawer-title="$t('attachment.imageCropDrawer.title')"
     :src="imageCropperSrc"
-    :max-image-width="maxFileSize"
+    :max-file-size="maxFileSize"
     :crop-options="cropOptions"
     :can-upload="false"
     :default-alt-text="imageAltText"
@@ -30,7 +30,6 @@
     @data="updateImageData($event)"
     @alt-text="altText = $event" />
 </template>
-
 <script>
 export default {
   data () {
@@ -43,15 +42,21 @@ export default {
       uploadId: null,
       maxFileSize: 20971520,
       altText: null,
-      
     };
   },
   computed: {
     imageCropperSrc() {
-      return this.imageItem?.src;
+      let imageSrc = this.imageItem?.src || '';
+      if (imageSrc.length) {
+        imageSrc = imageSrc.split('?')[0];
+      }
+      return imageSrc;
     },
     imageAltText() {
       return this.imageItem?.altText || '';
+    },
+    imageMimeType() {
+      return this.imageItem?.mimetype || '';
     }
   },
   created() {
@@ -61,7 +66,7 @@ export default {
     openAttachmentCropDrawer(event) {
       if (event?.detail) {
         this.imageItem = event?.detail;
-        this.$refs.attachedImageCropDrawer.open(this.imageCropperSrc, this.imageAltText);
+        this.$refs.attachedImageCropDrawer.open(this.imageItem);
       }
     },
     updateImageData(imageData) {
@@ -69,10 +74,10 @@ export default {
         document.dispatchEvent(new CustomEvent('attachment-update', {detail: { 
           src: imageData,
           uploadId: this.uploadId,
-          id: this.imageItem?.id ? this.imageItem?.id : '',
+          id: this.imageItem?.id || '',
           progress: 100,
-          oldUploadId: this.imageItem?.uploadId?  this.imageItem?.uploadId : '',
-          altText: this.altText ? this.altText : ''
+          oldUploadId: this.imageItem?.uploadId || '',
+          altText: this.altText || ''
         }}));
       }
     },
