@@ -33,6 +33,10 @@ export default {
       type: Number,
       default: () => 24
     },
+    extraClass: {
+      type: String,
+      default: () => '',
+    }
   },
   data: () => ({
     rules: [],
@@ -49,6 +53,12 @@ export default {
   },
   created() {
     this.rules = [v => !v || v.length <= this.maxLength || this.limitMessageLabel];
+  },
+  mounted() {
+    if (this.extraClass?.length) {
+      const textareaElement = document.querySelector('.extended-textarea textarea');
+      textareaElement.classList.add(this.extraClass);
+    }
   },
   methods: {
     counterValue(value) {

@@ -91,7 +91,7 @@ export default {
   },
   computed: {
     thumbnailUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?size=${this.previewHeight}x${this.previewWidth}`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?lastModified=${this.attachment.updated}&size=${this.previewHeight}x${this.previewWidth}`;
     },
     attachmentAlt() {
       return this.attachment?.alt || 'attached image';

@@ -59,7 +59,7 @@ export default {
     attachedFiles() {
       if (this.attachments.length && this.attachmentUpdated) {
         this.attachments.forEach(attachment => {
-          attachment.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${attachment.id}?size=120x120`;
+          attachment.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${attachment.id}?lastModified=${attachment.updated}&size=120x120`;
         });
       }
       return [...this.attachments, ...this.images];
