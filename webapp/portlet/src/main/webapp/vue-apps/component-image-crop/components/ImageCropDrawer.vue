@@ -155,9 +155,10 @@
           <div class="flex-grow-1 d-flex">
             <extended-textarea
               v-model="alternativeText"
-              class="pt-0"
               :max-length="altTextMaxLength"
               :placeholder="$t('imageCropDrawer.altText.placeholder')"
+              extra-class="width-auto"
+              class="pt-0"
               @input="$emit('alt-text',alternativeText)" />
           </div>
         </div>

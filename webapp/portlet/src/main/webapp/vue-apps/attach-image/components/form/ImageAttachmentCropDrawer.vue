@@ -47,7 +47,11 @@ export default {
   },
   computed: {
     imageCropperSrc() {
-      return this.imageItem?.src;
+      let imageSrc = this.imageItem?.src || '';
+      if (imageSrc.length) {
+        imageSrc = imageSrc.split('?')[0];
+      }
+      return imageSrc;
     },
     imageAltText() {
       return this.imageItem?.altText || '';
