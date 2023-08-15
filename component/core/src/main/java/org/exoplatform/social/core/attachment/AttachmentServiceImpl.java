@@ -410,11 +410,10 @@ public class AttachmentServiceImpl implements AttachmentService {
                                        properties,
                                        userIdentityId);
     broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
-                              metadataKey.getName(),
+                              fileId,
                               objectType,
                               objectId,
                               getUserName(userIdentityId));
-
   }
 
   private void updateAttachment(String fileId,
@@ -439,7 +438,11 @@ public class AttachmentServiceImpl implements AttachmentService {
         attachmentItemMetadata.setProperties(properties);
       }
       metadataService.updateMetadataItem(attachmentItemMetadata, userIdentityId);
-      broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT, fileId, objectType, objectId, getUserName(userIdentityId));
+      broadcastAttachmentChange(ATTACHMENTS_UPDATED_EVENT,
+                                fileId,
+                                objectType,
+                                objectId,
+                                getUserName(userIdentityId));
     }
   }
 
