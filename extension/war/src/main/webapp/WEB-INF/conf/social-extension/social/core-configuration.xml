@@ -348,6 +348,11 @@
         <key>org.exoplatform.social.core.space.spi.SpaceService</key>
         <type>org.exoplatform.social.core.space.impl.SpaceServiceImpl</type>
     </component>
+
+    <component>
+        <key>org.exoplatform.social.core.portletBanner.PortletBannerService</key>
+        <type>org.exoplatform.social.core.portletBanner.PortletBannerServiceImpl</type>
+    </component>
     
     <component>
         <key>org.exoplatform.social.core.space.spi.SpaceTemplateService</key>

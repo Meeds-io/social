@@ -87,6 +87,8 @@ public class LinkProvider {
 
   private static String        baseURLSocialSpaceRest;
 
+  private static String       baseURLSocialPortletBannerRest;
+
   public static final String TYPE = "file";
 
   public LinkProvider() {
@@ -476,7 +478,15 @@ public class LinkProvider {
                                                            .append(token)
                                                            .toString();
     } else {
-      return null;
+      return new StringBuilder(getBaseURLSocialPortletBannerRest()).append("/")
+                                                                   .append(providerId)
+                                                                   .append("/")
+                                                                   .append(type)
+                                                                   .append("?lastModified=")
+                                                                   .append(lastModifiedString)
+                                                                   .append("&r=")
+                                                                   .append(token)
+                                                                   .toString();
     }
   }
 
@@ -545,6 +555,13 @@ public class LinkProvider {
       baseURLSocialSpaceRest = getBaseURLSocialRest() + "/spaces";
     }
     return baseURLSocialSpaceRest;
+  }
+
+  public static String getBaseURLSocialPortletBannerRest() {
+    if (baseURLSocialPortletBannerRest == null) {
+      baseURLSocialPortletBannerRest = getBaseURLSocialRest() + "/portletBanner";
+    }
+    return baseURLSocialPortletBannerRest;
   }
 
   public static String getBaseURLSocialUserRest() {

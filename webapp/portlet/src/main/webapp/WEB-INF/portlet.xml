@@ -841,4 +841,23 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>ImagesPortlet</portlet-name>
+    <display-name>Images Portlet</display-name>
+    <portlet-class>org.exoplatform.social.portlet.ImagesPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/portletBanner.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Images</title>
+      <keywords>Images</keywords>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>
