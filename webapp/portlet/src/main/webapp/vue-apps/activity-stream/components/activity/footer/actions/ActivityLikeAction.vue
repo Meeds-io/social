@@ -18,10 +18,10 @@
             <v-icon
               :class="likeColorClass"
               class="baseline-vertical-align"
-              size="14">
+              :size="isMobile && '20' || '14'">
               fa-thumbs-up
             </v-icon>
-            <span class="mx-auto mt-1 mt-lg-0 ms-lg-2">
+            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-2">
               {{ $t('UIActivity.msg.LikeActivity') }}
             </span>
           </div>
@@ -58,6 +58,9 @@ export default {
     },
     likeButtonTitle() {
       return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
   },
   created() {
