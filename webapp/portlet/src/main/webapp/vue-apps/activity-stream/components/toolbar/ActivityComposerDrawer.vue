@@ -53,21 +53,21 @@
             name="ActivityComposerAction"
             type="activity-composer-action" />
         </v-card-actions>
-        <v-card-text class="composerActions">
+        <v-card-text>
           <extension-registry-components
-            v-if="!activityId"
-            :params="extensionParams"
-            name="ActivityComposerFooterAction"
-            type="activity-composer-footer-action">
+            name="ComposerAction"
+            type="composer-action-item">
             <template #header>
               <v-divider class="mb-6" />
             </template>
           </extension-registry-components>
         </v-card-text>
-        <v-card-text>
+        <v-card-text class="pt-0">
           <extension-registry-components
-            name="ComposerAction"
-            type="composer-action-item" />
+            v-if="!activityId"
+            :params="extensionParams"
+            name="ActivityComposerFooterAction"
+            type="activity-composer-footer-action" />
         </v-card-text>
       </v-card>
     </template>
