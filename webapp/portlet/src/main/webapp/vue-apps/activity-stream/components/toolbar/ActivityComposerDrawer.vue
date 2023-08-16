@@ -55,6 +55,7 @@
         </v-card-actions>
         <v-card-text>
           <extension-registry-components
+            v-if="!activityId"
             name="ComposerAction"
             type="composer-action-item">
             <template #header>
