@@ -20,26 +20,58 @@
     id="activityComposer"
     class="activityComposer activityComposerApp pa-0"
     color="white mb-5"
-    height="52"
+    height="auto"
     flat
     dense>
-    <div class="d-flex full-width">
+    <div class="d-flex full-width py-4">
       <div class="flex-grow-1">
-        <div v-if="userCanPost" class="openLink d-flex flex-row pe-10">
-          <exo-user-avatar
-            v-if="user"
-            :identity="user"
-            class="d-flex align-center ms-1 me-3"
-            size="40"
-            avatar />
-          <v-text-field
-            @click="openComposerDrawer(true)"
-            :placeholder="$t('activity.composer.post.placeholder')"
-            class="pt-0 rounded-pill"
-            height="30"
-            hide-details
-            outlined
-            dense />
+        <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
+          <div class="d-flex flex-row">
+            <exo-user-avatar
+              v-if="user"
+              :identity="user"
+              class="d-flex align-center ms-1 me-3"
+              size="40"
+              avatar />
+            <v-text-field
+              @click="openComposerDrawer(true)"
+              :placeholder="$t('activity.composer.post.placeholder')"
+              class="pt-0 rounded-pill"
+              height="30"
+              hide-details
+              outlined
+              dense />
+          </div>
+          <div class="d-flex flex-row pt-4">
+            <v-card
+              :ripple="false"
+              class="d-flex flex-grow-1 flex-row align-center mx-4"
+              flat
+              @click="openKudosDrawer">
+              <v-icon
+                color="primary"
+                size="27">
+                fa-award
+              </v-icon>
+              <v-span class="caption font-weight-bold ms-5 dark-grey-color">
+                {{ $t('exoplatform.kudos.title.sendAKudos') }}
+              </v-span>
+            </v-card>
+            <v-card
+              :ripple="false"
+              class="d-flex flex-grow-1 flex-row align-center mx-4"
+              flat
+              @click="openPollDrawer">
+              <v-icon
+                color="amber darken-1"
+                size="36">
+                fa-poll
+              </v-icon>
+              <v-span class="caption font-weight-bold ms-5 dark-grey-color">
+                {{ this.$t(`composer.poll.create.drawer.label`) }}
+              </v-span>
+            </v-card>
+          </div>
         </div>
         <div v-else>
           <v-card-text class="text-sub-title text-uppercase center px-0">
@@ -47,9 +79,7 @@
           </v-card-text>
         </div>
       </div>
-      <div 
-        v-if="streamFilterEnabled"
-        class="my-auto">
+      <div v-if="streamFilterEnabled">
         <activity-stream-filter />
       </div>
     </div>
@@ -126,6 +156,22 @@ export default {
         activityType: []
       }}));
     },
+    openKudosDrawer() {
+      document.dispatchEvent(new CustomEvent('exo-kudos-open-send-modal', {detail: {
+        id: eXo.env.portal.spaceId,
+        type: 'USER_PROFILE',
+        parentId: '',
+        owner: eXo.env.portal.userName,
+        spaceURL: eXo.env.portal.spaceUrl,
+        readOnlySpace: true
+      }}));
+    },
+    openPollDrawer() {
+      this.openComposerDrawer();
+      window.setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('exo-poll-open-drawer'));
+      }, 200);
+    }
   },
 };
 </script>
