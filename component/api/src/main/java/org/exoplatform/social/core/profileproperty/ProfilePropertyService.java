@@ -49,6 +49,14 @@ public interface ProfilePropertyService {
    *
    * @return {@link ProfilePropertySetting} if exist or null if not
    */
+  ProfilePropertySetting getProfileSettingById(Long id);
+
+  /**
+   * Retrieves the ProfileProperty item with given {@link ProfilePropertySetting}
+   * propertyName
+   *
+   * @return {@link ProfilePropertySetting} if exist or null if not
+   */
   ProfilePropertySetting getProfileSettingByName(String name);
 
   /**

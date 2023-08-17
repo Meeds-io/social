@@ -1,0 +1,2 @@
+userName,firstName,lastName,email,password,groups,aboutMe,timeZone,company,position,phones.work,custom-single-property,custom-multi-property.first-property
+jack.nipper,Jack,Nipper,jack.nipper0@nasa.gov,Pass@123456,*:/platform/users;member:/spaces/spaceone,aboutMe1,timeZone1,company1,position1,777777,test,first property value
