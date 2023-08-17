@@ -75,6 +75,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   }
 
   @Override
+  public ProfilePropertySetting getProfileSettingById(Long id) {
+    return profileSettingStorage.getProfileSettingById(id);
+  }
+
+  @Override
   public ProfilePropertySetting createPropertySetting(ProfilePropertySetting profilePropertySetting) throws ObjectAlreadyExistsException {
     if (profilePropertySetting == null) {
       throw new IllegalArgumentException("Profile property setting Item Object is mandatory");
@@ -156,4 +161,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     this.profielPropertyPlugins.add((ProfilePropertyDatabaseInitializer) profilePropertyInitPlugin);
   }
 
+  @Override
+  public boolean hasChildProperties(ProfilePropertySetting propertySetting) {
+    return profileSettingStorage.hasChildProperties(propertySetting.getId());
+  }
 }

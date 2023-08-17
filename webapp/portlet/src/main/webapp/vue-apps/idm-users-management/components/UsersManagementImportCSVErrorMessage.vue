@@ -48,6 +48,24 @@
     <template v-else-if="createUserProfileErrorMessage">
       {{ createUserProfileErrorMessage }}
     </template>
+    <template v-else-if="unauthorizedFieldErrorMessage">
+      {{ unauthorizedFieldErrorMessage }}
+    </template>
+    <template v-else-if="parentPropertyShouldNotHaveValuesErrorMessage">
+      {{ parentPropertyShouldNotHaveValuesErrorMessage }}
+    </template>
+    <template v-else-if="propertyHasMoreThanOneParentErrorMessage">
+      {{ propertyHasMoreThanOneParentErrorMessage }}
+    </template>
+    <template v-else-if="propertyHasAMissingParentPropertyErrorMessage">
+      {{ propertyHasAMissingParentPropertyErrorMessage }}
+    </template>
+    <template v-else-if="customMultivaluedFieldErrorMessage">
+      {{ customMultivaluedFieldErrorMessage }}
+    </template>
+    <template v-else-if="customParentErrorMessage">
+      {{ customParentErrorMessage }}
+    </template>
     <template v-else>
       {{ error }}
     </template>
@@ -88,6 +106,24 @@ export default {
     createUserProfileErrorMessage() {
       return this.errorMessage && this.errorMessage.indexOf('CREATE_USER_PROFILE_ERROR:') > -1 && this.$t('UsersManagement.error.importCSV.createSocialProfileError');
     },
+    unauthorizedFieldErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('PROFILE_PROPERTY_DOES_NOT_EXIST:') > -1 && `${this.$t('UsersManagement.error.importCSV.profilePropertyDoesNotExist')} : ${this.errorMessage.split(':')[1]}`;
+    },
+    parentPropertyShouldNotHaveValuesErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:') > -1 && `${this.$t('UsersManagement.error.importCSV.parentPropertyShouldNotHaveValues')} : ${this.errorMessage.split(':')[1]}`;
+    },
+    propertyHasMoreThanOneParentErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('PROPERTY_HAS_MORE_THAN_ONE_PARENT:') > -1 && `${this.$t('UsersManagement.error.importCSV.propertyHasMoreThanOneParentErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+    },
+    propertyHasAMissingParentPropertyErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('PROPERTY_HAS_MISSING_PARENT_PROPERTY:') > -1 && `${this.$t('UsersManagement.error.importCSV.propertyHasAMissingParentPropertyErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+    },
+    customMultivaluedFieldErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('CUSTOM_FIELD_MULTIVALUED:') > -1 && `${this.$t('UsersManagement.error.importCSV.customMultivaluedFieldErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+    },
+    customParentErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('CUSTOM_PARENT_FIELD:') > -1 && `${this.$t('UsersManagement.error.importCSV.customParentErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+    }
   },
 };
 </script>
