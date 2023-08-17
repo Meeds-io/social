@@ -301,7 +301,7 @@ export default {
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
     },
     retrieveSiteNavigations() {
-      return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', this.visibility)
+      return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', this.visibility, null, null, !eXo.env.portal.newLeftNavigationDrawer)
         .then(data => this.siteNavigations = data || []);
     },
     retrieveAdministrationNavigations() {
