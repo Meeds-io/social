@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.model.ProfileLabel;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
@@ -152,6 +153,63 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                       passwordRecoveryService,
                                                                       localeConfigService);
     registry(userRestResourcesV1);
+
+    // Create profile properties
+    ProfilePropertySetting urlsPropertySetting = new ProfilePropertySetting();
+    urlsPropertySetting.setPropertyName("urls");
+    urlsPropertySetting.setMultiValued(true);
+    urlsPropertySetting = profilePropertyService.createPropertySetting(urlsPropertySetting);
+    tearDownProfilePropertyList.add(urlsPropertySetting);
+
+    // Create profile properties
+    ProfilePropertySetting phonesPropertySetting = new ProfilePropertySetting();
+    phonesPropertySetting.setPropertyName("phones");
+    phonesPropertySetting = profilePropertyService.createPropertySetting(phonesPropertySetting);
+    tearDownProfilePropertyList.add(phonesPropertySetting);
+
+    ProfilePropertySetting workPhonePropertySetting = new ProfilePropertySetting();
+    workPhonePropertySetting.setPropertyName("phones.work");
+    workPhonePropertySetting.setMultiValued(false);
+    workPhonePropertySetting.setParentId(phonesPropertySetting.getId());
+    workPhonePropertySetting = profilePropertyService.createPropertySetting(workPhonePropertySetting);
+    tearDownProfilePropertyList.add(workPhonePropertySetting);
+
+    ProfilePropertySetting homePhonePropertySetting = new ProfilePropertySetting();
+    homePhonePropertySetting.setPropertyName("phones.home");
+    homePhonePropertySetting.setMultiValued(false);
+    homePhonePropertySetting.setParentId(phonesPropertySetting.getId());
+    homePhonePropertySetting = profilePropertyService.createPropertySetting(homePhonePropertySetting);
+    tearDownProfilePropertyList.add(homePhonePropertySetting);
+
+    // Create ims properties
+    ProfilePropertySetting imsPropertySetting = new ProfilePropertySetting();
+    imsPropertySetting.setPropertyName("ims");
+    imsPropertySetting.setMultiValued(false);
+    imsPropertySetting = profilePropertyService.createPropertySetting(imsPropertySetting);
+    tearDownProfilePropertyList.add(imsPropertySetting);
+
+    ProfilePropertySetting facebookPropertySetting = new ProfilePropertySetting();
+    facebookPropertySetting.setPropertyName("ims.facebook");
+    facebookPropertySetting.setMultiValued(false);
+    facebookPropertySetting.setParentId(imsPropertySetting.getId());
+    facebookPropertySetting = profilePropertyService.createPropertySetting(facebookPropertySetting);
+    tearDownProfilePropertyList.add(facebookPropertySetting);
+
+    Arrays.asList(new String[] { "userName", "firstName", "lastName", "email", "password", "groups", "aboutMe", "timeZone",
+        "company", "position", "enabled" }).forEach(profileProperty -> {
+          ProfilePropertySetting basicProfilePropertySetting = new ProfilePropertySetting();
+          basicProfilePropertySetting.setPropertyName(profileProperty);
+          basicProfilePropertySetting.setMultiValued(false);
+          try {
+            basicProfilePropertySetting = profilePropertyService.createPropertySetting(basicProfilePropertySetting);
+            tearDownProfilePropertyList.add(basicProfilePropertySetting);
+          } catch (ObjectAlreadyExistsException e) {
+            throw new RuntimeException(e);
+          }
+
+        }
+
+    );
   }
 
   public void tearDown() throws Exception {
@@ -428,7 +486,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals("john", userEntity.getUsername());
 
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
-    profilePropertySetting.setPropertyName(Profile.FIRST_NAME);
+    profilePropertySetting.setPropertyName(Profile.LOCATION);
     profilePropertyService.createPropertySetting(profilePropertySetting);
     ContainerResponse response1 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag1 = response1.getHttpHeaders().get("etag").toString();
@@ -455,21 +513,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testGetUserProfilePropertiesById() throws Exception {
     startSessionAs("root");
-    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
-    profilePropertySetting.setPropertyName(Profile.FIRST_NAME);
-    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
-    profilePropertySetting = new ProfilePropertySetting();
-    profilePropertySetting.setPropertyName(Profile.LAST_NAME);
-    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
-    profilePropertySetting = new ProfilePropertySetting();
-    profilePropertySetting.setPropertyName(Profile.EMAIL);
-    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
     ContainerResponse response = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     DataEntity dataEntity = (DataEntity) response.getEntity();
     ArrayList collections = (ArrayList) dataEntity.get("properties");
-    assertEquals(3, collections.size());
+    assertEquals(14, collections.size());
   }
 
   public void testGetUserAvatarForAnonymous() throws Exception {
@@ -812,6 +861,63 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(String.valueOf(responseDefaultBanner.getEntity()), 204, responseDefaultBanner.getStatus());
   }
 
+  public void testImportUsersWithCustomProperties() throws Exception {
+    startSessionAs("root");
+
+    //
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setPropertyName("custom-multi-property");
+    profilePropertySetting.setMultiValued(true);
+    profilePropertySetting = profilePropertyService.createPropertySetting(profilePropertySetting);
+    tearDownProfilePropertyList.add(profilePropertySetting);
+
+    ProfilePropertySetting profilePropertySetting1 = new ProfilePropertySetting();
+    profilePropertySetting1.setPropertyName("first-property");
+    profilePropertySetting1.setMultiValued(false);
+    profilePropertySetting1.setParentId(profilePropertySetting.getId());
+    profilePropertySetting1 = profilePropertyService.createPropertySetting(profilePropertySetting1);
+    tearDownProfilePropertyList.add(profilePropertySetting1);
+
+    ProfilePropertySetting customSinglePropertySetting = new ProfilePropertySetting();
+    customSinglePropertySetting.setPropertyName("custom-single-property");
+    customSinglePropertySetting.setMultiValued(false);
+    customSinglePropertySetting = profilePropertyService.createPropertySetting(customSinglePropertySetting);
+    tearDownProfilePropertyList.add(customSinglePropertySetting);
+
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+
+    String uploadId = "users-with-profile-settings.csv";
+    URL resource = getClass().getClassLoader().getResource("users-with-profile-settings.csv");
+    uploadService.createUploadResource(uploadId, resource.getFile(), "users-with-profile-settings.csv", "text/csv");
+    ContainerResponse response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    assertNotNull(response);
+    assertNull(response.getEntity());
+    assertEquals(204, response.getStatus());
+    Identity importedUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jack.nipper");
+    Profile importedUserProfile = importedUser.getProfile();
+    assertEquals(2, importedUserProfile.getPhones().size());
+    assertEquals("phones.work", importedUserProfile.getPhones().get(1).get("key"));
+    assertEquals("777777", importedUserProfile.getPhones().get(1).get("value"));
+    assertEquals("phones.home", importedUserProfile.getPhones().get(0).get("key"));
+    assertEquals("888888", importedUserProfile.getPhones().get(0).get("value"));
+
+    List<Map<String, String>> ims = (List<Map<String, String>>) importedUserProfile.getProperty(Profile.CONTACT_IMS);
+    assertEquals(1, ims.size());
+    assertEquals("ims.facebook", ims.get(0).get("key"));
+    assertEquals("myfacebook", ims.get(0).get("value"));
+
+    List<Map<String, String>> urls = (List<Map<String, String>>) importedUserProfile.getProperty(Profile.CONTACT_URLS);
+    assertEquals(1, urls.size());
+    assertEquals(" https://www.exoplatform.com", urls.get(0).get("value"));
+
+    assertEquals("test", importedUserProfile.getProperty("custom-single-property"));
+
+    // should not import multivalued properties
+    List<Map<String, String>> customMultiValuedProperty = (ArrayList<Map<String, String>>)importedUserProfile.getProperty("custom-multi-property");
+    assertNull(customMultiValuedProperty);
+
+  }
 
   public void testImportUsers() throws Exception {
     startSessionAs("root");
@@ -997,7 +1103,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(1, importResultEntity.getWarnMessages().size());
   }
 
-  public void testUpdateProfileAtributes() throws Exception {
+  public void testUpdateProfileAttributes() throws Exception {
     String firstName = "Johnny";
     String lastName = "Bravo";
     String fullName = "Johnny Bravo";
@@ -1077,19 +1183,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     List<Map<String, String>> phones = identity.getProfile().getPhones();
     assertNotNull(phones);
     assertEquals(1, phones.size());
-    assertNotNull(phoneType, phones.get(0).get("key"));
-    assertNotNull(phoneNumber, phones.get(0).get("value"));
+    assertEquals(phoneNumber, phones.get(0).get(phoneType));
 
     List<Map<String, String>> ims = (List<Map<String, String>>) identity.getProfile().getProperty(Profile.CONTACT_IMS);
     assertNotNull(ims);
     assertEquals(1, ims.size());
-    assertNotNull(imType, ims.get(0).get("key"));
-    assertNotNull(imId, ims.get(0).get("value"));
+    assertEquals(imId, ims.get(0).get(imType));
 
     List<Map<String, String>> urls = (List<Map<String, String>>) identity.getProfile().getProperty(Profile.CONTACT_URLS);
     assertNotNull(urls);
     assertEquals(1, urls.size());
-    assertNotNull(url, urls.get(0).get("value"));
+    assertEquals(url, urls.get(0).get(url));
   }
 
   public void testUpdateUserFieldsWithValidators() throws Exception {
@@ -1097,9 +1201,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
 
     String johnEmail = "john@platform.com";
-    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
-    profilePropertySetting.setPropertyName(Profile.EMAIL);
-    tearDownProfilePropertyList.add(profilePropertyService.createPropertySetting(profilePropertySetting));
     startSessionAs("john");
     ContainerResponse response = service("PATCH",
                                          getURLResource("users/john"),

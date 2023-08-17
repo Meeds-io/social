@@ -54,6 +54,9 @@
           :items-per-page="20"
           :footer-props="{ itemsPerPageOptions }"
           hide-default-header>
+          <template slot="item.userName" slot-scope="{ item }">
+            {{ item.userName === 'ALL' ? $t('UsersManagement.error.importCSV.all') : item.userName }}
+          </template>
           <template slot="item.message" slot-scope="{ item }">
             <users-management-import-csv-error-message
               :error="item.message"
