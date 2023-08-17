@@ -1695,7 +1695,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       // skipping password overwrite from csvLine
       user.setPassword(null);
       if (userStatus) {
-        organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
+        organizationService.getUserHandler().setEnabled(userName, Boolean.valueOf(userObject.getString("enabled")), true);
         user.setEnabled(true);
       }
       organizationService.getUserHandler().saveUser(user, true);
@@ -1765,9 +1765,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     userObject.remove("groups");
     userObject.remove("enabled");
 
-    // Delete properties to ignore
-    fieldsToRemove.forEach(userObject::remove);
-
     Map<String, Object> userProfileProperties = new HashMap<>();
     Iterator<String> properties = userObject.keys();
     while(properties.hasNext()) {
@@ -1777,15 +1774,25 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       ProfilePropertySetting parentPropertySetting = null;
       if(propertyName.contains(".")) {
         String[] propertyNames = propertyName.split("\\.");
+        if (propertyNames.length > 2) {
+          continue;
+        }
+        String parentProperty = propertyNames[0];
         String childProperty = propertyNames[1];
 
+        if (profilePropertyService.getProfileSettingByName(propertyName) == null
+                && (profilePropertyService.getProfileSettingByName(parentProperty) == null
+                || profilePropertyService.getProfileSettingByName(childProperty) == null)) {
+          LOG.warn("Parent property {} was not found, its value won't be imported");
+          continue;
+        }
         propertySetting =
                 profilePropertyService.getProfileSettingByName(propertyName) != null ? profilePropertyService.getProfileSettingByName(propertyName)
                         : profilePropertyService.getProfileSettingByName(childProperty);
       } else {
         propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
       }
-      if (propertySetting != null && propertySetting.getParentId() != null) {
+      if(propertySetting != null && propertySetting.getParentId() != null) {
         parentPropertySetting = profilePropertyService.getProfileSettingById(propertySetting.getParentId());
       }
       Map<String, String> childPropertyMap = new HashMap<>();
@@ -1800,7 +1807,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           values.add(childProperty);
         }
         userProfileProperties.put(propertySetting.getPropertyName(), values);
-      } else if (parentPropertySetting != null){
+      } else if (parentPropertySetting != null && parentPropertySetting.isMultiValued()){
         childPropertyMap.put("key", propertySetting.getPropertyName());
         userProfileProperties.computeIfAbsent(parentPropertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
         @SuppressWarnings("unchecked")
@@ -1808,7 +1815,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         values.add(childPropertyMap);
         userProfileProperties.put(parentPropertySetting.getPropertyName(), values);
       } else {
-        userProfileProperties.put(propertyName, propertyValue);
+        userProfileProperties.put(propertyName.toLowerCase(), propertyValue);
       }
     }
     String warnMessage = null;
