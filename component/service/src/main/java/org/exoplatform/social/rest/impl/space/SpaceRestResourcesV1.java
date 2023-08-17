@@ -847,8 +847,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                 @Parameter(description = "Space id", required = true) @PathParam("id") String id,
                                 @Parameter(description = "User id", required = true) @PathParam("userId") String userId) {
     Space space = spaceService.getSpaceById(id);
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+    if (space == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     boolean isMember = spaceService.isMember(space, userId);

@@ -20,6 +20,7 @@
 -->
 <template>
   <v-menu
+    v-if="menu"
     v-model="menu"
     rounded="rounded"
     :close-on-content-click="false"
