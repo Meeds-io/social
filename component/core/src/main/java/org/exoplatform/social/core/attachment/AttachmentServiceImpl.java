@@ -120,7 +120,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                          .filter(fileId -> !remainingFileIds.contains(fileId))
                          .forEach(fileId -> deleteAttachment(objectType, objectId, fileId, username));
       remainingFiles = remainingFiles.stream()
-                                     .filter(remainingFile -> StringUtils.isNotEmpty(remainingFile.getUploadId()))
+                                     .filter(remainingFile -> StringUtils.isNotEmpty(remainingFile.getId()))
                                      .collect(Collectors.toList());
     }
 
@@ -342,11 +342,11 @@ public class AttachmentServiceImpl implements AttachmentService {
     })
                  .filter(Objects::nonNull)
                  .forEach(uploadedAttachmentDetail -> saveAttachment(uploadedAttachmentDetail,
-                                                                       objectType,
-                                                                       objectId,
-                                                                       parentObjectId,
-                                                                       userIdentityId,
-                                                                       report));
+                                                                     objectType,
+                                                                     objectId,
+                                                                     parentObjectId,
+                                                                     userIdentityId,
+                                                                     report));
     return report;
   }
 
@@ -357,37 +357,43 @@ public class AttachmentServiceImpl implements AttachmentService {
                               long userIdentityId,
                               ObjectAttachmentOperationReport report) {
     UploadResource uploadResource = uploadedAttachmentDetail.getUploadedResource();
-    String fileDiskLocation = uploadResource.getStoreLocation();
-    String uploadId = uploadResource.getUploadId();
     String altText = uploadedAttachmentDetail.getAltText();
     Long attachmentId =
                       !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ? Long.parseLong(uploadedAttachmentDetail.getId())
                                                                                : null;
-    try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
-      String fileId = attachmentStorage.uploadAttachment(attachmentId,
-                                                         objectType,
-                                                         objectId,
-                                                         uploadResource.getFileName(),
-                                                         uploadResource.getMimeType(),
-                                                         inputStream,
-                                                         userIdentityId);
-      if (attachmentId == null) {
-        createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, altText);
-      } else {
-        updateAttachment(fileId, objectType, objectId,userIdentityId, altText);
+    if (uploadResource == null) {
+      if (attachmentId != null) {
+        updateAttachment(String.valueOf(attachmentId), objectType, objectId, userIdentityId, altText);
       }
+    } else {
+      String fileDiskLocation = uploadResource.getStoreLocation();
+      String uploadId = uploadResource.getUploadId();
+      try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
+        String fileId = attachmentStorage.uploadAttachment(attachmentId,
+                                                           objectType,
+                                                           objectId,
+                                                           uploadResource.getFileName(),
+                                                           uploadResource.getMimeType(),
+                                                           inputStream,
+                                                           userIdentityId);
+        if (attachmentId == null) {
+          createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, altText);
+        } else {
+          updateAttachment(fileId, objectType, objectId, userIdentityId, altText);
+        }
 
-    } catch (FileNotFoundException e) {
-      LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
-      report.addError(uploadId, "attachment.uploadIdFileNotExistsError");
-    } catch (IOException e) {
-      LOG.warn("Error accessing resource with upload id " + uploadId, e);
-      report.addError(uploadId, "attachment.uploadIdIOError");
-    } catch (Exception e) {
-      LOG.warn("Error attaching file with upload id " + uploadId, e);
-      report.addError(uploadId, "attachment.uploadIdNotAttachedError");
-    } finally {
-      uploadService.removeUploadResource(uploadId);
+      } catch (FileNotFoundException e) {
+        LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
+        report.addError(uploadId, "attachment.uploadIdFileNotExistsError");
+      } catch (IOException e) {
+        LOG.warn("Error accessing resource with upload id " + uploadId, e);
+        report.addError(uploadId, "attachment.uploadIdIOError");
+      } catch (Exception e) {
+        LOG.warn("Error attaching file with upload id " + uploadId, e);
+        report.addError(uploadId, "attachment.uploadIdNotAttachedError");
+      } finally {
+        uploadService.removeUploadResource(uploadId);
+      }
     }
   }
 

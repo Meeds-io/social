@@ -169,14 +169,24 @@ export default {
         const updatedImage = event.detail;
         if (updatedImage.oldUploadId?.length) {
           const index = this.images.findIndex(file => file.uploadId === updatedImage.oldUploadId);
-          this.images[index].src = updatedImage?.src;
-          this.images[index] = updatedImage;
+          if (updatedImage?.mimetype && updatedImage?.mimetype !== 'image/gif') {
+            this.images[index].src = updatedImage.src;
+            this.images[index] = updatedImage;
+          } else {
+            this.images[index].altText = updatedImage.altText;
+          }
+          
         } else if (updatedImage.id?.length) {
           const index = this.attachments.findIndex(file => file.id === updatedImage.id);
           if (index >= 0) {
             this.attachmentUpdated = false;
-            this.attachments[index].src = updatedImage?.src;
-            this.attachments[index] = updatedImage;
+            if (updatedImage?.mimetype && updatedImage?.mimetype !== 'image/gif') {
+              this.attachments[index].src = updatedImage?.src;
+              this.attachments[index] = updatedImage;
+            } else {
+              this.attachments[index].altText = updatedImage.altText;
+            }
+            console.warn('test',this.attachments[index]);
             this.attachments = this.attachments.slice();
           }
         }

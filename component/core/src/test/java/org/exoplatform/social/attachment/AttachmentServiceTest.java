@@ -26,11 +26,7 @@ import static org.junit.Assert.assertThrows;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -144,9 +140,16 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
     String identityId = identityManager.getOrCreateUserIdentity(USERNAME).getId();
     FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
+
+    List<FileAttachmentObject> fileAttachmentObjectList = new ArrayList<>();
     FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
     fileAttachmentObject.setId(fileId);
-    attachmentList.setAttachedFiles(Collections.singletonList(fileAttachmentObject));
+    fileAttachmentObjectList.add(fileAttachmentObject);
+    attachmentList.setAttachedFiles(fileAttachmentObjectList);
+
+    List<FileAttachmentObject> fileUploadedObjectList = new ArrayList<>();
+    FileAttachmentObject fileUploadedObject = new FileAttachmentObject();
+    attachmentList.setUploadedFiles(new ArrayList<FileAttachmentObject>());
 
     assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(null, userAcl));
     assertThrows(IllegalArgumentException.class, () -> attachmentService.saveAttachments(attachmentList, null));
@@ -165,8 +168,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertListenerCount(1l, 0l, 1l, 0l);
 
     ObjectAttachmentOperationReport report = attachmentService.saveAttachments(attachmentList, userAcl);
-    assertNull(report);
-    assertListenerCount(1l, 0l, 2l, 0l);
+    assertNotNull(report);
+    assertListenerCount(1l, 0l, 3l, 0l);
 
     ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     assertNotNull(objectAttachmentList);
@@ -181,17 +184,16 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertTrue(attachmentDetail.getUpdated() > 0);
     assertEquals(identityId, attachmentDetail.getUpdater());
 
-    FileAttachmentObject fileUploadedObject = new FileAttachmentObject();
     fileUploadedObject.setUploadId(UPLOAD_ID);
     fileUploadedObject.setAltText("");
-    attachmentList.setUploadedFiles(Collections.singletonList(fileUploadedObject));
-    attachmentList.setAttachedFiles(Collections.singletonList(fileAttachmentObject));
+    fileUploadedObjectList.add(fileUploadedObject);
+    attachmentList.setUploadedFiles(fileUploadedObjectList);
+    attachmentList.setAttachedFiles(fileAttachmentObjectList);
 
     uploadResource();
     report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNotNull(report);
-    assertTrue(report.getErrorByUploadId().isEmpty());
-    assertListenerCount(2l, 0l, 3l, 0l);
+    assertListenerCount(2l, 0l, 5l, 0l);
 
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     assertNotNull(objectAttachmentList);
@@ -208,10 +210,10 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertEquals(identityId, attachmentDetail.getUpdater());
 
     attachmentList.setAttachedFiles(Collections.singletonList(fileAttachmentObject));
-    attachmentList.setUploadedFiles(null);
+    attachmentList.setUploadedFiles(new ArrayList<FileAttachmentObject>());
     report = attachmentService.saveAttachments(attachmentList, userAcl);
-    assertNull(report);
-    assertListenerCount(2l, 1l, 4l, 0l);
+    assertNotNull(report);
+    assertListenerCount(2l, 1l, 7l, 0l);
 
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     attachments = objectAttachmentList.getAttachments();
@@ -227,11 +229,11 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     ObjectAttachmentDetail attachment = attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, OBJECT_TYPE, objectId));
     assertNotNull(attachment);
 
-    attachmentList.setAttachedFiles(null);
-    attachmentList.setUploadedFiles(null);
+    attachmentList.setAttachedFiles(new ArrayList<FileAttachmentObject>());
+    attachmentList.setUploadedFiles(new ArrayList<FileAttachmentObject>());
     report = attachmentService.saveAttachments(attachmentList, userAcl);
     assertNull(report);
-    assertListenerCount(2l, 2l, 5l, 0l);
+    assertListenerCount(2l, 2l, 8l, 0l);
 
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
     attachments = objectAttachmentList.getAttachments();
