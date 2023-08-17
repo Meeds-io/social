@@ -27,7 +27,7 @@
     :default-alt-text="imageAltText"
     alt
     @input="uploadId = $event"
-    @data="updateImageData($event)"
+    @data="imageData = $event"
     @alt-text="altText = $event" />
 </template>
 <script>
@@ -42,6 +42,7 @@ export default {
       uploadId: null,
       maxFileSize: 20971520,
       altText: null,
+      imageData: null
     };
   },
   computed: {
@@ -56,7 +57,17 @@ export default {
       return this.imageItem?.altText || '';
     },
     imageMimeType() {
-      return this.imageItem?.mimetype || '';
+      return this.imageItem?.mimetype || this.imageItem?.data &&  this.$refs.attachedImageCropDrawer.getBase64Mimetype(this.imageItem.data) || '';
+    }
+  },
+  watch: {
+    imageData() {
+      this.updateImageData();
+    },
+    altText() {
+      if (this.imageMimeType === 'image/gif') {
+        this.updateImageData();
+      }
     }
   },
   created() {
@@ -69,17 +80,16 @@ export default {
         this.$refs.attachedImageCropDrawer.open(this.imageItem);
       }
     },
-    updateImageData(imageData) {
-      if (imageData) {
-        document.dispatchEvent(new CustomEvent('attachment-update', {detail: { 
-          src: imageData,
-          uploadId: this.uploadId,
-          id: this.imageItem?.id || '',
-          progress: 100,
-          oldUploadId: this.imageItem?.uploadId || '',
-          altText: this.altText || ''
-        }}));
-      }
+    updateImageData() {
+      document.dispatchEvent(new CustomEvent('attachment-update', {detail: { 
+        src: this.imageData || '',
+        uploadId: this.uploadId,
+        id: this.imageItem?.id || '',
+        progress: 100,
+        oldUploadId: this.imageItem?.uploadId || '',
+        altText: this.altText || '',
+        mimetype: this.imageMimeType
+      }}));
     },
   },
 };
