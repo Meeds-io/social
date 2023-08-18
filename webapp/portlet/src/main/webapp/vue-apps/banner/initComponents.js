@@ -14,13 +14,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.social.core.portletBanner;
+import Banner from './components/Banner.vue';
 
-import java.io.InputStream;
+const components = {
+  'banner': Banner,
+};
 
-public interface PortletBannerService {
 
-  public Long updatePortletBanner(String remoteId, String uploadFileId);
+for (const key in components) {
+  Vue.component(key, components[key]);
+}
 
-  public InputStream getPortletBannerStream(String fileId);
+import * as bannerService from './bannerService.js';
+
+if (!Vue.prototype.$bannerService) {
+  window.Object.defineProperty(Vue.prototype, '$bannerService', {
+    value: bannerService,
+  });
 }

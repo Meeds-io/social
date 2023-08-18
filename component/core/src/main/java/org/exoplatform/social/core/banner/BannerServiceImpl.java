@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.social.core.portletBanner;
+package org.exoplatform.social.core.banner;
 
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
@@ -27,21 +27,21 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Date;
 
-public class PortletBannerServiceImpl implements PortletBannerService {
+public class BannerServiceImpl implements BannerService {
 
-  private static final Log LOG = ExoLogger.getLogger(PortletBannerServiceImpl.class);
+  private static final Log LOG = ExoLogger.getLogger(BannerServiceImpl.class);
 
   private FileService      fileService;
 
   private UploadService    uploadService;
 
-  public PortletBannerServiceImpl(FileService fileService, UploadService uploadService) {
+  public BannerServiceImpl(FileService fileService, UploadService uploadService) {
     this.fileService = fileService;
     this.uploadService = uploadService;
   }
 
   @Override
-  public Long updatePortletBanner(String remoteId, String uploadFileId) {
+  public Long getBanner(String remoteId, String uploadFileId) {
     try {
       UploadResource uploadResource = uploadService.getUploadResource(uploadFileId);
       FileItem fileItem = fileService.writeFile(new FileItem(null,
@@ -61,11 +61,11 @@ public class PortletBannerServiceImpl implements PortletBannerService {
   }
 
   @Override
-  public InputStream getPortletBannerStream(String fileId) {
-    return getPortletImageAsStream(fileId);
+  public InputStream getBannerStream(String fileId) {
+    return getBannerImageAsStream(fileId);
   }
 
-  public InputStream getPortletImageAsStream(String fileId) {
+  public InputStream getBannerImageAsStream(String fileId) {
     try {
       FileItem fileItem = fileService.getFile(Long.parseLong(fileId));
       return fileItem == null || fileItem.getFileInfo() == null ? null : fileItem.getAsStream();

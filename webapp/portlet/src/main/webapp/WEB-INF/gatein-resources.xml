@@ -1624,11 +1624,11 @@
   </portlet>
 
   <portlet>
-    <name>ImagesPortlet</name>
+    <name>BannerPortlet</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/portletBanner.bundle.js</path>
+        <path>/js/banner.bundle.js</path>
       </script>
       <depends>
         <module>extensionRegistry</module>

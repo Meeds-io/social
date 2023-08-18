@@ -1,9 +1,9 @@
-export function getPortletBanner(uploadFileId) {
+export function getBanner(uploadFileId) {
   const formData = new FormData();
   formData.append('uploadFileId', uploadFileId);
 
   const params = new URLSearchParams(formData).toString();
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/portletBanner?${params}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/banner?${params}`, {
     credentials: 'include',
     method: 'GET',
     headers: {
@@ -13,7 +13,7 @@ export function getPortletBanner(uploadFileId) {
     if (resp?.ok) {
       return resp.json();
     } else {
-      throw new Error('Error when retrieving portlet banner');
+      throw new Error('Error when retrieving banner');
     }
   });
 }

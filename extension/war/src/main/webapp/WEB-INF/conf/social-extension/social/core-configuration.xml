@@ -350,8 +350,8 @@
     </component>
 
     <component>
-        <key>org.exoplatform.social.core.portletBanner.PortletBannerService</key>
-        <type>org.exoplatform.social.core.portletBanner.PortletBannerServiceImpl</type>
+        <key>org.exoplatform.social.core.banner.BannerService</key>
+        <type>org.exoplatform.social.core.banner.BannerServiceImpl</type>
     </component>
     
     <component>

@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PortletBannerEntity {
+public class BannerEntity {
 
   private Long   fileId;
 

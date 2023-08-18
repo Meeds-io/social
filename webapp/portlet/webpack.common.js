@@ -73,7 +73,7 @@ let config = {
     generalSettings: './src/main/webapp/vue-apps/general-settings/main.js',
     imageCropper: './src/main/webapp/vue-apps/component-image-crop/main.js',
     translationField: './src/main/webapp/vue-apps/component-translation-field/main.js',
-    portletBanner: './src/main/webapp/vue-apps/portlet-banner/main.js'
+    banner: './src/main/webapp/vue-apps/banner/main.js'
   },
   module: {
     rules: [

@@ -20,7 +20,7 @@ import './initComponents.js';
 Vue.use(Vuetify);
 const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
-const appId = 'portletBanner';
+const appId = 'banner';
 
 //getting language of the PLF
 const lang = eXo?.env.portal.language || 'en';
@@ -38,9 +38,9 @@ export function init(bannerUrl, fileId, maxUploadSize, saveSettingsURL) {
         maxUploadSize,
         saveSettingsURL,
       },
-      template: `<portlet-banner id="${appId}" :bannerUrl="bannerUrl" :fileId="fileId" :maxUploadSize="maxUploadSize" :saveSettingsURL="saveSettingsURL" />`,
+      template: `<banner id="${appId}" :bannerUrl="bannerUrl" :fileId="fileId" :maxUploadSize="maxUploadSize" :saveSettingsURL="saveSettingsURL" />`,
       vuetify,
       i18n},
-    `#${appId}`, 'Portlet Banner');
+    `#${appId}`, 'Banner');
   });
 }

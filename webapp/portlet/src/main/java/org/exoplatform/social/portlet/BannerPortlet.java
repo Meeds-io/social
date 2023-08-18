@@ -6,7 +6,7 @@ import javax.portlet.*;
 import java.io.IOException;
 import java.util.Enumeration;
 
-public class ImagesPortlet extends GenericPortlet {
+public class BannerPortlet extends GenericPortlet {
 
   @Override
   public void processAction(ActionRequest request, ActionResponse response) throws PortletException, IOException {
@@ -25,8 +25,7 @@ public class ImagesPortlet extends GenericPortlet {
 
   @Override
   protected void doView(RenderRequest request, RenderResponse response) throws IOException, PortletException {
-    PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/portlet/portletBanner.jsp");
+    PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/WEB-INF/jsp/portlet/banner.jsp");
     dispatcher.forward(request, response);
   }
-
 }

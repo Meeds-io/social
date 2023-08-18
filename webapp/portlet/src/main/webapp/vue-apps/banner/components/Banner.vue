@@ -10,7 +10,7 @@
           :lazy-src="bannerUrl"
           :src="bannerUrl"
           :min-height="36"
-          id="portletBannerImg"
+          id="bannerImg"
           height="auto"
           min-width="100%"
           class="d-flex"
@@ -22,8 +22,8 @@
               <v-btn
                 v-if="!isDefaultBanner"
                 v-show="hover"
-                :title="$t('portletBanner.title.deleteBanner')"
-                id="portletBannerDeleteButton"
+                :title="$t('banner.title.deleteBanner')"
+                id="bannerDeleteButton"
                 outlined
                 icon
                 dark
@@ -33,8 +33,8 @@
               <v-btn
                 v-show="hover"
                 ref="bannerInput"
-                id="portletBannerEditButton"
-                :title="$t('portletBanner.title.ChangeBanner')"
+                id="bannerEditButton"
+                :title="$t('banner.title.ChangeBanner')"
                 icon
                 outlined
                 dark
@@ -51,7 +51,7 @@
         :max-file-size="maxUploadSizeInBytes"
         :src="bannerUrl"
         max-image-width="1280"
-        drawer-title="portletBanner.title.ChangeBanner"
+        drawer-title="banner.title.ChangeBanner"
         @input="uploadBanner" />
     </v-card>
     <layout-notification-alerts />
@@ -102,8 +102,8 @@ export default {
     this.$root.$applicationLoaded();
   },
   methods: {
-    getPortletBanner(uploadId) {
-      return this.$portletBannerService.getPortletBanner(uploadId)
+    getBanner(uploadId) {
+      return this.$bannerService.getBanner(uploadId)
         .then(data => {
           this.bannerUrl = data.bannerUrl;
           this.fileId = data.fileId;
@@ -111,18 +111,18 @@ export default {
         });
     },
     uploadBanner(uploadId) {
-      return this.getPortletBanner(uploadId).
+      return this.getBanner(uploadId).
         then(() => {
-          this.$root.$emit('alert-message', this.$t('portletBanner.title.BannerUpdated'), 'success');
+          this.$root.$emit('alert-message', this.$t('banner.title.BannerUpdated'), 'success');
         });
     },
     removeBanner() {
       this.bannerUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/communication/banner`;
       this.saveSettings();
-      this.$nextTick().then (() => this.$root.$emit('alert-message', this.$t('portletBanner.title.BannerDeleted'), 'success'));
+      this.$nextTick().then (() => this.$root.$emit('alert-message', this.$t('banner.title.BannerDeleted'), 'success'));
     },
     saveSettings() {
-      this.$portletBannerService.saveSettings(this.saveSettingsURL ,{
+      this.$bannerService.saveSettings(this.saveSettingsURL ,{
         fileId: this.fileId,
         bannerUrl: this.bannerUrl
       });

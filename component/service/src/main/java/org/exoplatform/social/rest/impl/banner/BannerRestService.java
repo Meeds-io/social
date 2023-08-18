@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.social.rest.impl.portletBanner;
+package org.exoplatform.social.rest.impl.banner;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,15 +22,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.social.core.model.BannerAttachment;
-import org.exoplatform.social.core.portletBanner.PortletBannerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.core.banner.BannerService;
+import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.rest.entity.PortletBannerEntity;
+import org.exoplatform.social.rest.entity.BannerEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import javax.annotation.security.RolesAllowed;
@@ -41,26 +41,26 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
-@Path(VersionResources.VERSION_ONE + "/social/portletBanner")
-@Tag(name = VersionResources.VERSION_ONE + "/social/portletBanner", description = "Managing portlet Banner")
-public class PortletBannerRestService implements ResourceContainer {
+@Path(VersionResources.VERSION_ONE + "/social/banner")
+@Tag(name = VersionResources.VERSION_ONE + "/social/banner", description = "Managing Banner")
+public class BannerRestService implements ResourceContainer {
 
-  private static final Log           LOG = ExoLogger.getLogger(PortletBannerRestService.class);
+  private static final Log           LOG = ExoLogger.getLogger(BannerRestService.class);
 
-  private  PortletBannerService portletBannerService;
+  private  BannerService bannerService;
 
-  public PortletBannerRestService(PortletBannerService portletBannerService) {
-    this.portletBannerService = portletBannerService;
+  public BannerRestService(BannerService bannerService) {
+    this.bannerService = bannerService;
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("administrators")
-  @Operation(summary = "Retrieve portlet banner", method = "PUT", description = "This retrieves the portlet banner")
+  @Operation(summary = "Retrieve banner", method = "GET", description = "This retrieves the banner")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
-  public Response updatePortletBanner(@Parameter(description = "upload file id")
+  public Response getBanner(@Parameter(description = "upload file id")
   @QueryParam("uploadFileId")
   String uploadFileId) {
     try {
@@ -68,29 +68,29 @@ public class PortletBannerRestService implements ResourceContainer {
         return Response.status(Response.Status.BAD_REQUEST).entity("uploadFileId is mandatory").build();
       }
       Identity identity = ConversationState.getCurrent().getIdentity();
-      Long fileId = portletBannerService.updatePortletBanner(identity.getUserId(), uploadFileId);
+      Long fileId = bannerService.getBanner(identity.getUserId(), uploadFileId);
       Long lastModifiedDate = System.currentTimeMillis();
       String bannerUrl = LinkProvider.buildBannerURL(String.valueOf(fileId), identity.getUserId(), lastModifiedDate);
-      PortletBannerEntity portletBannerEntity = new PortletBannerEntity(fileId, bannerUrl);
-      return Response.ok().entity(portletBannerEntity).build();
+      BannerEntity bannerEntity = new BannerEntity(fileId, bannerUrl);
+      return Response.ok().entity(bannerEntity).build();
     } catch (Exception e) {
-      LOG.error("Error when retrieving portlet banner", e);
+      LOG.error("Error when retrieving banner", e);
       return Response.serverError().build();
     }
   }
 
   @GET
-  @Path("{fileId}/banner")
+  @Path("{fileId}")
   @Produces("image/png")
   @RolesAllowed("administrators")
-  @Operation(summary = "Retrieve portlet banner stream", method = "PUT", description = "This retrieves portlet banner stream")
+  @Operation(summary = "Retrieve banner stream", method = "GET", description = "This retrieves banner stream")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "403", description = "Forbidden operation"),
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
-  public Response getPortletBannerStream(@Context
+  public Response getBannerStream(@Context
   Request request,
-                                         @Parameter(description = "portlet reference")
+                                         @Parameter(description = "banner file id")
                                          @PathParam("fileId")
                                          String fileId,
                                          @Parameter(description = "last modified date")
@@ -109,11 +109,11 @@ public class PortletBannerRestService implements ResourceContainer {
         LOG.warn("An anonymous user attempts to access banner of portlet without a valid access token");
         return Response.status(Response.Status.FORBIDDEN).build();
       }
-      InputStream stream = portletBannerService.getPortletBannerStream(fileId);
+      InputStream stream = bannerService.getBannerStream(fileId);
       Response.ResponseBuilder builder = Response.ok(stream, "image/png");
       return builder.build();
     } catch (Exception e) {
-      LOG.error("Error when retrieving portlet banner stream", e);
+      LOG.error("Error when retrieving banner stream", e);
       return Response.serverError().build();
     }
   }

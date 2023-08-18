@@ -10,14 +10,14 @@
 <%
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
   PortletPreferences preferences = renderRequest.getPreferences();
-	String bannerUrl = preferences.getValue("bannerUrl", "");
+  String bannerUrl = preferences.getValue("bannerUrl", "");
   String fileId = preferences.getValue("fileId", "default");
   int maxUploadSize = identityManager.getImageUploadLimit();
 %>
 <div class="VuetifyApp">
-  <div id="portletBanner">
+  <div id="banner">
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/ImagesPortlet'], app => app.init(
+      require(['PORTLET/social-portlet/BannerPortlet'], app => app.init(
         '<%=bannerUrl%>',
         '<%=fileId%>',
         <%=maxUploadSize%>,
