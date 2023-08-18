@@ -23,7 +23,7 @@
     height="auto"
     flat
     dense>
-    <div class="d-flex full-width py-4">
+    <div class="d-flex full-width pt-3">
       <div class="flex-grow-1">
         <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
           <div class="d-flex flex-row">
@@ -43,34 +43,34 @@
               dense />
           </div>
           <div class="d-flex flex-row pt-4">
-            <v-card
+            <v-btn
               :ripple="false"
-              class="d-flex flex-grow-1 flex-row align-center mx-4"
-              flat
+              class="d-flex flex-grow-1 flex-row justify-start py-2"
+              text
               @click="openKudosDrawer">
               <v-icon
                 color="primary"
-                size="27">
+                size="37">
                 fa-award
               </v-icon>
-              <v-span class="caption font-weight-bold ms-5 dark-grey-color">
+              <v-span class="body-2 font-weight-bold ms-5 dark-grey-color">
                 {{ $t('exoplatform.kudos.title.sendAKudos') }}
               </v-span>
-            </v-card>
-            <v-card
+            </v-btn>
+            <v-btn
               :ripple="false"
-              class="d-flex flex-grow-1 flex-row align-center mx-4"
-              flat
+              class="d-flex flex-grow-1 flex-row justify-start py-2"
+              text
               @click="openPollDrawer">
               <v-icon
                 color="amber darken-1"
-                size="36">
+                size="37">
                 fa-poll
               </v-icon>
-              <v-span class="caption font-weight-bold ms-5 dark-grey-color">
+              <v-span class="body-2 font-weight-bold ms-5 dark-grey-color">
                 {{ this.$t(`composer.poll.create.drawer.label`) }}
               </v-span>
-            </v-card>
+            </v-btn>
           </div>
         </div>
         <div v-else>
