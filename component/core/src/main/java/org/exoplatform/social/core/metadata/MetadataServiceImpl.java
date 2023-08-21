@@ -158,6 +158,22 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
+    if (metadataItem == null) {
+      throw new IllegalArgumentException("MetadataItem is mandatory");
+    }
+    validateMetadataItemId(metadataItem.getId());
+    validateUserIdentityId(userIdentityId);
+    metadataItem = metadataStorage.updateMetadataItem(metadataItem);
+    try {
+      this.listenerService.broadcast("social.metadataItem.updated", userIdentityId, metadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadataItem update", e);
+    }
+    return metadataItem;
+  }
+
+  @Override
   public MetadataItem deleteMetadataItem(long itemId, boolean broadcast) throws ObjectNotFoundException {
     validateMetadataItemId(itemId);
     MetadataItem metadataItem = this.metadataStorage.getMetadataItemById(itemId);

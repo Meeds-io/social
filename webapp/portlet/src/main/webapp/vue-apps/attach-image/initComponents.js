@@ -20,6 +20,7 @@ import ImageInput from './components/form/ImageInput.vue';
 import ImageInputMultiUpload from './components/form/ImageInputMultiUpload.vue';
 import ImageInputItems from './components/form/ImageInputItems.vue';
 import ImageInputItem from './components/form/ImageInputItem.vue';
+import ImageAttachmentCropDrawer from './components/form/ImageAttachmentCropDrawer.vue';
 
 import ImageItems from './components/view/ImageItems.vue';
 import ImageItem from './components/view/ImageItem.vue';
@@ -32,6 +33,7 @@ const components = {
   'attachments-image-input-multi-upload': ImageInputMultiUpload,
   'attachments-image-input-items': ImageInputItems,
   'attachments-image-input-item': ImageInputItem,
+  'attachments-image-crop-drawer': ImageAttachmentCropDrawer,
   'attachments-image-items': ImageItems,
   'attachments-image-item': ImageItem,
   'attachments-image-preview-dialog': ImagePreviewDialog,
