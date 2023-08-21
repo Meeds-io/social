@@ -1,17 +1,10 @@
 <template>
   <div>
     <div class="richEditor">
-      <div
-        v-if="displayPlaceholder"
-        @click="setFocus(true)"
-        class="caption text-sub-title position-absolute t-0 pa-5 ma-1px full-width">
-        {{ placeholder }}
-      </div>
       <textarea
         ref="editor"
         :id="ckEditorType"
         v-model="inputVal"
-        :placeholder="placeholder"
         cols="30"
         rows="10"
         class="textarea"></textarea>
@@ -93,7 +86,6 @@ export default {
       SMARTPHONE_LANDSCAPE_WIDTH: 768,
       inputVal: null,
       editor: null,
-      displayPlaceholder: true,
       baseUrl: eXo.env.server.portalBaseURL
     };
   },
@@ -119,7 +111,6 @@ export default {
   },
   watch: {
     inputVal(val) {
-      this.computePlaceHolderVisibility();
       if (this.editorReady) {
         this.$emit('input', val);
       }
@@ -132,7 +123,6 @@ export default {
     },
     editorReady() {
       if (this.editorReady) {
-        this.computePlaceHolderVisibility();
         this.$emit('ready');
       } else {
         this.$emit('unloaded');
@@ -195,7 +185,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget';
+      let extraPlugins = 'simpleLink,suggester,widget,editorplaceholder';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
@@ -249,6 +239,7 @@ export default {
         customConfig: this.ckEditorConfigUrl,
         extraPlugins,
         removePlugins,
+        editorplaceholder: this.placeholder,
         toolbar,
         allowedContent: true,
         enterMode: 3, // div
@@ -299,9 +290,6 @@ export default {
       if (this.editor) {
         this.editor.destroy(true);
       }
-    },
-    computePlaceHolderVisibility() {
-      this.displayPlaceholder = this.editor?.status === 'ready' && !this.inputVal?.trim()?.length;
     },
     replaceWithSuggesterClass: function(message) {
       const tempdiv = $('<div class=\'temp\'/>').html(message || '');
