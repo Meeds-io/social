@@ -37,7 +37,7 @@
         class="pa-4 content-box-sizing overflow-hidden"
         flat>
         <div class="overflow-hidden position-relative">
-          <div v-if="isImageGif" class="d-flex position-absolute full-width full-height mask-color z-index-one">
+          <div v-if="isImageGif" class="d-flex position-absolute full-width full-height mask-color z-index-one rounded">
             <div class="d-flex flex-column align-center flex ma-auto">
               <v-icon size="52" class="white--text mb-4">fa-ban</v-icon>
               <div class="white--text text-wrap subtitle-1">{{ $t('imageCropDrawer.gitImage.label.option') }}</div>
