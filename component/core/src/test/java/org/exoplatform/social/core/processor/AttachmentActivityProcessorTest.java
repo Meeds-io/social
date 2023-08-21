@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.exoplatform.social.attachment.AttachmentService;
+import org.exoplatform.social.attachment.model.FileAttachmentObject;
 import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
 import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.attachment.model.ObjectAttachmentList;
@@ -112,11 +113,14 @@ public class AttachmentActivityProcessorTest extends AbstractCoreTest {
   private String createAttachment(String username, String activityId) throws IOException, Exception {
     String identityId = identityManager.getOrCreateUserIdentity(username).getId();
     FileAttachmentResourceList attachmentList = new FileAttachmentResourceList();
-    attachmentList.setFileIds(null);
+    attachmentList.setAttachedFiles(null);
     attachmentList.setUserIdentityId(Long.parseLong(identityId));
     attachmentList.setObjectType(ActivityAttachmentPlugin.ACTIVITY_ATTACHMENT_TYPE);
     attachmentList.setObjectId(activityId);
-    attachmentList.setUploadIds(Collections.singletonList(UPLOAD_ID));
+    FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
+    fileAttachmentObject.setUploadId(UPLOAD_ID);
+    fileAttachmentObject.setAltText("Test alternative text");
+    attachmentList.setUploadedFiles(Collections.singletonList(fileAttachmentObject));
     uploadResource();
 
     attachmentService.saveAttachments(attachmentList);

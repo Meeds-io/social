@@ -27,21 +27,21 @@ import lombok.*;
 @AllArgsConstructor
 public class FileAttachmentResourceList implements Cloneable {
 
-  private List<String> uploadIds;
+  private List<FileAttachmentObject> uploadedFiles;
 
-  private List<String> fileIds;
+  private List<FileAttachmentObject> attachedFiles;
 
-  private long         userIdentityId;
+  private long                       userIdentityId;
 
-  private String       objectType;
+  private String                     objectType;
 
-  private String       objectId;
+  private String                     objectId;
 
-  private String       parentObjectId;
+  private String                     parentObjectId;
 
   @Override
   public FileAttachmentResourceList clone() { // NOSONAR
-    return new FileAttachmentResourceList(uploadIds, fileIds, userIdentityId, objectType, objectId, parentObjectId);
+    return new FileAttachmentResourceList(uploadedFiles, attachedFiles, userIdentityId, objectType, objectId, parentObjectId);
   }
 
 }
