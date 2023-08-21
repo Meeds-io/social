@@ -79,11 +79,19 @@
                 clearable
                 dense
                 @change="uploadFile" />
+              <v-btn
+                :title="$t('imageCropDrawer.resetCropper')"
+                id="cancelChanges"
+                icon
+                outlined
+                @click="resetCropperData()">
+                <v-icon size="18" class="fa-flip-horizontal">fas fa-ban</v-icon>
+              </v-btn>
             </div>
             <div class="d-flex flex-grow-1 d-flex align-center justify-end">
               <v-btn
                 :title="$t('imageCropDrawer.moveRight')"
-                id="moveImageToRight"
+                id="resetCropper"
                 icon
                 outlined
                 @click="move(-10, 0)">
@@ -407,6 +415,9 @@ export default {
       if (this.cropperReady) {
         this.cropper.zoom(value);
       }
+    },
+    resetCropperData() {
+      this.cropper.reset();
     },
     apply() {
       if (this.isImageGif) {
