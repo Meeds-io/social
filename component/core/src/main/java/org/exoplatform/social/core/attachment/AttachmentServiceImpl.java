@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,11 +40,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.attachment.AttachmentPlugin;
 import org.exoplatform.social.attachment.AttachmentService;
-import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
-import org.exoplatform.social.attachment.model.ObjectAttachmentId;
-import org.exoplatform.social.attachment.model.ObjectAttachmentList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
+import org.exoplatform.social.attachment.model.*;
 import org.exoplatform.social.core.attachment.storage.FileAttachmentStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.MetadataService;
@@ -93,8 +90,8 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   @Override
   public ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachmentList,
-                                                           Identity userAclIdentity) throws ObjectNotFoundException,
-                                                                                     IllegalAccessException {
+                                                         Identity userAclIdentity) throws ObjectNotFoundException,
+                                                                                   IllegalAccessException {
     checkEditPermissions(attachmentList, userAclIdentity);
     return saveAttachments(attachmentList);
   }
@@ -110,22 +107,33 @@ public class AttachmentServiceImpl implements AttachmentService {
     List<MetadataItem> existingAttachments =
                                            metadataService.getMetadataItemsByMetadataTypeAndObject(AttachmentService.METADATA_TYPE.getName(),
                                                                                                    metadataObject);
+    ObjectAttachmentOperationReport report = null;
+    List<FileAttachmentObject> remainingFiles =
+                                              CollectionUtils.isEmpty(attachmentList.getAttachedFiles()) ? Collections.emptyList()
+                                                                                                         : attachmentList.getAttachedFiles();
     if (CollectionUtils.isNotEmpty(existingAttachments)) {
-      List<String> remainingFileIds = CollectionUtils.isEmpty(attachmentList.getFileIds()) ? Collections.emptyList()
-                                                                                           : attachmentList.getFileIds();
+
+      List<String> remainingFileIds = remainingFiles.stream().map(file -> file.getId()).distinct().toList();
+
       existingAttachments.stream()
                          .map(existingAttachment -> existingAttachment.getMetadata().getName())
                          .filter(fileId -> !remainingFileIds.contains(fileId))
                          .forEach(fileId -> deleteAttachment(objectType, objectId, fileId, username));
+      remainingFiles = remainingFiles.stream()
+                                     .filter(remainingFile -> StringUtils.isNotEmpty(remainingFile.getId()))
+                                     .collect(Collectors.toList());
     }
 
     String parentObjectId = attachmentList.getParentObjectId();
 
-    List<String> uploadIds = attachmentList.getUploadIds();
-    ObjectAttachmentOperationReport report = null;
-    if (CollectionUtils.isNotEmpty(uploadIds)) {
-      report = attachUploadFiles(uploadIds, objectType, objectId, parentObjectId, userIdentityId);
+    List<FileAttachmentObject> uploadedFiles = attachmentList.getUploadedFiles();
+    if (CollectionUtils.isNotEmpty(remainingFiles)) {
+      uploadedFiles.addAll(remainingFiles);
     }
+    if (CollectionUtils.isNotEmpty(uploadedFiles)) {
+      report = attachUploadFiles(uploadedFiles, objectType, objectId, parentObjectId, userIdentityId);
+    }
+
     broadcastAttachmentsChange(ATTACHMENTS_UPDATED_EVENT, objectType, objectId, username);
     return report;
   }
@@ -155,12 +163,28 @@ public class AttachmentServiceImpl implements AttachmentService {
   @Override
   public ObjectAttachmentList getAttachments(String objectType, String objectId) {
     List<String> fileIds = getAttachmentFileIds(objectType, objectId);
-    List<ObjectAttachmentDetail> attachments = fileIds.stream()
-                                                      .map(fileId -> attachmentStorage.getAttachment(new ObjectAttachmentId(fileId,
-                                                                                                                            objectType,
-                                                                                                                            objectId)))
-                                                      .filter(Objects::nonNull)
-                                                      .toList();
+    List<ObjectAttachmentDetail> attachments =
+                                             fileIds.stream()
+                                                    .map(fileId -> attachmentStorage.getAttachment(new ObjectAttachmentId(fileId,
+                                                                                                                          objectType,
+                                                                                                                          objectId)))
+                                                    .filter(Objects::nonNull)
+                                                    .toList();
+    if (CollectionUtils.isNotEmpty(attachments)) {
+      attachments.forEach(attachment -> {
+        List<MetadataItem> attachmentItem =
+                                          metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(attachment.getId(),
+                                                                                                         AttachmentService.METADATA_TYPE.getName(),
+                                                                                                         objectType,
+                                                                                                         objectId,
+                                                                                                         0,
+                                                                                                         0);
+        if (CollectionUtils.isNotEmpty(attachmentItem) && attachmentItem.get(0).getProperties() != null
+            && attachmentItem.get(0).getProperties().containsKey("alt")) {
+          attachment.setAltText(attachmentItem.get(0).getProperties().get("alt"));
+        }
+      });
+    }
     return new ObjectAttachmentList(attachments, objectType, objectId);
   }
 
@@ -298,72 +322,133 @@ public class AttachmentServiceImpl implements AttachmentService {
     return metadataService.getMetadataNamesByMetadataTypeAndObject(METADATA_TYPE.getName(), objectType, objectId);
   }
 
-  private ObjectAttachmentOperationReport attachUploadFiles(List<String> uploadIds,
+  private ObjectAttachmentOperationReport attachUploadFiles(List<FileAttachmentObject> uploadedFiles,
                                                             String objectType,
                                                             String objectId,
                                                             String parentObjectId,
                                                             long userIdentityId) {
     ObjectAttachmentOperationReport report = new ObjectAttachmentOperationReport();
-    uploadIds.stream()
-             .distinct()
-             .map(uploadId -> {
-               UploadResource uploadedResource = uploadService.getUploadResource(uploadId);
-               if (uploadedResource == null) {
-                 LOG.warn("Uploaded resource with id " + uploadId + " wasn't found");
-                 report.addError(uploadId, "attachment.uploadIdNotFound");
-               }
-               return uploadedResource;
-             })
-             .filter(Objects::nonNull)
-             .forEach(uploadResource -> createAttachment(uploadResource,
-                                                         objectType,
-                                                         objectId,
-                                                         parentObjectId,
-                                                         userIdentityId,
-                                                         report));
+    uploadedFiles.stream().distinct().map(uploadedFile -> {
+      UploadedAttachmentDetail uploadedAttachmentDetail = new UploadedAttachmentDetail();
+      UploadResource uploadedResource = uploadService.getUploadResource(uploadedFile.getUploadId());
+      if (uploadedResource == null) {
+        LOG.warn("Uploaded resource with id " + uploadedFile.getUploadId() + " wasn't found");
+        report.addError(uploadedFile.getUploadId(), "attachment.uploadIdNotFound");
+      }
+      uploadedAttachmentDetail.setId(uploadedFile.getId());
+      uploadedAttachmentDetail.setAltText(uploadedFile.getAltText());
+      uploadedAttachmentDetail.setUploadedResource(uploadedResource);
+      return uploadedAttachmentDetail;
+    })
+                 .filter(Objects::nonNull)
+                 .forEach(uploadedAttachmentDetail -> saveAttachment(uploadedAttachmentDetail,
+                                                                     objectType,
+                                                                     objectId,
+                                                                     parentObjectId,
+                                                                     userIdentityId,
+                                                                     report));
     return report;
   }
 
-  private void createAttachment(UploadResource uploadResource,
+  private void saveAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
+                              String objectType,
+                              String objectId,
+                              String parentObjectId,
+                              long userIdentityId,
+                              ObjectAttachmentOperationReport report) {
+    UploadResource uploadResource = uploadedAttachmentDetail.getUploadedResource();
+    String altText = uploadedAttachmentDetail.getAltText();
+    Long attachmentId =
+                      !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ? Long.parseLong(uploadedAttachmentDetail.getId())
+                                                                               : null;
+    if (uploadResource == null) {
+      if (attachmentId != null) {
+        updateAttachment(String.valueOf(attachmentId), objectType, objectId, userIdentityId, altText);
+      }
+    } else {
+      String fileDiskLocation = uploadResource.getStoreLocation();
+      String uploadId = uploadResource.getUploadId();
+      try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
+        String fileId = attachmentStorage.uploadAttachment(attachmentId,
+                                                           objectType,
+                                                           objectId,
+                                                           uploadResource.getFileName(),
+                                                           uploadResource.getMimeType(),
+                                                           inputStream,
+                                                           userIdentityId);
+        if (attachmentId == null) {
+          createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, altText);
+        } else {
+          updateAttachment(fileId, objectType, objectId, userIdentityId, altText);
+        }
+
+      } catch (FileNotFoundException e) {
+        LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
+        report.addError(uploadId, "attachment.uploadIdFileNotExistsError");
+      } catch (IOException e) {
+        LOG.warn("Error accessing resource with upload id " + uploadId, e);
+        report.addError(uploadId, "attachment.uploadIdIOError");
+      } catch (Exception e) {
+        LOG.warn("Error attaching file with upload id " + uploadId, e);
+        report.addError(uploadId, "attachment.uploadIdNotAttachedError");
+      } finally {
+        uploadService.removeUploadResource(uploadId);
+      }
+    }
+  }
+
+  private void createAttachment(String fileId,
                                 String objectType,
                                 String objectId,
                                 String parentObjectId,
                                 long userIdentityId,
-                                ObjectAttachmentOperationReport report) {
-    String fileDiskLocation = uploadResource.getStoreLocation();
-    String uploadId = uploadResource.getUploadId();
-    try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
-      String fileId = attachmentStorage.uploadAttachment(objectType,
-                                                         objectId,
-                                                         uploadResource.getFileName(),
-                                                         uploadResource.getMimeType(),
-                                                         inputStream,
-                                                         userIdentityId);
-      MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(),
-                                                fileId,
-                                                getAudienceId(objectType, objectId));
-      MetadataObject object = new MetadataObject(objectType,
-                                                 objectId,
-                                                 parentObjectId,
-                                                 getSpaceId(objectType, objectId));
-      metadataService.createMetadataItem(object, metadataKey, userIdentityId);
+                                String altText) throws Exception {
+    MetadataKey metadataKey = null;
+    metadataKey = new MetadataKey(METADATA_TYPE.getName(), fileId, getAudienceId(objectType, objectId));
+    MetadataObject object = new MetadataObject(objectType,
+                                               objectId,
+                                               parentObjectId,
+                                               getSpaceId(objectType, objectId));
+    Map<String, String> properties = new HashMap<String, String>();
+    properties.put("alt", altText);
+    metadataService.createMetadataItem(object,
+                                       metadataKey,
+                                       properties,
+                                       userIdentityId);
+    broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
+                              fileId,
+                              objectType,
+                              objectId,
+                              getUserName(userIdentityId));
+  }
 
-      broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
-                                metadataKey.getName(),
+  private void updateAttachment(String fileId,
+                                String objectType,
+                                String objectId,
+                                long userIdentityId,
+                                String altText) {
+    List<MetadataItem> attachmentItem =
+                                      metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(fileId,
+                                                                                                     AttachmentService.METADATA_TYPE.getName(),
+                                                                                                     objectType,
+                                                                                                     objectId,
+                                                                                                     0,
+                                                                                                     0);
+    if (CollectionUtils.isNotEmpty(attachmentItem)) {
+      MetadataItem attachmentItemMetadata = attachmentItem.get(0);
+      if (attachmentItemMetadata.getProperties() != null && !attachmentItemMetadata.getProperties().isEmpty()) {
+        attachmentItemMetadata.getProperties().put("alt", altText);
+      } else {
+        Map<String, String> properties = new HashMap<>();
+        properties.put("alt", altText);
+        attachmentItemMetadata.setProperties(properties);
+      }
+      metadataService.updateMetadataItem(attachmentItemMetadata, userIdentityId);
+      broadcastAttachmentChange(ATTACHMENTS_UPDATED_EVENT,
+                                fileId,
                                 objectType,
                                 objectId,
                                 getUserName(userIdentityId));
-    } catch (FileNotFoundException e) {
-      LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
-      report.addError(uploadId, "attachment.uploadIdFileNotExistsError");
-    } catch (IOException e) {
-      LOG.warn("Error accessing resource with upload id " + uploadId, e);
-      report.addError(uploadId, "attachment.uploadIdIOError");
-    } catch (Exception e) {
-      LOG.warn("Error attaching file with upload id " + uploadId, e);
-      report.addError(uploadId, "attachment.uploadIdNotAttachedError");
-    } finally {
-      uploadService.removeUploadResource(uploadId);
     }
   }
 
