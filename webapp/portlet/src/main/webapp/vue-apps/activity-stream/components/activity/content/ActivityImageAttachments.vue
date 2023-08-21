@@ -60,6 +60,7 @@ export default {
         size: metadata.properties.fileSize,
         mimetype: metadata.properties.fileMimeType,
         updated: metadata.properties.fileUpdateDate,
+        alt: metadata.properties.alt || '',
       })) || [];
     },
   },
