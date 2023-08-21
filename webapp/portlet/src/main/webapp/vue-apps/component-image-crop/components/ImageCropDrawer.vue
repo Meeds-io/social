@@ -62,7 +62,7 @@
                 alt="Picture to crop">
             </v-card>
             <div class="d-flex mt-4">
-              <div :title="$t('imageCropDrawer.uploadImage')" class="d-flex flex-grow-0">
+              <div :title="$t('imageCropDrawer.uploadImage')" class="d-flex align-center flex-grow-0">
                 <v-file-input
                   v-if="displayUploadIcon"
                   :title="$t('imageCropDrawer.uploadImage')"
