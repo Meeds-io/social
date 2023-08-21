@@ -51,15 +51,20 @@ public class AttachmentActivityProcessor extends BaseActivityProcessorPlugin {
           return;
         }
 
+        Map<String, String> metadataItemProperties = metadataItem.getProperties();
         Map<String, String> properties = metadataItem.getMetadata().getProperties();
         if (properties == null) {
           properties = new HashMap<>();
           metadataItem.setProperties(properties);
         }
+        if (metadataItemProperties != null) {
+          properties.put("alt", metadataItemProperties.get("alt"));
+        }
         properties.put("fileName", attachment.getName());
         properties.put("fileSize", String.valueOf(attachment.getSize()));
         properties.put("fileMimeType", attachment.getMimetype());
         properties.put("fileUpdateDate", String.valueOf(attachment.getUpdated()));
+
       });
     }
   }

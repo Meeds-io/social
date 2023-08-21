@@ -396,6 +396,12 @@ extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers',
   rank: 50,
 });
 
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'attachment-cropper-drawer',
+  vueComponent: Vue.options.components['attachments-image-crop-drawer'],
+  rank: 40,
+});
+
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'attachedItem',
   isEnabled: (params) => {
