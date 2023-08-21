@@ -50,23 +50,31 @@ public class FileAttachmentStorage {
     this.imageThumbnailService = imageThumbnailService;
   }
 
-  public String uploadAttachment(String objectType,
+  public String uploadAttachment(Long attachmentId,
+                                 String objectType,
                                  String objectId,
                                  String fileName,
                                  String fileMimeType,
                                  InputStream fileInputStream,
                                  long userIdentityId) throws IOException {
-    FileItem fileItem;
+
     try {
-      fileItem = fileService.writeFile(new FileItem(null,
-                                                    fileName,
-                                                    fileMimeType,
-                                                    FILE_API_NAMESPACE,
-                                                    fileInputStream.available(),
-                                                    new Date(),
-                                                    String.valueOf(userIdentityId),
-                                                    false,
-                                                    fileInputStream));
+      FileItem fileItem =  new FileItem(attachmentId,
+                                        fileName,
+                                        fileMimeType,
+                                        FILE_API_NAMESPACE,
+                                        fileInputStream.available(),
+                                        new Date(),
+                                        String.valueOf(userIdentityId),
+                                        false,
+                                        fileInputStream);
+      if(attachmentId == null) {
+        fileItem = fileService.writeFile(fileItem);
+      }
+      else {
+        fileItem = fileService.updateFile(fileItem);
+      }
+
       long fileId = fileItem.getFileInfo().getId();
       return String.valueOf(fileId);
     } catch (Exception e) {
@@ -82,7 +90,8 @@ public class FileAttachmentStorage {
                                         fileInfo.getMimetype(),
                                         fileInfo.getSize(),
                                         fileInfo.getUpdatedDate().getTime(),
-                                        fileInfo.getUpdater());
+                                        fileInfo.getUpdater(),
+                                        "");
     }
     return null;
   }
