@@ -167,6 +167,14 @@ public interface MetadataService {
                                   Map<String, String> properties) throws ObjectAlreadyExistsException;
 
   /**
+   * @param metadataItem   {@link MetadataItem}
+   * @param userIdentityId {@link Identity} technical identifier designating the
+   *                       user making the operation
+   * @return               Deleted {@link MetadataItem}
+   */
+  MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId);
+
+  /**
    * @param  itemId                  {@link MetadataItem} technical identifier
    * @param  userIdentityId          {@link Identity} technical identifier
    *                                   designating the user making the operation
