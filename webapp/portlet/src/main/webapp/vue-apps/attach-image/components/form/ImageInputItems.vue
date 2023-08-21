@@ -60,7 +60,7 @@ export default {
   methods: {
     openFileExplorer() {
       document.dispatchEvent(new CustomEvent('attachments-image-open-file-explorer'));
-    }
+    },
   }
 };
 </script>
