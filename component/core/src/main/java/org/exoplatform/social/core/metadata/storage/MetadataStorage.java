@@ -102,6 +102,12 @@ public class MetadataStorage {
     return fromEntity(metadataItemEntity);
   }
 
+  public MetadataItem updateMetadataItem(MetadataItem metadataItem) {
+    MetadataItemEntity metadataItemEntity = toEntity(metadataItem);
+    metadataItemEntity = this.metadataItemDAO.update(metadataItemEntity);
+    return fromEntity(metadataItemEntity);
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(String metadataName,
                                                                                                   String metadataTypeName,
                                                                                                   String objectType,
