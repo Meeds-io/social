@@ -49,7 +49,6 @@
     <v-img
       :src="imageItem.src"
       class="white--text align-end"
-      gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
       width="120"
       min-height="120"
       max-height="120" />
