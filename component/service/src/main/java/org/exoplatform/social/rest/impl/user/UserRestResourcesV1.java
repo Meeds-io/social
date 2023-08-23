@@ -1785,7 +1785,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         values.add(childPropertyMap);
         userProfileProperties.put(parentPropertySetting.getPropertyName(), values);
       } else {
-        userProfileProperties.put(propertyName.toLowerCase(), propertyValue);
+        userProfileProperties.put(propertyName, propertyValue);
       }
     }
     String warnMessage = null;
