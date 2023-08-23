@@ -134,7 +134,6 @@ export default {
     drawer: false,
     newUser: false,
     saving: false,
-    confirmNewPassword: null,
     user: {
       enabled: true,
     },
@@ -149,9 +148,6 @@ export default {
     },
   },
   watch: {
-    confirmNewPassword() {
-      this.resetCustomValidity();
-    },
     saving() {
       if (this.saving) {
         this.$refs.userFormDrawer.startLoading();
@@ -214,7 +210,7 @@ export default {
         return;
       }
 
-      if (this.confirmNewPassword && this.user.password && this.confirmNewPassword !== this.user.password) {
+      if (this.user.confirmNewPassword && this.user.password && this.user.confirmNewPassword !== this.user.password) {
         this.$refs.confirmNewPassword.setCustomValidity(this.$t('UsersManagement.newPasswordsDoesNotMatch'));
         if (!this.$refs.userForm.$el.reportValidity()) {
           return;
