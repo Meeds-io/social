@@ -114,7 +114,6 @@ export default {
       activityType: null,
       loading: false,
       attachments: null,
-      
     };
   },
   computed: {
