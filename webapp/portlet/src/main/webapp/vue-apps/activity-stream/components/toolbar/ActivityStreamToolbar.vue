@@ -56,7 +56,7 @@
           <activity-stream-filter />
         </div>
       </div>
-      <div class="pt-1">
+      <div v-if="userCanPost" class="pt-1">
         <extension-registry-components
           :params="extensionParams"
           name="ActivityToolbarAction"
