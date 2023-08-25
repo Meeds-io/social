@@ -37,12 +37,22 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.GeneralSettings-${lang}.json`,
 ];
 
-export function init(params) {
+export function init() {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n =>
       Vue.createApp({
         data: {
-          params: params,
+          selectedTab: null,
+          loading: false,
+        },
+        watch: {
+          loading() {
+            if (this.loading) {
+              document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+            } else {
+              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            }
+          },
         },
         template: `<portal-general-settings id="${appId}" :params="params" />`,
         vuetify: Vue.prototype.vuetifyOptions,
