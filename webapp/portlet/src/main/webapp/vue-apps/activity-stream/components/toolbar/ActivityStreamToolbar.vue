@@ -56,35 +56,12 @@
           <activity-stream-filter />
         </div>
       </div>
-      <div class="d-flex flex-wrap pt-1">
-        <v-btn
-          :ripple="false"
-          class="d-flex flex-row justify-start py-2"
-          text
-          @click="openKudosDrawer">
-          <v-icon
-            color="primary"
-            size="27">
-            fa-award
-          </v-icon>
-          <v-span class="body-2 font-weight-bold ms-5 dark-grey-color">
-            {{ $t('kudos.title') }}
-          </v-span>
-        </v-btn>
-        <v-btn
-          :ripple="false"
-          class="d-flex flex-row justify-start py-2"
-          text
-          @click="openPollDrawer">
-          <v-icon
-            color="amber darken-1"
-            size="27">
-            fa-poll
-          </v-icon>
-          <v-span class="body-2 font-weight-bold ms-5 dark-grey-color">
-            {{ this.$t(`poll.title`) }}
-          </v-span>
-        </v-btn>
+      <div v-if="userCanPost" class="pt-1">
+        <extension-registry-components
+          :params="extensionParams"
+          name="ActivityToolbarAction"
+          type="activity-toolbar-action"
+          class="my-auto d-flex align-center flex-wrap" />
       </div>
     </div>
   </v-toolbar>
@@ -121,6 +98,7 @@ export default {
   data() {
     return {
       user: null,
+      MESSAGE_MAX_LENGTH: 1300,
     };
   },
   computed: {
@@ -143,6 +121,17 @@ export default {
     displayToolbar() {
       return (this.userCanPost || this.streamFilterEnabled) && this.user;
     },
+    extensionParams() {
+      return {
+        activityId: this.activityId,
+        spaceId: eXo.env.portal.spaceId,
+        files: [],
+        templateParams: this.activityParams,
+        message: this.activityBody,
+        maxMessageLength: this.MESSAGE_MAX_LENGTH,
+        activityType: [],
+      };
+    },
   },
   created() {
     if (!this.user) {
@@ -152,30 +141,16 @@ export default {
   },
   methods: {
     openComposerDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
-        activityId: this.activityId,
-        activityBody: this.activityBody,
-        activityParams: this.activityParams,
-        files: [],
-        activityType: []
-      }}));
+      this.$nextTick().then(() => {
+        document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
+          activityId: this.activityId,
+          activityBody: this.activityBody,
+          activityParams: this.activityParams,
+          files: [],
+          activityType: []
+        }}));
+      });
     },
-    openKudosDrawer() {
-      document.dispatchEvent(new CustomEvent('exo-kudos-open-send-modal', {detail: {
-        id: eXo.env.portal.spaceId,
-        type: 'USER_PROFILE',
-        parentId: '',
-        owner: eXo.env.portal.userName,
-        spaceURL: eXo.env.portal.spaceUrl,
-        readOnlySpace: true
-      }}));
-    },
-    openPollDrawer() {
-      this.openComposerDrawer();
-      window.setTimeout(() => {
-        document.dispatchEvent(new CustomEvent('exo-poll-open-drawer'));
-      }, 200);
-    }
   },
 };
 </script>
