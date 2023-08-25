@@ -25,7 +25,7 @@
     dense>
     <div class="d-flex full-width">
       <div class="flex-grow-1">
-        <div v-if="userCanPost" class="openLink d-flex flex-row pe-10">
+        <div v-if="userCanPost" class="openLink d-flex flex-row pe-10 py-3">
           <exo-user-avatar
             v-if="user"
             :identity="user"
@@ -49,7 +49,8 @@
       </div>
       <div 
         v-if="streamFilterEnabled"
-        class="my-auto">
+        :class="streamFilterStyle"
+        class="d-flex align-center">
         <activity-stream-filter />
       </div>
     </div>
@@ -102,6 +103,9 @@ export default {
     },
     userCanPost() {
       return !this.standalone && this.canPost;
+    },
+    streamFilterStyle() {
+      return this.userCanPost && 'align-md-end py-3 pt-md-0';
     },
     streamFilterEnabled() {
       return this.canFilter;
