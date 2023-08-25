@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <v-card class="pb-8" flat>
+  <v-card class="pb-1" flat>
     <v-list-item class="px-0 mb-2" three-line>
       <v-list-item-content class="pt-0">
         <v-list-item-title class="my-0">
@@ -49,32 +49,34 @@
             @click="accessType = 'open'" />
         </v-radio-group>
       </v-list-item-action>
-      <v-list-item-content>
+      <v-list-item-content class="py-0">
         <v-list-item-title>
-          <h4 class="my-0">{{ $t('generalSettings.access.open') }}</h4>
+          <h4 class="my-0 py-2">{{ $t('generalSettings.access.open') }}</h4>
         </v-list-item-title>
         <v-list-item-subtitle>
           {{ $t('generalSettings.access.open.subtitle') }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item
-      v-if="accessType === 'open'"
-      class="mt-2 mb-4"
-      dense
-      @click="externalUserRegistration = !externalUserRegistration">
-      <v-list-item-action class="me-4">
-        <v-switch v-model="externalUserRegistration" />
-      </v-list-item-action>
-      <v-list-item-content>
-        <v-list-item-title>
-          <h4 class="my-0">{{ $t('generalSettings.access.enableExternalUsers') }}</h4>
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ $t('generalSettings.access.enableExternalUsers.subtitle') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
+    <v-fade-transition>
+      <v-list-item
+        v-if="accessType === 'open'"
+        class="mt-2 mb-4"
+        dense
+        @click="externalUserRegistration = !externalUserRegistration">
+        <v-list-item-action class="me-4">
+          <v-switch v-model="externalUserRegistration" />
+        </v-list-item-action>
+        <v-list-item-content class="py-0">
+          <v-list-item-title>
+            <h4 class="my-0 py-2">{{ $t('generalSettings.access.enableExternalUsers') }}</h4>
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.access.enableExternalUsers.subtitle') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+    </v-fade-transition>
 
     <v-list-item
       class="px-0 mt-4"
@@ -89,37 +91,39 @@
             @click="accessType = 'restricted'" />
         </v-radio-group>
       </v-list-item-action>
-      <v-list-item-content>
+      <v-list-item-content class="py-0">
         <v-list-item-title>
-          <h4 class="my-0">{{ $t('generalSettings.access.restricted') }}</h4>
+          <h4 class="my-0 py-2">{{ $t('generalSettings.access.restricted') }}</h4>
         </v-list-item-title>
         <v-list-item-subtitle>
           {{ $t('generalSettings.access.restricted.subtitle') }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item
-      v-if="accessType === 'restricted'"
-      class="mt-2 mb-4"
-      dense
-      @click="externalUserRegistration = !externalUserRegistration">
-      <v-list-item-action class="me-4">
-        <v-switch v-model="externalUserRegistration" />
-      </v-list-item-action>
-      <v-list-item-content>
-        <v-list-item-title>
-          <h4 class="my-0">{{ $t('generalSettings.access.enableExternalUsers') }}</h4>
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ $t('generalSettings.access.enableExternalUsers.subtitle') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
+    <v-fade-transition>
+      <v-list-item
+        v-if="accessType === 'restricted'"
+        class="mt-2 mb-4"
+        dense
+        @click="externalUserRegistration = !externalUserRegistration">
+        <v-list-item-action class="me-4">
+          <v-switch v-model="externalUserRegistration" />
+        </v-list-item-action>
+        <v-list-item-content class="py-0">
+          <v-list-item-title>
+            <h4 class="my-0 py-2">{{ $t('generalSettings.access.enableExternalUsers') }}</h4>
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.access.enableExternalUsers.subtitle') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+    </v-fade-transition>
 
     <v-list-item dense class="px-0 mt-4 mb-2">
-      <v-list-item-content>
+      <v-list-item-content class="py-0">
         <v-list-item-title>
-          <h4 class="my-0">{{ $t('generalSettings.access.platformAuthentication') }}</h4>
+          <h4 class="my-0 py-2">{{ $t('generalSettings.access.platformAuthentication') }}</h4>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -155,9 +159,9 @@
     </v-list-item>
 
     <v-list-item dense class="px-0 mt-4 mb-2">
-      <v-list-item-content>
+      <v-list-item-content class="py-0">
         <v-list-item-title class="subtitle-1">
-          {{ $t('generalSettings.access.startSettingPlatform') }}
+          <h4 class="my-0 py-2">{{ $t('generalSettings.access.startSettingPlatform') }}</h4>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -205,6 +209,30 @@
         </v-btn>
       </v-list-item-action>
     </v-list-item>
+    <div class="d-flex my-12 mx-4 justify-end">
+      <v-btn
+        :aria-label="$t('generalSettings.cancel')"
+        :disabled="loading"
+        class="btn cancel-button me-4"
+        elevation="0"
+        @click="$emit('close')">
+        <span class="text-none">
+          {{ $t('generalSettings.cancel') }}
+        </span>
+      </v-btn>
+      <v-btn
+        :aria-label="$t('generalSettings.apply')"
+        :disabled="!validForm"
+        :loading="loading"
+        color="primary"
+        class="btn btn-primary"
+        elevation="0"
+        @click="save">
+        <span class="text-none">
+          {{ $t('generalSettings.apply') }}
+        </span>
+      </v-btn>
+    </div>
   </v-card>
 </template>
 <script>
