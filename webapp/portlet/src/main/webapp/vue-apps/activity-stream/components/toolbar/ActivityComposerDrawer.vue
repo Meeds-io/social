@@ -114,7 +114,7 @@ export default {
       activityType: null,
       loading: false,
       attachments: null,
-      
+      activityToolbarAction: false
     };
   },
   computed: {
@@ -206,6 +206,7 @@ export default {
         this.files = params.files || [];
         this.activityType = params.activityType;
         this.attachments = this.templateParams?.metadatas?.attachments;
+        this.activityToolbarAction = params.activityToolbarAction;
       } else {
         this.activityId = null;
         this.spaceId = null;
@@ -262,7 +263,11 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {
-          document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
+          if (this.activityToolbarAction) {
+            document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
+          } else {
+            document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
+          }          
         } else {
           this.loading = true;
           this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
