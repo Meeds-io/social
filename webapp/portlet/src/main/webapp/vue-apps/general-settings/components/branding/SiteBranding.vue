@@ -21,7 +21,7 @@
 <template>
   <v-row class="ma-0">
     <v-col cols="12" class="pa-0">
-      <h4 class="font-weight-bold mb-0 mt-8">
+      <h4 class="font-weight-bold mt-0">
         {{ $t('generalSettings.displayCharacteristics') }}
       </h4>
     </v-col>
@@ -112,6 +112,34 @@
         v-model="faviconUploadId"
         :branding="branding" />
     </v-col>
+    <v-col
+      cols="12"
+      class="pa-0">
+      <div class="d-flex my-12 justify-end">
+        <v-btn
+          :aria-label="$t('generalSettings.cancel')"
+          :disabled="loading"
+          class="btn cancel-button me-4"
+          elevation="0"
+          @click="$emit('close')">
+          <span class="text-none">
+            {{ $t('generalSettings.cancel') }}
+          </span>
+        </v-btn>
+        <v-btn
+          :aria-label="$t('generalSettings.apply')"
+          :disabled="!validForm"
+          :loading="loading"
+          color="primary"
+          class="btn btn-primary register-button"
+          elevation="0"
+          @click="save">
+          <span class="text-capitalize">
+            {{ $t('generalSettings.apply') }}
+          </span>
+        </v-btn>
+      </div>
+    </v-col>
   </v-row>
 </template>
 <script>
@@ -144,6 +172,9 @@ export default {
     defaultTertiaryColor() {
       return this.branding?.themeColors?.tertiaryColor;
     },
+    validForm() {
+      return this.changed && this.isValidForm;
+    },
     isValidForm() {
       return this.companyName?.length
           && this.primaryColor?.length
@@ -168,12 +199,6 @@ export default {
     },
   },
   watch: {
-    isValidForm() {
-      this.$emit('validity-check', this.isValidForm);
-    },
-    changed() {
-      this.$emit('changed', this.changed);
-    },
     errorMessage() {
       if (this.errorMessage) {
         this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
@@ -181,6 +206,9 @@ export default {
         this.$root.$emit('close-alert-message');
       }
     },
+  },
+  mounted() {
+    this.init();
   },
   methods: {
     init() {
@@ -194,7 +222,10 @@ export default {
       this.faviconUploadId = null;
       this.errorMessage = null;
     },
-    preSave(branding) {
+    save() {
+      this.errorMessage = null;
+
+      const branding = Object.assign({}, this.branding);
       Object.assign(branding, {
         companyName: this.companyName,
         themeColors: {
@@ -209,6 +240,13 @@ export default {
           uploadId: this.faviconUploadId,
         },
       });
+
+      this.$root.loading = true;
+      return this.$brandingService.updateBrandingInformation(branding)
+        .then(() => this.$emit('saved'))
+        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
+        .catch(e => this.errorMessage = String(e))
+        .finally(() => this.$root.loading = false);
     },
   }
 };
