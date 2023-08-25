@@ -45,7 +45,7 @@
             </div>
           </div>
           <div v-else>
-            <v-card-text class="text-sub-title text-uppercase center px-0">
+            <v-card-text class="text-sub-title text-body-1 px-0">
               {{ $t('activity.toolbar.title') }}
             </v-card-text>
           </div>
@@ -53,7 +53,7 @@
         <div 
           v-if="streamFilterEnabled" 
           class="my-auto">
-          <activity-stream-filter/>
+          <activity-stream-filter />
         </div>
       </div>
       <div class="d-flex flex-wrap pt-1">
