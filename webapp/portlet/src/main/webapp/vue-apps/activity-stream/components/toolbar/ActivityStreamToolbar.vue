@@ -24,9 +24,9 @@
     flat
     dense>
     <div class="d-flex flex-column full-width">
-      <div class="d-flex full-width pt-3">
+      <div class="d-flex full-width">
         <div class="flex-grow-1">
-          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
+          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10 pt-3">
             <div class="d-flex flex-row">
               <exo-user-avatar
                 v-if="user"
@@ -45,15 +45,16 @@
             </div>
           </div>
           <div v-else>
-            <v-card-text class="text-sub-title text-uppercase center px-0">
+            <v-card-text class="text-sub-title text-body-1 px-0">
               {{ $t('activity.toolbar.title') }}
             </v-card-text>
           </div>
         </div>
         <div 
           v-if="streamFilterEnabled" 
-          class="my-auto">
-          <activity-stream-filter/>
+          :class="streamFilterStyle"
+          class="d-flex align-center">
+          <activity-stream-filter />
         </div>
       </div>
       <div v-if="userCanPost" class="pt-1">
@@ -114,6 +115,9 @@ export default {
     },
     userCanPost() {
       return !this.standalone && this.canPost;
+    },
+    streamFilterStyle() {
+      return this.userCanPost && 'align-md-end pt-3 pt-md-0';
     },
     streamFilterEnabled() {
       return this.canFilter;
