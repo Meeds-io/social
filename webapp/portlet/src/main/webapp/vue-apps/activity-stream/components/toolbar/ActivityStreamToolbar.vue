@@ -42,7 +42,7 @@
             dense />
         </div>
         <div v-else>
-          <v-card-text class="text-sub-title text-uppercase center px-0">
+          <v-card-text class="text-sub-title text-body-1 px-0">
             {{ $t('activity.toolbar.title') }}
           </v-card-text>
         </div>
