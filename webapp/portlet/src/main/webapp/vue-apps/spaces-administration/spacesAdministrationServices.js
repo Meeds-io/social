@@ -111,30 +111,3 @@ export function getBindingReportOperations() {
 export function getReport(spaceId, action, groupId, groupBindingId) {
   window.open(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getExport?spaceId=${spaceId}&action=${action}&group=${groupId}&groupBindingId=${groupBindingId}`, '_blank');
 }
-
-export function saveExternalFeatureStatus(status) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/management/featureservice/changeFeatureActivation?featureName=externalUsers&isActive=${status}`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  });
-}
-export function isExternalFeatureActive() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/management/featureservice/isActiveFeature?featureName=externalUsers`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  }).then(resp => {
-    if (resp && resp.ok) {
-      return resp.json();
-    } else {
-      throw new Error('Error when getting External Feature settings');
-    }
-  });
-}
