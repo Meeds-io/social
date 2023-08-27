@@ -54,7 +54,7 @@
             </v-list-item>
           </v-flex>
           <v-progress-linear
-            v-if="loading"
+            v-if="drawerLoading"
             indeterminate
             color="primary" />
           <v-divider v-else class="my-0" />
@@ -143,11 +143,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     initialized: false,
     drawer: false,
-    loading: false,
+    drawerLoading: false,
     expand: false,
     modalOpened: false,
   }),
@@ -181,6 +185,9 @@ export default {
       } else if (!this.value && this.drawer) {
         this.close();
       }
+    },
+    loading() {
+      this.drawerLoading = this.loading;
     },
     isMobile: {
       immediate: true,
@@ -283,10 +290,10 @@ export default {
       this.drawer = false;
     },
     startLoading() {
-      this.loading = true;
+      this.drawerLoading = true;
     },
     endLoading() {
-      this.loading = false;
+      this.drawerLoading = false;
     },
     toogleExpand() {
       if (!this.isMobile && this.allowExpand) {
