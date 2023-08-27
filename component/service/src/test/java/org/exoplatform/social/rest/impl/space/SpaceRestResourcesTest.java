@@ -46,6 +46,8 @@ import org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRestResourc
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
+import io.meeds.portal.security.service.SecuritySettingService;
+
 public class SpaceRestResourcesTest extends AbstractResourceTest {
   private IdentityManager       identityManager;
 
@@ -71,6 +73,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
   private ImageThumbnailService imageThumbnailService;
 
+  private SecuritySettingService securitySettingService;
+
   private MockUploadService     uploadService;
 
   public void setUp() throws Exception {
@@ -84,6 +88,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
+    securitySettingService = getContainer().getComponentInstanceOfType(SecuritySettingService.class);
     
     rootIdentity = identityManager.getOrCreateIdentity("organization", "root");
     johnIdentity = identityManager.getOrCreateIdentity("organization", "john");
@@ -95,7 +100,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
                                                 spaceService,
                                                 identityManager,
                                                 uploadService,
-                                                imageThumbnailService);
+                                                imageThumbnailService,
+                                                securitySettingService);
     registry(spaceRestResources);
 
     SpaceTemplatesRestResourcesV1 spaceTemplatesRestResourcesV1 = new SpaceTemplatesRestResourcesV1(getContainer().getComponentInstanceOfType(SpaceTemplateService.class), getContainer().getComponentInstanceOfType(ConfigurationManager.class));
