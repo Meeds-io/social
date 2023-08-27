@@ -28,6 +28,8 @@ import LoginBackgroundSelector from './components/branding/form/LoginBackgroundS
 
 import HubAccess from './components/registration/HubAccess.vue';
 import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.vue';
+import HelpDrawer from './components/registration/HelpDrawer.vue';
+import HelpTooltip from './components/registration/HelpTooltip.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -39,6 +41,8 @@ const components = {
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,
   'portal-general-settings-hub-access': HubAccess,
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
+  'portal-general-settings-help-drawer': HelpDrawer,
+  'portal-general-settings-help-tooltip': HelpTooltip,
 };
 
 for (const key in components) {
