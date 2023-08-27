@@ -358,9 +358,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   @Path("{spaceId}/checkExternals")
@@ -396,9 +393,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     return Response.ok(String.valueOf(hasExternals)).type(MediaType.TEXT_PLAIN).build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Path("{id}")
   @RolesAllowed("users")
@@ -414,30 +408,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                @Context Request request,
                                @Parameter(description = "Space id", required = true) @PathParam("id") String id,
                                @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false) @QueryParam("expand") String expand) throws Exception {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
-    long cacheTime = space.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
-
-    EntityTag eTag = new EntityTag(eTagValue, true);
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
-      builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
-      builder.tag(eTag);
-      builder.lastModified(new Date(cacheTime));
-      builder.expires(new Date(cacheTime));
-    }
-    return builder.build();
+    return buildSpaceResponse(space, expand, uriInfo, request);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Path("byPrettyName/{prettyName}")
   @RolesAllowed("users")
@@ -462,30 +436,35 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                            required = false
                                        ) @QueryParam("expand") String expand) throws Exception {
 
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceByPrettyName(prettyName);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
-        && !spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    long cacheTime = space.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
-
-    EntityTag eTag = new EntityTag(eTagValue, true);
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
-      builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
-      builder.tag(eTag);
-      builder.lastModified(new Date(cacheTime));
-      builder.expires(new Date(cacheTime));
-    }
-    return builder.build();
+    return buildSpaceResponse(space, expand, uriInfo, request);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @GET
+  @Path("byGroupSuffix/{groupSuffix}")
+  @RolesAllowed("users")
+  @Operation(
+             summary = "Gets a specific space by its group id without /spaces/ prefix",
+             method = "GET",
+             description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>"
+      )
+  @ApiResponses(
+                value = {
+                    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error"),
+                    @ApiResponse(responseCode = "400", description = "Invalid query input") }
+      )
+  public Response getSpaceByGroupSuffix(@Context UriInfo uriInfo,
+                                        @Context Request request,
+                                        @Parameter(description = "Space id", required = true) @PathParam("groupSuffix")
+                                        String groupSuffix,
+                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
+                                        @QueryParam("expand")
+                                        String expand) {
+    Space space = spaceService.getSpaceByGroupId(SpaceUtils.SPACE_GROUP + "/" + groupSuffix);
+    return buildSpaceResponse(space, expand, uriInfo, request);
+  }
+
   @GET
   @Path("byDisplayName/{displayName}")
   @RolesAllowed("users")
@@ -510,25 +489,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             required = false
                                         ) @QueryParam("expand") String expand) throws Exception {
 
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceByDisplayName(displayName);
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && !spaceService.isMember(space, authenticatedUser)
-        && !spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    long cacheTime = space.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
-
-    EntityTag eTag = new EntityTag(eTagValue, true);
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
-      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
-      builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
-      builder.tag(eTag);
-      builder.lastModified(new Date(cacheTime));
-      builder.expires(new Date(cacheTime));
-    }
-    return builder.build();
+    return buildSpaceResponse(space, expand, uriInfo, request);
   }
 
   @GET
@@ -1461,6 +1423,27 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       application = applicationFromContainer;
     }
     return application;
+  }
+
+  private Response buildSpaceResponse(Space space, String expand, UriInfo uriInfo, Request request) {
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+
+    long cacheTime = space.getCacheTime();
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
+
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+      builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.lastModified(new Date(cacheTime));
+      builder.expires(new Date(cacheTime));
+    }
+    return builder.build();
   }
 
 }

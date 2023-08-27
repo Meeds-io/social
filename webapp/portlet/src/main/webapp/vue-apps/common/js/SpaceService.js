@@ -132,6 +132,29 @@ export function getSpaceByDisplayName(displayName, expand) {
     return space;
   });
 }
+export function getSpaceByGroupId(groupId, expand) {
+  expand = expand || '';
+  groupId = groupId.replace('/spaces/', '');
+  const key = `group-${groupId}-${expand}`;
+  if (spaces[key]) {
+    return Promise.resolve(spaces[key]);
+  }
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byGroupSuffix/${groupId}?expand=${expand}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  }).then(space => {
+    if (space) {
+      spaces[key] = space;
+    }
+    return space;
+  });
+}
 
 export function getSpaceApplications(spaceId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications`, {
