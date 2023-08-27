@@ -65,7 +65,7 @@
         dense
         @click="externalUserRegistration = !externalUserRegistration">
         <v-list-item-action class="me-4">
-          <v-switch v-model="externalUserRegistration" />
+          <v-switch v-model="externalUserRegistration" @click.stop="0" />
         </v-list-item-action>
         <v-list-item-content class="py-0">
           <v-list-item-title>
@@ -109,7 +109,7 @@
         dense
         @click="externalUserRegistration = !externalUserRegistration">
         <v-list-item-action class="me-4">
-          <v-switch v-model="externalUserRegistration" />
+          <v-switch v-model="externalUserRegistration" @click.stop="0" />
         </v-list-item-action>
         <v-list-item-content class="py-0">
           <v-list-item-title>
