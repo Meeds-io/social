@@ -44,6 +44,7 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,
             spaceId: item.id,
+            groupId: item.groupId,
             providerId: 'space',
             displayName: item.displayName,
             profile: {
