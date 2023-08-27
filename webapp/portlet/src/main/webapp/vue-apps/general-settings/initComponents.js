@@ -27,6 +27,7 @@ import CompanyFavicon from './components/branding/form/CompanyFavicon.vue';
 import LoginBackgroundSelector from './components/branding/form/LoginBackgroundSelector.vue';
 
 import HubAccess from './components/registration/HubAccess.vue';
+import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -37,6 +38,7 @@ const components = {
   'portal-general-settings-company-favicon': CompanyFavicon,
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,
   'portal-general-settings-hub-access': HubAccess,
+  'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
 };
 
 for (const key in components) {
