@@ -32,6 +32,7 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.service.LinkProvider;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -593,6 +594,30 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
 
     // Get space by its pretty name
     response = service("GET", getURLResource("spaces/byPrettyName/" + space.getPrettyName()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity);
+    assertEquals("test space", spaceEntity.getDisplayName());
+    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+    assertNotNull(eTag);
+  }
+
+  public void testGetSpaceByGroupSuffix() throws Exception {
+    startSessionAs("root");
+    String input = "{\"displayName\":\"test space\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+    // root creates a space
+    ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    Space space = spaceService.getSpaceById(spaceEntity.getId());
+    assertNotNull(space);
+
+    // Get space by its groupId
+    response = service("GET", getURLResource("spaces/byGroupSuffix/" + space.getGroupId().replace(SpaceUtils.SPACE_GROUP + "/", "")), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
