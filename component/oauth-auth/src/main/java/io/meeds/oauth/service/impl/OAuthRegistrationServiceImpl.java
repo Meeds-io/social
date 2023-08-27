@@ -53,32 +53,38 @@ import io.meeds.oauth.service.OAuthRegistrationService;
 import io.meeds.oauth.spi.AccessTokenContext;
 import io.meeds.oauth.spi.OAuthPrincipal;
 import io.meeds.oauth.spi.OAuthProviderType;
+import io.meeds.portal.security.constant.UserRegistrationType;
+import io.meeds.portal.security.service.SecuritySettingService;
 
 public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
 
-  private static Log          log                        = ExoLogger.getLogger(OAuthRegistrationServiceImpl.class);
+  private static Log             log                        = ExoLogger.getLogger(OAuthRegistrationServiceImpl.class);
 
-  private static final String REGISTER_ON_FLY_INIT_PARAM = "registerOnFly";
+  private static final String    REGISTER_ON_FLY_INIT_PARAM = "registerOnFly";
 
-  private static final int    IMAGE_WIDTH                = 200;
+  private static final int       IMAGE_WIDTH                = 200;
 
-  private static final int    IMAGE_HEIGHT               = 200;
+  private static final int       IMAGE_HEIGHT               = 200;
 
-  private PortalContainer     container;
+  private PortalContainer        container;
 
-  private OrganizationService organizationService;
+  private OrganizationService    organizationService;
 
-  private IdentityManager     identityManager;
+  private IdentityManager        identityManager;
 
-  private List<String>        registerOnFly;
+  private SecuritySettingService securitySettingService;
+
+  private List<String>           registerOnFly;
 
   public OAuthRegistrationServiceImpl(PortalContainer container,
                                       OrganizationService organizationService,
                                       IdentityManager identityManager,
+                                      SecuritySettingService securitySettingService,
                                       InitParams initParams) {
     this.container = container;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
+    this.securitySettingService = securitySettingService;
 
     if (initParams != null && initParams.containsKey(REGISTER_ON_FLY_INIT_PARAM)) {
       String onFlyProviders = initParams.getValueParam(REGISTER_ON_FLY_INIT_PARAM).getValue();
@@ -92,7 +98,8 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
 
   @Override
   public boolean isRegistrationOnFly(OAuthProviderType<? extends AccessTokenContext> oauthProviderType) {
-    return registerOnFly.contains(oauthProviderType.getKey());
+    return this.securitySettingService.getRegistrationType() == UserRegistrationType.OPEN
+        && registerOnFly.contains(oauthProviderType.getKey());
   }
 
   @Override

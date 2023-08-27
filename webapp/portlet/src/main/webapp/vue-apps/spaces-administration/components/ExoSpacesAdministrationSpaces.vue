@@ -41,8 +41,7 @@
             <v-tab-item
               v-if="canChangePermissions"
               id="permissions"
-              value="permissions"
-              class="px-4 py-2">
+              value="permissions">
               <exo-spaces-administration-manage-permissions />
             </v-tab-item>
             <v-tab-item
