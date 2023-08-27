@@ -28,6 +28,7 @@
         <v-list-item dense class="px-0 mb-4">
           <v-list-item-action v-if="$root.selectedTab" class="my-auto me-0 ms-n2">
             <v-btn
+              :title="$t('generalSettings.access.backToMain')"
               size="24"
               icon
               @click="$root.selectedTab = null">
@@ -37,8 +38,16 @@
             </v-btn>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>
-              <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
+            <v-list-item-title class="d-flex">
+              <v-card
+                :title="$root.selectedTab && $t('generalSettings.access.backToMain')"
+                class="flex-grow-0 py-1"
+                flat
+                v-on="$root.selectedTab && {
+                  click: () => $root.selectedTab = null,
+                }">
+                <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
+              </v-card>
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
