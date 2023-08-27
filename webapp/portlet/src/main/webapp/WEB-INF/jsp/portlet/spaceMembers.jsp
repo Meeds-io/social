@@ -1,3 +1,5 @@
+<%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
+<%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
 <%@page import="org.exoplatform.social.core.space.model.Space"%>
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
@@ -21,7 +23,8 @@
     isManager = spaceService.isSuperManager(request.getRemoteUser()) || spaceService.isManager(space, request.getRemoteUser());
   }
 
-  boolean isExternalFeatureEnabled=CommonsUtils.isFeatureActive("externalUsers");
+  SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
+  boolean isExternalFeatureEnabled = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN || securitySettingService.isRegistrationExternalUser();
 %>
 <div class="VuetifyApp">
   <div data-app="true"
