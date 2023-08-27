@@ -167,16 +167,15 @@
     </v-list-item>
     <v-list-item dense class="my-0">
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title class="subtitle-1 py-2">
           {{ $t('generalSettings.access.startSettingPlatform.spaces') }}
         </v-list-item-title>
+        <v-list-item-subtitle v-sanitized-html="defaultSelectedSpacesTitle" />
       </v-list-item-content>
       <v-list-item-action class="d-flex flex-row align-center my-0">
-        <span class="font-italic subtitle-1 dark-grey-color me-2">
-          {{ $t('generalSettings.access.noDefaultSpace') }}
-        </span>
         <v-btn
-          icon>
+          icon
+          @click="$refs.defaultSpaceDrawer.open()">
           <v-icon size="24" class="icon-default-color">fa-edit</v-icon>
         </v-btn>
       </v-list-item-action>
@@ -233,6 +232,10 @@
         </span>
       </v-btn>
     </div>
+    <portal-general-settings-default-spaces-drawer
+      ref="defaultSpaceDrawer"
+      v-model="defaultSpaceIds"
+      :mandatory-spaces-link="mandatorySpacesLink" />
   </v-card>
 </template>
 <script>
@@ -253,6 +256,12 @@ export default {
   computed: {
     validForm() {
       return this.changed;
+    },
+    defaultSelectedSpacesTitle() {
+      const spacesCount = this.defaultSpaceIds?.length || 0;
+      return spacesCount
+          && this.$t(spacesCount === 1 && 'generalSettings.access.defaultSelectedSpaceTitle' || 'generalSettings.access.defaultSelectedSpacesTitle', {0: `<strong>${this.defaultSpaceIds.length}</strong>`})
+          || this.$t('generalSettings.access.noDefaultSpace');
     },
     changed() {
       if (!this.registrationSettings) {
