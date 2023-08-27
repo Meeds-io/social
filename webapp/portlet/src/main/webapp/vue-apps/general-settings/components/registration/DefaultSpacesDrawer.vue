@@ -35,9 +35,9 @@
         <div class="font-weight-bold dark-grey-color text-subtitle-1">
           {{ $t('generalSettings.access.defaultSpacesTitle') }}
         </div>
-        <div
-          v-sanitized-html="defaultSpacesSubTitle"
-          class="caption text-light-color"></div>
+        <div class="caption text-light-color">
+          {{ $t('generalSettings.access.defaultSpacesSubTitle') }}
+        </div>
 
         <div class="font-weight-bold dark-grey-color text-subtitle-1 mt-4">
           {{ $t('generalSettings.access.selectDefaultSpaces') }}
@@ -86,10 +86,6 @@ export default {
   props: {
     value: {
       type: Array,
-      default: null,
-    },
-    mandatorySpacesLink: {
-      type: String,
       default: null,
     },
   },
