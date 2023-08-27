@@ -39,14 +39,14 @@
     <v-list-item
       class="px-0 mt-4"
       dense
-      @click="accessType = 'open'">
+      @click="accessType = 'OPEN'">
       <v-list-item-action class="me-4">
         <v-radio-group v-model="accessType">
           <v-radio
-            value="open"
+            value="OPEN"
             on-icon="fa-lg far fa-dot-circle"
             off-icon="fa-lg far fa-circle"
-            @click="accessType = 'open'" />
+            @click="accessType = 'OPEN'" />
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
@@ -60,7 +60,7 @@
     </v-list-item>
     <v-fade-transition>
       <v-list-item
-        v-if="accessType === 'open'"
+        v-if="accessType === 'OPEN'"
         class="mt-2 mb-4"
         dense
         @click="externalUserRegistration = !externalUserRegistration">
@@ -69,10 +69,10 @@
         </v-list-item-action>
         <v-list-item-content class="py-0">
           <v-list-item-title>
-            <h4 class="my-0 py-2">{{ $t('generalSettings.access.enableExternalUsers') }}</h4>
+            <h4 class="my-0 py-2">{{ $t('generalSettings.access.open.enableExternalUsers') }}</h4>
           </v-list-item-title>
           <v-list-item-subtitle>
-            {{ $t('generalSettings.access.enableExternalUsers.subtitle') }}
+            {{ $t('generalSettings.access.open.enableExternalUsers.subtitle') }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -81,14 +81,14 @@
     <v-list-item
       class="px-0 mt-4"
       dense
-      @click="accessType = 'restricted'">
+      @click="accessType = 'RESTRICTED'">
       <v-list-item-action class="me-4">
         <v-radio-group v-model="accessType">
           <v-radio
-            value="restricted"
+            value="RESTRICTED"
             on-icon="fa-lg far fa-dot-circle"
             off-icon="fa-lg far fa-circle"
-            @click="accessType = 'restricted'" />
+            @click="accessType = 'RESTRICTED'" />
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
@@ -102,7 +102,7 @@
     </v-list-item>
     <v-fade-transition>
       <v-list-item
-        v-if="accessType === 'restricted'"
+        v-if="accessType === 'RESTRICTED'"
         class="mt-2 mb-4"
         dense
         @click="externalUserRegistration = !externalUserRegistration">
@@ -111,10 +111,10 @@
         </v-list-item-action>
         <v-list-item-content class="py-0">
           <v-list-item-title>
-            <h4 class="my-0 py-2">{{ $t('generalSettings.access.enableExternalUsers') }}</h4>
+            <h4 class="my-0 py-2">{{ $t('generalSettings.access.restricted.enableExternalUsers') }}</h4>
           </v-list-item-title>
           <v-list-item-subtitle>
-            {{ $t('generalSettings.access.enableExternalUsers.subtitle') }}
+            {{ $t('generalSettings.access.restricted.enableExternalUsers.subtitle') }}
           </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -238,7 +238,7 @@
 <script>
 export default {
   props: {
-    accessSetting: {
+    registrationSettings: {
       type: Object,
       default: null,
     },
@@ -246,35 +246,30 @@ export default {
   data: () => ({
     createUsersLink: '/portal/g/:platform:administrators/usersManagement',
     mandatorySpacesLink: '/portal/g/:platform:users/spacesAdministration',
-    accessType: 'open',
+    accessType: 'OPEN',
     externalUserRegistration: false,
+    defaultSpaceIds: [],
   }),
   computed: {
     validForm() {
       return this.changed;
     },
     changed() {
-      if (!this.branding) {
+      if (!this.registrationSettings) {
         return false;
       }
-      if (this.loginBackgroundUploadId) {
-        return true;
-      }
-      if (this.loginBackgroundData && this.loginBackgroundTextColor !== this.branding?.loginBackgroundTextColor) {
-        return true;
-      }
-      const oldBranding = JSON.parse(JSON.stringify(this.branding));
-      const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
-        loginTitle: this.loginTitle,
-        loginSubtitle: this.loginSubtitle,
-      });
-      return JSON.stringify(oldBranding) !== JSON.stringify(newBranding);
+      const newSettings = {
+        type: this.accessType,
+        externalUser: this.externalUserRegistration,
+        extraGroupIds: this.defaultSpaceIds,
+      };
+      return JSON.stringify(newSettings) !== JSON.stringify(this.registrationSettings);
     },
   },
   watch: {
     errorMessage() {
       if (this.errorMessage) {
-        this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
+        this.$root.$emit('alert-message', this.$t('generalSettings.savingError'), 'error');
       } else {
         this.$root.$emit('close-alert-message');
       }
@@ -285,10 +280,21 @@ export default {
   },
   methods: {
     init() {
-      // TODO
+      this.accessType = this.registrationSettings?.type || 'OPEN';
+      this.externalUserRegistration = this.registrationSettings?.externalUser || false;
+      this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
     },
     save() {
-      // TODO
+      this.$root.loading = true;
+      return this.$registrationService.saveRegistrationSettings({
+        type: this.accessType,
+        externalUser: this.externalUserRegistration,
+        extraGroupIds: this.defaultSpaceIds,
+      })
+        .then(() => this.$emit('saved'))
+        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
+        .catch(e => this.errorMessage = String(e))
+        .finally(() => this.$root.loading = false);
     },
   }
 };

@@ -59,7 +59,7 @@
           <portal-general-settings-hub-access
             v-else-if="$root.selectedTab === 'access'"
             ref="loginSettings"
-            :branding="branding"
+            :registration-settings="registrationSettings"
             @saved="init"
             @close="$root.selectedTab = null" />
           <div v-else>
@@ -124,6 +124,7 @@
 export default {
   data: () => ({
     branding: null,
+    registrationSettings: null,
     errorMessage: null,
   }),
   watch: {
@@ -144,6 +145,8 @@ export default {
       this.$root.loading = true;
       return this.$brandingService.getBrandingInformation()
         .then(data => this.branding = data)
+        .then(() => this.$registrationService.getRegistrationSettings())
+        .then(data => this.registrationSettings = data)
         .finally(() => this.$root.loading = false);
     },
   },
