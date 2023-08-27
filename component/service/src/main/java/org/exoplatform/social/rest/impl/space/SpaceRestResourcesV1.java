@@ -105,6 +105,9 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
+import io.meeds.portal.security.constant.UserRegistrationType;
+import io.meeds.portal.security.service.SecuritySettingService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -152,6 +155,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   private final UploadService uploadService;
 
   private final SpaceService spaceService;
+
+  private final SecuritySettingService  securitySettingService;
   
   private final ImageThumbnailService imageThumbnailService;
 
@@ -161,12 +166,14 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                               SpaceService spaceService,
                               IdentityManager identityManager,
                               UploadService uploadService,
-                              ImageThumbnailService imageThumbnailService) {
+                              ImageThumbnailService imageThumbnailService,
+                              SecuritySettingService securitySettingService) {
     this.activityRestResourcesV1 = activityRestResourcesV1;
     this.spaceService = spaceService;
     this.identityManager = identityManager;
     this.uploadService = uploadService;
     this.imageThumbnailService = imageThumbnailService;
+    this.securitySettingService = securitySettingService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
@@ -737,7 +744,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       spaceService.renameSpace(authenticatedUser, space, model.getDisplayName());
     }
 
-    if (model.getExternalInvitedUsers() != null) {
+    if (model.getExternalInvitedUsers() != null
+        && (securitySettingService.getRegistrationType() == UserRegistrationType.OPEN
+        || securitySettingService.isRegistrationExternalUser())) {
       String uri = uriInfo.getBaseUri().toString()
               .substring(0, uriInfo.getBaseUri().toString()
                       .lastIndexOf("/"));
