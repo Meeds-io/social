@@ -145,6 +145,15 @@ export default {
       }
     },
   },
+  created() {
+    if (window.location.hash === '#platformaccess') {
+      this.$root.selectedTab = 'access';
+    } else if (window.location.hash === '#display') {
+      this.$root.selectedTab = 'branding';
+    } else if (window.location.hash === '#logincustomization') {
+      this.$root.selectedTab = 'login';
+    }
+  },
   mounted() {
     this.init()
       .finally(() => this.$root.$applicationLoaded());
