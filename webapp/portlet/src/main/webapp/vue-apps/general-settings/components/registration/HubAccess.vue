@@ -21,7 +21,7 @@
 <template>
   <v-card class="pb-1" flat>
     <v-list-item class="px-0 mb-2" three-line>
-      <v-list-item-content class="pt-0">
+      <v-list-item-content class="py-0">
         <v-list-item-title class="my-0">
           <h4 class="font-weight-bold mt-0">
             {{ $t('generalSettings.access') }}
@@ -31,7 +31,7 @@
           <h4 class="my-0 text-color">{{ $t('generalSettings.access.summary1') }}</h4>
         </v-list-item-subtitle>
         <v-list-item-subtitle class="py-2">
-          <h5 class="my-0 subtitle-1 text-color">{{ $t('generalSettings.access.summary2') }}</h5>
+          <h5 class="my-0 text-color">{{ $t('generalSettings.access.summary2') }}</h5>
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -50,10 +50,10 @@
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title>
-          <h4 class="my-0 py-2">{{ $t('generalSettings.access.open') }}</h4>
+        <v-list-item-title class="subtitle-1">
+          {{ $t('generalSettings.access.open') }}
         </v-list-item-title>
-        <v-list-item-subtitle class="caption">
+        <v-list-item-subtitle>
           {{ $t('generalSettings.access.open.subtitle') }}
         </v-list-item-subtitle>
       </v-list-item-content>
@@ -68,12 +68,10 @@
           <v-switch v-model="externalUserRegistration" @click.stop="0" />
         </v-list-item-action>
         <v-list-item-content class="py-0">
-          <v-list-item-title>
-            <h4
-              v-html="$t('generalSettings.access.open.enableExternalUsers', whatIsExternalUserParams)"
-              class="my-0 py-2"></h4>
-          </v-list-item-title>
-          <v-list-item-subtitle class="caption">
+          <v-list-item-title
+            v-html="$t('generalSettings.access.open.enableExternalUsers', whatIsExternalUserParams)"
+            class="subtitle-1" />
+          <v-list-item-subtitle>
             {{ $t('generalSettings.access.open.enableExternalUsers.subtitle') }}
           </v-list-item-subtitle>
         </v-list-item-content>
@@ -94,12 +92,11 @@
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title>
-          <h4 class="my-0 py-2">{{ $t('generalSettings.access.restricted') }}</h4>
+        <v-list-item-title class="subtitle-1">
+          {{ $t('generalSettings.access.restricted') }}
         </v-list-item-title>
         <v-list-item-subtitle
-          v-html="$t('generalSettings.access.restricted.subtitle', whatIsRegisteredUserParams)"
-          class="caption" />
+          v-html="$t('generalSettings.access.restricted.subtitle', whatIsRegisteredUserParams)" />
       </v-list-item-content>
     </v-list-item>
     <v-fade-transition>
@@ -112,12 +109,11 @@
           <v-switch v-model="externalUserRegistration" @click.stop="0" />
         </v-list-item-action>
         <v-list-item-content class="py-0">
-          <v-list-item-title>
-            <h4
-              v-html="$t('generalSettings.access.restricted.enableExternalUsers', whatIsExternalUserParams)"
-              class="my-0 py-2"></h4>
-          </v-list-item-title>
-          <v-list-item-subtitle v-html="$t('generalSettings.access.restricted.enableExternalUsers.subtitle', whatIsSpaceHostParams)" />
+          <v-list-item-title
+            v-html="$t('generalSettings.access.restricted.enableExternalUsers', whatIsExternalUserParams)"
+            class="subtitle-1" />
+          <v-list-item-subtitle
+            v-html="$t('generalSettings.access.restricted.enableExternalUsers.subtitle', whatIsSpaceHostParams)" />
         </v-list-item-content>
       </v-list-item>
     </v-fade-transition>
@@ -125,7 +121,7 @@
     <v-list-item dense class="px-0 mt-4 mb-2">
       <v-list-item-content class="py-0">
         <v-list-item-title>
-          <h4 class="my-0 py-2">{{ $t('generalSettings.access.platformAuthentication') }}</h4>
+          <h4 class="text-color my-0 py-2">{{ $t('generalSettings.access.platformAuthentication') }}</h4>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -163,7 +159,7 @@
     <v-list-item dense class="px-0 mt-4 mb-2">
       <v-list-item-content class="py-0">
         <v-list-item-title class="subtitle-1">
-          <h4 class="my-0 py-2">{{ $t('generalSettings.access.startSettingPlatform') }}</h4>
+          <h4 class="text-color my-0 py-2">{{ $t('generalSettings.access.startSettingPlatform') }}</h4>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -171,7 +167,7 @@
       <v-list-item-content>
         <v-list-item-title
           v-html="$t('generalSettings.access.startSettingPlatform.spaces', whatIsDefaultSpaceParams)"
-          class="subtitle-1 py-2 dark-grey-color" />
+          class="subtitle-1 text-color" />
         <v-list-item-subtitle v-sanitized-html="defaultSelectedSpacesTitle" />
       </v-list-item-content>
       <v-list-item-action class="d-flex flex-row align-center my-0">
@@ -186,7 +182,7 @@
       <v-list-item-content>
         <v-list-item-title
           v-html="$t('generalSettings.access.startSettingPlatform.mandatorySpaces', whatIsMandatorySpaceParams)"
-          class="subtitle-1 dark-grey-color" />
+          class="subtitle-1 text-color" />
       </v-list-item-content>
       <v-list-item-action class="my-0">
         <v-btn
@@ -198,7 +194,7 @@
     </v-list-item>
     <v-list-item dense class="my-0">
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1 dark-grey-color">
+        <v-list-item-title class="subtitle-1 text-color">
           {{ $t('generalSettings.access.startSettingPlatform.createUsers') }}
         </v-list-item-title>
       </v-list-item-content>
@@ -271,7 +267,7 @@ export default {
       return this.changed;
     },
     whatIsExternalUserParams() {
-      return this.getHelpParams('whatIsExternalUser', 'dark-grey-color');
+      return this.getHelpParams('whatIsExternalUser', 'text-color');
     },
     whatIsSpaceHostParams() {
       return this.getHelpParams('whatIsSpaceHost', 'text-sub-title');
@@ -280,10 +276,10 @@ export default {
       return this.getHelpParams('whatIsRegisteredUser', 'text-sub-title');
     },
     whatIsDefaultSpaceParams() {
-      return this.getHelpParams('whatIsDefaultSpace', 'dark-grey-color');
+      return this.getHelpParams('whatIsDefaultSpace', 'text-color');
     },
     whatIsMandatorySpaceParams() {
-      return this.getHelpParams('whatIsMandatorySpace', 'dark-grey-color');
+      return this.getHelpParams('whatIsMandatorySpace', 'text-color');
     },
     defaultSelectedSpacesTitle() {
       const spacesCount = this.defaultSpaceIds?.length || 0;
