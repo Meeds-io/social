@@ -58,25 +58,38 @@
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-fade-transition>
-      <v-list-item
-        v-if="accessType === 'OPEN'"
-        class="mt-2 mb-4"
-        dense
-        @click="externalUserRegistration = !externalUserRegistration">
-        <v-list-item-action class="me-4">
-          <v-switch v-model="externalUserRegistration" @click.stop="0" />
-        </v-list-item-action>
-        <v-list-item-content class="py-0">
-          <v-list-item-title
-            v-html="$t('generalSettings.access.open.enableExternalUsers', whatIsExternalUserParams)"
-            class="subtitle-1" />
-          <v-list-item-subtitle>
-            {{ $t('generalSettings.access.open.enableExternalUsers.subtitle') }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-fade-transition>
+    <v-list-item
+      class="mt-2 mb-4"
+      dense
+      v-on="accessType === 'OPEN' && {
+        click: () => externalUserOpenRegistration = !externalUserOpenRegistration,
+      }">
+      <v-list-item-action class="me-4">
+        <v-tooltip
+          :disabled="accessType === 'OPEN'"
+          bottom>
+          <template #activator="{ on, attrs }">
+            <div
+              v-bind="attrs"
+              v-on="on">
+              <v-switch
+                v-model="externalUserOpenRegistration"
+                :disabled="accessType !== 'OPEN'"
+                @click.stop="0" />
+            </div>
+          </template>
+          <span>{{ $t('generalSettings.access.openChoiceDisabled') }}</span>
+        </v-tooltip>
+      </v-list-item-action>
+      <v-list-item-content class="py-0">
+        <v-list-item-title
+          v-html="$t('generalSettings.access.open.enableExternalUsers', whatIsExternalUserParams)"
+          class="subtitle-1" />
+        <v-list-item-subtitle>
+          {{ $t('generalSettings.access.open.enableExternalUsers.subtitle') }}
+        </v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
 
     <v-list-item
       class="px-0 mt-4"
@@ -99,24 +112,37 @@
           v-html="$t('generalSettings.access.restricted.subtitle', whatIsRegisteredUserParams)" />
       </v-list-item-content>
     </v-list-item>
-    <v-fade-transition>
-      <v-list-item
-        v-if="accessType === 'RESTRICTED'"
-        class="mt-2 mb-4"
-        dense
-        @click="externalUserRegistration = !externalUserRegistration">
-        <v-list-item-action class="me-4">
-          <v-switch v-model="externalUserRegistration" @click.stop="0" />
-        </v-list-item-action>
-        <v-list-item-content class="py-0">
-          <v-list-item-title
-            v-html="$t('generalSettings.access.restricted.enableExternalUsers', whatIsExternalUserParams)"
-            class="subtitle-1" />
-          <v-list-item-subtitle
-            v-html="$t('generalSettings.access.restricted.enableExternalUsers.subtitle', whatIsSpaceHostParams)" />
-        </v-list-item-content>
-      </v-list-item>
-    </v-fade-transition>
+    <v-list-item
+      class="mt-2 mb-4"
+      dense
+      v-on="accessType === 'RESTRICTED' && {
+        click: () => externalUserRestrictedRegistration = !externalUserRestrictedRegistration,
+      }">
+      <v-list-item-action class="me-4">
+        <v-tooltip
+          :disabled="accessType === 'RESTRICTED'"
+          bottom>
+          <template #activator="{ on, attrs }">
+            <div
+              v-bind="attrs"
+              v-on="on">
+              <v-switch
+                v-model="externalUserRestrictedRegistration"
+                :disabled="accessType !== 'RESTRICTED'"
+                @click.stop="0" />
+            </div>
+          </template>
+          <span>{{ $t('generalSettings.access.restrictedChoiceDisabled') }}</span>
+        </v-tooltip>
+      </v-list-item-action>
+      <v-list-item-content class="py-0">
+        <v-list-item-title
+          v-html="$t('generalSettings.access.restricted.enableExternalUsers', whatIsExternalUserParams)"
+          class="subtitle-1" />
+        <v-list-item-subtitle
+          v-html="$t('generalSettings.access.restricted.enableExternalUsers.subtitle', whatIsSpaceHostParams)" />
+      </v-list-item-content>
+    </v-list-item>
 
     <v-list-item dense class="px-0 mt-4 mb-2">
       <v-list-item-content class="py-0">
@@ -255,12 +281,14 @@ export default {
     createUsersLink: '/portal/g/:platform:administrators/usersManagement',
     mandatorySpacesLink: '/portal/g/:platform:users/spacesAdministration',
     accessType: 'OPEN',
-    externalUserRegistration: false,
+    externalUserOpenRegistration: false,
+    externalUserRestrictedRegistration: false,
     defaultSpaceIds: [],
     helpItemId: null,
     helpTooltipItemId: null,
     helpTooltip: false,
     helpTooltipElement: null,
+    initialized: false,
   }),
   computed: {
     validForm() {
@@ -293,7 +321,7 @@ export default {
       }
       const newSettings = {
         type: this.accessType,
-        externalUser: this.externalUserRegistration,
+        externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
       };
       return JSON.stringify(newSettings) !== JSON.stringify(this.registrationSettings);
@@ -307,11 +335,31 @@ export default {
         this.$root.$emit('close-alert-message');
       }
     },
-    accessType() {
-      if (this.accessType !== this.registrationSettings?.type) {
-        this.$root.$emit('alert-message', this.$t('generalSettings.access.accessTypeChangeInformation'), 'info');
-      } else {
-        this.$root.$emit('close-alert-message');
+    accessType(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        if (this.accessType === 'OPEN') {
+          this.$root.$emit('alert-message-html', `
+              <div>
+                ${this.$t('generalSettings.access.openChangeInformation1')}
+              </div>
+              <div>
+                ${this.$t('generalSettings.access.openChangeInformation2')}
+              </div>
+          `, 'info');
+        } else if (this.accessType === 'RESTRICTED') {
+          this.$root.$emit('alert-message-html', `
+              <div>
+                ${this.$t('generalSettings.access.restrictedChangeInformation1')}
+              </div>
+              <div>
+                ${this.$t('generalSettings.access.restrictedChangeInformation2')}
+              </div>
+          `, 'info');
+        }
+      }
+      if (this.initialized) {
+        this.externalUserOpenRegistration = false;
+        this.externalUserRestrictedRegistration = false;
       }
     },
   },
@@ -321,8 +369,10 @@ export default {
     document.addEventListener('hub-access-help-tooltip-open', this.openHelpTooltip);
     document.addEventListener('hub-access-help-tooltip-close', this.closeHelpTooltip);
   },
+  mounted() {
+    this.$nextTick().then(() => this.initialized = true);
+  },
   beforeDestroy() {
-    this.init();
     document.removeEventListener('hub-access-help', this.openHelpDrawer);
     document.removeEventListener('hub-access-help-tooltip-open', this.openHelpTooltip);
     document.removeEventListener('hub-access-help-tooltip-close', this.closeHelpTooltip);
@@ -330,7 +380,8 @@ export default {
   methods: {
     init() {
       this.accessType = this.registrationSettings?.type || 'OPEN';
-      this.externalUserRegistration = this.registrationSettings?.externalUser || false;
+      this.externalUserOpenRegistration = this.accessType === 'OPEN' && this.registrationSettings?.externalUser || false;
+      this.externalUserRestrictedRegistration = this.accessType === 'RESTRICTED' && this.registrationSettings?.externalUser || false;
       this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
     },
     openHelpDrawer(event) {
@@ -369,7 +420,7 @@ export default {
       this.$root.loading = true;
       return this.$registrationService.saveRegistrationSettings({
         type: this.accessType,
-        externalUser: this.externalUserRegistration,
+        externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
       })
         .then(() => this.$emit('saved'))
