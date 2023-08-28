@@ -64,7 +64,7 @@
         class="ml-0" 
         fab 
         x-small
-        @click="deleteFile">
+        @click="deleteFile($event)">
         <v-icon class="error-color" small>fa-trash</v-icon>
       </v-btn>
     </v-card-actions>
@@ -98,8 +98,12 @@ export default {
     }
   },
   methods: {
-    deleteFile() {
-      this.$emit('delete', this.image);
+    deleteFile(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      this.$emit('delete',this.image);
     },
     openImageCropDrawer() {
       document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{detail: this.imageItem}));
