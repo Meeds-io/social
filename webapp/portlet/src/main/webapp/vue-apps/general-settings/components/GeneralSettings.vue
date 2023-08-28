@@ -52,79 +52,81 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-expand-transition>
-          <portal-general-settings-branding-site
-            v-if="$root.selectedTab === 'branding'"
-            ref="brandingSettings"
-            :branding="branding"
-            @saved="init"
-            @close="$root.selectedTab = null" />
-          <portal-general-settings-branding-login
-            v-else-if="$root.selectedTab === 'login'"
-            ref="loginSettings"
-            :branding="branding"
-            @saved="init"
-            @close="$root.selectedTab = null" />
-          <portal-general-settings-hub-access
-            v-else-if="$root.selectedTab === 'access'"
-            ref="loginSettings"
-            :registration-settings="registrationSettings"
-            @saved="init"
-            @close="$root.selectedTab = null" />
-          <div v-else>
-            <v-list-item class="px-0" two-line>
-              <v-list-item-content>
-                <v-list-item-title>
-                  <h4 class="my-0">{{ $t('generalSettings.displayCharacteristics') }}</h4>
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ $t('generalSettings.subtitle.displayCharacteristics') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn
-                  icon
-                  @click="$root.selectedTab = 'branding'">
-                  <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
-            <v-list-item class="px-0" two-line>
-              <v-list-item-content>
-                <v-list-item-title>
-                  <h4 class="my-0">{{ $t('generalSettings.loginCharacteristics') }}</h4>
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ $t('generalSettings.subtitle.loginCharacteristics') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn
-                  icon
-                  @click="$root.selectedTab = 'login'">
-                  <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
-            <v-list-item class="px-0" two-line>
-              <v-list-item-content>
-                <v-list-item-title>
-                  <h4 class="my-0">{{ $t('generalSettings.access') }}</h4>
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  {{ $t('generalSettings.subtitle.access') }}
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn
-                  icon
-                  @click="$root.selectedTab = 'access'">
-                  <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
-          </div>
-        </v-expand-transition>
+        <template v-if="intialized">
+          <v-expand-transition>
+            <portal-general-settings-branding-site
+              v-if="$root.selectedTab === 'branding'"
+              ref="brandingSettings"
+              :branding="branding"
+              @saved="init"
+              @close="$root.selectedTab = null" />
+            <portal-general-settings-branding-login
+              v-else-if="$root.selectedTab === 'login'"
+              ref="loginSettings"
+              :branding="branding"
+              @saved="init"
+              @close="$root.selectedTab = null" />
+            <portal-general-settings-hub-access
+              v-else-if="$root.selectedTab === 'access'"
+              ref="loginSettings"
+              :registration-settings="registrationSettings"
+              @saved="init"
+              @close="$root.selectedTab = null" />
+            <div v-else>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <h4 class="my-0">{{ $t('generalSettings.displayCharacteristics') }}</h4>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.displayCharacteristics') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'branding'">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <h4 class="my-0">{{ $t('generalSettings.loginCharacteristics') }}</h4>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.loginCharacteristics') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'login'">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <h4 class="my-0">{{ $t('generalSettings.access') }}</h4>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.access') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'access'">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </div>
+          </v-expand-transition>
+        </template>
       </v-card>
     </v-main>
   </v-app>
@@ -135,6 +137,7 @@ export default {
     branding: null,
     registrationSettings: null,
     errorMessage: null,
+    intialized: false,
   }),
   watch: {
     errorMessage() {
@@ -145,9 +148,22 @@ export default {
       }
     },
   },
+  created() {
+    if (window.location.hash === '#platformaccess') {
+      this.$root.selectedTab = 'access';
+    } else if (window.location.hash === '#display') {
+      this.$root.selectedTab = 'branding';
+    } else if (window.location.hash === '#logincustomization') {
+      this.$root.selectedTab = 'login';
+    }
+  },
   mounted() {
     this.init()
-      .finally(() => this.$root.$applicationLoaded());
+      .then(() => this.$nextTick())
+      .finally(() => {
+        this.$root.$applicationLoaded();
+        this.intialized = true;
+      });
   },
   methods: {
     init() {

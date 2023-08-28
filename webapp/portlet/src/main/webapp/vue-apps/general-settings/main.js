@@ -54,6 +54,23 @@ export function init() {
               document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             }
           },
+          selectedTab() {
+            if (this.selectedTab === 'access') {
+              if (window.location.hash !== '#platformaccess') {
+                window.location.hash = '#platformaccess';
+              }
+            } else if (this.selectedTab === 'branding') {
+              if (window.location.hash !== '#display') {
+                window.location.hash = '#display';
+              }
+            } else if (this.selectedTab === 'login') {
+              if (window.location.hash !== '#logincustomization') {
+                window.location.hash = '#logincustomization';
+              }
+            } else if (!this.selectedTab) {
+              window.history.replaceState('', window.document.title, window.location.href.split('#')[0]);
+            }
+          },
         },
         template: `<portal-general-settings id="${appId}" :params="params" />`,
         vuetify: Vue.prototype.vuetifyOptions,
