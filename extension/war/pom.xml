@@ -423,8 +423,8 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
       <!-- Used for compilation only, thus exclude it from packaging
                   (already packaged in Web container, Tomcat Server) -->
       <scope>test</scope>

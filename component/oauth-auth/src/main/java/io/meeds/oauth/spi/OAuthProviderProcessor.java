@@ -18,8 +18,8 @@ package io.meeds.oauth.spi;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.exoplatform.services.organization.UserProfile;
 
@@ -66,8 +66,8 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    * Possibility to create new OAuth interaction with custom scope (not just the
    * scope which is provided in configuration of this OAuth processor)
    * 
-   * @see                   #processOAuthInteraction(javax.servlet.http.HttpServletRequest,
-   *                        javax.servlet.http.HttpServletResponse)
+   * @see                   #processOAuthInteraction(jakarta.servlet.http.HttpServletRequest,
+   *                        jakarta.servlet.http.HttpServletResponse)
    * @param  httpRequest
    * @param  httpResponse
    * @param  scope          custom scope, which contains all scopes in single

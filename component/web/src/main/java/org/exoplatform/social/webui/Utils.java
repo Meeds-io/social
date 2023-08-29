@@ -19,12 +19,10 @@ package org.exoplatform.social.webui;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.TimeZone;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpUtils;
+import jakarta.servlet.http.Cookie;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -424,27 +422,6 @@ public class Utils {
   public static String getHeader(String param) {
     PortalRequestContext request = Util.getPortalRequestContext();
     return request.getRequest().getHeader(param);
-  }
-  
-  /**
-   * Gets query value from Referer URI in request header.
-   * @param param
-   * @return
-   */
-  public static String getValueFromRefererURI(String param) {
-    String refererURI = getHeader("referer");
-    String value = null;
-    if (refererURI != null) {
-     
-      int index = refererURI.indexOf("?");
-      if (index != -1) {
-        String query = refererURI.substring(index + 1);
-        Map<String, String[]> map = HttpUtils.parseQueryString(query);
-        value = map.containsKey(param) ? map.get(param)[0] : null;
-        return value;
-      }
-    }
-    return value;
   }
 
   /**

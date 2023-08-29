@@ -1,18 +1,10 @@
 package org.exoplatform.social.common;
 
+import java.text.Normalizer;
+
 import org.apache.commons.lang.StringUtils;
 
-import com.ibm.icu.text.Transliterator;
-
 public class Utils {
-
-  // A {@link Transliterator} instance is stateless which has for consequences
-  // that it is Thread Safe
-  // and thus can be shared among several threads as mentioned in the javadoc
-  private static final Transliterator ACCENTS_CONVERTER =
-                                                        Transliterator.getInstance("Latin; NFD; [:Nonspacing "
-                                                            +
-                                                            "Mark:] Remove; NFC;");
 
   private static final String         SIZE_SPLIT_CHAR   = "x";
 
@@ -80,32 +72,25 @@ public class Utils {
       throw new IllegalArgumentException("String argument must not be null.");
     }
 
-    str = ACCENTS_CONVERTER.transliterate(str);
+    str = Normalizer.normalize(str, Normalizer.Form.NFKD);
 
     // the character ? seems to not be changed to d by the transliterate
     // function
 
-    StringBuilder cleanedStr = new StringBuilder(str.trim());
+    StringBuilder cleanedStr = new StringBuilder(str.toLowerCase().trim());
     // delete special character
-    for (int i = 0; i < cleanedStr.length(); i++) {
+    char lastChar = '_';
+    for (int i = cleanedStr.length() -1; i >= 0; i--) {
       char c = cleanedStr.charAt(i);
-      if (c == ' ') {
-        if (i > 0 && cleanedStr.charAt(i - 1) == '_') {
-          cleanedStr.deleteCharAt(i--);
+      if ((c < 'a' || c > 'z') && (c < '0' || c > '9')) {
+        if (lastChar == '_') {
+          cleanedStr.setCharAt(i, String.valueOf(c % 10).charAt(0));
         } else {
-          c = '_';
-          cleanedStr.setCharAt(i, c);
+          lastChar = '_';
+          cleanedStr.setCharAt(i, '_');
         }
-        continue;
-      }
-
-      if (Character.getType(c) == Character.MODIFIER_LETTER || !(Character.isLetterOrDigit(c) || c == '_')) {
-        cleanedStr.deleteCharAt(i--);
-        continue;
-      }
-
-      if (i > 0 && c == '_' && cleanedStr.charAt(i - 1) == '_') {
-        cleanedStr.deleteCharAt(i--);
+      } else {
+        lastChar = c;
       }
     }
     return cleanedStr.toString().toLowerCase();

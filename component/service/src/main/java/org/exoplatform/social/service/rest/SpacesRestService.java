@@ -21,7 +21,7 @@ import static org.exoplatform.social.service.rest.RestChecker.checkAuthenticated
 import java.util.*;
 
 import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.xml.bind.annotation.XmlRootElement;
