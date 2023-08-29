@@ -57,6 +57,7 @@
           :second-level="secondLevel"
           :has-administration-navigations="hasAdministrationNavigations"
           :site-navigations="siteNavigations"
+          :sites="sites"
           :recent-spaces="recentSpaces"
           :opened-space="space"
           :sticky-allowed="stickyAllowed"
@@ -73,6 +74,7 @@
           :second-level="secondLevel"
           :has-administration-navigations="hasAdministrationNavigations"
           :site-navigations="siteNavigations"
+          :sites="sites"
           :recent-spaces="recentSpaces"
           :opened-space="space"
           :sticky-allowed="stickyAllowed"
@@ -113,6 +115,7 @@ export default {
     space: null,
     administrationNavigations: null,
     siteNavigations: null,
+    sites: [],
     initStep: 0,
     recentSpaces: null,
     limit: 7,
@@ -225,6 +228,7 @@ export default {
   methods: {
     init() {
       return Promise.all([
+        this.retrieveSites(),
         this.retrieveSiteNavigations(),
         this.retrieveAdministrationNavigations(),
         this.retrieveRecentSpaces(),
@@ -301,8 +305,16 @@ export default {
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
     },
     retrieveSiteNavigations() {
-      return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', this.visibility)
-        .then(data => this.siteNavigations = data || []);
+      if (!eXo.env.portal.newLeftNavigationDrawer) {
+        return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', this.visibility)
+          .then(data => this.siteNavigations = data || []);
+      }
+    },
+    retrieveSites(){
+      if (eXo.env.portal.newLeftNavigationDrawer) {
+        return this.$sitesService.retrieveSites('PORTAL', true, false, 'global', true, true)
+          .then(data => this.sites = data || []);
+      }
     },
     retrieveAdministrationNavigations() {
       return this.$navigationService.getNavigations(null, 'group', null, this.visibility)

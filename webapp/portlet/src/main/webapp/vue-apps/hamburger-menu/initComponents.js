@@ -35,6 +35,11 @@ import SpacesHamburgerNavigation from './components/recent-spaces/SpacesHamburge
 import SpacesNavigationContent from './components/recent-spaces/SpacesNavigationContent.vue';
 import SiteHamburgerNavigation from './components/site/SiteHamburgerNavigation.vue';
 import UserHamburgerNavigation from './components/user/UserHamburgerNavigation.vue';
+import SiteHamburgerNavigationList from './components/site/SiteHamburgerNavigationList.vue';
+import SiteHamburgerNavigationItem from './components/site/SiteHamburgerNavigationItem.vue';
+import SiteHamburgerList from './components/site/SiteHamburgerList.vue';
+import SiteHamburgerItem from './components/site/SiteHamburgerItem.vue';
+import SitesHamburger from './components/site/SitesHamburger.vue';
 
 const components = {
   'hamburger-menu-navigation': HamburgerMenuNavigation,
@@ -56,6 +61,11 @@ const components = {
   'spaces-navigation-content': SpacesNavigationContent,
   'site-hamburger-navigation': SiteHamburgerNavigation,
   'user-hamburger-navigation': UserHamburgerNavigation,
+  'sites-hamburger': SitesHamburger,
+  'site-hamburger-item': SiteHamburgerItem,
+  'site-hamburger-list': SiteHamburgerList,
+  'site-hamburger-navigation-item': SiteHamburgerNavigationItem,
+  'site-hamburger-navigation-list': SiteHamburgerNavigationList,
 };
 
 for (const key in components) {
