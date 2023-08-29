@@ -27,6 +27,7 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -100,7 +101,7 @@ public class SpaceNavigationIconUpgradePluginTest extends AbstractKernelTest {
     Space space = new Space();
     space.setDisplayName("testspace");
     space.setPrettyName(space.getDisplayName());
-    String shortName = SpaceUtils.cleanString(space.getDisplayName());
+    String shortName = Utils.cleanString(space.getDisplayName());
     space.setGroupId("/spaces/" + shortName);
     space.setUrl(shortName);
     space.setEditor("root");

@@ -344,8 +344,6 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     Space space = spaceService.getSpaceById(spaceEntity.getId());
     assertNotNull(space);
     assertEquals("Благодійність", space.getDisplayName());
-    assertEquals("blagodijnist", space.getPrettyName());
-    assertEquals("blagodijnist", space.getUrl());
   }
 
   public void testGetSpaceAvatarForAnonymous() throws Exception {

@@ -35,7 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 
 import javax.portlet.RenderRequest;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -46,8 +46,6 @@ import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.info.MetaInfo;
 import org.gatein.pc.api.info.PortletInfo;
-
-import com.ibm.icu.text.Transliterator;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
@@ -111,6 +109,7 @@ import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -182,21 +181,13 @@ public class SpaceUtils {
 
   private static final String                                 PORTAL_PAGE_TITLE     = "portal:requestTitle";
 
-  // A {@link Transliterator} instance is stateless which has for consequences
-  // that it is Thread Safe
-  // and thus can be shared among several threads as mentioned in the javadoc
-  private static final Transliterator                         ACCENTS_CONVERTER     =
-                                                                                Transliterator.getInstance("Latin; NFD; [:Nonspacing "
-                                                                                    +
-                                                                                    "Mark:] Remove; NFC;");
+  private static final String                                 NUMBER_REG_PATTERN       = "[0-9]";
 
-  private static String                                       NUMBER_REG_PATTERN    = "[0-9]";
+  private static final String                                 UNDER_SCORE_STR          = "_";
 
-  private static String                                       UNDER_SCORE_STR       = "_";
+  private static final String                                 SPACE_STR                = " ";
 
-  private static String                                       SPACE_STR             = " ";
-
-  private static String                                       CURRENT_SPACE         = "CurrentSpace";
+  private static final String                                 CURRENT_SPACE            = "CurrentSpace";
 
   /**
    * Checks if Space Name is in a valid form or not.
@@ -475,7 +466,7 @@ public class SpaceUtils {
       UserNode renamedNode = SpaceUtils.getSpaceUserNode(space);
       UserNode parentNode = renamedNode.getParent();
       String newNodeLabel = space.getDisplayName();
-      String newNodeName = SpaceUtils.cleanString(newNodeLabel);
+      String newNodeName = Utils.cleanString(newNodeLabel);
       renamedNode.setName(newNodeName);
 
       Page page = layoutService.getPage(renamedNode.getPageRef().format());
@@ -855,7 +846,7 @@ public class SpaceUtils {
       parentGroup = groupHandler.findGroupById(SPACE_GROUP);
       // Creates new group
       newGroup = groupHandler.createGroupInstance();
-      shortName = SpaceUtils.cleanString(spaceName);
+      shortName = Utils.cleanString(spaceName);
       groupId = parentGroup.getId() + "/" + shortName;
 
       PortalContainer portalContainer = PortalContainer.getInstance();
@@ -955,7 +946,7 @@ public class SpaceUtils {
     PortalContainer portalContainer = PortalContainer.getInstance();
     SpaceService spaceService = (SpaceService) portalContainer.getComponentInstanceOfType(SpaceService.class);
     // Checks whether spaceName has existed yet
-    if (spaceService.getSpaceByPrettyName(cleanString(spaceName)) != null) {
+    if (spaceService.getSpaceByPrettyName(Utils.cleanString(spaceName)) != null) {
       return true;
     }
     return false;
@@ -1789,7 +1780,7 @@ public class SpaceUtils {
 
     while (hasNext) {
       ++extendPattern;
-      checkedGroupId = cleanString(mainPatternGroupId + SPACE_STR + extendPattern);
+      checkedGroupId = Utils.cleanString(mainPatternGroupId + SPACE_STR + extendPattern);
       ExoContainer container = ExoContainerContext.getCurrentContainer();
 
       SpaceService spaceService = (SpaceService) container.getComponentInstanceOfType(SpaceService.class);
@@ -1829,7 +1820,7 @@ public class SpaceUtils {
 
     while (hasNext) {
       ++extendPattern;
-      checkedPrettyName = cleanString(mainPatternPrettyName + SPACE_STR + extendPattern);
+      checkedPrettyName = Utils.cleanString(mainPatternPrettyName + SPACE_STR + extendPattern);
       ExoContainer container = ExoContainerContext.getCurrentContainer();
       IdentityManager idm = (IdentityManager) container.getComponentInstanceOfType(IdentityManager.class);
       Identity identity = idm.getOrCreateIdentity(SpaceIdentityProvider.NAME, checkedPrettyName, true);

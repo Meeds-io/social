@@ -50,6 +50,7 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -917,7 +918,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Space space = new Space();
     space.setDisplayName("testSpace");
     space.setDescription("Space Description for Testing");
-    String shortName = SpaceUtils.cleanString(space.getDisplayName());
+    String shortName = Utils.cleanString(space.getDisplayName());
     space.setGroupId("/spaces/" + shortName);
     space.setManagers(managers);
     space.setMembers(members);
@@ -944,7 +945,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Space space = new Space();
     space.setDisplayName("testSpace");
     space.setDescription("Space Description for Testing");
-    String shortName = SpaceUtils.cleanString(space.getDisplayName());
+    String shortName = Utils.cleanString(space.getDisplayName());
     space.setGroupId("/spaces/" + shortName);
     space.setManagers(managers);
     space.setPrettyName(space.getDisplayName());
@@ -1073,7 +1074,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Space space = new Space();
     space.setDisplayName("testSpace");
     space.setDescription("Space Description for Testing");
-    String shortName = SpaceUtils.cleanString(space.getDisplayName());
+    String shortName = Utils.cleanString(space.getDisplayName());
     space.setGroupId("/spaces/" + shortName);
     space.setManagers(managers);
     space.setPrettyName(space.getDisplayName());
@@ -2856,7 +2857,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space1.setApp("Calendar;FileSharing");
     space1.setDisplayName(spaceDisplayName);
     space1.setPrettyName(space1.getDisplayName());
-    String shortName = SpaceUtils.cleanString(spaceDisplayName);
+    String shortName = Utils.cleanString(spaceDisplayName);
     space1.setGroupId("/spaces/" + shortName);
     space1.setUrl(shortName);
     space1.setRegistration("validation");
@@ -2977,7 +2978,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space2.setApp("Contact,Forum");
     space2.setDisplayName(spaceName);
     space2.setPrettyName(space2.getDisplayName());
-    String shortName = SpaceUtils.cleanString(spaceName);
+    String shortName = Utils.cleanString(spaceName);
     space2.setGroupId("/spaces/" + shortName);
     space2.setUrl(shortName);
     space2.setRegistration("open");
@@ -3061,7 +3062,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Space space = new Space();
     space.setDisplayName("testSpaceHomeLayout");
     space.setDescription("Space Description for Testing");
-    String shortName = SpaceUtils.cleanString(space.getDisplayName());
+    String shortName = Utils.cleanString(space.getDisplayName());
     space.setGroupId("/spaces/" + shortName);
     String[] managers = new String[] {
       rootACLIdentity.getUserId()

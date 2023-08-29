@@ -70,7 +70,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     space1.setApp("Members:true,Contact:true");
     space1.setDisplayName(spaceDisplayName);
     space1.setPrettyName(space1.getDisplayName());
-    String shortName = SpaceUtils.cleanString(spaceDisplayName);
+    String shortName = Utils.cleanString(spaceDisplayName);
     space1.setGroupId("/spaces/" + shortName);
     space1.setUrl(shortName);
     space1.setRegistration("validation");

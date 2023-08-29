@@ -18,7 +18,7 @@ package org.exoplatform.social.service.test;
 
 import org.exoplatform.services.test.mock.MockHttpServletRequest;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;

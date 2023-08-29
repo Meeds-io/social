@@ -18,6 +18,7 @@ package org.exoplatform.social.core.space;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -203,7 +204,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
     space2.setApp("Contact,Forum");
     space2.setDisplayName(spaceName);
     space2.setPrettyName(space2.getDisplayName());
-    String shortName = SpaceUtils.cleanString(spaceName);
+    String shortName = Utils.cleanString(spaceName);
     space2.setGroupId("/spaces/" + shortName );
     space2.setUrl(shortName);
     space2.setMembers(members);

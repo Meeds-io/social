@@ -132,7 +132,6 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     }
 
     try {
-//      MaxQueryNumber queryNumber = runMethod.getAnnotation(MaxQueryNumber.class);
 //      if (queryNumber != null) {
 //        wantCount = true;
 //        maxQuery = queryNumber.value();
