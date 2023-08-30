@@ -1,12 +1,15 @@
 package org.exoplatform.social.core.jpa.search;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.manager.IdentityManagerImpl;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.search.Sorting;
 import org.junit.Assert;
@@ -199,11 +202,15 @@ public class ProfileSearchConnectorTest {
         Sorting sorting = new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC);
         Map <String,String> profileSettings = new HashMap<>();
         List<Identity> excludedIdentityList = new ArrayList<>();
+        ProfilePropertySetting profilePropertySetting =  new ProfilePropertySetting();
+        profilePropertySetting.setPropertyName(Profile.POSITION);
+        profilePropertySetting.setActive(true);
         Identity identity1 = new Identity("test","test");
+        identity1.getProfile().setProperty(Profile.POSITION, "Changed POSITION");
         Identity identity2 = new Identity("test2","test2");
         excludedIdentityList.add(identity1);
         excludedIdentityList.add(identity2);
-        profileSettings.put("test","test");
+        profileSettings.put(Profile.POSITION, "POSIT");
         filter.setSearchEmail(false);
         filter.setSearchUserName(false);
         filter.setName("\\\"te-s t\\\"");
@@ -224,7 +231,12 @@ public class ProfileSearchConnectorTest {
                 "      \"constant_score\" : {\n" +
                 "        \"filter\" : {\n" +
                 "          \"bool\" :{\n" +
-                buildAdvancedFilterQuery(filter) +
+                "\"must\": [    {\n" +
+                "    \"wildcard\": {\n" +
+                "       \"position.raw\": \"*POSIT*\"\n" +
+                "     }\n" +
+                "   }\n" +
+                "   ]\n" +
                 ",\n" +
                 "    \"should\": [\n" +
                 "                  {\n" +
@@ -294,6 +306,7 @@ public class ProfileSearchConnectorTest {
                 ",\"_source\": false\n" +
                 ",\"fields\": [\"_id\"]\n" +
                 "}\n";
+        Mockito.when(profilePropertyService.getProfileSettingByName(Profile.POSITION)).thenReturn(profilePropertySetting);
         Mockito.when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
         COMMONS_UTILS.when(() -> CommonsUtils.getService(Mockito.any())).thenReturn(identityManager);
         long offset = 0;

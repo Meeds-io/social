@@ -900,35 +900,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     customSinglePropertySetting = profilePropertyService.createPropertySetting(customSinglePropertySetting);
     tearDownProfilePropertyList.add(customSinglePropertySetting);
 
-    ProfilePropertySetting phonesPropertySetting = new ProfilePropertySetting();
-    phonesPropertySetting.setPropertyName("phones");
-    phonesPropertySetting.setMultiValued(true);
-    phonesPropertySetting = profilePropertyService.createPropertySetting(phonesPropertySetting);
-    tearDownProfilePropertyList.add(phonesPropertySetting);
-
-    ProfilePropertySetting workPhonePropertySetting = new ProfilePropertySetting();
-    workPhonePropertySetting.setPropertyName("phones.work");
-    workPhonePropertySetting.setMultiValued(false);
-    workPhonePropertySetting.setParentId(phonesPropertySetting.getId());
-    workPhonePropertySetting = profilePropertyService.createPropertySetting(workPhonePropertySetting);
-    tearDownProfilePropertyList.add(workPhonePropertySetting);
-
-    Arrays.asList(new String[] { "userName", "firstName", "lastName", "email", "password", "groups", "aboutMe", "timeZone",
-        "company", "position" }).forEach(profileProperty -> {
-          ProfilePropertySetting basicProfilePropertySetting = new ProfilePropertySetting();
-          basicProfilePropertySetting.setPropertyName(profileProperty);
-          basicProfilePropertySetting.setMultiValued(false);
-          try {
-            basicProfilePropertySetting = profilePropertyService.createPropertySetting(basicProfilePropertySetting);
-            tearDownProfilePropertyList.add(basicProfilePropertySetting);
-          } catch (ObjectAlreadyExistsException e) {
-            throw new RuntimeException(e);
-          }
-
-        }
-
-    );
-
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
 
@@ -941,14 +912,27 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(204, response.getStatus());
     Identity importedUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jack.nipper");
     Profile importedUserProfile = importedUser.getProfile();
-    assertEquals(1, importedUserProfile.getPhones().size());
-    assertEquals("phones.work", importedUserProfile.getPhones().get(0).get("key"));
-    assertEquals("777777", importedUserProfile.getPhones().get(0).get("value"));
+    assertEquals(2, importedUserProfile.getPhones().size());
+    assertEquals("phones.work", importedUserProfile.getPhones().get(1).get("key"));
+    assertEquals("777777", importedUserProfile.getPhones().get(1).get("value"));
+    assertEquals("phones.home", importedUserProfile.getPhones().get(0).get("key"));
+    assertEquals("888888", importedUserProfile.getPhones().get(0).get("value"));
+
+    List<Map<String, String>> ims = (List<Map<String, String>>) importedUserProfile.getProperty(Profile.CONTACT_IMS);
+    assertEquals(1, ims.size());
+    assertEquals("ims.facebook", ims.get(0).get("key"));
+    assertEquals("myfacebook", ims.get(0).get("value"));
+
+    List<Map<String, String>> urls = (List<Map<String, String>>) importedUserProfile.getProperty(Profile.CONTACT_URLS);
+    assertEquals(1, urls.size());
+    assertEquals(" https://www.exoplatform.com", urls.get(0).get("value"));
+
     assertEquals("test", importedUserProfile.getProperty("custom-single-property"));
+
+    // should not import multivalued properties
     List<Map<String, String>> customMultiValuedProperty = (ArrayList<Map<String, String>>)importedUserProfile.getProperty("custom-multi-property");
-    assertEquals(1, customMultiValuedProperty.size());
-    assertEquals("first-property", customMultiValuedProperty.get(0).get("key"));
-    assertEquals("first property value", customMultiValuedProperty.get(0).get("value"));
+    assertNull(customMultiValuedProperty);
+
   }
 
   public void testImportUsers() throws Exception {

@@ -179,11 +179,10 @@ public class ProfileSearchConnector {
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
     //filter by profile settings
-      if (expEsForAdvancedFilter != null) {
-        esSubQuery.append(expEsForAdvancedFilter);
-        esSubQuery.append(",\n");
-
-      }
+    if (expEsForAdvancedFilter != null) {
+      esSubQuery.append(expEsForAdvancedFilter);
+      esSubQuery.append(",\n");
+    }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
@@ -500,8 +499,8 @@ public class ProfileSearchConnector {
       if (property != null && !property.isMultiValued()) {
         query.append("""
                     {
-                    "term": {
-                       "%s.raw": "%s"
+                    "wildcard": {
+                       "%s.raw": "*%s*"
                      }
                    },
                 """.formatted(key, value));
