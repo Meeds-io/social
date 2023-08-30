@@ -319,12 +319,13 @@ export default {
       if (!this.registrationSettings) {
         return false;
       }
-      const newSettings = {
+      const oldSettings = JSON.parse(JSON.stringify(this.registrationSettings));
+      const newSettings = Object.assign(JSON.parse(JSON.stringify(this.registrationSettings)), {
         externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
         type: this.accessType,
-      };
-      return JSON.stringify(newSettings) !== JSON.stringify(this.registrationSettings);
+      });
+      return JSON.stringify(newSettings) !== JSON.stringify(oldSettings);
     },
   },
   watch: {
@@ -336,28 +337,28 @@ export default {
       }
     },
     accessType(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        if (this.accessType === 'OPEN') {
-          this.$root.$emit('alert-message-html', `
-              <div>
-                ${this.$t('generalSettings.access.openChangeInformation1')}
-              </div>
-              <div>
-                ${this.$t('generalSettings.access.openChangeInformation2')}
-              </div>
-          `, 'info');
-        } else if (this.accessType === 'RESTRICTED') {
-          this.$root.$emit('alert-message-html', `
-              <div>
-                ${this.$t('generalSettings.access.restrictedChangeInformation1')}
-              </div>
-              <div>
-                ${this.$t('generalSettings.access.restrictedChangeInformation2')}
-              </div>
-          `, 'info');
-        }
-      }
       if (this.initialized) {
+        if (newVal !== oldVal) {
+          if (this.accessType === 'OPEN') {
+            this.$root.$emit('alert-message-html', `
+                <div>
+                  ${this.$t('generalSettings.access.openChangeInformation1')}
+                </div>
+                <div>
+                  ${this.$t('generalSettings.access.openChangeInformation2')}
+                </div>
+            `, 'info');
+          } else if (this.accessType === 'RESTRICTED') {
+            this.$root.$emit('alert-message-html', `
+                <div>
+                  ${this.$t('generalSettings.access.restrictedChangeInformation1')}
+                </div>
+                <div>
+                  ${this.$t('generalSettings.access.restrictedChangeInformation2')}
+                </div>
+            `, 'info');
+          }
+        }
         this.externalUserOpenRegistration = false;
         this.externalUserRestrictedRegistration = false;
       }

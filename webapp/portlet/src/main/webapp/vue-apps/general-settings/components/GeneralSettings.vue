@@ -159,6 +159,7 @@ export default {
   },
   mounted() {
     this.init()
+      .then(() => this.$nextTick())
       .finally(() => {
         this.$root.$applicationLoaded();
         this.intialized = true;
