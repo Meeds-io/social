@@ -1594,7 +1594,43 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       if (StringUtils.isBlank(headerLine)) {
         return;
       }
-      List<String> fields = Arrays.asList(headerLine.split(","));
+      List<String> fields = new ArrayList<>(Arrays.stream(headerLine.split(",")).map(String::trim).toList());
+      List<String> standardFields = List.of("userName", "password", "groups", "aboutMe", "timeZone");
+      List<String> unauthorizedFields = new ArrayList<>();
+      ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
+      RequestLifeCycle.begin(PortalContainer.getInstance());
+      try {
+        for (String field : fields) {
+          if(!standardFields.contains(field)) {
+            if (!field.contains(".")) {
+              ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(field);
+              if (propertySetting == null) {
+                userImportResultEntity.addWarnMessage("ALL", "PROFILE_PROPERTY_DOES_NOT_EXIST:" + field);
+                unauthorizedFields.add(field);
+              } else if (profilePropertyService.hasChildProperties(propertySetting)) {
+                userImportResultEntity.addWarnMessage("ALL", "PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:" + field);
+                unauthorizedFields.add(field);
+              }
+            } else {
+              String[] fieldNames = field.split("\\.");
+              List<String> systemMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
+              ProfilePropertySetting parentProperty = profilePropertyService.getProfileSettingByName(fieldNames[0]);
+              if (fieldNames.length > 2) {
+                userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MORE_THAN_ONE_PARENT:" + field);
+                unauthorizedFields.add(field);
+              } else if (parentProperty == null) {
+                userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MISSING_PARENT_PROPERTY:" + field);
+                unauthorizedFields.add(field);
+              } else if (parentProperty.isMultiValued() && !systemMultivaluedFields.contains(parentProperty.getPropertyName())) {
+                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_FIELD_MULTIVALUED:" + field);
+                unauthorizedFields.add(field);
+              }
+            }
+          }
+        }
+      } finally {
+        RequestLifeCycle.end();
+      }
 
       String userCSVLine = reader.readLine();
       while (userCSVLine != null) {
@@ -1608,7 +1644,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
             continue;
           }
 
-          userName = importUser(userImportResultEntity, locale, url, fields, userCSVLine);
+          userName = importUser(userImportResultEntity, locale, url, fields, unauthorizedFields, userCSVLine);
         } catch (Throwable e) {
           LOG.warn("Error importing user data {}", userName, e);
 
@@ -1629,6 +1665,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                             Locale locale,
                             StringBuilder url,
                             List<String> fields,
+                            List<String> fieldsToRemove,
                             String userCSVLine) throws Exception {
     List<String> userProperties = Arrays.asList(userCSVLine.split(","));
     JSONObject userObject = new JSONObject();
@@ -1643,7 +1680,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT:MISSING_USERNAME");
       return userName;
     }
-    if (userProperties.size() != fields.size()) {
+    if (userProperties.size() < fields.size()) {
       userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT");
       return userName;
     }
@@ -1669,7 +1706,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       // skipping password overwrite from csvLine
       user.setPassword(null);
       if (userStatus) {
-        organizationService.getUserHandler().setEnabled(userName, Boolean.valueOf(userObject.getString("enabled")), true);
+        organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
         user.setEnabled(true);
       }
       organizationService.getUserHandler().saveUser(user, true);
@@ -1692,7 +1729,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (!userObject.isNull("groups")) {
       String groups = userObject.getString("groups");
       if (StringUtils.isNotBlank(groups)) {
-        List<String> groupsList = Arrays.asList(groups.split(";"));
+        String[] groupsList = groups.split(";");
         for (String groupMembershipExpression : groupsList) {
           String membershipType =
                   groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
@@ -1739,6 +1776,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     userObject.remove("groups");
     userObject.remove("enabled");
 
+    // Delete properties to ignore
+    fieldsToRemove.forEach(userObject::remove);
+
     Map<String, Object> userProfileProperties = new HashMap<>();
     Iterator<String> properties = userObject.keys();
     while(properties.hasNext()) {
@@ -1748,25 +1788,15 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       ProfilePropertySetting parentPropertySetting = null;
       if(propertyName.contains(".")) {
         String[] propertyNames = propertyName.split("\\.");
-        if (propertyNames.length > 2) {
-          continue;
-        }
-        String parentProperty = propertyNames[0];
         String childProperty = propertyNames[1];
 
-        if (profilePropertyService.getProfileSettingByName(propertyName) == null
-                && (profilePropertyService.getProfileSettingByName(parentProperty) == null
-                || profilePropertyService.getProfileSettingByName(childProperty) == null)) {
-          LOG.warn("Parent property {} was not found, its value won't be imported");
-          continue;
-        }
         propertySetting =
                 profilePropertyService.getProfileSettingByName(propertyName) != null ? profilePropertyService.getProfileSettingByName(propertyName)
                         : profilePropertyService.getProfileSettingByName(childProperty);
       } else {
         propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
       }
-      if(propertySetting != null && propertySetting.getParentId() != null) {
+      if (propertySetting != null && propertySetting.getParentId() != null) {
         parentPropertySetting = profilePropertyService.getProfileSettingById(propertySetting.getParentId());
       }
       Map<String, String> childPropertyMap = new HashMap<>();
@@ -1777,7 +1807,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         ArrayList<Map<String, String>> values = (ArrayList<Map<String, String>>) userProfileProperties.get(propertySetting.getPropertyName());
         values.add(childPropertyMap);
         userProfileProperties.put(propertySetting.getPropertyName(), values);
-      } else if (parentPropertySetting != null && parentPropertySetting.isMultiValued()){
+      } else if (parentPropertySetting != null){
         childPropertyMap.put("key", propertySetting.getPropertyName());
         userProfileProperties.computeIfAbsent(parentPropertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
         @SuppressWarnings("unchecked")

@@ -99,4 +99,8 @@ public class ProfileSettingStorage {
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     return profilePropertySetting;
   }
+
+  public boolean hasChildProperties(Long parentId) {
+    return !profilePropertySettingDAO.findChildProperties(parentId).isEmpty();
+  }
 }
