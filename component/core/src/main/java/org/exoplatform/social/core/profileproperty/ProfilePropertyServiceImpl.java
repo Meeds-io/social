@@ -161,4 +161,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     this.profielPropertyPlugins.add((ProfilePropertyDatabaseInitializer) profilePropertyInitPlugin);
   }
 
+  @Override
+  public boolean hasChildProperties(ProfilePropertySetting propertySetting) {
+    return profileSettingStorage.hasChildProperties(propertySetting.getId());
+  }
 }

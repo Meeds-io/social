@@ -97,4 +97,11 @@ public interface ProfilePropertyService {
   List<String> getPropertySettingNames();
 
   void addProfilePropertyPlugin(ComponentPlugin profilePropertyInitPlugin);
+
+  /**
+   * Checks if the current property has child properties
+   * @param propertySetting
+   * @return Boolean : true if the current property has child properties
+   */
+  boolean hasChildProperties(ProfilePropertySetting propertySetting);
 }
