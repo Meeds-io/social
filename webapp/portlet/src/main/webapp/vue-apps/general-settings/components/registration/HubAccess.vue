@@ -320,9 +320,9 @@ export default {
         return false;
       }
       const newSettings = {
-        type: this.accessType,
         externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
         extraGroupIds: this.defaultSpaceIds,
+        type: this.accessType,
       };
       return JSON.stringify(newSettings) !== JSON.stringify(this.registrationSettings);
     },
