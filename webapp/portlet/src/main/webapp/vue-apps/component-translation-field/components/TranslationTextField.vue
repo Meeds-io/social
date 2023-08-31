@@ -99,6 +99,7 @@
       :back-icon="backIcon"
       :max-length="maxlength"
       :rich-editor="richEditor"
+      :rich-editor-oembed="richEditorOembed"
       :no-expand-icon="noExpandIcon"
       @input="emitUpdateValues" />
   </div>
@@ -159,6 +160,10 @@ export default {
       default: false,
     },
     richEditor: {
+      type: Boolean,
+      default: false,
+    },
+    richEditorOembed: {
       type: Boolean,
       default: false,
     },

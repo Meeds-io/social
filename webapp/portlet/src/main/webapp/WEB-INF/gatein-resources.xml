@@ -2083,14 +2083,7 @@
     <name>purifyVue</name>
     <load-group>purifyGRP</load-group>
     <script>
-      <minify>false</minify>
-      <adapter>
-        (function() {
-          Vue.directive('sanitized-html', function (el, binding) {
-            el.innerHTML = ExtendedDomPurify.purify(binding.value);
-          })
-        })();
-      </adapter>
+      <path>/js/sanitize-html-directive.js</path>
     </script>
     <depends>
       <module>ExtendedDomPurify</module>
