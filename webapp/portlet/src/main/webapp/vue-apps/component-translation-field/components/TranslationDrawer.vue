@@ -111,6 +111,7 @@
             :value="translations[language]"
             :max-length="maxLength"
             :tag-enabled="false"
+            :oembed="richEditorOembed"
             autofocus
             @input="updateValue(language, $event)" />
         </v-col>
@@ -178,6 +179,10 @@ export default {
       default: false,
     },
     richEditor: {
+      type: Boolean,
+      default: false,
+    },
+    richEditorOembed: {
       type: Boolean,
       default: false,
     },
