@@ -116,13 +116,13 @@ export default {
       type: Boolean,
       default: false
     },
-    oembedMaxWidth: {
+    oembedMinWidth: {
       type: Number,
       default: () => 300,
     },
-    oembedMaxHeight: {
+    oembedMaxWidth: {
       type: Number,
-      default: () => 320,
+      default: () => 500,
     },
   },
   data: () => ({
@@ -467,9 +467,8 @@ export default {
           if (body && body.querySelector('[data-widget="embedSemantic"] div')) {
             const element = body.querySelector('[data-widget="embedSemantic"] div');
             if (element) {
-              const height = Math.min(element.offsetHeight, this.oembedMaxHeight);
-              const width = Math.min(element.offsetWidth, this.oembedMaxWidth);
-              const html = `<div style="position: relative; display: flex; margin: auto; height: ${height}px; width: ${width}px;">${element.innerHTML}</div>`;
+              const width = Math.min(element.offsetWidth, this.oembedMinWidth);
+              const html = `<div style="position: relative; display: flex; margin: auto; min-width: ${width}px; width: 100%; max-width: ${this.oembedMaxWidth}px;">${element.innerHTML}</div>`;
               content = `${content}<div><![CDATA[${window.encodeURIComponent(html)}]]></div>`;
             }
           }

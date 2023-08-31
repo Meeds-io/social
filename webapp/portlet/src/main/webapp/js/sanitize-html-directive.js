@@ -19,16 +19,32 @@
 (function() {
   window.Vue.directive('sanitized-html', function (el, binding) {
     let content = binding.value;
-    content = content.replace(/]]&gt;/g, ']]>');
-    content = content.replace(/&lt;!\[CDATA\[/g, '<![CDATA[');
-    if (content && content.includes('<oembed>') && content.includes('</oembed>')) {
-      content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+    if (content) {
+      content = content.replace(/]]&gt;/g, ']]>');
+      content = content.replace(/&lt;!\[CDATA\[/g, '<![CDATA[');
+      if (content && content.includes('<oembed>') && content.includes('</oembed>')) {
+        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+      }
+      if (content && content.includes('<div><![CDATA[') && content.includes(']]></div>')) {
+        try {
+          content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, window.decodeURIComponent(content.match(/<div><!\[CDATA\[(.*)]]><\/div>/i)[1]));
+        } catch(e) {
+          content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, content.match(/<div><!\[CDATA\[(.*)]]><\/div>/i)[1]);
+        }
+      }
     }
-    if (content && content.includes('<div><![CDATA[') && content.includes(']]></div>')) {
-      try {
-        content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, window.decodeURIComponent(content.match(/<div><!\[CDATA\[(.*)]]><\/div>/i)[1]));
-      } catch(e) {
-        content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, content.match(/<div><!\[CDATA\[(.*)]]><\/div>/i)[1]);
+    el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
+  });
+  window.Vue.directive('sanitized-html-no-embed', function (el, binding) {
+    let content = binding.value;
+    if (content) {
+      content = content.replace(/]]&gt;/g, ']]>');
+      content = content.replace(/&lt;!\[CDATA\[/g, '<![CDATA[');
+      if (content && content.includes('<oembed>') && content.includes('</oembed>')) {
+        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+      }
+      if (content && content.includes('<div><![CDATA[') && content.includes(']]></div>')) {
+        content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
       }
     }
     el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
