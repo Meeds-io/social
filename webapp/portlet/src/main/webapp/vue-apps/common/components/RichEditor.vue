@@ -58,7 +58,7 @@ export default {
     },
     templateParams: {
       type: Object,
-      default: () => ({}),
+      default: null,
     },
     autofocus: {
       type: Boolean,
@@ -80,15 +80,26 @@ export default {
       type: Boolean,
       default: true
     },
+    oembed: {
+      type: Boolean,
+      default: false
+    },
+    oembedMinWidth: {
+      type: Number,
+      default: () => 300,
+    },
+    oembedMaxWidth: {
+      type: Number,
+      default: () => 500,
+    },
   },
-  data() {
-    return {
-      SMARTPHONE_LANDSCAPE_WIDTH: 768,
-      inputVal: null,
-      editor: null,
-      baseUrl: eXo.env.server.portalBaseURL
-    };
-  },
+  data: () => ({
+    SMARTPHONE_LANDSCAPE_WIDTH: 768,
+    inputVal: null,
+    oembedParams: null,
+    editor: null,
+    baseUrl: eXo.env.server.portalBaseURL,
+  }),
   computed: {
     buttonId() {
       return `btn_${this.ckEditorType}`;
@@ -112,7 +123,7 @@ export default {
   watch: {
     inputVal(val) {
       if (this.editorReady) {
-        this.$emit('input', val);
+        this.$emit('input', this.getContentToSave(val));
       }
     },
     validLength: {
@@ -120,6 +131,18 @@ export default {
       handler() {
         this.$emit('validity-updated', this.validLength);
       },
+    },
+    oembedParams() {
+      if (this.templateParams) {
+        if (this.oembedParams) {
+          Object.assign(this.templateParams, this.oembedParams);
+        } else {
+          Object.keys(this.templateParams).forEach(key => {
+            this.templateParams[key] = '-';
+          });
+        }
+      }
+      this.$emit('input', this.getContentToSave(this.inputVal));
     },
     editorReady() {
       if (this.editorReady) {
@@ -138,14 +161,12 @@ export default {
       } catch (e) {
         // When CKEditor not initialized yet
       }
-      this.installOembedOriginalMessage(editorData);
-      if (val !== editorData) {
+      if (this.getContentToCompare(val) !== this.getContentToCompare(editorData)) {
         // Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
         // the suggester (which writes its settings in body attribute) doesn't
         // find its settings anymore when using '.setData' after initializing.
         // Thus, we destroy the ckEditor instance before setting new data.
         this.initCKEditorData(val || '');
-        this.installOembedOriginalMessage(val);
       }
     }
   },
@@ -167,15 +188,21 @@ export default {
   methods: {
     initCKEditor(reset, textValue) {
       const self = this;
+      this.editor = null;
       window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], function() {
         self.initCKEditorInstance(reset, textValue || self.value);
       });
     },
     initCKEditorInstance(reset, textValue) {
-      this.inputVal = this.replaceWithSuggesterClass(textValue);
-      this.editor = CKEDITOR.instances[this.ckEditorType];
+      this.inputVal = this.getContentToEdit(textValue);
+      const editor = CKEDITOR.instances[this.ckEditorType];
+      if (editor) {
+        editor.status = 'not-ready';
+      }
+      this.editor = editor;
       if (this.editor && this.editor.destroy && !this.ckEditorType.includes('editActivity')) {
         if (reset) {
+          editor.status = 'ready';
           this.editor.destroy(true);
         } else {
           this.initCKEditorData(textValue);
@@ -185,7 +212,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,suggester,widget,editorplaceholder';
+      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
@@ -193,24 +220,20 @@ export default {
 
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
-      if (windowWidth > windowHeight && windowWidth < this.SMARTPHONE_LANDSCAPE_WIDTH) {
+      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH) {
         // Disable suggester on smart-phone landscape
-        extraPlugins = 'simpleLink';
+        extraPlugins = `${extraPlugins},suggester`;
       }
-      if (this.templateParams) {
+      if (this.oembed || this.templateParams) {
         extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
       }
       if (this.tagEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
+        toolbar[0].push('tagSuggester');
       } else {
         removePlugins = `${removePlugins},tagSuggester`;
-      }
-
-      extraPlugins = `${extraPlugins},emoji,formatOption`;
-      if (this.tagEnabled) {
-        toolbar[0].push('tagSuggester');
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
@@ -270,7 +293,7 @@ export default {
             self.installOembed(embedResponse);
           },
           requestCanceled: function () {
-            self.cleanupOembed();
+            self.oembedParams = null;
           },
           change: function (evt) {
             const newData = evt.editor.getData();
@@ -291,23 +314,8 @@ export default {
         this.editor.destroy(true);
       }
     },
-    replaceWithSuggesterClass: function(message) {
-      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
-      tempdiv.find('a[href*="/profile"]')
-        .each(function() {
-          $(this).replaceWith(function() {
-            return $('<span/>', {
-              class: 'atwho-inserted',
-              html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-            }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
-              .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
-              .attr('contenteditable','false');
-          });
-        });
-      return tempdiv.html();
-    },
     initCKEditorData: function(message) {
-      this.inputVal = message && this.replaceWithSuggesterClass(message) || '';
+      this.inputVal = message && this.getContentToEdit(message) || '';
       try {
         if (this.editor) {
           this.editor.setData(this.inputVal);
@@ -333,58 +341,122 @@ export default {
         }, 200);
       }
     },
-    getMessage: function() {
-      const newData = this.editor && this.editor.getData();
-      return newData ? newData : '';
-    },
-    installOembedOriginalMessage: function(message, noClean) {
-      if (!noClean && (!message || !message.includes('<oembed'))) {
-        this.cleanupOembed();
-      } else if (message
-          && message.includes('<oembed')
-          && this.templateParams
-          && this.templateParams.link
-          && this.templateParams.default_title !== message) {
-        this.templateParams.default_title = message;
-        const codedMessage = window.encodeURIComponent(message.substring(0, message.indexOf('<oembed>')));
-        this.templateParams.comment = window.decodeURIComponent(codedMessage);
-      }
+    getMessage() {
+      return this.editor?.getData() || '';
     },
     installOembed: function(embedResponse) {
-      if (this.templateParams && embedResponse) {
-        const data = embedResponse.data && embedResponse.data.data;
-        const response = data && data.response;
-        if (response) {
-          this.templateParams.link = response.url || '-';
-          this.templateParams.image = response.type !== 'video' && response.thumbnail_url || '-';
-          this.templateParams.html = response.type === 'video' && response.html || '-';
-          this.templateParams.title = response.title || '-';
-          this.templateParams.description = response.description || '-';
-          this.templateParams.previewHeight = response.thumbnail_height || '-';
-          this.templateParams.previewWidth = response.thumbnail_width || '-';
-          window.setTimeout(() => {
-            this.installOembedOriginalMessage(this.message, !this.message || !this.message.includes('<oembed'));
-          }, 200);
-        } else {
-          this.cleanupOembed();
-        }
-      } else if (!embedResponse) {
-        this.cleanupOembed();
+      const response = embedResponse?.data?.data?.response;
+      if ((this.oembed || this.templateParams) && response) {
+        const oembedUrl = response.url;
+        this.oembedParams = {
+          link: oembedUrl || '-',
+          image: response.type !== 'video' && response.thumbnail_url || '-',
+          html: response.type === 'video' && response.html || '-',
+          title: response.title || '-',
+          description: response.description || '-',
+          previewHeight: response.thumbnail_height || '-',
+          previewWidth: response.thumbnail_width || '-',
+          default_title: this.getContentToSave(this.inputVal),
+          comment: this.getContentNoEmbed(this.inputVal),
+        };
+      } else {
+        this.oembedParams = null;
       }
     },
-    cleanupOembed: function() {
-      if (this.templateParams
-          && ((this.templateParams.image && this.templateParams.image !== '-')
-              || (this.templateParams.html && this.templateParams.html !== '-'))) {
-        this.templateParams.link = '-';
-        this.templateParams.html = '-';
-        this.templateParams.comment = '-';
-        this.templateParams.default_title = '-';
-        this.templateParams.image = '-';
-        this.templateParams.description = '-';
-        this.templateParams.title = '-';
-        this.templateParams.registeredKeysForProcessor = '-';
+    getContentToEdit(content) {
+      if (!content) {
+        return '';
       }
+      if (content.includes('<oembed>') && content.includes('</oembed>')) {
+        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
+        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+        if (this.oembed || this.templateParams) {
+          content = `${content}<oembed>${oembedUrl}</oembed>`;
+        }
+      }
+      content = content.replace(/]]&gt;/g, ']]>');
+      content = content.replace(/&lt;!\[CDATA\[/g, '<![CDATA[');
+      content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
+      return this.replaceWithSuggesterClass(content);
+    },
+    getContentToSave(content) {
+      if (!content) {
+        return '';
+      }
+      if (!this.templateParams && (this.oembedParams?.url || this.oembedParams?.link)) {
+        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+        const link = this.oembedParams?.url || this.oembedParams?.link;
+        content = `${content}<oembed>${window.encodeURIComponent(link)}</oembed>`;
+      } else if (content.includes('<oembed>') && content.includes('</oembed>')) {
+        const oembedUrl = content.match(/<oembed>(.*)<\/oembed>/i)[1];
+        content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
+      }
+      content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
+      let html = null;
+      let aspectRatio = 16 / 9;
+      if (!this.templateParams) {
+        if (this.oembedParams?.html && this.oembedParams?.html !== '-') {
+          html = this.oembedParams.html;
+        }
+        if (this.editor?.document?.getBody) {
+          const body = this.editor.document.getBody().$;
+          if (body && body.querySelector('[data-widget="embedSemantic"] div')) {
+            const element = body.querySelector('[data-widget="embedSemantic"] div');
+            if (element) {
+              if (!html) {
+                html = element.innerHTML;
+              }
+              aspectRatio = element.offsetWidth / element.offsetHeight;
+            }
+          }
+        }
+      }
+      if (html) {
+        const style = `
+          position: relative;
+          display: flex;
+          margin: auto;
+          min-height: ${parseInt(this.oembedMinWidth / aspectRatio)}px;
+          min-width: ${this.oembedMinWidth}px;
+          width: 100%;
+          max-width: ${this.oembedMaxWidth}px;
+          aspect-ratio: ${aspectRatio};
+        `;
+        html = html.replace(/<div>(.*)<\/div>/g, '$1');
+        html = `<div style="${style}">${html}</div>`;
+        content = `${content}<div><![CDATA[${window.encodeURIComponent(html)}]]></div>`;
+      }
+      return content;
+    },
+    getContentToCompare(content) {
+      return this.getContentNoEmbed(content);
+    },
+    getContentNoEmbed(content) {
+      if (!content) {
+        return '';
+      }
+      if (content.includes('<oembed>') && content.includes('</oembed>')) {
+        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
+        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+        content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
+      }
+      content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
+      return content;
+    },
+    replaceWithSuggesterClass(message) {
+      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+      tempdiv.find('a[href*="/profile"]')
+        .each(function() {
+          $(this).replaceWith(function() {
+            return $('<span/>', {
+              class: 'atwho-inserted',
+              html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+            }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
+              .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+              .attr('contenteditable','false');
+          });
+        });
+      return tempdiv.html();
     },
   }
 };
