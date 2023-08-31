@@ -289,15 +289,16 @@ export default {
       this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
       this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
       this.parents = Object.assign([], this.settings);
+      this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId);
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = true;
       this.changes= false;
       this.drawer = true;
     },
     editSetting(setting) {
-      this.setting = Object.assign({}, setting);
+      this.setting = { ...setting};
       this.parents = Object.assign([], this.settings);
-      this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId);
+      this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId) || [];
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;

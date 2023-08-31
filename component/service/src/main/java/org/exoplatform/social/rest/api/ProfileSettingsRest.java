@@ -77,7 +77,7 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
     try {
-      List<ProfilePropertySetting> properties =profilePropertyService.getPropertySettings();
+      List<ProfilePropertySetting> properties = profilePropertyService.getPropertySettings();
       List<ProfilePropertySettingEntity> propertySettingEntities = EntityBuilder.buildEntityProfilePropertySettingList(properties, profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE);
       return Response.ok(propertySettingEntities).build();
     }catch (Exception e) {

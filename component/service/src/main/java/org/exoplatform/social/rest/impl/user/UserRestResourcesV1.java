@@ -1595,7 +1595,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         return;
       }
       List<String> fields = new ArrayList<>(Arrays.stream(headerLine.split(",")).map(String::trim).toList());
-      List<String> standardFields = List.of("userName", "password", "groups", "aboutMe", "timeZone");
+      List<String> standardFields = List.of("userName", "password", "groups", "aboutMe", "timeZone", "enabled");
+      List<String> systemParentAndMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
       List<String> unauthorizedFields = new ArrayList<>();
       ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
       RequestLifeCycle.begin(PortalContainer.getInstance());
@@ -1610,10 +1611,12 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               } else if (profilePropertyService.hasChildProperties(propertySetting)) {
                 userImportResultEntity.addWarnMessage("ALL", "PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:" + field);
                 unauthorizedFields.add(field);
+              } else if(propertySetting.isMultiValued() && !systemParentAndMultivaluedFields.contains(field)) {
+                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_FIELD_MULTIVALUED:" + field);
+                unauthorizedFields.add(field);
               }
             } else {
               String[] fieldNames = field.split("\\.");
-              List<String> systemMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
               ProfilePropertySetting parentProperty = profilePropertyService.getProfileSettingByName(fieldNames[0]);
               if (fieldNames.length > 2) {
                 userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MORE_THAN_ONE_PARENT:" + field);
@@ -1621,8 +1624,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               } else if (parentProperty == null) {
                 userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MISSING_PARENT_PROPERTY:" + field);
                 unauthorizedFields.add(field);
-              } else if (parentProperty.isMultiValued() && !systemMultivaluedFields.contains(parentProperty.getPropertyName())) {
-                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_FIELD_MULTIVALUED:" + field);
+              } else if (parentProperty.isMultiValued() && !systemParentAndMultivaluedFields.contains(parentProperty.getPropertyName())) {
+                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_PARENT_FIELD:" + field);
                 unauthorizedFields.add(field);
               }
             }

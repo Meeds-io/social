@@ -63,6 +63,9 @@
     <template v-else-if="customMultivaluedFieldErrorMessage">
       {{ customMultivaluedFieldErrorMessage }}
     </template>
+    <template v-else-if="customParentErrorMessage">
+      {{ customParentErrorMessage }}
+    </template>
     <template v-else>
       {{ error }}
     </template>
@@ -117,6 +120,9 @@ export default {
     },
     customMultivaluedFieldErrorMessage() {
       return this.errorMessage && this.errorMessage.indexOf('CUSTOM_FIELD_MULTIVALUED:') > -1 && `${this.$t('UsersManagement.error.importCSV.customMultivaluedFieldErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+    },
+    customParentErrorMessage() {
+      return this.errorMessage && this.errorMessage.indexOf('CUSTOM_PARENT_FIELD:') > -1 && `${this.$t('UsersManagement.error.importCSV.customParentErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
     }
   },
 };

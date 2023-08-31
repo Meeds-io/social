@@ -1579,11 +1579,19 @@ public class EntityBuilder {
                                                                                          String objectType) {
     if (profilePropertySettingList.isEmpty())
       return new ArrayList<>();
-    return profilePropertySettingList.stream()
-            .map(setting -> buildEntityProfilePropertySetting(setting,
-                    profilePropertyService,
-                    objectType))
-            .toList();
+    List<ProfilePropertySettingEntity> profilePropertySettingsList = new ArrayList<>();
+     for(ProfilePropertySetting propertySetting : profilePropertySettingList) {
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,
+               profilePropertyService,
+               objectType);
+        profilePropertySettingsList.add(profilePropertySettingEntity);
+     }
+     for(int i = 0; i < profilePropertySettingsList.size(); i++) {
+       ProfilePropertySettingEntity entity = profilePropertySettingsList.get(i);
+       entity.setChildren(profilePropertySettingsList.stream().filter(element -> element.getParentId() != null && element.getParentId().equals(entity.getId())).toList());
+       profilePropertySettingsList.set(i, entity);
+     }
+     return profilePropertySettingsList;
   }
 
   /**
