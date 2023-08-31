@@ -116,6 +116,14 @@ export default {
       type: Boolean,
       default: false
     },
+    oembedMaxWidth: {
+      type: Number,
+      default: () => 300,
+    },
+    oembedMaxHeight: {
+      type: Number,
+      default: () => 320,
+    },
   },
   data: () => ({
     SMARTPHONE_LANDSCAPE_WIDTH: 768,
@@ -433,6 +441,8 @@ export default {
           content = `${content}<oembed>${oembedUrl}</oembed>`;
         }
       }
+      content = content.replace(/]]&gt;/g, ']]>');
+      content = content.replace(/&lt;!\[CDATA\[/g, '<![CDATA[');
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
       return this.replaceWithSuggesterClass(content);
     },
@@ -457,7 +467,9 @@ export default {
           if (body && body.querySelector('[data-widget="embedSemantic"] div')) {
             const element = body.querySelector('[data-widget="embedSemantic"] div');
             if (element) {
-              const html = `<div style="position: relative; display: flex; margin: auto; height: ${element.offsetHeight}px; width: ${element.offsetWidth}px;">${element.innerHTML}</div>`;
+              const height = Math.min(element.offsetHeight, this.oembedMaxHeight);
+              const width = Math.min(element.offsetWidth, this.oembedMaxWidth);
+              const html = `<div style="position: relative; display: flex; margin: auto; height: ${height}px; width: ${width}px;">${element.innerHTML}</div>`;
               content = `${content}<div><![CDATA[${window.encodeURIComponent(html)}]]></div>`;
             }
           }
