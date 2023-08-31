@@ -459,20 +459,39 @@ export default {
         content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
       }
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
+      let html = null;
+      let aspectRatio = 16 / 9;
       if (!this.templateParams) {
         if (this.oembedParams?.html && this.oembedParams?.html !== '-') {
-          content = `${content}<div><![CDATA[${window.encodeURIComponent(this.oembedParams.html)}]]></div>`;
-        } else if (this.editor?.document?.getBody) {
+          html = this.oembedParams.html;
+        }
+        if (this.editor?.document?.getBody) {
           const body = this.editor.document.getBody().$;
           if (body && body.querySelector('[data-widget="embedSemantic"] div')) {
             const element = body.querySelector('[data-widget="embedSemantic"] div');
             if (element) {
-              const width = Math.min(element.offsetWidth, this.oembedMinWidth);
-              const html = `<div style="position: relative; display: flex; margin: auto; min-width: ${width}px; width: 100%; max-width: ${this.oembedMaxWidth}px;">${element.innerHTML}</div>`;
-              content = `${content}<div><![CDATA[${window.encodeURIComponent(html)}]]></div>`;
+              if (!html) {
+                html = element.innerHTML;
+              }
+              aspectRatio = element.offsetWidth / element.offsetHeight;
             }
           }
         }
+      }
+      if (html) {
+        const style = `
+          position: relative;
+          display: flex;
+          margin: auto;
+          min-height: ${parseInt(this.oembedMinWidth / aspectRatio)}px;
+          min-width: ${this.oembedMinWidth}px;
+          width: 100%;
+          max-width: ${this.oembedMaxWidth}px;
+          aspect-ratio: ${aspectRatio};
+        `;
+        html = html.replace(/<div>(.*)<\/div>/g, '$1');
+        html = `<div style="${style}">${html}</div>`;
+        content = `${content}<div><![CDATA[${window.encodeURIComponent(html)}]]></div>`;
       }
       return content;
     },
