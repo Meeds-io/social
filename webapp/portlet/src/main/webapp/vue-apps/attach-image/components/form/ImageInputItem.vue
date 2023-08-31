@@ -64,7 +64,7 @@
         class="ml-0" 
         fab 
         x-small
-        @click="deleteFile">
+        @click.prevent.stop="deleteFile">
         <v-icon class="error-color" small>fa-trash</v-icon>
       </v-btn>
     </v-card-actions>
