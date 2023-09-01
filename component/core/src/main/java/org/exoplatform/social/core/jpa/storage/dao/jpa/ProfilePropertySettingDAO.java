@@ -55,4 +55,12 @@ public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfileProperty
                                                                                        ProfilePropertySettingEntity.class);
     return query.getResultList();
   }
+
+  public List<ProfilePropertySettingEntity> findChildProperties(Long parentId) {
+    TypedQuery<ProfilePropertySettingEntity> query =
+            getEntityManager().createNamedQuery("SocProfileSettingEntity.findChildProperties",
+                    ProfilePropertySettingEntity.class)
+                    .setParameter("parentId", parentId);
+    return query.getResultList();
+  }
 }

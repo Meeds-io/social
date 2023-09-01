@@ -1,0 +1,2 @@
+userName,firstName,lastName,email,password,groups,aboutMe,timeZone,company,position,phones,phones.work,custom-single-property,custom-multi-property.first-property,urls,ims.facebook, phones.home
+jack.nipper,Jack,Nipper,jack.nipper0@nasa.gov,Pass@123456,*:/platform/users;member:/spaces/spaceone,aboutMe1,timeZone1,company1,position1,phones-value,777777,test,first property value, https://www.exoplatform.com,myfacebook,888888

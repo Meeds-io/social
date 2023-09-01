@@ -49,6 +49,14 @@ public interface ProfilePropertyService {
    *
    * @return {@link ProfilePropertySetting} if exist or null if not
    */
+  ProfilePropertySetting getProfileSettingById(Long id);
+
+  /**
+   * Retrieves the ProfileProperty item with given {@link ProfilePropertySetting}
+   * propertyName
+   *
+   * @return {@link ProfilePropertySetting} if exist or null if not
+   */
   ProfilePropertySetting getProfileSettingByName(String name);
 
   /**
@@ -89,4 +97,11 @@ public interface ProfilePropertyService {
   List<String> getPropertySettingNames();
 
   void addProfilePropertyPlugin(ComponentPlugin profilePropertyInitPlugin);
+
+  /**
+   * Checks if the current property has child properties
+   * @param propertySetting
+   * @return Boolean : true if the current property has child properties
+   */
+  boolean hasChildProperties(ProfilePropertySetting propertySetting);
 }
