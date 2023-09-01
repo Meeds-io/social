@@ -67,8 +67,7 @@ export default {
   },
   data: () => ({
     categories: null,
-    initialized: false,
-    newSiteManagementEnabled: false
+    initialized: false
   }),
   computed: {
     sortedEmbeddedNavigationTree() {
@@ -84,8 +83,7 @@ export default {
       const navigationTree = [];
       const navigationParentObjects = {};
 
-      let navigationsList = JSON.parse(JSON.stringify(this.navigations
-        .filter(nav => this.newSiteManagementEnabled || nav.name !== 'siteManagement')));
+      let navigationsList = JSON.parse(JSON.stringify(this.navigations));
       navigationsList = this.filterDisplayedNavigations(navigationsList);
       this.computeLink(navigationsList);
 
@@ -129,8 +127,6 @@ export default {
     },
   },
   created() {
-    this.$featureService.isFeatureEnabled('newSiteManagement')
-      .then(enabled => this.newSiteManagementEnabled = enabled);
     this.retrieveAdministrationCategories();
   },
   methods: {
