@@ -312,7 +312,7 @@ export default {
     },
     retrieveSites(){
       if (eXo.env.portal.newLeftNavigationDrawer) {
-        return this.$sitesService.retrieveSites('PORTAL', true, false, 'global', true, true)
+        return this.$siteService.getSites('PORTAL', true, false, 'global', true, true)
           .then(data => this.sites = data || []);
       }
     },

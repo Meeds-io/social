@@ -50,8 +50,8 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.user.HttpUserPortalContext;
 import org.exoplatform.portal.mop.user.UserNavigation;
 import org.exoplatform.portal.mop.user.UserNode;
-import org.exoplatform.portal.mop.user.UserPortal;
 import org.exoplatform.portal.mop.user.UserNodeFilterConfig;
+import org.exoplatform.portal.mop.user.UserPortal;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
@@ -86,7 +86,6 @@ import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.ws.frameworks.json.impl.*;
-
 import static org.exoplatform.portal.mop.rest.EntityBuilder.toUserNodeRestEntity;
 
 public class EntityBuilder {
@@ -96,8 +95,6 @@ public class EntityBuilder {
   private static final String             GROUP_BINDING_DATE_FORMAT                  = "dd/MM/yyyy HH:mm:ss";
 
   private static final Log                LOG                                        = ExoLogger.getLogger(EntityBuilder.class);
-
-  public static final String             GROUP = "group";
 
   /** Group Space Binding */
   public static final String              GROUP_SPACE_BINDING_REPORT_OPERATIONS_TYPE = "groupSpaceBindingReportOperations";
@@ -166,6 +163,14 @@ public class EntityBuilder {
   public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
 
   private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
+  
+  public static final String GROUP = "group";
+  
+  private static UserPortalConfigService  userPortalConfigService;
+
+  private static LayoutService            layoutService;
+
+  private static UserACL                  userACL;
 
   static {
     NO_CACHE_CC.setNoCache(true);
@@ -181,13 +186,6 @@ public class EntityBuilder {
   private static IdentityManager     identityManager;
 
   private static ActivityManager     activityManager;
-
-  private static UserPortalConfigService userPortalConfigService;
-
-  private static LayoutService           layoutService;
-
-  private static UserACL                 userACL;
-
 
   private EntityBuilder() {
     // Static class for utilities, thus a private constructor is declared
@@ -1710,6 +1708,10 @@ public class EntityBuilder {
     }
     return relationshipManager;
   }
+  
+  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites, HttpServletRequest request, SiteFilter siteFilter) {
+    return sites.stream().map(site -> buildSiteEntity(site, request, siteFilter)).filter(Objects::nonNull).toList();
+  }
 
   private static SiteEntity buildSiteEntity(PortalConfig site, HttpServletRequest request, SiteFilter siteFilter) {
     if (site == null) {
@@ -1749,27 +1751,21 @@ public class EntityBuilder {
       }
     }
     return new SiteEntity(siteType,
-                              site.getName(),
-                              !StringUtils.isBlank(displayName) ? displayName : site.getName(),
-                              site.getDescription(),
-                              accessPermissions,
-                              editPermission,
-                              isDefaultSite(site.getName()) || site.isDisplayed(),
-                              site.getDisplayOrder(),
-                              isDefaultSite(site.getName()),
-                              rootNode == null ? null
-                                               : toUserNodeRestEntity(rootNode.getChildren(),
-                                                                      true,
-                                                                      getOrganizationService(),
-                                                                      getLayoutService(),
-                                                                      getUserACL()));
+                          site.getName(),
+                          !StringUtils.isBlank(displayName) ? displayName : site.getName(),
+                          site.getDescription(),
+                          accessPermissions,
+                          editPermission,
+                          site.isDisplayed(),
+                          site.getDisplayOrder(),
+                          isMetaSite(site.getName()),
+                          rootNode == null ? null
+                                           : toUserNodeRestEntity(rootNode.getChildren(),
+                                                                  true,
+                                                                  getOrganizationService(),
+                                                                  getLayoutService(),
+                                                                  getUserACL()));
 
-  }
-
-  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites,
-                                                   HttpServletRequest request,
-                                                   SiteFilter siteFilter) {
-    return sites.stream().map(site -> buildSiteEntity(site, request, siteFilter)).filter(Objects::nonNull).toList();
   }
 
   private static List<Map<String, Object>> computePermissions(String[] permissions) {
@@ -1809,7 +1805,7 @@ public class EntityBuilder {
     return layoutService;
   }
 
-  private static boolean isDefaultSite(String siteName) {
+  private static boolean isMetaSite(String siteName) {
     return getUserPortalConfigService().getDefaultPortal().equals(siteName);
   }
 }

@@ -18,10 +18,23 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
-
 <template>
-  <site-hamburger-list :sites="sites" />
+  <v-list
+    dense
+    min-width="90%"
+    class="pb-0">
+    <v-list-item
+      v-for="site in sites"
+      :key="site.name"
+      link>
+      <meta-site-hamburger-navigation v-if="site.metaSite" :navigations="site.siteNavigations" />
+      <site-hamburger-item
+        v-else
+        :site="site" />
+    </v-list-item>
+  </v-list>
 </template>
+
 <script>
 export default {
   props: {

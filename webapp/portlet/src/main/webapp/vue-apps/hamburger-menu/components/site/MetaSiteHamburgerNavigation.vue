@@ -19,26 +19,21 @@
 
 -->
 <template>
-  <v-list
-    dense
-    min-width="90%"
-    class="pb-0">
+  <v-main class="ps-0">
     <v-list-item
-      v-for="site in sites"
-      :key="site.name"
-      link>
-      <site-hamburger-item
-        v-if="!site.defaultSite"
-        :site="site" />
-      <site-hamburger-navigation-list v-else :navigations="site.siteNavigations" />
+      v-for="navigation in navigations"
+      :key="navigation.name"
+      dense
+      class="pb-0 ps-0">
+      <meta-site-hamburger-navigation-item
+        :navigation="navigation" />
     </v-list-item>
-  </v-list>
+  </v-main>
 </template>
-
 <script>
 export default {
   props: {
-    sites: {
+    navigations: {
       type: Array,
       default: () => []
     }

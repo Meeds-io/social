@@ -90,7 +90,7 @@
     <type>org.exoplatform.social.rest.impl.tag.TagRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.site.SiteRestService</type>
+    <type>org.exoplatform.social.rest.impl.site.SiteRest</type>
   </component>
   <component>
     <type>io.meeds.social.translation.rest.TranslationRest</type>

@@ -16,14 +16,15 @@
  */
 package org.exoplatform.social.rest.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.List;
+import java.util.Map;
+
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.rest.model.UserNodeRestEntity;
 
-import java.util.List;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -46,7 +47,7 @@ public class SiteEntity {
 
   private int                       displayOrder;
 
-  private boolean                   isDefaultSite;
+  private boolean                   metaSite;
 
   List<UserNodeRestEntity>          siteNavigations;
 }

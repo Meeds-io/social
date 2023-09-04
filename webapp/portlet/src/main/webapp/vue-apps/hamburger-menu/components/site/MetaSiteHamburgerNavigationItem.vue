@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     uri() {
-      return  this.navigation?.pageLink && this.urlVerify(this.navigation.pageLink) || `/portal/${this.navigation.siteKey.name}/${this.navigation.uri}`;
+      return this.navigation?.pageLink && this.urlVerify(this.navigation.pageLink) || `/portal/${this.navigation.siteKey.name}/${this.navigation.uri}`;
     },
     target() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
