@@ -249,7 +249,7 @@
     <css-priority>2</css-priority>
   </portlet-skin>
 
-  <!-- TODO <Start> Deprecated WebUI & Juzu Portlets skins to move -->
+  <!-- TODO <Start> Deprecated WebUI Portlets skins to move -->
   <portlet-skin>
     <application-name>social-portlet</application-name>
     <portlet-name>IntranetNotificationsPortlet</portlet-name>
@@ -265,15 +265,7 @@
     <css-path>/skin/css/portlet/TopBarNotification/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
-
-  <portlet-skin>
-    <application-name>commons-extension</application-name>
-    <portlet-name>NotificationsAdminJuzuPortlet</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/uiNotificationsAdmin/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-  <!-- TODO <End> Deprecated WebUI & Juzu Portlets skins to move -->
+  <!-- TODO <End> Deprecated WebUI Portlets skins to move -->
 
   <!-- ATTENTION ! <Start> DO NOT DELETE -->
   <portlet-skin>
@@ -1037,6 +1029,31 @@
       <depends>
         <module>jquery</module>
         <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>NotificationAdministration</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/notificationAdministration.bundle.js</path>
+      </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
       </depends>
       <depends>
         <module>extensionRegistry</module>
