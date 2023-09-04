@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -37,10 +38,16 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfig;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.navigation.Scope;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.user.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
@@ -76,6 +83,8 @@ import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.ws.frameworks.json.impl.*;
 
+import static org.exoplatform.portal.mop.rest.EntityBuilder.toUserNodeRestEntity;
+
 public class EntityBuilder {
 
   private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
@@ -83,6 +92,8 @@ public class EntityBuilder {
   private static final String             GROUP_BINDING_DATE_FORMAT                  = "dd/MM/yyyy HH:mm:ss";
 
   private static final Log                LOG                                        = ExoLogger.getLogger(EntityBuilder.class);
+
+  public static final String             GROUP = "group";
 
   /** Group Space Binding */
   public static final String              GROUP_SPACE_BINDING_REPORT_OPERATIONS_TYPE = "groupSpaceBindingReportOperations";
@@ -166,6 +177,13 @@ public class EntityBuilder {
   private static IdentityManager     identityManager;
 
   private static ActivityManager     activityManager;
+
+  private static UserPortalConfigService userPortalConfigService;
+
+  private static LayoutService           layoutService;
+
+  private static UserACL                 userACL;
+
 
   private EntityBuilder() {
     // Static class for utilities, thus a private constructor is declared
@@ -1687,5 +1705,93 @@ public class EntityBuilder {
       relationshipManager = CommonsUtils.getService(RelationshipManager.class);
     }
     return relationshipManager;
+  }
+
+  public static SiteRestEntity toSiteRestEntity(PortalConfig site, HttpServletRequest request, SiteFilter siteFilter) {
+    if (site == null) {
+      return null;
+    }
+    SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
+    String displayName = site.getLabel();
+    org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
+    if (SiteType.GROUP.equals(siteType)) {
+      try {
+        Group siteGroup = getOrganizationService().getGroupHandler().findGroupById(site.getName());
+        if (siteGroup == null || !userIdentity.isMemberOf(siteGroup.getId())) {
+          return null;
+        } else if (org.apache.commons.lang3.StringUtils.isBlank(displayName)) {
+          displayName = siteGroup.getLabel();
+        }
+      } catch (Exception e) {
+        LOG.error("Error while retrieving group with name ", site.getName(), e);
+      }
+    }
+    List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
+    Map<String, Object> editPermission = computePermission(site.getEditPermission());
+
+    UserNode rootNode = null;
+    if (siteFilter.isExpandNavigations()) {
+      String currentUser = userIdentity.getUserId();
+      try {
+        HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
+        UserPortalConfig userPortalCfg = getUserPortalConfigService().getUserPortalConfig(site.getName(), currentUser, userPortalContext);
+        UserPortal userPortal = userPortalCfg.getUserPortal();
+        UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
+        rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().build(), null);
+      } catch (Exception e) {
+        LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
+      }
+    }
+    return new SiteRestEntity(siteType,
+            site.getName(),
+            !org.apache.commons.lang.StringUtils.isBlank(displayName) ? displayName : site.getName(),
+            site.getDescription(),
+            accessPermissions,
+            editPermission,
+            isDefaultSite(site.getName()) || site.isDisplayed(),
+            site.getDisplayOrder(),
+            isDefaultSite(site.getName()),
+            rootNode == null ? null : toUserNodeRestEntity(rootNode.getChildren(), true, getOrganizationService(), getLayoutService(), getUserACL()));
+
+  }
+  public static List<SiteRestEntity> toSiteRestEntities(List<PortalConfig> sites,
+                                                        HttpServletRequest request,
+                                                        SiteFilter siteFilter) {
+    return sites.stream().map(site -> toSiteRestEntity(site, request, siteFilter)).filter(Objects::nonNull).toList();
+  }
+  private static List<Map<String, Object>> computePermissions(String[] permissions) {
+    return Arrays.stream(permissions).map(EntityBuilder::computePermission).toList();
+  }
+  private static Map<String, Object> computePermission(String permission) {
+    Map<String, Object> accessPermission = new HashMap<>();
+    try {
+      accessPermission.put("membershipType", permission.split(":")[0]);
+      accessPermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(permission.split(":")[1]));
+    } catch (Exception e) {
+      LOG.error("Error while computing user permission ", permission, e);
+    }
+    return accessPermission;
+  }
+  private static UserPortalConfigService getUserPortalConfigService() {
+    if (userPortalConfigService == null) {
+      userPortalConfigService =
+              ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(UserPortalConfigService.class);
+    }
+    return userPortalConfigService;
+  }
+  private static UserACL getUserACL() {
+    if (userACL == null) {
+      userACL = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(UserACL.class);
+    }
+    return userACL;
+  }
+  private static LayoutService getLayoutService() {
+    if (layoutService == null) {
+      layoutService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(LayoutService.class);
+    }
+    return layoutService;
+  }
+  private static boolean isDefaultSite(String siteName) {
+    return getUserPortalConfigService().getDefaultPortal().equals(siteName);
   }
 }

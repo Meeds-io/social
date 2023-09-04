@@ -33,7 +33,7 @@ export function retrieveSites(siteType, displayed, allSites, excludedSiteName, e
   formData.append('expandNavigations', expandNavigations);
   const params = new URLSearchParams(formData).toString();
 
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/sitesManagement?${params}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites?${params}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
