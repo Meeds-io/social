@@ -1,0 +1,42 @@
+<template>
+  <v-app>
+    <v-main v-if="notificationSettings">
+      <v-card class="pa-5" flat>
+        <h4 class="font-weight-bold">
+          {{ $t('NotificationAdmin.title') }}
+        </h4>
+        <notification-administration-contact
+          :settings="notificationSettings" />
+        <notification-administration-channels
+          :settings="notificationSettings" />
+        <notification-administration-plugins
+          :settings="notificationSettings" />
+      </v-card>
+    </v-main>
+  </v-app>
+</template>
+
+<script>
+export default {
+  data: () => ({
+    notificationSettings: null,
+  }),
+  created() {
+    this.$root.$on('refresh', this.refresh);
+    this.refresh();
+  },
+  methods: {
+    refresh() {
+      return this.$notificationAdministration.getSettings()
+        .then(settings => {
+          this.notificationSettings = settings;
+          return this.$nextTick();
+        })
+        .finally(() => {
+          this.$nextTick().then(() => this.$root.$applicationLoaded());
+        });
+    },
+  },
+};
+</script>
+
