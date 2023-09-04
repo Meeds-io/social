@@ -71,6 +71,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -942,7 +943,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
 
     try {
-      saveProfile(username, profileEntity);
+      Map<String, Object> userProfileProperties = extractPropertiesFromEntities(profileEntity);
+      saveProfile(username, userProfileProperties);
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attributes", currentUser);
       return Response.status(Status.UNAUTHORIZED).build();
@@ -952,6 +954,60 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     }
     return Response.noContent().build();
   }
+
+  private Map<String, Object> extractPropertiesFromEntities(ProfileEntity profileEntity) {
+    Map<String, Object> userProfileProperties = new HashMap<>();
+    for(String key: profileEntity.getDataEntity().keySet()) {
+      if(profileEntity.getDataEntity().get(key) instanceof List<?>) {
+        List<Map<String, String>> properties = new ArrayList<>();
+        if(key.equalsIgnoreCase(Profile.CONTACT_IMS)) {
+          List<IMEntity> imsEntities = (List<IMEntity>) profileEntity.getDataEntity().get(key);
+          for(IMEntity im : imsEntities){
+            Map<String, String> imMap = new HashMap<>();
+            imMap.put(im.getImType(), im.getImId());
+            properties.add(imMap);
+          }
+        } else if(key.equalsIgnoreCase(Profile.CONTACT_PHONES)) {
+          List<PhoneEntity> phoneEntities = (List<PhoneEntity>) profileEntity.getDataEntity().get(key);
+          for(PhoneEntity phoneEntity : phoneEntities){
+            Map<String, String> phoneMap = new HashMap<>();
+            phoneMap.put(phoneEntity.getPhoneType(), phoneEntity.getPhoneNumber());
+            properties.add(phoneMap);
+          }
+
+        } else if(key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
+          List<URLEntity> urlEntities = (List<URLEntity>) profileEntity.getDataEntity().get(key);
+          for(URLEntity url : urlEntities){
+            Map<String, String> urlMap = new HashMap<>();
+            urlMap.put(url.getUrl(), url.getUrl());
+            properties.add(urlMap);
+          }
+        } else if(key.equalsIgnoreCase(Profile.EXPERIENCES)) {
+          @SuppressWarnings("unchecked")
+          List<ExperienceEntity> experienceEntities = (List<ExperienceEntity>) profileEntity.getDataEntity().get(key);
+          for(ExperienceEntity experienceEntity : experienceEntities) {
+            Map<String, String> experienceMap = new HashMap<>();
+            if(StringUtils.isNotBlank(experienceEntity.getId())) {
+              experienceMap.put(Profile.EXPERIENCES_ID, experienceEntity.getId());
+            }
+            experienceMap.put(Profile.EXPERIENCES_COMPANY, experienceEntity.getCompany());
+            experienceMap.put(Profile.EXPERIENCES_DESCRIPTION, experienceEntity.getDescription());
+            experienceMap.put(Profile.EXPERIENCES_SKILLS, experienceEntity.getSkills());
+            experienceMap.put(Profile.EXPERIENCES_START_DATE, experienceEntity.getStartDate());
+            experienceMap.put(Profile.EXPERIENCES_END_DATE, experienceEntity.getEndDate());
+            experienceMap.put(Profile.EXPERIENCES_POSITION, experienceEntity.getPosition());
+            experienceMap.put(Profile.EXPERIENCES_IS_CURRENT, String.valueOf(experienceEntity.getIsCurrent()));
+            properties.add(experienceMap);
+          }
+        }
+        userProfileProperties.put(key, properties);
+      } else {
+        userProfileProperties.put(key, profileEntity.getDataEntity().get(key));
+      }
+    }
+    return userProfileProperties;
+  }
+
   @PATCH
   @Path("{id}/profile/properties")
   @Operation(summary = "Update set of properties in user profile", method = "PATCH", description = "This can only be done by the logged in user.")
@@ -1012,43 +1068,18 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
             profile = getUserIdentity(username).getProfile();
           }
         } else {
-          switch (profileProperty.getPropertyName()) {
-            case Profile.CONTACT_PHONES:
-              List<PhoneEntity> phoneEntities = new ArrayList<>();
-              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
-                phoneEntities.add(new PhoneEntity(child.getPropertyName(), child.getValue()));
-                updateProfileField(profile, profileProperty.getPropertyName(), phoneEntities, true);
-              }
-              break;
-            case Profile.CONTACT_IMS:
-              List<IMEntity> imEntities = new ArrayList<>();
-              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
-                imEntities.add(new IMEntity(child.getPropertyName(), child.getValue()));
-                updateProfileField(profile, profileProperty.getPropertyName(), imEntities, true);
-              }
-              break;
-            case Profile.CONTACT_URLS:
-              List<URLEntity> urlEntities = new ArrayList<>();
-              for (ProfilePropertySettingEntity child : profileProperty.getChildren()) {
-                urlEntities.add(new URLEntity(child.getValue()));
-                updateProfileField(profile, profileProperty.getPropertyName(), urlEntities, true);
-              }
-              break;
-            default:
-              List<Map<String, String>> maps = new ArrayList<>();
-              profileProperty.getChildren().stream().forEach(profilePropertySettingEntity -> {
-                if (profilePropertySettingEntity.getValue() != null && !profilePropertySettingEntity.getValue().isBlank()
-                && (profilePropertySettingEntity.getPropertyName() != null && !profilePropertySettingEntity.getPropertyName().isBlank()
-                || profileProperty.isMultiValued())) {
-                  Map<String, String> childrenMap = new HashMap<>();
-                  childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
-                  childrenMap.put("value", profilePropertySettingEntity.getValue());
-                  maps.add(childrenMap);
-                }
-                return;
-              });
-              updateProfileField(profile, profileProperty.getPropertyName(), maps, true);
-          }
+          List<Map<String, String>> maps = new ArrayList<>();
+          profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
+            if (profilePropertySettingEntity.getValue() != null && !profilePropertySettingEntity.getValue().isBlank()
+            && (profilePropertySettingEntity.getPropertyName() != null && !profilePropertySettingEntity.getPropertyName().isBlank()
+            || profileProperty.isMultiValued())) {
+              Map<String, String> childrenMap = new HashMap<>();
+              childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
+              childrenMap.put("value", profilePropertySettingEntity.getValue());
+              maps.add(childrenMap);
+            }
+          });
+          updateProfileField(profile, profileProperty.getPropertyName(), maps, true);
         }
       } catch (IllegalAccessException e) {
         LOG.error("User {} is not allowed to update attributes", currentUser);
@@ -1546,7 +1577,46 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       if (StringUtils.isBlank(headerLine)) {
         return;
       }
-      List<String> fields = Arrays.asList(headerLine.split(","));
+      List<String> fields = new ArrayList<>(Arrays.stream(headerLine.split(",")).map(String::trim).toList());
+      List<String> standardFields = List.of("userName", "password", "groups", "aboutMe", "timeZone", "enabled");
+      List<String> systemParentAndMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
+      List<String> unauthorizedFields = new ArrayList<>();
+      ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
+      RequestLifeCycle.begin(PortalContainer.getInstance());
+      try {
+        for (String field : fields) {
+          if(!standardFields.contains(field)) {
+            if (!field.contains(".")) {
+              ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(field);
+              if (propertySetting == null) {
+                userImportResultEntity.addWarnMessage("ALL", "PROFILE_PROPERTY_DOES_NOT_EXIST:" + field);
+                unauthorizedFields.add(field);
+              } else if (profilePropertyService.hasChildProperties(propertySetting)) {
+                userImportResultEntity.addWarnMessage("ALL", "PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:" + field);
+                unauthorizedFields.add(field);
+              } else if(propertySetting.isMultiValued() && !systemParentAndMultivaluedFields.contains(field)) {
+                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_FIELD_MULTIVALUED:" + field);
+                unauthorizedFields.add(field);
+              }
+            } else {
+              String[] fieldNames = field.split("\\.");
+              ProfilePropertySetting parentProperty = profilePropertyService.getProfileSettingByName(fieldNames[0]);
+              if (fieldNames.length > 2) {
+                userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MORE_THAN_ONE_PARENT:" + field);
+                unauthorizedFields.add(field);
+              } else if (parentProperty == null) {
+                userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MISSING_PARENT_PROPERTY:" + field);
+                unauthorizedFields.add(field);
+              } else if (parentProperty.isMultiValued() && !systemParentAndMultivaluedFields.contains(parentProperty.getPropertyName())) {
+                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_PARENT_FIELD:" + field);
+                unauthorizedFields.add(field);
+              }
+            }
+          }
+        }
+      } finally {
+        RequestLifeCycle.end();
+      }
 
       String userCSVLine = reader.readLine();
       while (userCSVLine != null) {
@@ -1560,7 +1630,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
             continue;
           }
 
-          userName = importUser(userImportResultEntity, locale, url, fields, userCSVLine);
+          userName = importUser(userImportResultEntity, locale, url, fields, unauthorizedFields, userCSVLine);
         } catch (Throwable e) {
           if (StringUtils.isNotBlank(userName)) {
             userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
@@ -1579,6 +1649,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                             Locale locale,
                             StringBuilder url,
                             List<String> fields,
+                            List<String> fieldsToRemove,
                             String userCSVLine) throws Exception {
     List<String> userProperties = Arrays.asList(userCSVLine.split(","));
     JSONObject userObject = new JSONObject();
@@ -1593,7 +1664,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT:MISSING_USERNAME");
       return userName;
     }
-    if (userProperties.size() != fields.size()) {
+    if (userProperties.size() < fields.size()) {
       userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT");
       return userName;
     }
@@ -1619,7 +1690,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       // skipping password overwrite from csvLine
       user.setPassword(null);
       if (userStatus) {
-        organizationService.getUserHandler().setEnabled(userName, Boolean.valueOf(userObject.getString("enabled")), true);
+        organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
+        user.setEnabled(true);
       }
       organizationService.getUserHandler().saveUser(user, true);
       onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
@@ -1640,7 +1712,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (!userObject.isNull("groups")) {
       String groups = userObject.getString("groups");
       if (StringUtils.isNotBlank(groups)) {
-        List<String> groupsList = Arrays.asList(groups.split(";"));
+        String[] groupsList = groups.split(";");
         for (String groupMembershipExpression : groupsList) {
           String membershipType =
                   groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
@@ -1687,10 +1759,51 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     userObject.remove("groups");
     userObject.remove("enabled");
 
-    ProfileEntity profileEntity = EntityBuilder.fromJsonString(userObject.toString(), ProfileEntity.class);
+    // Delete properties to ignore
+    fieldsToRemove.forEach(userObject::remove);
+
+    Map<String, Object> userProfileProperties = new HashMap<>();
+    Iterator<String> properties = userObject.keys();
+    while(properties.hasNext()) {
+      String propertyName = properties.next();
+      String propertyValue = userObject.getString(propertyName);
+      ProfilePropertySetting propertySetting;
+      ProfilePropertySetting parentPropertySetting = null;
+      if(propertyName.contains(".")) {
+        String[] propertyNames = propertyName.split("\\.");
+        String childProperty = propertyNames[1];
+
+        propertySetting =
+                profilePropertyService.getProfileSettingByName(propertyName) != null ? profilePropertyService.getProfileSettingByName(propertyName)
+                        : profilePropertyService.getProfileSettingByName(childProperty);
+      } else {
+        propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
+      }
+      if (propertySetting != null && propertySetting.getParentId() != null) {
+        parentPropertySetting = profilePropertyService.getProfileSettingById(propertySetting.getParentId());
+      }
+      Map<String, String> childPropertyMap = new HashMap<>();
+      childPropertyMap.put("value", propertyValue);
+      if (propertySetting != null && propertySetting.isMultiValued()) {
+        userProfileProperties.computeIfAbsent(propertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
+        @SuppressWarnings("unchecked")
+        ArrayList<Map<String, String>> values = (ArrayList<Map<String, String>>) userProfileProperties.get(propertySetting.getPropertyName());
+        values.add(childPropertyMap);
+        userProfileProperties.put(propertySetting.getPropertyName(), values);
+      } else if (parentPropertySetting != null){
+        childPropertyMap.put("key", propertySetting.getPropertyName());
+        userProfileProperties.computeIfAbsent(parentPropertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
+        @SuppressWarnings("unchecked")
+        ArrayList<Map<String, String>> values = (ArrayList<Map<String, String>>) userProfileProperties.get(parentPropertySetting.getPropertyName());
+        values.add(childPropertyMap);
+        userProfileProperties.put(parentPropertySetting.getPropertyName(), values);
+      } else {
+        userProfileProperties.put(propertyName, propertyValue);
+      }
+    }
     String warnMessage = null;
     try {
-      saveProfile(userName, profileEntity);
+      saveProfile(userName, userProfileProperties);
     } catch (IdentityStorageException e) {
       warnMessage = e.getMessageKey();
     } catch (Exception e) {
@@ -1722,11 +1835,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return usersLength > 1 || (usersLength == 1 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username));
   }
 
-  private void saveProfile(String username, ProfileEntity profileEntity) throws Exception {
+  private void saveProfile(String username, Map<String, Object> profileProperties) throws Exception {
     Identity userIdentity = getUserIdentity(username);
     Profile profile = userIdentity.getProfile();
 
-    Set<Entry<String, Object>> profileEntries = profileEntity.getDataEntity().entrySet();
+    Set<Entry<String, Object>> profileEntries = profileProperties.entrySet();
     for (Entry<String, Object> entry : profileEntries) {
       String name = entry.getKey();
       Object value = entry.getValue();
@@ -1856,100 +1969,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         }
       } finally {
         uploadService.removeUploadResource(value.toString());
-      }
-    } else if (Profile.CONTACT_IMS.equals(name)) {
-      @SuppressWarnings("unchecked")
-      List<IMEntity> imEntities = (List<IMEntity>) value;
-      if (imEntities == null || imEntities.isEmpty()) {
-        profile.setProperty(Profile.CONTACT_IMS, Collections.emptyList());
-      } else {
-        List<Map<String, String>> imMaps = new ArrayList<>();
-        for (IMEntity imEntity : imEntities) {
-          String imType = imEntity.getImType();
-          String imId = imEntity.getImId();
-          if (StringUtils.isBlank(imId) || StringUtils.isBlank(imType)) {
-            continue;
-          }
-          Map<String, String> imMap = new HashMap<>();
-          imMap.put("key", imType);
-          imMap.put("value", imId);
-          imMaps.add(imMap);
-        }
-        profile.setProperty(Profile.CONTACT_IMS, imMaps);
-      }
-
-      if (save) {
-        identityManager.updateProfile(profile, true);
-      }
-    } else if (Profile.CONTACT_PHONES.equals(name)) {
-      @SuppressWarnings("unchecked")
-      List<PhoneEntity> phoneEntities = (List<PhoneEntity>) value;
-      if (phoneEntities == null || phoneEntities.isEmpty()) {
-        profile.setProperty(Profile.CONTACT_PHONES, Collections.emptyList());
-      } else {
-        List<Map<String, String>> phoneMaps = new ArrayList<>();
-        for (PhoneEntity phoneEntity : phoneEntities) {
-          String phoneType = phoneEntity.getPhoneType();
-          String phoneNumber = phoneEntity.getPhoneNumber();
-          if (StringUtils.isBlank(phoneType) || StringUtils.isBlank(phoneNumber)) {
-            continue;
-          }
-          Map<String, String> phoneMap = new HashMap<>();
-          phoneMap.put("key", phoneType);
-          phoneMap.put("value", phoneNumber);
-          phoneMaps.add(phoneMap);
-        }
-        profile.setProperty(Profile.CONTACT_PHONES, phoneMaps);
-      }
-
-      if (save) {
-        identityManager.updateProfile(profile, true);
-      }
-    } else if (Profile.CONTACT_URLS.equals(name)) {
-      @SuppressWarnings("unchecked")
-      List<URLEntity> urlEntities = (List<URLEntity>) value;
-      if (urlEntities == null || urlEntities.isEmpty()) {
-        profile.setProperty(Profile.CONTACT_URLS, Collections.emptyList());
-      } else {
-        List<Map<String, String>> urlMaps = new ArrayList<>();
-        for (URLEntity urlEntity : urlEntities) {
-          String url = urlEntity.getUrl();
-          if (StringUtils.isBlank(url)) {
-            continue;
-          }
-          Map<String, String> urlMap = new HashMap<>();
-          urlMap.put("value", url);
-          urlMaps.add(urlMap);
-        }
-        profile.setProperty(Profile.CONTACT_URLS, urlMaps);
-      }
-
-      if (save) {
-        identityManager.updateProfile(profile, true);
-      }
-    } else if (Profile.EXPERIENCES.equals(name)) {
-      @SuppressWarnings("unchecked")
-      List<ExperienceEntity> experienceEntities = (List<ExperienceEntity>) value;
-      if (experienceEntities == null || experienceEntities.isEmpty()) {
-        profile.setProperty(Profile.EXPERIENCES, Collections.emptyList());
-      } else {
-        List<Map<String, Object>> experienceMaps = new ArrayList<>();
-        for (ExperienceEntity experienceEntity : experienceEntities) {
-          Map<String, Object> experienceMap = new HashMap<>();
-          experienceMap.put(Profile.EXPERIENCES_ID, experienceEntity.getId());
-          experienceMap.put(Profile.EXPERIENCES_COMPANY, experienceEntity.getCompany());
-          experienceMap.put(Profile.EXPERIENCES_DESCRIPTION, experienceEntity.getDescription());
-          experienceMap.put(Profile.EXPERIENCES_POSITION, experienceEntity.getPosition());
-          experienceMap.put(Profile.EXPERIENCES_SKILLS, experienceEntity.getSkills());
-          experienceMap.put(Profile.EXPERIENCES_IS_CURRENT, experienceEntity.getIsCurrent());
-          experienceMap.put(Profile.EXPERIENCES_START_DATE, experienceEntity.getStartDate());
-          experienceMap.put(Profile.EXPERIENCES_END_DATE, experienceEntity.getEndDate());
-          experienceMaps.add(experienceMap);
-        }
-        profile.setProperty(Profile.EXPERIENCES, experienceMaps);
-      }
-      if (save) {
-        identityManager.updateProfile(profile, true);
       }
     } else {
       profile.setProperty(name, value);
