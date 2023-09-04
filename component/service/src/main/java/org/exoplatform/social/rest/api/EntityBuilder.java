@@ -47,7 +47,11 @@ import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.navigation.Scope;
 import org.exoplatform.portal.mop.service.LayoutService;
-import org.exoplatform.portal.mop.user.*;
+import org.exoplatform.portal.mop.user.HttpUserPortalContext;
+import org.exoplatform.portal.mop.user.UserNavigation;
+import org.exoplatform.portal.mop.user.UserNode;
+import org.exoplatform.portal.mop.user.UserPortal;
+import org.exoplatform.portal.mop.user.UserNodeFilterConfig;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
@@ -1707,7 +1711,7 @@ public class EntityBuilder {
     return relationshipManager;
   }
 
-  public static SiteRestEntity toSiteRestEntity(PortalConfig site, HttpServletRequest request, SiteFilter siteFilter) {
+  private static SiteEntity buildSiteEntity(PortalConfig site, HttpServletRequest request, SiteFilter siteFilter) {
     if (site == null) {
       return null;
     }
@@ -1719,7 +1723,7 @@ public class EntityBuilder {
         Group siteGroup = getOrganizationService().getGroupHandler().findGroupById(site.getName());
         if (siteGroup == null || !userIdentity.isMemberOf(siteGroup.getId())) {
           return null;
-        } else if (org.apache.commons.lang3.StringUtils.isBlank(displayName)) {
+        } else if (StringUtils.isBlank(displayName)) {
           displayName = siteGroup.getLabel();
         }
       } catch (Exception e) {
@@ -1734,7 +1738,9 @@ public class EntityBuilder {
       String currentUser = userIdentity.getUserId();
       try {
         HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
-        UserPortalConfig userPortalCfg = getUserPortalConfigService().getUserPortalConfig(site.getName(), currentUser, userPortalContext);
+        UserPortalConfig userPortalCfg = getUserPortalConfigService().getUserPortalConfig(site.getName(),
+                                                                                          currentUser,
+                                                                                          userPortalContext);
         UserPortal userPortal = userPortalCfg.getUserPortal();
         UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
         rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().build(), null);
@@ -1742,26 +1748,34 @@ public class EntityBuilder {
         LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
       }
     }
-    return new SiteRestEntity(siteType,
-            site.getName(),
-            !org.apache.commons.lang.StringUtils.isBlank(displayName) ? displayName : site.getName(),
-            site.getDescription(),
-            accessPermissions,
-            editPermission,
-            isDefaultSite(site.getName()) || site.isDisplayed(),
-            site.getDisplayOrder(),
-            isDefaultSite(site.getName()),
-            rootNode == null ? null : toUserNodeRestEntity(rootNode.getChildren(), true, getOrganizationService(), getLayoutService(), getUserACL()));
+    return new SiteEntity(siteType,
+                              site.getName(),
+                              !StringUtils.isBlank(displayName) ? displayName : site.getName(),
+                              site.getDescription(),
+                              accessPermissions,
+                              editPermission,
+                              isDefaultSite(site.getName()) || site.isDisplayed(),
+                              site.getDisplayOrder(),
+                              isDefaultSite(site.getName()),
+                              rootNode == null ? null
+                                               : toUserNodeRestEntity(rootNode.getChildren(),
+                                                                      true,
+                                                                      getOrganizationService(),
+                                                                      getLayoutService(),
+                                                                      getUserACL()));
 
   }
-  public static List<SiteRestEntity> toSiteRestEntities(List<PortalConfig> sites,
-                                                        HttpServletRequest request,
-                                                        SiteFilter siteFilter) {
-    return sites.stream().map(site -> toSiteRestEntity(site, request, siteFilter)).filter(Objects::nonNull).toList();
+
+  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites,
+                                                   HttpServletRequest request,
+                                                   SiteFilter siteFilter) {
+    return sites.stream().map(site -> buildSiteEntity(site, request, siteFilter)).filter(Objects::nonNull).toList();
   }
+
   private static List<Map<String, Object>> computePermissions(String[] permissions) {
     return Arrays.stream(permissions).map(EntityBuilder::computePermission).toList();
   }
+
   private static Map<String, Object> computePermission(String permission) {
     Map<String, Object> accessPermission = new HashMap<>();
     try {
@@ -1772,25 +1786,29 @@ public class EntityBuilder {
     }
     return accessPermission;
   }
+
   private static UserPortalConfigService getUserPortalConfigService() {
     if (userPortalConfigService == null) {
       userPortalConfigService =
-              ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(UserPortalConfigService.class);
+                              ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(UserPortalConfigService.class);
     }
     return userPortalConfigService;
   }
+
   private static UserACL getUserACL() {
     if (userACL == null) {
       userACL = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(UserACL.class);
     }
     return userACL;
   }
+
   private static LayoutService getLayoutService() {
     if (layoutService == null) {
       layoutService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(LayoutService.class);
     }
     return layoutService;
   }
+
   private static boolean isDefaultSite(String siteName) {
     return getUserPortalConfigService().getDefaultPortal().equals(siteName);
   }

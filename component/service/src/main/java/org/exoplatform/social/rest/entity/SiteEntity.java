@@ -28,7 +28,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SiteRestEntity {
+public class SiteEntity {
 
   private SiteType                  siteType;
 

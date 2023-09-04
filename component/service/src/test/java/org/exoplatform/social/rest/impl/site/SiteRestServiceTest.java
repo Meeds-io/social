@@ -1,13 +1,12 @@
 package org.exoplatform.social.rest.impl.site;
 
-import org.exoplatform.portal.jdbc.entity.SiteEntity;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.dao.SiteDAO;
 import org.exoplatform.portal.rest.services.BaseRestServicesTestCase;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.EnvironmentContext;
 import org.exoplatform.services.test.mock.MockHttpServletRequest;
-import org.exoplatform.social.rest.entity.SiteRestEntity;
+import org.exoplatform.social.rest.entity.SiteEntity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,15 +45,15 @@ public class SiteRestServiceTest extends BaseRestServicesTestCase {
     HttpServletRequest httpRequest = new MockHttpServletRequest(path, null, 0, "GET", null);
     envctx.put(HttpServletRequest.class, httpRequest);
 
-    SiteEntity site1 = creatSiteEntity(SiteType.PORTAL, "siteUn", true, 1);
-    SiteEntity site2 = creatSiteEntity(SiteType.PORTAL, "siteDeux", true, 2);
-    SiteEntity site3 = creatSiteEntity(SiteType.PORTAL, "siteTrois", false, 3);
+    org.exoplatform.portal.jdbc.entity.SiteEntity site1 = creatSiteEntity(SiteType.PORTAL, "siteUn", true, 1);
+    org.exoplatform.portal.jdbc.entity.SiteEntity site2 = creatSiteEntity(SiteType.PORTAL, "siteDeux", true, 2);
+    org.exoplatform.portal.jdbc.entity.SiteEntity site3 = creatSiteEntity(SiteType.PORTAL, "siteTrois", false, 3);
 
     ContainerResponse resp = launcher.service("GET", path, "", null, null, envctx);
     assertEquals(200, resp.getStatus());
     Object entity = resp.getEntity();
     assertNotNull(entity);
-    List<SiteRestEntity> siteRestEntities = (List<SiteRestEntity>) resp.getEntity();
+    List<SiteEntity> siteRestEntities = (List<SiteEntity>) resp.getEntity();
     assertEquals(3, siteRestEntities.size());
 
     path = "/v1/social/sites?siteType=PORTAL&displayed=true&allSites=false";
@@ -63,7 +62,7 @@ public class SiteRestServiceTest extends BaseRestServicesTestCase {
     assertEquals(200, resp.getStatus());
     entity = resp.getEntity();
     assertNotNull(entity);
-    siteRestEntities = (List<SiteRestEntity>) resp.getEntity();
+    siteRestEntities = (List<SiteEntity>) resp.getEntity();
     assertEquals(2, siteRestEntities.size());
     assertEquals(site1.getDisplayOrder(), siteRestEntities.get(0).getDisplayOrder());
     assertEquals(site2.getDisplayOrder(), siteRestEntities.get(1).getDisplayOrder());
@@ -73,13 +72,13 @@ public class SiteRestServiceTest extends BaseRestServicesTestCase {
     assertEquals(200, resp.getStatus());
     entity = resp.getEntity();
     assertNotNull(entity);
-    siteRestEntities = (List<SiteRestEntity>) resp.getEntity();
+    siteRestEntities = (List<SiteEntity>) resp.getEntity();
     assertEquals(1, siteRestEntities.size());
     assertEquals(site1.getName(), siteRestEntities.get(0).getName());
   }
 
-  private SiteEntity creatSiteEntity(SiteType siteType, String siteName, boolean displayed, int displayOrder) {
-    SiteEntity siteEntity = new SiteEntity();
+  private org.exoplatform.portal.jdbc.entity.SiteEntity creatSiteEntity(SiteType siteType, String siteName, boolean displayed, int displayOrder) {
+    org.exoplatform.portal.jdbc.entity.SiteEntity siteEntity = new org.exoplatform.portal.jdbc.entity.SiteEntity();
     siteEntity.setDescription("testDesc");
     siteEntity.setLabel("testLbl");
     siteEntity.setLocale("testLocale");
