@@ -21,7 +21,7 @@
 <template>
   <v-main class="ps-0">
     <v-list-item
-      v-for="navigation in navigations"
+      v-for="navigation in displayedNavigations"
       :key="navigation.name"
       dense
       class="pb-0 ps-0">
@@ -37,6 +37,11 @@ export default {
       type: Array,
       default: () => []
     }
-  }
+  },
+  computed: {
+    displayedNavigations() {
+      return this.navigations?.filter(navigation => navigation.visibility === 'DISPLAYED');
+    }
+  },
 };
 </script>
