@@ -67,7 +67,7 @@ export default {
   },
   data: () => ({
     categories: null,
-    initialized: false,
+    initialized: false
   }),
   computed: {
     sortedEmbeddedNavigationTree() {

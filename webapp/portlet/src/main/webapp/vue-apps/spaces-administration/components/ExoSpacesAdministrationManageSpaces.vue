@@ -54,7 +54,7 @@
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.visibility.'+space.visibility) }} </td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
         <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
-        <td class="center actionContainer">
+        <td class="center actionContainer d-flex">
           <a
             :title="$t('social.spaces.administration.manageSpaces.actions.bind')"
             v-if="canBindGroupsAndSpaces"
@@ -83,6 +83,13 @@
             @click="deleteSpaceById(space.id, index)">
             <i class="uiIconDeleteUser uiIconLightGray"></i>
           </a>
+          <extension-registry-components
+            name="manageSpaceActions"
+            type="manage-space-actions"
+            :params="{ disabled: !space.canEdit,
+                       iconColor: 'primary',
+                       siteName: space.groupId,
+                       siteType: 'GROUP'}" />
         </td>
       </tr>
     </table> 
