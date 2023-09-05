@@ -49,27 +49,15 @@
             type="activity-composer-action" />
         </v-card-actions>
         <v-divider class="mx-4 my-5" />
-        <v-card
-          class="mx-4 mb-3 px-6 py-3"
-          outlined 
-          flat 
-          hover>
-          <extension-registry-components
-            v-if="!activityId"
-            name="ComposerAction"
-            type="composer-action-item" />
-        </v-card>
-        <v-card
-          class="mx-4 px-6 py-3"
-          outlined 
-          flat 
-          hover>
-          <extension-registry-components
-            v-if="!activityId"
-            :params="extensionParams"
-            name="ActivityComposerFooterAction"
-            type="activity-composer-footer-action" />
-        </v-card>
+        <extension-registry-components
+          v-if="!activityId"
+          name="ComposerAction"
+          type="composer-action-item" />
+        <extension-registry-components
+          v-if="!activityId"
+          :params="extensionParams"
+          name="ActivityComposerFooterAction"
+          type="activity-composer-footer-action" />
       </v-card>
     </template>
     <template slot="footer">
