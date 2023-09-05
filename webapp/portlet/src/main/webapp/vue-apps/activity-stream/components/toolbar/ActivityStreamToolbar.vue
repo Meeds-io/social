@@ -38,7 +38,7 @@
                 avatar />
               <a @click="openComposerDrawer(true)" class="flex-grow-1">
                 <v-btn 
-                  class="text-light-color px-0 flex-shrink-1 d-flex justify-start letter-spacing-normal"
+                  class="text-light-color px-0 flex-shrink-1 d-flex justify-start subtitle-2"
                   text>
                   <span class="pa-2"> {{ $t('activity.composer.post.start') }} </span>
                 </v-btn>
