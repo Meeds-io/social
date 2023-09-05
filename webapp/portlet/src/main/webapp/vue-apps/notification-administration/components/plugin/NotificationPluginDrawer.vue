@@ -70,7 +70,8 @@ export default {
       return this.group && this.settings?.groupsLabels[this.group.groupId];
     },
     pluginLabel() {
-      return this.plugin && this.settings?.pluginLabels[this.plugin.type];
+      const pluginId = this.plugin?.type;
+      return this.$te(`NotificationAdmin.${pluginId}`) && this.$t(`NotificationAdmin.${pluginId}`) || this.settings?.pluginLabels[pluginId];
     },
   },
   methods: {
