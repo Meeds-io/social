@@ -21,15 +21,14 @@
 <template>
   <v-list-item
     :href="uri"
-    :target="target"
-    class="ps-0">
+    :target="target">
     <v-list-item-icon class-name="flex align-center flex-grow-0">
       <v-icon v-if="navigation.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
     </v-list-item-icon>
     <v-list-item-content>
       <v-list-item-title
-        class-name="subtitle-2"
+        class="subtitle-2"
         v-text="navigation.label" />
     </v-list-item-content>
   </v-list-item>
