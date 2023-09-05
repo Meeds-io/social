@@ -44,7 +44,13 @@ export function saveSenderEmail(name, email) {
     body: params
   }).then(resp => {
     if (!resp?.ok) {
-      throw new Error('Error saving plugin settings');
+      if (resp?.status === 400) {
+        return resp.text().then(e => {
+          throw new Error(e);
+        });
+      } else {
+        throw new Error('Error saving plugin settings');
+      }
     }
   });
 }
