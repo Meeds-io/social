@@ -29,6 +29,13 @@ export default {
     refresh() {
       return this.$notificationAdministration.getSettings()
         .then(settings => {
+          if (settings?.channelLabels) {
+            Object.keys(settings.channelLabels).forEach(channelId => {
+              if (this.$te(`NotificationAdmin.${channelId}.name`)) {
+                settings.channelLabels[channelId] = this.$t(`NotificationAdmin.${channelId}.name`);
+              }
+            });
+          }
           this.notificationSettings = settings;
           return this.$nextTick();
         })
