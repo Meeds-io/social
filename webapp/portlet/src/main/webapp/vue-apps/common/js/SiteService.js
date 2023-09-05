@@ -5,7 +5,7 @@ export function getSites(siteType, displayed, allSites, excludedSiteName, expand
   }
   formData.append('displayed', displayed);
   formData.append('allSites', allSites);
-  formData.append('filterByPermission', filterByPermission);
+  formData.append('filterByPermissions', filterByPermission);
   if (excludedSiteName) {
     formData.append('excludedSiteName', excludedSiteName);
   }
