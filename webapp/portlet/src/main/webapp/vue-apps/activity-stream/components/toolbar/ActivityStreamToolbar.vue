@@ -26,7 +26,7 @@
     <div class="d-flex flex-column full-width">
       <div class="d-flex full-width">
         <div class="flex-grow-1">
-          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10 pt-3">
+          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10 pt-3 pb-3 pb-sm-0">
             <div class="d-flex flex-row">
               <exo-user-avatar
                 v-if="user"
@@ -57,7 +57,7 @@
           <activity-stream-filter />
         </div>
       </div>
-      <div v-if="userCanPost" class="pt-1">
+      <div v-if="userCanPost" class="pt-1 hidden-xs-only">
         <extension-registry-components
           :params="extensionParams"
           name="ActivityToolbarAction"
@@ -117,7 +117,7 @@ export default {
       return !this.standalone && this.canPost;
     },
     streamFilterStyle() {
-      return this.userCanPost && 'align-md-end pt-3 pt-md-0';
+      return this.userCanPost && 'align-sm-end py-3 py-sm-0';
     },
     streamFilterEnabled() {
       return this.canFilter;
