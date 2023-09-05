@@ -71,10 +71,6 @@ public class SiteRest implements ResourceContainer {
                            @Parameter(description = "Site name to be excluded")
                            @QueryParam("excludedSiteName")
                            String excludedSiteName,
-                           @Parameter(description = "to include empty site in results in portal type case")
-                           @DefaultValue("true")
-                           @QueryParam("includeEmpty")
-                           boolean includeEmpty,
                            @Parameter(description = "to expand site navigations nodes")
                            @DefaultValue("false")
                            @QueryParam("expandNavigations")
@@ -82,7 +78,7 @@ public class SiteRest implements ResourceContainer {
                            @Parameter(description = "to retrieve sites with its displayed status")
                            @DefaultValue("false")
                            @QueryParam("displayed")
-                           boolean displayed,
+                           Boolean displayed,
                            @Parameter(description = "to retrieve all sites")
                            @DefaultValue("true")
                            @QueryParam("allSites")
@@ -104,16 +100,18 @@ public class SiteRest implements ResourceContainer {
       if (siteTypeName != null) {
         siteFilter.setSiteType(SiteType.valueOf(siteTypeName.toUpperCase()));
       }
-      siteFilter.setExcludedSiteName(excludedSiteName);
-      siteFilter.setIncludeEmpty(includeEmpty);
-      siteFilter.setDisplayed(displayed);
+      if (excludedSiteName != null) {
+        siteFilter.setExcludedSiteName(excludedSiteName);
+      }
+      if (displayed != null) {
+        siteFilter.setDisplayed(displayed);
+      }
       siteFilter.setAllSites(allSites);
-      siteFilter.setExpandNavigations(expandNavigations);
       siteFilter.setFilterByPermission(filterByPermission);
       siteFilter.setLimit(limit);
       siteFilter.setOffset(offset);
       List<PortalConfig> sites = layoutService.getSites(siteFilter);
-      return Response.ok(EntityBuilder.buildSiteEntities(sites, request, siteFilter)).build();
+      return Response.ok(EntityBuilder.buildSiteEntities(sites, request, expandNavigations)).build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving sites", e);
       return Response.serverError().build();
