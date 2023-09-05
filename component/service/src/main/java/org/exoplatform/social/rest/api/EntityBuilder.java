@@ -17,16 +17,33 @@
 
 package org.exoplatform.social.rest.api;
 
-import java.io.*;
+import static org.exoplatform.portal.mop.rest.EntityBuilder.toUserNodeRestEntity;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -42,7 +59,6 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfig;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.navigation.Scope;
@@ -54,7 +70,10 @@ import org.exoplatform.portal.mop.user.UserNodeFilterConfig;
 import org.exoplatform.portal.mop.user.UserPortal;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
@@ -68,7 +87,9 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
@@ -82,11 +103,33 @@ import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.entity.ActivityEntity;
+import org.exoplatform.social.rest.entity.BaseEntity;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.CommentEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.ExperienceEntity;
+import org.exoplatform.social.rest.entity.GroupNodeEntity;
+import org.exoplatform.social.rest.entity.GroupSpaceBindingEntity;
+import org.exoplatform.social.rest.entity.GroupSpaceBindingOperationReportEntity;
+import org.exoplatform.social.rest.entity.IMEntity;
+import org.exoplatform.social.rest.entity.IdentityEntity;
+import org.exoplatform.social.rest.entity.LinkEntity;
+import org.exoplatform.social.rest.entity.MetadataItemEntity;
+import org.exoplatform.social.rest.entity.PhoneEntity;
+import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
+import org.exoplatform.social.rest.entity.RelationshipEntity;
+import org.exoplatform.social.rest.entity.SiteEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
+import org.exoplatform.social.rest.entity.SpaceMembershipEntity;
+import org.exoplatform.social.rest.entity.URLEntity;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
-import org.exoplatform.ws.frameworks.json.impl.*;
-import static org.exoplatform.portal.mop.rest.EntityBuilder.toUserNodeRestEntity;
+import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
+import org.exoplatform.ws.frameworks.json.impl.JsonException;
+import org.exoplatform.ws.frameworks.json.impl.JsonParserImpl;
+import org.exoplatform.ws.frameworks.json.impl.ObjectBuilder;
 
 public class EntityBuilder {
 
@@ -1709,11 +1752,11 @@ public class EntityBuilder {
     return relationshipManager;
   }
   
-  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites, HttpServletRequest request, SiteFilter siteFilter) {
-    return sites.stream().map(site -> buildSiteEntity(site, request, siteFilter)).filter(Objects::nonNull).toList();
+  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites, HttpServletRequest request, boolean expandNavigations) {
+    return sites.stream().map(site -> buildSiteEntity(site, request, expandNavigations)).filter(Objects::nonNull).toList();
   }
 
-  private static SiteEntity buildSiteEntity(PortalConfig site, HttpServletRequest request, SiteFilter siteFilter) {
+  public static SiteEntity buildSiteEntity(PortalConfig site, HttpServletRequest request, boolean expandNavigations) {
     if (site == null) {
       return null;
     }
@@ -1729,14 +1772,14 @@ public class EntityBuilder {
           displayName = siteGroup.getLabel();
         }
       } catch (Exception e) {
-        LOG.error("Error while retrieving group with name ", site.getName(), e);
+        LOG.error("Error while retrieving group with name {}", site.getName(), e);
       }
     }
     List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
     Map<String, Object> editPermission = computePermission(site.getEditPermission());
 
     UserNode rootNode = null;
-    if (siteFilter.isExpandNavigations()) {
+    if (expandNavigations) {
       String currentUser = userIdentity.getUserId();
       try {
         HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
@@ -1778,7 +1821,7 @@ public class EntityBuilder {
       accessPermission.put("membershipType", permission.split(":")[0]);
       accessPermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(permission.split(":")[1]));
     } catch (Exception e) {
-      LOG.error("Error while computing user permission ", permission, e);
+      LOG.error("Error while computing user permission {}", permission, e);
     }
     return accessPermission;
   }
