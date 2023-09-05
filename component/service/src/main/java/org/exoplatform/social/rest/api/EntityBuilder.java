@@ -1745,7 +1745,7 @@ public class EntityBuilder {
                                                                                           userPortalContext);
         UserPortal userPortal = userPortalCfg.getUserPortal();
         UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
-        rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().build(), null);
+        rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().withReadWriteCheck().build(), null);
       } catch (Exception e) {
         LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
       }

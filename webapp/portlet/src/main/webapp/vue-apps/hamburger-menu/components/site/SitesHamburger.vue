@@ -23,7 +23,7 @@
     dense
     min-width="90%"
     class="pb-0">
-    <v-list-item
+    <v-list-item-group
       v-for="site in sites"
       :key="site.name"
       link>
@@ -31,7 +31,7 @@
       <site-hamburger-item
         v-else
         :site="site" />
-    </v-list-item>
+    </v-list-item-group> 
   </v-list>
 </template>
 
