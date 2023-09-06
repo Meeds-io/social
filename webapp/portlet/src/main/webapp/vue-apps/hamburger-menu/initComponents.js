@@ -37,8 +37,6 @@ import SiteHamburgerNavigation from './components/site/SiteHamburgerNavigation.v
 import UserHamburgerNavigation from './components/user/UserHamburgerNavigation.vue';
 import SitesHamburger from './components/site/SitesHamburger.vue';
 import SiteHamburgerItem from './components/site/SiteHamburgerItem.vue';
-import MetaSiteHamburgerNavigation from './components/site/MetaSiteHamburgerNavigation.vue';
-import MetaSiteHamburgerNavigationItem from './components/site/MetaSiteHamburgerNavigationItem.vue';
 
 const components = {
   'hamburger-menu-navigation': HamburgerMenuNavigation,
@@ -62,8 +60,6 @@ const components = {
   'user-hamburger-navigation': UserHamburgerNavigation,
   'sites-hamburger': SitesHamburger,
   'site-hamburger-item': SiteHamburgerItem,
-  'meta-site-hamburger-navigation': MetaSiteHamburgerNavigation,
-  'meta-site-hamburger-navigation-item': MetaSiteHamburgerNavigationItem,
 };
 
 for (const key in components) {
