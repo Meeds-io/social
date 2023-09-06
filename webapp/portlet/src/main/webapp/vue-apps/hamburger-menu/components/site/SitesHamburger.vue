@@ -27,7 +27,7 @@
       v-for="site in sites"
       :key="site.name"
       link>
-      <meta-site-hamburger-navigation v-if="site.metaSite" :navigations="site.siteNavigations" />
+      <site-hamburger-navigation v-if="site.metaSite" :navigations="site.siteNavigations" />
       <site-hamburger-item
         v-else
         :site="site" />
