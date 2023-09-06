@@ -135,8 +135,6 @@ public class EntityBuilder {
 
   private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
 
-  private static final String             GROUP_BINDING_DATE_FORMAT                  = "dd/MM/yyyy HH:mm:ss";
-
   private static final Log                LOG                                        = ExoLogger.getLogger(EntityBuilder.class);
 
   /** Group Space Binding */
@@ -1752,7 +1750,9 @@ public class EntityBuilder {
     return relationshipManager;
   }
   
-  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites, HttpServletRequest request, boolean expandNavigations) {
+  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites,
+                                                   HttpServletRequest request,
+                                                   boolean expandNavigations) {
     return sites.stream().map(site -> buildSiteEntity(site, request, expandNavigations)).filter(Objects::nonNull).toList();
   }
 
@@ -1783,10 +1783,12 @@ public class EntityBuilder {
       String currentUser = userIdentity.getUserId();
       try {
         HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
-        UserPortalConfig userPortalCfg = getUserPortalConfigService().getUserPortalConfig(site.getName(),
+        String siteName = siteType != SiteType.PORTAL ? getUserPortalConfigService().getDefaultPortal() : site.getName();
+        UserPortalConfig userPortalConfig = getUserPortalConfigService().getUserPortalConfig(siteName,
                                                                                           currentUser,
                                                                                           userPortalContext);
-        UserPortal userPortal = userPortalCfg.getUserPortal();
+
+        UserPortal userPortal = userPortalConfig.getUserPortal();
         UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
         rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().withReadWriteCheck().build(), null);
       } catch (Exception e) {
@@ -1807,7 +1809,8 @@ public class EntityBuilder {
                                                                   true,
                                                                   getOrganizationService(),
                                                                   getLayoutService(),
-                                                                  getUserACL()));
+                                                                  getUserACL()),
+                          getUserACL().hasPermission(site.getEditPermission()));
 
   }
 
@@ -1816,14 +1819,18 @@ public class EntityBuilder {
   }
 
   private static Map<String, Object> computePermission(String permission) {
-    Map<String, Object> accessPermission = new HashMap<>();
+    Map<String, Object> sitePermission = new HashMap<>();
     try {
-      accessPermission.put("membershipType", permission.split(":")[0]);
-      accessPermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(permission.split(":")[1]));
+      sitePermission.put("membershipType", permission.split(":")[0]);
+      String sitePermissionGroupId = permission.split(":")[1];
+      if (!sitePermissionGroupId.startsWith("/")) {
+        sitePermissionGroupId = "/" + sitePermissionGroupId;
+      }
+      sitePermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(sitePermissionGroupId));
     } catch (Exception e) {
       LOG.error("Error while computing user permission {}", permission, e);
     }
-    return accessPermission;
+    return sitePermission;
   }
 
   private static UserPortalConfigService getUserPortalConfigService() {
