@@ -49,5 +49,7 @@ public class SiteEntity {
 
   private boolean                   metaSite;
 
-  List<UserNodeRestEntity>          siteNavigations;
+  private List<UserNodeRestEntity>  siteNavigations;
+
+  private boolean                   canEdit;
 }
