@@ -18,30 +18,31 @@
   <v-toolbar
     v-if="displayToolbar"
     id="activityComposer"
-    class="activityComposer activityComposerApp pa-0"
+    class="activityComposer activityComposerApp pa-0 border-radius"
     color="white mb-5"
     height="auto"
     flat
     dense>
     <div class="d-flex flex-column full-width">
-      <div class="d-flex full-width">
+      <div 
+        :class="activityStreamToolbarStyle"
+        class="d-flex full-width">
         <div class="flex-grow-1">
-          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10 pt-3">
-            <div class="d-flex flex-row">
+          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
+            <div class="d-flex flex-row align-center">
               <exo-user-avatar
                 v-if="user"
                 :identity="user"
-                class="d-flex align-center ms-1 me-3"
-                size="40"
+                class="me-3"
+                size="45"
                 avatar />
-              <v-text-field
-                @click="openComposerDrawer(true)"
-                :placeholder="$t('activity.composer.post.placeholder')"
-                class="pt-0 rounded-pill"
-                height="30"
-                hide-details
-                outlined
-                dense />
+              <a @click="openComposerDrawer(true)" class="flex-grow-1">
+                <v-btn 
+                  class="text-light-color px-0 flex-shrink-1 d-flex justify-start letter-spacing-normal"
+                  text>
+                  <span class="pa-2"> {{ $t('activity.composer.post.start') }} </span>
+                </v-btn>
+              </a>
             </div>
           </div>
           <div v-else>
@@ -52,12 +53,12 @@
         </div>
         <div 
           v-if="streamFilterEnabled" 
-          :class="streamFilterStyle"
-          class="d-flex align-center">
+          class="my-auto">
           <activity-stream-filter />
         </div>
       </div>
-      <div v-if="userCanPost" class="pt-1">
+      <div v-if="userCanPost" class="hidden-xs-only">
+        <v-divider />
         <extension-registry-components
           :params="extensionParams"
           name="ActivityToolbarAction"
@@ -103,21 +104,11 @@ export default {
     };
   },
   computed: {
-    composerButtonLabel() {
-      if (eXo.env.portal.spaceDisplayName){
-        return this.$t('activity.composer.link', {0: eXo.env.portal.spaceDisplayName});
-      } else {
-        return this.$t('activity.composer.post');
-      }
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
-    },
     userCanPost() {
       return !this.standalone && this.canPost;
     },
-    streamFilterStyle() {
-      return this.userCanPost && 'align-md-end pt-3 pt-md-0';
+    activityStreamToolbarStyle() {
+      return this.userCanPost && 'py-2';
     },
     streamFilterEnabled() {
       return this.canFilter;
