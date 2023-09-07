@@ -125,6 +125,12 @@ export default {
       if (this.editorReady) {
         this.$emit('input', this.getContentToSave(val));
       }
+      if (this.oembedParams) {
+        this.oembedParams = Object.assign({}, this.oembedParams, {
+          default_title: this.getContentToSave(this.inputVal),
+          comment: this.getContentNoEmbed(this.inputVal),
+        });
+      }
     },
     validLength: {
       immediate: true,
