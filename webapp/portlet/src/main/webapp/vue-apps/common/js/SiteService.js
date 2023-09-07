@@ -6,6 +6,9 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
   if (excludedSiteType) {
     formData.append('excludedSiteType', excludedSiteType);
   }
+  
+  formData.append('lang', eXo.env.portal.language);
+
   if (excludedSiteName) {
     formData.append('excludedSiteName', excludedSiteName);
   }

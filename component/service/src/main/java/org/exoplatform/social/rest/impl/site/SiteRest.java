@@ -17,6 +17,7 @@
 package org.exoplatform.social.rest.impl.site;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
@@ -109,7 +110,10 @@ public class SiteRest implements ResourceContainer {
                            @Parameter(description = "Limit of results to retrieve")
                            @QueryParam("limit")
                            @DefaultValue("0")
-                           int limit) {
+                           int limit,
+                           @Parameter(description = "Used to retrieve the title and description in requested language")
+                           @QueryParam("lang")
+                           String lang) {
     try {
       SiteFilter siteFilter = new SiteFilter();
       if (siteType != null) {
@@ -130,10 +134,14 @@ public class SiteRest implements ResourceContainer {
       siteFilter.setLimit(limit);
       siteFilter.setOffset(offset);
       List<PortalConfig> sites = layoutService.getSites(siteFilter);
-      return Response.ok(EntityBuilder.buildSiteEntities(sites, request, expandNavigations, excludeEmptyNavigationSites, filterByPermission, sortByDisplayOrder)).build();
+      return Response.ok(EntityBuilder.buildSiteEntities(sites, request, expandNavigations, excludeEmptyNavigationSites, filterByPermission, sortByDisplayOrder, getLocale(lang))).build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving sites", e);
       return Response.serverError().build();
     }
+  }
+
+  private Locale getLocale(String lang) {
+    return org.apache.commons.lang3.StringUtils.isBlank(lang) ? null : Locale.forLanguageTag(lang);
   }
 }

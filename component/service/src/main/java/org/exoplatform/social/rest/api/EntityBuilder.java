@@ -18,6 +18,9 @@
 package org.exoplatform.social.rest.api;
 
 import static org.exoplatform.portal.mop.rest.EntityBuilder.toUserNodeRestEntity;
+import static org.exoplatform.social.core.plugin.SiteTranslationPlugin.SITE_OBJECT_TYPE;
+import static org.exoplatform.social.core.plugin.SiteTranslationPlugin.SITE_TITLE_FIELD_NAME;
+import static org.exoplatform.social.core.plugin.SiteTranslationPlugin.SITE_DESCRIPTION_FIELD_NAME;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +49,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import io.meeds.social.translation.service.TranslationService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -229,6 +233,8 @@ public class EntityBuilder {
   private static IdentityManager     identityManager;
 
   private static ActivityManager     activityManager;
+
+  private static TranslationService  translationService;
 
   private EntityBuilder() {
     // Static class for utilities, thus a private constructor is declared
@@ -1757,7 +1763,8 @@ public class EntityBuilder {
                                                    boolean expandNavigations,
                                                    boolean excludeEmptyNavigationSites,
                                                    boolean filterByPermission,
-                                                   boolean sortByDisplayOrder) {
+                                                   boolean sortByDisplayOrder,
+                                                   Locale locale) {
     List<PortalConfig> filteredByPermissionSites = sites;
     if (filterByPermission) {
       filteredByPermissionSites = sites.stream().filter(getUserACL()::hasPermission).toList();
@@ -1766,7 +1773,8 @@ public class EntityBuilder {
                                                              .map(site -> buildSiteEntity(site,
                                                                                           request,
                                                                                           expandNavigations,
-                                                                                          excludeEmptyNavigationSites))
+                                                                                          excludeEmptyNavigationSites,
+                                                                                          locale))
                                                              .filter(Objects::nonNull)
                                                              .toList();
     return sortByDisplayOrder ? siteEntities
@@ -1776,7 +1784,8 @@ public class EntityBuilder {
   public static SiteEntity buildSiteEntity(PortalConfig site,
                                            HttpServletRequest request,
                                            boolean expandNavigations,
-                                           boolean excludeEmptyNavigationSites) {
+                                           boolean excludeEmptyNavigationSites,
+                                           Locale locale) {
     SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
     String displayName = site.getLabel();
     org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
@@ -1825,10 +1834,16 @@ public class EntityBuilder {
                                              getLayoutService(),
                                              getUserACL());
     }
-    return new SiteEntity(siteType,
+    PortalConfig sitePortalConfig = getLayoutService().getPortalConfig(new SiteKey(siteType, site.getName()));
+    long siteId = Long.parseLong((sitePortalConfig.getStorageId().split("_"))[1]);
+    String translatedTitle = getTranslatedLabel(SITE_TITLE_FIELD_NAME, siteId, locale);
+    String translatedDescription= getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
+    displayName = StringUtils.isNotBlank(translatedTitle) ? translatedTitle : displayName;
+    return new SiteEntity(siteId,
+                          siteType,
                           site.getName(),
                           !StringUtils.isBlank(displayName) ? displayName : site.getName(),
-                          site.getDescription(),
+                          StringUtils.isNotBlank(translatedDescription) ? translatedDescription : site.getDescription(),
                           accessPermissions,
                           editPermission,
                           site.isDisplayed(),
@@ -1878,8 +1893,22 @@ public class EntityBuilder {
     }
     return layoutService;
   }
+  
+  private static TranslationService getTranslationService() {
+    if (translationService == null) {
+      translationService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(TranslationService.class);
+    }
+    return translationService;
+  }
 
   private static boolean isMetaSite(String siteName) {
     return getUserPortalConfigService().getDefaultPortal().equals(siteName);
+  }
+  public static String getTranslatedLabel(String fieldName, long siteId, Locale locale) {
+    return getTranslationService().getTranslationLabel(SITE_OBJECT_TYPE,
+            siteId,
+            fieldName,
+            locale);
+
   }
 }
