@@ -318,11 +318,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.exoplatform.commons</groupId>
-      <artifactId>commons-juzu</artifactId>
-    </dependency>
-
     <!-- Social dependencies -->
     <dependency>
       <groupId>${project.groupId}</groupId>
