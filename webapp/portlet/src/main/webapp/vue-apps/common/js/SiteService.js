@@ -1,16 +1,22 @@
-export function getSites(siteType, excludedSiteName, expandNavigations, displayed, allSites, filterByPermissions) {
+export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, filterByPermissions) {
   const formData = new FormData();
   if (siteType) {
     formData.append('siteType', siteType);
   }
+  if (excludedSiteType) {
+    formData.append('excludedSiteType', excludedSiteType);
+  }
   if (excludedSiteName) {
     formData.append('excludedSiteName', excludedSiteName);
   }
+  formData.append('excludeEmptyNavigationSites', excludeEmptyNavigationSites);
+  formData.append('excludeSpaceSites', excludeSpaceSites);
   formData.append('expandNavigations', expandNavigations);
-  if (displayed) {
+  formData.append('filterByDisplayed', filterByDisplayed);
+  formData.append('sortByDisplayOrder', sortByDisplayOrder);
+  if (filterByDisplayed) {
     formData.append('displayed', displayed);
   }
-  formData.append('allSites', allSites);
   formData.append('filterByPermissions', filterByPermissions);
   const params = new URLSearchParams(formData).toString();
 

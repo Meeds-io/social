@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -62,6 +63,7 @@ import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.navigation.Scope;
+import org.exoplatform.portal.mop.rest.model.UserNodeRestEntity;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.user.HttpUserPortalContext;
 import org.exoplatform.portal.mop.user.UserNavigation;
@@ -1752,14 +1754,29 @@ public class EntityBuilder {
   
   public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites,
                                                    HttpServletRequest request,
-                                                   boolean expandNavigations) {
-    return sites.stream().map(site -> buildSiteEntity(site, request, expandNavigations)).filter(Objects::nonNull).toList();
+                                                   boolean expandNavigations,
+                                                   boolean excludeEmptyNavigationSites,
+                                                   boolean filterByPermission,
+                                                   boolean sortByDisplayOrder) {
+    List<PortalConfig> filteredByPermissionSites = sites;
+    if (filterByPermission) {
+      filteredByPermissionSites = sites.stream().filter(getUserACL()::hasPermission).toList();
+    }
+    List<SiteEntity> siteEntities = filteredByPermissionSites.stream()
+                                                             .map(site -> buildSiteEntity(site,
+                                                                                          request,
+                                                                                          expandNavigations,
+                                                                                          excludeEmptyNavigationSites))
+                                                             .filter(Objects::nonNull)
+                                                             .toList();
+    return sortByDisplayOrder ? siteEntities
+                              : siteEntities.stream().sorted(Comparator.comparing(SiteEntity::getDisplayName, String.CASE_INSENSITIVE_ORDER)).toList();
   }
 
-  public static SiteEntity buildSiteEntity(PortalConfig site, HttpServletRequest request, boolean expandNavigations) {
-    if (site == null) {
-      return null;
-    }
+  public static SiteEntity buildSiteEntity(PortalConfig site,
+                                           HttpServletRequest request,
+                                           boolean expandNavigations,
+                                           boolean excludeEmptyNavigationSites) {
     SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
     String displayName = site.getLabel();
     org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
@@ -1779,24 +1796,34 @@ public class EntityBuilder {
     Map<String, Object> editPermission = computePermission(site.getEditPermission());
 
     UserNode rootNode = null;
-    if (expandNavigations) {
-      String currentUser = userIdentity.getUserId();
-      try {
-        HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
-        UserPortalConfig userPortalConfig =
-                                          getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getDefaultPortal()
-                                                                                                                       : site.getName(),
-                                                                                           currentUser,
-                                                                                           userPortalContext);
+    String currentUser = userIdentity.getUserId();
+    try {
+      HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
+      UserPortalConfig userPortalConfig =
+                                        getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getDefaultPortal()
+                                                                                                                     : site.getName(),
+                                                                                         currentUser,
+                                                                                         userPortalContext);
 
-        UserPortal userPortal = userPortalConfig.getUserPortal();
-        UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
-        if (navigation != null) {
-          rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().withReadWriteCheck().build(), null);
-        }
-      } catch (Exception e) {
-        LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
+      UserPortal userPortal = userPortalConfig.getUserPortal();
+      UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
+      if (navigation != null) {
+        rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().withReadWriteCheck().build(), null);
       }
+    } catch (Exception e) {
+      LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
+    }
+
+    if (excludeEmptyNavigationSites && (rootNode == null || rootNode.getChildren().isEmpty())) {
+      return null;
+    }
+    List<UserNodeRestEntity> siteNavigations = null;
+    if (expandNavigations) {
+      siteNavigations = toUserNodeRestEntity(rootNode.getChildren(),
+                                             true,
+                                             getOrganizationService(),
+                                             getLayoutService(),
+                                             getUserACL());
     }
     return new SiteEntity(siteType,
                           site.getName(),
@@ -1807,14 +1834,8 @@ public class EntityBuilder {
                           site.isDisplayed(),
                           site.getDisplayOrder(),
                           isMetaSite(site.getName()),
-                          rootNode == null ? null
-                                           : toUserNodeRestEntity(rootNode.getChildren(),
-                                                                  true,
-                                                                  getOrganizationService(),
-                                                                  getLayoutService(),
-                                                                  getUserACL()),
+                          siteNavigations,
                           getUserACL().hasPermission(site.getEditPermission()));
-
   }
 
   private static List<Map<String, Object>> computePermissions(String[] permissions) {

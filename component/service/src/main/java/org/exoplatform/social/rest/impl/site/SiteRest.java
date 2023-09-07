@@ -65,24 +65,39 @@ public class SiteRest implements ResourceContainer {
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
   public Response getSites(@Context
   HttpServletRequest request,
-                           @Parameter(description = "Portal site type, possible values: PORTAL, GROUP or USER", required = true)
+                           @Parameter(description = "Portal site types, possible values: PORTAL, GROUP or USER", required = true)
                            @QueryParam("siteType")
-                           String siteTypeName,
+                           String siteType,
+                           @Parameter(description = "Site type to be excluded")
+                           @QueryParam("excludedSiteType")
+                           String excludedSiteType,
                            @Parameter(description = "Site name to be excluded")
                            @QueryParam("excludedSiteName")
                            String excludedSiteName,
+                           @Parameter(description = "to exclude space sites")
+                           @DefaultValue("false")
+                           @QueryParam("excludeSpaceSites")
+                           boolean excludeSpaceSites,
+                           @Parameter(description = "to exclude sites with empty navigation")
+                           @DefaultValue("false")
+                           @QueryParam("excludeEmptyNavigationSites")
+                           boolean excludeEmptyNavigationSites,
                            @Parameter(description = "to expand site navigations nodes")
                            @DefaultValue("false")
                            @QueryParam("expandNavigations")
                            boolean expandNavigations,
-                           @Parameter(description = "to retrieve sites with its displayed status")
+                           @Parameter(description = "to sort with display order")
+                           @DefaultValue("false")
+                           @QueryParam("sortByDisplayOrder")
+                           boolean sortByDisplayOrder,
+                           @Parameter(description = "to filter sites by displayed status")
+                           @DefaultValue("false")
+                           @QueryParam("filterByDisplayed")
+                           boolean filterByDisplayed,
+                           @Parameter(description = "to retrieve sites with displayed status")
                            @DefaultValue("false")
                            @QueryParam("displayed")
-                           Boolean displayed,
-                           @Parameter(description = "to retrieve all sites")
-                           @DefaultValue("true")
-                           @QueryParam("allSites")
-                           boolean allSites,
+                           boolean displayed,
                            @Parameter(description = "to filter sites by view/edit permissions")
                            @DefaultValue("false")
                            @QueryParam("filterByPermissions")
@@ -97,21 +112,25 @@ public class SiteRest implements ResourceContainer {
                            int limit) {
     try {
       SiteFilter siteFilter = new SiteFilter();
-      if (siteTypeName != null) {
-        siteFilter.setSiteType(SiteType.valueOf(siteTypeName.toUpperCase()));
+      if (siteType != null) {
+        siteFilter.setSiteType(SiteType.valueOf(siteType.toUpperCase()));
+      }
+      if (excludedSiteType != null) {
+        siteFilter.setExcludedSiteType(SiteType.valueOf(excludedSiteType.toUpperCase()));
       }
       if (excludedSiteName != null) {
         siteFilter.setExcludedSiteName(excludedSiteName);
       }
-      if (displayed != null) {
+      siteFilter.setExcludeSpaceSites(excludeSpaceSites);
+      siteFilter.setSortByDisplayOrder(sortByDisplayOrder);
+      if (filterByDisplayed) {
+        siteFilter.setFilterByDisplayed(filterByDisplayed);
         siteFilter.setDisplayed(displayed);
       }
-      siteFilter.setAllSites(allSites);
-      siteFilter.setFilterByPermission(filterByPermission);
       siteFilter.setLimit(limit);
       siteFilter.setOffset(offset);
       List<PortalConfig> sites = layoutService.getSites(siteFilter);
-      return Response.ok(EntityBuilder.buildSiteEntities(sites, request, expandNavigations)).build();
+      return Response.ok(EntityBuilder.buildSiteEntities(sites, request, expandNavigations, excludeEmptyNavigationSites, filterByPermission, sortByDisplayOrder)).build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving sites", e);
       return Response.serverError().build();
