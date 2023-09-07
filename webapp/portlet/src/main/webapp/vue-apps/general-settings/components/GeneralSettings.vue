@@ -31,7 +31,7 @@
               :title="$t('generalSettings.access.backToMain')"
               size="24"
               icon
-              @click="$root.selectedTab = null">
+              @click="close">
               <v-icon size="18" class="icon-default-color">
                 {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
               </v-icon>
@@ -44,7 +44,7 @@
                 class="flex-grow-0 py-1"
                 flat
                 v-on="$root.selectedTab && {
-                  click: () => $root.selectedTab = null,
+                  click: () => close(),
                 }">
                 <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
               </v-card>
@@ -59,19 +59,22 @@
               ref="brandingSettings"
               :branding="branding"
               @saved="init"
-              @close="$root.selectedTab = null" />
+              @changed="changed = $event"
+              @close="close" />
             <portal-general-settings-branding-login
               v-else-if="$root.selectedTab === 'login'"
               ref="loginSettings"
               :branding="branding"
               @saved="init"
-              @close="$root.selectedTab = null" />
+              @changed="changed = $event"
+              @close="close" />
             <portal-general-settings-hub-access
               v-else-if="$root.selectedTab === 'access'"
               ref="loginSettings"
               :registration-settings="registrationSettings"
               @saved="init"
-              @close="$root.selectedTab = null" />
+              @changed="changed = $event"
+              @close="close" />
             <div v-else>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
@@ -128,6 +131,14 @@
           </v-expand-transition>
         </template>
       </v-card>
+      <exo-confirm-dialog
+        ref="closeConfirmDialog"
+        :title="$t('generalSettings.closeTabConfirmTitle')"
+        :message="$t('generalSettings.closeTabConfirmMessage')"
+        :ok-label="$t('generalSettings.yes')"
+        :cancel-label="$t('generalSettings.no')"
+        persistent
+        @ok="closeEffectively" />
     </v-main>
   </v-app>
 </template>
@@ -138,6 +149,7 @@ export default {
     registrationSettings: null,
     errorMessage: null,
     intialized: false,
+    changed: false,
   }),
   watch: {
     errorMessage() {
@@ -173,6 +185,20 @@ export default {
         .then(() => this.$registrationService.getRegistrationSettings())
         .then(data => this.registrationSettings = data)
         .finally(() => this.$root.loading = false);
+    },
+    close() {
+      if (this.changed) {
+        this.$refs.closeConfirmDialog.open();
+      } else {
+        this.closeEffectively();
+      }
+    },
+    closeEffectively() {
+      this.confirmClose = false;
+      this.$nextTick().then(() => {
+        this.$root.selectedTab = null;
+        this.changed = false;
+      });
     },
   },
 };
