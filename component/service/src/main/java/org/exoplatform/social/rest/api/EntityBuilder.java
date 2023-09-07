@@ -17,15 +17,33 @@
 
 package org.exoplatform.social.rest.api;
 
-import java.io.*;
+import static org.exoplatform.portal.mop.rest.EntityBuilder.toUserNodeRestEntity;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -39,9 +57,25 @@ import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfig;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.navigation.Scope;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.user.HttpUserPortalContext;
+import org.exoplatform.portal.mop.user.UserNavigation;
+import org.exoplatform.portal.mop.user.UserNode;
+import org.exoplatform.portal.mop.user.UserNodeFilterConfig;
+import org.exoplatform.portal.mop.user.UserPortal;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
@@ -55,7 +89,9 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.manager.*;
+import org.exoplatform.social.core.manager.ActivityManager;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
@@ -69,10 +105,33 @@ import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.entity.ActivityEntity;
+import org.exoplatform.social.rest.entity.BaseEntity;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.CommentEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.ExperienceEntity;
+import org.exoplatform.social.rest.entity.GroupNodeEntity;
+import org.exoplatform.social.rest.entity.GroupSpaceBindingEntity;
+import org.exoplatform.social.rest.entity.GroupSpaceBindingOperationReportEntity;
+import org.exoplatform.social.rest.entity.IMEntity;
+import org.exoplatform.social.rest.entity.IdentityEntity;
+import org.exoplatform.social.rest.entity.LinkEntity;
+import org.exoplatform.social.rest.entity.MetadataItemEntity;
+import org.exoplatform.social.rest.entity.PhoneEntity;
+import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
+import org.exoplatform.social.rest.entity.RelationshipEntity;
+import org.exoplatform.social.rest.entity.SiteEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
+import org.exoplatform.social.rest.entity.SpaceMembershipEntity;
+import org.exoplatform.social.rest.entity.URLEntity;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
-import org.exoplatform.ws.frameworks.json.impl.*;
+import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
+import org.exoplatform.ws.frameworks.json.impl.JsonException;
+import org.exoplatform.ws.frameworks.json.impl.JsonParserImpl;
+import org.exoplatform.ws.frameworks.json.impl.ObjectBuilder;
 
 public class EntityBuilder {
 
@@ -147,6 +206,14 @@ public class EntityBuilder {
   public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
 
   private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
+  
+  public static final String GROUP = "group";
+  
+  private static UserPortalConfigService  userPortalConfigService;
+
+  private static LayoutService            layoutService;
+
+  private static UserACL                  userACL;
 
   static {
     NO_CACHE_CC.setNoCache(true);
@@ -1695,5 +1762,117 @@ public class EntityBuilder {
       relationshipManager = CommonsUtils.getService(RelationshipManager.class);
     }
     return relationshipManager;
+  }
+  
+  public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites,
+                                                   HttpServletRequest request,
+                                                   boolean expandNavigations) {
+    return sites.stream().map(site -> buildSiteEntity(site, request, expandNavigations)).filter(Objects::nonNull).toList();
+  }
+
+  public static SiteEntity buildSiteEntity(PortalConfig site, HttpServletRequest request, boolean expandNavigations) {
+    if (site == null) {
+      return null;
+    }
+    SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
+    String displayName = site.getLabel();
+    org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
+    if (SiteType.GROUP.equals(siteType)) {
+      try {
+        Group siteGroup = getOrganizationService().getGroupHandler().findGroupById(site.getName());
+        if (siteGroup == null || !userIdentity.isMemberOf(siteGroup.getId())) {
+          return null;
+        } else if (StringUtils.isBlank(displayName)) {
+          displayName = siteGroup.getLabel();
+        }
+      } catch (Exception e) {
+        LOG.error("Error while retrieving group with name {}", site.getName(), e);
+      }
+    }
+    List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
+    Map<String, Object> editPermission = computePermission(site.getEditPermission());
+
+    UserNode rootNode = null;
+    if (expandNavigations) {
+      String currentUser = userIdentity.getUserId();
+      try {
+        HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
+        UserPortalConfig userPortalConfig =
+                                          getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getDefaultPortal()
+                                                                                                                       : site.getName(),
+                                                                                           currentUser,
+                                                                                           userPortalContext);
+
+        UserPortal userPortal = userPortalConfig.getUserPortal();
+        UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
+        if (navigation != null) {
+          rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().withReadWriteCheck().build(), null);
+        }
+      } catch (Exception e) {
+        LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
+      }
+    }
+    return new SiteEntity(siteType,
+                          site.getName(),
+                          !StringUtils.isBlank(displayName) ? displayName : site.getName(),
+                          site.getDescription(),
+                          accessPermissions,
+                          editPermission,
+                          site.isDisplayed(),
+                          site.getDisplayOrder(),
+                          isMetaSite(site.getName()),
+                          rootNode == null ? null
+                                           : toUserNodeRestEntity(rootNode.getChildren(),
+                                                                  true,
+                                                                  getOrganizationService(),
+                                                                  getLayoutService(),
+                                                                  getUserACL()),
+                          getUserACL().hasPermission(site.getEditPermission()));
+
+  }
+
+  private static List<Map<String, Object>> computePermissions(String[] permissions) {
+    return Arrays.stream(permissions).map(EntityBuilder::computePermission).toList();
+  }
+
+  private static Map<String, Object> computePermission(String permission) {
+    Map<String, Object> sitePermission = new HashMap<>();
+    try {
+      sitePermission.put("membershipType", permission.split(":")[0]);
+      String sitePermissionGroupId = permission.split(":")[1];
+      if (!sitePermissionGroupId.startsWith("/")) {
+        sitePermissionGroupId = "/" + sitePermissionGroupId;
+      }
+      sitePermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(sitePermissionGroupId));
+    } catch (Exception e) {
+      LOG.error("Error while computing user permission {}", permission, e);
+    }
+    return sitePermission;
+  }
+
+  private static UserPortalConfigService getUserPortalConfigService() {
+    if (userPortalConfigService == null) {
+      userPortalConfigService =
+                              ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(UserPortalConfigService.class);
+    }
+    return userPortalConfigService;
+  }
+
+  private static UserACL getUserACL() {
+    if (userACL == null) {
+      userACL = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(UserACL.class);
+    }
+    return userACL;
+  }
+
+  private static LayoutService getLayoutService() {
+    if (layoutService == null) {
+      layoutService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(LayoutService.class);
+    }
+    return layoutService;
+  }
+
+  private static boolean isMetaSite(String siteName) {
+    return getUserPortalConfigService().getDefaultPortal().equals(siteName);
   }
 }

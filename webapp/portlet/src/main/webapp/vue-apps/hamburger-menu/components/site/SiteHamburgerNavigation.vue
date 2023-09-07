@@ -101,10 +101,10 @@ export default {
       this.navigations.forEach(nav => {
         const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
         nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
-        nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || `${this.BASE_SITE_URI}${nav.uri}`;
+        nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || eXo.env.portal.newLeftNavigationDrawer ? `/portal/${nav.siteKey.name}/${nav.uri}` : `${this.BASE_SITE_URI}${nav.uri}`;
         nav.uriTarget = nav?.target === 'SAME_TAB' && '_self' || '_blank';
       });
-      return this.navigations.slice();
+      return this.navigations.filter(nav => nav.visibility === 'DISPLAYED' || nav.visibility === 'TEMPORAL').slice();
     },
   },
   watch: {
