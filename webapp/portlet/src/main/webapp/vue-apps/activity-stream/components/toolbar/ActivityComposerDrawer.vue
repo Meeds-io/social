@@ -53,23 +53,28 @@
             name="ActivityComposerAction"
             type="activity-composer-action" />
         </v-card-actions>
-        <v-card-text>
+        <v-divider class="mx-4 my-5" />
+        <v-card
+          class="mx-4 mb-3 px-6 py-3"
+          outlined 
+          flat 
+          hover>
           <extension-registry-components
             v-if="!activityId"
             name="ComposerAction"
-            type="composer-action-item">
-            <template #header>
-              <v-divider class="mb-6" />
-            </template>
-          </extension-registry-components>
-        </v-card-text>
-        <v-card-text class="pt-0">
+            type="composer-action-item" />
+        </v-card>
+        <v-card
+          class="mx-4 px-6 py-3"
+          outlined 
+          flat 
+          hover>
           <extension-registry-components
             v-if="!activityId"
             :params="extensionParams"
             name="ActivityComposerFooterAction"
             type="activity-composer-footer-action" />
-        </v-card-text>
+        </v-card>
       </v-card>
     </template>
     <template slot="footer">
@@ -109,7 +114,7 @@ export default {
       activityType: null,
       loading: false,
       attachments: null,
-      
+      activityToolbarAction: false
     };
   },
   computed: {
@@ -201,6 +206,7 @@ export default {
         this.files = params.files || [];
         this.activityType = params.activityType;
         this.attachments = this.templateParams?.metadatas?.attachments;
+        this.activityToolbarAction = params.activityToolbarAction;
       } else {
         this.activityId = null;
         this.spaceId = null;
@@ -257,7 +263,11 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {
-          document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
+          if (this.activityToolbarAction) {
+            document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
+          } else {
+            document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
+          }          
         } else {
           this.loading = true;
           this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
