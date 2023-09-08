@@ -115,6 +115,7 @@
       </portlet-application>
     </container>
   </page>
+
   <page>
     <name>notification</name>
     <title>Notifications Administration</title>
@@ -124,9 +125,8 @@
       <access-permissions>*:/platform/administrators</access-permissions>
       <portlet-application>
         <portlet>
-          <application-ref>commons-extension</application-ref>
-          <portlet-ref>NotificationsAdminJuzuPortlet</portlet-ref>
-          <preferences></preferences>
+          <application-ref>social-portlet</application-ref>
+          <portlet-ref>NotificationAdministration</portlet-ref>
         </portlet>
         <title>Notifications Administration</title>
         <access-permissions>manager:/platform/administrators</access-permissions>
@@ -136,4 +136,5 @@
       </portlet-application>
     </container>
   </page>
+
 </page-set>

@@ -9,6 +9,14 @@
     <type>org.exoplatform.social.notification.impl.SpaceWebNotificationServiceImpl</type>
   </component>
 
+  <component>
+    <type>io.meeds.social.notification.rest.NotificationSettingsRestService</type>
+  </component>
+
+  <component>
+    <type>io.meeds.social.notification.rest.WebNotificationRestService</type>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.social.notification.service.SpaceWebNotificationService</target-component>
     <component-plugin>

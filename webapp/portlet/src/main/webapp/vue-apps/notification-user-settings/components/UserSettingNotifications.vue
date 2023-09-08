@@ -73,6 +73,9 @@ export default {
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`)
         .then(resp => resp && resp.ok && resp.json())
         .then(settings => {
+          if (this.displayed && !settings?.channels?.length) {
+            this.displayed = false;
+          }
           this.notificationSettings = settings;
           return this.$nextTick();
         })
