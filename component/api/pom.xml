@@ -57,11 +57,6 @@
       <groupId>org.exoplatform.commons</groupId>
       <artifactId>commons-comet-service</artifactId>
     </dependency>
-    <!--
-      Avoid adding deprecated JAR commons-juzu here
-      that is defined in commons-extensions.war as dependency
-      to simplify deleting it in one single place, where it's used.
-    -->
 
     <dependency>
       <groupId>org.exoplatform.commons</groupId>
