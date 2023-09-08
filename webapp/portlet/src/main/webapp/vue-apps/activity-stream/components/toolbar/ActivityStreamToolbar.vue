@@ -20,37 +20,48 @@
     id="activityComposer"
     class="activityComposer activityComposerApp pa-0"
     color="white mb-5"
-    height="52"
+    height="auto"
     flat
     dense>
-    <div class="d-flex full-width">
-      <div class="flex-grow-1">
-        <div v-if="userCanPost" class="openLink d-flex flex-row pe-10">
-          <exo-user-avatar
-            v-if="user"
-            :identity="user"
-            class="d-flex align-center ms-1 me-3"
-            size="40"
-            avatar />
-          <v-text-field
-            @click="openComposerDrawer(true)"
-            :placeholder="$t('activity.composer.post.placeholder')"
-            class="pt-0 rounded-pill"
-            height="30"
-            hide-details
-            outlined
-            dense />
+    <div class="d-flex flex-column full-width">
+      <div class="d-flex full-width pt-3">
+        <div class="flex-grow-1">
+          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
+            <div class="d-flex flex-row">
+              <exo-user-avatar
+                v-if="user"
+                :identity="user"
+                class="d-flex align-center ms-1 me-3"
+                size="40"
+                avatar />
+              <v-text-field
+                @click="openComposerDrawer(true)"
+                :placeholder="$t('activity.composer.post.placeholder')"
+                class="pt-0 rounded-pill"
+                height="30"
+                hide-details
+                outlined
+                dense />
+            </div>
+          </div>
+          <div v-else>
+            <v-card-text class="text-sub-title text-uppercase center px-0">
+              {{ $t('activity.toolbar.title') }}
+            </v-card-text>
+          </div>
         </div>
-        <div v-else>
-          <v-card-text class="text-sub-title text-uppercase center px-0">
-            {{ $t('activity.toolbar.title') }}
-          </v-card-text>
+        <div 
+          v-if="streamFilterEnabled" 
+          class="my-auto">
+          <activity-stream-filter/>
         </div>
       </div>
-      <div 
-        v-if="streamFilterEnabled"
-        class="my-auto">
-        <activity-stream-filter />
+      <div v-if="userCanPost" class="pt-1">
+        <extension-registry-components
+          :params="extensionParams"
+          name="ActivityToolbarAction"
+          type="activity-toolbar-action"
+          class="my-auto d-flex align-center flex-wrap" />
       </div>
     </div>
   </v-toolbar>
@@ -87,6 +98,7 @@ export default {
   data() {
     return {
       user: null,
+      MESSAGE_MAX_LENGTH: 1300,
     };
   },
   computed: {
@@ -109,6 +121,17 @@ export default {
     displayToolbar() {
       return (this.userCanPost || this.streamFilterEnabled) && this.user;
     },
+    extensionParams() {
+      return {
+        activityId: this.activityId,
+        spaceId: eXo.env.portal.spaceId,
+        files: [],
+        templateParams: this.activityParams,
+        message: this.activityBody,
+        maxMessageLength: this.MESSAGE_MAX_LENGTH,
+        activityType: [],
+      };
+    },
   },
   created() {
     if (!this.user) {
@@ -118,13 +141,15 @@ export default {
   },
   methods: {
     openComposerDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
-        activityId: this.activityId,
-        activityBody: this.activityBody,
-        activityParams: this.activityParams,
-        files: [],
-        activityType: []
-      }}));
+      this.$nextTick().then(() => {
+        document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
+          activityId: this.activityId,
+          activityBody: this.activityBody,
+          activityParams: this.activityParams,
+          files: [],
+          activityType: []
+        }}));
+      });
     },
   },
 };
