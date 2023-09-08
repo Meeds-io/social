@@ -336,6 +336,9 @@ export default {
         this.$root.$emit('close-alert-message');
       }
     },
+    changed() {
+      this.$emit('changed', this.changed);
+    },
     accessType(newVal, oldVal) {
       if (this.initialized) {
         if (newVal !== oldVal) {
@@ -377,6 +380,7 @@ export default {
     document.removeEventListener('hub-access-help', this.openHelpDrawer);
     document.removeEventListener('hub-access-help-tooltip-open', this.openHelpTooltip);
     document.removeEventListener('hub-access-help-tooltip-close', this.closeHelpTooltip);
+    this.$root.$emit('close-alert-message');
   },
   methods: {
     init() {

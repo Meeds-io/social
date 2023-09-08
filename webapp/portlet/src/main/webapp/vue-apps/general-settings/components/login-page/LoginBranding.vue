@@ -262,6 +262,9 @@ export default {
         this.$root.$emit('close-alert-message');
       }
     },
+    changed() {
+      this.$emit('changed', this.changed);
+    },
   },  
   mounted() {
     this.init();
