@@ -162,7 +162,6 @@
     <portlet-info>
       <title>Who is on line</title>
       <short-title>Who is on line</short-title>
-      <keywords>Juzu social intranet</keywords>
     </portlet-info>
   </portlet>
 
@@ -313,11 +312,15 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/userSettingNotifications.jsp</value>
+      <value>/html/userSettingNotifications.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.UserNotificationPortlet</resource-bundle>
     <portlet-info>
       <title>User Setting notifications</title>
     </portlet-info>
@@ -781,7 +784,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/profileSettings.jsp</value>
+      <value>/WEB-INF/jsp/portlet/profileSettings.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -838,6 +841,25 @@
     </supports>
     <portlet-info>
       <title>Technical Drawers Overlay Portlet</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>NotificationAdministration</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/notificationAdministration.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.NotificationAdministration</resource-bundle>
+    <portlet-info>
+      <title>Notification Administration</title>
     </portlet-info>
   </portlet>
 
