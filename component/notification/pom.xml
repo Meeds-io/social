@@ -25,7 +25,6 @@
     <groupId>org.exoplatform.social</groupId>
     <version>6.5.x-SNAPSHOT</version>
   </parent>
-  <groupId>org.exoplatform.social</groupId>
   <artifactId>social-component-notification</artifactId>
   <name>eXo PLF:: Social Notification Component</name>
   <description>eXo Social Notification Component</description>
@@ -58,9 +57,11 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <runOrder>alphabetical</runOrder>
           <includes>
             <include>**/InitContainerTestSuite.java</include>
             <include>**/InitContainerWithSettingsTestSuite.java</include>
+            <include>**/InitContainerTestSuiteRest.java</include>
           </includes>
         </configuration>
       </plugin>
