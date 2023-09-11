@@ -1818,7 +1818,7 @@ public class EntityBuilder {
       return null;
     }
     List<UserNodeRestEntity> siteNavigations = null;
-    if (expandNavigations) {
+    if (expandNavigations && rootNode != null) {
       siteNavigations = toUserNodeRestEntity(rootNode.getChildren(),
                                              true,
                                              getOrganizationService(),
