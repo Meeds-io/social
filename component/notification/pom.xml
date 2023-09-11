@@ -29,7 +29,7 @@
   <name>eXo PLF:: Social Notification Component</name>
   <description>eXo Social Notification Component</description>
   <properties>
-    <exo.test.coverage.ratio>0.61</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.62</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <dependency>
@@ -63,6 +63,20 @@
             <include>**/InitContainerWithSettingsTestSuite.java</include>
             <include>**/InitContainerTestSuiteRest.java</include>
           </includes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/entity/*.class</exclude>
+            <exclude>**/model/*.class</exclude>
+            <exclude>**/constant/*.class</exclude>
+            <exclude>**/entity/**/*.class</exclude>
+            <exclude>**/model/**/*.class</exclude>
+            <exclude>**/constant/**/*.class</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>

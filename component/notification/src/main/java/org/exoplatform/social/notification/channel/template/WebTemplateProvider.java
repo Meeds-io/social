@@ -70,7 +70,6 @@ import org.exoplatform.webui.utils.TimeConvertUtils;
        @TemplateConfig( pluginId = EditActivityPlugin.ID, template = "war:/intranet-notification/templates/EditActivityPlugin.gtmpl"),
        @TemplateConfig( pluginId = EditCommentPlugin.ID, template = "war:/intranet-notification/templates/EditCommentPlugin.gtmpl"),
        @TemplateConfig( pluginId=LikeCommentPlugin.ID, template="war:/intranet-notification/templates/LikeCommentPlugin.gtmpl"),
-       @TemplateConfig( pluginId=NewUserPlugin.ID, template="war:/intranet-notification/templates/NewUserPlugin.gtmpl"),
        @TemplateConfig( pluginId=PostActivityPlugin.ID, template="war:/intranet-notification/templates/PostActivityPlugin.gtmpl"),
        @TemplateConfig( pluginId=PostActivitySpaceStreamPlugin.ID, template="war:/intranet-notification/templates/PostActivitySpaceStreamPlugin.gtmpl"),
        @TemplateConfig( pluginId=SharedActivitySpaceStreamPlugin.ID, template="war:/intranet-notification/templates/SharedActivitySpaceStreamPlugin.gtmpl"),
@@ -612,45 +611,6 @@ public class WebTemplateProvider extends TemplateProvider {
   /** Defines the template builder for LikeCommentPlugin */
   private AbstractTemplateBuilder likeComment = new LikeTemplateBuilder();
 
-  /** Defines the template builder for NewUserPlugin*/
-  private AbstractTemplateBuilder newUser = new AbstractTemplateBuilder() {
-
-    @Override
-    protected MessageInfo makeMessage(NotificationContext ctx) {
-      NotificationInfo notification = ctx.getNotificationInfo();
-      
-      String language = getLanguage(notification);
-      TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), notification.getKey().getId(), language);
-
-      String remoteId = notification.getValueOwnerParameter(SocialNotificationUtils.REMOTE_ID.getKey());
-      Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, true);
-      Profile userProfile = identity.getProfile();
-      templateContext.put("isIntranet", "true");
-      Calendar cal = Calendar.getInstance();
-      cal.setTimeInMillis(notification.getLastModifiedDate());
-      templateContext.put("READ", Boolean.valueOf(notification.getValueOwnerParameter(NotificationMessageUtils.READ_PORPERTY.getKey())) ? "read" : "unread");
-      templateContext.put("NOTIFICATION_ID", notification.getId());
-      templateContext.put("LAST_UPDATED_TIME", TimeConvertUtils.convertXTimeAgoByTimeServer(cal.getTime(), "EE, dd yyyy", new Locale(language), TimeConvertUtils.YEAR));
-      templateContext.put("USER", Utils.addExternalFlag(identity));
-      templateContext.put("PORTAL_NAME", NotificationPluginUtils.getBrandingPortalName());
-      templateContext.put("PROFILE_URL", LinkProvider.getUserProfileUri(identity.getRemoteId()));
-      templateContext.put("AVATAR", userProfile.getAvatarUrl() != null ? userProfile.getAvatarUrl() : LinkProvider.PROFILE_DEFAULT_AVATAR_URL);
-      //
-      String body = TemplateUtils.processGroovy(templateContext);
-      //binding the exception throws by processing template
-      ctx.setException(templateContext.getException());
-      MessageInfo messageInfo = new MessageInfo();
-      return messageInfo.body(body).end();
-    }
-
-    @Override
-    protected boolean makeDigest(NotificationContext ctx, Writer writer) {
-      return false;
-    }
-    
-    
-  };
-  
   /** Defines the template builder for PostActivityPlugin*/
   private AbstractTemplateBuilder postActivity = new AbstractTemplateBuilder() {
 
@@ -948,7 +908,6 @@ public class WebTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(EditCommentPlugin.ID), editComment);
     this.templateBuilders.put(PluginKey.key(LikePlugin.ID), likeActivity);
     this.templateBuilders.put(PluginKey.key(LikeCommentPlugin.ID), likeComment);
-    this.templateBuilders.put(PluginKey.key(NewUserPlugin.ID), newUser);
     this.templateBuilders.put(PluginKey.key(PostActivityPlugin.ID), postActivity);
     this.templateBuilders.put(PluginKey.key(PostActivitySpaceStreamPlugin.ID), postActivitySpace);
     this.templateBuilders.put(PluginKey.key(SharedActivitySpaceStreamPlugin.ID), shareActivitySpace);

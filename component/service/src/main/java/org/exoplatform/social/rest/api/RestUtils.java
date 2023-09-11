@@ -147,14 +147,22 @@ public class RestUtils {
    * @return base rest url like : http://localhost:8080/rest/v1/social/users/123456
    */
   public static String getRestUrl(String type, String id, String restPath) {
-    String version = restPath.split("/")[1]; // path /v1/social/identities
-    String socialResource = restPath.split("/")[2]; // path /v1/social/identities
-    
-    return new StringBuffer(getBaseRestUrl())
-    .append("/").append(version)
-    .append("/").append(socialResource)
-    .append("/").append(type)
-    .append("/").append(id).toString();
+    if (StringUtils.isBlank(restPath)) {
+      return null;
+    } else {
+      String version = restPath.split("/")[1]; // path /v1/social/identities
+      String socialResource = restPath.split("/")[2]; // path /v1/social/identities
+
+      return new StringBuffer(getBaseRestUrl()).append("/")
+                                               .append(version)
+                                               .append("/")
+                                               .append(socialResource)
+                                               .append("/")
+                                               .append(type)
+                                               .append("/")
+                                               .append(id)
+                                               .toString();
+    }
   }
 
   /** 
