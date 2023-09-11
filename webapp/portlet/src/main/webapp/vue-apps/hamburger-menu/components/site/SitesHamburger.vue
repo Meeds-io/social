@@ -55,7 +55,7 @@ export default {
   },
   computed: {
     selectedNavigationIndex() {
-      return this.sites.findIndex(site => site.siteNavigations && site.siteNavigations[0].uri === eXo.env.portal.selectedNodeUri);
+      return this.sites.findIndex(site => site.name === eXo.env.portal.portalName);
     },
   }
 };
