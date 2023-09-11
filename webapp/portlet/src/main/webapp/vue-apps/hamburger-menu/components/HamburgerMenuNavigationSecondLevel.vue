@@ -46,7 +46,7 @@
         :space="openedSpace"
         :home-link="homeLink"
         @close="drawer = false" />
-      <site-hamburger-details
+      <site-hamburger-item-details
         v-else-if="secondLevel === 'site'"
         :site="site"
         :display-sequentially="displaySequentially"
