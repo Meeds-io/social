@@ -17,14 +17,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-import TopBarNotification from './components/TopBarNotification.vue';
-import TopBarNotificationDrawer from './components/TopBarNotificationDrawer.vue';
+import * as notificationWebSocket from './js/NotificationWebSocket.js';
 
-const components = {
-  'top-bar-notification': TopBarNotification,
-  'top-bar-notification-drawer': TopBarNotificationDrawer,
-};
-
-for (const key in components) {
-  Vue.component(key, components[key]);
-}
+notificationWebSocket.initCometd();
