@@ -50,7 +50,10 @@
         class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
         flat
         tile>
-        <sites-hamburger v-if="newLeftNavigationDrawerEnabled" :sites="sites" />
+        <sites-hamburger
+          v-if="newLeftNavigationDrawerEnabled"
+          :sites="sites"
+          :opened-site="openedSite" />
         <site-hamburger-navigation v-else :navigations="siteNavigations" />
         <spaces-hamburger-navigation
           :recent-spaces="recentSpaces"
@@ -95,6 +98,10 @@ export default {
     sites: {
       type: Array,
       default: () => [],
+    },
+    openedSite: {
+      type: Object,
+      default: null,
     },
     recentSpaces: {
       type: Array,
