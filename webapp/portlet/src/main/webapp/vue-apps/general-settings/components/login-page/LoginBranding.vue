@@ -21,7 +21,7 @@
 <template>
   <v-row class="ma-0">
     <v-col cols="12" class="pa-0">
-      <h4 class="font-weight-bold mb-4 mt-8">
+      <h4 class="font-weight-bold mt-0">
         {{ $t('generalSettings.loginCharacteristics') }}
       </h4>
     </v-col>
@@ -134,6 +134,34 @@
         </v-card>
       </div>
     </v-col>
+    <v-col
+      cols="12"
+      class="pa-0">
+      <div class="d-flex my-12 justify-end">
+        <v-btn
+          :aria-label="$t('generalSettings.cancel')"
+          :disabled="loading"
+          class="btn cancel-button me-4"
+          elevation="0"
+          @click="$emit('close')">
+          <span class="text-none">
+            {{ $t('generalSettings.cancel') }}
+          </span>
+        </v-btn>
+        <v-btn
+          :aria-label="$t('generalSettings.apply')"
+          :disabled="!validForm"
+          :loading="loading"
+          color="primary"
+          class="btn btn-primary"
+          elevation="0"
+          @click="save">
+          <span class="text-none">
+            {{ $t('generalSettings.apply') }}
+          </span>
+        </v-btn>
+      </div>
+    </v-col>
   </v-row>
 </template>
 <script>
@@ -205,7 +233,7 @@ export default {
     subtitle() {
       return this.loginSubtitle[this.defaultLanguage];
     },
-    isValidForm() {
+    validForm() {
       return this.changed;
     },
     changed() {
@@ -227,12 +255,6 @@ export default {
     },
   },
   watch: {
-    isValidForm() {
-      this.$emit('validity-check', this.isValidForm);
-    },
-    changed() {
-      this.$emit('changed', this.changed);
-    },
     errorMessage() {
       if (this.errorMessage) {
         this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
@@ -240,6 +262,12 @@ export default {
         this.$root.$emit('close-alert-message');
       }
     },
+    changed() {
+      this.$emit('changed', this.changed);
+    },
+  },  
+  mounted() {
+    this.init();
   },
   methods: {
     init() {
@@ -251,10 +279,20 @@ export default {
       this.loginBackgroundData = this.defaultLoginBackgroundSrc;
       this.$refs.loginBackground.init(this.loginBackgroundData, this.loginBackgroundTextColor);
     },
-    preSave(branding) {
+    save() {
+      this.errorMessage = null;
+
+      const branding = Object.assign({}, this.branding);
       this.$refs.loginBackground.preSave(branding);
       branding.loginTitle = this.loginTitle;
       branding.loginSubtitle = this.loginSubtitle;
+
+      this.$root.loading = true;
+      return this.$brandingService.updateBrandingInformation(branding)
+        .then(() => this.$emit('saved'))
+        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
+        .catch(e => this.errorMessage = String(e))
+        .finally(() => this.$root.loading = false);
     },
     deleteDefaultBackground() {
       this.deleting = true;

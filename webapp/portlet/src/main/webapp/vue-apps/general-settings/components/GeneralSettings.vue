@@ -22,37 +22,123 @@
   <v-app>
     <v-main>
       <v-card
-        color="white"
-        class="px-4 py-6 mb-12 mb-sm-0"
+        min-height="calc(100vh - 160px)"
+        class="px-6"
         flat>
-        <h3 class="font-weight-bold">{{ $t('generalSettings.title') }}</h3>
-        <portal-general-settings-branding-site
-          ref="brandingSettings"
-          :branding="branding"
-          @validity-check="validBranding = $event"
-          @changed="changed = $event" />
+        <v-list-item dense class="px-0 mb-4">
+          <v-list-item-action v-if="$root.selectedTab" class="my-auto me-0 ms-n2">
+            <v-btn
+              :title="$t('generalSettings.access.backToMain')"
+              size="24"
+              icon
+              @click="close">
+              <v-icon size="18" class="icon-default-color">
+                {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
+              </v-icon>
+            </v-btn>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title class="d-flex">
+              <v-card
+                :title="$root.selectedTab && $t('generalSettings.access.backToMain')"
+                class="flex-grow-0 py-1"
+                flat
+                v-on="$root.selectedTab && {
+                  click: () => close(),
+                }">
+                <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
+              </v-card>
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
-        <portal-general-settings-branding-login
-          ref="loginSettings"
-          :branding="branding"
-          @validity-check="validLogin = $event"
-          @changed="changed = $event" />
-
-        <div class="d-flex mt-12 justify-end">
-          <v-btn
-            :aria-label="$t('generalSettings.apply')"
-            :disabled="!validForm"
-            :loading="loading"
-            color="primary"
-            class="btn btn-primary register-button"
-            elevation="0"
-            @click="save">
-            <span class="text-capitalize">
-              {{ $t('generalSettings.apply') }}
-            </span>
-          </v-btn>
-        </div>
+        <template v-if="intialized">
+          <v-expand-transition>
+            <portal-general-settings-branding-site
+              v-if="$root.selectedTab === 'branding'"
+              ref="brandingSettings"
+              :branding="branding"
+              @saved="init"
+              @changed="changed = $event"
+              @close="close" />
+            <portal-general-settings-branding-login
+              v-else-if="$root.selectedTab === 'login'"
+              ref="loginSettings"
+              :branding="branding"
+              @saved="init"
+              @changed="changed = $event"
+              @close="close" />
+            <portal-general-settings-hub-access
+              v-else-if="$root.selectedTab === 'access'"
+              ref="loginSettings"
+              :registration-settings="registrationSettings"
+              @saved="init"
+              @changed="changed = $event"
+              @close="close" />
+            <div v-else>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <h4 class="my-0">{{ $t('generalSettings.displayCharacteristics') }}</h4>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.displayCharacteristics') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'branding'">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <h4 class="my-0">{{ $t('generalSettings.loginCharacteristics') }}</h4>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.loginCharacteristics') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'login'">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <h4 class="my-0">{{ $t('generalSettings.access') }}</h4>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.access') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'access'">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+            </div>
+          </v-expand-transition>
+        </template>
       </v-card>
+      <exo-confirm-dialog
+        ref="closeConfirmDialog"
+        :title="$t('generalSettings.closeTabConfirmTitle')"
+        :message="$t('generalSettings.closeTabConfirmMessage')"
+        :ok-label="$t('generalSettings.yes')"
+        :cancel-label="$t('generalSettings.no')"
+        persistent
+        @ok="closeEffectively" />
     </v-main>
   </v-app>
 </template>
@@ -60,17 +146,11 @@
 export default {
   data: () => ({
     branding: null,
+    registrationSettings: null,
     errorMessage: null,
-    loading: false,
+    intialized: false,
     changed: false,
-    validBranding: false,
-    validLogin: false,
   }),
-  computed: {
-    validForm() {
-      return this.changed && this.validBranding;
-    },
-  },
   watch: {
     errorMessage() {
       if (this.errorMessage) {
@@ -79,42 +159,46 @@ export default {
         this.$root.$emit('close-alert-message');
       }
     },
-    loading() {
-      if (this.loading) {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-      } else {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      }
-    },
+  },
+  created() {
+    if (window.location.hash === '#platformaccess') {
+      this.$root.selectedTab = 'access';
+    } else if (window.location.hash === '#display') {
+      this.$root.selectedTab = 'branding';
+    } else if (window.location.hash === '#logincustomization') {
+      this.$root.selectedTab = 'login';
+    }
   },
   mounted() {
     this.init()
-      .finally(() => this.$root.$applicationLoaded());
+      .then(() => this.$nextTick())
+      .finally(() => {
+        this.$root.$applicationLoaded();
+        this.intialized = true;
+      });
   },
   methods: {
     init() {
-      this.loading = true;
+      this.$root.loading = true;
       return this.$brandingService.getBrandingInformation()
         .then(data => this.branding = data)
-        .then(() => this.$nextTick())
-        .then(() => this.$refs.brandingSettings.init())
-        .then(() => this.$refs.loginSettings.init())
-        .then(() => this.$nextTick())
-        .finally(() => this.loading = false);
+        .then(() => this.$registrationService.getRegistrationSettings())
+        .then(data => this.registrationSettings = data)
+        .finally(() => this.$root.loading = false);
     },
-    save() {
-      this.errorMessage = null;
-
-      const branding = Object.assign({}, this.branding);
-      this.$refs.brandingSettings.preSave(branding);
-      this.$refs.loginSettings.preSave(branding);
-
-      this.loading = true;
-      return this.$brandingService.updateBrandingInformation(branding)
-        .then(() => this.init())
-        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
-        .catch(e => this.errorMessage = String(e))
-        .finally(() => this.loading = false);
+    close() {
+      if (this.changed) {
+        this.$refs.closeConfirmDialog.open();
+      } else {
+        this.closeEffectively();
+      }
+    },
+    closeEffectively() {
+      this.confirmClose = false;
+      this.$nextTick().then(() => {
+        this.$root.selectedTab = null;
+        this.changed = false;
+      });
     },
   },
 };

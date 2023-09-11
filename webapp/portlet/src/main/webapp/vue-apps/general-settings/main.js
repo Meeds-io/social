@@ -17,6 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
+import './services.js';
 
 // get overrided components if exists
 const components = extensionRegistry.loadComponents('GeneralSettings');
@@ -37,12 +38,39 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.GeneralSettings-${lang}.json`,
 ];
 
-export function init(params) {
+export function init() {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n =>
       Vue.createApp({
         data: {
-          params: params,
+          selectedTab: null,
+          loading: false,
+        },
+        watch: {
+          loading() {
+            if (this.loading) {
+              document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+            } else {
+              document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            }
+          },
+          selectedTab() {
+            if (this.selectedTab === 'access') {
+              if (window.location.hash !== '#platformaccess') {
+                window.location.hash = '#platformaccess';
+              }
+            } else if (this.selectedTab === 'branding') {
+              if (window.location.hash !== '#display') {
+                window.location.hash = '#display';
+              }
+            } else if (this.selectedTab === 'login') {
+              if (window.location.hash !== '#logincustomization') {
+                window.location.hash = '#logincustomization';
+              }
+            } else if (!this.selectedTab) {
+              window.history.replaceState('', window.document.title, window.location.href.split('#')[0]);
+            }
+          },
         },
         template: `<portal-general-settings id="${appId}" :params="params" />`,
         vuetify: Vue.prototype.vuetifyOptions,
