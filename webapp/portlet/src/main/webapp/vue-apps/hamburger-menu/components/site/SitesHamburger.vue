@@ -39,7 +39,8 @@
           :input-value="site.selected"
           :active="site.selected"
           :selected="site.selected"
-          :site="site" />
+          :site="site"
+          :opened-site="openedSite" />
       </div>
     </v-list-item-group> 
   </v-list>
@@ -51,7 +52,11 @@ export default {
     sites: {
       type: Array,
       default: () => []
-    }
+    },
+    openedSite: {
+      type: Object,
+      default: null,
+    },
   },
   computed: {
     selectedNavigationIndex() {
