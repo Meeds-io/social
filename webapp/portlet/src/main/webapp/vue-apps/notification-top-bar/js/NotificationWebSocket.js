@@ -17,14 +17,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-import TopBarNotification from './components/TopBarNotification.vue';
-import TopBarNotificationDrawer from './components/TopBarNotificationDrawer.vue';
+export function initCometd() {
+  const loc = window.location;
+  cCometd.configure({
+    url: `${loc.protocol}//${loc.hostname}${loc.port && ':' || ''}${loc.port || ''}/cometd/cometd`,
+    exoId: eXo.env.portal.userName,
+    exoToken: eXo.env.portal.cometdToken,
+  });
 
-const components = {
-  'top-bar-notification': TopBarNotification,
-  'top-bar-notification-drawer': TopBarNotificationDrawer,
-};
-
-for (const key in components) {
-  Vue.component(key, components[key]);
+  cCometd.subscribe('/eXo/Application/web/NotificationMessage', null, (event) => {
+    const data = JSON.parse(event.data);
+    document.dispatchEvent(new CustomEvent('cometdNotifEvent', {'detail': {'data': data}}));
+  });
 }

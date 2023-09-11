@@ -96,9 +96,8 @@ public class WebTemplateProviderTest extends AbstractCoreTest {
     assertEquals(expected, actual);
     
     actual = channel.getTemplateFilePath(PluginKey.key(NewUserPlugin.ID));
-    expected = "war:/intranet-notification/templates/NewUserPlugin.gtmpl";
-    assertEquals(expected, actual);
-    
+    assertNull(actual);
+
     actual = channel.getTemplateFilePath(PluginKey.key(PostActivityPlugin.ID));
     expected = "war:/intranet-notification/templates/PostActivityPlugin.gtmpl";
     assertEquals(expected, actual);
@@ -129,7 +128,7 @@ public class WebTemplateProviderTest extends AbstractCoreTest {
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(LikePlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(EditCommentPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(EditActivityPlugin.ID)));
-    assertTrue(channel.hasTemplateBuilder(PluginKey.key(NewUserPlugin.ID)));
+    assertFalse(channel.hasTemplateBuilder(PluginKey.key(NewUserPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(PostActivityPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(PostActivitySpaceStreamPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(RelationshipReceivedRequestPlugin.ID)));
