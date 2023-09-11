@@ -36,7 +36,7 @@ export default {
       type: String,
       default: null,
     },
-    notif: {
+    content: {
       type: Object,
       default: null,
     },
@@ -46,7 +46,7 @@ export default {
   }),
   computed: {
     bodyElement() {
-      const template = DOMPurify.sanitize(this.notif.notification || '', {
+      const template = DOMPurify.sanitize(this.content || '', {
         CUSTOM_ELEMENT_HANDLING: {
           tagNameCheck: () => true,
           attributeNameCheck: () => true,
@@ -93,7 +93,7 @@ export default {
           if ($(this).closest('[data-details]').hasClass('unread')) {
             $(this).closest('[data-details]').removeClass('unread').addClass('read');
           }
-          Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
+          Vue.prototype.$notificationService.markRead(dataId);
         });
         const selfs = self;
         // ----------------- Mark as read
@@ -101,13 +101,13 @@ export default {
           if ($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
-          Vue.prototype.$notificationService.updateNotification(dataId, 'markAsRead');
+          Vue.prototype.$notificationService.markRead(dataId);
         });
 
         // ------------- hide notif
         $(`#${selfs.id}`).on('click', '.remove-item', function(evt) {
           evt.preventDefault();
-          Vue.prototype.$notificationService.updateNotification(dataId,'hide');
+          Vue.prototype.$notificationService.hideNotification(dataId);
           $(this).parents('li:first').slideUp(SLIDE_UP);
         });
 
@@ -127,7 +127,7 @@ export default {
               $(document).trigger('exo-invitation-updated');
             }).then((resp) => {
               if (resp.body) {
-                Vue.prototype.$notificationService.updateNotification(null,'resetNew');
+                Vue.prototype.$notificationService.resetBadge();
               }
             });
           }
@@ -149,7 +149,7 @@ export default {
               $(document).trigger('exo-invitation-updated');
             });
           }
-          Vue.prototype.$notificationService.updateNotification(dataId,'hide');
+          Vue.prototype.$notificationService.hideNotification(dataId);
           $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
         });
       });
