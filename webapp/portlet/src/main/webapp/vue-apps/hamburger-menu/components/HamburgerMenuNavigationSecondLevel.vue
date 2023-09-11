@@ -46,6 +46,11 @@
         :space="openedSpace"
         :home-link="homeLink"
         @close="drawer = false" />
+      <site-hamburger-item-details
+        v-else-if="secondLevel === 'site'"
+        :site="site"
+        :display-sequentially="displaySequentially"
+        @close="drawer = false" />
     </template>
   </v-navigation-drawer>
 </template>
@@ -86,6 +91,10 @@ export default {
     },
     administrationNavigations: {
       type: Array,
+      default: null,
+    },
+    site: {
+      type: Object,
       default: null,
     },
   },
