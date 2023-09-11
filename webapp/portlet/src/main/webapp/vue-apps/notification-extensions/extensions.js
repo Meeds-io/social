@@ -17,14 +17,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-import TopBarNotification from './components/TopBarNotification.vue';
-import TopBarNotificationDrawer from './components/TopBarNotificationDrawer.vue';
-
-const components = {
-  'top-bar-notification': TopBarNotification,
-  'top-bar-notification-drawer': TopBarNotificationDrawer,
-};
-
-for (const key in components) {
-  Vue.component(key, components[key]);
-}
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'NewUserPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-new-user'],
+});

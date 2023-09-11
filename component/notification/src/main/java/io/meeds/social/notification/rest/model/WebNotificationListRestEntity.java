@@ -1,4 +1,4 @@
-/*
+/**
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
@@ -17,14 +17,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-import TopBarNotification from './components/TopBarNotification.vue';
-import TopBarNotificationDrawer from './components/TopBarNotificationDrawer.vue';
+package io.meeds.social.notification.rest.model;
 
-const components = {
-  'top-bar-notification': TopBarNotification,
-  'top-bar-notification-drawer': TopBarNotificationDrawer,
-};
+import java.util.List;
 
-for (const key in components) {
-  Vue.component(key, components[key]);
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class WebNotificationListRestEntity {
+
+  private List<WebNotificationRestEntity> notifications;
+
+  private int                             badge;
+
+  private int                             offset;
+
+  private int                             limit;
+
 }

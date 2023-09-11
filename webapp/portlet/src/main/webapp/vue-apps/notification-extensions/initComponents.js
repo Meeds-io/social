@@ -17,12 +17,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-import TopBarNotification from './components/TopBarNotification.vue';
-import TopBarNotificationDrawer from './components/TopBarNotificationDrawer.vue';
+import HtmlNotification from './components/HtmlNotification.vue';
+import UserNotification from './components/UserNotification.vue';
+import UserNotificationTemplate from './components/UserNotificationTemplate.vue';
+
+import NewUser from './components/plugins/NewUser.vue';
 
 const components = {
-  'top-bar-notification': TopBarNotification,
-  'top-bar-notification-drawer': TopBarNotificationDrawer,
+  'user-notification-html': HtmlNotification,
+  'user-notification': UserNotification,
+  'user-notification-template': UserNotificationTemplate,
+  'user-notification-new-user': NewUser,
 };
 
 for (const key in components) {
