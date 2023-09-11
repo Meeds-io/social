@@ -28,7 +28,8 @@
       <v-list  
         dense 
         min-width="90%"
-        class="pb-0">
+        class="pb-0"
+        :class="extraClass">
         <v-list-item-group v-model="selectedNavigationIndex">
           <v-list-item
             v-for="nav in navigationsToDisplay"
@@ -81,6 +82,10 @@ export default {
     navigations: {
       type: Array,
       default: null,
+    },
+    extraClass: {
+      type: String,
+      default: '',
     },
   },
   data: () => ({
