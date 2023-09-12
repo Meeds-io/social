@@ -56,7 +56,8 @@
             v-if="streamFilterEnabled" 
             class="my-auto">
             <v-btn icon @click="openStreamFilterDrawer">
-              <v-icon 
+              <v-icon
+                :color="filterIconColor"
                 size="24">
                 fa-sliders-h
               </v-icon>
@@ -110,7 +111,8 @@ export default {
     return {
       user: null,
       MESSAGE_MAX_LENGTH: 1300,
-      spaceId: eXo.env.portal.spaceId
+      spaceId: eXo.env.portal.spaceId,
+      streamFilter: localStorage.getItem('activity-stream-stored-filter')
     };
   },
   computed: {
@@ -139,6 +141,9 @@ export default {
     },
     toolbarActionsDisplay() {
       return this.userCanPost && this.spaceId;
+    },
+    filterIconColor() {
+      return this.streamFilter !== 'all_stream' && 'primary';
     }
   },
   created() {
@@ -146,6 +151,9 @@ export default {
       this.$userService.getUser(eXo.env.portal.userName)
         .then(user => this.user = user);
     }
+    document.addEventListener('activity-stream-type-filter-applied', event => {
+      this.streamFilter = event && event.detail;
+    });
   },
   methods: {
     openComposerDrawer() {
