@@ -5,7 +5,10 @@
       :color="unread && '#f0f7fd'"
       flat
       tile>
-      <v-list-item :href="url" class="d-flex d-relative pa-2">
+      <v-list-item
+        :href="url"
+        class="d-flex d-relative pa-2"
+        @click="markAsRead">
         <v-list-item-avatar v-if="$slots.avatar || avatarUrl">
           <slot v-if="$slots.avatar" name="avatar"></slot>
           <v-avatar
@@ -32,7 +35,7 @@
                 name="WebNotification"
                 class="d-flex flex-wrap" />
             </div>
-            <div class="flex-grow-0 flex-shrink-0">
+            <div class="flex-grow-0 flex-shrink-0 caption me-1">
               {{ relativeDateLabel }}
             </div>
           </v-list-item-subtitle>
@@ -90,10 +93,10 @@ export default {
       return this.notification?.created && new Date(this.notification?.created);
     },
     relativeDateLabelKey() {
-      return this.lastUpdateTime && this.$dateUtil.getRelativeTimeLabelKey(this.lastUpdateTime) || '';
+      return this.lastUpdateTime && this.$dateUtil.getShortRelativeTimeLabelKey(this.lastUpdateTime) || '';
     },
     relativeDateLabelValue() {
-      return this.lastUpdateTime && this.$dateUtil.getRelativeTimeValue(this.lastUpdateTime) || 1;
+      return this.lastUpdateTime && this.$dateUtil.getShortRelativeTimeValue(this.lastUpdateTime) || 1;
     },
     relativeDateLabel() {
       return this.lastUpdateTime && this.$t(this.relativeDateLabelKey, {0: this.relativeDateLabelValue}) || '';
@@ -115,6 +118,9 @@ export default {
           this.$root.$emit('hide-notification', this.notificationId);
           this.hidden = true;
         });
+    },
+    markAsRead() {
+      return this.$notificationService.markRead(this.notificationId);
     },
   },
 };
