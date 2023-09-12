@@ -117,6 +117,7 @@ export default {
         .then(() => {
           this.$root.$emit('hide-notification', this.notificationId);
           this.hidden = true;
+          this.$root.$emit('refresh-notifications');
         });
     },
     markAsRead() {
