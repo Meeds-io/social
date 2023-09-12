@@ -17,6 +17,7 @@
         {{ site?.displayName }}
       </v-card-title>
       <v-card-subtitle v-sanitized-html="site?.description" class="text-truncate-3 text-subtitle-2 py-2 text-color" />
+      <site-hamburger-item-navigations-details v-if="site?.siteNavigations.length" :navigations="site.siteNavigations" />
     </v-card>
   </v-container>
 </template>
