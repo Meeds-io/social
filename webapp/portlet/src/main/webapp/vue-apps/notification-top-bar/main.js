@@ -80,5 +80,8 @@ export function init() {
         },
       }, `#${appId}`, 'Topbar Notifications');
     })
-    .finally(() => Vue.prototype.$utils.includeExtensions('NotificationPopoverExtension'));
+    .finally(() => {
+      Vue.prototype.$utils.includeExtensions('NotificationPopoverExtension');
+      Vue.prototype.$utils.includeExtensions('NotificationExtension');
+    });
 }
