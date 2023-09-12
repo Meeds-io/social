@@ -14,7 +14,7 @@
     </row>
     <v-card elevation="0">
       <v-card-title :title="site?.name" class="text-capitalize font-weight-bold text-subtitle-1">
-        {{ site?.name }}
+        {{ site?.displayName }}
       </v-card-title>
       <v-card-subtitle v-sanitized-html="site?.description" class="text-truncate-3 text-subtitle-2 py-2 text-color" />
     </v-card>
