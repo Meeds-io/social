@@ -30,7 +30,7 @@
         min-width="90%"
         class="pb-0"
         :class="extraClass">
-        <v-list-item-group v-model="selectedNavigationIndex">
+        <v-list-item-group v-model="selectedNavigationIndex" :aria-label="navigationsLabel">
           <v-list-item
             v-for="nav in navigationsToDisplay"
             :key="nav.uri"
@@ -79,6 +79,10 @@
 <script>
 export default {
   props: {
+    site: {
+      type: Object,
+      default: null
+    },
     navigations: {
       type: Array,
       default: null,
@@ -111,6 +115,9 @@ export default {
       });
       return this.navigations.filter(nav => nav.visibility === 'DISPLAYED' || nav.visibility === 'TEMPORAL').slice();
     },
+    navigationsLabel() {
+      return `${this.site.name}Navigations`;
+    } 
   },
   watch: {
     navigations() {
