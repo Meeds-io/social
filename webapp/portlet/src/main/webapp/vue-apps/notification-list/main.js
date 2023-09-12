@@ -18,7 +18,6 @@
  */
 
 import './initComponents.js';
-import './services.js';
 
 if (extensionRegistry) {
   const components = extensionRegistry.loadComponents('TopBarNotification');
@@ -29,7 +28,7 @@ if (extensionRegistry) {
   }
 }
 
-const appId = 'NotificationPopoverPortlet';
+const appId = 'IntranetNotificationsPortlet';
 const lang = eXo.env.portal.language;
 const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
@@ -38,16 +37,15 @@ const urls = [
 ];
 
 //getting locale ressources
-export function init(badge) {
+export function init() {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(() => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
         data: {
           notificationExtensions: {},
-          badge,
         },
-        template: `<top-bar-notification id="${appId}"></top-bar-notification>`,
+        template: `<notification-list id="${appId}"></notification-list>`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n: exoi18n.i18n,
         created() {
@@ -64,7 +62,7 @@ export function init(badge) {
             });
           },
         },
-      }, `#${appId}`, 'Topbar Notifications');
+      }, `#${appId}`, 'Notification List');
     })
     .finally(() => {
       Vue.prototype.$utils.includeExtensions('NotificationPopoverExtension');

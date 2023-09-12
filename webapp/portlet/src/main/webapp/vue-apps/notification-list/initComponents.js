@@ -17,23 +17,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-import HtmlNotification from './components/HtmlNotification.vue';
-import UserNotification from './components/UserNotification.vue';
-import UserNotificationTemplate from './components/UserNotificationTemplate.vue';
-import UserNotifications from './components/UserNotifications.vue';
-import UserNotificationsList from './components/UserNotificationsList.vue';
-import UserEmptyNotifications from './components/UserEmptyNotifications.vue';
-
-import NewUser from './components/plugins/NewUser.vue';
+import NotificationList from './components/NotificationList.vue';
 
 const components = {
-  'user-notification-html': HtmlNotification,
-  'user-notifications': UserNotifications,
-  'user-notifications-list': UserNotificationsList,
-  'user-notification-empty': UserEmptyNotifications,
-  'user-notification': UserNotification,
-  'user-notification-template': UserNotificationTemplate,
-  'user-notification-new-user': NewUser,
+  'notification-list': NotificationList,
 };
 
 for (const key in components) {

@@ -26,7 +26,7 @@
           icon
           class="text-xs-center"
           :title="notificationIconTooltip"
-          @click="$refs.drawer.open()">
+          @click="open = true">
           <v-badge
             :value="badge > 0"
             :content="badge"
@@ -38,6 +38,40 @@
         </v-btn>
       </v-layout>
     </v-flex>
-    <top-bar-notification-drawer ref="drawer" />
+    <top-bar-notification-drawer
+      v-if="open"
+      ref="drawer"
+      @closed="open = false" />
   </v-app>
 </template>
+<script>
+export default {
+  data: () => ({
+    badge: 0,
+    open: false,
+  }),
+  watch: {
+    open() {
+      if (this.open) {
+        this.$nextTick().then(() => this.$refs.drawer.open());
+      }
+    },
+  },
+  created() {
+    document.addEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+    this.$root.$on('notification-badge-updated', this.updateBadge);
+    this.badge = this.$root.badge;
+  },
+  mounted() {
+    this.$root.$applicationLoaded();
+  },
+  methods: {
+    updateBadgeByEvent(event) {
+      this.updateBadge(event?.detail?.data?.numberOnBadge || 0);
+    },
+    updateBadge(badge) {
+      this.badge = badge;
+    },
+  },
+};
+</script>
