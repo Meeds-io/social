@@ -25,6 +25,7 @@
     class="pb-0">
     <v-list-item-group
       v-model="selectedNavigationIndex"
+      aria-label="displayedSites"
       link>
       <div
         v-for="site in sites"
@@ -32,7 +33,8 @@
         <site-hamburger-navigation
           v-if="site.metaSite"
           :extra-class="'pt-0'"
-          :navigations="site.siteNavigations" />
+          :navigations="site.siteNavigations" 
+          :site="site" />
         <site-hamburger-item
           v-else
           :key="site.name"
