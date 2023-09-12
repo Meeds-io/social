@@ -151,7 +151,7 @@ export default {
       this.$userService.getUser(eXo.env.portal.userName)
         .then(user => this.user = user);
     }
-    document.addEventListener('activity-stream-type-filter-changed', event => {
+    document.addEventListener('activity-stream-type-filter-applied', event => {
       this.streamFilter = event && event.detail;
     });
   },

@@ -106,7 +106,6 @@ export default {
   methods: {
     applyFilter() {
       document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
-      document.dispatchEvent(new CustomEvent('activity-stream-type-filter-changed', {detail: this.filter}));
       localStorage.setItem('activity-stream-stored-filter', this.filter);
       this.$refs.filterStreamDrawer.close();
     },
