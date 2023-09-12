@@ -56,8 +56,7 @@
             v-if="streamFilterEnabled" 
             class="my-auto">
             <v-btn icon @click="openStreamFilterDrawer">
-              <v-icon
-                :color="filterIconColor"
+              <v-icon 
                 size="24">
                 fa-sliders-h
               </v-icon>
