@@ -175,6 +175,7 @@ export default {
       if (!this.secondLevelDrawer) {
         this.thirdLevelDrawer = false;
         this.space = null;
+        this.site = null;
         this.secondLevel = null;
       }
     },
@@ -183,6 +184,7 @@ export default {
         this.thirdLevelDrawer = false;
         this.secondLevelDrawer = false;
         this.space = null;
+        this.site = null;
         this.secondLevel = null;
       } else if (this.firstLevelDrawer && this.mouseEvent) {
         // Close if mouse is not entered to menu
@@ -245,6 +247,7 @@ export default {
       this.firstLevelDrawer = true;
     },
     changeRecentSpacesMenu() {
+      this.site = null;
       if (this.secondLevel === 'recentSpaces') {
         this.space = null;
         this.secondLevel = null;
@@ -258,6 +261,7 @@ export default {
       }
     },
     changeSpaceMenu(space, thirdLevel) {
+      this.site = null;
       if (!thirdLevel && this.secondLevel === 'recentSpaces') {
         this.space = space;
         this.secondLevel = 'spaceMenu';
@@ -284,6 +288,7 @@ export default {
     changeAdministrationMenu() {
       this.thirdLevelDrawer = false;
       this.space = null;
+      this.site = null;
 
       if (this.secondLevel === 'administration') {
         this.secondLevel = null;
@@ -294,6 +299,7 @@ export default {
       }
     },
     changeSiteMenu(site) {
+      this.space = null;
       if (this.site?.name === site.name) {
         this.secondLevel = null;
         this.secondLevelDrawer = false;
@@ -318,6 +324,7 @@ export default {
       this.secondLevelDrawer = false;
       this.thirdLevelDrawer = false;
       this.space = null;
+      this.site = null;
       this.secondLevel = null;
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
     },
