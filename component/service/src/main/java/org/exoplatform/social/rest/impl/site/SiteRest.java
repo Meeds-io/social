@@ -30,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteType;
@@ -111,7 +112,7 @@ public class SiteRest implements ResourceContainer {
                            @QueryParam("limit")
                            @DefaultValue("0")
                            int limit,
-                           @Parameter(description = "Used to retrieve the title and description in requested language")
+                           @Parameter(description = "Used to retrieve the site label and description in the requested language")
                            @QueryParam("lang")
                            String lang) {
     try {
@@ -142,6 +143,6 @@ public class SiteRest implements ResourceContainer {
   }
 
   private Locale getLocale(String lang) {
-    return org.apache.commons.lang3.StringUtils.isBlank(lang) ? null : Locale.forLanguageTag(lang);
+    return StringUtils.isBlank(lang) ? null : Locale.forLanguageTag(lang);
   }
 }

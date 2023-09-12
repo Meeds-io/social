@@ -19,7 +19,7 @@ package org.exoplatform.social.rest.api;
 
 import static org.exoplatform.portal.mop.rest.EntityBuilder.toUserNodeRestEntity;
 import static org.exoplatform.social.core.plugin.SiteTranslationPlugin.SITE_OBJECT_TYPE;
-import static org.exoplatform.social.core.plugin.SiteTranslationPlugin.SITE_TITLE_FIELD_NAME;
+import static org.exoplatform.social.core.plugin.SiteTranslationPlugin.SITE_LABEL_FIELD_NAME;
 import static org.exoplatform.social.core.plugin.SiteTranslationPlugin.SITE_DESCRIPTION_FIELD_NAME;
 
 import java.io.ByteArrayInputStream;
@@ -1836,14 +1836,14 @@ public class EntityBuilder {
     }
     PortalConfig sitePortalConfig = getLayoutService().getPortalConfig(new SiteKey(siteType, site.getName()));
     long siteId = Long.parseLong((sitePortalConfig.getStorageId().split("_"))[1]);
-    String translatedTitle = getTranslatedLabel(SITE_TITLE_FIELD_NAME, siteId, locale);
-    String translatedDescription= getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
-    displayName = StringUtils.isNotBlank(translatedTitle) ? translatedTitle : displayName;
+    String translatedSiteLabel = getTranslatedLabel(SITE_LABEL_FIELD_NAME, siteId, locale);
+    String translateSiteDescription= getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
+    displayName = StringUtils.isNotBlank(translatedSiteLabel) ? translatedSiteLabel : displayName;
     return new SiteEntity(siteId,
                           siteType,
                           site.getName(),
                           !StringUtils.isBlank(displayName) ? displayName : site.getName(),
-                          StringUtils.isNotBlank(translatedDescription) ? translatedDescription : site.getDescription(),
+                          StringUtils.isNotBlank(translateSiteDescription) ? translateSiteDescription : site.getDescription(),
                           accessPermissions,
                           editPermission,
                           site.isDisplayed(),

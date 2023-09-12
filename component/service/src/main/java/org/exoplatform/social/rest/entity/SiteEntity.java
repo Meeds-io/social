@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SiteEntity {
 
-  private long                      StorageId;
+  private long                      siteId;
 
   private SiteType                  siteType;
 

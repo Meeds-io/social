@@ -21,15 +21,9 @@ package org.exoplatform.social.core.plugin;
 
 import io.meeds.social.translation.plugin.TranslationPlugin;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.service.LayoutService;
-import org.gatein.api.Portal;
-import org.gatein.api.Util;
-import org.gatein.api.site.Site;
-import org.gatein.api.site.SiteId;
 
 public class SiteTranslationPlugin extends TranslationPlugin {
 
@@ -37,15 +31,15 @@ public class SiteTranslationPlugin extends TranslationPlugin {
 
   public static final String SITE_DESCRIPTION_FIELD_NAME = "description";
 
-  public static final String SITE_TITLE_FIELD_NAME       = "title";
+  public static final String SITE_LABEL_FIELD_NAME       = "label";
 
-  private Portal             portal;
+  private LayoutService      layoutService;
 
-  private LayoutService layoutService;
+  private UserACL            userACL;
 
-  public SiteTranslationPlugin(Portal portal, LayoutService layoutService) {
-    this.portal = portal;
+  public SiteTranslationPlugin(LayoutService layoutService, UserACL userACL) {
     this.layoutService = layoutService;
+    this.userACL = userACL;
   }
 
   @Override
@@ -56,19 +50,13 @@ public class SiteTranslationPlugin extends TranslationPlugin {
   @Override
   public boolean hasAccessPermission(long siteId, String username) throws ObjectNotFoundException {
     PortalConfig portalConfig = layoutService.getPortalConfig(siteId);
-    SiteId id = Util.from(new SiteKey(portalConfig.getType(), portalConfig.getName()));
-    Site site = portal.getSite(id);
-    UserACL userACL = CommonsUtils.getService(UserACL.class);
-    return userACL.hasPermission(Util.from(site.getEditPermission())[0]);
+    return userACL.hasAccessPermission(portalConfig);
   }
 
   @Override
   public boolean hasEditPermission(long siteId, String username) throws ObjectNotFoundException {
     PortalConfig portalConfig = layoutService.getPortalConfig(siteId);
-    SiteId id = Util.from(new SiteKey(portalConfig.getType(), portalConfig.getName()));
-    Site site = portal.getSite(id);
-    UserACL userACL = CommonsUtils.getService(UserACL.class);
-    return userACL.hasPermission(Util.from(site.getAccessPermission())[0]);
+    return userACL.hasEditPermission(portalConfig);
   }
 
   @Override

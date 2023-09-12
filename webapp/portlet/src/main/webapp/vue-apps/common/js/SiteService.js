@@ -7,11 +7,10 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
     formData.append('excludedSiteType', excludedSiteType);
   }
   
-  formData.append('lang', eXo.env.portal.language);
-
   if (excludedSiteName) {
     formData.append('excludedSiteName', excludedSiteName);
   }
+  formData.append('lang', eXo.env.portal.language);
   formData.append('excludeEmptyNavigationSites', excludeEmptyNavigationSites);
   formData.append('excludeSpaceSites', excludeSpaceSites);
   formData.append('expandNavigations', expandNavigations);
