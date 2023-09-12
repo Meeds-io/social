@@ -63,7 +63,7 @@
             </v-btn>
           </div>
         </div>
-        <div v-if="userCanPost" class="hidden-xs-only">
+        <div v-if="toolbarActionsDisplay" class="hidden-xs-only">
           <v-divider />
           <extension-registry-components
             :params="extensionParams"
@@ -110,6 +110,7 @@ export default {
     return {
       user: null,
       MESSAGE_MAX_LENGTH: 1300,
+      spaceId: eXo.env.portal.spaceId
     };
   },
   computed: {
@@ -128,7 +129,7 @@ export default {
     extensionParams() {
       return {
         activityId: this.activityId,
-        spaceId: eXo.env.portal.spaceId,
+        spaceId: this.spaceId,
         files: [],
         templateParams: this.activityParams,
         message: this.activityBody,
@@ -136,6 +137,9 @@ export default {
         activityType: [],
       };
     },
+    toolbarActionsDisplay() {
+      return this.userCanPost && this.spaceId;
+    }
   },
   created() {
     if (!this.user) {
