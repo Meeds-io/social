@@ -51,7 +51,7 @@
       </div>
     </template>
     <template v-if="notifications.length" #footer>
-      <div class="notifFooterActions d-flex flex justify-end pa-2">
+      <div class="notifFooterActions d-flex flex justify-end">
         <v-btn 
           text
           small

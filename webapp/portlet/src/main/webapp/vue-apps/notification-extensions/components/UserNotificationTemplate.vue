@@ -24,7 +24,7 @@
           <v-list-item-title
             v-sanitized-html="message"
             class="subtitle-2 pb-2" />
-          <v-list-item-subtitle class="d-flex">
+          <v-list-item-subtitle class="d-flex align-center">
             <div class="flex-grow-1 flex-shrink-1 me-2">
               <extension-registry-components
                 :params="extensionParams"
@@ -39,7 +39,8 @@
         </v-list-item-content>
         <v-btn
           :class="$vuetify.rtl && 'l-0' || 'r-0'"
-          class="remove-item position-absolute t-0 mt-1"
+          class="remove-item position-absolute t-0 mt-1 me-1"
+          small
           icon
           @click.stop.prevent="hideNotification">
           <v-icon size="16">fa-times</v-icon>
