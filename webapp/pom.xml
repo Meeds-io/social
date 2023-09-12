@@ -23,7 +23,7 @@
   <parent>
     <groupId>io.meeds.social</groupId>
     <artifactId>social</artifactId>
-    <version>7.0.x-meed-SNAPSHOT</version>
+    <version>7.0.x-meeds-qaui-SNAPSHOT</version>
   </parent>
   <artifactId>social-webapp</artifactId>
   <packaging>war</packaging>
