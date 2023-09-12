@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     selectedNavigationIndex() {
-      return this.sites.findIndex(site => site.name === eXo.env.portal.portalName);
+      return this.sites.findIndex(site => window.location.href.includes(site.name));
     },
   }
 };
