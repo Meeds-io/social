@@ -24,13 +24,23 @@
     min-width="90%"
     class="pb-0">
     <v-list-item-group
-      v-for="site in sites"
-      :key="site.name"
+      v-model="selectedNavigationIndex"
       link>
-      <site-hamburger-navigation v-if="site.metaSite" :navigations="site.siteNavigations" />
-      <site-hamburger-item
-        v-else
-        :site="site" />
+      <div
+        v-for="site in sites"
+        :key="site.name">
+        <site-hamburger-navigation
+          v-if="site.metaSite"
+          :extra-class="'pt-0'"
+          :navigations="site.siteNavigations" />
+        <site-hamburger-item
+          v-else
+          :key="site.name"
+          :input-value="site.selected"
+          :active="site.selected"
+          :selected="site.selected"
+          :site="site" />
+      </div>
     </v-list-item-group> 
   </v-list>
 </template>
@@ -42,6 +52,11 @@ export default {
       type: Array,
       default: () => []
     }
+  },
+  computed: {
+    selectedNavigationIndex() {
+      return this.sites.findIndex(site => window.location.href.includes(site.name));
+    },
   }
 };
 </script>
