@@ -41,7 +41,7 @@
                   <v-btn 
                     class="text-light-color px-0 flex-shrink-1 d-flex justify-start subtitle-2"
                     text>
-                    <span class="pa-2"> {{ $t('activity.composer.post.start') }} </span>
+                    <span class="pa-2"> {{ composerButtonLabel }} </span>
                   </v-btn>
                 </a>
               </div>
@@ -116,6 +116,13 @@ export default {
     };
   },
   computed: {
+    composerButtonLabel() {
+      if (eXo.env.portal.spaceDisplayName){
+        return this.$t('activity.composer.link.space', {0: eXo.env.portal.spaceDisplayName});
+      } else {
+        return this.$t('activity.composer.link');
+      }
+    },
     userCanPost() {
       return !this.standalone && this.canPost;
     },
