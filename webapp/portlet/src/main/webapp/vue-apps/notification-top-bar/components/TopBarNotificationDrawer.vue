@@ -23,6 +23,7 @@
     ref="drawer"
     class="notifDrawer"
     body-classes="hide-scroll"
+    allow-expand
     right>
     <template slot="title">
       {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
@@ -32,7 +33,7 @@
         :title="$t('UIIntranetNotificationsPortlet.title.NotificationsSetting')"
         :href="settingsLink"
         icon>
-        <v-icon class="uiSettingsIcon notifDrawerSettings" />
+        <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
       </v-btn>
     </template>
     <template #content>
@@ -42,6 +43,15 @@
           :key="notification.id"
           :id="'notifItem-'+i"
           :notification="notification" />
+        <div v-if="hasMore" class="d-flex align-center justify-center my-4">
+          <v-btn
+            :loading="loading"
+            class="btn primary"
+            outlined
+            @click="loadMore">
+            {{ $t('button.loadMore') }}
+          </v-btn>
+        </div>
       </div>
       <div v-else-if="!loading" class="noNoticationWrapper">
         <div class="noNotificationsContent">
@@ -52,20 +62,11 @@
     </template>
     <template v-if="notifications.length" #footer>
       <div class="notifFooterActions d-flex flex justify-end">
-        <v-btn 
-          text
-          small
-          class="text-uppercase caption markAllAsRead"
-          color="primary"
+        <v-btn
+          :loading="markingAllAsRead"
+          class="btn primary"
           @click="markAllAsRead()">
           {{ $t('UIIntranetNotificationsPortlet.label.MarkAllAsRead') }}
-        </v-btn>
-        <v-btn 
-          :href="allNotificationsLink"
-          class="text-uppercase caption primary--text seeAllNotif"
-          outlined
-          small>
-          {{ $t('UIIntranetNotificationsPortlet.label.seeAll') }}
         </v-btn>
       </div>
     </template>
@@ -75,7 +76,12 @@
 export default {
   data: () =>({
     loading: false,
+    markingAllAsRead: false,
+    hasMore: false,
     notifications: [],
+    offset: 0,
+    limit: 10,
+    pageSize: 10,
     badge: 0,
     settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
     allNotificationsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/allNotifications`,
@@ -90,6 +96,7 @@ export default {
     },
   },
   created() {
+    this.$root.$on('refresh-notifications', this.loadNotifications);
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
   },
   mounted() {
@@ -104,17 +111,23 @@ export default {
     close() {
       this.$refs.drawer.close();
     },
-    getNotifications() {
+    loadMore() {
+      this.limit += this.pageSize;
+      this.loadNotifications();
+    },
+    loadNotifications() {
       this.loading = true;
-      return this.$notificationService.getNotifications()
+      return this.$notificationService.getNotifications(this.offset, this.limit)
         .then((data) => {
           this.notifications = data.notifications || [];
           this.badge = data.badge;
+          this.hasMore = this.notifications.length === this.limit;
           return this.$nextTick();
         })
         .finally(() => this.loading = false);
     },
     markAllAsRead() {
+      this.markingAllAsRead = true;
       return this.$notificationService.markAllAsRead()
         .then(() => {
           $('.notifDrawerItems').find('li').each(function() {
@@ -123,12 +136,15 @@ export default {
             }
           });
         })
-        .finally(() => this.$root.$emit('application-loaded'));
+        .finally(() => {
+          this.markingAllAsRead = false;
+          return this.loadNotifications();
+        });
     },
     notificationUpdated(event) {
       if (event && event.detail) {
         this.badge = event.detail.data.numberOnBadge;
-        this.getNotifications();
+        this.loadNotifications();
       }
     },
   }
