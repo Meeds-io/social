@@ -59,8 +59,8 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
         Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
         Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
         Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
-        receivers.remove(parentCommentUserPosterId);
         Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId(), spaceId);
+        receivers.remove(parentCommentUserPosterId);
         receivers.remove(Utils.getUserId(comment.getPosterId()));
       }
     } else {

@@ -22,7 +22,8 @@
   <a
     :id="id"
     :href="notifLink"
-    class="notifDrawerItem">
+    class="notifDrawerItem notif-item-html"
+    @click="markAsRead">
     <dynamic-html-element :child="bodyElement" />
   </a>
 </template>
@@ -59,9 +60,12 @@ export default {
     this.applyActions();    
   },
   methods: {
+    markAsRead() {
+      return this.$notificationService.markRead(this.id);
+    },
     applyActions() {
       const self = this;
-      $(`#${this.id}`).find('li').each(function () {
+      $(this.$el).find('li').each(function () {
         let dataLink = $(this).find('.contentSmall:first').data('link');
         if (!dataLink) {
           dataLink = $(this).find('.media').children('a').attr('href');
@@ -97,22 +101,22 @@ export default {
         });
         const selfs = self;
         // ----------------- Mark as read
-        $(`#${selfs.id}`).on('click', function() {
+        $(selfs.$el).on('click', function() {
           if ($(this).hasClass('unread')) {
             $(this).removeClass('unread').addClass('read');
           }
-          Vue.prototype.$notificationService.markRead(dataId);
         });
 
         // ------------- hide notif
-        $(`#${selfs.id}`).on('click', '.remove-item', function(evt) {
+        $(selfs.$el).on('click', '.remove-item', function(evt) {
           evt.preventDefault();
+          evt.stopPropagation();
           Vue.prototype.$notificationService.hideNotification(dataId);
           $(this).parents('li:first').slideUp(SLIDE_UP);
         });
 
         // ------------- Accept request
-        $(`#${selfs.id}`).on('click', '.action-item', function(evt) {
+        $(selfs.$el).on('click', '.action-item', function(evt) {
           evt.preventDefault();
           let restURl = $(this).data('rest');
           if (restURl.indexOf('?') >= 0 ) {
@@ -134,7 +138,7 @@ export default {
         });
 
         // ------------- Refuse request
-        $(`#${selfs.id}`).on('click', '.cancel-item', function(evt) {
+        $(selfs.$el).on('click', '.cancel-item', function(evt) {
           evt.preventDefault();
           let restCancelURl = $(this).data('rest');
           if (restCancelURl.indexOf('?') >= 0 ) {
