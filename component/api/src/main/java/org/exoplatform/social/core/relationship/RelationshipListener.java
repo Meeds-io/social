@@ -19,9 +19,9 @@ package org.exoplatform.social.core.relationship;
 import org.exoplatform.social.common.lifecycle.LifeCycleListener;
 
 public interface RelationshipListener extends LifeCycleListener<RelationshipEvent> {
-  void confirmed(RelationshipEvent event);
-  void ignored(RelationshipEvent event);
-  void removed(RelationshipEvent event);
-  void requested(RelationshipEvent event);
-  void denied(RelationshipEvent event);
+  default void confirmed(RelationshipEvent event) {}
+  default void ignored(RelationshipEvent event) {}
+  default void removed(RelationshipEvent event) {}
+  default void requested(RelationshipEvent event) {}
+  default void denied(RelationshipEvent event) {}
 }

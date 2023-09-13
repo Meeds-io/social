@@ -29,43 +29,43 @@ public interface ProfileListener extends LifeCycleListener<ProfileLifeCycleEvent
    * about me of the profile is updated
    * @param event
    */
-  public void aboutMeUpdated(ProfileLifeCycleEvent event) ;
+  default void aboutMeUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * avatar picture of the profile is updated
    * @param event
    */
-  public void avatarUpdated(ProfileLifeCycleEvent event) ;
+  default void avatarUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * banner picture of the profile is updated
    * @param event
    */
-  public void bannerUpdated(ProfileLifeCycleEvent event) ;
+  default void bannerUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * contact information of the profile is updated
    * @param event
    */
-  public void contactSectionUpdated(ProfileLifeCycleEvent event) ;
+  default void contactSectionUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * experience section of the profile is updated
    * @param event
    */
-  public void experienceSectionUpdated(ProfileLifeCycleEvent event);
+  default void experienceSectionUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * new profile created
    * @param event
    */
-  public void createProfile(ProfileLifeCycleEvent event) ;
+  default void createProfile(ProfileLifeCycleEvent event) {}
 
   /**
    *  technical updated
    * @param event
    */
-  public void technicalUpdated(ProfileLifeCycleEvent event);
+  default void technicalUpdated(ProfileLifeCycleEvent event) {}
 
   /**
    * basic account info of the profile are updated

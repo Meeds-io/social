@@ -232,7 +232,7 @@ export default {
     this.retrieveActivityProperties();
   },
   mounted() {
-    if (this.$root.selectedCommentId && this.activity && this.activity.id === this.$root.selectedActivityId) {
+    if ((this.$root.selectedCommentId || this.$root.replyToComment) && this.activity && this.activity.id === this.$root.selectedActivityId) {
       window.setTimeout(() => {
         document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
           activity: this.activity,
@@ -241,6 +241,7 @@ export default {
           offset: 0,
           limit: 200, // To display all
         }}));
+        this.$root.replyToComment = false;
       }, 50);
     }
     if (this.activity.highlight) {

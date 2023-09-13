@@ -730,7 +730,7 @@ public class EntityBuilder {
                                                        String expand) {
     if (activity.isComment() || activity.getParentId() != null) {
       CommentEntity commentEntity = buildEntityFromComment(activity, authentiatedUser, restPath, expand, false);
-      DataEntity as = getActivityStream(activityManager.getParentActivity(activity), restPath, authentiatedUser);
+      DataEntity as = getActivityStream(getActivityManager().getParentActivity(activity), restPath, authentiatedUser);
       commentEntity.setActivityStream(as);
       return commentEntity;
     }
@@ -764,7 +764,7 @@ public class EntityBuilder {
     activityEntity.setCanEdit(canEdit);
     boolean canDelete = getActivityManager().isActivityDeletable(activity, ConversationState.getCurrent().getIdentity());
     activityEntity.setCanDelete(canDelete);
-    boolean canPin = activityManager.canPinActivity(activity, authentiatedUser);
+    boolean canPin = getActivityManager().canPinActivity(activity, authentiatedUser);
     activityEntity.setCanPin(canPin);
 
     LinkEntity commentLink;
@@ -776,7 +776,7 @@ public class EntityBuilder {
                                                                              false,
                                                                              RestUtils.DEFAULT_OFFSET,
                                                                              RestUtils.DEFAULT_LIMIT);
-      RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, true);
+      RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity, true);
 
       commentLink = new LinkEntity(commentsEntity);
       activityEntity.setCommentsCount(listAccess.getSize());
@@ -788,7 +788,7 @@ public class EntityBuilder {
                                                                              true,
                                                                              0,
                                                                              COMMENTS_PREVIEW_LIMIT);
-      RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, true);
+      RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity, true);
 
       commentLink = new LinkEntity(commentsEntity);
       activityEntity.setCommentsCount(listAccess.getSize());
@@ -961,7 +961,7 @@ public class EntityBuilder {
     commentEntity.setIdentity(identityLink);
     if (poster != null) {
       commentEntity.setPoster(poster.getRemoteId());
-      commentEntity.setOwner(getActivityOwner(poster, restPath, activityManager.getParentActivity(comment).getSpaceId()));
+      commentEntity.setOwner(getActivityOwner(poster, restPath, getActivityManager().getParentActivity(comment).getSpaceId()));
     }
     if (comment.getBody() == null) {
       commentEntity.setBody(comment.getTitle());
@@ -1221,7 +1221,7 @@ public class EntityBuilder {
    */
   private static DataEntity getActivityStream(ExoSocialActivity activity, String restPath, Identity authentiatedUser) {
     if (activity.isComment() || activity.getParentId() != null) {
-      activity = activityManager.getParentActivity(activity);
+      activity = getActivityManager().getParentActivity(activity);
     }
 
     DataEntity as = new DataEntity();
@@ -1242,7 +1242,7 @@ public class EntityBuilder {
 
   private static Identity getStreamOwnerIdentity(ExoSocialActivity activity) {
     if (activity.isComment() || activity.getParentId() != null) {
-      activity = activityManager.getParentActivity(activity);
+      activity = getActivityManager().getParentActivity(activity);
     }
     String streamOwner = activity.getStreamOwner();
     Identity owner = getIdentityManager().getOrCreateUserIdentity(streamOwner);
