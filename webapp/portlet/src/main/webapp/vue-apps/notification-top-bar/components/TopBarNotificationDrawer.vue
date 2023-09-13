@@ -21,6 +21,7 @@
 <template>
   <exo-drawer
     ref="drawer"
+    :loading="loading > 0"
     class="notifDrawer"
     body-classes="hide-scroll"
     allow-expand
@@ -38,9 +39,7 @@
       </v-btn>
     </template>
     <template #content>
-      <user-notifications
-        :loading.sync="loading"
-        :notifications-count.sync="notificationsCount" />
+      <user-notifications :notifications-count.sync="notificationsCount" />
     </template>
     <template v-if="notificationsCount" #footer>
       <div class="notifFooterActions d-flex flex justify-end">
@@ -64,7 +63,7 @@
 <script>
 export default {
   data: () =>({
-    loading: false,
+    loading: 0,
     notificationsCount: 0,
     markingAllAsRead: false,
     settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
@@ -72,12 +71,14 @@ export default {
   }),
   watch: {
     loading() {
-      if (this.loading) {
-        this.$refs.drawer?.startLoading();
-      } else {
-        this.$refs.drawer?.endLoading();
+      if (this.loading === 0) {
+        this.$nextTick().then(() => this.$root.initialized = true);
       }
     },
+  },
+  created() {
+    this.$root.$on('notification-loading-start', this.incrementLoading);
+    this.$root.$on('notification-loading-end', this.decrementLoading);
   },
   methods: {
     open() {
@@ -87,6 +88,12 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
+    },
+    incrementLoading() {
+      this.loading++;
+    },
+    decrementLoading() {
+      this.loading--;
     },
     markAllAsRead() {
       this.markingAllAsRead = true;

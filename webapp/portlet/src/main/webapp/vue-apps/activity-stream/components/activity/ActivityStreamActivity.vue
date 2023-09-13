@@ -236,9 +236,10 @@ export default {
       window.setTimeout(() => {
         document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
           activity: this.activity,
+          commentId: this.$root.selectedCommentId,
+          newComment: this.$root.replyToComment,
           offset: 0,
           limit: 200, // To display all
-          noAuitomaticScroll: true,
         }}));
       }, 50);
     }
