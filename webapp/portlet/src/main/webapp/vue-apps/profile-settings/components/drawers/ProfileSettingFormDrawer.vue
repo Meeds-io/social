@@ -203,7 +203,7 @@
           {{ $t('profileSettings.button.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="isSaveButtonDisabled"
+          :disabled="isSaveButtonDisabled || saving"
           :loading="saving"
           class="btn btn-primary"
           @click="saveSetting">
@@ -404,13 +404,13 @@ export default {
       } 
     },
     areSettingsEqual(initialSetting, setting) {
-      const fileds = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable'
+      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable'
       ];
-      for (const filed of fileds) {
-        if (filed === 'parentId' && setting[filed] === '') {
-          setting[filed] = null;
+      for (const field of fields) {
+        if (field === 'parentId' && setting[field] === '') {
+          setting[field] = null;
         }
-        if (initialSetting[filed] !== setting[filed]) {
+        if (initialSetting[field] !== setting[field]) {
           return false;
         }
       }
