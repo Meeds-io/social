@@ -52,6 +52,19 @@ export function init(maxFileSize) {
         data: {
           maxFileSize,
           activityBaseLink: activityBaseLink,
+          selectedActivityId: null,
+          selectedCommentId: null,
+          replyToComment: false,
+        },
+        watch: {
+          selectedCommentId() {
+            if (this.replyToComment && !this.selectedCommentId) {
+              this.replyToComment = false;
+            }
+          },
+        },
+        created() {
+          this.replyToComment = window.location.hash.includes('#comment-reply');          
         },
         template: `<activity-stream id="${appId}" />`,
         vuetify: Vue.prototype.vuetifyOptions,

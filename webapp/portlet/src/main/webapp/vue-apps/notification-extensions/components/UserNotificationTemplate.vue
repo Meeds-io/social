@@ -1,7 +1,12 @@
 <template>
   <v-slide-y-transition>
     <v-card
-      v-if="!hidden"
+      v-if="loading"
+      class="d-flex align-center justify-center ma-auto my-2"
+      tile
+      flat />
+    <v-card
+      v-else-if="!hidden"
       :color="unread && '#f0f7fd'"
       flat
       tile>
@@ -26,14 +31,14 @@
               alt="">
           </v-avatar>
         </v-list-item-avatar>
-        <v-list-item-content class="py-0">
+        <v-list-item-content class="py-0 pe-5">
           <v-list-item-title
             v-sanitized-html="message"
             class="subtitle-2 text-wrap text-truncate-2" />
           <v-list-item-subtitle class="d-flex flex-column justify-center">
             <div
               :class="actionsClass"
-              class="flex-grow-1 flex-shrink-1 my-1 me-2">
+              class="flex-grow-1 flex-shrink-1 my-1">
               <slot v-if="$slots.actions" name="actions"></slot>
               <extension-registry-components
                 :params="extensionParams"
@@ -47,14 +52,17 @@
             </div>
           </v-list-item-subtitle>
         </v-list-item-content>
-        <v-btn
+        <div
           :class="$vuetify.rtl && 'l-0' || 'r-0'"
-          class="remove-item position-absolute t-0 mt-1 me-1"
-          small
-          icon
-          @click.stop.prevent="hideNotification">
-          <v-icon size="16">fa-times</v-icon>
-        </v-btn>
+          class="position-absolute t-0 pt-2px me-1">
+          <v-btn
+            class="remove-item"
+            small
+            icon
+            @click.stop.prevent="hideNotification">
+            <v-icon size="16">fa-times</v-icon>
+          </v-btn>
+        </div>
       </v-list-item>
     </v-card>
   </v-slide-y-transition>
@@ -85,6 +93,10 @@ export default {
     actionsClass: {
       type: String,
       default: null,
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     },
     spaceAvatar: {
       type: Boolean,
@@ -120,6 +132,18 @@ export default {
       return {
         notification: this.notification,
       };
+    },
+  },
+  watch: {
+    loading: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        if (newVal && !oldVal) {
+          this.$root.$emit('notification-loading-start');
+        } else if (!newVal && oldVal) {
+          this.$root.$emit('notification-loading-end');
+        }
+      }
     },
   },
   methods: {

@@ -46,6 +46,7 @@ export function init(badge) {
         data: {
           notificationExtensions: {},
           badge,
+          initialized: false,
         },
         template: `<top-bar-notification id="${appId}"></top-bar-notification>`,
         vuetify: Vue.prototype.vuetifyOptions,
