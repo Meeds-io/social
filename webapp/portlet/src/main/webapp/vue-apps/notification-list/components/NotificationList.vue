@@ -21,24 +21,45 @@
 <template>
   <v-app class="uiIntranetNotificationsPortlet">
     <v-card flat tile>
-      <user-notifications
-        :loading.sync="loading" />
+      <user-notifications />
     </v-card>
   </v-app>
 </template>
 <script>
 export default {
   data: () =>({
-    loading: false,
+    loading: 0,
+    loadingInProgress: false,
   }),
   watch: {
-    loading() {
-      if (this.loading) {
+    loadingInProgress() {
+      if (this.loadingInProgress) {
         document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
       } else {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        this.$nextTick().then(() => this.$root.initialized = true);
+      }
+    },
+    loading() {
+      if (this.loading === 1) {
+        this.loadingInProgress = true;
+      } else if (this.loading === 0) {
+        this.loadingInProgress = false;
       }
     },
   },
+  created() {
+    this.$root.$on('notification-loading-start', this.incrementLoading);
+    this.$root.$on('notification-loading-end', this.decrementLoading);
+  },
+  methods: {
+    incrementLoading() {
+      this.loading++;
+    },
+    decrementLoading() {
+      this.loading--;
+    },
+  },
+  
 };
 </script>

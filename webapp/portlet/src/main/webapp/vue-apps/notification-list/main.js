@@ -44,6 +44,7 @@ export function init() {
       Vue.createApp({
         data: {
           notificationExtensions: {},
+          initialized: false,
         },
         template: `<notification-list id="${appId}"></notification-list>`,
         vuetify: Vue.prototype.vuetifyOptions,

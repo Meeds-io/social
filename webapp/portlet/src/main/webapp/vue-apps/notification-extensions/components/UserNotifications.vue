@@ -22,7 +22,7 @@
   <div v-if="hasNotifications">
     <user-notifications-list
       :notifications="notifications" />
-    <div v-if="hasMore" class="d-flex align-center justify-center my-4">
+    <div v-if="hasMore && $root.initialized" class="d-flex align-center justify-center my-4">
       <v-btn
         :loading="loading"
         class="btn primary"
@@ -50,8 +50,17 @@ export default {
     },
   },
   watch: {
-    loading() {
-      this.$emit('update:loading', this.loading);
+    loading: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        if (newVal && !oldVal) {
+          this.$root.$emit('notification-loading-start');
+        } else if (!newVal && oldVal) {
+          window.setTimeout(() => {
+            this.$root.$emit('notification-loading-end');
+          }, 200);
+        }
+      }
     },
     notifications() {
       this.$emit('update:notifications-count', this.notifications?.length || 0);
