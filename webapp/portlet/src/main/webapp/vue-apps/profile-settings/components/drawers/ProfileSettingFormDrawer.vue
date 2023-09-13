@@ -203,7 +203,7 @@
           {{ $t('profileSettings.button.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="saving"
+          :disabled="isSaveButtonDisabled"
           :loading="saving"
           class="btn btn-primary"
           @click="saveSetting">
@@ -238,6 +238,9 @@ export default {
     labels: [],
     changes: false,
     labelsObjectType: 'profileProperty',
+    initialSetting: {},
+    initialLabels: [],
+    areLabelsChanged: false
   }),
   computed: {
     title() {
@@ -246,6 +249,12 @@ export default {
       } else {
         return this.$t('profileSettings.drawer.title.editSetting');
       }
+    },
+    isSaveButtonDisabled() {
+      if (!this.newSetting) {
+        return !this.areLabelsChanged && this.areSettingsEqual(this.initialSetting, this.setting);
+      }
+      return false;
     }
   },
   watch: {
@@ -262,6 +271,20 @@ export default {
       } else {
         this.$refs.profileSettingFormDrawer.close();
       }
+    },
+    labels: {
+      immediate: true,
+      deep: true,
+      handler(newItems) {
+        const areEqualsLabels = this.initialLabels.length === newItems.length && this.initialLabels.every((item, index) => {
+          return item.id === newItems[index].id && item.label === newItems[index].label && item.language === newItems[index].language;
+        });
+        if (!areEqualsLabels) {
+          this.areLabelsChanged = true;
+        } else {
+          this.areLabelsChanged = false;
+        }
+      },
     },
   },
   created() {
@@ -296,6 +319,8 @@ export default {
       this.drawer = true;
     },
     editSetting(setting) {
+      this.initialSetting = {...setting};
+      this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
       this.setting = { ...setting};
       this.parents = Object.assign([], this.settings);
       this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId) || [];
@@ -378,6 +403,19 @@ export default {
         this.changes= false;
       } 
     },
+    areSettingsEqual(initialSetting, setting) {
+      const fileds = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable'
+      ];
+      for (const filed of fileds) {
+        if (filed === 'parentId' && setting[filed] === '') {
+          setting[filed] = null;
+        }
+        if (initialSetting[filed] !== setting[filed]) {
+          return false;
+        }
+      }
+      return true;
+    }
   },
 };
 </script>
