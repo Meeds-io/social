@@ -40,14 +40,15 @@ public class PostActivityPlugin extends BaseNotificationPlugin {
   public NotificationInfo makeNotification(NotificationContext ctx) {
     try {
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
-
-      return NotificationInfo.instance()
-                             .to(activity.getStreamOwner())
-                             .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(activity.getPosterId()))
-                             .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
-                             .key(getId())
-                             .end();
-
+      String receiver = activity.getStreamOwner();
+      if (Utils.getActivityManager().isNotificationEnabled(activity, receiver)) {
+        return NotificationInfo.instance()
+                               .to(receiver)
+                               .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(activity.getPosterId()))
+                               .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
+                               .key(getId())
+                               .end();
+      }
     } catch (Exception e) {
       ctx.setException(e);
     }

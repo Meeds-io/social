@@ -67,7 +67,7 @@ export default {
     if (window.location.pathname.indexOf(this.$root.activityBaseLink) === 0) {
       this.$root.selectedActivityId = this.getQueryParam('id');
       if (window.location.hash) {
-        this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-', '');
+        this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
       }
     }
     this.displayActivityDetail(this.$root.selectedActivityId, this.$root.selectedCommentId);
