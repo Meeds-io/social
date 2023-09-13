@@ -19,7 +19,12 @@ package org.exoplatform.social.core.relationship;
 import org.exoplatform.social.common.lifecycle.AbstractListenerPlugin;
 
 public abstract class RelationshipListenerPlugin extends AbstractListenerPlugin implements RelationshipListener {
-  public abstract void confirmed(RelationshipEvent event);
-  public abstract void ignored(RelationshipEvent event);
-  public abstract void removed(RelationshipEvent event);
+  public void confirmed(RelationshipEvent event) {
+  }
+
+  public void ignored(RelationshipEvent event) {
+  }
+
+  public void removed(RelationshipEvent event) {
+  }
 }

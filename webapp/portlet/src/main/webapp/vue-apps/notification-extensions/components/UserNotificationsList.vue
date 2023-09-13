@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <div>
+  <div class="notif-items-list">
     <user-notification
       v-for="(notification, i) in notifications"
       :key="notification.id"

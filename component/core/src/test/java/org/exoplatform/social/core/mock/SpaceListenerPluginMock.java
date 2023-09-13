@@ -47,6 +47,11 @@ public class SpaceListenerPluginMock extends SpaceListenerPlugin {
   }
 
   @Override
+  public void removePendingUser(SpaceLifeCycleEvent event) {
+    events.add(Type.REMOVE_PENDING_USER);
+  }
+
+  @Override
   public void applicationActivated(SpaceLifeCycleEvent event) {
     events.add(Type.APP_ACTIVATED);
   }
