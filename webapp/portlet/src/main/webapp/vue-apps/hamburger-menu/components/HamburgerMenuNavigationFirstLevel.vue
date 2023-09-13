@@ -54,7 +54,7 @@
           v-if="newLeftNavigationDrawerEnabled"
           :sites="sites"
           :opened-site="openedSite" />
-        <site-hamburger-navigation v-else :navigations="siteNavigations" />
+        <site-hamburger-navigation v-else :site="currentSite" :navigations="siteNavigations" />
         <spaces-hamburger-navigation
           :recent-spaces="recentSpaces"
           :recent-spaces-drawer-opened="recentSpacesDrawerOpened"
@@ -126,6 +126,7 @@ export default {
   },
   data: () => ({
     newLeftNavigationDrawerEnabled: eXo.env.portal.newLeftNavigationDrawer,
+    currentSite: eXo.env.portal.portalName,
   }),
   computed: {
     levelsOpened() {
