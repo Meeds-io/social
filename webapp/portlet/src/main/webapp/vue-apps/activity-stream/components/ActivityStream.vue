@@ -76,7 +76,7 @@ export default {
     displayActivityDetail(activityId, commentId) {
       this.loaded = false;
       this.$root.selectedActivityId = this.activityId = activityId;
-      this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-', '');
+      this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
       if (commentId && !this.$root.selectedCommentId) {
         this.$root.selectedCommentId = commentId;
         window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);
