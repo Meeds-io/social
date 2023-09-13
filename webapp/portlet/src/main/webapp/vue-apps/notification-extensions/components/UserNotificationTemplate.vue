@@ -9,12 +9,15 @@
         :href="url"
         class="d-flex d-relative pa-2"
         @click="markAsRead">
-        <v-list-item-avatar v-if="$slots.avatar || avatarUrl">
+        <v-list-item-avatar
+          v-if="$slots.avatar || avatarUrl"
+          :rounded="spaceAvatar">
           <slot v-if="$slots.avatar" name="avatar"></slot>
           <v-avatar
             v-else
             :class="avatarClass"
-            :size="45">
+            :size="45"
+            :rounded="spaceAvatar">
             <img
               :src="avatarUrl"
               class="object-fit-cover ma-auto"
@@ -26,14 +29,18 @@
         <v-list-item-content class="py-0">
           <v-list-item-title
             v-sanitized-html="message"
-            class="subtitle-2 pb-2" />
-          <v-list-item-subtitle class="d-flex align-center">
-            <div class="flex-grow-1 flex-shrink-1 me-2">
+            class="subtitle-2 text-wrap text-truncate-2" />
+          <v-list-item-subtitle class="d-flex flex-column justify-center">
+            <div
+              :class="actionsClass"
+              class="flex-grow-1 flex-shrink-1 my-1 me-2">
+              <slot v-if="$slots.actions" name="actions"></slot>
               <extension-registry-components
                 :params="extensionParams"
                 :type="`${notification.plugin}-actions`"
                 name="WebNotification"
-                class="d-flex flex-wrap" />
+                class="d-flex flex-wrap"
+                strict-type />
             </div>
             <div class="flex-grow-0 flex-shrink-0 caption me-1">
               {{ relativeDateLabel }}
@@ -75,6 +82,14 @@ export default {
       type: String,
       default: null,
     },
+    actionsClass: {
+      type: String,
+      default: null,
+    },
+    spaceAvatar: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     hidden: false,
@@ -93,10 +108,10 @@ export default {
       return this.notification?.created && new Date(this.notification?.created);
     },
     relativeDateLabelKey() {
-      return this.lastUpdateTime && this.$dateUtil.getShortRelativeTimeLabelKey(this.lastUpdateTime) || '';
+      return this.lastUpdateTime && this.$dateUtil.getRelativeTimeLabelKey(this.lastUpdateTime, true) || '';
     },
     relativeDateLabelValue() {
-      return this.lastUpdateTime && this.$dateUtil.getShortRelativeTimeValue(this.lastUpdateTime) || 1;
+      return this.lastUpdateTime && this.$dateUtil.getRelativeTimeValue(this.lastUpdateTime) || 1;
     },
     relativeDateLabel() {
       return this.lastUpdateTime && this.$t(this.relativeDateLabelKey, {0: this.relativeDateLabelValue}) || '';
@@ -106,10 +121,6 @@ export default {
         notification: this.notification,
       };
     },
-  },
-  created() {
-    this.$identityService.getIdentityByProviderIdAndRemoteId('organization', this.remoteId)
-      .then(identity => this.identity = identity);
   },
   methods: {
     hideNotification() {
