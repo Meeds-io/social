@@ -1,16 +1,9 @@
 <template>
-  <v-card
-    v-if="loading"
-    class="d-flex align-center justify-center ma-auto"
-    tile
-    flat>
-    <v-progress-circular />
-  </v-card>
   <user-notification-template
-    v-else-if="activity"
     :notification="notification"
     :avatar-url="profileAvatarUrl"
     :message="message"
+    :loading="loading"
     :url="activityUrl">
     <template #actions>
       <div class="text-truncate">
@@ -19,7 +12,7 @@
       </div>
       <div v-if="reply" class="my-1">
         <v-btn
-          :href="activityUrl"
+          :href="replyUrl"
           color="primary"
           elevation="0"
           small
@@ -87,12 +80,19 @@ export default {
     commentId() {
       return this.notification?.parameters && this.notification?.parameters[this.commentIdParam] || null;
     },
+    parentCommentId() {
+      return this.activity?.parentCommentId;
+    },
     activityType() {
       return this.activity?.type;
     },
     activityUrl() {
       return (this.commentId && this.activityId && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.activityId}#comment-${this.commentId}`)
         || (this.activityId && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.activityId}`)
+        || '#';
+    },
+    replyUrl() {
+      return this.activity && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.activityId}#comment-reply-${this.parentCommentId || this.commentId}`
         || '#';
     },
     space() {
