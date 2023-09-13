@@ -17,7 +17,8 @@
         <v-list-item-avatar
           v-if="$slots.avatar || avatarUrl"
           :rounded="spaceAvatar"
-          :tile="!!$slots.avatar">
+          :tile="!!$slots.avatar"
+          class="mt-0 mb-auto">
           <slot v-if="$slots.avatar" name="avatar"></slot>
           <v-avatar
             v-else
