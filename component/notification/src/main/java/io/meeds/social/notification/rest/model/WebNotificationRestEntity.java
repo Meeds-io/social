@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,6 +41,8 @@ public class WebNotificationRestEntity {
   private String              plugin;
 
   private ProfileEntity       from;
+
+  private SpaceEntity         space;
 
   private String              html;
 

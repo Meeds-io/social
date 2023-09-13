@@ -22,3 +22,69 @@ extensionRegistry.registerExtension('WebNotification', 'notification-content-ext
   rank: 10,
   vueComponent: Vue.options.components['user-notification-new-user'],
 });
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'RelationshipReceivedRequestPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-relationship-received-request'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'SpaceInvitationPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-space-invitation'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'RequestJoinSpacePlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-space-join-request'],
+});
+
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'PostActivityPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-post'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'PostActivitySpaceStreamPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-post-space'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'ActivityCommentPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-comment'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'ActivityReplyToCommentPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-comment-reply'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'ActivityMentionPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-mention'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'SharedActivitySpaceStreamPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-share'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'EditActivityPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-edit'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'LikePlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-like'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'EditCommentPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-comment-edit'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'LikeCommentPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-comment-like'],
+});

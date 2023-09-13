@@ -21,7 +21,24 @@
 <template>
   <v-app class="uiIntranetNotificationsPortlet">
     <v-card flat tile>
-      <user-notifications />
+      <user-notifications
+        :loading.sync="loading" />
     </v-card>
   </v-app>
 </template>
+<script>
+export default {
+  data: () =>({
+    loading: false,
+  }),
+  watch: {
+    loading() {
+      if (this.loading) {
+        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+      } else {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      }
+    },
+  },
+};
+</script>

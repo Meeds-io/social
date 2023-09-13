@@ -48,6 +48,7 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.spi.SpaceService;
 
 /**
  * Provides REST Services in order to perform all read/write operations related
@@ -70,9 +71,14 @@ public class WebNotificationRestService implements ResourceContainer {
 
   private IdentityManager        identityManager;
 
-  public WebNotificationRestService(WebNotificationService webNftService, IdentityManager identityManager) {
+  private SpaceService           spaceService;
+
+  public WebNotificationRestService(WebNotificationService webNftService,
+                                    IdentityManager identityManager,
+                                    SpaceService spaceService) {
     this.webNftService = webNftService;
     this.identityManager = identityManager;
+    this.spaceService = spaceService;
   }
 
   @GET
@@ -82,11 +88,10 @@ public class WebNotificationRestService implements ResourceContainer {
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Notifications list returned"),
       @ApiResponse(responseCode = "404", description = "Notifications list not found"),
       @ApiResponse(responseCode = "500", description = "Internal server error") })
-  public Response getNotifications(
-                                   @Parameter(description = "Whether the message to build is on popover or not", required = false)
-                                   @DefaultValue("false")
-                                   @QueryParam("includeHidden")
-                                   boolean includeHidden,
+  public Response getNotifications(@Parameter(description = "Whether the message to build is on popover or not", required = false)
+  @DefaultValue("false")
+  @QueryParam("includeHidden")
+  boolean includeHidden,
                                    @Parameter(description = "Search Offset", required = false)
                                    @DefaultValue("0")
                                    @QueryParam("offset")
@@ -104,6 +109,7 @@ public class WebNotificationRestService implements ResourceContainer {
                                                                                   limit);
     WebNotificationListRestEntity webNotificationsList = WebNotificationRestEntityBuilder.toRestEntity(webNftService,
                                                                                                        identityManager,
+                                                                                                       spaceService,
                                                                                                        notificationInfos,
                                                                                                        !includeHidden,
                                                                                                        offset,
@@ -119,10 +125,9 @@ public class WebNotificationRestService implements ResourceContainer {
   @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fullfilled"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "500", description = "Internal server error") })
-  public Response hideNotifications(
-                                    @Parameter(description = "notification id", required = true)
-                                    @PathParam("id")
-                                    String notificationId) {
+  public Response hideNotifications(@Parameter(description = "notification id", required = true)
+  @PathParam("id")
+  String notificationId) {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (notificationId == null) {
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -146,10 +151,9 @@ public class WebNotificationRestService implements ResourceContainer {
   @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Notification updated"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "500", description = "Internal server error") })
-  public Response updateNotifications(
-                                      @Parameter(description = "notification operation", required = true)
-                                      @QueryParam("operation")
-                                      String operation) {
+  public Response updateNotifications(@Parameter(description = "notification operation", required = true)
+  @QueryParam("operation")
+  String operation) {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (RESET_NEW_OPERATION.equals(operation)) {
       webNftService.resetNumberOnBadge(currentUser);
@@ -170,10 +174,9 @@ public class WebNotificationRestService implements ResourceContainer {
   @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Notification updated"),
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "500", description = "Internal server error") })
-  public Response updateNotification(
-                                     @Parameter(description = "notification operation", required = true)
-                                     @QueryParam("operation")
-                                     String operation,
+  public Response updateNotification(@Parameter(description = "notification operation", required = true)
+  @QueryParam("operation")
+  String operation,
                                      @Parameter(description = "notification id", required = false)
                                      @PathParam("id")
                                      String notificationId) {
