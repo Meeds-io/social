@@ -100,6 +100,12 @@ public class WebNotificationRestEntityBuilder {
       username = notification.getOwnerParameter().get("sender");
     }
     if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("modifier");
+    }
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("MODIFIER_ID");
+    }
+    if (StringUtils.isBlank(username)) {
       username = notification.getOwnerParameter().get("SENDER_ID");
     }
     if (StringUtils.isBlank(username)) {
@@ -108,7 +114,19 @@ public class WebNotificationRestEntityBuilder {
     if (StringUtils.isBlank(username)) {
       username = notification.getOwnerParameter().get("likersId");
     }
-    return StringUtils.isBlank(username) ? null : identityManager.getOrCreateUserIdentity(username);
+    if (StringUtils.isBlank(username)) {
+      return null;
+    } else {
+      Identity identity = identityManager.getOrCreateUserIdentity(username);
+      if (identity != null) {
+        return identity;
+      }
+    }
+    if (StringUtils.isNumeric(username)) {
+      return identityManager.getIdentity(username);
+    } else {
+      return null;
+    }
   }
 
   private static Space getSpace(SpaceService spaceService, NotificationInfo notification) {
