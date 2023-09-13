@@ -17,9 +17,9 @@
           elevation="0"
           small
           outlined>
-          <v-icon size="14" class="me-1">far fa-comment</v-icon>
+          <v-icon size="14" class="me-1">{{ replyIcon }}</v-icon>
           <span class="text-none">
-            {{ $t('Notification.label.Reply') }}
+            {{ $t(replyKey) }}
           </span>
         </v-btn>
       </div>
@@ -53,6 +53,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    replyIcon: {
+      type: String,
+      default: () => 'far fa-comment',
+    },
+    replyKey: {
+      type: String,
+      default: () => 'Notification.label.Reply',
+    },
   },
   data: () => ({
     loading: true,
@@ -83,7 +91,7 @@ export default {
       return this.notification?.parameters && this.notification?.parameters[this.commentIdParam] || null;
     },
     parentCommentId() {
-      return this.activity?.parentCommentId;
+      return this.activity?.parentCommentId || null;
     },
     activityType() {
       return this.activity?.type;
@@ -94,7 +102,7 @@ export default {
         || '#';
     },
     replyUrl() {
-      return this.activity && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.activityId}#comment-reply-${this.parentCommentId || this.commentId}`
+      return this.activity && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.activityId}#comment-reply${(this.parentCommentId || this.commentId) && '-' || ''}${this.parentCommentId || this.commentId || ''}`
         || '#';
     },
     space() {
@@ -157,11 +165,24 @@ export default {
       })
       .then(() => {
         if (this.activityType) {
-          this.extension = extensionRegistry.loadExtensions('WebNotification', `activity-notification-${this.activityType}`).find(extension => !extension.isEnabled || extension.isEnabled(this.notification, this.activity));
+          document.addEventListener(`extension-WebNotification-activity-notification-${this.activityType}-updated`, this.refreshActivityTypeExtensions);
+          this.refreshActivityTypeExtensions();
         }
         return this.$nextTick();
       })
       .finally(() => this.loading = false);
+  },
+  beforeDestroy() {
+    if (this.activityType) {
+      document.removeEventListener(`extension-WebNotification-activity-notification-${this.activityType}-updated`, this.refreshActivityTypeExtensions);
+    }
+  },
+  methods: {
+    refreshActivityTypeExtensions() {
+      if (this.activityType) {
+        this.extension = extensionRegistry.loadExtensions('WebNotification', `activity-notification-${this.activityType}`).find(extension => !extension.isEnabled || extension.isEnabled(this.notification, this.activity));
+      }
+    },
   },
 };
 </script>
