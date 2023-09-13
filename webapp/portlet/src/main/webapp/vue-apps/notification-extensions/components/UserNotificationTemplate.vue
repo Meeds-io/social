@@ -16,7 +16,8 @@
         @click="markAsRead">
         <v-list-item-avatar
           v-if="$slots.avatar || avatarUrl"
-          :rounded="spaceAvatar">
+          :rounded="spaceAvatar"
+          :tile="!!$slots.avatar">
           <slot v-if="$slots.avatar" name="avatar"></slot>
           <v-avatar
             v-else
