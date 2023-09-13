@@ -25,10 +25,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
@@ -98,6 +100,9 @@ public class WebNotificationRestEntityBuilder {
       username = notification.getOwnerParameter().get("sender");
     }
     if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("SENDER_ID");
+    }
+    if (StringUtils.isBlank(username)) {
       username = notification.getOwnerParameter().get("request_from");
     }
     if (StringUtils.isBlank(username)) {
@@ -114,6 +119,16 @@ public class WebNotificationRestEntityBuilder {
     String spacePrettyName = notification.getOwnerParameter().get("prettyName");
     if (StringUtils.isNotBlank(spacePrettyName)) {
       return spaceService.getSpaceByPrettyName(spacePrettyName);
+    }
+    String activityId = notification.getOwnerParameter().get("activityId");
+    if (StringUtils.isNotBlank(activityId)) {
+      ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+      if (activity != null && activity.getActivityStream() != null && activity.getActivityStream().isSpace()) {
+        spaceId = activity.getSpaceId();
+        if (StringUtils.isNotBlank(spaceId)) {
+          return spaceService.getSpaceById(spaceId);
+        }
+      }
     }
     return null;
   }
