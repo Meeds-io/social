@@ -116,7 +116,7 @@ export default {
       return this.navigations.filter(nav => nav.visibility === 'DISPLAYED' || nav.visibility === 'TEMPORAL').slice();
     },
     navigationsLabel() {
-      return `${this.site.name}Navigations`;
+      return `${this.site}MetaSiteNavigations`;
     } 
   },
   watch: {

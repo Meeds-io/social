@@ -34,7 +34,7 @@
           v-if="site.metaSite"
           :extra-class="'pt-0'"
           :navigations="site.siteNavigations" 
-          :site="site" />
+          :site="site.name" />
         <site-hamburger-item
           v-else
           :key="site.name"
