@@ -18,7 +18,9 @@
           small
           outlined>
           <v-icon size="14" class="me-1">far fa-comment</v-icon>
-          {{ $t('Notification.label.Reply') }}
+          <span class="text-none">
+            {{ $t('Notification.label.Reply') }}
+          </span>
         </v-btn>
       </div>
     </template>
