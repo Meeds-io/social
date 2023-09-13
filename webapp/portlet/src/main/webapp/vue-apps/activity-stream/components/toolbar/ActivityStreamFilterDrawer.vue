@@ -16,6 +16,7 @@
 -->
 <template>
   <exo-drawer
+    id="filterStreamDrawer"
     ref="filterStreamDrawer"
     body-classes="hide-scroll decrease-z-index-more"
     right>
