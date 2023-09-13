@@ -123,6 +123,10 @@ export default {
       type: Object,
       default: null,
     },
+    strictType: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     components: [],
@@ -136,16 +140,24 @@ export default {
     document.addEventListener(`component-${this.name}-${this.type}-updated`, event => {
       const component = event && event.detail;
       if (component) {
-        const components = this.components.slice();
-        this.registerComponent(component, components);
-        this.components = components;
+        if (!this.strictType || component.componentName === this.type) {
+          const components = this.components.slice();
+          this.registerComponent(component, components);
+          this.components = components;
+        }
       }
     });
     const registeredComponents = extensionRegistry.loadComponents(this.name);
     const components = [];
-    registeredComponents.forEach(component => {
-      this.registerComponent(component, components);
-    });
+    if (this.strictType) {
+      registeredComponents.filter(comp => comp.componentName === this.type).forEach(component => {
+        this.registerComponent(component, components);
+      });
+    } else {
+      registeredComponents.forEach(component => {
+        this.registerComponent(component, components);
+      });
+    }
     this.components = components;
   },
   methods: {

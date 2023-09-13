@@ -20,12 +20,9 @@ package org.exoplatform.social.notification.impl;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.NotificationMessageUtils;
-import org.exoplatform.commons.api.notification.channel.AbstractChannel;
-import org.exoplatform.commons.api.notification.channel.template.AbstractTemplateBuilder;
 import org.exoplatform.commons.api.notification.model.*;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
-import org.exoplatform.commons.notification.channel.WebChannel;
 import org.exoplatform.commons.notification.impl.NotificationContextImpl;
 import org.exoplatform.commons.notification.net.WebNotificationSender;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -39,7 +36,6 @@ import org.exoplatform.social.notification.plugin.SocialNotificationUtils;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RelationshipNotificationImpl extends RelationshipListenerPlugin {
 
@@ -52,16 +48,6 @@ public class RelationshipNotificationImpl extends RelationshipListenerPlugin {
     String receiverId = relationship.getReceiver().getRemoteId();
     String senderId = relationship.getSender().getRemoteId();
     markAllInvitationNotificationsAsAccepted(senderId, receiverId);
-  }
-
-  @Override
-  public void ignored(RelationshipEvent event) {
-
-  }
-
-  @Override
-  public void removed(RelationshipEvent event) {
-
   }
 
   @Override
@@ -93,28 +79,20 @@ public class RelationshipNotificationImpl extends RelationshipListenerPlugin {
    * @param receiverId Id of the notification (invitation) receiver
    */
   private void markAllInvitationNotificationsAsAccepted(String senderId, String receiverId) {
-    WebNotificationService webNotificationService = getWebNotificationService();
-    if (webNotificationService != null) {
-      WebNotificationFilter webNotificationFilter = new WebNotificationFilter(receiverId);
-      webNotificationFilter.setParameter("sender", senderId);
-      PluginKey pluginKey = new PluginKey(RelationshipReceivedRequestPlugin.ID);
-      webNotificationFilter.setPluginKey(pluginKey);
-      List<NotificationInfo> webNotifs = webNotificationService.getNotificationInfos(webNotificationFilter, 0, -1);
-      Map<String, String> ownerParameter = new HashMap<String, String>();
-      ownerParameter.put("status", "accepted");
-      ownerParameter.put("sender", senderId);
-      NotificationInfo info =  webNotifs.get(0);
-      webNotifs.remove(0);
-      info.setOwnerParameter(ownerParameter);
-      info.key(pluginKey);
-      info.setFrom(senderId);
-      info.setTo(receiverId);
-      updateNotification(info);
-      for (NotificationInfo notificationInfo : webNotifs) {
-        webNotificationService.remove(notificationInfo.getId());
-      }
-    } else {
-      LOG.error("Cannot update web notfication. WebNotificationService is null");
+    WebNotificationFilter webNotificationFilter = new WebNotificationFilter(receiverId);
+    webNotificationFilter.setParameter("sender", senderId);
+    webNotificationFilter.setPluginKey(new PluginKey(RelationshipReceivedRequestPlugin.ID));
+    List<NotificationInfo> webNotifs = getWebNotificationService().getNotificationInfos(webNotificationFilter, 0, -1);
+
+    NotificationInfo info = webNotifs.get(0);
+    info.setRead(true);
+    info.setOwnerParameter(new HashMap<>(info.getOwnerParameter()));
+    info.getOwnerParameter().put("status", "accepted");
+    updateNotification(info);
+
+    webNotifs.remove(0);
+    for (NotificationInfo notificationInfo : webNotifs) {
+      getWebNotificationService().remove(notificationInfo.getId());
     }
   }
 
@@ -127,18 +105,13 @@ public class RelationshipNotificationImpl extends RelationshipListenerPlugin {
    * @param receiverId Id of the notification (invitation) receiver
    */
   private void removeAllDeniedInvitationsNotifications(String senderId, String receiverId) {
-    WebNotificationService webNotificationService = getWebNotificationService();
-    if (webNotificationService != null) {
-      WebNotificationFilter webNotificationFilter = new WebNotificationFilter(receiverId);
-      webNotificationFilter.setParameter("sender", senderId);
-      PluginKey pluginKey = new PluginKey(RelationshipReceivedRequestPlugin.ID);
-      webNotificationFilter.setPluginKey(pluginKey);
-      List<NotificationInfo> webNotifs = webNotificationService.getNotificationInfos(webNotificationFilter, 0, -1);
-      for (NotificationInfo notificationInfo : webNotifs) {
-        webNotificationService.remove(notificationInfo.getId());
-      }
-    } else {
-      LOG.error("Cannot update web notfication. WebNotificationService is null");
+    WebNotificationFilter webNotificationFilter = new WebNotificationFilter(receiverId);
+    webNotificationFilter.setParameter("sender", senderId);
+    PluginKey pluginKey = new PluginKey(RelationshipReceivedRequestPlugin.ID);
+    webNotificationFilter.setPluginKey(pluginKey);
+    List<NotificationInfo> webNotifs = getWebNotificationService().getNotificationInfos(webNotificationFilter, 0, -1);
+    for (NotificationInfo notificationInfo : webNotifs) {
+      getWebNotificationService().remove(notificationInfo.getId());
     }
   }
 
@@ -149,26 +122,18 @@ public class RelationshipNotificationImpl extends RelationshipListenerPlugin {
     return webNotificationService;
   }
 
-  private MessageInfo updateNotification(NotificationInfo notification) {
+  private void updateNotification(NotificationInfo notification) {
     NotificationContext nCtx = NotificationContextImpl.cloneInstance().setNotificationInfo(notification);
     BaseNotificationPlugin plugin = nCtx.getPluginContainer().getPlugin(notification.getKey());
-    if (plugin == null) {
-      return null;
-    }
-    try {
-      AbstractChannel channel = nCtx.getChannelManager().getChannel(ChannelKey.key(WebChannel.ID));
-      AbstractTemplateBuilder builder = channel.getTemplateBuilder(notification.getKey());
-      MessageInfo msg = builder.buildMessage(nCtx);
-      msg.setMoveTop(false);
-      WebNotificationSender.sendJsonMessage(notification.getTo(), msg);
-      notification.setTitle(msg.getBody());
-      notification.with(NotificationMessageUtils.SHOW_POPOVER_PROPERTY.getKey(), "true")
-          .with(NotificationMessageUtils.READ_PORPERTY.getKey(), "false");
-      getWebNotificationService().save(notification);
-      return msg;
-    } catch (Exception e) {
-      LOG.error("Can not update relationship notification.", e.getMessage());
-      return null;
+    if (plugin != null) {
+      try {
+        notification.with(NotificationMessageUtils.SHOW_POPOVER_PROPERTY.getKey(), "true")
+                    .with(NotificationMessageUtils.READ_PORPERTY.getKey(), "false");
+        getWebNotificationService().save(notification);
+        WebNotificationSender.sendJsonMessage(notification.getTo(), new MessageInfo());
+      } catch (Exception e) {
+        LOG.error("Can not update relationship notification.", e.getMessage());
+      }
     }
   }
 

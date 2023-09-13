@@ -23,11 +23,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.space.model.Space;
 
 public class SpaceInvitationPlugin extends BaseNotificationPlugin {
-  
-  private static final String ACCEPT_SPACE_INVITATION = "social/intranet-notification/acceptInvitationToJoinSpace";
 
-  private static final String REFUSE_SPACE_INVITATION = "social/intranet-notification/ignoreInvitationToJoinSpace";
-  
   public static final String ID = "SpaceInvitationPlugin";
 
   public SpaceInvitationPlugin(InitParams initParams) {
@@ -45,11 +41,13 @@ public class SpaceInvitationPlugin extends BaseNotificationPlugin {
     Space space = ctx.value(SocialNotificationUtils.SPACE);
     String userId = ctx.value(SocialNotificationUtils.REMOTE_ID);
     String senderName = ctx.value(SocialNotificationUtils.SENDER);
-    return NotificationInfo.instance().key(getId())
-            .with(SocialNotificationUtils.SENDER.getKey(), senderName)
-            .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
-           .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
-           .to(userId).end();
+    return NotificationInfo.instance()
+                           .key(getId())
+                           .with(SocialNotificationUtils.SENDER.getKey(), senderName)
+                           .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
+                           .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
+                           .to(userId)
+                           .end();
   }
 
   @Override

@@ -21,12 +21,17 @@ package io.meeds.social.notification.rest.utils;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
 
 import io.meeds.social.notification.rest.model.WebNotificationListRestEntity;
 import io.meeds.social.notification.rest.model.WebNotificationRestEntity;
@@ -39,16 +44,19 @@ public class WebNotificationRestEntityBuilder {
 
   public static WebNotificationRestEntity toRestEntity(WebNotificationService webNotificationService,
                                                        IdentityManager identityManager,
+                                                       SpaceService spaceService,
                                                        NotificationInfo notification,
                                                        boolean isOnPopover) {
-    String username = notification.getFrom();
-    Identity identity = identityManager.getOrCreateUserIdentity(username);
-    ProfileEntity profileEntity = identity == null ? null : EntityBuilder.buildEntityProfile(identity.getProfile(), username);
+    Identity identity = getSender(identityManager, notification);
+    Space space = getSpace(spaceService, notification);
+    ProfileEntity profileEntity = identity == null ? null : EntityBuilder.buildEntityProfile(identity.getProfile(), null);
+    SpaceEntity spaceEntity = space == null ? null : EntityBuilder.buildEntityFromSpace(space, null, null, null);
 
     return new WebNotificationRestEntity(notification.getId(),
                                          notification.getTitle(),
                                          notification.getKey().getId(),
                                          profileEntity,
+                                         spaceEntity,
                                          webNotificationService.getNotificationMessage(notification, isOnPopover),
                                          notification.getOwnerParameter(),
                                          notification.isRead(),
@@ -57,6 +65,7 @@ public class WebNotificationRestEntityBuilder {
 
   public static WebNotificationListRestEntity toRestEntity(WebNotificationService webNftService,
                                                            IdentityManager identityManager,
+                                                           SpaceService spaceService,
                                                            List<NotificationInfo> notificationInfos,
                                                            boolean isOnPopover,
                                                            int offset,
@@ -65,12 +74,48 @@ public class WebNotificationRestEntityBuilder {
     return new WebNotificationListRestEntity(notificationInfos.stream()
                                                               .map(notification -> toRestEntity(webNftService,
                                                                                                 identityManager,
+                                                                                                spaceService,
                                                                                                 notification,
                                                                                                 isOnPopover))
                                                               .toList(),
                                              badge,
                                              offset,
                                              limit);
+  }
+
+  private static Identity getSender(IdentityManager identityManager, NotificationInfo notification) {
+    String username = notification.getFrom();
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("poster");
+    }
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("username");
+    }
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("profile");
+    }
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("sender");
+    }
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("request_from");
+    }
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("likersId");
+    }
+    return StringUtils.isBlank(username) ? null : identityManager.getOrCreateUserIdentity(username);
+  }
+
+  private static Space getSpace(SpaceService spaceService, NotificationInfo notification) {
+    String spaceId = notification.getOwnerParameter().get("spaceId");
+    if (StringUtils.isNotBlank(spaceId)) {
+      return spaceService.getSpaceById(spaceId);
+    }
+    String spacePrettyName = notification.getOwnerParameter().get("prettyName");
+    if (StringUtils.isNotBlank(spacePrettyName)) {
+      return spaceService.getSpaceByPrettyName(spacePrettyName);
+    }
+    return null;
   }
 
 }
