@@ -4,6 +4,7 @@
     class="pb-0">
     <v-list-item-group>
       <v-treeview
+        id="siteHamburgerItemNavigationTree"
         :open.sync="openLevel"
         :items="navigations"
         class="treeView-item my-2"
@@ -16,17 +17,19 @@
           <v-list-item
             link
             :href="navigationUri(item)"
-            class="d-flex clickable ms-0"
-            :class="item.uri === selectedNodeUri && ' v-item--active v-list-item--active ' || ' '">
+            :target="navigationTarget(item)"
+            class="d-flex clickable px-0"
+            :class="isCurrentNode(item) && ' v-item--active v-list-item--active' || ' '">
             <v-icon
               v-if="item.icon"
-              size="24"
-              class="icon-default-color mt-1 mx-2">
+              size="20"
+              class="icon-default-color mt-1 ms-4"
+             :class="isCurrentNode(item) && 'me-2' || ''">
               {{ item.icon }}
             </v-icon>
-            <div v-else class="ms-5 me-2"></div>
             <v-list-item-title
-              class="body-2 mx-2 mt-1">
+              :class="!isCurrentNode(item) && 'ms-2'"
+              class="body-2 mt-1">
               {{ item.label }}
             </v-list-item-title>
           </v-list-item>
@@ -49,7 +52,14 @@ export default {
   }),
   computed: {
     openLevel() {
-      return this.navigations?.length && this.navigations.map(nav => nav.name) || [];
+      const ids = [];
+      if (this.navigations?.length) {
+        this.navigations.forEach(nav => {
+          ids.push(nav.name);
+          ids.push(...nav.children.length && nav.children.map(nav => nav.name) || []);
+        });
+      }
+      return ids;
     },
   },
   methods: {
@@ -59,6 +69,12 @@ export default {
         url = `//${url}`;
       }
       return  url;
+    },
+    navigationTarget(navigation) {
+      return navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+    },
+    isCurrentNode(navigation) {
+      return navigation.uri === this.selectedNodeUri;
     },
   }
 };
