@@ -45,6 +45,7 @@ export function init() {
         data: {
           notificationExtensions: {},
           initialized: false,
+          now: Date.now(),
         },
         template: `<notification-list id="${appId}"></notification-list>`,
         vuetify: Vue.prototype.vuetifyOptions,
@@ -52,6 +53,7 @@ export function init() {
         created() {
           document.addEventListener('extension-WebNotification-notification-content-extension-updated', this.refreshNotificationExtensions);
           this.refreshNotificationExtensions();
+          window.setInterval(() => this.now = Date.now(), 60000);
         },
         methods: {
           refreshNotificationExtensions() {
