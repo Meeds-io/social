@@ -122,13 +122,13 @@ export default {
       return this.notification?.created && new Date(this.notification?.created);
     },
     relativeDateLabelKey() {
-      return this.lastUpdateTime && this.$dateUtil.getRelativeTimeLabelKey(this.lastUpdateTime, true) || '';
+      return this.lastUpdateTime && this.$root.now && this.$dateUtil.getRelativeTimeLabelKey(this.lastUpdateTime, true) || '';
     },
     relativeDateLabelValue() {
-      return this.lastUpdateTime && this.$dateUtil.getRelativeTimeValue(this.lastUpdateTime) || 1;
+      return this.lastUpdateTime && this.$root.now && this.$dateUtil.getRelativeTimeValue(this.lastUpdateTime) || 1;
     },
     relativeDateLabel() {
-      return this.lastUpdateTime && this.$t(this.relativeDateLabelKey, {0: this.relativeDateLabelValue}) || '';
+      return this.lastUpdateTime && this.$root.now && this.$t(this.relativeDateLabelKey, {0: this.relativeDateLabelValue}) || '';
     },
     extensionParams() {
       return {
