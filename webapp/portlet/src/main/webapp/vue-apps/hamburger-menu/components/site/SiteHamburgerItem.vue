@@ -46,8 +46,9 @@
     </v-list-item-content>
     <v-list-item-action
       v-if="toggleArrow"
-      class="me-2 my-auto align-center">
+      class="my-auto align-center">
       <ripple-hover-button
+        class="ms-2 "
         :active="!drawerOpened"
         icon
         @ripple-hover="openOrCloseDrawer()">
