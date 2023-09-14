@@ -139,7 +139,7 @@ public class WebNotificationRestEntityBuilder {
       return spaceService.getSpaceByPrettyName(spacePrettyName);
     }
     String activityId = notification.getOwnerParameter().get("activityId");
-    if (StringUtils.isNotBlank(activityId)) {
+    if (StringUtils.isNotBlank(activityId) && StringUtils.isNumeric(activityId)) {
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
       if (activity != null && activity.getActivityStream() != null && activity.getActivityStream().isSpace()) {
         spaceId = activity.getSpaceId();
