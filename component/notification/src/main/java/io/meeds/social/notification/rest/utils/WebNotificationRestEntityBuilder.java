@@ -115,6 +115,12 @@ public class WebNotificationRestEntityBuilder {
       username = notification.getOwnerParameter().get("likersId");
     }
     if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("creator");
+    }
+    if (StringUtils.isBlank(username)) {
+      username = notification.getOwnerParameter().get("creatorId");
+    }
+    if (StringUtils.isBlank(username)) {
       return null;
     } else {
       Identity identity = identityManager.getOrCreateUserIdentity(username);
