@@ -47,6 +47,7 @@ export function init(badge) {
           notificationExtensions: {},
           badge,
           initialized: false,
+          now: Date.now(),
         },
         template: `<top-bar-notification id="${appId}"></top-bar-notification>`,
         vuetify: Vue.prototype.vuetifyOptions,
@@ -54,6 +55,7 @@ export function init(badge) {
         created() {
           document.addEventListener('extension-WebNotification-notification-content-extension-updated', this.refreshNotificationExtensions);
           this.refreshNotificationExtensions();
+          window.setInterval(() => this.now = Date.now(), 60000);
         },
         methods: {
           refreshNotificationExtensions() {
