@@ -71,7 +71,7 @@ export default {
       return  url;
     },
     navigationTarget(navigation) {
-      return  navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+      return navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
     isCurrentNode(navigation) {
       return navigation.uri === this.selectedNodeUri;
