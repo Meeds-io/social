@@ -15,58 +15,68 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-toolbar
-    v-if="displayToolbar"
-    id="activityComposer"
-    class="activityComposer activityComposerApp pa-0 border-radius"
-    color="white mb-5"
-    height="auto"
-    flat
-    dense>
-    <div class="d-flex flex-column full-width">
-      <div 
-        :class="activityStreamToolbarStyle"
-        class="d-flex full-width">
-        <div class="flex-grow-1">
-          <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
-            <div class="d-flex flex-row align-center">
-              <exo-user-avatar
-                v-if="user"
-                :identity="user"
-                class="me-3"
-                size="45"
-                avatar />
-              <a @click="openComposerDrawer(true)" class="flex-grow-1">
-                <v-btn 
-                  class="text-light-color px-0 flex-shrink-1 d-flex justify-start subtitle-2"
-                  text>
-                  <span class="pa-2"> {{ $t('activity.composer.post.start') }} </span>
-                </v-btn>
-              </a>
+  <div>
+    <v-toolbar
+      v-if="displayToolbar"
+      id="activityComposer"
+      class="activityComposer activityComposerApp pa-0 border-radius"
+      color="white mb-5"
+      height="auto"
+      flat
+      dense>
+      <div class="d-flex flex-column full-width">
+        <div 
+          :class="activityStreamToolbarStyle"
+          class="d-flex full-width">
+          <div class="flex-grow-1">
+            <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
+              <div class="d-flex flex-row align-center">
+                <exo-user-avatar
+                  v-if="user"
+                  :identity="user"
+                  class="me-3"
+                  size="45"
+                  avatar />
+                <a @click="openComposerDrawer(true)" class="flex-grow-1">
+                  <v-btn 
+                    class="text-light-color px-0 flex-shrink-1 d-flex justify-start subtitle-2"
+                    text>
+                    <span class="pa-2"> {{ $t('activity.composer.post.start') }} </span>
+                  </v-btn>
+                </a>
+              </div>
+            </div>
+            <div v-else>
+              <v-card-text class="text-sub-title text-body-1 px-0">
+                {{ $t('activity.toolbar.title') }}
+              </v-card-text>
             </div>
           </div>
-          <div v-else>
-            <v-card-text class="text-sub-title text-body-1 px-0">
-              {{ $t('activity.toolbar.title') }}
-            </v-card-text>
+          <div
+            v-if="streamFilterEnabled" 
+            class="my-auto">
+            <v-btn icon @click="openStreamFilterDrawer">
+              <v-icon
+                :color="filterIconColor"
+                size="24">
+                fa-sliders-h
+              </v-icon>
+            </v-btn>
           </div>
         </div>
-        <div 
-          v-if="streamFilterEnabled" 
-          class="my-auto">
-          <activity-stream-filter />
+        <div v-if="userCanPost" class="hidden-xs-only">
+          <v-divider />
+          <extension-registry-components
+            :params="extensionParams"
+            name="ActivityToolbarAction"
+            type="activity-toolbar-action"
+            class="my-auto d-flex align-center flex-wrap" />
         </div>
       </div>
-      <div v-if="toolbarActionsDisplay" class="hidden-xs-only">
-        <v-divider />
-        <extension-registry-components
-          :params="extensionParams"
-          name="ActivityToolbarAction"
-          type="activity-toolbar-action"
-          class="my-auto d-flex align-center flex-wrap" />
-      </div>
-    </div>
-  </v-toolbar>
+    </v-toolbar>
+    <activity-stream-filter-drawer
+      ref="filterStreamDrawer" />
+  </div>
 </template>
 
 <script>
@@ -101,7 +111,8 @@ export default {
     return {
       user: null,
       MESSAGE_MAX_LENGTH: 1300,
-      spaceId: eXo.env.portal.spaceId
+      spaceId: eXo.env.portal.spaceId,
+      streamFilter: localStorage.getItem('activity-stream-stored-filter')
     };
   },
   computed: {
@@ -130,6 +141,9 @@ export default {
     },
     toolbarActionsDisplay() {
       return this.userCanPost && this.spaceId;
+    },
+    filterIconColor() {
+      return this.streamFilter !== 'all_stream' && 'primary';
     }
   },
   created() {
@@ -137,6 +151,9 @@ export default {
       this.$userService.getUser(eXo.env.portal.userName)
         .then(user => this.user = user);
     }
+    document.addEventListener('activity-stream-type-filter-applied', event => {
+      this.streamFilter = event && event.detail;
+    });
   },
   methods: {
     openComposerDrawer() {
@@ -149,6 +166,9 @@ export default {
           activityType: []
         }}));
       });
+    },
+    openStreamFilterDrawer() {
+      this.$refs.filterStreamDrawer.open();
     },
   },
 };
