@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <v-list-item :href="uri">
+  <v-list-item v-if="!displaySequentially" @click="openOrCloseDrawer">
     <v-list-item-icon class="flex align-center flex-grow-0 my-2">
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
@@ -30,6 +30,36 @@
         v-text="site.displayName" />
     </v-list-item-content>
   </v-list-item>
+  <v-list-item
+    v-else
+    :href="uri"
+    @mouseover="showItemActions = true"
+    @mouseleave="showItemActions = false">
+    <v-list-item-icon class="flex align-center flex-grow-0 my-2">
+      <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
+      <i v-else :class="iconClass"></i>
+    </v-list-item-icon>
+    <v-list-item-content>
+      <v-list-item-title
+        class="subtitle-2"
+        v-text="site.displayName" />
+    </v-list-item-content>
+    <v-list-item-action
+      v-if="toggleArrow"
+      class="my-auto align-center">
+      <ripple-hover-button
+        class="ms-2 "
+        :active="!drawerOpened"
+        icon
+        @ripple-hover="openOrCloseDrawer()">
+        <v-icon
+          class="me-0 pa-2 icon-default-color clickable"
+          small>
+          {{ arrowIcon }}
+        </v-icon>
+      </ripple-hover-button>
+    </v-list-item-action>
+  </v-list-item>
 </template>
 
 <script>
@@ -38,10 +68,14 @@ export default {
     site: {
       type: Object,
       default: null
-    }
+    },
+    openedSite: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
-    BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
+    showItemActions: false,
   }),
   computed: {
     uri() {
@@ -56,7 +90,25 @@ export default {
     iconClass() {
       const capitilizedName = `${this.siteRootNode.name[0].toUpperCase()}${this.siteRootNode.name.slice(1)}`;
       return `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${this.siteRootNode.icon}`;
-    }
+    },
+    toggleArrow() {
+      return this.showItemActions || this.drawerOpened;
+    },
+    drawerOpened() {
+      return this.openedSite?.name === this.site?.name;
+    },
+    arrowIcon() {
+      return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
+    },
+    arrowIconLeft() {
+      return this.$root.ltr && 'fa-arrow-left' || 'fa-arrow-right';
+    },
+    arrowIconRight() {
+      return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
+    },
+    displaySequentially() {
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+    },
   },
   methods: {
     urlVerify(url) {
@@ -64,6 +116,13 @@ export default {
         url = `//${url}`;
       }
       return url;
+    },
+    openOrCloseDrawer(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      this.$root.$emit('change-site-menu', this.site);
     },
   }
 };
