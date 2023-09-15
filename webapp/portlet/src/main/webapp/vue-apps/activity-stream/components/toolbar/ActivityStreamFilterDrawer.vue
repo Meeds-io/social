@@ -53,7 +53,7 @@
             class="btn me-2"
             @click="cancel">
             <template>
-               {{ $t('activity.filter.button.cancel') }}
+              {{ $t('activity.filter.button.cancel') }}
             </template>
           </v-btn>
           <v-btn
