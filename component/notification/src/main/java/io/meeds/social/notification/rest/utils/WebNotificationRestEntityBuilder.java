@@ -20,6 +20,7 @@
 package io.meeds.social.notification.rest.utils;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -65,14 +66,15 @@ public class WebNotificationRestEntityBuilder {
                                          notification.getLastModifiedDate());
   }
 
-  public static WebNotificationListRestEntity toRestEntity(WebNotificationService webNftService,
+  public static WebNotificationListRestEntity toRestEntity(WebNotificationService webNftService, // NOSONAR
                                                            IdentityManager identityManager,
                                                            SpaceService spaceService,
                                                            List<NotificationInfo> notificationInfos,
                                                            boolean isOnPopover,
+                                                           int badge,
+                                                           Map<String, Integer> badgesByPlugin,
                                                            int offset,
-                                                           int limit,
-                                                           int badge) {
+                                                           int limit) {
     return new WebNotificationListRestEntity(notificationInfos.stream()
                                                               .map(notification -> toRestEntity(webNftService,
                                                                                                 identityManager,
@@ -81,6 +83,7 @@ public class WebNotificationRestEntityBuilder {
                                                                                                 isOnPopover))
                                                               .toList(),
                                              badge,
+                                             badgesByPlugin,
                                              offset,
                                              limit);
   }

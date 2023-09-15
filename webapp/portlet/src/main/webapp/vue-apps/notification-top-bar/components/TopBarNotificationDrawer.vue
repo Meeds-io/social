@@ -26,35 +26,96 @@
     body-classes="hide-scroll"
     allow-expand
     right
-    @closed="$emit('closed')">
+    @closed="$emit('closed')"
+    @expand-updated="expanded = $event">
     <template slot="title">
       {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
     </template>
     <template #titleIcons>
-      <v-btn
-        :title="$t('UIIntranetNotificationsPortlet.title.NotificationsSetting')"
-        :href="settingsLink"
-        icon>
-        <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
-      </v-btn>
+      <v-tooltip bottom>
+        <template #activator="{on, bind}">
+          <div v-on="on" v-bind="bind">
+            <v-btn
+              :disabled="markingAsReadDisabled"
+              :loading="markingAllAsRead"
+              icon
+              @click="markAllAsRead">
+              <v-icon size="18">fa-envelope-open-text</v-icon>
+            </v-btn>
+          </div>
+        </template>
+        <span>{{ markingAsReadDisabled && $t('Notification.label.NoMarkAllAsRead') || $t('Notification.label.MarkAsRead', {0: $t(`Notification.label.types.${groupName}`)}) }}</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template #activator="{on, bind}">
+          <v-btn
+            :href="settingsLink"
+            icon
+            v-on="on"
+            v-bind="bind">
+            <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
+          </v-btn>
+        </template>
+        <span>{{ $t('UIIntranetNotificationsPortlet.title.NotificationsSetting') }}</span>
+      </v-tooltip>
     </template>
     <template #content>
-      <user-notifications :notifications-count.sync="notificationsCount" />
+      <div
+        :class="expanded && 'pa-4'"
+        class="d-flex light-grey-background-color">
+        <v-card
+          v-if="expanded"
+          height="fit-content"
+          width="270"
+          max-width="30%"
+          class="me-4"
+          flat>
+          <user-notification-types
+            ref="notificationTypes"
+            id="notificationTypes"
+            v-model="notificationPlugins"
+            :badge="badge"
+            :badge-by-plugin="badgeByPlugin"
+            class="flex-grow-0 flex-shrink-0"
+            @group="groupName = $event" />
+        </v-card>
+        <v-card
+          :max-height="expanded && '100%' || 'auto'"
+          :class="expanded && 'overflow-x-hidden overflow-y-auto' || 'overflow-hidden'"
+          :tile="!expanded"
+          class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent"
+          flat>
+          <user-notifications
+            ref="notifications"
+            id="notificationsList"
+            :plugins="notificationPlugins"
+            :notifications-count.sync="notificationsCount"
+            :unread-count.sync="hasUnread"
+            :expanded="expanded"
+            class="white notifDrawerItems"
+            @badge="$emit('update:badge', $event)"
+            @hasMore="hasMore = $event"
+            @badgeByPlugin="badgeByPlugin = $event" />
+          <v-btn
+            v-if="expanded && hasMore && $root.initialized"
+            :loading="loading > 0"
+            class="btn mx-auto my-4"
+            outlined
+            @click="$refs.notifications.loadMore()">
+            {{ $t('button.loadMore') }}
+          </v-btn>
+        </v-card>
+      </div>
     </template>
-    <template v-if="notificationsCount" #footer>
-      <div class="notifFooterActions d-flex flex justify-end">
+    <template v-if="!expanded && hasMore && $root.initialized" #footer>
+      <div class="d-flex align-center justify-center">
         <v-btn
-          :href="allNotificationsLink"
-          class="btn me-2">
-          <span class="text-none">
-            {{ $t('UIIntranetNotificationsPortlet.title.AllNotifications') }}
-          </span>
-        </v-btn>
-        <v-btn
-          :loading="markingAllAsRead"
-          class="btn primary"
-          @click="markAllAsRead()">
-          {{ $t('UIIntranetNotificationsPortlet.label.MarkAllAsRead') }}
+          :loading="loading > 0"
+          class="btn"
+          outlined
+          block
+          @click="$refs.notifications.loadMore()">
+          {{ $t('button.loadMore') }}
         </v-btn>
       </div>
     </template>
@@ -62,17 +123,39 @@
 </template>
 <script>
 export default {
+  props: {
+    badge: {
+      type: Number,
+      default: () => 0,
+    },
+  },
   data: () =>({
     loading: 0,
+    hasMore: false,
+    hasUnread: false,
+    expanded: false,
     notificationsCount: 0,
+    groupName: 'all',
+    notificationPlugins: null,
+    badgeByPlugin: null,
     markingAllAsRead: false,
     settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
     allNotificationsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/allNotifications`,
   }),
+  computed: {
+    markingAsReadDisabled() {
+      return !this.hasUnread || this.loading > 0;
+    },
+  },
   watch: {
     loading() {
       if (this.loading === 0) {
         this.$nextTick().then(() => this.$root.initialized = true);
+      }
+    },
+    expanded() {
+      if (!this.expanded && this.notificationPlugins) {
+        this.notificationPlugins = null;
       }
     },
   },
@@ -97,12 +180,11 @@ export default {
     },
     markAllAsRead() {
       this.markingAllAsRead = true;
-      return this.$notificationService.markAllAsRead()
+      return this.$notificationService.markAllAsRead(this.notificationPlugins)
         .then(() => {
-          $('.notifDrawerItems').find('li').each(function() {
-            if ($(this).hasClass('unread')) {
-              $(this).removeClass('unread').addClass('read');
-            }
+          document.querySelectorAll('.notifDrawerItems li.unread').forEach(el => {
+            el.classList.remove('unread');
+            el.classList.add('read');
           });
         })
         .finally(() => {

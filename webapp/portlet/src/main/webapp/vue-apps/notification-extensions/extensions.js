@@ -17,6 +17,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+extensionRegistry.registerExtension('WebNotification', 'notification-group-extension', {
+  rank: 10,
+  name: 'usersAndSpaces',
+  plugins: [
+    'NewUserPlugin',
+    'RelationshipReceivedRequestPlugin',
+    'SpaceInvitationPlugin',
+    'RequestJoinSpacePlugin'
+  ],
+  icon: 'fa-people-arrows',
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-group-extension', {
+  rank: 20,
+  name: 'stream',
+  plugins: [
+    'PostActivityPlugin',
+    'PostActivitySpaceStreamPlugin',
+    'ActivityCommentPlugin',
+    'ActivityReplyToCommentPlugin',
+    'ActivityMentionPlugin',
+    'SharedActivitySpaceStreamPlugin',
+    'EditActivityPlugin',
+    'LikePlugin',
+    'EditCommentPlugin',
+    'LikeCommentPlugin',
+  ],
+  icon: 'fa-stream',
+});
 extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
   type: 'NewUserPlugin',
   rank: 10,
