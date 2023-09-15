@@ -28,6 +28,34 @@
     </template>
     <template #content>
       <v-card flat>
+        <v-card-text v-if="!audienceTypesDisplay" class="mt-1 pb-0">
+          <span class="subtitle-1 text-sub-title"> {{ $t('activity.composer.content.title') }} </span>
+          <div class="d-flex flex-row">
+            <v-radio-group
+              v-if="postToNetwork"
+              v-model="audienceChoice"
+              class="mt-0"
+              mandatory>
+              <v-radio
+                :label="$t('activity.composer.content.yourNetwork')"
+                value="yourNetwork" />
+              <v-radio
+                :label="$t('activity.composer.content.oneOfYourSpaces')"
+                value="oneOfYourSpaces" />
+            </v-radio-group>
+            <exo-identity-suggester
+              v-else
+              ref="audienceComposerSuggester"
+              v-model="audience"
+              :labels="spaceSuggesterLabels"
+              :include-users="false"
+              :width="220"
+              name="audienceComposerSuggester"
+              class="user-suggester mt-n2"
+              include-spaces
+              only-redactor />
+          </div>
+        </v-card-text>
         <v-card-text>
           <rich-editor
             v-if="drawer"
@@ -102,7 +130,9 @@ export default {
       activityType: null,
       loading: false,
       attachments: null,
-      activityToolbarAction: false
+      activityToolbarAction: false,
+      postToNetwork: eXo.env.portal.postToNetworkEnabled,
+      audienceChoice: 'yourNetwork',
     };
   },
   computed: {
@@ -144,6 +174,15 @@ export default {
     enabled() {
       return eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0;
     },
+    spaceSuggesterLabels() {
+      return {
+        placeholder: this.$t('activity.composer.audience.placeholder'),
+        noDataLabel: this.$t('activity.composer.audience.noDataLabel'),
+      };
+    },
+    audienceTypesDisplay() {
+      return eXo.env.portal.spaceId;
+    }
   },
   watch: {
     message(newVal, oldVal) {
