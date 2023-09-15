@@ -19,7 +19,6 @@
 package org.exoplatform.social.notification.impl;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
-import org.exoplatform.commons.api.notification.NotificationMessageUtils;
 import org.exoplatform.commons.api.notification.model.*;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
@@ -140,8 +139,8 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
     BaseNotificationPlugin plugin = nCtx.getPluginContainer().getPlugin(notification.getKey());
     if (plugin != null) {
       try {
-        notification.with(NotificationMessageUtils.SHOW_POPOVER_PROPERTY.getKey(), "true")
-                    .with(NotificationMessageUtils.READ_PORPERTY.getKey(), "false");
+        notification.setRead(false);
+        notification.setOnPopOver(true);
         getWebNotificationService().save(notification);
         WebNotificationSender.sendJsonMessage(notification.getTo(), new MessageInfo());
       } catch (Exception e) {

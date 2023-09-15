@@ -41,6 +41,7 @@
     <top-bar-notification-drawer
       v-if="open"
       ref="drawer"
+      :badge.sync="badge"
       @closed="open = false" />
   </v-app>
 </template>
