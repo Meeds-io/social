@@ -115,13 +115,6 @@ export default {
     composerActionLabel() {
       return this.$t(`activity.composer.${this.composerAction}`);
     },
-    composerButtonLabel() {
-      if (eXo.env.portal.spaceDisplayName){
-        return this.$t('activity.composer.link', {0: eXo.env.portal.spaceDisplayName});
-      } else {
-        return this.$t('activity.composer.post');
-      }
-    },
     extensionParams() {
       return {
         activityId: this.activityId,
