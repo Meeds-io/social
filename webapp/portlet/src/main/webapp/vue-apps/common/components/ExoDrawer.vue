@@ -16,11 +16,10 @@
     max-height="100%"
     max-width="100vw"
     class="drawerParent overflow-initial">
-    <v-container
+    <div
       v-if="initialized || eager"
-      fill-height
-      class="pa-0">
-      <v-layout column>
+      class="pa-0 fill-width fill-height">
+      <v-layout class="fill-height" column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
             <v-list-item
@@ -81,7 +80,7 @@
           persistent
           @ok="closeEffectively" />
       </v-layout>
-    </v-container>
+    </div>
   </v-navigation-drawer>
 </template>
 

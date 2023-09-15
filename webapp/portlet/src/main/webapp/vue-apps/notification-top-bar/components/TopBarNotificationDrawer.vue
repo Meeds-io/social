@@ -63,48 +63,57 @@
       <div
         :class="expanded && 'pa-4'"
         class="d-flex light-grey-background-color fill-height">
-        <v-card
-          v-if="expanded"
-          height="fit-content"
-          width="270"
-          max-width="30%"
-          class="me-4"
-          flat>
-          <user-notification-types
-            ref="notificationTypes"
-            id="notificationTypes"
-            v-model="notificationPlugins"
-            :badge="badge"
-            :badge-by-plugin="badgeByPlugin"
-            class="flex-grow-0 flex-shrink-0"
-            @group="groupName = $event" />
-        </v-card>
-        <v-card
-          :max-height="expanded && '100%' || 'auto'"
-          :class="expanded && 'overflow-x-hidden overflow-y-auto' || ''"
-          :tile="!expanded"
-          class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent"
-          flat>
-          <user-notifications
-            ref="notifications"
-            id="notificationsList"
-            :plugins="notificationPlugins"
-            :notifications-count.sync="notificationsCount"
-            :unread-count.sync="hasUnread"
-            :expanded="expanded"
-            class="white notifDrawerItems"
-            @badge="$emit('update:badge', $event)"
-            @hasMore="hasMore = $event"
-            @badgeByPlugin="badgeByPlugin = $event" />
-          <v-btn
-            v-if="expanded && hasMore && $root.initialized"
-            :loading="loading > 0"
-            class="btn mx-auto my-4"
-            outlined
-            @click="$refs.notifications.loadMore()">
-            {{ $t('button.loadMore') }}
-          </v-btn>
-        </v-card>
+        <div
+          class="singlePageApplication pa-0 d-flex fill-height">
+          <v-card
+            v-if="expanded"
+            height="fit-content"
+            min-width="270"
+            width="270"
+            max-width="30%"
+            class="me-4"
+            flat>
+            <user-notification-types
+              ref="notificationTypes"
+              id="notificationTypes"
+              v-model="notificationPlugins"
+              :badge="badge"
+              :badge-by-plugin="badgeByPlugin"
+              class="flex-grow-0 flex-shrink-0"
+              @group="groupName = $event" />
+          </v-card>
+          <v-card
+            :max-height="expanded && '100%' || 'auto'"
+            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent overflow-hidden"
+            flat>
+            <v-card
+              :max-height="expanded && '100%' || 'auto'"
+              :class="expanded && 'overflow-x-hidden overflow-y-auto' || 'overflow-x-hidden'"
+              :tile="!expanded"
+              class="d-flex flex-column flex-grow-1 flex-shrink-1"
+              flat>
+              <user-notifications
+                ref="notifications"
+                id="notificationsList"
+                :plugins="notificationPlugins"
+                :notifications-count.sync="notificationsCount"
+                :unread-count.sync="hasUnread"
+                :expanded="expanded"
+                class="notifDrawerItems"
+                @badge="$emit('update:badge', $event)"
+                @hasMore="hasMore = $event"
+                @badgeByPlugin="badgeByPlugin = $event" />
+            </v-card>
+            <v-btn
+              v-if="expanded && hasMore && $root.initialized"
+              :loading="loading > 0"
+              class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
+              outlined
+              @click="$refs.notifications.loadMore()">
+              {{ $t('button.loadMore') }}
+            </v-btn>
+          </v-card>
+        </div>
       </div>
     </template>
     <template v-if="!expanded && hasMore && $root.initialized" #footer>
