@@ -76,11 +76,13 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
                                receivers.stream()
                                         .filter(username -> Utils.getActivityManager().isNotificationEnabled(comment, username))
                                         .toList();
+    String poster = Utils.getUserId(comment.getUserId());
     return NotificationInfo.instance()
                            .to(receiversList)
+                           .setFrom(poster)
                            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                            .with(SocialNotificationUtils.COMMENT_ID.getKey(), comment.getId())
-                           .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(comment.getUserId()))
+                           .with(SocialNotificationUtils.POSTER.getKey(), poster)
                            .key(getId());
   }
 
