@@ -76,8 +76,6 @@ public class EntityBuilder {
 
   private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
 
-  private static final String             GROUP_BINDING_DATE_FORMAT                  = "dd/MM/yyyy HH:mm:ss";
-
   private static final Log                LOG                                        = ExoLogger.getLogger(EntityBuilder.class);
 
   /** Group Space Binding */
@@ -142,7 +140,7 @@ public class EntityBuilder {
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
 
-  public static final String              PUBLISHER_MEMBERSHIP                        = "publisher";
+  public static final String              PUBLISHER_MEMBERSHIP                       = "publisher";
 
   public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
 
@@ -218,6 +216,10 @@ public class EntityBuilder {
       entity.setIsGroupBound(spaceBindingService.countUserBindings(space.getId(), userId) > 0);
     }
     return entity;
+  }
+
+  public static ProfileEntity buildEntityProfile(Profile profile, String expand) {
+    return buildEntityProfile(profile, null, expand);
   }
 
   public static ProfileEntity buildEntityProfile(Profile profile, String restPath, String expand) {
@@ -298,7 +300,7 @@ public class EntityBuilder {
           Identity currentUserIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
           try {
             userEntity.setConnectionsInCommonCount(String.valueOf(getRelationshipManager().getConnectionsInCommonCount(currentUserIdentity,
-                    profile.getIdentity())));
+                                                                                                                       profile.getIdentity())));
           } catch (Exception e) {
             LOG.warn("Error while getting spaces count of user", e);
           }
@@ -316,7 +318,7 @@ public class EntityBuilder {
             Type status = relationship.getStatus();
             if (status == Type.PENDING) {
               Type relationshipStatus = StringUtils.equals(relationship.getSender().getRemoteId(), currentUser) ? Type.OUTGOING
-                      : Type.INCOMING;
+                                                                                                                : Type.INCOMING;
               userEntity.setRelationshipStatus(relationshipStatus.name());
             } else {
               userEntity.setRelationshipStatus(relationship.getStatus().name());
@@ -332,7 +334,6 @@ public class EntityBuilder {
     }
     return userEntity;
   }
-
 
   public static List<ProfilePropertySettingEntity> buildProperties(Profile profile) {
 
@@ -356,9 +357,9 @@ public class EntityBuilder {
         subProperties.add(property);
       } else {
         ProfilePropertySettingEntity profilePropertySettingEntity =
-                buildEntityProfilePropertySetting(property,
-                        profilePropertyService,
-                        ProfilePropertyService.LABELS_OBJECT_TYPE);
+                                                                  buildEntityProfilePropertySetting(property,
+                                                                                                    profilePropertyService,
+                                                                                                    ProfilePropertyService.LABELS_OBJECT_TYPE);
         if (profile.getProperty(property.getPropertyName()) != null) {
           if (profile.getProperty(property.getPropertyName()) instanceof String propertyValue) {
             if (StringUtils.isNotEmpty(propertyValue)) {
@@ -384,16 +385,16 @@ public class EntityBuilder {
                   ProfilePropertySettingEntity subProfilePropertySettingEntity = new ProfilePropertySettingEntity();
                   if (StringUtils.isNotEmpty(subProperty.get("key"))) {
                     ProfilePropertySetting propertySetting =
-                            profilePropertyService.getProfileSettingByName(property.getPropertyName()
-                                    + "." + subProperty.get("key"));
+                                                           profilePropertyService.getProfileSettingByName(property.getPropertyName()
+                                                               + "." + subProperty.get("key"));
                     if (propertySetting == null) {
                       propertySetting = profilePropertyService.getProfileSettingByName(subProperty.get("key"));
                     }
                     if (propertySetting != null) {
                       subProfilePropertySettingEntity =
-                              buildEntityProfilePropertySetting(propertySetting,
-                                      profilePropertyService,
-                                      ProfilePropertyService.LABELS_OBJECT_TYPE);
+                                                      buildEntityProfilePropertySetting(propertySetting,
+                                                                                        profilePropertyService,
+                                                                                        ProfilePropertyService.LABELS_OBJECT_TYPE);
                     } else {
                       subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
                     }
@@ -448,7 +449,6 @@ public class EntityBuilder {
     }
     return new ArrayList<>(properties.values());
   }
-
 
   public static void buildPhoneEntities(Profile profile, ProfileEntity userEntity) {
     List<Map<String, String>> phones = profile.getPhones();
@@ -613,19 +613,19 @@ public class EntityBuilder {
           Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
           FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
           boolean isFavorite = favoriteService.isFavorite(new Favorite(Space.DEFAULT_SPACE_METADATA_OBJECT_TYPE,
-                  space.getId(),
-                  null,
-                  Long.parseLong(userIdentity.getId())));
+                                                                       space.getId(),
+                                                                       null,
+                                                                       Long.parseLong(userIdentity.getId())));
           spaceEntity.setIsFavorite(String.valueOf(isFavorite));
         }
 
         if (expandFields.contains(RestProperties.UNREAD)) {
           Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
           SpaceWebNotificationService spaceWebNotificationService =
-                  ExoContainerContext.getService(SpaceWebNotificationService.class);
+                                                                  ExoContainerContext.getService(SpaceWebNotificationService.class);
           Map<String, Long> unreadItems =
-                  spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
-                          Long.parseLong(space.getId()));
+                                        spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
+                                                                                                  Long.parseLong(space.getId()));
           if (MapUtils.isNotEmpty(unreadItems)) {
             spaceEntity.setUnreadItems(unreadItems);
           }
@@ -709,17 +709,17 @@ public class EntityBuilder {
 
     spaceMembership.setRole(type);
     switch (type) {
-      case "invited":
-        spaceMembership.setStatus("invited");
-        break;
-      case "pending":
-        spaceMembership.setStatus("pending");
-        break;
-      case "ignored":
-        spaceMembership.setStatus("ignored");
-        break;
-      default:
-        spaceMembership.setStatus("approved");
+    case "invited":
+      spaceMembership.setStatus("invited");
+      break;
+    case "pending":
+      spaceMembership.setStatus("pending");
+      break;
+    case "ignored":
+      spaceMembership.setStatus("ignored");
+      break;
+    default:
+      spaceMembership.setStatus("approved");
     }
     return spaceMembership;
   }
@@ -730,7 +730,7 @@ public class EntityBuilder {
                                                        String expand) {
     if (activity.isComment() || activity.getParentId() != null) {
       CommentEntity commentEntity = buildEntityFromComment(activity, authentiatedUser, restPath, expand, false);
-      DataEntity as = getActivityStream(activityManager.getParentActivity(activity), restPath, authentiatedUser);
+      DataEntity as = getActivityStream(getActivityManager().getParentActivity(activity), restPath, authentiatedUser);
       commentEntity.setActivityStream(as);
       return commentEntity;
     }
@@ -764,31 +764,31 @@ public class EntityBuilder {
     activityEntity.setCanEdit(canEdit);
     boolean canDelete = getActivityManager().isActivityDeletable(activity, ConversationState.getCurrent().getIdentity());
     activityEntity.setCanDelete(canDelete);
-    boolean canPin = activityManager.canPinActivity(activity, authentiatedUser);
+    boolean canPin = getActivityManager().canPinActivity(activity, authentiatedUser);
     activityEntity.setCanPin(canPin);
 
     LinkEntity commentLink;
     if (expandFields.contains(COMMENTS_TYPE)) {
       List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity,
-              authentiatedUser,
-              restPath,
-              "",
-              false,
-              RestUtils.DEFAULT_OFFSET,
-              RestUtils.DEFAULT_LIMIT);
-      RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, true);
+                                                                             authentiatedUser,
+                                                                             restPath,
+                                                                             "",
+                                                                             false,
+                                                                             RestUtils.DEFAULT_OFFSET,
+                                                                             RestUtils.DEFAULT_LIMIT);
+      RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity, true);
 
       commentLink = new LinkEntity(commentsEntity);
       activityEntity.setCommentsCount(listAccess.getSize());
     } else if (expandFields.contains(COMMENTS_PREVIEW_TYPE)) {
       List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity,
-              authentiatedUser,
-              restPath,
-              expand,
-              true,
-              0,
-              COMMENTS_PREVIEW_LIMIT);
-      RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, true);
+                                                                             authentiatedUser,
+                                                                             restPath,
+                                                                             expand,
+                                                                             true,
+                                                                             0,
+                                                                             COMMENTS_PREVIEW_LIMIT);
+      RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity, true);
 
       commentLink = new LinkEntity(commentsEntity);
       activityEntity.setCommentsCount(listAccess.getSize());
@@ -800,10 +800,10 @@ public class EntityBuilder {
 
     if (expandFields.contains(LIKES_TYPE)) {
       List<DataEntity> likesEntity = EntityBuilder.buildEntityFromLike(activity,
-              restPath,
-              "",
-              RestUtils.DEFAULT_OFFSET,
-              DEFAULT_LIKERS_LIMIT);
+                                                                       restPath,
+                                                                       "",
+                                                                       RestUtils.DEFAULT_OFFSET,
+                                                                       DEFAULT_LIKERS_LIMIT);
       activityEntity.setLikes(new LinkEntity(likesEntity));
     } else {
       activityEntity.setLikes(new LinkEntity(getLikesActivityRestUrl(activity.getId(), restPath)));
@@ -825,15 +825,15 @@ public class EntityBuilder {
     //
     updateCachedLastModifiedValue(activity.getUpdated());
     if (expandFields.contains(RestProperties.SHARED) && activity.getTemplateParams() != null
-            && activity.getTemplateParams().containsKey(ActivityManager.SHARED_ACTIVITY_ID_PARAM)) {
+        && activity.getTemplateParams().containsKey(ActivityManager.SHARED_ACTIVITY_ID_PARAM)) {
       String originalActivityId = activity.getTemplateParams().get(ActivityManager.SHARED_ACTIVITY_ID_PARAM);
       if (StringUtils.isNotBlank(originalActivityId)) {
         ExoSocialActivity originalActivity = getActivityManager().getActivity(originalActivityId);
         if (originalActivity != null) {
           ActivityEntity originalActivityEntity = buildEntityFromActivity(originalActivity,
-                  authentiatedUser,
-                  restPath,
-                  expand.replace(RestProperties.SHARED, ""));
+                                                                          authentiatedUser,
+                                                                          restPath,
+                                                                          expand.replace(RestProperties.SHARED, ""));
           activityEntity.setOriginalActivity(originalActivityEntity.getDataEntity());
         }
       }
@@ -863,24 +863,25 @@ public class EntityBuilder {
       String metadataType = metadataEntry.getKey();
       List<MetadataItem> metadataItems = metadataEntry.getValue();
       if (MapUtils.isNotEmpty(activityMetadatas)) {
-        List<MetadataItemEntity> activityMetadataEntities = metadataItems.stream()
-                .filter(metadataItem -> metadataItem.getMetadata()
-                        .getAudienceId() == 0
-                        || metadataItem.getMetadata()
-                        .getAudienceId() == streamOwnerId
-                        || metadataItem.getMetadata()
-                        .getAudienceId() == authentiatedUserId)
-                .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
-                        metadataItem.getMetadata()
-                                .getName(),
-                        metadataItem.getObjectType(),
-                        metadataItem.getObjectId(),
-                        metadataItem.getParentObjectId(),
-                        metadataItem.getCreatorId(),
-                        metadataItem.getMetadata()
-                                .getAudienceId(),
-                        metadataItem.getProperties()))
-                .collect(Collectors.toList());
+        List<MetadataItemEntity> activityMetadataEntities =
+                                                          metadataItems.stream()
+                                                                       .filter(metadataItem -> metadataItem.getMetadata()
+                                                                                                           .getAudienceId() == 0
+                                                                           || metadataItem.getMetadata()
+                                                                                          .getAudienceId() == streamOwnerId
+                                                                           || metadataItem.getMetadata()
+                                                                                          .getAudienceId() == authentiatedUserId)
+                                                                       .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
+                                                                                                                   metadataItem.getMetadata()
+                                                                                                                               .getName(),
+                                                                                                                   metadataItem.getObjectType(),
+                                                                                                                   metadataItem.getObjectId(),
+                                                                                                                   metadataItem.getParentObjectId(),
+                                                                                                                   metadataItem.getCreatorId(),
+                                                                                                                   metadataItem.getMetadata()
+                                                                                                                               .getAudienceId(),
+                                                                                                                   metadataItem.getProperties()))
+                                                                       .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
           activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
         }
@@ -889,8 +890,7 @@ public class EntityBuilder {
     return activityMetadatasToPublish;
   }
 
-  public static void buildActivityFromEntity(ActivityEntity model,
-                                             ExoSocialActivity activity) {
+  public static void buildActivityFromEntity(ActivityEntity model, ExoSocialActivity activity) {
     if (model.getTitle() != null && !model.getTitle().equals(activity.getTitle())) {
       activity.setTitle(model.getTitle());
     }
@@ -906,8 +906,9 @@ public class EntityBuilder {
   }
 
   public static void buildActivityParamsFromEntity(ExoSocialActivity activity, Map<String, ?> templateParams) {
-    Map<String, String> currentTemplateParams = activity.getTemplateParams() == null ? new HashMap<>()
-            : new HashMap<>(activity.getTemplateParams());
+    Map<String, String> currentTemplateParams =
+                                              activity.getTemplateParams() == null ? new HashMap<>()
+                                                                                   : new HashMap<>(activity.getTemplateParams());
     if (templateParams != null) {
       templateParams.forEach((name, value) -> currentTemplateParams.put(name, (String) value));
     }
@@ -960,7 +961,7 @@ public class EntityBuilder {
     commentEntity.setIdentity(identityLink);
     if (poster != null) {
       commentEntity.setPoster(poster.getRemoteId());
-      commentEntity.setOwner(getActivityOwner(poster, restPath,activityManager.getParentActivity(comment).getSpaceId()));
+      commentEntity.setOwner(getActivityOwner(poster, restPath, getActivityManager().getParentActivity(comment).getSpaceId()));
     }
     if (comment.getBody() == null) {
       commentEntity.setBody(comment.getTitle());
@@ -969,13 +970,13 @@ public class EntityBuilder {
     commentEntity.setMentions(getActivityMentions(comment, restPath));
     if (expandFields.contains(RestProperties.LIKES)) {
       commentEntity.setLikes(new LinkEntity(buildEntityFromLike(comment,
-              restPath,
-              null,
-              RestUtils.DEFAULT_OFFSET,
-              RestUtils.HARD_LIMIT)));
+                                                                restPath,
+                                                                null,
+                                                                RestUtils.DEFAULT_OFFSET,
+                                                                RestUtils.HARD_LIMIT)));
     } else {
       commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE + "/social/comments/"
-              + comment.getId() + "/likes"));
+          + comment.getId() + "/likes"));
     }
     commentEntity.setCreateDate(RestUtils.formatISO8601(new Date(comment.getPostedTime())));
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));
@@ -1011,17 +1012,17 @@ public class EntityBuilder {
     List<DataEntity> commentsEntity = new ArrayList<>();
     boolean expandSubComments = expandSubComments(expand);
     RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity,
-            expandSubComments,
-            sortDescending);
+                                                                                                      expandSubComments,
+                                                                                                      sortDescending);
     List<ExoSocialActivity> comments = listAccess.loadAsList(offset, limit);
     if (expandSubComments) {
       for (ExoSocialActivity comment : comments) {
         if (StringUtils.isBlank(comment.getParentCommentId())) {
           Set<String> commenters = comments.stream()
-                  .filter(tmpComment -> StringUtils.equals(tmpComment.getParentCommentId(),
-                          comment.getId()))
-                  .map(ExoSocialActivity::getPosterId)
-                  .collect(Collectors.toSet());
+                                           .filter(tmpComment -> StringUtils.equals(tmpComment.getParentCommentId(),
+                                                                                    comment.getId()))
+                                           .map(ExoSocialActivity::getPosterId)
+                                           .collect(Collectors.toSet());
           comment.setCommentedIds(commenters.toArray(new String[commenters.size()]));
         }
       }
@@ -1115,10 +1116,10 @@ public class EntityBuilder {
     for (Relationship relationship : relationships) {
       //
       infos.add(EntityBuilder.buildEntityRelationship(relationship,
-                      uriInfo.getPath(),
-                      RestUtils.getQueryParam(uriInfo, "expand"),
-                      true)
-              .getDataEntity());
+                                                      uriInfo.getPath(),
+                                                      RestUtils.getQueryParam(uriInfo, "expand"),
+                                                      true)
+                             .getDataEntity());
     }
     return infos;
   }
@@ -1174,7 +1175,7 @@ public class EntityBuilder {
   private static DataEntity getActivityOwner(Identity owner, String restPath, String spaceId) {
     BaseEntity mentionEntity = new BaseEntity(owner.getId());
     mentionEntity.setHref(RestUtils.getRestUrl(getIdentityType(owner), getIdentityId(owner), restPath));
-    if(spaceId != null && !spaceId.isEmpty()) {
+    if (spaceId != null && !spaceId.isEmpty()) {
       SpaceService spaceService = getSpaceService();
       Space space = spaceService.getSpaceById(spaceId);
       boolean isMember = spaceService.isMember(space, owner.getRemoteId());
@@ -1220,7 +1221,7 @@ public class EntityBuilder {
    */
   private static DataEntity getActivityStream(ExoSocialActivity activity, String restPath, Identity authentiatedUser) {
     if (activity.isComment() || activity.getParentId() != null) {
-      activity = activityManager.getParentActivity(activity);
+      activity = getActivityManager().getParentActivity(activity);
     }
 
     DataEntity as = new DataEntity();
@@ -1241,7 +1242,7 @@ public class EntityBuilder {
 
   private static Identity getStreamOwnerIdentity(ExoSocialActivity activity) {
     if (activity.isComment() || activity.getParentId() != null) {
-      activity = activityManager.getParentActivity(activity);
+      activity = getActivityManager().getParentActivity(activity);
     }
     String streamOwner = activity.getStreamOwner();
     Identity owner = getIdentityManager().getOrCreateUserIdentity(streamOwner);
@@ -1321,8 +1322,8 @@ public class EntityBuilder {
    */
   public static String getCommentsActivityRestUrl(String activityId, String restPath) {
     return new StringBuffer(RestUtils.getRestUrl(ACTIVITIES_TYPE, activityId, restPath)).append("/")
-            .append("comments")
-            .toString();
+                                                                                        .append("comments")
+                                                                                        .toString();
   }
 
   /**
@@ -1350,10 +1351,10 @@ public class EntityBuilder {
       entity = ((BaseEntity) entity).getDataEntity();
     }
     ResponseBuilder responseBuilder = Response.created(uriInfo.getAbsolutePath())
-            .entity(entity)
-            .type(mediaType.toString() + "; charset=utf-8")
-            .status(status)
-            .cacheControl(NO_CACHE_CC);
+                                              .entity(entity)
+                                              .type(mediaType.toString() + "; charset=utf-8")
+                                              .status(status)
+                                              .cacheControl(NO_CACHE_CC);
     if (hasPaging(entity)) {
       responseBuilder.header(LINK, buildLinkForHeader(entity, uriInfo.getAbsolutePath().toString()));
     }
@@ -1534,7 +1535,6 @@ public class EntityBuilder {
     return operationReportEntity;
   }
 
-
   /**
    * Build rest ProfilePropertySettingEntity from ProfilePropertySetting object
    *
@@ -1560,7 +1560,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
-            String.valueOf(profilePropertySetting.getId())));
+                                                                                                String.valueOf(profilePropertySetting.getId())));
     return profilePropertySettingEntity;
   }
 
@@ -1577,18 +1577,21 @@ public class EntityBuilder {
     if (profilePropertySettingList.isEmpty())
       return new ArrayList<>();
     List<ProfilePropertySettingEntity> profilePropertySettingsList = new ArrayList<>();
-     for(ProfilePropertySetting propertySetting : profilePropertySettingList) {
-        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,
-               profilePropertyService,
-               objectType);
-        profilePropertySettingsList.add(profilePropertySettingEntity);
-     }
-     for(int i = 0; i < profilePropertySettingsList.size(); i++) {
-       ProfilePropertySettingEntity entity = profilePropertySettingsList.get(i);
-       entity.setChildren(profilePropertySettingsList.stream().filter(element -> element.getParentId() != null && element.getParentId().equals(entity.getId())).toList());
-       profilePropertySettingsList.set(i, entity);
-     }
-     return profilePropertySettingsList;
+    for (ProfilePropertySetting propertySetting : profilePropertySettingList) {
+      ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,
+                                                                                                    profilePropertyService,
+                                                                                                    objectType);
+      profilePropertySettingsList.add(profilePropertySettingEntity);
+    }
+    for (int i = 0; i < profilePropertySettingsList.size(); i++) {
+      ProfilePropertySettingEntity entity = profilePropertySettingsList.get(i);
+      entity.setChildren(profilePropertySettingsList.stream()
+                                                    .filter(element -> element.getParentId() != null
+                                                        && element.getParentId().equals(entity.getId()))
+                                                    .toList());
+      profilePropertySettingsList.set(i, entity);
+    }
+    return profilePropertySettingsList;
   }
 
   /**
@@ -1618,7 +1621,6 @@ public class EntityBuilder {
     return profilePropertySetting;
   }
 
-
   public static final <T> T fromJsonString(String value, Class<T> resultClass) {
     try {
       if (StringUtils.isBlank(value)) {
@@ -1639,12 +1641,12 @@ public class EntityBuilder {
     try {
       ByteArrayOutputStream entityStream = new ByteArrayOutputStream();
       JSON_ENTITY_PROVIDER.writeTo(object,
-              object.getClass(),
-              object.getClass(),
-              null,
-              MediaType.APPLICATION_JSON_TYPE,
-              null,
-              entityStream);
+                                   object.getClass(),
+                                   object.getClass(),
+                                   null,
+                                   MediaType.APPLICATION_JSON_TYPE,
+                                   null,
+                                   entityStream);
       return entityStream.toString(Charset.defaultCharset().name());
     } catch (IOException e) {
       throw new IllegalStateException("Unable to transform object " + object, e);
@@ -1678,7 +1680,6 @@ public class EntityBuilder {
     }
     return organizationService;
   }
-
 
   public static RelationshipManager getRelationshipManager() {
     if (relationshipManager == null) {

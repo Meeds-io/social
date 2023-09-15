@@ -64,9 +64,15 @@ export default {
         this.displayed = false;
       }
     });
+    document.addEventListener('showNotificationSettings', () => this.openDetail());
     document.addEventListener('showSettingsApps', () => this.displayed = true);
     this.$root.$on('refresh', this.refresh);
-    this.refresh();
+    this.refresh()
+      .finally(() => {
+        if (this.$root.autoOpen) {
+          this.openDetail();
+        }
+      });
   },
   methods: {
     refresh() {
