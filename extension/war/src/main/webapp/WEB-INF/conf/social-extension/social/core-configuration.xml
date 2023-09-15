@@ -727,6 +727,17 @@
         </init-params>
     </component>
 
+    <component>
+        <key>StreamFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>StreamFeatureProperties</name>
+                <property name="exo.feature.PostToNetwork.enabled" value="${exo.feature.PostToNetwork.enabled:false}" />
+            </properties-param>
+        </init-params>
+    </component>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
         <component-plugin>
