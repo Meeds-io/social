@@ -44,7 +44,7 @@ export default {
     hasMore: false,
     notifications: [],
     offset: 0,
-    limit: 10,
+    limit: Math.max(10, Math.round((window.innerHeight - 122) / 90)),
     pageSize: 10,
   }),
   computed: {
@@ -71,10 +71,8 @@ export default {
     },
     expanded(newVal, oldVal) {
       if (!oldVal && newVal) {
-        this.loadNotifications();
+        this.loadNotifications(true);
       }
-      this.reset();
-      this.loadNotifications();
     },
     hasMore() {
       this.$emit('hasMore', this.hasMore);
@@ -114,14 +112,16 @@ export default {
       this.limit += this.pageSize;
       this.loadNotifications();
     },
-    loadNotifications() {
+    loadNotifications(loadBadgesOnly) {
       this.loading = true;
-      return this.$notificationService.getNotifications(this.plugins, this.offset, this.limit, this.expanded && 'badge-by-plugin')
+      return this.$notificationService.getNotifications(this.plugins, this.offset, !loadBadgesOnly && this.limit || 1, this.expanded && 'badge-by-plugin')
         .then((data) => {
-          this.notifications = data.notifications || [];
+          if (!loadBadgesOnly) {
+            this.notifications = data.notifications || [];
+            this.hasMore = this.notifications.length === this.limit;
+          }
           this.badge = data.badge || 0;
           this.badgeByPlugin = data.badgesByPlugin;
-          this.hasMore = this.notifications.length === this.limit;
           return this.$nextTick();
         })
         .finally(() => this.loading = false);
