@@ -17,21 +17,32 @@
  */
 package io.meeds.social.notification.rest;
 
-import org.exoplatform.commons.api.notification.model.NotificationInfo;
-import org.exoplatform.commons.api.notification.service.WebNotificationService;
-import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.Identity;
-import org.exoplatform.social.service.rest.BaseRestServicesTestCase;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.ws.rs.core.Response;
 
 import org.mockito.Mock;
-import static org.mockito.Mockito.*;
+
+import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.commons.api.notification.service.WebNotificationService;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.service.rest.BaseRestServicesTestCase;
 
 public class WebNotificationRestServiceTest extends BaseRestServicesTestCase { // NOSONAR
 
   @Mock
   WebNotificationService webNotificationService;
+
+  @Mock
+  IdentityManager        identityManager;
+
+  @Mock
+  SpaceService           spaceService;
 
   @Override
   protected Class<?> getComponentClass() {
@@ -46,8 +57,8 @@ public class WebNotificationRestServiceTest extends BaseRestServicesTestCase { /
     notificationInfo.setTo("mary");
     when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
 
-    WebNotificationRestService webNotificationRestService = new WebNotificationRestService(webNotificationService);
-    Response response = webNotificationRestService.updateNotifications("markAsRead", "1");
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.updateNotification("markAsRead", "1");
 
     assertEquals(401, response.getStatus()); // NOSONAR
   }
@@ -62,8 +73,8 @@ public class WebNotificationRestServiceTest extends BaseRestServicesTestCase { /
 
     when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
 
-    WebNotificationRestService webNotificationRestService = new WebNotificationRestService(webNotificationService);
-    Response response = webNotificationRestService.updateNotifications("markAsRead", "1");
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.updateNotification("markAsRead", "1");
 
     assertEquals(204, response.getStatus());
 
@@ -78,8 +89,8 @@ public class WebNotificationRestServiceTest extends BaseRestServicesTestCase { /
     notificationInfo.setTo("mary");
     when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
 
-    WebNotificationRestService webNotificationRestService = new WebNotificationRestService(webNotificationService);
-    Response response = webNotificationRestService.updateNotifications("hide", "1");
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.hideNotifications("1");
 
     assertEquals(response.getStatus(), 401);
 
@@ -94,8 +105,8 @@ public class WebNotificationRestServiceTest extends BaseRestServicesTestCase { /
     notificationInfo.setTo("john");
     when(webNotificationService.getNotificationInfo(anyString())).thenReturn(notificationInfo);
 
-    WebNotificationRestService webNotificationRestService = new WebNotificationRestService(webNotificationService);
-    Response response = webNotificationRestService.updateNotifications("hide", "1");
+    WebNotificationRestService webNotificationRestService = newWebNotificationRestService();
+    Response response = webNotificationRestService.hideNotifications("1");
 
     assertEquals(204, response.getStatus());
 
@@ -105,6 +116,10 @@ public class WebNotificationRestServiceTest extends BaseRestServicesTestCase { /
     Identity identity = new Identity(username);
     ConversationState state = new ConversationState(identity);
     ConversationState.setCurrent(state);
+  }
+
+  private WebNotificationRestService newWebNotificationRestService() {
+    return new WebNotificationRestService(webNotificationService, identityManager, spaceService);
   }
 
 }

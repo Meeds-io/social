@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.notification.plugin;
 
+import java.util.List;
+
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
@@ -46,12 +48,16 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
       Space space = Utils.getSpaceService().getSpaceByPrettyName(activity.getStreamOwner());
       String poster = Utils.getUserId(activity.getPosterId());
 
+      List<String> receivers = Utils.getDestinataires(activity, space)
+                                    .stream()
+                                    .filter(username -> Utils.getActivityManager().isNotificationEnabled(activity, username))
+                                    .toList();
       return NotificationInfo.instance()
                              .key(getId())
                              .with(SocialNotificationUtils.POSTER.getKey(), poster)
                              .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                              .with(SocialNotificationUtils.ORIGINAL_TITLE.getKey(), originalTitle)
-                             .to(Utils.getDestinataires(activity, space))
+                             .to(receivers)
                              .end();
     } catch (Exception e) {
       ctx.setException(e);
