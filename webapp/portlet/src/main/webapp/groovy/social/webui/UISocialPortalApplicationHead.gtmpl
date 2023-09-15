@@ -70,4 +70,5 @@
      eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
      eXo.env.portal.editorAttachImageEnabled = <%=PropertyManager.getProperty("exo.feature.EditorAttachImage.enabled")%>;
      eXo.env.portal.attachmentObjectTypes = ['<%=StringUtils.join(supportedAttachmentObjectTypes, "', '")%>'];
+     eXo.env.portal.postToNetworkEnabled = <%=PropertyManager.getProperty("exo.feature.PostToNetwork.enabled")%>;
 </script>
