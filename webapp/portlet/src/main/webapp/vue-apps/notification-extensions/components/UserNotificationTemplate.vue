@@ -5,13 +5,12 @@
       class="d-flex align-center justify-center ma-auto my-2"
       tile
       flat />
-    <v-card
+    <v-hover
       v-else-if="!hidden"
-      :color="unread && '#f0f7fd'"
-      flat
-      tile>
+      v-slot="{ hover }">
       <v-list-item
         :href="url"
+        :input-value="unread && !hover"
         class="d-flex d-relative pa-2"
         @click="markAsRead">
         <v-list-item-avatar
@@ -33,7 +32,7 @@
               alt="">
           </v-avatar>
         </v-list-item-avatar>
-        <v-list-item-content class="py-0 pe-5">
+        <v-list-item-content class="py-0 pe-5 text-color">
           <v-list-item-title
             v-sanitized-html="message"
             class="subtitle-2 text-wrap text-truncate-2" />
@@ -66,7 +65,7 @@
           </v-btn>
         </div>
       </v-list-item>
-    </v-card>
+    </v-hover>
   </v-slide-y-transition>
 </template>
 <script>
