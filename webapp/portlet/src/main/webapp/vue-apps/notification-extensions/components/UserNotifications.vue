@@ -114,7 +114,7 @@ export default {
     },
     loadNotifications(loadBadgesOnly) {
       this.loading = true;
-      return this.$notificationService.getNotifications(this.plugins, this.offset, !loadBadgesOnly && this.limit || 1, this.expanded && 'badge-by-plugin')
+      return this.$notificationService.getNotifications(this.plugins, this.offset, !loadBadgesOnly && this.limit || 0, this.expanded && 'badge-by-plugin')
         .then((data) => {
           if (!loadBadgesOnly) {
             this.notifications = data.notifications || [];

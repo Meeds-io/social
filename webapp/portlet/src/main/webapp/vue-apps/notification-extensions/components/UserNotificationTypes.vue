@@ -21,25 +21,27 @@
             {{ group.label }}
           </v-list-item-title>
         </v-list-item-content>
-        <v-list-item-icon v-if="group.badge" class="me-2 position-relative">
-          <v-tooltip bottom>
-            <template #activator="{on, bind}">
-              <v-card
-                :value="group.badge > 0"
-                width="18"
-                height="18"
-                color="primary"
-                class="rounded-circle d-flex align-center justify-center ms-auto my-auto"
-                flat
-                dark
-                v-on="on"
-                v-bind="bind">
-                {{ group.badge }}
-              </v-card>
-            </template>
-            <span>{{ $t('Notification.label.types.unread', {0: group.badge}) }}</span>
-          </v-tooltip>
-        </v-list-item-icon>
+        <v-scale-transition>
+          <v-list-item-icon v-if="group.badge" class="me-2 full-height align-center justify-center position-relative">
+            <v-tooltip bottom>
+              <template #activator="{on, bind}">
+                <v-card
+                  :value="group.badge > 0"
+                  min-height="30"
+                  max-height="30"
+                  min-width="30"
+                  class="pa-1 rounded-circle caption d-flex align-center justify-center ms-auto my-auto error-color-background"
+                  flat
+                  dark
+                  v-on="on"
+                  v-bind="bind">
+                  {{ group.badge > 99 && '99+' || group.badge }}
+                </v-card>
+              </template>
+              <span>{{ $t('Notification.label.types.unread', {0: group.badge}) }}</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-scale-transition>
       </v-list-item>
     </v-list-item-group>
   </v-list>
