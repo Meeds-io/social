@@ -81,7 +81,7 @@
         </v-card>
         <v-card
           :max-height="expanded && '100%' || 'auto'"
-          :class="expanded && 'overflow-x-hidden overflow-y-auto' || 'overflow-hidden'"
+          :class="expanded && 'overflow-x-hidden overflow-y-auto' || ''"
           :tile="!expanded"
           class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent"
           flat>
