@@ -58,6 +58,7 @@ public class PostActivitySpaceStreamPlugin extends BaseNotificationPlugin {
                              .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                              .with(SocialNotificationUtils.ORIGINAL_TITLE.getKey(), originalTitle)
                              .to(receivers)
+                             .setFrom(poster)
                              .end();
     } catch (Exception e) {
       ctx.setException(e);
