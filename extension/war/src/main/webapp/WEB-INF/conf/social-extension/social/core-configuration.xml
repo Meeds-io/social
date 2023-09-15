@@ -728,6 +728,17 @@
     </component>
 
     <component>
+        <key>StreamFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>StreamFeatureProperties</name>
+                <property name="exo.feature.PostToNetwork.enabled" value="${exo.feature.PostToNetwork.enabled:false}" />
+            </properties-param>
+        </init-params>
+    </component>
+
+    <component>
         <key>EditorAttachImageFeatureProperties</key>
         <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
         <init-params>
