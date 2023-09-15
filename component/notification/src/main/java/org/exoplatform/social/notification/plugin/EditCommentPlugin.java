@@ -1,18 +1,18 @@
 package org.exoplatform.social.notification.plugin;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
+
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.notification.Utils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class EditCommentPlugin extends BaseNotificationPlugin {
   public static final String ID           = "EditCommentPlugin";
@@ -53,11 +53,13 @@ public class EditCommentPlugin extends BaseNotificationPlugin {
       Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), comment.getPosterId(), spaceId);
     }
     //
+    String poster = Utils.getUserId(comment.getUserId());
     return NotificationInfo.instance()
                            .to(new ArrayList<>(receivers))
+                           .setFrom(poster)
                            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                            .with(SocialNotificationUtils.COMMENT_ID.getKey(), comment.getId())
-                           .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(comment.getUserId()))
+                           .with(SocialNotificationUtils.POSTER.getKey(), poster)
                            .key(getId());
   }
 
