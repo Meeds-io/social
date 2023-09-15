@@ -11,8 +11,8 @@
         :key="group.name"
         class="px-4 mx-n4 rounded-lg"
         dense>
-        <v-list-item-icon class="me-2">
-          <v-icon size="18">
+        <v-list-item-icon class="me-2 align-center justify-center">
+          <v-icon size="18" class="icon-default-color">
             {{ group.icon }}
           </v-icon>
         </v-list-item-icon>

@@ -17,12 +17,13 @@
           v-if="$slots.avatar || avatarUrl"
           :rounded="spaceAvatar"
           :tile="!!$slots.avatar"
-          class="mt-0 mb-auto">
+          :size="47"
+          class="mt-0 mb-auto me-3">
           <slot v-if="$slots.avatar" name="avatar"></slot>
           <v-avatar
             v-else
             :class="avatarClass"
-            :size="45"
+            :size="36"
             :rounded="spaceAvatar">
             <img
               :src="avatarUrl"
