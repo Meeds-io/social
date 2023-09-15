@@ -119,7 +119,8 @@ public class WebNotificationRestService implements ResourceContainer {
                                                            plugins == null ? Collections.emptyList()
                                                                            : plugins.stream().map(PluginKey::key).toList(),
                                                            !includeHidden);
-    List<NotificationInfo> notificationInfos = webNftService.getNotificationInfos(filter, offset, limit);
+    List<NotificationInfo> notificationInfos = limit > 0 ? webNftService.getNotificationInfos(filter, offset, limit)
+                                                         : Collections.emptyList();
     Map<String, Integer> badgesByPlugin = null;
     if (badgeByPlugin) {
       badgesByPlugin = webNftService.countUnreadByPlugin(currentUser);
