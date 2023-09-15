@@ -52,7 +52,8 @@
             :href="settingsLink"
             icon
             v-on="on"
-            v-bind="bind">
+            v-bind="bind"
+            @click="openSettings">
             <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
           </v-btn>
         </template>
@@ -148,7 +149,7 @@ export default {
     notificationPlugins: null,
     badgeByPlugin: null,
     markingAllAsRead: false,
-    settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
+    settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings#notifications`,
     allNotificationsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/allNotifications`,
   }),
   computed: {
@@ -186,6 +187,10 @@ export default {
     },
     decrementLoading() {
       this.loading--;
+    },
+    openSettings() {
+      document.dispatchEvent(new CustomEvent('showNotificationSettings'));
+      this.close();
     },
     markAllAsRead() {
       this.markingAllAsRead = true;
