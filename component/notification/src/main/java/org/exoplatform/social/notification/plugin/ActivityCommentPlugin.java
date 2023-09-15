@@ -74,7 +74,7 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
     }
     List<String> receiversList =
                                receivers.stream()
-                                        .filter(username -> Utils.getActivityManager().isNotificationEnabled(activity, username))
+                                        .filter(username -> Utils.getActivityManager().isNotificationEnabled(comment, username))
                                         .toList();
     return NotificationInfo.instance()
                            .to(receiversList)

@@ -2,7 +2,8 @@
   <user-notification-activity-base
     :notification="notification"
     message-key="Notification.intranet.message.one.ActivityCommentPlugin"
-    icon="fa-comment" />
+    icon="fa-comment"
+    reply />
 </template>
 <script>
 export default {

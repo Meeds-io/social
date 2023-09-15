@@ -6,11 +6,17 @@
     :loading="loading"
     :url="activityUrl">
     <template #actions>
-      <div class="text-truncate">
+      <div v-if="parentContentText" class="text-truncate">
+        <v-icon size="14" class="me-1">fa-stream</v-icon>
+        {{ parentContentText }}
+      </div>
+      <div
+        :class="parentContentText && 'my-2' || ''"
+        class="text-truncate">
         <v-icon size="14" class="me-1">{{ notificationIcon }}</v-icon>
         {{ contentText }}
       </div>
-      <div v-if="reply" class="my-1">
+      <div v-if="reply" class="mt-1">
         <v-btn
           :href="replyUrl"
           color="primary"
@@ -64,6 +70,8 @@ export default {
   },
   data: () => ({
     loading: true,
+    activity: null,
+    parentActivity: null,
     extension: {
       isEnabled: null,
       getIcon: null,
@@ -153,8 +161,36 @@ export default {
         }
       }
     },
+    parentContent() {
+      if (!this.parentActivity) {
+        return '';
+      } else if (this.extension?.getContent) {
+        return this.extension.getContent(this.notification, this.parentActivity);
+      } else {
+        const activityTitle = this.parentActivity?.templateParams?.comment
+          || this.parentActivity?.title
+          || this.parentActivity?.body
+          || '';
+        const originalActivity = this.parentActivity?.originalActivity;
+        const activityShareTitle = originalActivity
+          && (originalActivity.templateParams?.comment
+            || originalActivity.title
+            || originalActivity.body)
+            || '';
+        if (activityShareTitle?.length && activityTitle?.length) {
+          return `${activityTitle}: ${activityShareTitle}`;
+        } else if (activityShareTitle?.length) {
+          return activityShareTitle;
+        } else {
+          return activityTitle;
+        }
+      }
+    },
     contentText() {
       return this.content?.length && this.$utils.htmlToText(this.content) || '';
+    },
+    parentContentText() {
+      return this.parentContent?.length && this.$utils.htmlToText(this.parentContent) || '';
     },
   },
   created() {
@@ -168,8 +204,16 @@ export default {
           document.addEventListener(`extension-WebNotification-activity-notification-${this.activityType}-updated`, this.refreshActivityTypeExtensions);
           this.refreshActivityTypeExtensions();
         }
-        return this.$nextTick();
       })
+      .then(() => {
+        const parentId = this.reply && (this.activity?.parentCommentId || this.activity?.activityId);
+        if (parentId) {
+          return this.$activityService.getActivityById(parentId, 'shared');
+        } else {
+          return this.$nextTick();
+        }
+      })
+      .then(activity => this.parentActivity = activity)
       .finally(() => this.loading = false);
   },
   beforeDestroy() {
