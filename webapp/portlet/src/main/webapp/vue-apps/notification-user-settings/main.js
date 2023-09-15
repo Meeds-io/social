@@ -31,6 +31,7 @@ export function init(settings) {
     Vue.createApp({
       data: {
         settings: settings,
+        autoOpen: window.location.hash === '#notifications',
       },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
