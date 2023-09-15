@@ -28,43 +28,35 @@
         <div 
           :class="activityStreamToolbarStyle"
           class="d-flex full-width">
-          <div class="flex-grow-1">
-            <div v-if="userCanPost" class="openLink d-flex flex-column pe-10">
-              <div class="d-flex flex-row align-center">
-                <exo-user-avatar
-                  v-if="user"
-                  :identity="user"
-                  class="me-3"
-                  size="45"
-                  avatar />
-                <a @click="openComposerDrawer(true)" class="flex-grow-1">
-                  <v-btn 
-                    class="text-light-color px-0 flex-shrink-1 d-flex justify-start subtitle-2"
-                    text>
-                    <span class="pa-2"> {{ $t('activity.composer.post.start') }} </span>
-                  </v-btn>
-                </a>
-              </div>
-            </div>
-            <div v-else>
-              <v-card-text class="text-sub-title text-body-1 px-0">
-                {{ $t('activity.toolbar.title') }}
-              </v-card-text>
-            </div>
-          </div>
-          <div
+          <exo-user-avatar
+            v-if="displayUserAvatar"
+            :identity="user"
+            class="me-3"
+            size="45"
+            avatar />
+          <v-btn
+            v-if="userCanPost"
+            class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto subtitle-2"
+            text
+            @click="openComposerDrawer(true)">
+            <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
+          </v-btn>
+          <span v-else class="text-sub-title text-body-1 my-auto">
+            {{ $t('activity.toolbar.title') }}
+          </span>
+          <v-btn
             v-if="streamFilterEnabled" 
-            class="my-auto">
-            <v-btn icon @click="openStreamFilterDrawer">
-              <v-icon
-                :color="filterIconColor"
-                size="24">
-                fa-sliders-h
-              </v-icon>
-            </v-btn>
-          </div>
+            class="my-auto ms-auto"
+            icon
+            @click="openStreamFilterDrawer">
+            <v-icon
+              :color="filterIconColor"
+              size="24">
+              fa-sliders-h
+            </v-icon>
+          </v-btn>
         </div>
-        <div v-if="userCanPost" class="hidden-xs-only">
+        <div v-if="toolbarActionsDisplay" class="hidden-xs-only">
           <v-divider />
           <extension-registry-components
             :params="extensionParams"
@@ -116,11 +108,18 @@ export default {
     };
   },
   computed: {
+    composerButtonLabel() {
+      if (eXo.env.portal.spaceDisplayName){
+        return this.$t('activity.composer.link.space', {0: eXo.env.portal.spaceDisplayName});
+      } else {
+        return this.$t('activity.composer.link');
+      }
+    },
     userCanPost() {
       return !this.standalone && this.canPost;
     },
     activityStreamToolbarStyle() {
-      return this.userCanPost && 'py-2';
+      return this.userCanPost && 'py-2' || 'py-1';
     },
     streamFilterEnabled() {
       return this.canFilter;
@@ -144,6 +143,9 @@ export default {
     },
     filterIconColor() {
       return this.streamFilter !== 'all_stream' && 'primary';
+    },
+    displayUserAvatar() {
+      return this.user && this.userCanPost;
     }
   },
   created() {
