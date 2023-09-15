@@ -43,6 +43,10 @@ export default {
       type: String,
       default: null,
     },
+    messageText: {
+      type: String,
+      default: null,
+    },
     activityIdParam: {
       type: String,
       default: () => 'activityId',
@@ -127,7 +131,9 @@ export default {
       }
     },
     message() {
-      if (this.extension?.getMessage) {
+      if (this.messageText) {
+        return this.messageText;
+      } else if (this.extension?.getMessage) {
         return this.extension.getMessage(this.notification, this.activity);
       } else {
         return this.$t(this.messageKey || `Notification.intranet.message.${this.notification?.plugin}`, {
