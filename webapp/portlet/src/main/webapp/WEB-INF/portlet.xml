@@ -499,21 +499,6 @@
   </portlet>
 
   <portlet>
-    <portlet-name>IntranetNotificationsPortlet</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/html/notificationList.html</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>Notification List</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
     <portlet-name>TopBarFavorites</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>

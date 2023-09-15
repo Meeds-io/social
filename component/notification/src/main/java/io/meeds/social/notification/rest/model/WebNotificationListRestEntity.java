@@ -20,6 +20,7 @@
 package io.meeds.social.notification.rest.model;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +34,8 @@ public class WebNotificationListRestEntity {
   private List<WebNotificationRestEntity> notifications;
 
   private int                             badge;
+
+  private Map<String, Integer>            badgesByPlugin;
 
   private int                             offset;
 
