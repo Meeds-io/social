@@ -48,7 +48,8 @@
           :home-link="homeLink"
           :drawer-width="drawerWidth"
           :has-administration-navigations="hasAdministrationNavigations"
-          :administration-navigations="administrationNavigations" />
+          :administration-navigations="administrationNavigations"
+          :site="site" />
         <hamburger-menu-navigation-first-level
           :sticky-preference="stickyPreference"
           :first-level-drawer="firstLevelDrawer"
@@ -58,6 +59,7 @@
           :has-administration-navigations="hasAdministrationNavigations"
           :site-navigations="siteNavigations"
           :sites="sites"
+          :opened-site="site"
           :recent-spaces="recentSpaces"
           :opened-space="space"
           :sticky-allowed="stickyAllowed"
@@ -75,6 +77,7 @@
           :has-administration-navigations="hasAdministrationNavigations"
           :site-navigations="siteNavigations"
           :sites="sites"
+          :opened-site="site"
           :recent-spaces="recentSpaces"
           :opened-space="space"
           :sticky-allowed="stickyAllowed"
@@ -91,7 +94,8 @@
           :home-link="homeLink"
           :drawer-width="drawerWidth"
           :has-administration-navigations="hasAdministrationNavigations"
-          :administration-navigations="administrationNavigations" />
+          :administration-navigations="administrationNavigations"
+          :site="site" />
         <hamburger-menu-navigation-third-level
           v-if="allowDisplayLevels"
           v-model="thirdLevelDrawer"
@@ -113,6 +117,7 @@ export default {
     stickyPreference: false,
     drawerWidth: 310,
     space: null,
+    site: null,
     administrationNavigations: null,
     siteNavigations: null,
     sites: [],
@@ -170,6 +175,7 @@ export default {
       if (!this.secondLevelDrawer) {
         this.thirdLevelDrawer = false;
         this.space = null;
+        this.site = null;
         this.secondLevel = null;
       }
     },
@@ -178,6 +184,7 @@ export default {
         this.thirdLevelDrawer = false;
         this.secondLevelDrawer = false;
         this.space = null;
+        this.site = null;
         this.secondLevel = null;
       } else if (this.firstLevelDrawer && this.mouseEvent) {
         // Close if mouse is not entered to menu
@@ -217,6 +224,7 @@ export default {
     this.$root.$on('change-space-menu', this.changeSpaceMenu);
     this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
     this.$root.$on('change-administration-menu', this.changeAdministrationMenu);
+    this.$root.$on('change-site-menu', this.changeSiteMenu);
     this.$root.$on('dialog-opened', () => this.allowClosing = false);
     this.$root.$on('dialog-closed', () => this.allowClosing = true);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
@@ -239,6 +247,7 @@ export default {
       this.firstLevelDrawer = true;
     },
     changeRecentSpacesMenu() {
+      this.site = null;
       if (this.secondLevel === 'recentSpaces') {
         this.space = null;
         this.secondLevel = null;
@@ -252,6 +261,7 @@ export default {
       }
     },
     changeSpaceMenu(space, thirdLevel) {
+      this.site = null;
       if (!thirdLevel && this.secondLevel === 'recentSpaces') {
         this.space = space;
         this.secondLevel = 'spaceMenu';
@@ -278,12 +288,25 @@ export default {
     changeAdministrationMenu() {
       this.thirdLevelDrawer = false;
       this.space = null;
+      this.site = null;
 
       if (this.secondLevel === 'administration') {
         this.secondLevel = null;
         this.secondLevelDrawer = false;
       } else {
         this.secondLevel = 'administration';
+        this.secondLevelDrawer = true;
+      }
+    },
+    changeSiteMenu(site) {
+      this.space = null;
+      if (this.site?.name === site.name) {
+        this.secondLevel = null;
+        this.secondLevelDrawer = false;
+        this.site= null;
+      } else {
+        this.site = site;
+        this.secondLevel = 'site';
         this.secondLevelDrawer = true;
       }
     },
@@ -301,6 +324,7 @@ export default {
       this.secondLevelDrawer = false;
       this.thirdLevelDrawer = false;
       this.space = null;
+      this.site = null;
       this.secondLevel = null;
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
     },
