@@ -59,22 +59,24 @@ public class LikeCommentPlugin extends BaseNotificationPlugin {
         return null;
       }
     }
-
-    return NotificationInfo.instance()
-                           .to(likeTo)
-                           .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
-                           .with(SocialNotificationUtils.LIKER.getKey(), liker)
-                           .key(getId())
-                           .end();
+    NotificationInfo notification = NotificationInfo.instance()
+                                                    .to(likeTo)
+                                                    .setFrom(liker)
+                                                    .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
+                                                    .with(SocialNotificationUtils.LIKER.getKey(), liker)
+                                                    .key(getId())
+                                                    .end();
+    notification = SocialNotificationUtils.addUserToPreviousNotification(notification,
+                                                                         SocialNotificationUtils.LIKERS.getKey(),
+                                                                         activity.getId(),
+                                                                         liker);
+    return notification;
   }
 
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
     String[] likersId = activity.getLikeIdentityIds();
-    if (activity.getPosterId().equals(likersId[likersId.length - 1])) {
-      return false;
-    }
-    return true;
+    return !activity.getPosterId().equals(likersId[likersId.length - 1]);
   }
 }

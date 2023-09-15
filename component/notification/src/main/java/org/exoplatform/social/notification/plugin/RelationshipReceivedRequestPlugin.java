@@ -41,6 +41,7 @@ public class RelationshipReceivedRequestPlugin extends BaseNotificationPlugin {
     return NotificationInfo.instance()
                               .key(getId())
                               .to(relation.getReceiver().getRemoteId())
+                              .setFrom(relation.getSender().getRemoteId())
                               .with(SocialNotificationUtils.SENDER.getKey(), relation.getSender().getRemoteId())
                               .with(SocialNotificationUtils.RELATIONSHIP_ID.getKey(), relation.getId())
                               .end();
