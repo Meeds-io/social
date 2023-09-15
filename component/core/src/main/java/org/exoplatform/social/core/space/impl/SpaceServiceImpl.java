@@ -31,10 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
-import org.exoplatform.commons.api.notification.model.NotificationInfo;
-import org.exoplatform.commons.api.notification.model.PluginKey;
-import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
-import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
@@ -112,8 +108,6 @@ public class SpaceServiceImpl implements SpaceService {
   /** The limit for list access loading. */
   private static final int                   LIMIT = 200;
 
-  private WebNotificationService webNotificationService;
-
   private SpacesAdministrationService spacesAdministrationService;
 
   private SpaceTemplateService spaceTemplateService;
@@ -126,7 +120,6 @@ public class SpaceServiceImpl implements SpaceService {
                           IdentityManager identityManager,
                           UserACL userACL,
                           IdentityRegistry identityRegistry,
-                          WebNotificationService webNotificationService,
                           SpacesAdministrationService spacesAdministrationService,
                           SpaceTemplateService spaceTemplateService,
                           ApplicationRegistryService applicationRegistryService,
@@ -135,7 +128,6 @@ public class SpaceServiceImpl implements SpaceService {
     this.identityManager = identityManager;
     this.identityRegistry = identityRegistry;
     this.userACL = userACL;
-    this.webNotificationService = webNotificationService;
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateService = spaceTemplateService;
     this.applicationRegistryService = applicationRegistryService;
@@ -901,7 +893,6 @@ public class SpaceServiceImpl implements SpaceService {
     try {
       spaceStorage.ignoreSpace(spaceId, userId);
       spaceLifeCycle.removeInvitedUser(getSpaceById(spaceId), userId);
-      removeWebNotifications(spaceId, userId);
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.DENY_INVITED_USER);
     }
@@ -1107,7 +1098,9 @@ public class SpaceServiceImpl implements SpaceService {
    * {@inheritDoc}
    */
   public void revokeRequestJoin(String spaceId, String userId) {
-    this.removePending(this.getSpaceById(spaceId), userId);
+    Space space = this.getSpaceById(spaceId);
+    space = this.removePending(space, userId);
+    spaceLifeCycle.removePendingUser(space, userId);
   }
 
   /**
@@ -1597,7 +1590,6 @@ public class SpaceServiceImpl implements SpaceService {
         space = this.removeInvited(space, userId);
         this.updateSpace(space);
         spaceLifeCycle.removeInvitedUser(space, userId);
-        removeWebNotifications(space.getId(), userId);
       } finally {
         spaceLifeCycle.resetCurrentEvent(Type.DENY_INVITED_USER);
       }
@@ -1610,29 +1602,11 @@ public class SpaceServiceImpl implements SpaceService {
   public void removePendingUser(Space space, String userId) {
     if (ArrayUtils.contains(space.getPendingUsers(), userId)) {
       space = this.removePending(space, userId);
-      this.updateSpace(space);
-      removeWebNotifications(space.getId(), userId);
+      space = this.updateSpace(space);
+      spaceLifeCycle.removePendingUser(space, userId);
     }
   }
 
-  private void removeWebNotifications(String spaceId, String userId) {
-    if (webNotificationService != null) {
-      WebNotificationFilter filter = new WebNotificationFilter(userId);
-      filter.setParameter("spaceId", spaceId);
-      PluginKey pluginKey = new PluginKey("SpaceInvitationPlugin");
-      filter.setPluginKey(pluginKey);
-      try {
-        for (NotificationInfo notificationInfo : webNotificationService.getNotificationInfos(filter, 0, -1)) {
-          webNotificationService.remove(notificationInfo.getId());
-        }
-      } catch (Exception e) {
-        LOG.error("Cannot remove web notifications for user: " + userId + " and space id: " + spaceId, e);
-      }
-    } else {
-      LOG.error("Cannot update web notfication. WebNotificationService is null");
-    }
-  }
-  
   /**
    * {@inheritDoc}
    */

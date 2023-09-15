@@ -25,7 +25,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
-import org.exoplatform.commons.api.notification.NotificationMessageUtils;
 import org.exoplatform.commons.api.notification.channel.AbstractChannel;
 import org.exoplatform.commons.api.notification.channel.template.AbstractTemplateBuilder;
 import org.exoplatform.commons.api.notification.model.*;
@@ -391,8 +390,8 @@ public class IntranetNotificationRestService implements ResourceContainer {
       msg.setMoveTop(false);
       WebNotificationSender.sendJsonMessage(notification.getTo(), msg);
       notification.setTitle(msg.getBody());
-      notification.with(NotificationMessageUtils.SHOW_POPOVER_PROPERTY.getKey(), "true")
-                  .with(NotificationMessageUtils.READ_PORPERTY.getKey(), "false");
+      notification.setOnPopOver(true);
+      notification.setRead(false);
       webNotificationStorage.update(notification, false);
       return msg;
     } catch (Exception e) {

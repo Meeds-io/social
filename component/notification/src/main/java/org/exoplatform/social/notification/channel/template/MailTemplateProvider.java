@@ -102,10 +102,6 @@ public class MailTemplateProvider extends TemplateProvider {
       ExoSocialActivity commentActivity = Utils.getActivityManager().getActivity(commentId);
       ExoSocialActivity parentCommentActivity = Utils.getActivityManager().getActivity(commentActivity.getParentCommentId());
       Identity identity = Utils.getIdentityManager().getIdentity(commentActivity.getPosterId(), true);
-      if (!Utils.getActivityManager().isNotificationEnabled(commentActivity, notification.getTo())) {
-        return null;
-      }
-
       TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
       templateContext.put("USER", Utils.addExternalFlag(identity));
       String subject = TemplateUtils.processSubject(templateContext);
@@ -200,9 +196,6 @@ public class MailTemplateProvider extends TemplateProvider {
       }
       if (comment == null) {
         LOG.debug("Comment of activity with id '{}' was removed but the notification with id'{}' is remaining", commentId, notification.getId());
-        return null;
-      }
-      if (!Utils.getActivityManager().isNotificationEnabled(comment, notification.getTo())) {
         return null;
       }
       Identity identity = Utils.getIdentityManager().getIdentity(comment.getPosterId(), true);
@@ -858,9 +851,6 @@ public class MailTemplateProvider extends TemplateProvider {
 
       String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-      if (activity == null || !Utils.getActivityManager().isNotificationEnabled(activity, notification.getTo())) {
-        return null;
-      }
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
 
@@ -927,9 +917,6 @@ public class MailTemplateProvider extends TemplateProvider {
       String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
       String originalTitle = notification.getValueOwnerParameter(SocialNotificationUtils.ORIGINAL_TITLE.getKey());
       ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
-      if (activity == null || !Utils.getActivityManager().isNotificationEnabled(activity, notification.getTo())) {
-        return null;
-      }
       Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
 
       Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), true);
