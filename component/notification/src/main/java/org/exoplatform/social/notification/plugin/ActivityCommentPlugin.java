@@ -16,8 +16,8 @@
  */
 package org.exoplatform.social.notification.plugin;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -59,8 +59,8 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
         Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
         Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
         Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
-        receivers.remove(parentCommentUserPosterId);
         Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId(), spaceId);
+        receivers.remove(parentCommentUserPosterId);
         receivers.remove(Utils.getUserId(comment.getPosterId()));
       }
     } else {
@@ -72,8 +72,12 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
       receivers.remove(Utils.getUserId(comment.getPosterId()));
 
     }
+    List<String> receiversList =
+                               receivers.stream()
+                                        .filter(username -> Utils.getActivityManager().isNotificationEnabled(comment, username))
+                                        .toList();
     return NotificationInfo.instance()
-                           .to(new ArrayList<>(receivers))
+                           .to(receiversList)
                            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                            .with(SocialNotificationUtils.COMMENT_ID.getKey(), comment.getId())
                            .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(comment.getUserId()))

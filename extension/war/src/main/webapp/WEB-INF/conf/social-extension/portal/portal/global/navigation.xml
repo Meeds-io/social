@@ -90,13 +90,6 @@
     </node>
 
     <node>
-      <name>allNotifications</name>
-      <label>#{portal.global.allNotifications}</label>
-      <visibility>SYSTEM</visibility>
-      <page-reference>portal::global::allNotifications</page-reference>
-    </node>
-
-    <node>
       <name>connections</name>
       <label>#{portal.global.connections}</label>
       <visibility>SYSTEM</visibility>
