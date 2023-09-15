@@ -18,7 +18,7 @@
           :rounded="spaceAvatar"
           :tile="!!$slots.avatar"
           :size="47"
-          class="mt-0 mb-auto me-3">
+          class="mt-0 mb-auto me-3 pt-2px align-start">
           <slot v-if="$slots.avatar" name="avatar"></slot>
           <v-avatar
             v-else
