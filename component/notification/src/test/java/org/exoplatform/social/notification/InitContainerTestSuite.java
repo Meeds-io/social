@@ -1,28 +1,34 @@
 package org.exoplatform.social.notification;
 
-import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
-import org.exoplatform.commons.testing.ConfigTestCase;
-import org.exoplatform.social.notification.channel.MailTemplateProviderTest;
-import org.exoplatform.social.notification.channel.WebTemplateProviderTest;
-import org.exoplatform.social.notification.channel.template.*;
-import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceTest;
-import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
-import org.exoplatform.social.notification.web.template.*;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
+import org.exoplatform.commons.testing.ConfigTestCase;
+import org.exoplatform.social.notification.channel.MailTemplateProviderTest;
+import org.exoplatform.social.notification.channel.template.ActivityCommentMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.ActivityCommentReplyMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.ActivityMentionMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.EditActivityMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.EditCommentMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.LikeCommentMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.LikeMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.NewUserMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.PostActivityMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.ReceiveRequestMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.RequestJoinSpaceMailBuilderTest;
+import org.exoplatform.social.notification.channel.template.SpaceInvitationMailBuilderTest;
+import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceTest;
+import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
+
 @RunWith(Suite.class)
 @SuiteClasses({
-  ActivityMentionWebBuilderTest.class,
   ActivityMentionMailBuilderTest.class,
   ActivityCommentMailBuilderTest.class,
-  ActivityCommentReplyWebBuilderTest.class,
   ActivityCommentReplyMailBuilderTest.class,
-  LikeCommentWebBuilderTest.class,
   PostActivityMailBuilderTest.class,
   NewUserMailBuilderTest.class,
   ReceiveRequestMailBuilderTest.class,
@@ -32,13 +38,8 @@ import org.junit.runners.Suite.SuiteClasses;
   LikeCommentMailBuilderTest.class,
   LinkProviderUtilsTest.class,
   MailTemplateProviderTest.class,
-  WebTemplateProviderTest.class,
-  LikeWebBuilderTest.class,
   EditActivityMailBuilderTest.class,
   EditCommentMailBuilderTest.class,
-  EditActivityWebBuilderTest.class,
-  EditCommentWebBuilderTest.class,
-  ActivitySpaceWebNotificationTest.class,
   SpaceWebNotificationServiceTest.class,
   SocialNotificationUtilsTest.class,
   UtilsTestCase.class,

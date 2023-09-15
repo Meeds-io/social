@@ -17,6 +17,7 @@
 package org.exoplatform.social.webNotification.service.test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ import org.exoplatform.commons.api.notification.service.storage.WebNotificationS
  */
 public class MockWebNotificationStorage implements WebNotificationStorage {
   
-  private Map<String, NotificationInfo> map = new HashMap<String, NotificationInfo>();
+  private Map<String, NotificationInfo> map = new HashMap<>();
   
   public Map<String, NotificationInfo> getMap() {
     return this.map;
@@ -46,31 +47,27 @@ public class MockWebNotificationStorage implements WebNotificationStorage {
 
   @Override
   public void update(NotificationInfo notification, boolean moveTop) {
-    // TODO Auto-generated method stub
-    
+    // No behavior
   }
 
   @Override
   public void markRead(String notificationId) {
-    // TODO Auto-generated method stub
-    
+    // No behavior
   }
 
   @Override
   public void markAllRead(String userId) {
-    // TODO Auto-generated method stub
-    
+    // No behavior
   }
 
   @Override
   public void hidePopover(String notificationId) {
-    // TODO Auto-generated method stub
-    
+    // No behavior
   }
 
   @Override
   public List<NotificationInfo> get(WebNotificationFilter filter, int offset, int limit) {
-    return new ArrayList<NotificationInfo>(this.map.values());
+    return new ArrayList<>(this.map.values());
   }
 
   @Override
@@ -90,31 +87,41 @@ public class MockWebNotificationStorage implements WebNotificationStorage {
 
   @Override
   public boolean remove(String userId, long seconds) {
-    // TODO Auto-generated method stub
     return false;
   }
 
   @Override
   public NotificationInfo getUnreadNotification(String pluginId, String activityId, String owner) {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public int getNumberOnBadge(String userId) {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public void resetNumberOnBadge(String userId) {
-    // TODO Auto-generated method stub
-    
+    // No behavior
   }
 
   @Override
   public boolean remove(long seconds) {
-    // TODO Auto-generated method stub
     return false;
+  }
+
+  @Override
+  public void markAllRead(List<String> plugins, String username) {
+    // No behavior
+  }
+
+  @Override
+  public Map<String, Integer> countUnreadByPlugin(String userId) {
+    return Collections.emptyMap();
+  }
+
+  @Override
+  public void resetNumberOnBadge(List<String> plugins, String username) {
+    // No behavior
   }
 }

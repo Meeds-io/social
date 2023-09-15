@@ -53,6 +53,12 @@ export function init(initialData, initialLimit) {
           initialData,
           initialLimit,
           activityBaseLink: activityBaseLink,
+          selectedActivityId: null,
+          selectedCommentId: null,
+          replyToComment: false,
+        },
+        created() {
+          this.replyToComment = window.location.hash.includes('#comment-reply');
         },
         template: `<activity-stream id="${appId}" :initial-limit="initialLimit" :initial-data="initialData" />`,
         vuetify: Vue.prototype.vuetifyOptions,
