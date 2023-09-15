@@ -17,16 +17,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-export function getNotifications(offset, limit, includeHidden) {
+export function getNotifications(plugins, offset, limit, expand) {
   const formData = new FormData();
+  if (plugins) {
+    plugins.forEach(p => formData.append('plugin', p));
+  }
   if (offset && offset > 0) {
     formData.append('offset', offset);
   }
   if (limit && limit > 0) {
     formData.append('limit', limit);
   }
-  if (includeHidden) {
+  if (expand && expand.includes('includeHidden')) {
     formData.append('includeHidden', 'true');
+  }
+  if (expand && expand.includes('badge-by-plugin')) {
+    formData.append('badgeByPlugin', 'true');
   }
   const params = decodeURIComponent(new URLSearchParams(formData).toString());
   return fetch(`/portal/rest/notifications/webNotifications?${params}`, {
@@ -41,19 +47,25 @@ export function getNotifications(offset, limit, includeHidden) {
   });
 }
 
-export function resetBadge() {
-  return fetch('/portal/rest/notifications/webNotifications?operation=resetBadge', {
-    headers: {
-    },
+export function resetBadge(plugins) {
+  const formData = new FormData();
+  if (plugins) {
+    plugins.forEach(p => formData.append('plugin', p));
+  }
+  const params = plugins?.length && decodeURIComponent(new URLSearchParams(formData).toString());
+  return fetch(`/portal/rest/notifications/webNotifications?operation=resetBadge${params && '&' || ''}${params || ''}`, {
     method: 'PATCH',
     credentials: 'include',
   });
 }
 
-export function markAllAsRead() {
-  return fetch('/portal/rest/notifications/webNotifications?operation=markAllAsRead', {
-    headers: {
-    },
+export function markAllAsRead(plugins) {
+  const formData = new FormData();
+  if (plugins) {
+    plugins.forEach(p => formData.append('plugin', p));
+  }
+  const params = plugins?.length && decodeURIComponent(new URLSearchParams(formData).toString());
+  return fetch(`/portal/rest/notifications/webNotifications?operation=markAllAsRead${params && '&' || ''}${params || ''}`, {
     method: 'PATCH',
     credentials: 'include',
   });

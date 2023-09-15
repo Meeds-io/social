@@ -26,7 +26,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.exoplatform.services.rest.http.PATCH;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -41,6 +44,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.services.log.ExoLogger;
@@ -89,7 +93,14 @@ public class WebNotificationRestService implements ResourceContainer {
       @ApiResponse(responseCode = "404", description = "Notifications list not found"),
       @ApiResponse(responseCode = "500", description = "Internal server error") })
   public Response getNotifications(
-                                   @Parameter(description = "Whether the message to build is on popover or not", required = false)
+                                   @Parameter(description = "The list of plugins to include in list", required = false)
+                                   @QueryParam("plugin")
+                                   List<String> plugins,
+                                   @Parameter(description = "Includes in response the unread badges count by plugin", required = false)
+                                   @DefaultValue("false")
+                                   @QueryParam("badgeByPlugin")
+                                   boolean badgeByPlugin,
+                                   @Parameter(description = "Includes hidden notifications in response", required = false)
                                    @DefaultValue("false")
                                    @QueryParam("includeHidden")
                                    boolean includeHidden,
@@ -103,19 +114,25 @@ public class WebNotificationRestService implements ResourceContainer {
                                    int limit) {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     int badge = webNftService.getNumberOnBadge(currentUser);
-    List<NotificationInfo> notificationInfos = webNftService.getNotificationInfos(
-                                                                                  new WebNotificationFilter(currentUser,
-                                                                                                            !includeHidden),
-                                                                                  offset,
-                                                                                  limit);
+    WebNotificationFilter filter =
+                                 new WebNotificationFilter(currentUser,
+                                                           plugins == null ? Collections.emptyList()
+                                                                           : plugins.stream().map(PluginKey::key).toList(),
+                                                           !includeHidden);
+    List<NotificationInfo> notificationInfos = webNftService.getNotificationInfos(filter, offset, limit);
+    Map<String, Integer> badgesByPlugin = null;
+    if (badgeByPlugin) {
+      badgesByPlugin = webNftService.countUnreadByPlugin(currentUser);
+    }
     WebNotificationListRestEntity webNotificationsList = WebNotificationRestEntityBuilder.toRestEntity(webNftService,
                                                                                                        identityManager,
                                                                                                        spaceService,
                                                                                                        notificationInfos,
                                                                                                        !includeHidden,
+                                                                                                       badge,
+                                                                                                       badgesByPlugin,
                                                                                                        offset,
-                                                                                                       limit,
-                                                                                                       badge);
+                                                                                                       limit);
     return Response.ok(webNotificationsList).build();
   }
 
@@ -154,15 +171,18 @@ public class WebNotificationRestService implements ResourceContainer {
       @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "500", description = "Internal server error") })
   public Response updateNotifications(
+                                      @Parameter(description = "The list of plugins to include in list", required = false)
+                                      @QueryParam("plugin")
+                                      List<String> plugins,
                                       @Parameter(description = "notification operation", required = true)
                                       @QueryParam("operation")
                                       String operation) {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (RESET_NEW_OPERATION.equals(operation)) {
-      webNftService.resetNumberOnBadge(currentUser);
+      webNftService.resetNumberOnBadge(plugins, currentUser);
     } else if (MARK_ALL_AS_READ_OPERATION.equals(operation)) {
-      webNftService.markAllRead(currentUser);
-      webNftService.resetNumberOnBadge(currentUser);
+      webNftService.markAllRead(plugins, currentUser);
+      webNftService.resetNumberOnBadge(plugins, currentUser);
     } else {
       return Response.status(Response.Status.BAD_REQUEST).entity("Unrecognized operation parameter value: " + operation).build();
     }

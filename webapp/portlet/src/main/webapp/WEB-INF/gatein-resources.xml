@@ -252,14 +252,6 @@
   <!-- TODO <Start> Deprecated WebUI Portlets skins to move -->
   <portlet-skin>
     <application-name>social-portlet</application-name>
-    <portlet-name>IntranetNotificationsPortlet</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/uiAllNotifications/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social-portlet</application-name>
     <portlet-name>TopBarNotification</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/TopBarNotification/Style.css</css-path>
@@ -1300,38 +1292,6 @@
       <script>
         <minify>false</minify>
         <path>/js/topBarNotification.bundle.js</path>
-      </script>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>notificationExtensions</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>commons-cometd3</module>
-        <as>cCometd</as>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>IntranetNotificationsPortlet</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/notificationList.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>

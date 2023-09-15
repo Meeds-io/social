@@ -19,25 +19,28 @@
 
 -->
 <template>
-  <div v-if="hasNotifications">
-    <user-notifications-list
-      :notifications="notifications" />
-    <div v-if="hasMore && $root.initialized" class="d-flex align-center justify-center my-4">
-      <v-btn
-        :loading="loading"
-        class="btn primary"
-        outlined
-        @click="loadMore">
-        {{ $t('button.loadMore') }}
-      </v-btn>
-    </div>
-  </div>
-  <user-notification-empty v-else />
+  <user-notifications-list
+    v-if="hasNotifications"
+    :notifications="notifications" />
+  <user-notification-empty
+    v-else />
 </template>
 <script>
 export default {
+  props: {
+    plugins: {
+      type: Array,
+      default: null,
+    },
+    expanded: {
+      type: Boolean,
+      default: null,
+    },
+  },
   data: () => ({
     loading: false,
+    badge: 0,
+    badgeByPlugin: null,
     hasMore: false,
     notifications: [],
     offset: 0,
@@ -62,8 +65,34 @@ export default {
         }
       }
     },
+    plugins() {
+      this.reset();
+      this.loadNotifications();
+    },
+    expanded(newVal, oldVal) {
+      if (!oldVal && newVal) {
+        this.loadNotifications();
+      }
+      this.reset();
+      this.loadNotifications();
+    },
+    hasMore() {
+      this.$emit('hasMore', this.hasMore);
+    },
+    badge() {
+      this.$emit('badge', this.badge);
+    },
+    badgeByPlugin() {
+      this.$emit('badgeByPlugin', this.badgeByPlugin);
+    },
     notifications() {
-      this.$emit('update:notifications-count', this.notifications?.length || 0);
+      if (this.notifications?.length) {
+        this.$emit('update:notifications-count', this.notifications.length);
+        this.$emit('update:unread-count', this.notifications.filter(n => !n.read).length);
+      } else {
+        this.$emit('update:notifications-count', 0);
+        this.$emit('update:unread-count', 0);
+      }
     },
   },
   created() {
@@ -72,15 +101,26 @@ export default {
     this.loadNotifications();
   },
   methods: {
+    reset() {
+      this.loading = false;
+      this.badge = 0;
+      this.hasMore = false;
+      this.notifications = [];
+      this.offset = 0;
+      this.limit = 10;
+      this.pageSize = 10;
+    },
     loadMore() {
       this.limit += this.pageSize;
       this.loadNotifications();
     },
     loadNotifications() {
       this.loading = true;
-      return this.$notificationService.getNotifications(this.offset, this.limit)
+      return this.$notificationService.getNotifications(this.plugins, this.offset, this.limit, this.expanded && 'badge-by-plugin')
         .then((data) => {
           this.notifications = data.notifications || [];
+          this.badge = data.badge || 0;
+          this.badgeByPlugin = data.badgesByPlugin;
           this.hasMore = this.notifications.length === this.limit;
           return this.$nextTick();
         })

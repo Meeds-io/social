@@ -75,7 +75,6 @@ let config = {
     translationField: './src/main/webapp/vue-apps/component-translation-field/main.js',
     notificationAdministration: './src/main/webapp/vue-apps/notification-administration/main.js',
     notificationExtensions: './src/main/webapp/vue-apps/notification-extensions/main.js',
-    notificationList: './src/main/webapp/vue-apps/notification-list/main.js',
     attachImage: './src/main/webapp/vue-apps/attach-image/main.js',
   },
   module: {
