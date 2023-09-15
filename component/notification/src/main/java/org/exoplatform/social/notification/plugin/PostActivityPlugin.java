@@ -42,9 +42,11 @@ public class PostActivityPlugin extends BaseNotificationPlugin {
       ExoSocialActivity activity = ctx.value(SocialNotificationUtils.ACTIVITY);
       String receiver = activity.getStreamOwner();
       if (Utils.getActivityManager().isNotificationEnabled(activity, receiver)) {
+        String poster = Utils.getUserId(activity.getPosterId());
         return NotificationInfo.instance()
                                .to(receiver)
-                               .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(activity.getPosterId()))
+                               .setFrom(poster)
+                               .with(SocialNotificationUtils.POSTER.getKey(), poster)
                                .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                                .key(getId())
                                .end();
