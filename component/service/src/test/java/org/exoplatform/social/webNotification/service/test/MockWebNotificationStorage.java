@@ -117,4 +117,22 @@ public class MockWebNotificationStorage implements WebNotificationStorage {
     // TODO Auto-generated method stub
     return false;
   }
+
+  @Override
+  public void markAllRead(List<String> plugins, String username) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public Map<String, Integer> countUnreadByPlugin(String userId) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void resetNumberOnBadge(List<String> plugins, String username) {
+    // TODO Auto-generated method stub
+    
+  }
 }
