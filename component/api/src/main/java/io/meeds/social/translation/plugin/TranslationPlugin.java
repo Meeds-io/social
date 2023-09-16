@@ -69,8 +69,8 @@ public abstract class TranslationPlugin extends BaseComponentPlugin {
   public abstract long getAudienceId(long objectId) throws ObjectNotFoundException;
 
   /**
-   * Retrieves the Space Id of the target space for which the attachment will be
-   * accessible
+   * Retrieves the Space Id of the target space for which the translations
+   * will be accessible
    * 
    * @param  objectId                Object Identifier
    * @return                         {@link Space} Id as long

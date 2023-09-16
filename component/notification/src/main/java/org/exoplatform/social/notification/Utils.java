@@ -107,10 +107,6 @@ public class Utils {
     receivers.addAll(getDestinataires(commenters, poster, spaceId));
   }
 
-  public static void sendToLikers(Set<String> receivers, String[] likers, String poster, String spaceId) {
-    receivers.addAll(getDestinataires(likers, poster, spaceId));
-  }
-  
   /**
    * Checks if a notification message is sent to a stream owner or not.
    * @param receivers The list of users receiving the notification message.

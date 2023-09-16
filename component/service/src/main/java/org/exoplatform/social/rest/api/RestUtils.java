@@ -263,15 +263,15 @@ public class RestUtils {
     return date.getTime(); 
   }
 
-  public static final Identity getUserIdentity(String user) {
+  public static Identity getUserIdentity(String user) {
     return isAnonymous() ? null : getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
   }
 
-  public static final Identity getCurrentUserIdentity() {
+  public static Identity getCurrentUserIdentity() {
     return isAnonymous() ? null : getUserIdentity(getCurrentUser());
   }
 
-  public static final long getCurrentUserIdentityId() {
+  public static long getCurrentUserIdentityId() {
     String currentUser = getCurrentUser();
     if (isAnonymous() || currentUser == null) {
       return 0;
@@ -281,7 +281,7 @@ public class RestUtils {
     return id == null ? 0 : Long.parseLong(id);
   }
 
-  public static final String getCurrentUser() {
+  public static String getCurrentUser() {
     return isAnonymous() ? null : ConversationState.getCurrent().getIdentity().getUserId();
   }
 

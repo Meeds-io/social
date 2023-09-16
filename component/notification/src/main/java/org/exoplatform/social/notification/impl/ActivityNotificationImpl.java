@@ -78,6 +78,7 @@ public class ActivityNotificationImpl extends ActivityListenerPlugin {
     ctx.getNotificationExecutor().with(ctx.makeCommand(PluginKey.key(ActivityCommentPlugin.ID)))
                                  .with(ctx.makeCommand(PluginKey.key(ActivityReplyToCommentPlugin.ID)))
                                  .with(ctx.makeCommand(PluginKey.key(ActivityMentionPlugin.ID)))
+                                 .with(ctx.makeCommand(PluginKey.key(ActivityCommentWatchPlugin.ID)))
                                  .execute(ctx);
   }
 

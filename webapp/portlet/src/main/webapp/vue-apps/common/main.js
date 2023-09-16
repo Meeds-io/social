@@ -10,6 +10,7 @@ import * as settingService from './js/SettingService.js';
 import * as featureService from './js/FeatureService.js';
 import * as activityService from './js/ActivityService.js';
 import * as favoriteService from './js/FavoriteService.js';
+import * as observerService from './js/ObserverService.js';
 import * as tagService from './js/TagService.js';
 import * as socialWebSocket from './js/WebSocket.js';
 import {spacesConstants} from './js/spacesConstants.js';
@@ -64,6 +65,9 @@ window.Object.defineProperty(Vue.prototype, '$activityService', {
 });
 window.Object.defineProperty(Vue.prototype, '$favoriteService', {
   value: favoriteService,
+});
+window.Object.defineProperty(Vue.prototype, '$observerService', {
+  value: observerService,
 });
 window.Object.defineProperty(Vue.prototype, '$tagService', {
   value: tagService,
