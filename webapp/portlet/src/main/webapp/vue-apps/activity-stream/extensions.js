@@ -268,6 +268,30 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
 });
 
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'watch',
+  rank: 40,
+  labelKey: 'UIActivity.label.Watch',
+  icon: 'fa-eye',
+  isEnabled: activity => !activity?.metadatas?.observers?.length || false,
+  click: activity => {
+    return Vue.prototype.$observerService.createObserver('activity', activity.id)
+      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})));
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'unwatch',
+  rank: 40,
+  labelKey: 'UIActivity.label.Unwatch',
+  icon: 'fa-eye-slash',
+  isEnabled: activity => activity?.metadatas?.observers?.length || false,
+  click: activity => {
+    return Vue.prototype.$observerService.deleteObserver('activity', activity.id)
+      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})));
+  },
+});
+
 extensionRegistry.registerExtension('activity', 'comment-action', {
   id: 'delete',
   rank: 20,

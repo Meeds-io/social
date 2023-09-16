@@ -70,6 +70,7 @@ public class SocialNotificationUtils {
   public final static ArgumentLiteral<String> COMMENT_REPLY_ID = new ArgumentLiteral<String>(String.class, "commentReplyId");
   public final static ArgumentLiteral<String> PARENT_ACTIVITY_ID = new ArgumentLiteral<String>(String.class, "parentActivityId");
   public final static ArgumentLiteral<String> POSTER = new ArgumentLiteral<String>(String.class, "poster");
+  public final static ArgumentLiteral<String> WATCHED = new ArgumentLiteral<String>(String.class, "watched");
   public final static ArgumentLiteral<String> LIKER = new ArgumentLiteral<String>(String.class, "likersId");
   public final static ArgumentLiteral<String> LIKERS = new ArgumentLiteral<String>(String.class, "likers");
   public final static ArgumentLiteral<String> SENDER = new ArgumentLiteral<String>(String.class, "sender");

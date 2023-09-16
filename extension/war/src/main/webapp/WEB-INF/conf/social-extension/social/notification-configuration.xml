@@ -32,6 +32,7 @@
           <value>ActivityMentionPlugin</value>
           <value>ActivityCommentPlugin</value>
           <value>ActivityReplyToCommentPlugin</value>
+          <value>ActivityCommentWatchPlugin</value>
           <value>EditActivityPlugin</value>
           <value>EditCommentPlugin</value>
           <value>LikePlugin</value>
