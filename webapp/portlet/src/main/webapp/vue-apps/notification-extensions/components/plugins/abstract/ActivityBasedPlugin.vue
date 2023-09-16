@@ -29,6 +29,9 @@
           </span>
         </v-btn>
       </div>
+      <div v-else-if="$slots.reply" class="overflow-hidden mt-1">
+        <slot name="reply"></slot>
+      </div>
     </template>
   </user-notification-template>
 </template>

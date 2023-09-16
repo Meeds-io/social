@@ -43,6 +43,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.notification.plugin.ActivityCommentPlugin;
+import org.exoplatform.social.notification.plugin.ActivityCommentWatchPlugin;
 import org.exoplatform.social.notification.plugin.ActivityMentionPlugin;
 import org.exoplatform.social.notification.plugin.ActivityReplyToCommentPlugin;
 import org.exoplatform.social.notification.plugin.EditActivityPlugin;
@@ -72,6 +73,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
 
   public static final List<String> PLUGIN_IDS    = Arrays.asList(PostActivityPlugin.ID,
                                                                  ActivityCommentPlugin.ID,
+                                                                 ActivityCommentWatchPlugin.ID,
                                                                  ActivityReplyToCommentPlugin.ID,
                                                                  ActivityMentionPlugin.ID,
                                                                  LikePlugin.ID,
