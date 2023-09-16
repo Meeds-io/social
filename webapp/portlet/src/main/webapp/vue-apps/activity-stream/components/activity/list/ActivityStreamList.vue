@@ -290,7 +290,7 @@ export default {
     updateActivityDisplay(updatedActivity) {
       const index = this.activities.findIndex(activity => updatedActivity.id === activity.id);
       if (index >= 0) {
-        const activityToUpdate = Object.assign({}, this.activities[index], updatedActivity);
+        const activityToUpdate = Object.assign({}, this.activities[index], {metadatas: {}}, updatedActivity);
         this.activities.splice(index, 1, activityToUpdate);
         this.$root.$emit('activity-refresh-ui', updatedActivity.id);
       }

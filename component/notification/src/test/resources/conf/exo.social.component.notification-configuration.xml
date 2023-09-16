@@ -172,6 +172,41 @@
     <component-plugin>
       <name>notification.plugins</name>
       <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.notification.plugin.ActivityCommentWatchPlugin</type>
+      <description>Initial information for plugin.</description>
+      <init-params>
+        <object-param>
+          <name>template.ActivityCommentWatchPlugin</name>
+          <description>The template of ActivityCommentWatchPlugin</description>
+          <object type="org.exoplatform.commons.api.notification.plugin.config.PluginConfig">
+            <field name="pluginId">
+              <string>ActivityCommentWatchPlugin</string>
+            </field>
+            <field name="resourceBundleKey">
+              <string>UINotification.label.ActivityCommentWatchPlugin</string>
+            </field>
+            <field name="order">
+              <string>8</string>
+            </field>
+            <field name="defaultConfig">
+              <collection type="java.util.ArrayList">
+                <value><string>Instantly</string></value>
+                <value><string>daily</string></value>
+              </collection>
+            </field>
+            <field name="groupId">
+              <string>activity_stream</string>
+            </field>
+            <field name="bundlePath">
+              <string>locale.notification.template.Notification</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>notification.plugins</name>
+      <set-method>addPlugin</set-method>
       <type>org.exoplatform.social.notification.plugin.ActivityReplyToCommentPlugin</type>
       <description>Initial information for plugin.</description>
       <init-params>
