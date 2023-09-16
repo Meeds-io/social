@@ -35,6 +35,7 @@ extensionRegistry.registerExtension('WebNotification', 'notification-group-exten
     'PostActivityPlugin',
     'PostActivitySpaceStreamPlugin',
     'ActivityCommentPlugin',
+    'ActivityCommentWatchPlugin',
     'ActivityReplyToCommentPlugin',
     'ActivityMentionPlugin',
     'SharedActivitySpaceStreamPlugin',
@@ -78,6 +79,11 @@ extensionRegistry.registerExtension('WebNotification', 'notification-content-ext
 });
 extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
   type: 'ActivityCommentPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['user-notification-activity-comment'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'ActivityCommentWatchPlugin',
   rank: 10,
   vueComponent: Vue.options.components['user-notification-activity-comment'],
 });

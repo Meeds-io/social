@@ -359,14 +359,16 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
     if (activityId != null) {
       try {
         ExoSocialActivity comment = createComment(activityMessage, titleId, null, SPACE_APP_ID, identity, templateParams);
-        ExoSocialActivity activity = (ExoSocialActivityImpl) activityManager.getActivity(activityId);
+        if (comment == null) {
+          return;
+        }
+        ExoSocialActivity activity = activityManager.getActivity(activityId);
         
         // When update number of members in case of join and left space ==> update the activity's title
         if (USER_JOINED_TITLE_ID.equals(titleId)) {
           updateActivity(activity, space.getPrettyName());
           activityManager.updateActivity(activity);
         } 
-        
         activityManager.saveComment(activity, comment);
       } catch (Exception e) {
         LOG.debug("Run in case of activity deleted and reupdate");
@@ -409,6 +411,9 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
   }
   
   private ExoSocialActivity createComment(String title, String titleId, String spacePrettyName, String type, Identity identity, Map<String, String> templateParams) {
+    if (identity == null) {
+      return null;
+    }
     ExoSocialActivityImpl comment = new ExoSocialActivityImpl();
     comment.setTitle(title);
     comment.setTitleId(titleId);

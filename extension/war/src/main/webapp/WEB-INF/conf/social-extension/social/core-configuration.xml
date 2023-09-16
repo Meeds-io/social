@@ -174,6 +174,15 @@
         <type>org.exoplatform.social.core.profilelabel.storage.ProfileLabelStorage</type>
     </component>
 
+    <component>
+      <type>io.meeds.social.observe.storage.ObserverStorage</type>
+    </component>
+
+    <component>
+      <key>io.meeds.social.observe.service.ObserverService</key>
+      <type>io.meeds.social.observe.service.ObserverServiceImpl</type>
+    </component>
+
     <!--
       Identity storage components.
     -->
@@ -895,6 +904,15 @@
             <set-method>addListener</set-method>
             <type>org.exoplatform.social.core.listeners.AttachmentMetadataListener</type>
         </component-plugin>
+    </external-component-plugins>
+
+    <external-component-plugins>
+      <target-component>io.meeds.social.observe.service.ObserverService</target-component>
+      <component-plugin>
+        <name>ActivityOberverPlugin</name>
+        <set-method>addPlugin</set-method>
+        <type>io.meeds.social.observe.plugin.ActivityOberverPlugin</type>
+      </component-plugin>
     </external-component-plugins>
 
     <external-component-plugins>
