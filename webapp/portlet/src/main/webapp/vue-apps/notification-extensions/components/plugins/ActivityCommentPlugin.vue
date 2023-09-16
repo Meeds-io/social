@@ -9,16 +9,18 @@
       <v-btn
         v-if="!watchCanceled"
         :loading="unwatching"
-        color="primary"
-        class="primary-border-color d-flex"
-        elevation="0"
-        small
+        class="btn primary px-2"
         outlined
+        small
         @click="unwatch">
-        <v-icon size="14" class="me-1">fa-eye-slash</v-icon>
-        <span class="text-none">
-          {{ $t('UIActivity.label.Unwatch') }}
-        </span>
+        <v-hover v-slot="{hover}">
+          <div>
+            <v-icon size="14" class="me-1">{{ hover && 'fa-eye-slash' || 'fa-eye' }}</v-icon>
+            <span class="text-none">
+              {{ hover && $t('Notification.activity.stopWatching') || $t('Notification.activity.watching') }}
+            </span>
+          </div>
+        </v-hover>
       </v-btn>
     </template>
   </user-notification-activity-base>

@@ -71,6 +71,7 @@ import org.jsoup.Jsoup;
 @TemplateConfigs(templates = {
     @TemplateConfig(pluginId = ActivityReplyToCommentPlugin.ID, template = "war:/notification/templates/ActivityReplyToCommentPlugin.gtmpl"),
     @TemplateConfig(pluginId = ActivityCommentPlugin.ID, template = "war:/notification/templates/ActivityCommentPlugin.gtmpl"),
+    @TemplateConfig(pluginId = ActivityCommentWatchPlugin.ID, template = "war:/notification/templates/ActivityCommentPlugin.gtmpl"),
     @TemplateConfig(pluginId = EditActivityPlugin.ID, template = "war:/notification/templates/EditActivityPlugin.gtmpl"),
     @TemplateConfig(pluginId = EditCommentPlugin.ID, template = "war:/notification/templates/EditCommentPlugin.gtmpl"),
     @TemplateConfig(pluginId = ActivityMentionPlugin.ID, template = "war:/notification/templates/ActivityMentionPlugin.gtmpl"),
@@ -1283,6 +1284,7 @@ public class MailTemplateProvider extends TemplateProvider {
   public MailTemplateProvider(InitParams initParams) {
     super(initParams);
     this.templateBuilders.put(PluginKey.key(ActivityCommentPlugin.ID), comment);
+    this.templateBuilders.put(PluginKey.key(ActivityCommentWatchPlugin.ID), comment);
     this.templateBuilders.put(PluginKey.key(EditCommentPlugin.ID), editComment);
     this.templateBuilders.put(PluginKey.key(EditActivityPlugin.ID), editActivity);
     this.templateBuilders.put(PluginKey.key(ActivityReplyToCommentPlugin.ID), replyToComment);

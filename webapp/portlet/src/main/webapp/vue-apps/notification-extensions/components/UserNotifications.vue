@@ -85,11 +85,11 @@ export default {
     },
     notifications() {
       if (this.notifications?.length) {
-        this.$emit('update:notifications-count', this.notifications.length);
-        this.$emit('update:unread-count', this.notifications.filter(n => !n.read).length);
+        this.$emit('notificationsCount', this.notifications.length);
+        this.$emit('unreadCount', this.notifications.filter(n => !n.read).length);
       } else {
-        this.$emit('update:notifications-count', 0);
-        this.$emit('update:unread-count', 0);
+        this.$emit('notificationsCount', 0);
+        this.$emit('unreadCount', 0);
       }
     },
   },

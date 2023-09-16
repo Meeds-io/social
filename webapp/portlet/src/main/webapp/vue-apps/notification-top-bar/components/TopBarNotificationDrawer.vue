@@ -72,7 +72,6 @@
             min-width="270"
             width="270"
             max-width="30%"
-            class="me-4"
             flat>
             <user-notification-types
               ref="notificationTypes"
@@ -83,6 +82,11 @@
               class="flex-grow-0 flex-shrink-0"
               @group="groupName = $event" />
           </v-card>
+          <v-expand-x-transition>
+            <v-card
+              :min-width="separatorWidth"
+              :class="expanded && 'me-4'"></v-card>
+          </v-expand-x-transition>
           <v-card
             :max-height="expanded && '100%' || 'auto'"
             class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent overflow-hidden"
@@ -97,13 +101,13 @@
                 ref="notifications"
                 id="notificationsList"
                 :plugins="notificationPlugins"
-                :notifications-count.sync="notificationsCount"
-                :unread-count.sync="hasUnread"
                 :expanded="expanded"
                 class="notifDrawerItems"
                 @badge="$emit('update:badge', $event)"
                 @hasMore="hasMore = $event"
-                @badgeByPlugin="badgeByPlugin = $event" />
+                @badgeByPlugin="badgeByPlugin = $event"
+                @notificationsCount="notificationsCount = $event"
+                @unreadCount="hasUnread = $event" />
             </v-card>
             <v-btn
               v-if="expanded && hasMore && $root.initialized"
@@ -148,6 +152,7 @@ export default {
     groupName: 'all',
     notificationPlugins: null,
     badgeByPlugin: null,
+    separatorWidth: 0,
     markingAllAsRead: false,
     settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings#notifications`,
     allNotificationsLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/allNotifications`,
@@ -164,8 +169,12 @@ export default {
       }
     },
     expanded() {
-      if (!this.expanded && this.notificationPlugins) {
-        this.notificationPlugins = null;
+      if (!this.expanded) {
+        if (this.notificationPlugins) {
+          this.notificationPlugins = null;
+        }
+        this.separatorWidth = '50%';
+        window.setTimeout(() => this.separatorWidth = '0', 200);
       }
     },
   },

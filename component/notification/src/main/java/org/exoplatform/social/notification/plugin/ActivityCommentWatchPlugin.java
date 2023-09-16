@@ -105,7 +105,7 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
                              .with(SocialNotificationUtils.COMMENT_ID.getKey(), comment.getId())
                              .with(SocialNotificationUtils.POSTER.getKey(), poster)
                              .with(SocialNotificationUtils.WATCHED.getKey(), "true")
-                             .key(ActivityCommentPlugin.ID);
+                             .key(getId());
     }
   }
 
