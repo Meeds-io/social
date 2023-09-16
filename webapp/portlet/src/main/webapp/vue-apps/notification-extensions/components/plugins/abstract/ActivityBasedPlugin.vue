@@ -19,15 +19,17 @@
       <div v-if="reply" class="mt-1">
         <v-btn
           :href="replyUrl"
-          color="primary"
-          elevation="0"
-          small
-          outlined>
+          class="btn primary px-2"
+          outlined
+          small>
           <v-icon size="14" class="me-1">{{ replyIcon }}</v-icon>
           <span class="text-none">
             {{ $t(replyKey) }}
           </span>
         </v-btn>
+      </div>
+      <div v-else-if="$slots.reply" class="overflow-hidden mt-1">
+        <slot name="reply"></slot>
       </div>
     </template>
   </user-notification-template>
