@@ -6,12 +6,16 @@
     :loading="loading"
     :url="activityUrl">
     <template #actions>
-      <div v-if="parentContentText" class="text-truncate">
+      <div
+        v-if="parentContentText"
+        :title="parentContentText"
+        class="text-truncate">
         <v-icon size="14" class="me-1">fa-stream</v-icon>
         {{ parentContentText }}
       </div>
       <div
         :class="parentContentText && 'my-2' || ''"
+        :title="contentText"
         class="text-truncate">
         <v-icon size="14" class="me-1">{{ notificationIcon }}</v-icon>
         {{ contentText }}

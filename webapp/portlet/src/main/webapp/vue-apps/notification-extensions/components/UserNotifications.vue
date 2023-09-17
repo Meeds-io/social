@@ -94,7 +94,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener('refresh-notifications', this.loadNotifications);
+    document.addEventListener('refresh-notifications', this.refreshNotifications);
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
     this.loadNotifications();
   },
@@ -110,6 +110,9 @@ export default {
     },
     loadMore() {
       this.limit += this.pageSize;
+      this.loadNotifications();
+    },
+    refreshNotifications() {
       this.loadNotifications();
     },
     loadNotifications(loadBadgesOnly) {
