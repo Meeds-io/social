@@ -33,6 +33,9 @@
         }
       }
     }
+    if (!el.classList.contains('reset-style-box')) {
+      el.classList.add('reset-style-box');
+    }
     el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
   });
   window.Vue.directive('sanitized-html-no-embed', function (el, binding) {
