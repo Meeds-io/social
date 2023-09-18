@@ -28,19 +28,23 @@
     </template>
     <template #content>
       <v-card flat>
-        <v-card-text v-if="!audienceTypesDisplay" class="mt-1 pb-0">
-          <span class="subtitle-1 text-sub-title"> {{ $t('activity.composer.content.title') }} </span>
+        <div v-if="!audienceTypesDisplay" class="mt-1 px-4 pt-4">
+          <span class="subtitle-1 text-color"> {{ $t('activity.composer.content.title') }} </span>
           <v-radio-group
             v-if="postToNetwork"
             v-model="audienceChoice"
             class="mt-0"
             mandatory>
-            <v-radio
-              :label="$t('activity.composer.content.yourNetwork')"
-              value="yourNetwork" />
-            <v-radio
-              :label="$t('activity.composer.content.oneOfYourSpaces')"
-              value="oneOfYourSpaces" />
+            <v-radio value="yourNetwork">
+              <template #label>
+                <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.yourNetwork') }}</span>
+              </template>
+            </v-radio>
+            <v-radio value="oneOfYourSpaces">
+              <template #label>
+                <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.oneOfYourSpaces') }}</span>
+              </template>
+            </v-radio>
           </v-radio-group>
           <exo-identity-suggester
             v-if="spaceSuggesterDisplay"
@@ -51,11 +55,11 @@
             :width="220"
             name="audienceComposerSuggester"
             class="user-suggester mt-n2"
-            include-spaces />
-          <div v-else-if="audience">
+            include-spaces
+            only-manager />
+          <div v-else-if="audience && postInYourSpacesChoice">
             <v-chip
               class="primary"
-              close-icon="mdi-close"
               close
               @click:close="removeAudience">
               <v-avatar left>
@@ -66,7 +70,7 @@
               </span>
             </v-chip>
           </div>
-        </v-card-text>
+        </div>
         <v-card-text>
           <rich-editor
             v-if="drawer"
@@ -175,7 +179,7 @@ export default {
       return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.audience || !this.messageLength);
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength) || (this.postInYourSpacesChoice && !this.audience);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -195,8 +199,11 @@ export default {
     audienceTypesDisplay() {
       return eXo.env.portal.spaceId;
     },
+    postInYourSpacesChoice() {
+      return this.audienceChoice === 'oneOfYourSpaces';
+    },
     spaceSuggesterDisplay() {
-      return (this.postToNetwork && this.audienceChoice === 'oneOfYourSpaces' && !this.audience) || !this.postToNetwork ;
+      return (this.postToNetwork && this.postInYourSpacesChoice && !this.audience) || !this.postToNetwork ;
     }
   },
   watch: {
