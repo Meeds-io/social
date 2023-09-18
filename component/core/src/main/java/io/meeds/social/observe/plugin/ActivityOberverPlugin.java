@@ -29,6 +29,8 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 
+import io.meeds.social.observe.model.ObserverObject;
+
 public class ActivityOberverPlugin extends ObserverPlugin {
 
   public static final String  OBJECT_TYPE                = "activity";
@@ -94,6 +96,18 @@ public class ActivityOberverPlugin extends ObserverPlugin {
       return 0;
     }
     return Long.parseLong(activity.getSpaceId());
+  }
+
+  @Override
+  public ObserverObject getExtendedObserverObject(String objectId) throws ObjectNotFoundException {
+    ExoSocialActivity activity = activityManager.getActivity(objectId);
+    if (activity == null) {
+      throw new ObjectNotFoundException(String.format(ACTIVITY_WITH_ID_NOT_FOUND, objectId));
+    } else if (activity.hasSpecificMetadataObject()) {
+      return new ObserverObject(activity.getMetadataObject());
+    } else {
+      return super.getExtendedObserverObject(objectId);
+    }
   }
 
   private Identity getIdentity(String userId) throws Exception {
