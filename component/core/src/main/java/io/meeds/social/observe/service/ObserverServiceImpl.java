@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
@@ -87,12 +89,14 @@ public class ObserverServiceImpl implements ObserverService {
                                                            objectType,
                                                            objectId));
     }
-    ObserverObject observerObject = new ObserverObject(objectType,
-                                                       objectId,
-                                                       parentObjectId,
-                                                       observerPlugin.getSpaceId(objectId));
+    ObserverObject observerObject = getObserverObject(objectType, objectId, parentObjectId, observerPlugin.getSpaceId(objectId));
     Observer observer = new Observer(identityId, observerObject);
     observerStorage.createObserver(observer);
+
+    ObserverObject extendedObserverObject = observerPlugin.getExtendedObserverObject(objectId);
+    if (extendedObserverObject != null) {
+      observerStorage.createObserver(new Observer(identityId, extendedObserverObject));
+    }
     broadcastEvent(OBSERVATION_SAVED_EVENT_NAME, observer);
   }
 
@@ -101,11 +105,7 @@ public class ObserverServiceImpl implements ObserverService {
     if (!isObserved(identityId, objectType, objectId)) {
       throw new ObjectNotFoundException(String.format("User %s isn't observing object %s/%s", identityId, objectType, objectId));
     }
-    ObserverPlugin observerPlugin = observerPlugins.get(objectType);
-    ObserverObject observerObject = new ObserverObject(objectType,
-                                                       objectId,
-                                                       null,
-                                                       observerPlugin.getSpaceId(objectId));
+    ObserverObject observerObject = getObserverObject(objectType, objectId);
     Observer observer = new Observer(identityId, observerObject);
     observerStorage.deleteObserver(observer);
     broadcastEvent(OBSERVATION_DELETED_EVENT_NAME, observer);
@@ -113,7 +113,12 @@ public class ObserverServiceImpl implements ObserverService {
 
   @Override
   public boolean isObserved(long identityId, String objectType, String objectId) {
-    return observerStorage.isObserved(identityId, objectType, objectId);
+    try {
+      ObserverObject observerObject = getObserverObject(objectType, objectId);
+      return observerStorage.isObserved(identityId, observerObject.getType(), observerObject.getId());
+    } catch (ObjectNotFoundException e) {
+      return false;
+    }
   }
 
   @Override
@@ -131,6 +136,30 @@ public class ObserverServiceImpl implements ObserverService {
       listenerService.broadcast(eventName, observer, null);
     } catch (Exception e) {
       LOG.warn("An error occurred while broadcasting event {} for observer {}", observer, e);
+    }
+  }
+
+  private ObserverObject getObserverObject(String objectType,
+                                           String objectId,
+                                           String parentObjectId,
+                                           long spaceId) throws ObjectNotFoundException {
+    ObserverObject observerObject = getObserverObject(objectType, objectId);
+    if (StringUtils.isBlank(observerObject.getParentId())) {
+      observerObject.setParentId(parentObjectId);
+    }
+    if (observerObject.getSpaceId() == 0) {
+      observerObject.setSpaceId(spaceId);
+    }
+    return observerObject;
+  }
+
+  private ObserverObject getObserverObject(String objectType, String objectId) throws ObjectNotFoundException {
+    ObserverPlugin observerPlugin = observerPlugins.get(objectType);
+    ObserverObject observerObject = observerPlugin.getExtendedObserverObject(objectId);
+    if (observerObject == null) {
+      return new ObserverObject(objectType, objectId, null, observerPlugin.getSpaceId(objectId));
+    } else {
+      return observerObject;
     }
   }
 

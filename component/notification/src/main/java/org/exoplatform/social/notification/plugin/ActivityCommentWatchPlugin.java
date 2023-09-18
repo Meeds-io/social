@@ -73,9 +73,8 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
 
-    addWatchers(receivers, comment.getId());
-    addWatchers(receivers, activity.getId());
-    addWatchers(receivers, comment.getParentCommentId());
+    addWatchers(receivers, comment);
+    addWatchers(receivers, activity);
     String poster = Utils.getUserId(comment.getUserId());
 
     Set<String> commentReceivers = new HashSet<>();
@@ -93,7 +92,6 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
                                             return aclIdentity != null
                                                 && Utils.getActivityManager().isActivityViewable(comment, aclIdentity);
                                           })
-                                          .filter(username -> Utils.getActivityManager().isNotificationEnabled(comment, username))
                                           .toList();
     if (receiversList.isEmpty()) {
       return null;
@@ -109,9 +107,11 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
     }
   }
 
-  private void addWatchers(Set<Long> receivers, String activityId) {
-    if (StringUtils.isNotBlank(activityId)) {
-      observerService.getObserverIdentityIds(ActivityOberverPlugin.OBJECT_TYPE, activityId.replace("comment", ""))
+  private void addWatchers(Set<Long> receivers, ExoSocialActivity activity) {
+    if (activity != null) {
+      observerService.getObserverIdentityIds(activity.getMetadataObjectType(), activity.getMetadataObjectId())
+                     .forEach(receivers::add);
+      observerService.getObserverIdentityIds(ActivityOberverPlugin.OBJECT_TYPE, activity.getId().replace("comment", ""))
                      .forEach(receivers::add);
     }
   }
@@ -119,9 +119,6 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
-    if (!Utils.getActivityManager().isNotificationEnabled(comment)) {
-      return false;
-    }
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
     Identity spaceIdentity = Utils.getIdentityManager().getOrCreateSpaceIdentity(activity.getStreamOwner());
     // if the space is not null and it's not the default activity of space, then
