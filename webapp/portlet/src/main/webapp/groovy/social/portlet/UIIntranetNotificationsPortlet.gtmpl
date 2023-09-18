@@ -41,3 +41,25 @@ jsManager.require("SHARED/jquery", "jq")
 	</div>
   <div class="bottomContainer"></div>
 </div>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function() {
+    var contentElements = document.querySelectorAll(".unread");
+    if (contentElements.length) {
+      contentElements.forEach(function(element) {
+        var elmt = element.querySelectorAll(".contentSmall");
+        var notificationId = element.getAttribute("data-id");
+        elmt[0].addEventListener("click", function(event) {
+          var restPath = "/portal/rest/notifications/webNotifications/"+notificationId;
+          fetch(restPath, {
+            headers: {
+              "Content-Type": "text/plain",
+              credentials: "include",
+            },
+            method: "PATCH",
+            body: "markAsRead"
+          });
+        });
+      });
+    }
+});
+</script>
