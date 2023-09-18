@@ -50,7 +50,7 @@
               :src="avatar"
               class="avatar">  {{ space.displayName }}
         </td>
-        <td v-html="space.description"></td>
+        <td v-sanitized-html="space.description"></td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.visibility.'+space.visibility) }} </td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
         <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
