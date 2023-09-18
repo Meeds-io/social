@@ -1793,6 +1793,9 @@ public class EntityBuilder {
                                            boolean expandNavigations,
                                            boolean excludeEmptyNavigationSites,
                                            Locale locale) {
+    if (site == null) {
+      return null;
+    }
     SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
     String displayName = site.getLabel();
     org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
@@ -1857,7 +1860,9 @@ public class EntityBuilder {
                           site.getDisplayOrder(),
                           isMetaSite(site.getName()),
                           siteNavigations,
-                          getUserACL().hasPermission(site.getEditPermission()));
+                          getUserACL().hasPermission(site.getEditPermission()),
+                          site.getBannerFileId(),
+                          LinkProvider.buildAttachmentUrl(site.getName(), LinkProvider.ATTACHMENT_BANNER_TYPE, site.getBannerFileId() == 0));
   }
 
   private static List<Map<String, Object>> computePermissions(String[] permissions) {
