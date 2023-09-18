@@ -10,9 +10,9 @@
       {{ $t('UIUserActivitiesDisplay.label.activityNotFound') }}
     </div>
     <v-card
-      class="text-color mt-6 d-none d-sm-inline title"
+      class="text-color mt-6 mx-2 d-none d-sm-inline title"
       max-width="80%"
-      min-width="50vw"
+      width="80%"
       flat>
       {{ $t('activity.notFound.message') }}
     </v-card>
