@@ -30,30 +30,41 @@
       <v-card flat>
         <v-card-text v-if="!audienceTypesDisplay" class="mt-1 pb-0">
           <span class="subtitle-1 text-sub-title"> {{ $t('activity.composer.content.title') }} </span>
-          <div class="d-flex flex-row">
-            <v-radio-group
-              v-if="postToNetwork"
-              v-model="audienceChoice"
-              class="mt-0"
-              mandatory>
-              <v-radio
-                :label="$t('activity.composer.content.yourNetwork')"
-                value="yourNetwork" />
-              <v-radio
-                :label="$t('activity.composer.content.oneOfYourSpaces')"
-                value="oneOfYourSpaces" />
-            </v-radio-group>
-            <exo-identity-suggester
-              v-else
-              ref="audienceComposerSuggester"
-              v-model="audience"
-              :labels="spaceSuggesterLabels"
-              :include-users="false"
-              :width="220"
-              name="audienceComposerSuggester"
-              class="user-suggester mt-n2"
-              include-spaces
-              only-redactor />
+          <v-radio-group
+            v-if="postToNetwork"
+            v-model="audienceChoice"
+            class="mt-0"
+            mandatory>
+            <v-radio
+              :label="$t('activity.composer.content.yourNetwork')"
+              value="yourNetwork" />
+            <v-radio
+              :label="$t('activity.composer.content.oneOfYourSpaces')"
+              value="oneOfYourSpaces" />
+          </v-radio-group>
+          <exo-identity-suggester
+            v-if="spaceSuggesterDisplay"
+            ref="audienceComposerSuggester"
+            v-model="audience"
+            :labels="spaceSuggesterLabels"
+            :include-users="false"
+            :width="220"
+            name="audienceComposerSuggester"
+            class="user-suggester mt-n2"
+            include-spaces />
+          <div v-else-if="audience">
+            <v-chip
+              class="primary"
+              close-icon="mdi-close"
+              close
+              @click:close="removeAudience">
+              <v-avatar left>
+                <v-img :src="audience.profile.avatarUrl" role="presentation" />
+              </v-avatar>
+              <span class="text-truncate">
+                {{ audience.profile.fullName }}
+              </span>
+            </v-chip>
           </div>
         </v-card-text>
         <v-card-text>
@@ -133,6 +144,7 @@ export default {
       activityToolbarAction: false,
       postToNetwork: eXo.env.portal.postToNetworkEnabled,
       audienceChoice: 'yourNetwork',
+      audience: '',
     };
   },
   computed: {
@@ -163,7 +175,7 @@ export default {
       return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length);
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.audience || !this.messageLength);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -182,6 +194,9 @@ export default {
     },
     audienceTypesDisplay() {
       return eXo.env.portal.spaceId;
+    },
+    spaceSuggesterDisplay() {
+      return (this.postToNetwork && this.audienceChoice === 'oneOfYourSpaces' && !this.audience) || !this.postToNetwork ;
     }
   },
   watch: {
@@ -201,6 +216,9 @@ export default {
         document.dispatchEvent(new CustomEvent('activity-composer-closed'));
       }
     },
+    audience() {
+      this.spaceId = this.audience?.spaceId || '';
+    }
   },
   created() {
     document.addEventListener('activity-composer-drawer-open', this.open);
@@ -290,7 +308,7 @@ export default {
           }          
         } else {
           this.loading = true;
-          this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
+          this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
             .then(activity => {
               this.activityId = activity.id;
               this.templateParams = activity.templateParams;
@@ -350,6 +368,9 @@ export default {
       if (localStorage.getItem('activity-message-activityComposer')) {
         localStorage.removeItem('activity-message-activityComposer');
       }
+    },
+    removeAudience() {
+      this.audience = '';
     },
   },
 };
