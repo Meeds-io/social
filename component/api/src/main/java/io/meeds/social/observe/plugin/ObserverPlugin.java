@@ -23,6 +23,7 @@ import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.observe.model.ObserverObject;
 import io.meeds.social.observe.service.ObserverService;
 
 /**
@@ -66,5 +67,19 @@ public abstract class ObserverPlugin extends BaseComponentPlugin {
    * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
   public abstract long getSpaceId(String objectId) throws ObjectNotFoundException;
+
+  /**
+   * Retrieves a specific Observed Object to watch/unwatch at the same time than
+   * the original content type. Usefull for Activty Stream with Specific
+   * Activity Types for example.
+   * 
+   * @param objectId Object Identifier
+   * @return {@link ObserverObject} if extended by the plugin with the
+   *         identified object, else null
+   * @throws ObjectNotFoundException thrown when the object doesn't exists
+   */
+  public ObserverObject getExtendedObserverObject(String objectId) throws ObjectNotFoundException { // NOSONAR
+    return null;
+  }
 
 }

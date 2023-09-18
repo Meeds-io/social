@@ -71,11 +71,10 @@ public class ObserverStorage {
     long userIdentityId = observer.getIdentityId();
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(), String.valueOf(userIdentityId), userIdentityId);
     List<MetadataItem> observers = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, observer.getObject());
-    if (CollectionUtils.isEmpty(observers)) {
-      throw new ObjectNotFoundException("Entity not found for observer " + observer);
-    }
-    for (MetadataItem observerItem : observers) {
-      metadataService.deleteMetadataItem(observerItem.getId(), userIdentityId);
+    if (CollectionUtils.isNotEmpty(observers)) {
+      for (MetadataItem observerItem : observers) {
+        metadataService.deleteMetadataItem(observerItem.getId(), userIdentityId);
+      }
     }
   }
 
