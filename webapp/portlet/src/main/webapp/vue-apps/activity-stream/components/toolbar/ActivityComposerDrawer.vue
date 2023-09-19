@@ -56,7 +56,7 @@
             name="audienceComposerSuggester"
             class="user-suggester mt-n2"
             include-spaces
-            only-manager />
+            only-redactor />
           <div v-else-if="audience && postInYourSpacesChoice">
             <v-chip
               class="primary"
@@ -225,6 +225,11 @@ export default {
     },
     audience() {
       this.spaceId = this.audience?.spaceId || '';
+    },
+    audienceChoice(newVal) {
+      if (newVal === 'yourNetwork') {
+        this.removeAudience();
+      }
     }
   },
   created() {
@@ -326,6 +331,8 @@ export default {
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               this.cleareActivityMessage();
+              this.resetAudienceChoice();
+              this.removeAudience();
               this.close();
             })
             .catch(error => {
@@ -375,6 +382,9 @@ export default {
       if (localStorage.getItem('activity-message-activityComposer')) {
         localStorage.removeItem('activity-message-activityComposer');
       }
+    },
+    resetAudienceChoice() {
+      this.audienceChoice = 'yourNetwork';
     },
     removeAudience() {
       this.audience = '';
