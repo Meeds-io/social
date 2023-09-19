@@ -4,7 +4,7 @@
     :child="bodyElement"
     :element="element"
     :class="bodyClass"
-    class="reset-style-box text-break overflow-hidden"
+    class="reset-style-box rich-editor-content text-break overflow-hidden"
     dir="auto" />
 </template>
 
