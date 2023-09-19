@@ -1,42 +1,35 @@
 <template>
-  <v-list
-    dense
-    class="pb-0">
-    <v-list-item-group>
-      <v-treeview
-        id="siteHamburgerItemNavigationTree"
-        :open.sync="openLevel"
-        :items="navigations"
-        class="treeView-item my-2"
-        item-key="name"
-        hoverable
-        activatable
-        open-on-click
-        transition>
-        <template #label="{ item }">
-          <v-list-item
-            link
-            :href="navigationUri(item)"
-            :target="navigationTarget(item)"
-            class="d-flex clickable px-0"
-            :class="isCurrentNode(item) && ' v-item--active v-list-item--active' || ' '">
-            <v-icon
-              v-if="item.icon"
-              size="20"
-              class="icon-default-color mt-1 ms-4"
-             :class="isCurrentNode(item) && 'me-2' || ''">
-              {{ item.icon }}
-            </v-icon>
-            <v-list-item-title
-              :class="!isCurrentNode(item) && 'ms-2'"
-              class="body-2 mt-1">
-              {{ item.label }}
-            </v-list-item-title>
-          </v-list-item>
-        </template>
-      </v-treeview>
-    </v-list-item-group>
-  </v-list>
+  <v-treeview
+    id="siteHamburgerItemNavigationTree"
+    :open.sync="openLevel"
+    :items="navigations"
+    :active="active"
+    active-class="v-item--active v-list-item--active"
+    class="treeView-item my-2"
+    item-key="name"
+    hoverable
+    activatable
+    open-on-click
+    transition>
+    <template #label="{ item }">
+      <v-list-item
+        link
+        :href="navigationUri(item)"
+        :target="navigationTarget(item)"
+        class="d-flex px-0"
+        :class="isGroupNode(item) && ' ' || 'clickable'">
+        <v-icon
+          v-if="item.icon"
+          size="20"
+          class="icon-default-color mt-1 mx-2">
+          {{ item.icon }}
+        </v-icon>
+        <v-list-item-title class="body-2 mt-1">
+          {{ item.label }}
+        </v-list-item-title>
+      </v-list-item>
+    </template>
+  </v-treeview>
 </template>
 
 <script>
@@ -61,20 +54,27 @@ export default {
       }
       return ids;
     },
+    active() {
+      const splittedCurrentUri = this.selectedNodeUri.split('/');
+      return [splittedCurrentUri [splittedCurrentUri.length -1 ]];
+    },
   },
   methods: {
     navigationUri(navigation) {
+      if (this.isGroupNode(navigation)) {
+        return '';
+      }
       let url = navigation.pageLink || `/portal/${navigation.siteKey.name}/${navigation.uri}`;
       if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
         url = `//${url}`;
       }
-      return  url;
+      return url;
     },
     navigationTarget(navigation) {
       return navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
-    isCurrentNode(navigation) {
-      return navigation.uri === this.selectedNodeUri;
+    isGroupNode(navigation) {
+      return !navigation.pageKey;
     },
   }
 };
