@@ -81,7 +81,7 @@ export default {
   }),
   computed: {
     uri() {
-      return this.isSiteRootNodeGroup && ' ' || ( this.siteRootNode?.pageLink && this.urlVerify(this.siteRootNode.pageLink) || `/portal/${this.site.name}/${this.siteRootNode.uri}`);
+      return !this.siteNavigations?.pageKey && ' ' || ( this.siteRootNode?.pageLink && this.urlVerify(this.siteRootNode.pageLink) || `/portal/${this.site.name}/${this.siteRootNode.uri}`);
     },
     target() {
       return this.siteRootNode?.target === 'SAME_TAB' && '_self' || '_blank';
@@ -93,10 +93,7 @@ export default {
       return this.site?.siteNavigations && this.site?.siteNavigations[0];
     },
     itemClass() {
-      return !this.isSiteRootNodeGroup && ' clickable ' || ' not-clickable ';
-    },
-    isSiteRootNodeGroup() {
-      return !this.siteRootNode.pageKey;
+      return this.siteRootNode.pageKey && ' clickable ' || ' not-clickable ';
     },
     iconClass() {
       const capitilizedName = `${this.siteRootNode.name[0].toUpperCase()}${this.siteRootNode.name.slice(1)}`;

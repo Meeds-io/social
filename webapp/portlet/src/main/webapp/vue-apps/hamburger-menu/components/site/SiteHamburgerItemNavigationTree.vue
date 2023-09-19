@@ -56,7 +56,7 @@ export default {
     },
     active() {
       const splittedCurrentUri = this.selectedNodeUri.split('/');
-      return [splittedCurrentUri [splittedCurrentUri.length -1 ]];
+      return [splittedCurrentUri[splittedCurrentUri.length -1]];
     },
   },
   methods: {
