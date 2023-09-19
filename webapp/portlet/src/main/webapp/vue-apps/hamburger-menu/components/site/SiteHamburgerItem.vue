@@ -33,6 +33,8 @@
   <v-list-item
     v-else
     :href="uri"
+    :target="target"
+    :class="itemClass"
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
     <v-list-item-icon class="flex align-center flex-grow-0 my-2">
@@ -79,13 +81,19 @@ export default {
   }),
   computed: {
     uri() {
-      return this.site?.siteNavigations && this.site?.siteNavigations[0]?.uri && this.site?.siteNavigations[0].pageLink && this.urlVerify(this.site?.siteNavigations[0].pageLink) || `/portal/${this.site.name}/${this.site?.siteNavigations[0].uri}`;
+      return !this.siteNavigations?.pageKey && ' ' || ( this.siteRootNode?.pageLink && this.urlVerify(this.siteRootNode.pageLink) || `/portal/${this.site.name}/${this.siteRootNode.uri}`);
+    },
+    target() {
+      return this.siteRootNode?.target === 'SAME_TAB' && '_self' || '_blank';
     },
     icon() {
-      return `fas ${this.site?.siteNavigations && this.site?.siteNavigations[0]?.icon}`;
+      return `fas ${this.siteRootNode.icon}`;
     },
     siteRootNode() {
       return this.site?.siteNavigations && this.site?.siteNavigations[0];
+    },
+    itemClass() {
+      return this.siteRootNode.pageKey && ' clickable ' || ' not-clickable ';
     },
     iconClass() {
       const capitilizedName = `${this.siteRootNode.name[0].toUpperCase()}${this.siteRootNode.name.slice(1)}`;
