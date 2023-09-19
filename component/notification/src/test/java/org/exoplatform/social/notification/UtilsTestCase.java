@@ -77,23 +77,6 @@ public class UtilsTestCase extends AbstractCoreTest {
     assertEquals(0, receivers.size());
   }
 
-  public void testSendToLikers() {
-    Set<String> receivers = new HashSet<>();
-    String[] likers = new String[] { demoIdentity.getId()};
-    Utils.sendToLikers(receivers, likers, rootIdentity.getId(), space.getId());
-    assertEquals(1, receivers.size());
-
-    receivers = new HashSet<>();
-    likers = new String[] { rootIdentity.getId()};
-    Utils.sendToLikers(receivers, likers, rootIdentity.getId(), space.getId());
-    assertEquals(0, receivers.size());
-
-    receivers = new HashSet<>();
-    likers = new String[] {ghostIdentity.getId()};
-    Utils.sendToLikers(receivers, likers, rootIdentity.getId(), space.getId());
-    assertEquals(0, receivers.size());
-  }
-
   public void testSendToActivityPoster() {
     Set<String> receivers = new HashSet<>();
     Utils.sendToActivityPoster(receivers, demoIdentity.getId(), rootIdentity.getId(), space.getId());

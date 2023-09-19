@@ -87,6 +87,10 @@ public class MailTemplateProviderTest extends AbstractCoreTest {
     String expected = "war:/notification/templates/ActivityCommentPlugin.gtmpl";
     assertEquals(expected, actual);
 
+    actual = channel.getTemplateFilePath(PluginKey.key(ActivityCommentWatchPlugin.ID));
+    expected = "war:/notification/templates/ActivityCommentPlugin.gtmpl";
+    assertEquals(expected, actual);
+
     actual = channel.getTemplateFilePath(PluginKey.key(ActivityReplyToCommentPlugin.ID));
     expected = "war:/notification/templates/ActivityReplyToCommentPlugin.gtmpl";
     assertEquals(expected, actual);
@@ -142,6 +146,7 @@ public class MailTemplateProviderTest extends AbstractCoreTest {
     assertTrue(channel != null);
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(ActivityCommentPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(ActivityReplyToCommentPlugin.ID)));
+    assertTrue(channel.hasTemplateBuilder(PluginKey.key(ActivityCommentWatchPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(ActivityMentionPlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(LikePlugin.ID)));
     assertTrue(channel.hasTemplateBuilder(PluginKey.key(EditCommentPlugin.ID)));

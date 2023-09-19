@@ -186,6 +186,16 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
   }
 
   /**
+   * Invoked when a user cancels request to join to a space or an admin denies
+   * it
+   *
+   * @param event the space lifecycle event
+   */
+  default void removePendingUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
    * Invokes this method when a user update the space registration
    * @param event
    */

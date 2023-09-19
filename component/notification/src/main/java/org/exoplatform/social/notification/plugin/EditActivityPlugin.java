@@ -38,11 +38,13 @@ public class EditActivityPlugin extends BaseNotificationPlugin {
     // Send notification to all others users who have comment on this activity
     Utils.sendToCommeters(receivers, activity.getCommentedIds(), activity.getPosterId(), spaceId);
     Utils.sendToActivityPoster(receivers, activity.getPosterId(), activity.getPosterId(), spaceId);
-    Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId(), spaceId);
+
+    String poster = Utils.getUserId(activity.getUserId());
     return NotificationInfo.instance()
                            .to(new ArrayList<>(receivers))
+                           .setFrom(poster)
                            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
-                           .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(activity.getUserId()))
+                           .with(SocialNotificationUtils.POSTER.getKey(), poster)
                            .key(getId());
   }
 

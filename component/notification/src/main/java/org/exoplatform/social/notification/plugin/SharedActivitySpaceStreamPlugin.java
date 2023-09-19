@@ -59,8 +59,10 @@ public class SharedActivitySpaceStreamPlugin extends BaseNotificationPlugin {
                              .key(getId())
                              .with(SocialNotificationUtils.POSTER.getKey(), poster)
                              .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
+                             .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
                              .with(SocialNotificationUtils.ORIGINAL_TITLE.getKey(), originalTitle)
                              .with(SocialNotificationUtils.ORIGINAL_TITLE_SHARED.getKey(),titleShared)
+                             .setFrom(poster)
                              .to(Utils.getDestinataires(activity, space)).end();
     } catch (Exception e) {
       ctx.setException(e);

@@ -50,6 +50,8 @@ import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
 
 import io.meeds.social.core.richeditor.RichEditorConfigurationServiceTest;
+import io.meeds.social.observer.plugin.ActivityOberverPluginTest;
+import io.meeds.social.observer.service.ObserverServiceTest;
 import io.meeds.social.translation.service.TranslationServiceTest;
 
 import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
@@ -98,10 +100,12 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
   ActivityMetadataListenerTest.class,
   ActivityTagMetadataListenerTest.class,
   MetadataActivityProcessorTest.class,
+  ObserverServiceTest.class,
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
   TranslationServiceTest.class,
-  UserPasswordHashMigrationTest.class
+  UserPasswordHashMigrationTest.class,
+  ActivityOberverPluginTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

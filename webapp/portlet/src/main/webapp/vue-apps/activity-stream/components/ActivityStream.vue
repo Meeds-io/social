@@ -67,7 +67,7 @@ export default {
     if (window.location.pathname.indexOf(this.$root.activityBaseLink) === 0) {
       this.$root.selectedActivityId = this.getQueryParam('id');
       if (window.location.hash) {
-        this.$root.selectedCommentId = window.location.hash.replace('#comment-', '');
+        this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
       }
     }
     this.displayActivityDetail(this.$root.selectedActivityId, this.$root.selectedCommentId);
@@ -76,7 +76,7 @@ export default {
     displayActivityDetail(activityId, commentId) {
       this.loaded = false;
       this.$root.selectedActivityId = this.activityId = activityId;
-      this.$root.selectedCommentId = window.location.hash.replace('#comment-', '');
+      this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
       if (commentId && !this.$root.selectedCommentId) {
         this.$root.selectedCommentId = commentId;
         window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);

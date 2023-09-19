@@ -147,14 +147,22 @@ public class RestUtils {
    * @return base rest url like : http://localhost:8080/rest/v1/social/users/123456
    */
   public static String getRestUrl(String type, String id, String restPath) {
-    String version = restPath.split("/")[1]; // path /v1/social/identities
-    String socialResource = restPath.split("/")[2]; // path /v1/social/identities
-    
-    return new StringBuffer(getBaseRestUrl())
-    .append("/").append(version)
-    .append("/").append(socialResource)
-    .append("/").append(type)
-    .append("/").append(id).toString();
+    if (StringUtils.isBlank(restPath)) {
+      return null;
+    } else {
+      String version = restPath.split("/")[1]; // path /v1/social/identities
+      String socialResource = restPath.split("/")[2]; // path /v1/social/identities
+
+      return new StringBuffer(getBaseRestUrl()).append("/")
+                                               .append(version)
+                                               .append("/")
+                                               .append(socialResource)
+                                               .append("/")
+                                               .append(type)
+                                               .append("/")
+                                               .append(id)
+                                               .toString();
+    }
   }
 
   /** 
@@ -255,15 +263,15 @@ public class RestUtils {
     return date.getTime(); 
   }
 
-  public static final Identity getUserIdentity(String user) {
+  public static Identity getUserIdentity(String user) {
     return isAnonymous() ? null : getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
   }
 
-  public static final Identity getCurrentUserIdentity() {
+  public static Identity getCurrentUserIdentity() {
     return isAnonymous() ? null : getUserIdentity(getCurrentUser());
   }
 
-  public static final long getCurrentUserIdentityId() {
+  public static long getCurrentUserIdentityId() {
     String currentUser = getCurrentUser();
     if (isAnonymous() || currentUser == null) {
       return 0;
@@ -273,7 +281,7 @@ public class RestUtils {
     return id == null ? 0 : Long.parseLong(id);
   }
 
-  public static final String getCurrentUser() {
+  public static String getCurrentUser() {
     return isAnonymous() ? null : ConversationState.getCurrent().getIdentity().getUserId();
   }
 
