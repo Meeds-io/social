@@ -165,7 +165,8 @@ export default {
           activityBody: this.activityBody,
           activityParams: this.activityParams,
           files: [],
-          activityType: []
+          activityType: [],
+          spaceId: this.spaceId
         }}));
       });
     },
