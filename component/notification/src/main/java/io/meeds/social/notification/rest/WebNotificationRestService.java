@@ -104,6 +104,10 @@ public class WebNotificationRestService implements ResourceContainer {
                                    @DefaultValue("false")
                                    @QueryParam("includeHidden")
                                    boolean includeHidden,
+                                   @Parameter(description = "Whether include only unread notifications or all", required = false)
+                                   @DefaultValue("false")
+                                   @QueryParam("onlyUnread")
+                                   boolean onlyUnread,
                                    @Parameter(description = "Search Offset", required = false)
                                    @DefaultValue("0")
                                    @QueryParam("offset")
@@ -119,6 +123,9 @@ public class WebNotificationRestService implements ResourceContainer {
                                                            plugins == null ? Collections.emptyList()
                                                                            : plugins.stream().map(PluginKey::key).toList(),
                                                            !includeHidden);
+    if (onlyUnread) {
+      filter.setIsRead(false);
+    }
     List<NotificationInfo> notificationInfos = limit > 0 ? webNftService.getNotificationInfos(filter, offset, limit)
                                                          : Collections.emptyList();
     Map<String, Integer> badgesByPlugin = null;
