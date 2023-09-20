@@ -184,6 +184,10 @@ export default {
     this.$root.$on('notification-loading-start', this.incrementLoading);
     this.$root.$on('notification-loading-end', this.decrementLoading);
   },
+  beforeDestroy() {
+    this.$root.$off('notification-loading-start', this.incrementLoading);
+    this.$root.$off('notification-loading-end', this.decrementLoading);
+  },
   methods: {
     open() {
       this.$refs.drawer.open();
