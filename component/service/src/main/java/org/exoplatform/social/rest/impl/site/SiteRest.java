@@ -136,7 +136,14 @@ public class SiteRest implements ResourceContainer {
       siteFilter.setLimit(limit);
       siteFilter.setOffset(offset);
       List<PortalConfig> sites = layoutService.getSites(siteFilter);
-      return Response.ok(EntityBuilder.buildSiteEntities(sites, request, expandNavigations, excludeEmptyNavigationSites, filterByPermission, sortByDisplayOrder, getLocale(lang))).build();
+      return Response.ok(EntityBuilder.buildSiteEntities(sites,
+                                                         request,
+                                                         expandNavigations,
+                                                         excludeEmptyNavigationSites,
+                                                         filterByPermission,
+                                                         sortByDisplayOrder,
+                                                         getLocale(lang)))
+                     .build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving sites", e);
       return Response.serverError().build();
