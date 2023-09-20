@@ -19,7 +19,7 @@
 <template>
   <div>
     <attachments-image-input-items 
-      :object-id="objectId"
+      :object-id="attachmentObjectId"
       :object-type="objectType"
       :images="attachedFiles"
       @delete="deleteImage" />
@@ -53,17 +53,21 @@ export default {
   data: () => ({
     images: [],
     attachments: [],
-    attachmentUpdated: true
+    attachmentUpdated: true,
+    metadatasObjectId: null
   }),
   computed: {
     attachedFiles() {
       if (this.attachments.length && this.attachmentUpdated) {
         this.attachments.forEach(attachment => {
-          attachment.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${attachment.id}?lastModified=${attachment.updated}&size=120x120`;
+          attachment.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.attachmentObjectId}/${attachment.id}?lastModified=${attachment.updated}&size=120x120`;
         });
       }
       return [...this.attachments, ...this.images];
     },
+    attachmentObjectId() {
+      return this.objectId || this.metadatasObjectId;
+    }
   },
   watch: {
     attachedFiles() {
@@ -73,6 +77,16 @@ export default {
   created() {
     document.addEventListener('attachment-save', this.triggerAttachmentsSave);
     document.addEventListener('attachment-update', this.updateImage);
+    extensionRegistry.registerExtension('activity', 'saveAction', {
+      key: 'attachment',
+      postSave: activity => {
+        if (!activity?.activityId) {
+          return;
+        }
+        this.metadatasObjectId = activity.activityId;
+        this.save();
+      },
+    });
   },
   beforeDestroy() {
     document.removeEventListener('attachment-save', this.triggerAttachmentsSave);
@@ -80,8 +94,8 @@ export default {
   },
   methods: {
     init() {
-      if (this.objectType && this.objectId) {
-        return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
+      if (this.objectType && this.attachmentObjectId) {
+        return this.$fileAttachmentService.getAttachments(this.objectType, this.attachmentObjectId)
           .then(data => {
             this.attachments = data?.attachments || [];
           })
@@ -97,7 +111,7 @@ export default {
       const objectType = event?.detail?.objectType;
       const objectId = event?.detail?.objectId;
 
-      if (objectType !== this.objectType || objectId !== this.objectId) {
+      if (objectType !== this.objectType || objectId !== this.attachmentObjectId) {
         return;
       }
       return this.save();
@@ -122,7 +136,7 @@ export default {
       attachedFiles.sort((a1, a2) => Number(a1.id) - Number(a2.id));
       return this.$fileAttachmentService.saveAttachments({
         objectType: this.objectType,
-        objectId: this.objectId,
+        objectId: this.attachmentObjectId,
         uploadedFiles,
         attachedFiles,
       }).then((report) => {
@@ -138,7 +152,7 @@ export default {
         }
         document.dispatchEvent(new CustomEvent('attachments-updated', {detail: {
           objectType: this.objectType,
-          objectId: this.objectId,
+          objectId: this.attachmentObjectId,
         }}));
       }).finally(() => {
         this.images = [];
