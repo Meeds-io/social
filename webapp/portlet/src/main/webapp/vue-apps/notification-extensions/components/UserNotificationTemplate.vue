@@ -34,7 +34,7 @@
               end: moveEnd,
               move: moveSwipe,
             }"
-            @click="markAsRead">
+            @mousedown="markAsRead">
             <v-list-item-avatar
               v-if="$slots.avatar || avatarUrl"
               :rounded="spaceAvatar"
