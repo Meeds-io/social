@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -138,6 +139,43 @@ public class SiteRest implements ResourceContainer {
       return Response.ok(EntityBuilder.buildSiteEntities(sites, request, expandNavigations, excludeEmptyNavigationSites, filterByPermission, sortByDisplayOrder, getLocale(lang))).build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving sites", e);
+      return Response.serverError().build();
+    }
+  }
+
+  @GET
+  @Path("{siteId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(summary = "Gets a specific site by id", description = "Gets site by id", method = "GET")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"), })
+  public Response getSiteById(@Context
+  HttpServletRequest request,
+                              @Parameter(description = "site Id", required = true)
+                              @PathParam("siteId")
+                              String siteId,
+                              @Parameter(description = "to expand site navigations nodes")
+                              @DefaultValue("false")
+                              @QueryParam("expandNavigations")
+                              boolean expandNavigations,
+                              @Parameter(description = "to exclude sites with empty navigation")
+                              @DefaultValue("false")
+                              @QueryParam("excludeEmptyNavigationSites")
+                              boolean excludeEmptyNavigationSites,
+                              @Parameter(description = "Used to retrieve the site label and description in the requested language")
+                              @QueryParam("lang")
+                              String lang) {
+    try {
+      PortalConfig site = layoutService.getPortalConfig(Long.parseLong(siteId));
+      return Response.ok(EntityBuilder.buildSiteEntity(site,
+                                                       request,
+                                                       expandNavigations,
+                                                       excludeEmptyNavigationSites,
+                                                       getLocale(lang)))
+                     .build();
+    } catch (Exception e) {
+      LOG.warn("Error while retrieving site", e);
       return Response.serverError().build();
     }
   }
