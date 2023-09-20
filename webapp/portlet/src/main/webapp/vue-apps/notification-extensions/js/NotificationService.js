@@ -17,22 +17,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-export function getNotifications(plugins, offset, limit, expand) {
+export function getNotifications(options) {
   const formData = new FormData();
-  if (plugins) {
-    plugins.forEach(p => formData.append('plugin', p));
+  if (options?.plugins) {
+    options?.plugins.forEach(p => formData.append('plugin', p));
   }
-  if (offset && offset > 0) {
-    formData.append('offset', offset);
+  if (options?.offset && options?.offset > 0) {
+    formData.append('offset', options?.offset);
   }
-  if (limit && limit > 0) {
-    formData.append('limit', limit);
+  if (options?.limit && options?.limit > 0) {
+    formData.append('limit', options?.limit);
   }
-  if (expand && expand.includes('includeHidden')) {
+  if (options?.includeHidden) {
     formData.append('includeHidden', 'true');
   }
-  if (expand && expand.includes('badge-by-plugin')) {
+  if (options?.badgesByPlugin) {
     formData.append('badgeByPlugin', 'true');
+  }
+  if (options?.unreadOnly) {
+    formData.append('onlyUnread', 'true');
   }
   const params = decodeURIComponent(new URLSearchParams(formData).toString());
   return fetch(`/portal/rest/notifications/webNotifications?${params}`, {
