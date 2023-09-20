@@ -32,6 +32,10 @@ export default {
       type: Array,
       default: null,
     },
+    unreadOnly: {
+      type: Boolean,
+      default: null,
+    },
     expanded: {
       type: Boolean,
       default: null,
@@ -66,8 +70,16 @@ export default {
       }
     },
     plugins() {
-      this.reset();
-      this.loadNotifications();
+      if (!this.loading) {
+        this.reset();
+        this.loadNotifications();
+      }
+    },
+    unreadOnly() {
+      if (!this.loading) {
+        this.reset();
+        this.loadNotifications();
+      }
     },
     expanded(newVal, oldVal) {
       if (!oldVal && newVal) {
@@ -117,7 +129,14 @@ export default {
     },
     loadNotifications(loadBadgesOnly) {
       this.loading = true;
-      return this.$notificationService.getNotifications(this.plugins, this.offset, !loadBadgesOnly && this.limit || 0, this.expanded && 'badge-by-plugin')
+      return this.$notificationService.getNotifications({
+        plugins: this.plugins,
+        unreadOnly: this.unreadOnly,
+        badgesByPlugin: this.expanded,
+        includeHidden: false,
+        offset: this.offset,
+        limit: !loadBadgesOnly && this.limit || 0,
+      })
         .then((data) => {
           if (!loadBadgesOnly) {
             this.notifications = data.notifications || [];
