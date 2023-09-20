@@ -12,22 +12,7 @@
     open-on-click
     transition>
     <template #label="{ item }">
-      <v-list-item
-        link
-        :href="navigationUri(item)"
-        :target="navigationTarget(item)"
-        class="d-flex px-0"
-        :class="isGroupNode(item) && ' ' || 'clickable'">
-        <v-icon
-          v-if="item.icon"
-          size="20"
-          class="icon-default-color mt-1 mx-2">
-          {{ item.icon }}
-        </v-icon>
-        <v-list-item-title class="body-2 mt-1">
-          {{ item.label }}
-        </v-list-item-title>
-      </v-list-item>
+      <site-hamburger-item-navigation :navigation="item" />
     </template>
   </v-treeview>
 </template>
@@ -59,23 +44,5 @@ export default {
       return [splittedCurrentUri[splittedCurrentUri.length -1]];
     },
   },
-  methods: {
-    navigationUri(navigation) {
-      if (this.isGroupNode(navigation)) {
-        return '';
-      }
-      let url = navigation.pageLink || `/portal/${navigation.siteKey.name}/${navigation.uri}`;
-      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-        url = `//${url}`;
-      }
-      return url;
-    },
-    navigationTarget(navigation) {
-      return navigation?.target === 'SAME_TAB' && '_self' || '_blank';
-    },
-    isGroupNode(navigation) {
-      return !navigation.pageKey;
-    },
-  }
 };
 </script>
