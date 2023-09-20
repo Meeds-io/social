@@ -77,13 +77,13 @@ export default {
   created() {
     document.addEventListener('attachment-save', this.triggerAttachmentsSave);
     document.addEventListener('attachment-update', this.updateImage);
-    extensionRegistry.registerExtension('activity', 'saveAction', {
+    extensionRegistry.registerExtension(this.objectType, 'saveAction', {
       key: 'attachment',
-      postSave: activity => {
-        if (!activity?.activityId) {
+      postSave: object => {
+        if (!object?.id || this.objectType !== object.type) {
           return;
         }
-        this.metadatasObjectId = activity.activityId;
+        this.metadatasObjectId = object.id;
         this.save();
       },
     });
