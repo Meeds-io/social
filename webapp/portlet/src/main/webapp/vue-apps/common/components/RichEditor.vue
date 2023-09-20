@@ -124,6 +124,10 @@ export default {
       type: Boolean,
       default: false
     },
+    disableSuggester: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     SMARTPHONE_LANDSCAPE_WIDTH: 768,
@@ -193,28 +197,6 @@ export default {
       handler() {
         this.$emit('validity-updated', this.validLength);
       },
-    },
-    suggesterSpaceURL() {
-      this.initCKEditor(!!this.suggesterSpaceURL, this.value);
-    },
-    oembedParams() {
-      if (this.templateParams) {
-        if (this.oembedParams) {
-          Object.assign(this.templateParams, this.oembedParams);
-        } else {
-          Object.keys(this.templateParams).forEach(key => {
-            this.templateParams[key] = '-';
-          });
-        }
-      }
-      this.$emit('input', this.getContentToSave(this.inputVal));
-    },
-    editorReady() {
-      if (this.editorReady) {
-        this.$emit('ready');
-      } else {
-        this.$emit('unloaded');
-      }
     },
     displayAttachmentEditor(newVal, oldVal) {
       if (newVal && !oldVal) {
@@ -296,7 +278,7 @@ export default {
 
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
-      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH) {
+      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH || !this.disableSuggester) {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
@@ -409,9 +391,7 @@ export default {
     },
     destroyCKEditor: function () {
       this.editor?.destroy?.(true);
-      if (this.$refs.attachmentsInput) {
-        this.$refs.attachmentsInput.reset();
-      }
+      this.$refs?.attachmentsInput?.reset?.();
     },
     initCKEditorData: function(message) {
       this.inputVal = message && this.getContentToEdit(message) || '';
