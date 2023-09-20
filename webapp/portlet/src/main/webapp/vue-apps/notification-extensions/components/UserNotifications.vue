@@ -110,6 +110,10 @@ export default {
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
     this.loadNotifications();
   },
+  beforeDestroy() {
+    document.removeEventListener('refresh-notifications', this.refreshNotifications);
+    document.removeEventListener('cometdNotifEvent', this.notificationUpdated);
+  },
   methods: {
     reset() {
       this.loading = false;
@@ -149,7 +153,7 @@ export default {
         .finally(() => this.loading = false);
     },
     notificationUpdated(event) {
-      if (event && event.detail) {
+      if (!this.loading && event && event.detail) {
         this.loadNotifications();
       }
     },
