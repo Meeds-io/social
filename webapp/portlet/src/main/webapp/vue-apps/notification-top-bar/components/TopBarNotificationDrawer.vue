@@ -76,11 +76,10 @@
             <user-notification-types
               ref="notificationTypes"
               id="notificationTypes"
-              v-model="notificationPlugins"
               :badge="badge"
               :badge-by-plugin="badgeByPlugin"
               class="flex-grow-0 flex-shrink-0"
-              @group="groupName = $event" />
+              @change="selectType" />
           </v-card>
           <v-expand-x-transition>
             <v-card
@@ -102,6 +101,7 @@
                 id="notificationsList"
                 :plugins="notificationPlugins"
                 :expanded="expanded"
+                :unread-only="unreadOnly"
                 class="notifDrawerItems"
                 @badge="$emit('update:badge', $event)"
                 @hasMore="hasMore = $event"
@@ -148,6 +148,7 @@ export default {
     hasMore: false,
     hasUnread: false,
     expanded: false,
+    unreadOnly: false,
     notificationsCount: 0,
     groupName: 'all',
     notificationPlugins: null,
@@ -172,6 +173,7 @@ export default {
       if (!this.expanded) {
         if (this.notificationPlugins) {
           this.notificationPlugins = null;
+          this.unread = false;
         }
         this.separatorWidth = '50%';
         window.setTimeout(() => this.separatorWidth = '0', 200);
@@ -215,6 +217,11 @@ export default {
           document.dispatchEvent(new CustomEvent('refresh-notifications'));
         });
     },
-  }
+    selectType(name, plugins, unread) {
+      this.groupName = name;
+      this.notificationPlugins = plugins;
+      this.unreadOnly = unread;
+    }
+  },
 };
 </script>
