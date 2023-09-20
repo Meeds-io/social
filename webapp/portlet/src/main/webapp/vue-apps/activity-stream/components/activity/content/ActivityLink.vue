@@ -103,7 +103,7 @@
           :child="summaryElement"
           :title="summaryTooltip"
           :class="useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'"
-          class="caption text-wrap text-break rich-editor-content reset-style-box"
+          class="caption text-wrap text-break reset-style-box rich-editor-content"
           dir="auto" />
       </div>
     </template>

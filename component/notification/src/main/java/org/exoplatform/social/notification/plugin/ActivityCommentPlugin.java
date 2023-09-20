@@ -16,8 +16,8 @@
  */
 package org.exoplatform.social.notification.plugin;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,39 +44,15 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
   public NotificationInfo makeNotification(NotificationContext ctx) {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
-    String spaceId = activity.getSpaceId();
-    Set<String> receivers = new HashSet<>();
-    if (StringUtils.isNotBlank(comment.getParentCommentId())) {
-      ExoSocialActivity parentComment = Utils.getActivityManager().getActivity(comment.getParentCommentId());
-      String parentCommentUserPosterId = Utils.getUserId(parentComment.getPosterId());
-      if (isSubComment) {
-        // Send notification to parent comment poster
-        Utils.sendToActivityPoster(receivers, parentComment.getPosterId(), comment.getPosterId(), spaceId);
-      } else {
-        // Send notification to all others users who have commented on this
-        // activity
-        // except parent comment poster
-        Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
-        Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
-        Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
-        receivers.remove(parentCommentUserPosterId);
-        Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId(), spaceId);
-        receivers.remove(Utils.getUserId(comment.getPosterId()));
-      }
-    } else {
-      // Send notification to all others users who have comment on this activity
-      Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
-      Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
-      Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
-      Utils.sendToLikers(receivers, activity.getLikeIdentityIds(), activity.getPosterId(), spaceId);
-      receivers.remove(Utils.getUserId(comment.getPosterId()));
-
-    }
+    boolean subComment = isSubComment;
+    List<String> receiversList = getNotificationReceivers(activity, comment, subComment);
+    String poster = Utils.getUserId(comment.getUserId());
     return NotificationInfo.instance()
-                           .to(new ArrayList<>(receivers))
+                           .to(receiversList)
+                           .setFrom(poster)
                            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                            .with(SocialNotificationUtils.COMMENT_ID.getKey(), comment.getId())
-                           .with(SocialNotificationUtils.POSTER.getKey(), Utils.getUserId(comment.getUserId()))
+                           .with(SocialNotificationUtils.POSTER.getKey(), poster)
                            .key(getId());
   }
 
@@ -88,8 +64,7 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
   @Override
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
-    if (!Utils.getActivityManager().isNotificationEnabled(comment)
-        || (isSubComment && comment.getParentCommentId() == null)) {
+    if (!Utils.getActivityManager().isNotificationEnabled(comment) || (isSubComment && comment.getParentCommentId() == null)) {
       return false;
     }
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
@@ -98,6 +73,35 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
     // if the space is not null and it's not the default activity of space, then
     // it's valid to make notification
     return spaceIdentity == null || !activity.getPosterId().equals(spaceIdentity.getId());
+  }
+
+  protected List<String> getNotificationReceivers(ExoSocialActivity activity, ExoSocialActivity comment, boolean subComment) {
+    String spaceId = activity.getSpaceId();
+    Set<String> receivers = new HashSet<>();
+    if (StringUtils.isNotBlank(comment.getParentCommentId())) {
+      ExoSocialActivity parentComment = Utils.getActivityManager().getActivity(comment.getParentCommentId());
+      String parentCommentUserPosterId = Utils.getUserId(parentComment.getPosterId());
+      if (subComment) {
+        // Send notification to parent comment poster
+        Utils.sendToActivityPoster(receivers, parentComment.getPosterId(), comment.getPosterId(), spaceId);
+      } else {
+        // Send notification to all others users who have commented on this
+        // activity
+        // except parent comment poster
+        Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
+        Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
+        Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
+        receivers.remove(parentCommentUserPosterId);
+        receivers.remove(Utils.getUserId(comment.getPosterId()));
+      }
+    } else {
+      // Send notification to all others users who have comment on this activity
+      Utils.sendToCommeters(receivers, activity.getCommentedIds(), comment.getPosterId(), spaceId);
+      Utils.sendToStreamOwner(receivers, activity.getStreamOwner(), comment.getPosterId());
+      Utils.sendToActivityPoster(receivers, activity.getPosterId(), comment.getPosterId(), spaceId);
+      receivers.remove(Utils.getUserId(comment.getPosterId()));
+    }
+    return receivers.stream().filter(username -> Utils.getActivityManager().isNotificationEnabled(comment, username)).toList();
   }
 
 }

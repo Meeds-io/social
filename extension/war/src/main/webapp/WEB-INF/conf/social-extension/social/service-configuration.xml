@@ -96,6 +96,9 @@
     <type>io.meeds.social.translation.rest.TranslationRest</type>
   </component>
   <component>
+    <type>io.meeds.social.observer.rest.ObserverRest</type>
+  </component>
+  <component>
     <type>org.exoplatform.social.rest.api.GettingStartedRestService</type>
   </component>
   <component>

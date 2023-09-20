@@ -133,4 +133,8 @@ public abstract class SpaceListenerPlugin implements
     // No default implementation
   }
 
+  public void removePendingUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
 }

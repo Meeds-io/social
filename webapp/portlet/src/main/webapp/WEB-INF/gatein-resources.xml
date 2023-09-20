@@ -252,14 +252,6 @@
   <!-- TODO <Start> Deprecated WebUI Portlets skins to move -->
   <portlet-skin>
     <application-name>social-portlet</application-name>
-    <portlet-name>IntranetNotificationsPortlet</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/uiAllNotifications/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social-portlet</application-name>
     <portlet-name>TopBarNotification</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/TopBarNotification/Style.css</css-path>
@@ -808,15 +800,6 @@
   </portlet>
 
   <portlet>
-    <name>IntranetNotificationsPortlet</name>
-    <module>
-      <depends>
-        <module>intranetNotification</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
     <name>SpaceActivityStreamPortlet</name>
     <module>
       <depends>
@@ -1320,11 +1303,10 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
-        <module>eXoVueI18n</module>
+        <module>notificationExtensions</module>
       </depends>
       <depends>
-        <module>jquery</module>
-        <as>$</as>
+        <module>eXoVueI18n</module>
       </depends>
       <depends>
         <module>extensionRegistry</module>
@@ -2016,34 +1998,6 @@
     </depends>
   </module>
 
-  <!-- Legacy Notifications List portlet -->
-  <module>
-    <name>intranetNotification</name>
-    <load-group>webNotificationsGRP</load-group>
-    <script>
-      <path>/js/webuiNotification/IntranetNotification.js</path>
-    </script>
-    <depends>
-      <module>webNotifications</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>gj</as>
-    </depends>
-  </module>
-
-  <module>
-    <name>webNotifications</name>
-    <load-group>webNotificationsGRP</load-group>
-    <script>
-      <path>/js/webuiNotification/WebNotification.js</path>
-    </script>
-    <depends>
-      <module>jquery</module>
-      <as>gj</as>
-    </depends>
-  </module>
-
   <module>
     <name>versionHistoryDrawer</name>
     <script>
@@ -2259,6 +2213,34 @@
     </depends>
     <depends>
       <module>vuetify</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>notificationExtensions</name>
+    <load-group>notificationGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/notificationExtensions.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
     </depends>
   </module>
 

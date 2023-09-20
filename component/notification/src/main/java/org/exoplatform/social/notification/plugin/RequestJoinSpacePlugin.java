@@ -45,6 +45,7 @@ public class RequestJoinSpacePlugin extends BaseNotificationPlugin {
     return NotificationInfo.instance().key(getId())
            .with(SocialNotificationUtils.REQUEST_FROM.getKey(), userId)
            .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
+           .setFrom(userId)
            .to(Arrays.asList(space.getManagers()));
   }
 

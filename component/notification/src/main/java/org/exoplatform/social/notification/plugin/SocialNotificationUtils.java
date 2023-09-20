@@ -16,11 +16,25 @@
  */
 package org.exoplatform.social.notification.plugin;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.NotificationMessageUtils;
 import org.exoplatform.commons.api.notification.model.ArgumentLiteral;
+import org.exoplatform.commons.api.notification.model.MessageInfo;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.plugin.AbstractNotificationChildPlugin;
@@ -29,6 +43,7 @@ import org.exoplatform.commons.api.notification.service.setting.PluginContainer;
 import org.exoplatform.commons.api.notification.service.storage.WebNotificationStorage;
 import org.exoplatform.commons.api.notification.service.template.TemplateContext;
 import org.exoplatform.commons.notification.NotificationUtils;
+import org.exoplatform.commons.notification.net.WebNotificationSender;
 import org.exoplatform.commons.notification.template.TemplateUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
@@ -44,11 +59,6 @@ import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.child.DefaultActivityChildPlugin;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class SocialNotificationUtils {
   private static final Log LOG = ExoLogger.getLogger(SocialNotificationUtils.class);
 
@@ -60,7 +70,9 @@ public class SocialNotificationUtils {
   public final static ArgumentLiteral<String> COMMENT_REPLY_ID = new ArgumentLiteral<String>(String.class, "commentReplyId");
   public final static ArgumentLiteral<String> PARENT_ACTIVITY_ID = new ArgumentLiteral<String>(String.class, "parentActivityId");
   public final static ArgumentLiteral<String> POSTER = new ArgumentLiteral<String>(String.class, "poster");
+  public final static ArgumentLiteral<String> WATCHED = new ArgumentLiteral<String>(String.class, "watched");
   public final static ArgumentLiteral<String> LIKER = new ArgumentLiteral<String>(String.class, "likersId");
+  public final static ArgumentLiteral<String> LIKERS = new ArgumentLiteral<String>(String.class, "likers");
   public final static ArgumentLiteral<String> SENDER = new ArgumentLiteral<String>(String.class, "sender");
   public final static ArgumentLiteral<ExoSocialActivity> ACTIVITY = new ArgumentLiteral<ExoSocialActivity>(ExoSocialActivity.class, "activity");
   public final static ArgumentLiteral<String> ORIGINAL_TITLE = new ArgumentLiteral<>(String.class, "original_title");
@@ -400,34 +412,44 @@ public class SocialNotificationUtils {
                                                                String propertyName,
                                                                String activityId,
                                                                String userId) {
-    // Get comment id before changing previous notification
-    String commentId = notification.getValueOwnerParameter(SocialNotificationUtils.COMMENT_ID.getKey());
-    List<String> users = null;
     WebNotificationStorage storage = CommonsUtils.getService(WebNotificationStorage.class);
+    String receiver = notification.getTo();
     NotificationInfo previousNotification = storage.getUnreadNotification(notification.getKey().getId(),
                                                                           activityId,
-                                                                          notification.getTo());
-    if (previousNotification != null) {
-      users = NotificationUtils.stringToList(previousNotification.getValueOwnerParameter(propertyName));
-      Identity userIdentity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId, true);
+                                                                          receiver);
+    if (previousNotification != null && previousNotification.isOnPopOver()) {
+      List<String> users = NotificationUtils.stringToList(previousNotification.getValueOwnerParameter(propertyName));
       if (users == null) {
-        users = new ArrayList<>();
-      } else if (users.contains(userIdentity.getRemoteId())) {
-        users.remove(userIdentity.getRemoteId());
+        users = Collections.singletonList(userId);
+      } else if (!users.contains(userId)) {
+        users.add(0, userId);
       }
-      users.add(userIdentity.getRemoteId());
       previousNotification.with(propertyName, NotificationUtils.listToString(users));
-      previousNotification.with(NotificationMessageUtils.NOT_HIGHLIGHT_COMMENT_PORPERTY.getKey(), "true");
       previousNotification.setUpdate(true);
+      previousNotification.setRead(false);
       previousNotification.setResetOnBadge(false);
       previousNotification.setLastModifiedDate(Calendar.getInstance());
-      previousNotification.with(SocialNotificationUtils.COMMENT_ID.getKey(), commentId);
-      return previousNotification;
+      storage.update(previousNotification, true);
+      sendJsonMessage(storage, receiver);
+
+      // Mark new notification as Read as it was grouped
+      // With previous one
+      notification.setOnPopOver(false);
+      notification.setRead(true);
+    } else {
+      notification.with(propertyName, NotificationUtils.listToString(Collections.singletonList(userId)));
     }
     return notification;
   }
 
   public static List<String> mergeUsers(NotificationInfo notification, String propertyName, String activityId, String userId) {
     return NotificationUtils.stringToList(notification.getValueOwnerParameter(propertyName));
+  }
+
+  private static void sendJsonMessage(WebNotificationStorage storage, String receiver) {
+    MessageInfo msg = new MessageInfo();
+    int badgeNumber = storage.getNumberOnBadge(receiver);
+    msg.setNumberOnBadge(badgeNumber);
+    WebNotificationSender.sendJsonMessage(receiver, msg);
   }
 }

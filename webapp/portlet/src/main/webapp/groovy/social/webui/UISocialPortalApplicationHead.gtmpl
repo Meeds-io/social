@@ -10,6 +10,7 @@
   import org.exoplatform.social.core.space.model.Space;
   import org.exoplatform.social.core.search.SearchConnector;
   import org.exoplatform.commons.utils.PropertyManager;
+  import org.exoplatform.portal.branding.BrandingService;
   import java.util.TimeZone;
   import java.util.HashSet;
 
@@ -23,6 +24,7 @@
   def userName = rcontext.getRemoteUser();
   String cometdToken = userName == null ? "" : continuationService.getUserToken(userName);
   String cometdContext = continuationBayeux.getCometdContextName();
+  BrandingService brandingService = uicomponent.getApplicationComponent(BrandingService.class);
 %>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
@@ -35,6 +37,7 @@
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
+     eXo.env.portal.companyName = "<%=brandingService.getCompanyName()%>" ;
      eXo.env.portal.isExternal = "<%=Utils.isExternal(Utils.getViewerIdentity())%>" ;
      eXo.env.portal.isSpacesManager = "<%=Utils.isSpacesManager(Utils.getViewerIdentity())%>" ;
      eXo.env.portal.timezone = "<%=timezone.getID()%>" ;
