@@ -63,6 +63,10 @@ export default {
     this.$root.$on('notification-badge-updated', this.updateBadge);
     this.badge = this.$root.badge;
   },
+  beforeDestroy() {
+    document.removeEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+    this.$root.$off('notification-badge-updated', this.updateBadge);
+  },
   mounted() {
     this.$root.$applicationLoaded();
   },
