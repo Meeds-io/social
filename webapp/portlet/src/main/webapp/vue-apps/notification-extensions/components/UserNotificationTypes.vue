@@ -7,10 +7,11 @@
       dense
       mandatory>
       <v-list-item
-        v-for="group in groups"
+        v-for="(group, index) in groups"
         :key="group.name"
         class="px-4 mx-n4 rounded-lg"
-        dense>
+        dense
+        @click="selectType(index)">
         <v-list-item-icon class="me-2 my-auto align-center justify-center">
           <v-icon size="18" class="icon-default-color">
             {{ group.icon }}
@@ -25,18 +26,24 @@
           <v-list-item-icon v-if="group.badge" class="me-2 full-height align-center justify-center position-relative">
             <v-tooltip bottom>
               <template #activator="{on, bind}">
-                <v-card
+                <v-btn
                   :value="group.badge > 0"
-                  min-height="30"
+                  :outlined="unread === index"
+                  :dark="unread !== index"
+                  :class="unread === index && 'btn'"
+                  max-width="30"
                   max-height="30"
-                  min-width="30"
-                  class="pa-1 rounded-circle caption d-flex align-center justify-center ms-auto my-auto error-color-background"
-                  flat
-                  dark
+                  color="red darken-4"
+                  class="pa-1"
+                  elevation="0"
+                  fab
                   v-on="on"
-                  v-bind="bind">
-                  {{ group.badge > 99 && '99+' || group.badge }}
-                </v-card>
+                  v-bind="bind"
+                  @click.stop.prevent="selectType(index, true)">
+                  <span class="caption">
+                    {{ group.badge > 99 && '99+' || group.badge }}
+                  </span>
+                </v-btn>
               </template>
               <span>{{ $t('Notification.label.types.unread', {0: group.badge}) }}</span>
             </v-tooltip>
@@ -64,19 +71,11 @@ export default {
   },
   data: () => ({
     loading: false,
+    unread: false,
     selectedGroupIndex: null,
     groups: [],
   }),
-  computed: {
-    selectedGroup() {
-      return this.groups[this.selectedGroupIndex];
-    },
-  },
   watch: {
-    selectedGroup() {
-      this.$emit('input', this.selectedGroup?.plugins);
-      this.$emit('group', this.selectedGroup?.name);
-    },
     badgeByPlugin() {
       this.refreshExtensions();
     },
@@ -110,6 +109,16 @@ export default {
       });
       groups.sort((g1, g2) => (g1.rank || 100) - (g2.rank || 100));
       this.groups = groups;
+    },
+    selectType(index, unread) {
+      this.selectedGroupIndex = index;
+      if (this.unread === index || !unread) {
+        this.unread = false;
+      } else {
+        this.unread = index;
+      }
+      const selectedGroup = this.groups[this.selectedGroupIndex];
+      this.$emit('change', selectedGroup?.name, selectedGroup?.plugins, this.unread === index);
     },
   },
 };
