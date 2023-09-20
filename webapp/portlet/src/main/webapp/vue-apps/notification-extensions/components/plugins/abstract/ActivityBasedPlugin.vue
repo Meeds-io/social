@@ -77,6 +77,10 @@ export default {
       type: String,
       default: () => 'Notification.label.Reply',
     },
+    fromIdentity: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     loading: true,
@@ -91,7 +95,7 @@ export default {
   }),
   computed: {
     profile() {
-      return this.notification?.from;
+      return this.notification?.from || this.fromIdentity;
     },
     username() {
       return this.profile?.username;

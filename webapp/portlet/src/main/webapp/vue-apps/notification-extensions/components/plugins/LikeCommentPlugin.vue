@@ -3,6 +3,7 @@
     :loading="loading"
     :notification="notification"
     :message-text="message"
+    :from-identity="fromIdentity"
     message-key="Notification.intranet.message.one.LikeCommentPlugin"
     icon="fa-thumbs-up" />
 </template>
@@ -19,14 +20,18 @@ export default {
     loading: true,
   }),
   computed: {
+    fromIdentity() {
+      return this.notification?.from
+        || (this.likerIdentities?.length && this.likerIdentities[0]);
+    },
     likerUsernames() {
-      return this.notification?.parameters?.likers
-        && this.notification.parameters.likers.split(',')
-        || [this.notification.parameters.likersId];
+      return (this.notification?.parameters?.likers && this.notification.parameters.likers.split(','))
+        || (this.notification?.parameters?.likersId && this.notification.parameters.likersId.split(','))
+        || [];
     },
     message() {
       if (!this.likerIdentities?.length) {
-        return null;
+        return this.$t('Notification.intranet.message.one.LikeCommentPlugin');
       } else if (this.likerUsernames.length < 2) {
         return this.$t('Notification.intranet.message.one.LikeCommentPlugin', {
           0: `<a class="user-name font-weight-bold">${this.likerIdentities[0].fullname}</a>`,
@@ -51,7 +56,7 @@ export default {
         .then(identities => this.likerIdentities = identities.map(i => i?.profile).filter(p => !!p))
         .finally(() => this.loading = false);
     } else {
-      this.likerIdentities = this.notification.parameters.from && [this.notification.parameters.from] || [];
+      this.likerIdentities = this.notification.from && [this.notification.from] || [];
       this.loading = false;
     }
   },
