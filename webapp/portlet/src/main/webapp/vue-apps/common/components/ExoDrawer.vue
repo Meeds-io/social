@@ -53,7 +53,7 @@
             </v-list-item>
           </v-flex>
           <v-divider :class="!drawerLoading && d-hidden" class="my-0" />
-          <div v-if="drawerLoading" class="position-relative">
+          <div v-if="drawerLoading" class="position-relative z-index-two">
             <v-progress-linear
               indeterminate
               color="primary"
