@@ -158,14 +158,14 @@ export default {
     ckEditorConfigUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/richeditor/configuration?type=${this.ckEditorType || 'default'}&v=${eXo.env.client.assetsVersion}`;
     },
-    supportsOembed() {
-      return this.oembed || this.templateParams;
-    },
     attachmentEnabled() {
       return !this.disableImageAttachment && eXo.env.portal.editorAttachImageEnabled && this.objectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.objectType) >= 0;
     },
     displayAttachmentEditor() {
       return this.attachmentEnabled && this.editorReady;
+    },
+    supportsOembed() {
+      return this.oembed || this.templateParams;
     },
   },
   watch: {
@@ -192,34 +192,16 @@ export default {
         this.$emit('unloaded');
       }
     },
-    validLength: {
-      immediate: true,
-      handler() {
-        this.$emit('validity-updated', this.validLength);
-      },
-    },
     displayAttachmentEditor(newVal, oldVal) {
       if (newVal && !oldVal) {
         this.$nextTick().then(() => this.$refs?.attachmentsInput?.init());
       }
     },
-    value(val) {
-      if (!this.editor) {
-        this.initCKEditor();
-      }
-      let editorData = null;
-      try {
-        editorData = this.editor.getData();
-      } catch (e) {
-        // When CKEditor not initialized yet
-      }
-      if (this.getContentToCompare(val) !== this.getContentToCompare(editorData)) {
-        // Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
-        // the suggester (which writes its settings in body attribute) doesn't
-        // find its settings anymore when using '.setData' after initializing.
-        // Thus, we destroy the ckEditor instance before setting new data.
-        this.initCKEditorData(val || '');
-      }
+    validLength: {
+      immediate: true,
+      handler() {
+        this.$emit('validity-updated', this.validLength);
+      },
     },
     suggesterSpaceURL() {
       this.initCKEditor(!!this.suggesterSpaceURL, this.value);
@@ -278,7 +260,7 @@ export default {
 
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
-      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH || !this.disableSuggester) {
+      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH && !this.disableSuggester) {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
