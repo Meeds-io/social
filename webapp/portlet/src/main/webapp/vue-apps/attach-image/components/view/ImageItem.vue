@@ -111,10 +111,10 @@ export default {
       return this.attachment?.size < 1000000;
     },
     attachmentPreveiwHeight() {
-      return this.defaultSize || this.isSmallImage ? 0 : this.previewHeight;
+      return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
     },
     attachmentPreveiwWidth() {
-      return this.defaultSize || this.isSmallImage ? 0 : this.previewHeight;
+      return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
     },
   },
   watch: {
