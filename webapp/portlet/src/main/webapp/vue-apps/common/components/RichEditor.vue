@@ -238,6 +238,9 @@ export default {
         // Thus, we destroy the ckEditor instance before setting new data.
         this.initCKEditorData(val || '');
       }
+    },
+    suggesterSpaceURL() {
+      this.initCKEditor(!!this.suggesterSpaceURL, this.value);
     }
   },
   created() {
