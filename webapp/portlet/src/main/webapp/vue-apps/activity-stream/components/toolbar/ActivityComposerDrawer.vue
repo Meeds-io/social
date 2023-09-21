@@ -82,6 +82,7 @@
             :object-type="metadataObjectType"
             :object-id="metadataObjectId"
             :max-file-size="$root.maxFileSize"
+            :suggester-space-u-r-l="spaceURL"
             class="activityRichEditor"
             ck-editor-type="activityContent"
             context-name="activityComposer"
@@ -134,6 +135,7 @@ export default {
       MESSAGE_TIMEOUT: 5000,
       activityId: null,
       spaceId: null,
+      spaceURL: eXo.env.portal.spaceUrl,
       message: '',
       files: null,
       templateParams: {},
@@ -225,6 +227,7 @@ export default {
     },
     audience() {
       this.spaceId = this.audience?.spaceId || '';
+      this.spaceURL = this.audience?.remoteId || '';
     },
     audienceChoice(newVal) {
       if (newVal === 'yourNetwork') {
