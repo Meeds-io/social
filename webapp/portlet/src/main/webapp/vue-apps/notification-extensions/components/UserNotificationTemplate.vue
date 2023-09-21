@@ -1,98 +1,103 @@
 <template>
-  <v-slide-x-transition reverse>
+  <v-card
+    v-if="!$root.initialized"
+    class="d-flex align-center justify-center ma-auto my-2"
+    tile
+    flat />
+  <v-card
+    v-else-if="loading"
+    class="d-flex align-center justify-center ma-auto my-2"
+    tile
+    flat>
+    <v-progress-circular color="primary" indeterminate />
+  </v-card>
+  <v-hover
+    v-else-if="!hidden"
+    v-slot="{ hover }">
     <v-card
-      v-if="loading"
-      class="d-flex align-center justify-center ma-auto my-2"
+      ref="content"
+      :min-height="absolute && minHeight || 'auto'"
+      :min-width="absolute && minWidth || 'auto'"
+      :class="absolute && (movingLeft && 'blue darken-1' || 'red darken-1')"
+      class="position-relative no-border"
       tile
-      flat />
-    <v-hover
-      v-else-if="!hidden"
-      v-slot="{ hover }">
-      <v-card
-        ref="content"
-        :min-height="absolute && minHeight || 'auto'"
-        :min-width="absolute && minWidth || 'auto'"
-        :class="absolute && (movingLeft && 'blue darken-1' || 'red darken-1')"
-        class="position-relative no-border"
-        tile
-        flat>
-        <v-slide-x-transition>
-          <v-list-item
-            :href="url"
-            :input-value="unread && !hover"
-            :class="absolute && 'position-absolute white' || 'position-static'"
-            :style="absolute && {
-              top: 0,
-              left: `${left}px`,
-              width: `${minWidth}px`,
-              'min-width': `${minWidth}px`,
-              'padding-bottom': '9px !important',
-            }"
-            class="d-flex d-relative pa-2"
-            v-touch="{
-              start: moveStart,
-              end: moveEnd,
-              move: moveSwipe,
-            }"
-            @mousedown="markAsRead">
-            <v-list-item-avatar
-              v-if="$slots.avatar || avatarUrl"
-              :rounded="spaceAvatar"
-              :tile="!!$slots.avatar"
-              :size="47"
-              class="mt-0 mb-auto me-3 pt-2px align-start">
-              <slot v-if="$slots.avatar" name="avatar"></slot>
-              <v-avatar
-                v-else
-                :class="avatarClass"
-                :size="36"
-                :rounded="spaceAvatar">
-                <img
-                  :src="avatarUrl"
-                  class="object-fit-cover ma-auto"
-                  loading="lazy"
-                  role="presentation"
-                  alt="">
-              </v-avatar>
-            </v-list-item-avatar>
-            <v-list-item-content class="py-0 pe-5 text-color">
-              <v-list-item-title
-                v-sanitized-html="message"
-                class="subtitle-2 text-wrap text-truncate-2" />
-              <v-list-item-subtitle class="d-flex flex-column justify-center">
-                <div
-                  :class="actionsClass"
-                  class="flex-grow-1 flex-shrink-1 my-1">
-                  <slot v-if="$slots.actions" name="actions"></slot>
-                  <extension-registry-components
-                    :params="extensionParams"
-                    :type="`${notification.plugin}-actions`"
-                    name="WebNotification"
-                    class="d-flex flex-wrap"
-                    strict-type />
-                </div>
-                <div class="flex-grow-0 flex-shrink-0 caption me-1">
-                  {{ relativeDateLabel }}
-                </div>
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <div
-              v-if="hover"
-              :class="$vuetify.rtl && 'l-0' || 'r-0'"
-              class="position-absolute t-0 pt-2px me-1 d-none d-sm-block ">
-              <v-btn
-                class="remove-item"
-                small
-                icon
-                @click.stop.prevent="hideNotification">
-                <v-icon size="16">fa-times</v-icon>
-              </v-btn>
-            </div>
-          </v-list-item>
-        </v-slide-x-transition>
-      </v-card>
-    </v-hover>
-  </v-slide-x-transition>
+      flat>
+      <v-slide-x-transition>
+        <v-list-item
+          :href="url"
+          :input-value="unread && !hover"
+          :class="absolute && 'position-absolute white' || 'position-static'"
+          :style="absolute && {
+            top: 0,
+            left: `${left}px`,
+            width: `${minWidth}px`,
+            'min-width': `${minWidth}px`,
+            'padding-bottom': '9px !important',
+          }"
+          class="d-flex d-relative pa-2"
+          v-touch="{
+            start: moveStart,
+            end: moveEnd,
+            move: moveSwipe,
+          }"
+          @mousedown="markAsRead">
+          <v-list-item-avatar
+            :rounded="spaceAvatar"
+            :tile="!!$slots.avatar"
+            :size="47"
+            min-width="47"
+            class="mt-0 mb-auto me-3 pt-2px align-start">
+            <slot v-if="$slots.avatar" name="avatar"></slot>
+            <v-avatar
+              v-else
+              :class="avatarClass"
+              :size="36"
+              :rounded="spaceAvatar">
+              <img
+                :src="avatarUrl"
+                class="object-fit-cover ma-auto"
+                loading="lazy"
+                role="presentation"
+                alt="">
+            </v-avatar>
+          </v-list-item-avatar>
+          <v-list-item-content class="py-0 pe-5 text-color">
+            <v-list-item-title
+              v-sanitized-html="message"
+              class="subtitle-2 text-wrap text-truncate-2" />
+            <v-list-item-subtitle class="d-flex flex-column justify-center">
+              <div
+                :class="actionsClass"
+                class="flex-grow-1 flex-shrink-1 my-1">
+                <slot v-if="$slots.actions" name="actions"></slot>
+                <extension-registry-components
+                  :params="extensionParams"
+                  :type="`${notification.plugin}-actions`"
+                  name="WebNotification"
+                  class="d-flex flex-wrap"
+                  strict-type />
+              </div>
+              <div class="flex-grow-0 flex-shrink-0 caption me-1">
+                {{ relativeDateLabel }}
+              </div>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+          <div
+            v-if="hover"
+            :class="$vuetify.rtl && 'l-0' || 'r-0'"
+            class="position-absolute t-0 pt-2px me-1 d-none d-sm-block ">
+            <v-btn
+              class="remove-item"
+              small
+              icon
+              @click.stop.prevent="hideNotification">
+              <v-icon size="16">fa-times</v-icon>
+            </v-btn>
+          </div>
+        </v-list-item>
+      </v-slide-x-transition>
+    </v-card>
+  </v-hover>
 </template>
 <script>
 export default {

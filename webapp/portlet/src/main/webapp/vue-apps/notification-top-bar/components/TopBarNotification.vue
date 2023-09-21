@@ -26,7 +26,7 @@
           icon
           class="text-xs-center"
           :title="notificationIconTooltip"
-          @click="open = true">
+          @click="openDrawer">
           <v-badge
             :value="badge > 0"
             :content="badge"
@@ -71,6 +71,10 @@ export default {
     this.$root.$applicationLoaded();
   },
   methods: {
+    openDrawer() {
+      this.$root.initialized = false;
+      this.open = true;
+    },
     updateBadgeByEvent(event) {
       this.updateBadge(event?.detail?.data?.numberOnBadge || 0);
     },
