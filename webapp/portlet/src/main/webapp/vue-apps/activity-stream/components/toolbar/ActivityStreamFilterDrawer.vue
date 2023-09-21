@@ -39,7 +39,7 @@
     <template slot="footer">
       <div class="VuetifyApp flex d-flex">
         <v-btn
-          class="dark-grey-color px-1"
+          class="dark-grey-color px-1 hidden-xs-only"
           text
           @click="resetFilter">
           <template>
