@@ -226,11 +226,7 @@ export default {
       }
     },
     suggesterSpaceURL() {
-      if (this.suggesterSpaceURL) {
-        this.initCKEditor(true, this.value);
-      } else {
-        this.initCKEditor(false, this.value);
-      }
+      this.initCKEditor(!!this.suggesterSpaceURL, this.value);
     }
   },
   created() {
