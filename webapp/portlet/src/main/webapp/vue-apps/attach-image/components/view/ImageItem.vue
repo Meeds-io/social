@@ -37,6 +37,14 @@
         :alt="attachmentAlt"
         class="ma-auto full-width">
     </v-card-text>
+    <div v-if="isGifImage" class="position-absolute white border-radius r-3 mt-2">
+      <v-chip
+        outlined
+        label
+        small>
+        GIF
+      </v-chip>
+    </div>
     <v-expand-transition>
       <v-card
         v-if="invalid"
@@ -91,16 +99,38 @@ export default {
   },
   computed: {
     thumbnailUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?lastModified=${this.attachment.updated}&size=${this.previewHeight}x${this.previewWidth}`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?lastModified=${this.attachment.updated}&size=${this.attachmentPreveiwHeight}x${this.attachmentPreveiwWidth}`;
     },
     attachmentAlt() {
       return this.attachment?.alt || 'attached image';
+    },
+    isGifImage() {
+      return this.attachment?.mimetype === 'image/gif';
+    },
+    isSmallImage() {
+      return this.attachment?.size < 1000000;
+    },
+    attachmentPreveiwHeight() {
+      return this.defaultSize || this.isSmallImage ? 0 : this.previewHeight;
+    },
+    attachmentPreveiwWidth() {
+      return this.defaultSize || this.isSmallImage ? 0 : this.previewHeight;
+    },
+  },
+  watch: {
+    hover() {
+      if (this.hover && this.isGifImage) {
+        this.defaultSize = true;
+      } else {
+        this.defaultSize = false;
+      }
     }
   },
   data: () => ({
     loading: false,
     invalid: false,
-    hover: false
+    hover: false,
+    defaultSize: false,
   }),
   methods: {
     closeErrorBox(event) {
