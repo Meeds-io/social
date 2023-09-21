@@ -47,6 +47,7 @@ export function init(badge) {
           notificationExtensions: {},
           badge,
           initialized: false,
+          lastLoadedNotificationIndex: 0,
           now: Date.now(),
         },
         template: `<top-bar-notification id="${appId}"></top-bar-notification>`,

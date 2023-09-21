@@ -73,6 +73,7 @@ export default {
   methods: {
     openDrawer() {
       this.$root.initialized = false;
+      this.$root.lastLoadedNotificationIndex = 0;
       this.open = true;
     },
     updateBadgeByEvent(event) {

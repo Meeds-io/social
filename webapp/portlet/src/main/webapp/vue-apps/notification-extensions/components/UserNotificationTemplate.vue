@@ -1,18 +1,6 @@
 <template>
-  <v-card
-    v-if="!$root.initialized"
-    class="d-flex align-center justify-center ma-auto my-2"
-    tile
-    flat />
-  <v-card
-    v-else-if="loading"
-    class="d-flex align-center justify-center ma-auto my-2"
-    tile
-    flat>
-    <v-progress-circular color="primary" indeterminate />
-  </v-card>
   <v-hover
-    v-else-if="!hidden"
+    v-if="!hidden"
     v-slot="{ hover }">
     <v-card
       ref="content"
@@ -129,6 +117,10 @@ export default {
     loading: {
       type: Boolean,
       default: false,
+    },
+    index: {
+      type: Number,
+      default: () => 0,
     },
     spaceAvatar: {
       type: Boolean,

@@ -20,11 +20,14 @@
 -->
 <template>
   <div class="notif-items-list">
-    <user-notification
+    <div
       v-for="(notification, i) in notifications"
-      :key="notification.id"
-      :id="'notifItem-'+i"
-      :notification="notification" />
+      v-show="i < $root.lastLoadedNotificationIndex"
+      :key="notification.id">
+      <user-notification
+        :id="'notifItem-'+i"
+        :notification="notification" />
+    </div>
   </div>
 </template>
 <script>
