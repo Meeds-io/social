@@ -56,7 +56,7 @@
             </v-icon>
           </v-btn>
         </div>
-        <div v-if="toolbarActionsDisplay" class="hidden-xs-only">
+        <div class="hidden-xs-only">
           <v-divider />
           <extension-registry-components
             :params="extensionParams"
@@ -137,9 +137,6 @@ export default {
         maxMessageLength: this.MESSAGE_MAX_LENGTH,
         activityType: [],
       };
-    },
-    toolbarActionsDisplay() {
-      return this.userCanPost && this.spaceId;
     },
     filterIconColor() {
       return this.streamFilter !== 'all_stream' && 'primary';
