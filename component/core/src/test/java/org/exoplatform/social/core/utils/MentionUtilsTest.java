@@ -33,7 +33,7 @@ public class MentionUtilsTest extends AbstractCoreTest {
         String portalOwner = "dw";
         String message = "hello <p>@root</p>";
 
-        message = MentionUtils.substituteUsernames(portalOwner, message, null);
+        message = MentionUtils.substituteUsernames(portalOwner, message);
         assertEquals("hello <p><a href=\"http://test.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>", message);
     }
 
@@ -41,7 +41,7 @@ public class MentionUtilsTest extends AbstractCoreTest {
     public void testWrongFormatMentionWithSubstituteUsernames(){
         String portalOwner = "dw";
         String message = "hello @ jhon";
-        message = MentionUtils.substituteUsernames(portalOwner, message, null);
+        message = MentionUtils.substituteUsernames(portalOwner, message);
         assertEquals("hello @ jhon", message);
     }
 
@@ -60,7 +60,7 @@ public class MentionUtilsTest extends AbstractCoreTest {
         String portalOwner = "dw";
         String message = "hello <p>@root</p> hey! <p>@john</p> ";
 
-        message = MentionUtils.substituteUsernames(portalOwner, message, null);
+        message = MentionUtils.substituteUsernames(portalOwner, message);
         assertEquals("hello <p><a href=\"http://test.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>" +
                 " hey! <p><a href=\"http://test.com/portal/dw/profile/john\" target=\"_parent\">John Anthony</a></p> ", message);
     }

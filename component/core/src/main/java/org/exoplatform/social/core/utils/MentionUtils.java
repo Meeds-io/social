@@ -7,8 +7,6 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.space.spi.SpaceService;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,7 +18,7 @@ public class MentionUtils {
 
     private static final Log LOG                             = ExoLogger.getLogger(MentionUtils.class);
 
-    public static String substituteUsernames(String portalOwner, String message, ExoSocialActivity activity) {
+    public static String substituteUsernames(String portalOwner, String message) {
         if (message == null || message.trim().isEmpty()) {
             return message;
         }
@@ -41,17 +39,7 @@ public class MentionUtils {
                 continue;
             }
             try {
-                if(activity.getActivityStream().isSpace() && activity.getSpaceId() != null) {
-                    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-                    boolean isMember = spaceService.isMember(spaceService.getSpaceById(activity.getSpaceId()),identity.getRemoteId());
-                    if (isMember) {
-                        username = LinkProvider.getProfileLink(username, portalOwner);
-                    } else {
-                        username = identity.getProfile().getFullName();
-                    }
-                } else {
-                    username = LinkProvider.getProfileLink(username, portalOwner);
-                }
+                username = LinkProvider.getProfileLink(username, portalOwner);
             } catch (Exception e) {
                 LOG.warn("Error while retrieving link for profile of user {}", username, e);
                 continue;

@@ -228,8 +228,9 @@ export default {
     suggesterSpaceURL() {
       if (this.suggesterSpaceURL) {
         this.initCKEditor(true, this.value);
+      } else {
+        this.initCKEditor(false, this.value);
       }
-
     }
   },
   created() {
