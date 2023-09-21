@@ -224,6 +224,12 @@ export default {
         // Thus, we destroy the ckEditor instance before setting new data.
         this.initCKEditorData(val || '');
       }
+    },
+    suggesterSpaceURL() {
+      if (this.suggesterSpaceURL) {
+        this.initCKEditor(true, this.value);
+      }
+
     }
   },
   created() {
@@ -372,7 +378,13 @@ export default {
             }
           },
           destroy: function () {
-            self.inputVal = '';
+            let data = self.value;
+            if (data) {
+              data = data.replace(/@\w+/gm, '');
+              self.inputVal = data;
+            } else {
+              self.inputVal = '';
+            }
             self.editor = null;
           }
         }

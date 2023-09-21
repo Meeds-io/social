@@ -49,18 +49,18 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
         //default value for testing and social
         portalOwner = userPortalConfigService.getDefaultPortal();
       }
-      activity.setTitle(MentionUtils.substituteUsernames(portalOwner, activity.getTitle()));
-      activity.setBody(MentionUtils.substituteUsernames(portalOwner, activity.getBody()));
+      activity.setTitle(MentionUtils.substituteUsernames(portalOwner, activity.getTitle(), activity));
+      activity.setBody(MentionUtils.substituteUsernames(portalOwner, activity.getBody(), activity));
       Map<String, String> templateParams = activity.getTemplateParams();
       List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
       for(String key : templateParamKeys){
-        templateParams.put(key, MentionUtils.substituteUsernames(portalOwner, templateParams.get(key)));
+        templateParams.put(key, MentionUtils.substituteUsernames(portalOwner, templateParams.get(key), null));
       }
       if (templateParams.containsKey("comment")) {
-        templateParams.put("comment", MentionUtils.substituteUsernames(portalOwner, templateParams.get("comment")));
+        templateParams.put("comment", MentionUtils.substituteUsernames(portalOwner, templateParams.get("comment"), null));
       }
       if (templateParams.containsKey("default_title")) {
-        templateParams.put("default_title", MentionUtils.substituteUsernames(portalOwner, templateParams.get("default_title")));
+        templateParams.put("default_title", MentionUtils.substituteUsernames(portalOwner, templateParams.get("default_title"), null));
       }
     }
   }
