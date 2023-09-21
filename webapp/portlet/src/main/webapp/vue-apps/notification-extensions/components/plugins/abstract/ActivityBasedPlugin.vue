@@ -3,7 +3,7 @@
     :notification="notification"
     :avatar-url="profileAvatarUrl"
     :message="message"
-    :loading="loading"
+    :loading="loading || loadingActivity"
     :url="activityUrl">
     <template #actions>
       <div
@@ -81,9 +81,13 @@ export default {
       type: Object,
       default: null,
     },
+    loading: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
-    loading: true,
+    loadingActivity: true,
     activity: null,
     parentActivity: null,
     extension: {
@@ -230,7 +234,7 @@ export default {
         }
       })
       .then(activity => this.parentActivity = activity)
-      .finally(() => this.loading = false);
+      .finally(() => this.loadingActivity = false);
   },
   beforeDestroy() {
     if (this.activityType) {
