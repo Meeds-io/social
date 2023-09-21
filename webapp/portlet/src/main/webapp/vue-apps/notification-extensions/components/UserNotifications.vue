@@ -108,11 +108,13 @@ export default {
   created() {
     document.addEventListener('refresh-notifications', this.refreshNotifications);
     document.addEventListener('cometdNotifEvent', this.notificationUpdated);
+    this.$root.$on('notifications-initialized', this.notificationsDisplayed);
     this.loadNotifications();
   },
   beforeDestroy() {
     document.removeEventListener('refresh-notifications', this.refreshNotifications);
     document.removeEventListener('cometdNotifEvent', this.notificationUpdated);
+    this.$root.$off('notifications-initialized', this.notificationsDisplayed);
   },
   methods: {
     reset() {
@@ -156,6 +158,9 @@ export default {
       if (!this.loading && event && event.detail) {
         this.loadNotifications();
       }
+    },
+    notificationsDisplayed() {
+      this.$root.lastLoadedNotificationIndex = this.notifications?.length || 0;
     },
   }
 };
