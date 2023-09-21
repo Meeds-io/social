@@ -78,6 +78,7 @@
             :max-length="MESSAGE_MAX_LENGTH"
             :template-params="templateParams"
             :placeholder="composerPlaceholder"
+            :suggester-space-u-r-l="spaceURL"
             class="activityRichEditor"
             ck-editor-type="activityContent"
             context-name="activityComposer"
@@ -130,6 +131,7 @@ export default {
       CK_EDITOR_ID: 'activityContent',
       activityId: null,
       spaceId: null,
+      spaceURL: eXo.env.portal.spaceUrl,
       message: '',
       files: null,
       templateParams: {},
@@ -203,6 +205,7 @@ export default {
     },
     audience() {
       this.spaceId = this.audience?.spaceId || '';
+      this.spaceURL = this.audience?.remoteId || '';
     },
     audienceChoice(newVal) {
       if (newVal === 'yourNetwork') {
