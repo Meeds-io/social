@@ -291,7 +291,7 @@
             <value-param>
                 <name>userStreamComposer.enabled</name>
                 <description>enable/disable user stream composer button</description>
-                <value>${exo.config.mainStreamComposer.enabled:false}</value>
+                <value>${exo.config.mainStreamComposer.enabled:true}</value>
             </value-param>
         </init-params>
     </component>
