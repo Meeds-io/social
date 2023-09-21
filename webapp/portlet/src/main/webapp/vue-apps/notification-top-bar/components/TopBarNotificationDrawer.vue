@@ -166,7 +166,10 @@ export default {
   watch: {
     loading() {
       if (this.loading === 0) {
-        this.$nextTick().then(() => this.$root.initialized = true);
+        this.$nextTick().then(() => {
+          this.$root.initialized = true;
+          this.$root.$emit('notifications-initialized');
+        });
       }
     },
     expanded() {
