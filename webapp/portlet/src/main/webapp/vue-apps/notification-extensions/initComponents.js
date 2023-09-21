@@ -23,6 +23,7 @@ import UserNotificationTemplate from './components/UserNotificationTemplate.vue'
 import UserNotifications from './components/UserNotifications.vue';
 import UserNotificationsList from './components/UserNotificationsList.vue';
 import UserNotificationTypes from './components/UserNotificationTypes.vue';
+import UserNotificationType from './components/UserNotificationType.vue';
 import UserEmptyNotifications from './components/UserEmptyNotifications.vue';
 
 import NewUser from './components/plugins/NewUser.vue';
@@ -48,6 +49,7 @@ const components = {
   'user-notifications': UserNotifications,
   'user-notifications-list': UserNotificationsList,
   'user-notification-types': UserNotificationTypes,
+  'user-notification-type': UserNotificationType,
   'user-notification-empty': UserEmptyNotifications,
   'user-notification': UserNotification,
   'user-notification-template': UserNotificationTemplate,

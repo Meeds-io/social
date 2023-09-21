@@ -6,64 +6,19 @@
       color="primary"
       dense
       mandatory>
-      <v-list-item
+      <user-notification-type
         v-for="(group, index) in groups"
         :key="group.name"
-        class="px-4 mx-n4 rounded-lg"
-        dense
-        @click="selectType(index)">
-        <v-list-item-icon class="me-2 my-auto align-center justify-center">
-          <v-icon size="18" class="icon-default-color">
-            {{ group.icon }}
-          </v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title class="subtitle-2">
-            {{ group.label }}
-          </v-list-item-title>
-        </v-list-item-content>
-        <v-scale-transition>
-          <v-list-item-icon v-if="group.badge" class="me-2 full-height align-center justify-center position-relative">
-            <v-tooltip bottom>
-              <template #activator="{on, bind}">
-                <v-btn
-                  :value="group.badge > 0"
-                  :outlined="unread === index"
-                  :dark="unread !== index"
-                  :class="unread === index && 'btn'"
-                  max-width="30"
-                  max-height="30"
-                  color="red darken-4"
-                  class="pa-1"
-                  elevation="0"
-                  fab
-                  v-on="on"
-                  v-bind="bind"
-                  @click.stop.prevent="selectType(index, true)">
-                  <span class="caption">
-                    {{ group.badge > 99 && '99+' || group.badge }}
-                  </span>
-                </v-btn>
-              </template>
-              <span>{{ $t('Notification.label.types.unread', {0: group.badge}) }}</span>
-            </v-tooltip>
-          </v-list-item-icon>
-        </v-scale-transition>
-      </v-list-item>
+        :group="group"
+        :selected="index === selectedGroupIndex"
+        :unread-only="index === unreadIndex"
+        @select="selectType(index, $event)" />
     </v-list-item-group>
   </v-list>
 </template>
 <script>
 export default {
   props: {
-    value: {
-      type: String,
-      default: null,
-    },
-    badge: {
-      type: Object,
-      default: null,
-    },
     badgeByPlugin: {
       type: Object,
       default: null,
@@ -71,7 +26,7 @@ export default {
   },
   data: () => ({
     loading: false,
-    unread: false,
+    unreadIndex: false,
     selectedGroupIndex: null,
     groups: [],
   }),
@@ -110,15 +65,15 @@ export default {
       groups.sort((g1, g2) => (g1.rank || 100) - (g2.rank || 100));
       this.groups = groups;
     },
-    selectType(index, unread) {
+    selectType(index, unreadOnly) {
       this.selectedGroupIndex = index;
-      if (this.unread === index || !unread) {
-        this.unread = false;
+      if (this.unreadIndex === index || !unreadOnly) {
+        this.unreadIndex = false;
       } else {
-        this.unread = index;
+        this.unreadIndex = index;
       }
       const selectedGroup = this.groups[this.selectedGroupIndex];
-      this.$emit('change', selectedGroup?.name, selectedGroup?.plugins, this.unread === index);
+      this.$emit('change', selectedGroup?.name, selectedGroup?.plugins, this.unreadIndex === index);
     },
   },
 };
