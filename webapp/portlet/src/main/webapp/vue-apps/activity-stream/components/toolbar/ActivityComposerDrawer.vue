@@ -135,7 +135,7 @@ export default {
       MESSAGE_TIMEOUT: 5000,
       activityId: null,
       spaceId: null,
-      spaceURL: null,
+      spaceURL: eXo.env.portal.spaceUrl,
       message: '',
       files: null,
       templateParams: {},
