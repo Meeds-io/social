@@ -81,7 +81,7 @@ export default {
   }),
   computed: {
     uri() {
-      return !this.siteRootNode?.pageKey && ' ' || ( this.siteRootNode?.pageLink && this.urlVerify(this.siteRootNode.pageLink) || `/portal/${this.site.name}/${this.siteRootNode.uri}`);
+      return !this.siteRootNode?.pageKey  ? null :  this.siteRootNode?.pageLink && this.urlVerify(this.siteRootNode.pageLink) || `/portal/${this.site.name}/${this.siteRootNode.uri}`;
     },
     target() {
       return this.siteRootNode?.target === 'SAME_TAB' && '_self' || '_blank';

@@ -53,7 +53,7 @@ export default {
   }),
   computed: {
     uri() {
-      return this.isNodeGroup && ' ' || this.navigationUri(this.navigation);
+      return this.isNodeGroup ? null : this.navigationUri(this.navigation);
     },
     target() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
