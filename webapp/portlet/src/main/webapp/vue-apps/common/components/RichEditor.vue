@@ -279,7 +279,7 @@ export default {
 
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
-      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH || !this.disableSuggester) {
+      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH && !this.disableSuggester) {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
