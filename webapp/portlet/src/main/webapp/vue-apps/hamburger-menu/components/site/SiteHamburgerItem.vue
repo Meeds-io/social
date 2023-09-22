@@ -87,7 +87,7 @@ export default {
       return this.siteRootNode?.target === 'SAME_TAB' && '_self' || '_blank';
     },
     icon() {
-      return `fas ${this.siteRootNode.icon}`;
+      return this.siteRootNode.icon;
     },
     siteRootNode() {
       return this.site?.siteNavigations && this.site?.siteNavigations[0];
