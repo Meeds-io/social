@@ -52,7 +52,8 @@
               type="activity-toolbar-action"
               class="hidden-xs-only" />
             <v-btn
-              v-if="streamFilterEnabled" 
+              v-if="streamFilterEnabled"
+              id="toolbarFilterButton"
               icon
               @click="openStreamFilterDrawer">
               <v-icon
@@ -144,9 +145,6 @@ export default {
         maxMessageLength: this.MESSAGE_MAX_LENGTH,
         activityType: [],
       };
-    },
-    toolbarActionsDisplay() {
-      return this.userCanPost && this.spaceId;
     },
     filterIconColor() {
       return this.streamFilter !== 'all_stream' && 'primary';
