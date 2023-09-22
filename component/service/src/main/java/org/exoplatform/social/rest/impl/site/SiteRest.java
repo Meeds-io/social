@@ -38,7 +38,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
@@ -210,7 +209,6 @@ public class SiteRest implements ResourceContainer {
   @Operation(summary = "Gets a site banner", method = "GET")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input"),
       @ApiResponse(responseCode = "403", description = "Forbidden request"),
       @ApiResponse(responseCode = "404", description = "Resource not found") })
   public Response getSiteBanner(@Context
@@ -226,7 +224,7 @@ public class SiteRest implements ResourceContainer {
                                 boolean isDefault) {
     try {
       if (!isDefault && RestUtils.isAnonymous()
-          && !LinkProvider.isAttachmentTokenValid(token, siteName, LinkProvider.ATTACHMENT_BANNER_TYPE)) {
+          && !LinkProvider.isSiteBannerTokenValid(token, siteName, LinkProvider.ATTACHMENT_BANNER_TYPE)) {
         LOG.warn("An anonymous user attempts to access banner of site {} without a valid access token", siteName);
         return Response.status(Response.Status.FORBIDDEN).build();
       }
@@ -239,18 +237,20 @@ public class SiteRest implements ResourceContainer {
     }
   }
 
-  private InputStream getDefaultBannerInputStream(String siteName) throws IOException {
-    byte[] defaultSiteBanner = null;
+  private InputStream getDefaultBannerInputStream(String siteName) {
+    InputStream defaultSiteBanner = new ByteArrayInputStream(new byte[] {});
     InputStream is = portalContainer.getPortalContext()
                                     .getResourceAsStream(System.getProperty("sites." + siteName
                                         + ".defaultBannerPath", "/images/sites/banner/" + siteName.toLowerCase() + ".png"));
     if (is == null) {
       is = portalContainer.getPortalContext().getResourceAsStream(SITE_DEFAULT_BANNER_URL);
-      defaultSiteBanner = is != null ? IOUtil.getStreamContentAsBytes(is) : new byte[] {};
+      if (is != null) {
+        defaultSiteBanner = is;
+      }
     } else {
-      defaultSiteBanner = IOUtil.getStreamContentAsBytes(is);
+      defaultSiteBanner = is;
     }
-    return new ByteArrayInputStream(defaultSiteBanner);
+    return defaultSiteBanner;
   }
 
   private Locale getLocale(String lang) {

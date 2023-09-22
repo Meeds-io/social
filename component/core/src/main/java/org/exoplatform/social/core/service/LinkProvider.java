@@ -598,11 +598,11 @@ public class LinkProvider {
         + BASE_URL_SITE_REST_API;
   }
 
-  public static String buildAttachmentUrl(String siteName, String type, boolean isDefault) {
+  public static String buildSiteBannerUrl(String siteName, boolean isDefault) {
     if (StringUtils.isBlank(siteName)) {
       return null;
     }
-    String token = generateAttachmentToken(siteName, type);
+    String token = generateSiteBannerToken(siteName, LinkProvider.ATTACHMENT_BANNER_TYPE);
     if (StringUtils.isNotBlank(token)) {
       try {
         token = URLEncoder.encode(token, "UTF8");
@@ -614,7 +614,7 @@ public class LinkProvider {
     return new StringBuilder(getBaseURLSiteRest()).append("/")
                                                   .append(siteName)
                                                   .append("/")
-                                                  .append(type)
+                                                  .append(LinkProvider.ATTACHMENT_BANNER_TYPE)
                                                   .append("?r=")
                                                   .append(token)
                                                   .append("&isDefault=")
@@ -623,7 +623,7 @@ public class LinkProvider {
 
   }
 
-  public static String generateAttachmentToken(String siteName, String attachmentType) {
+  public static String generateSiteBannerToken(String siteName, String attachmentType) {
     String token = null;
     CodecInitializer codecInitializer = ExoContainerContext.getService(CodecInitializer.class);
     if (codecInitializer == null) {
@@ -641,12 +641,12 @@ public class LinkProvider {
     return token;
   }
 
-  public static boolean isAttachmentTokenValid(String token, String siteName, String attachmentType) {
+  public static boolean isSiteBannerTokenValid(String token, String siteName, String attachmentType) {
     if (StringUtils.isBlank(token)) {
       LOG.warn("An empty token is used for {} for site {}", attachmentType, siteName);
       return false;
     }
-    String validToken = generateAttachmentToken(siteName, attachmentType);
+    String validToken = generateSiteBannerToken(siteName, attachmentType);
     return StringUtils.equals(validToken, token);
   }
 }

@@ -1862,7 +1862,7 @@ public class EntityBuilder {
                           siteNavigations,
                           getUserACL().hasPermission(site.getEditPermission()),
                           site.getBannerFileId(),
-                          LinkProvider.buildAttachmentUrl(site.getName(), LinkProvider.ATTACHMENT_BANNER_TYPE, site.getBannerFileId() == 0));
+                          LinkProvider.buildSiteBannerUrl(site.getName(), site.getBannerFileId() == 0));
   }
 
   private static List<Map<String, Object>> computePermissions(String[] permissions) {

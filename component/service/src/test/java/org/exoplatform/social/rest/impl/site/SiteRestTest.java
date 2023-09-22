@@ -133,7 +133,7 @@ public class SiteRestTest extends BaseRestServicesTestCase {
                                                                          String.valueOf(createContainerInstance().getId()));
     site.setBannerFileId(1);
     siteDAO.update(site);
-    String token = LinkProvider.generateAttachmentToken(site.getName(), LinkProvider.ATTACHMENT_BANNER_TYPE);
+    String token = LinkProvider.generateSiteBannerToken(site.getName(), LinkProvider.ATTACHMENT_BANNER_TYPE);
 
     String path = originPath + "notValidSiteName/banner" + "?r=" + token + "&isDefault=false";
     ContainerResponse resp = launcher.service("GET", path, "", null, null, envctx);
