@@ -76,6 +76,7 @@ let config = {
     notificationAdministration: './src/main/webapp/vue-apps/notification-administration/main.js',
     notificationExtensions: './src/main/webapp/vue-apps/notification-extensions/main.js',
     attachImage: './src/main/webapp/vue-apps/attach-image/main.js',
+    links: './src/main/webapp/vue-apps/links/main.js',
   },
   module: {
     rules: [
