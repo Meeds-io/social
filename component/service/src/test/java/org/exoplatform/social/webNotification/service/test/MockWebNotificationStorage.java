@@ -16,11 +16,13 @@
  */
 package org.exoplatform.social.webNotification.service.test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
@@ -34,14 +36,17 @@ import org.exoplatform.commons.api.notification.service.storage.WebNotificationS
  */
 public class MockWebNotificationStorage implements WebNotificationStorage {
   
+  private static final Random RANDOM = new Random();
+
   private Map<String, NotificationInfo> map = new HashMap<>();
-  
+
   public Map<String, NotificationInfo> getMap() {
     return this.map;
   }
 
   @Override
   public void save(NotificationInfo notification) {
+    notification.setId(String.valueOf(RANDOM.nextLong()));
     this.map.put(notification.getId(), notification);
   }
 
