@@ -145,9 +145,6 @@ export default {
         activityType: [],
       };
     },
-    toolbarActionsDisplay() {
-      return this.userCanPost && this.spaceId;
-    },
     filterIconColor() {
       return this.streamFilter !== 'all_stream' && 'primary';
     },
