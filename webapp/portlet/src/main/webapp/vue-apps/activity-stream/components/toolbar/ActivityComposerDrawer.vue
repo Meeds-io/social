@@ -181,7 +181,7 @@ export default {
       return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength) || (this.postInYourSpacesChoice && !this.audience);
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
