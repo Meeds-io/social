@@ -28,7 +28,7 @@
     </template>
     <template #content>
       <v-card flat>
-        <div v-if="!audienceTypesDisplay" class="mt-1 px-4 pt-4">
+        <div v-if="audienceTypesDisplay" class="mt-1 px-4 pt-4">
           <span class="subtitle-1 text-color"> {{ $t('activity.composer.content.title') }} </span>
           <v-radio-group
             v-if="postToNetwork"
@@ -199,7 +199,7 @@ export default {
       };
     },
     audienceTypesDisplay() {
-      return eXo.env.portal.spaceId;
+      return !eXo.env.portal.spaceId && !this.activityId;
     },
     postInYourSpacesChoice() {
       return this.audienceChoice === 'oneOfYourSpaces';
