@@ -14,28 +14,28 @@
           {{ $t('links.label.linkName') }}
         </div>
         <translation-text-field
-          ref="linksHeader"
-          id="linksHeader"
+          ref="linkNameInput"
+          id="linkNameInput"
           v-model="link.name"
           :default-language="$root.defaultLanguage"
           :rules="rules.name"
           :placeholder="$t('links.label.linkNamePlaceholder')"
           :maxlength="maxNameLength"
-          :required="false"
           :object-id="link.id"
           object-type="links"
           field-name="name"
           drawer-title="links.label.nameTranslation"
           class="width-auto flex-grow-1 mb-4"
           no-expand-icon
-          back-icon />
+          back-icon
+          required />
 
         <div class="d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
           {{ $t('links.label.description') }}
         </div>
         <translation-text-field
-          ref="linksHeader"
-          id="linksHeader"
+          ref="linkDescriptionInput"
+          id="linkDescriptionInput"
           v-model="link.description"
           :default-language="$root.defaultLanguage"
           :rules="rules.description"
@@ -102,8 +102,8 @@ export default {
     edit: false,
     index: -1,
     valid: false,
-    maxNameLength: 255,
-    maxDescriptionLength: 255,
+    maxNameLength: 50,
+    maxDescriptionLength: 50,
   }),
   watch: {
     link: {
@@ -124,6 +124,7 @@ export default {
     rules() {
       return {
         name: [
+          v => !!v?.length || this.$t('links.input.mandatory'),
           v => !v?.length || v.length < this.maxNameLength || this.$t('links.input.exceedsMaxLength', {
             0: this.maxNameLength,
           }),
