@@ -60,10 +60,6 @@
 
 export default {
   props: {
-    keyword: {
-      type: String,
-      default: null,
-    },
     filter: {
       type: String,
       default: null,
@@ -76,13 +72,14 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
-    startSearchAfterInMilliseconds: 300,
+    startSearchAfterInMilliseconds: 600,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     typing: false,
     advancedFilterCount: 0,
     mobileFilter: false,
-    iconWidth: '24px'
+    iconWidth: '24px',
+    keyword: null,
   }),
   created() {
     this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount);
