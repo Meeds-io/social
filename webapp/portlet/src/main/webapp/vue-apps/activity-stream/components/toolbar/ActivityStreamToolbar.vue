@@ -44,19 +44,26 @@
           <span v-else class="text-sub-title text-body-1 my-auto">
             {{ $t('activity.toolbar.title') }}
           </span>
-          <v-btn
-            v-if="streamFilterEnabled" 
-            class="my-auto ms-auto"
-            icon
-            @click="openStreamFilterDrawer">
-            <v-icon
-              :color="filterIconColor"
-              size="24">
-              fa-sliders-h
-            </v-icon>
-          </v-btn>
+          <div class="my-auto ms-auto d-flex flex-row">
+            <extension-registry-components
+              v-if="!spaceId"
+              :params="extensionParams"
+              name="ActivityToolbarAction"
+              type="activity-toolbar-action"
+              class="hidden-xs-only" />
+            <v-btn
+              v-if="streamFilterEnabled" 
+              icon
+              @click="openStreamFilterDrawer">
+              <v-icon
+                :color="filterIconColor"
+                size="21">
+                fa-sliders-h
+              </v-icon>
+            </v-btn>
+          </div>
         </div>
-        <div v-if="toolbarActionsDisplay" class="hidden-xs-only">
+        <div v-if="spaceId" class="hidden-xs-only">
           <v-divider />
           <extension-registry-components
             :params="extensionParams"
