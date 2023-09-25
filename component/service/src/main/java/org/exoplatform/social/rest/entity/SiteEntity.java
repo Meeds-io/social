@@ -54,4 +54,8 @@ public class SiteEntity {
   private List<UserNodeRestEntity>  siteNavigations;
 
   private boolean                   canEdit;
+
+  private long                      bannerFileId;
+
+  private String                    bannerUrl;
 }
