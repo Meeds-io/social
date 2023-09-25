@@ -3,7 +3,6 @@
     class="transparent peopleList"
     flat>
     <people-toolbar
-      :keyword="keyword"
       :filter="filter"
       :people-count="peopleCount"
       @keyword-changed="keyword = $event"
