@@ -57,7 +57,7 @@
               @click="openStreamFilterDrawer">
               <v-icon
                 :color="filterIconColor"
-                size="24">
+                size="21">
                 fa-sliders-h
               </v-icon>
             </v-btn>
