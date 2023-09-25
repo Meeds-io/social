@@ -91,7 +91,7 @@ public class LinkProvider {
 
   public static final String     BASE_URL_SITE_REST_API   = "/v1/social/sites";
 
-  public static final String     ATTACHMENT_BANNER_TYPE   = "banner";
+  public static final String  ATTACHMENT_BANNER_TYPE      = "banner";
 
   public LinkProvider() {
   }
@@ -602,7 +602,7 @@ public class LinkProvider {
     if (StringUtils.isBlank(siteName)) {
       return null;
     }
-    String token = generateSiteBannerToken(siteName, LinkProvider.ATTACHMENT_BANNER_TYPE);
+    String token = generateSiteBannerToken(siteName, ATTACHMENT_BANNER_TYPE);
     if (StringUtils.isNotBlank(token)) {
       try {
         token = URLEncoder.encode(token, "UTF8");
@@ -614,7 +614,7 @@ public class LinkProvider {
     return new StringBuilder(getBaseURLSiteRest()).append("/")
                                                   .append(siteName)
                                                   .append("/")
-                                                  .append(LinkProvider.ATTACHMENT_BANNER_TYPE)
+                                                  .append(ATTACHMENT_BANNER_TYPE)
                                                   .append("?r=")
                                                   .append(token)
                                                   .append("&isDefault=")
