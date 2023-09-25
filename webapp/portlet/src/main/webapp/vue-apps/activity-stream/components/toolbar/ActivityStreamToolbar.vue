@@ -31,8 +31,9 @@
           <exo-user-avatar
             v-if="displayUserAvatar"
             :identity="user"
+            :size="userAvatarSize"
             class="me-3"
-            size="45"
+            extra-class="d-flex align-center"
             avatar />
           <v-btn
             v-if="userCanPost"
@@ -51,16 +52,27 @@
               name="ActivityToolbarAction"
               type="activity-toolbar-action"
               class="hidden-xs-only" />
-            <v-btn
-              v-if="streamFilterEnabled" 
-              icon
-              @click="openStreamFilterDrawer">
-              <v-icon
-                :color="filterIconColor"
-                size="21">
-                fa-sliders-h
-              </v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  v-if="streamFilterEnabled" 
+                  height="36px"
+                  width="36px"
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="openStreamFilterDrawer">
+                  <v-icon
+                    :color="filterIconColor"
+                    size="20px">
+                    fa-sliders-h
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>
+                {{ $t('activity.filter.tooltip') }}
+              </span>
+            </v-tooltip>
           </div>
         </div>
         <div v-if="spaceId" class="hidden-xs-only">
@@ -150,6 +162,12 @@ export default {
     },
     displayUserAvatar() {
       return this.user && this.userCanPost;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    },
+    userAvatarSize() {
+      return this.isMobile ? '42px' : '45px';
     }
   },
   created() {
