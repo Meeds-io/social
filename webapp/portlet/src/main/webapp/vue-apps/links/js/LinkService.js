@@ -17,6 +17,52 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+export function getSettings(name) {
+  return Promise.resolve({
+    'id': 1,
+    name,
+    header: {
+      en: 'Useful links',
+    },
+    'type': 'ROW',
+    'largeIcon': false,
+    'showName': false,
+    'seeMore': 'https://meeds.io/hubs',
+    'links': [
+      {
+        'id': 1,
+        'order': 1,
+        'name': {
+          en: 'Website',
+        },
+        'description': {
+          en: 'Website link description',
+        },
+        'url': 'https://meeds.io',
+        'sameTab': false,
+        'iconUrl': null
+      },
+      {
+        'id': 2,
+        'order': 2,
+        'name': {
+          en: 'Discord',
+        },
+        'description': {
+          en: 'Discord link description',
+        },
+        'url': 'https://discord.com/channels/@me/1106143836838830100',
+        'sameTab': false,
+        'iconUrl': null
+      }
+    ]
+  });
+}
+
+export function saveSettings(settings) {
+  return Promise.resolve(settings);
+}
+
 export function saveSettingName(url, name) {
   return fetch(url, {
     headers: {

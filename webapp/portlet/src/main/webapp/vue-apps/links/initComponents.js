@@ -19,8 +19,24 @@
 
 import LinksApp from './components/LinksApp.vue';
 
+import LinkSettingsDrawer from './components/settings/LinkSettingsDrawer.vue';
+import LinkAdvancedSettingsDrawer from './components/settings/LinkAdvancedSettingsDrawer.vue';
+import LinkFormDrawer from './components/settings/LinkFormDrawer.vue';
+import LinkDisplayPreview from './components/settings/LinkDisplayPreview.vue';
+import LinkInput from './components/settings/LinkInput.vue';
+
+import LinksList from './components/view/LinksList.vue';
+import LinksItem from './components/view/LinksItem.vue';
+
 const components = {
   'links-app': LinksApp,
+  'links-settings-drawer': LinkSettingsDrawer,
+  'links-advanced-settings-drawer': LinkAdvancedSettingsDrawer,
+  'links-form-drawer': LinkFormDrawer,
+  'links-display-preview': LinkDisplayPreview,
+  'links-input': LinkInput,
+  'links-list': LinksList,
+  'links-item': LinksItem,
 };
 
 for (const key in components) {

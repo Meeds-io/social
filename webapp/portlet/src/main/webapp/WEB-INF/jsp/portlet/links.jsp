@@ -13,13 +13,14 @@
     name = renderRequest.getWindowID();
   }
   String id = "LinkPortlet" + renderRequest.getWindowID();
+  Boolean canEdit = (Boolean) request.getAttribute("canEdit");
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application transparent v-application--is-ltr theme--light peopleList" flat=""
+    class="v-application transparent v-application--is-ltr theme--light" flat=""
     id="<%=id%>">
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/Links'], app => app.init('<%=id%>', '<%=name%>', <%=nameExists%>, '<%=saveSettingsURL%>'));
+      require(['PORTLET/social-portlet/Links'], app => app.init('<%=id%>', '<%=name%>', <%=canEdit%>, <%=nameExists%>, '<%=saveSettingsURL%>'));
     </script>
   </div>
 </div>

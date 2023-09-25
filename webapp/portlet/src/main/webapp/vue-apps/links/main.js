@@ -30,17 +30,26 @@ if (extensionRegistry) {
 }
 
 const lang = eXo.env.portal.language;
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Links-${lang}.json`;
 
-export function init(appId, name, nameExists, saveSettingsUrl) {
+export function init(appId, name, canEdit, nameExists, saveSettingsUrl) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       Vue.createApp({
         data: {
           name,
+          canEdit,
+          settings: null,
+          language: lang,
+          defaultLanguage: 'en',
+        },
+        computed: {
+          links() {
+            return this.settings?.links || null;
+          },
         },
         created() {
-          if (!nameExists) {
+          if (!nameExists && canEdit) {
             this.saveSettingName();
           }
         },
