@@ -28,87 +28,89 @@
     </template>
     <template #content>
       <v-card flat>
-        <div v-if="audienceTypesDisplay" class="mt-1 px-4 pt-4">
-          <div v-if="postVisibility">
-            <span class="subtitle-1 text-color"> {{ $t('activity.composer.content.title') }} </span>
-            <v-radio-group
-              v-if="postToNetwork"
-              v-model="audienceChoice"
-              class="mt-0"
-              mandatory>
-              <v-radio value="yourNetwork">
-                <template #label>
-                  <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.yourNetwork') }}</span>
-                </template>
-              </v-radio>
-              <v-radio value="oneOfYourSpaces">
-                <template #label>
-                  <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.oneOfYourSpaces') }}</span>
-                </template>
-              </v-radio>
-            </v-radio-group>
-            <exo-identity-suggester
-              v-if="spaceSuggesterDisplay"
-              ref="audienceComposerSuggester"
-              v-model="audience"
-              :labels="spaceSuggesterLabels"
-              :include-users="false"
-              :width="220"
-              name="audienceComposerSuggester"
-              class="user-suggester mt-n2"
-              include-spaces
-              only-redactor />
+        <div v-if="!activityId">
+          <div v-if="audienceTypesDisplay" class="mt-1 px-4 pt-4">
+            <div v-if="postVisibility">
+              <span class="subtitle-1 text-color"> {{ $t('activity.composer.content.title') }} </span>
+              <v-radio-group
+                v-if="postToNetwork"
+                v-model="audienceChoice"
+                class="mt-0"
+                mandatory>
+                <v-radio value="yourNetwork">
+                  <template #label>
+                    <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.yourNetwork') }}</span>
+                  </template>
+                </v-radio>
+                <v-radio value="oneOfYourSpaces">
+                  <template #label>
+                    <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.oneOfYourSpaces') }}</span>
+                  </template>
+                </v-radio>
+              </v-radio-group>
+              <exo-identity-suggester
+                v-if="spaceSuggesterDisplay"
+                ref="audienceComposerSuggester"
+                v-model="audience"
+                :labels="spaceSuggesterLabels"
+                :include-users="false"
+                :width="220"
+                name="audienceComposerSuggester"
+                class="user-suggester mt-n2"
+                include-spaces
+                only-redactor />
+            </div>
+            <v-list-item v-if="audienceAvatarDisplay" class="text-truncate px-0 mt-n1">
+              <exo-space-avatar
+                :space-id="spaceId"
+                :size="30"
+                extra-class="text-truncate"
+                avatar />
+              <exo-user-avatar
+                :profile-id="username"
+                :size="spaceId && 25 || 30"
+                :extra-class="spaceId && 'ms-n4 mt-6' || ''"
+                avatar />
+              <v-list-item-content class="py-0 accountTitleLabel text-truncate">
+                <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
+                  <exo-space-avatar
+                    :space-id="spaceId"
+                    extra-class="text-truncate"
+                    fullname
+                    bold-title
+                    link-style
+                    username-class />
+                </v-list-item-title>
+                <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
+                  <exo-user-avatar
+                    :profile-id="username"
+                    extra-class="text-truncate ms-2 me-1"
+                    fullname
+                    link-style
+                    small-font-size
+                    username-class />
+                </v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action class="my-0">
+                <v-tooltip bottom>
+                  <template #activator="{ on, attrs }">
+                    <v-btn
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="resetAudienceChoice()">
+                      <v-icon size="14">
+                        fas fa-redo
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <span>
+                    {{ $t('activity.composer.audience.reset.tooltip') }}
+                  </span>
+                </v-tooltip>
+              </v-list-item-action>
+            </v-list-item>
           </div>
-          <v-list-item v-if="audienceAvatarDisplay" class="text-truncate px-0 mt-n1">
-            <exo-space-avatar
-              :space-id="spaceId"
-              :size="30"
-              extra-class="text-truncate"
-              avatar />
-            <exo-user-avatar
-              :profile-id="username"
-              :size="spaceId && 25 || 30"
-              :extra-class="spaceId && 'ms-n4 mt-6' || ''"
-              avatar />
-            <v-list-item-content class="py-0 accountTitleLabel text-truncate">
-              <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
-                <exo-space-avatar
-                  :space-id="spaceId"
-                  extra-class="text-truncate"
-                  fullname
-                  bold-title
-                  link-style
-                  username-class />
-              </v-list-item-title>
-              <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
-                <exo-user-avatar
-                  :profile-id="username"
-                  extra-class="text-truncate ms-2 me-1"
-                  fullname
-                  link-style
-                  small-font-size
-                  username-class />
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action class="my-0">
-              <v-tooltip bottom>
-                <template #activator="{ on, attrs }">
-                  <v-btn
-                    icon
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="resetAudienceChoice()">
-                    <v-icon size="14">
-                      fas fa-redo
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <span>
-                  {{ $t('activity.composer.audience.reset.tooltip') }}
-                </span>
-              </v-tooltip>
-            </v-list-item-action>
-          </v-list-item>
         </div>
         <v-card-text>
           <rich-editor
@@ -239,7 +241,7 @@ export default {
       };
     },
     audienceTypesDisplay() {
-      return !eXo.env.portal.spaceId && !this.activityId;
+      return !eXo.env.portal.spaceId;
     },
     postInYourSpacesChoice() {
       return this.audienceChoice === 'oneOfYourSpaces';
