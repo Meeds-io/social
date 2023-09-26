@@ -59,7 +59,7 @@ export default {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
     icon() {
-      return this.navigation?.icon;
+      return this.navigation?.icon || 'fas fa-folder';
     },
     isNodeGroup() {
       return !this.navigation.pageKey;
