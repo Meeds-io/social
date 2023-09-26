@@ -73,6 +73,7 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   ObserverRestTest.class,
   SiteRestTest.class,
   LinkRestTest.class,
+  SiteRestTest.class,
 })
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
