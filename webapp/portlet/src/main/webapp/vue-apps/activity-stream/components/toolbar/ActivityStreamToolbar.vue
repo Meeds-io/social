@@ -57,6 +57,7 @@
                 <v-btn
                   v-if="streamFilterEnabled"
                   id="toolbarFilterButton"
+                  class="me-sm-0 me-n2"
                   height="36px"
                   width="36px"
                   icon
