@@ -55,7 +55,8 @@
             <v-tooltip bottom>
               <template #activator="{ on, attrs }">
                 <v-btn
-                  v-if="streamFilterEnabled" 
+                  v-if="streamFilterEnabled"
+                  id="toolbarFilterButton"
                   height="36px"
                   width="36px"
                   icon
