@@ -27,17 +27,33 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity(name = "SocLink")
 @ExoEntity
 @Table(name = "SOC_LINKS")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@NamedQuery(
+  name = "LinkEntity.findByName",
+  query = "SELECT l from SocLink l"
+      + " INNER JOIN l.setting s ON s.name = :name"
+      + " ORDER BY l.order DESC"
+)
+@NamedQuery(
+  name = "LinkEntity.getLinkSettingByLinkId",
+  query = "SELECT l.setting.id from SocLink l"
+      + " WHERE l.id = :id"
+)
 public class LinkEntity {
 
   @Id
@@ -45,9 +61,6 @@ public class LinkEntity {
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_LINK_ID")
   @Column(name = "LINK_ID")
   private Long              id;
-
-  @Column(name = "ORDER")
-  private int               order;
 
   @Column(name = "NAME")
   private String            name;
@@ -61,9 +74,14 @@ public class LinkEntity {
   @Column(name = "SAME_TAB")
   private boolean           sameTab;
 
+  @Column(name = "ORDER")
+  private int               order;
+
   @Column(name = "ICON_FILE_ID")
   private long              iconFileId;
 
+  @lombok.EqualsAndHashCode.Exclude
+  @lombok.ToString.Exclude
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "LINK_SETTING_ID", nullable = false)
   private LinkSettingEntity setting;

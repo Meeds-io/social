@@ -1,6 +1,7 @@
 <template>
   <exo-drawer
     ref="drawer"
+    :loading="loading || saving"
     class="linkSettingDrawer"
     right
     @closed="reset">
@@ -121,6 +122,7 @@ export default {
   data: () => ({
     settings: null,
     links: null,
+    loading: false,
     saving: false,
   }),
   computed: {
@@ -145,12 +147,21 @@ export default {
   },
   methods: {
     open() {
-      this.settings = this.$root.settings && JSON.parse(JSON.stringify(this.$root.settings)) || {};
-      this.links = this.$root.links && JSON.parse(JSON.stringify(this.$root.links)) || [];
-      this.$refs.drawer.open();
+      this.reset();
+      this.loading = true;
+      this.$nextTick().then(() => this.$refs.drawer.open());
+      this.$linkService.getSettings(this.$root.name)
+        .then(settings => {
+          this.settings = settings;
+          this.links = settings?.links || [];
+        })
+        .finally(() => this.loading = false);
     },
     reset() {
       this.settings = null;
+      this.links = null;
+      this.loading = false;
+      this.saving = false;
     },
     close() {
       this.$refs.drawer.close();

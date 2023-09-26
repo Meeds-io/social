@@ -17,50 +17,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-export function getSettings(name) {
-  return Promise.resolve({
-    'id': 1,
-    name,
-    header: {
-      en: 'Useful links',
-    },
-    'type': 'ROW',
-    'largeIcon': false,
-    'showName': false,
-    'seeMore': 'https://meeds.io/hubs',
-    'links': [
-      {
-        'id': 1,
-        'order': 1,
-        'name': {
-          en: 'Website',
-        },
-        'description': {
-          en: 'Website link description',
-        },
-        'url': 'https://meeds.io',
-        'sameTab': false,
-        'iconUrl': null
-      },
-      {
-        'id': 2,
-        'order': 2,
-        'name': {
-          en: 'Discord',
-        },
-        'description': {
-          en: 'Discord link description',
-        },
-        'url': 'https://discord.com/channels/@me/1106143836838830100',
-        'sameTab': false,
-        'iconUrl': null
-      }
-    ]
+export function getSettings(name, lang) {
+  const formData = new FormData();
+  if (lang) {
+    formData.append('lang', lang);
+  }
+  const params = formData.entries.length && `?${decodeURIComponent(new URLSearchParams(formData).toString())}` || '';
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/links/${name}${params}`, {
+    method: 'GET',
+    credentials: 'include',
+    body: `name=${name}`,
+  }).then((resp) => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error getting links setting');
+    }
   });
 }
 
 export function saveSettings(settings) {
-  return Promise.resolve(settings);
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/links/${settings.name}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'PUT',
+    credentials: 'include',
+    body: JSON.stringify(settings),
+  }).then((resp) => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error saving links setting');
+    }
+  });
 }
 
 export function saveSettingName(url, name) {

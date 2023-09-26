@@ -97,7 +97,7 @@ export default {
         return;
       }
       this.loading = true;
-      this.$linkService.getSettings(this.$root.name)
+      this.$linkService.getSettings(this.$root.name, this.$root.language)
         .then(settings => this.$root.settings = settings)
         .then(() => this.loading = false);
     },

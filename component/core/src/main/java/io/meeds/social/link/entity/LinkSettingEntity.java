@@ -18,6 +18,7 @@
  */
 package io.meeds.social.link.entity;
 
+import java.time.Instant;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -29,6 +30,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -37,12 +39,21 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 
 import io.meeds.social.link.constant.LinkDisplayType;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity(name = "SocLinkSetting")
 @ExoEntity
 @Table(name = "SOC_LINK_SETTINGS")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@NamedQuery(
+  name = "LinkSettingEntity.findByName",
+  query = "SELECT s from SocLinkSetting s"
+      + " WHERE s.name = :name"
+)
 public class LinkSettingEntity {
 
   @Id
@@ -53,6 +64,12 @@ public class LinkSettingEntity {
 
   @Column(name = "NAME", unique = true, nullable = false)
   private String          name;
+
+  @Column(name = "PAGE_ID")
+  private String          pageId;
+
+  @Column(name = "HEADER")
+  private String          header;
 
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "TYPE", nullable = false)
@@ -67,6 +84,11 @@ public class LinkSettingEntity {
   @Column(name = "SEE_MORE_URL")
   private String          seeMore;
 
+  @Column(name = "LAST_MODIFIED")
+  private Instant         lastModified;
+
+  @lombok.EqualsAndHashCode.Exclude
+  @lombok.ToString.Exclude
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "setting", fetch = FetchType.LAZY)
   private Set<LinkEntity> links;
 
