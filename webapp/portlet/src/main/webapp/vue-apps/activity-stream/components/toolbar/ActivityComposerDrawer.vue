@@ -29,7 +29,7 @@
     <template #content>
       <v-card flat>
         <div v-if="audienceTypesDisplay" class="mt-1 px-4 pt-4">
-          <div v-if="(postInYourSpacesChoice && !audience) || postInYourNetwork">
+          <div v-if="postVisibility">
             <span class="subtitle-1 text-color"> {{ $t('activity.composer.content.title') }} </span>
             <v-radio-group
               v-if="postToNetwork"
@@ -252,6 +252,9 @@ export default {
     },
     audienceAvatarDisplay() {
       return this.audience && this.postInYourSpacesChoice;
+    },
+    postVisibility() {
+      return  this.postInYourNetwork || (this.postInYourSpacesChoice && !this.audience);
     }
   },
   watch: {
