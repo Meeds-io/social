@@ -1,4 +1,4 @@
-export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, filterByPermissions) {
+export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, filterByPermissions, excludeEmptyNavigations, temporalCheck, visibility) {
   const formData = new FormData();
   if (siteType) {
     formData.append('siteType', siteType);
@@ -6,14 +6,21 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
   if (excludedSiteType) {
     formData.append('excludedSiteType', excludedSiteType);
   }
-  
+
   if (excludedSiteName) {
     formData.append('excludedSiteName', excludedSiteName);
   }
   formData.append('lang', eXo.env.portal.language);
   formData.append('excludeEmptyNavigationSites', excludeEmptyNavigationSites);
+  formData.append('excludeEmptyNavigations', excludeEmptyNavigations);
+  formData.append('temporalCheck', temporalCheck);
   formData.append('excludeSpaceSites', excludeSpaceSites);
   formData.append('expandNavigations', expandNavigations);
+  if (visibility) {
+    visibility.forEach(visibility => {
+      formData.append('visibility', visibility);
+    });
+  }
   formData.append('filterByDisplayed', filterByDisplayed);
   formData.append('sortByDisplayOrder', sortByDisplayOrder);
   if (filterByDisplayed) {

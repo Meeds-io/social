@@ -66,6 +66,7 @@ import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.navigation.Scope;
 import org.exoplatform.portal.mop.rest.model.UserNodeRestEntity;
 import org.exoplatform.portal.mop.service.LayoutService;
@@ -1768,7 +1769,10 @@ public class EntityBuilder {
   public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites,
                                                    HttpServletRequest request,
                                                    boolean expandNavigations,
+                                                   List<String> visibilityNames,
                                                    boolean excludeEmptyNavigationSites,
+                                                   boolean temporalCheck,
+                                                   boolean excludeEmptyNavigations,
                                                    boolean filterByPermission,
                                                    boolean sortByDisplayOrder,
                                                    Locale locale) {
@@ -1780,7 +1784,10 @@ public class EntityBuilder {
                                                              .map(site -> buildSiteEntity(site,
                                                                                           request,
                                                                                           expandNavigations,
+                                                                                          visibilityNames,
                                                                                           excludeEmptyNavigationSites,
+                                                                     temporalCheck,
+                                                                     excludeEmptyNavigations,
                                                                                           locale))
                                                              .filter(Objects::nonNull)
                                                              .toList();
@@ -1791,7 +1798,10 @@ public class EntityBuilder {
   public static SiteEntity buildSiteEntity(PortalConfig site,
                                            HttpServletRequest request,
                                            boolean expandNavigations,
+                                           List<String> visibilityNames,
                                            boolean excludeEmptyNavigationSites,
+                                           boolean temporalCheck,
+                                           boolean excludeEmptyNavigation,
                                            Locale locale) {
     if (site == null) {
       return null;
@@ -1799,21 +1809,6 @@ public class EntityBuilder {
     SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
     String displayName = site.getLabel();
     org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
-    if (SiteType.GROUP.equals(siteType)) {
-      try {
-        Group siteGroup = getOrganizationService().getGroupHandler().findGroupById(site.getName());
-        if (siteGroup == null || !userIdentity.isMemberOf(siteGroup.getId())) {
-          return null;
-        } else if (StringUtils.isBlank(displayName)) {
-          displayName = siteGroup.getLabel();
-        }
-      } catch (Exception e) {
-        LOG.error("Error while retrieving group with name {}", site.getName(), e);
-      }
-    }
-    List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
-    Map<String, Object> editPermission = computePermission(site.getEditPermission());
-
     UserNode rootNode = null;
     String currentUser = userIdentity.getUserId();
     try {
@@ -1827,7 +1822,12 @@ public class EntityBuilder {
       UserPortal userPortal = userPortalConfig.getUserPortal();
       UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
       if (navigation != null) {
-        rootNode = userPortal.getNode(navigation, Scope.ALL, UserNodeFilterConfig.builder().withReadWriteCheck().build(), null);
+        UserNodeFilterConfig.Builder builder = UserNodeFilterConfig.builder();
+        builder.withReadWriteCheck().withVisibility(convertVisibilities(visibilityNames));
+        if (temporalCheck) {
+          builder.withTemporalCheck();
+        }
+        rootNode = userPortal.getNode(navigation, Scope.ALL, builder.build(), null);
       }
     } catch (Exception e) {
       LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
@@ -1843,9 +1843,25 @@ public class EntityBuilder {
                                              getOrganizationService(),
                                              getLayoutService(),
                                              getUserACL());
+      if (excludeEmptyNavigation) {
+        siteNavigations = removeEmptyNavigations(siteNavigations);
+      }
     }
-    PortalConfig sitePortalConfig = getLayoutService().getPortalConfig(new SiteKey(siteType, site.getName()));
-    long siteId = Long.parseLong((sitePortalConfig.getStorageId().split("_"))[1]);
+    if (SiteType.GROUP.equals(siteType)) {
+      try {
+        Group siteGroup = getOrganizationService().getGroupHandler().findGroupById(site.getName());
+        if (siteGroup == null || !userIdentity.isMemberOf(siteGroup.getId())) {
+          return null;
+        } else if (StringUtils.isBlank(displayName)) {
+          displayName = siteGroup.getLabel();
+        }
+      } catch (Exception e) {
+        LOG.error("Error while retrieving group with name {}", site.getName(), e);
+      }
+    }
+    List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
+    Map<String, Object> editPermission = computePermission(site.getEditPermission());
+    long siteId = Long.parseLong((site.getStorageId().split("_"))[1]);
     String translatedSiteLabel = getTranslatedLabel(SITE_LABEL_FIELD_NAME, siteId, locale);
     String translateSiteDescription= getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
     displayName = StringUtils.isNotBlank(translatedSiteLabel) ? translatedSiteLabel : displayName;
@@ -1923,5 +1939,43 @@ public class EntityBuilder {
             fieldName,
             locale);
 
+  }
+  private static Visibility[] convertVisibilities(List<String> visibilityNames) {
+    if (visibilityNames == null) {
+      return Visibility.values();
+    }
+    return visibilityNames.stream()
+            .map(visibilityName -> Visibility.valueOf(StringUtils.upperCase(visibilityName)))
+            .toList()
+            .toArray(new Visibility[0]);
+  }
+  private static List<UserNodeRestEntity> removeEmptyNavigations(List<UserNodeRestEntity> userNodeList) {
+    for (Iterator<UserNodeRestEntity> i = userNodeList.iterator(); i.hasNext();) {
+      UserNodeRestEntity userNode = i.next();
+      if (userNode.getPageKey() == null && !hasUserNodePageChild(userNode)) {
+        i.remove();
+        continue;
+      }
+      userNode.setChildren(removeEmptyNavigations(userNode.getChildren()));
+    }
+    return userNodeList;
+  }
+
+  private static boolean hasUserNodePageChild(UserNodeRestEntity userNode) {
+    if (userNode.getChildren() == null || userNode.getChildren().isEmpty()) {
+      return false;
+    }
+    boolean hasPageChild = false;
+    for (UserNodeRestEntity node : userNode.getChildren()) {
+      if (node.getPageKey() != null) {
+        hasPageChild = true;
+      } else if (node.getChildren() != null && !userNode.getChildren().isEmpty()) {
+        hasPageChild = hasUserNodePageChild(node);
+      }
+      if (hasPageChild) {
+        break;
+      }
+    }
+    return hasPageChild;
   }
 }

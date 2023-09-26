@@ -24,7 +24,6 @@
     min-width="90%"
     class="pb-0">
     <v-list-item-group
-      v-model="selectedNavigationIndex"
       aria-label="displayedSites"
       link>
       <div
@@ -38,9 +37,6 @@
         <site-hamburger-item
           v-else
           :key="site.name"
-          :input-value="site.selected"
-          :active="site.selected"
-          :selected="site.selected"
           :site="site"
           :opened-site="openedSite" />
       </div>
@@ -60,10 +56,5 @@ export default {
       default: null,
     },
   },
-  computed: {
-    selectedNavigationIndex() {
-      return this.sites.findIndex(site => window.location.href.includes(site.name));
-    },
-  }
 };
 </script>

@@ -35,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -104,6 +105,18 @@ public class SiteRest implements ResourceContainer {
                            @DefaultValue("false")
                            @QueryParam("expandNavigations")
                            boolean expandNavigations,
+                           @Parameter(description = "Multivalued visibilities of navigation nodes to retrieve, possible values: DISPLAYED, HIDDEN, SYSTEM or TEMPORAL. If empty, all visibilities will be used.", required = false)
+                           @Schema(defaultValue = "All possible values combined")
+                           @QueryParam("visibility")
+                           List<String> visibilityNames,
+                           @Parameter(description = "to check , in expandNavigations case , the navigation nodes scheduling start and end dates")
+                           @DefaultValue("false")
+                           @QueryParam("temporalCheck")
+                           boolean temporalCheck,
+                           @Parameter(description = "to expand site navigations nodes")
+                           @DefaultValue("false")
+                           @QueryParam("excludeEmptyNavigations")
+                           boolean excludeEmptyNavigations,
                            @Parameter(description = "to sort with display order")
                            @DefaultValue("false")
                            @QueryParam("sortByDisplayOrder")
@@ -154,7 +167,10 @@ public class SiteRest implements ResourceContainer {
       return Response.ok(EntityBuilder.buildSiteEntities(sites,
                                                          request,
                                                          expandNavigations,
+                                                         visibilityNames,
                                                          excludeEmptyNavigationSites,
+                                                         temporalCheck,
+                                                         excludeEmptyNavigations,
                                                          filterByPermission,
                                                          sortByDisplayOrder,
                                                          getLocale(lang)))
@@ -181,6 +197,18 @@ public class SiteRest implements ResourceContainer {
                               @DefaultValue("false")
                               @QueryParam("expandNavigations")
                               boolean expandNavigations,
+                              @Parameter(description = "Multivalued visibilities of navigation nodes to retrieve, possible values: DISPLAYED, HIDDEN, SYSTEM or TEMPORAL. If empty, all visibilities will be used.", required = false)
+                              @Schema(defaultValue = "All possible values combined")
+                              @QueryParam("visibility")
+                              List<String> visibilityNames,
+                              @Parameter(description = "to check , in expandNavigations case , the navigation nodes scheduling start and end dates")
+                              @DefaultValue("false")
+                              @QueryParam("temporalCheck")
+                              boolean temporalCheck,
+                              @Parameter(description = "to expand site navigations nodes")
+                              @DefaultValue("false")
+                              @QueryParam("excludeEmptyNavigation")
+                              boolean excludeEmptyNavigations,
                               @Parameter(description = "to exclude sites with empty navigation")
                               @DefaultValue("false")
                               @QueryParam("excludeEmptyNavigationSites")
@@ -193,7 +221,10 @@ public class SiteRest implements ResourceContainer {
       return Response.ok(EntityBuilder.buildSiteEntity(site,
                                                        request,
                                                        expandNavigations,
+                                                       visibilityNames,
                                                        excludeEmptyNavigationSites,
+                                                       temporalCheck,
+                                                       excludeEmptyNavigations,
                                                        getLocale(lang)))
                      .build();
     } catch (Exception e) {
