@@ -89,6 +89,11 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
+  public Map<String, AttachmentPlugin> getAttachmentPlugins() {
+    return this.attachmentPlugins;
+  }
+
+  @Override
   public ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachmentList,
                                                          Identity userAclIdentity) throws ObjectNotFoundException,
                                                                                    IllegalAccessException {
