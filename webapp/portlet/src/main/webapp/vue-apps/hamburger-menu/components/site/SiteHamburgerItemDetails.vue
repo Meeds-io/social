@@ -14,6 +14,9 @@
           class="fas fa-arrow-right mt-4"
           small />
       </row>
+      <v-img
+        :src="site.bannerUrl"
+        class="mx-1 pt-1" />
       <v-card-title :title="site?.name" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
       </v-card-title>
