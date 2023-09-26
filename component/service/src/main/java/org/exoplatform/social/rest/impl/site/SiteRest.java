@@ -16,6 +16,9 @@
  */
 package org.exoplatform.social.rest.impl.site;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,9 +32,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
+
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteType;
@@ -39,7 +46,9 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,12 +61,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = VersionResources.VERSION_ONE + "/social/sites", description = "Manage sites")
 public class SiteRest implements ResourceContainer {
 
-  private static final Log LOG = ExoLogger.getLogger(SiteRest.class);
+  private static final Log    LOG                     = ExoLogger.getLogger(SiteRest.class);
 
-  private LayoutService    layoutService;
+  private LayoutService       layoutService;
 
-  public SiteRest(LayoutService layoutService) {
+  private PortalContainer     portalContainer;
+
+  private static final String SITE_DEFAULT_BANNER_URL = System.getProperty("sites.defaultBannerPath",
+                                                                           "/images/sites/banner/defaultSiteBanner.png");
+
+  public SiteRest(LayoutService layoutService, PortalContainer portalContainer) {
     this.layoutService = layoutService;
+    this.portalContainer = portalContainer;
   }
 
   @GET
@@ -185,6 +200,57 @@ public class SiteRest implements ResourceContainer {
       LOG.warn("Error while retrieving site", e);
       return Response.serverError().build();
     }
+  }
+
+  @GET
+  @Path("{siteName}/banner")
+  @RolesAllowed("users")
+  @Produces("image/png")
+  @Operation(summary = "Gets a site banner", method = "GET")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "403", description = "Forbidden request"),
+      @ApiResponse(responseCode = "404", description = "Resource not found") })
+  public Response getSiteBanner(@Context
+  Request request,
+                                @Parameter(description = "site name", required = true)
+                                @PathParam("siteName")
+                                String siteName,
+                                @Parameter(description = "A mandatory valid token that is used to authorize anonymous request", required = true)
+                                @QueryParam("r")
+                                String token,
+                                @Parameter(description = "A mandatory valid token that is used to determinate if to use default banner", required = true)
+                                @QueryParam("isDefault")
+                                boolean isDefault) {
+    try {
+      if (!isDefault && RestUtils.isAnonymous()
+          && !LinkProvider.isSiteBannerTokenValid(token, siteName, LinkProvider.ATTACHMENT_BANNER_TYPE)) {
+        LOG.warn("An anonymous user attempts to access banner of site {} without a valid access token", siteName);
+        return Response.status(Response.Status.FORBIDDEN).build();
+      }
+      InputStream stream = isDefault ? getDefaultBannerInputStream(siteName) : layoutService.getSiteBannerStream(siteName);
+      return Response.ok(stream, "image/png").build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (IOException e) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  private InputStream getDefaultBannerInputStream(String siteName) {
+    InputStream defaultSiteBanner = new ByteArrayInputStream(new byte[] {});
+    InputStream is = portalContainer.getPortalContext()
+                                    .getResourceAsStream(System.getProperty("sites." + siteName
+                                        + ".defaultBannerPath", "/images/sites/banner/" + siteName.toLowerCase() + ".png"));
+    if (is == null) {
+      is = portalContainer.getPortalContext().getResourceAsStream(SITE_DEFAULT_BANNER_URL);
+      if (is != null) {
+        defaultSiteBanner = is;
+      }
+    } else {
+      defaultSiteBanner = is;
+    }
+    return defaultSiteBanner;
   }
 
   private Locale getLocale(String lang) {
