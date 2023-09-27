@@ -1,6 +1,8 @@
 <template>
   <exo-drawer
     ref="drawer"
+    :confirm-close="modified"
+    :confirm-close-labels="confirmCloseLabels"
     class="linkAdvancedSettingDrawer"
     go-back-button
     right
@@ -31,7 +33,7 @@
                 dense
                 hide-details />
             </div>
-            <div v-if="showHeader && settings.header" class="d-flex mb-2">
+            <div v-if="showHeader && settings?.header" class="d-flex mb-2">
               <translation-text-field
                 ref="linksHeader"
                 id="linksHeader"
@@ -132,15 +134,26 @@ export default {
   },
   data: () => ({
     settings: null,
+    originalSettings: null,
     showHeader: false,
     seeMore: false,
-    header: false,
     valid: false,
-    maxHeaderLength: 255,
+    maxHeaderLength: 25,
   }),
   computed: {
     disabled() {
-      return !this.valid || (this.showHeader && !this.settings?.header[this.$root.defaultLanguage]?.length);
+      return !this.valid || !this.modified || (this.showHeader && !this.settings?.header[this.$root.defaultLanguage]?.length);
+    },
+    modified() {
+      return this.originalSettings && JSON.stringify(this.originalSettings) !== JSON.stringify(this.settings || {});
+    },
+    confirmCloseLabels() {
+      return {
+        title: this.$t('links.title.confirmCloseModification'),
+        message: this.$t('links.message.confirmCloseModification'),
+        ok: this.$t('confirm.yes'),
+        cancel: this.$t('confirm.no'),
+      };
     },
     displayTypes() {
       return [{
@@ -182,9 +195,7 @@ export default {
           this.settings.header[this.$root.defaultLanguage] = '';
         }
       } else {
-        const header = {};
-        header[this.$root.defaultLanguage] = '';
-        this.settings.header = header;
+        this.settings.header = null;
       }
       this.refreshValidation();
     },
@@ -210,21 +221,21 @@ export default {
   methods: {
     open() {
       this.settings = this.value && JSON.parse(JSON.stringify(this.value)) || {};
-      if (!this.settings.header) {
-        const header = {};
-        header[this.$root.defaultLanguage] = '';
-        this.settings.header = header;
-      }
-      this.showHeader = this.settings.header && Object.keys(this.settings.header).length > 0 || false;
-      this.seeMore = !!this.settings.seeMore;
+      this.showHeader = !!this.settings?.header?.en?.length;
+      this.seeMore = !!this.settings?.seeMore?.length;
       this.valid = false;
-      this.$refs.drawer.open();
+      this.$nextTick().then(() => {
+        this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+        this.$refs.drawer.open();
+      });
     },
     reset() {
       this.settings = null;
+      this.originalSettings = null;
     },
     close() {
-      this.$refs.drawer.close();
+      this.originalSettings = null;
+      return this.$nextTick().then(() => this.$refs.drawer.close());
     },
     apply() {
       this.$emit('input', this.settings);

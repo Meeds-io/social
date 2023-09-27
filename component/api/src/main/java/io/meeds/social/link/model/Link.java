@@ -20,6 +20,7 @@
 package io.meeds.social.link.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,24 +31,25 @@ import lombok.NoArgsConstructor;
 @Data
 public class Link implements Serializable, Cloneable {
 
-  private static final long serialVersionUID = -5104279089111946609L;
+  private static final long   serialVersionUID = -5104279089111946609L;
 
-  private long              id;
+  private long                id;
 
-  private String            name;
+  private Map<String, String> name;
 
-  private String            description;
+  private Map<String, String> description;
 
-  private String            url;
+  private String              url;
 
-  private boolean           sameTab;
+  private boolean             sameTab;
 
-  private int               order;
+  private int                 order;
 
-  private long              iconFileId;
+  private long                iconFileId;
 
   @Override
   public Link clone() { // NOSONAR
     return new Link(id, name, description, url, sameTab, order, iconFileId);
   }
+
 }

@@ -24,6 +24,7 @@ import LinkAdvancedSettingsDrawer from './components/settings/LinkAdvancedSettin
 import LinkFormDrawer from './components/settings/LinkFormDrawer.vue';
 import LinkDisplayPreview from './components/settings/LinkDisplayPreview.vue';
 import LinkInput from './components/settings/LinkInput.vue';
+import LinkIconInput from './components/settings/LinkIconInput.vue';
 
 import LinksList from './components/view/LinksList.vue';
 import LinksItem from './components/view/LinksItem.vue';
@@ -35,6 +36,7 @@ const components = {
   'links-form-drawer': LinkFormDrawer,
   'links-display-preview': LinkDisplayPreview,
   'links-input': LinkInput,
+  'links-icon-input': LinkIconInput,
   'links-list': LinksList,
   'links-item': LinksItem,
 };

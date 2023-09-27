@@ -1,6 +1,9 @@
 <template>
   <exo-drawer
     ref="drawer"
+    v-model="drawer"
+    :confirm-close="modified"
+    :confirm-close-labels="confirmCloseLabels"
     class="linkFormDrawer"
     go-back-button
     right
@@ -76,6 +79,18 @@
             dense
             hide-details />
         </div>
+
+        <div class="d-flex flex-column mb-4">
+          <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
+            {{ $t('links.label.updateIcon') }}
+          </div>
+          <links-icon-input
+            v-model="link.iconUploadId"
+            :link="link"
+            class="mt-2"
+            @reset="resetIcon"
+            @src="link.iconSrc = $event" />
+        </div>
       </v-form>
     </template>
     <template #footer>
@@ -99,27 +114,32 @@
 export default {
   data: () => ({
     link: null,
+    originalLink: null,
+    drawer: false,
     edit: false,
+    canValidate: false,
     index: -1,
-    valid: false,
+    valid: true,
     maxNameLength: 50,
     maxDescriptionLength: 50,
   }),
-  watch: {
-    link: {
-      deep: true,
-      handler() {
-        if (this.$refs.form) {
-          this.valid = this.$refs.form.validate();
-        }
-      },
-    },
-  },
   computed: {
     disabled() {
       return !this.valid
-        || this.link?.name[this.$root.defaultLanguage]?.length > this.maxNameLength
-        || this.link?.description[this.$root.defaultLanguage]?.length > this.maxDescriptionLength;
+        || !this.modified
+        || this.link?.name?.[this.$root.defaultLanguage]?.length > this.maxNameLength
+        || this.link?.description?.[this.$root.defaultLanguage]?.length > this.maxDescriptionLength;
+    },
+    modified() {
+      return this.originalLink && JSON.stringify(this.originalLink) !== JSON.stringify(this.link || {});
+    },
+    confirmCloseLabels() {
+      return {
+        title: this.$t('links.title.confirmCloseModification'),
+        message: this.$t('links.message.confirmCloseModification'),
+        ok: this.$t('confirm.yes'),
+        cancel: this.$t('confirm.no'),
+      };
     },
     rules() {
       return {
@@ -147,6 +167,28 @@ export default {
       };
     },
   },
+  watch: {
+    link: {
+      deep: true,
+      handler() {
+        if ((this.canValidate || this.edit) && this.$refs.form) {
+          this.valid = this.$refs.form.validate();
+        }
+      },
+    },
+    drawer() {
+      if (this.drawer) {
+        this.valid = false;
+        window.setTimeout(() => {
+          if (this.edit) {
+            this.valid = false;
+          } else {
+            this.canValidate = true;
+          }
+        }, 200);
+      }
+    },
+  },
   created() {
     this.$root.$on('links-form-drawer', this.open);
   },
@@ -158,26 +200,45 @@ export default {
       if (!link) {
         link = {};
       }
-      if (!link.name || !link.name[this.$root.defaultLanguage]) {
+      if (!link.name?.[this.$root.defaultLanguage]) {
         link.name = {};
         link.name[this.$root.defaultLanguage] = '';
       }
-      if (!link.description || !link.description[this.$root.defaultLanguage]) {
+      if (!link.description?.[this.$root.defaultLanguage]) {
         link.description = {};
         link.description[this.$root.defaultLanguage] = '';
       }
+      if (!link.iconSrc) {
+        link.iconSrc = null;
+      }
       this.link = JSON.parse(JSON.stringify(link));
+      this.originalLink = JSON.parse(JSON.stringify(link));
       this.edit = edit;
       this.index = index;
+      this.canValidate = false;
+      this.valid = false;
       this.$refs.drawer.open();
     },
     reset() {
       this.link = null;
+      this.originalLink = null;
     },
     close() {
-      this.$refs.drawer.close();
+      this.originalLink = null;
+      return this.$nextTick().then(() => this.$refs.drawer.close());
+    },
+    resetIcon() {
+      this.link.iconUrl = null;
+      this.link.iconSrc = null;
+      this.link.iconUploadId = null;
+      this.link.iconFileId = 0;
     },
     apply() {
+      this.canValidate = true;
+      this.valid = this.$refs.form.validate();
+      if (!this.valid) {
+        return;
+      }
       if (this.edit) {
         this.$emit('link-edit', this.link, this.index);
       } else {

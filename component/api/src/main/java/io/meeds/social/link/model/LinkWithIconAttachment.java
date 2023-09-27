@@ -19,6 +19,8 @@
 
 package io.meeds.social.link.model;
 
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,8 +37,8 @@ public class LinkWithIconAttachment extends Link implements Cloneable {
   private String            uploadId;
 
   public LinkWithIconAttachment(long id, // NOSONAR
-                                String name,
-                                String description,
+                                Map<String, String> name,
+                                Map<String, String> description,
                                 String url,
                                 boolean sameTab,
                                 int order,
@@ -61,4 +63,5 @@ public class LinkWithIconAttachment extends Link implements Cloneable {
   public Link toLink() {
     return new Link(getId(), getName(), getDescription(), getUrl(), isSameTab(), getOrder(), getIconFileId());
   }
+
 }

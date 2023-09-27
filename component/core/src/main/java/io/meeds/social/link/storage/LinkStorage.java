@@ -53,17 +53,17 @@ public class LinkStorage {
     return toModel(linkSettingEntity);
   }
 
-  public LinkSetting initLinkSetting(String name, String pageId) {
+  public LinkSetting initLinkSetting(String name, String pageReference) {
     LinkSettingEntity linkSettingEntity = linkSettingDAO.findByName(name);
     if (linkSettingEntity == null) {
       linkSettingEntity = new LinkSettingEntity();
       linkSettingEntity.setName(name);
-      linkSettingEntity.setPageId(pageId);
+      linkSettingEntity.setPageReference(pageReference);
       linkSettingEntity.setType(LinkDisplayType.ROW);
       linkSettingEntity.setLastModified(Instant.now());
       return toModel(linkSettingDAO.create(linkSettingEntity));
     } else {
-      linkSettingEntity.setPageId(pageId);
+      linkSettingEntity.setPageReference(pageReference);
       return toModel(linkSettingDAO.update(linkSettingEntity));
     }
   }
@@ -82,6 +82,7 @@ public class LinkStorage {
   public Link createLink(String linkSettingName, Link link) {
     LinkSettingEntity linkSettingEntity = linkSettingDAO.findByName(linkSettingName);
     LinkEntity linkEntity = fromModel(link, linkSettingEntity);
+    linkEntity.setId(null);
     linkEntity = linkDAO.create(linkEntity);
     updateLastModifiedTime(linkSettingEntity);
     return toModel(linkEntity);

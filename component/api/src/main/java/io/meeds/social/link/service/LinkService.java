@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.services.security.Identity;
 
@@ -37,11 +38,20 @@ public interface LinkService {
    * @throws IllegalAccessException when user isn't allowed to access link
    *           settings
    */
-  LinkSetting getLinkSetting(String linkSettingName, Identity identity) throws IllegalAccessException;
+  LinkSetting getLinkSetting(String linkSettingName, String language, Identity identity) throws IllegalAccessException;
 
   /**
    * @param linkSettingName {@link LinkSetting} unique name
+   * @param language language to consider in header field translation
+   * @param includeTranslations whether to include translations of header or not
    * @return {@link LinkSetting} corresponding to name or null if not exists
+   */
+  LinkSetting getLinkSetting(String linkSettingName, String language, boolean includeTranslations);
+
+  /**
+   * @param linkSettingName {@link LinkSetting} unique name
+   * @return {@link LinkSetting} corresponding to name or null if not exists.
+   *         The result will not include translation field for header
    */
   LinkSetting getLinkSetting(String linkSettingName);
 
@@ -74,13 +84,27 @@ public interface LinkService {
    * @return saved {@link LinkSetting}
    * @throws IllegalAccessException when user isn't allowed to write link
    *           settings
+   * @throws ObjectNotFoundException when {@link LinkSetting} not found
    */
-  LinkSetting saveLinkSetting(LinkSetting linkSetting, List<Link> links, Identity identity) throws IllegalAccessException;
+  LinkSetting saveLinkSetting(LinkSetting linkSetting, List<Link> links, Identity identity) throws IllegalAccessException,
+                                                                                            ObjectNotFoundException;
+
+  /**
+   * @param linkSettingName {@link LinkSetting} name
+   * @param language language to consider in name and description fields
+   *          translation
+   * @param includeTranslations whether to include translations of name and
+   *          description or not
+   * @return corresponding {@link List} of {@link Link} associated to
+   *         {@link LinkSetting} name
+   */
+  List<Link> getLinks(String linkSettingName, String language, boolean includeTranslations);
 
   /**
    * @param linkSettingName {@link LinkSetting} name
    * @return corresponding {@link List} of {@link Link} associated to
-   *         {@link LinkSetting} name
+   *         {@link LinkSetting} name. The name and description will be null in
+   *         result.
    */
   List<Link> getLinks(String linkSettingName);
 

@@ -19,6 +19,7 @@
 package io.meeds.social.link.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import io.meeds.social.link.constant.LinkDisplayType;
 
@@ -31,29 +32,29 @@ import lombok.NoArgsConstructor;
 @Data
 public class LinkSetting implements Serializable, Cloneable {
 
-  private static final long serialVersionUID = 179594883916426378L;
+  private static final long   serialVersionUID = 179594883916426378L;
 
-  private long              id;
+  private long                id;
 
-  private String            name;
+  private String              name;
 
-  private String            pageId;
+  private String              pageReference;
 
-  private String            header;
+  private Map<String, String> header;
 
-  private LinkDisplayType   type;
+  private LinkDisplayType     type;
 
-  private boolean           largeIcon;
+  private boolean             largeIcon;
 
-  private boolean           showName;
+  private boolean             showName;
 
-  private String            seeMore;
+  private String              seeMore;
 
-  private long              lastModified;
+  private long                lastModified;
 
   @Override
   public LinkSetting clone() { // NOSONAR
-    return new LinkSetting(id, name, pageId, header, type, largeIcon, showName, seeMore, lastModified);
+    return new LinkSetting(id, name, pageReference, header, type, largeIcon, showName, seeMore, lastModified);
   }
 
 }

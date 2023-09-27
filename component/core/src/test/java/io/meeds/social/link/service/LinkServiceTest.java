@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
@@ -108,23 +109,22 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
   }
 
   public void testInitLinkSetting() {
-    String pageId = createPage("testInitLinkSetting", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    String pageReference = createPage("testInitLinkSetting", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
 
-    assertThrows(IllegalArgumentException.class, () -> linkService.initLinkSetting(null, pageId));
+    assertThrows(IllegalArgumentException.class, () -> linkService.initLinkSetting(null, pageReference));
     assertThrows(IllegalArgumentException.class, () -> linkService.initLinkSetting(LINK_SETTING_NAME, null));
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
     LinkSetting linkSetting = linkService.getLinkSetting(LINK_SETTING_NAME);
     assertNotNull(linkSetting);
     assertEquals(LINK_SETTING_NAME, linkSetting.getName());
-    assertEquals(pageId, linkSetting.getPageId());
+    assertEquals(pageReference, linkSetting.getPageReference());
   }
 
-  public void testSaveLinkSettingPermissions() throws IllegalAccessException, InterruptedException {
+  public void testSaveLinkSettingPermissions() throws IllegalAccessException, InterruptedException, ObjectNotFoundException {
     LinkSetting linkSetting = initLinkSetting(LINK_SETTING_NAME, "testSaveLinkSettingPermissions1");
     assertNotNull(linkSetting);
 
-    linkSetting.setHeader("header1");
     linkSetting.setLargeIcon(true);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore("SeeMore1");
@@ -146,7 +146,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     linkSetting.setLastModified(updatedLinkSetting.getLastModified());
     assertEquals(linkSetting, updatedLinkSetting);
 
-    linkSetting.setHeader("header2");
+    linkSetting.setHeader(Collections.singletonMap("en", "header2"));
     linkSetting.setLargeIcon(false);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore("SeeMore2");
@@ -156,6 +156,8 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
                      // modification timestamp after saving the link setting
     updatedLinkSetting = linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
     assertNotNull(updatedLinkSetting);
+
+    updatedLinkSetting = linkService.getLinkSetting(updatedLinkSetting.getName(), null, true);
     assertNotEquals(linkSetting.getLastModified(), updatedLinkSetting.getLastModified());
     linkSetting.setLastModified(updatedLinkSetting.getLastModified());
     assertEquals(linkSetting, updatedLinkSetting);
@@ -165,6 +167,8 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
                      // modification timestamp after saving the link setting
     updatedLinkSetting = linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
     assertNotNull(updatedLinkSetting);
+
+    updatedLinkSetting = linkService.getLinkSetting(updatedLinkSetting.getName(), null, true);
     assertNotEquals(linkSetting.getLastModified(), updatedLinkSetting.getLastModified());
     linkSetting.setLastModified(updatedLinkSetting.getLastModified());
     assertEquals(linkSetting, updatedLinkSetting);
@@ -174,21 +178,27 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     LinkSetting linkSetting = initLinkSetting(LINK_SETTING_NAME, "testSaveLinkSettingPermissions");
     assertNotNull(linkSetting);
 
-    linkSetting.setHeader("header");
+    linkSetting.setHeader(Collections.singletonMap("en", "header"));
     linkSetting.setLargeIcon(true);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore("SeeMore");
     linkSetting.setType(LinkDisplayType.COLUMN);
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
-    List<Link> links = linkService.getLinks(LINK_SETTING_NAME);
+    List<Link> links = linkService.getLinks(LINK_SETTING_NAME, null, true);
     assertNotNull(links);
     assertEquals(0l, links.size());
 
-    Link linkToSave1 = new Link(0, "Website", "Website description", "https://localhost/", true, 5, 0);
+    Link linkToSave1 = new Link(0,
+                                Collections.singletonMap("en", "Website"),
+                                Collections.singletonMap("en", "Website description"),
+                                "https://localhost/",
+                                true,
+                                5,
+                                0);
     List<Link> linksToSave = Collections.singletonList(linkToSave1.clone());
     linkService.saveLinkSetting(linkSetting, linksToSave, registerAdministratorUser(USERNAME));
-    links = linkService.getLinks(LINK_SETTING_NAME);
+    links = linkService.getLinks(LINK_SETTING_NAME, null, true);
     assertNotNull(links);
     assertEquals(1, links.size());
     Link savedLink1 = links.get(0);
@@ -198,23 +208,23 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     assertEquals(linksToSave, links);
 
     LinkWithIconAttachment linkToSave2 = new LinkWithIconAttachment(0,
-                                                                    "Website2",
-                                                                    "Website2 description",
+                                                                    Collections.singletonMap("en", "Website2"),
+                                                                    Collections.singletonMap("en", "Website2 description"),
                                                                     "https://localhost2/",
                                                                     true,
                                                                     4,
                                                                     54444l,
                                                                     UPLOAD_ID);
 
-    savedLink1.setName("name1");
-    savedLink1.setDescription("description1");
+    savedLink1.setName(Collections.singletonMap("en", "name1"));
+    savedLink1.setDescription(Collections.singletonMap("en", "description1"));
     savedLink1.setUrl("url1");
     savedLink1.setOrder(6);
     savedLink1.setSameTab(!savedLink1.isSameTab());
     linksToSave = Arrays.asList(savedLink1.clone(), linkToSave2.clone());
     uploadResource();
     linkService.saveLinkSetting(linkSetting, linksToSave, registerAdministratorUser(USERNAME));
-    links = linkService.getLinks(LINK_SETTING_NAME);
+    links = linkService.getLinks(LINK_SETTING_NAME, null, true);
     assertNotNull(links);
     assertEquals(2, links.size());
     assertEquals(links.get(1), savedLink1);
@@ -234,7 +244,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     uploadResource();
 
     linkService.saveLinkSetting(linkSetting, linksToSave, registerAdministratorUser(USERNAME));
-    links = linkService.getLinks(LINK_SETTING_NAME);
+    links = linkService.getLinks(LINK_SETTING_NAME, null, true);
     assertNotNull(links);
     assertEquals(1, links.size());
     assertEquals(savedLink2.getId(), links.get(0).getId());
@@ -265,7 +275,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     LinkSetting linkSetting = initLinkSetting(LINK_SETTING_NAME, "testGetLinkIconStream1");
     assertNotNull(linkSetting);
 
-    linkSetting.setHeader("header");
+    linkSetting.setHeader(Collections.singletonMap("en", "header"));
     linkSetting.setLargeIcon(true);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore("SeeMore");
@@ -273,8 +283,8 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
     LinkWithIconAttachment linkToSave = new LinkWithIconAttachment(0,
-                                                                   "Website2",
-                                                                   "Website2 description",
+                                                                   Collections.singletonMap("en", "Website2"),
+                                                                   Collections.singletonMap("en", "Website description2"),
                                                                    "https://localhost2/",
                                                                    true,
                                                                    4,
@@ -300,38 +310,38 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
   }
 
   public void testGetLinkSettingPermissions() throws IllegalAccessException {
-    assertNull(linkService.getLinkSetting(LINK_SETTING_NAME, null));
+    assertNull(linkService.getLinkSetting(LINK_SETTING_NAME, null, null));
 
-    String pageId = createPage("testGetLinkSettingPermissions1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    String pageReference = createPage("testGetLinkSettingPermissions1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
-    assertNotNull(linkService.getLinkSetting(LINK_SETTING_NAME, null));
-    assertNotNull(linkService.getLinkSetting(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
+    assertNotNull(linkService.getLinkSetting(LINK_SETTING_NAME, null, null));
+    assertNotNull(linkService.getLinkSetting(LINK_SETTING_NAME, null, registerInternalUser(USERNAME)));
 
-    pageId = createPage("testGetLinkSettingPermissions1", USERS_GROUP, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    pageReference = createPage("testGetLinkSettingPermissions1", USERS_GROUP, ADMINISTRATORS_GROUP);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
-    assertThrows(IllegalAccessException.class, () -> linkService.getLinkSetting(LINK_SETTING_NAME, null));
-    assertNotNull(linkService.getLinkSetting(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
+    assertThrows(IllegalAccessException.class, () -> linkService.getLinkSetting(LINK_SETTING_NAME, null, null));
+    assertNotNull(linkService.getLinkSetting(LINK_SETTING_NAME, null, registerInternalUser(USERNAME)));
   }
 
   public void testHasAccessPermission() {
     assertFalse(linkService.hasAccessPermission(LINK_SETTING_NAME, null));
 
-    String pageId = createPage("testHasAccessPermission1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    String pageReference = createPage("testHasAccessPermission1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
     assertTrue(linkService.hasAccessPermission(LINK_SETTING_NAME, null));
     assertTrue(linkService.hasAccessPermission(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
 
-    pageId = createPage("testHasAccessPermission2", USERS_GROUP, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    pageReference = createPage("testHasAccessPermission2", USERS_GROUP, ADMINISTRATORS_GROUP);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
     assertFalse(linkService.hasAccessPermission(LINK_SETTING_NAME, null));
     assertTrue(linkService.hasAccessPermission(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
 
-    pageId = createPage("testHasAccessPermission3", ADMINISTRATORS_GROUP, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    pageReference = createPage("testHasAccessPermission3", ADMINISTRATORS_GROUP, ADMINISTRATORS_GROUP);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
     assertFalse(linkService.hasAccessPermission(LINK_SETTING_NAME, null));
     assertFalse(linkService.hasAccessPermission(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
@@ -341,21 +351,21 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
   public void testHasEditPermission() {
     assertFalse(linkService.hasEditPermission(LINK_SETTING_NAME, null));
 
-    String pageId = createPage("testHasEditPermission1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    String pageReference = createPage("testHasEditPermission1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
     assertFalse(linkService.hasEditPermission(LINK_SETTING_NAME, null));
     assertFalse(linkService.hasEditPermission(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
     assertTrue(linkService.hasEditPermission(LINK_SETTING_NAME, registerAdministratorUser(USERNAME)));
   }
 
-  public void testGetLinks() {
+  public void testLinkHasEditPermission() {
     List<Link> links = linkService.getLinks(LINK_SETTING_NAME);
     assertNotNull(links);
     assertTrue(links.isEmpty());
 
-    String pageId = createPage("testHasAccessPermission1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
+    String pageReference = createPage("testLinkHasEditPermission1", UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    linkService.initLinkSetting(LINK_SETTING_NAME, pageReference);
 
     assertFalse(linkService.hasEditPermission(LINK_SETTING_NAME, null));
     assertFalse(linkService.hasEditPermission(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
@@ -363,9 +373,8 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
   }
 
   private LinkSetting initLinkSetting(String linkSettingName, String pageName) {
-    String pageId = createPage(pageName, UserACL.EVERYONE, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(linkSettingName, pageId);
-    return linkService.getLinkSetting(linkSettingName);
+    String pageReference = createPage(pageName, UserACL.EVERYONE, ADMINISTRATORS_GROUP);
+    return linkService.initLinkSetting(linkSettingName, pageReference);
   }
 
   private String createPage(String pageName, String accessPermission, String editPermission) {

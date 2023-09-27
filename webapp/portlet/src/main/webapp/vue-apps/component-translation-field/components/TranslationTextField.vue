@@ -102,6 +102,7 @@
       :rich-editor="richEditor"
       :rich-editor-oembed="richEditorOembed"
       :no-expand-icon="noExpandIcon"
+      :rules="rules || []"
       @input="emitUpdateValues" />
   </div>
 </template>

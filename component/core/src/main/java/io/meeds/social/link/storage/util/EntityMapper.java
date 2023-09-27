@@ -40,8 +40,8 @@ public class EntityMapper {
     }
     return new LinkSetting(linkSettingEntity.getId(),
                            linkSettingEntity.getName(),
-                           linkSettingEntity.getPageId(),
-                           linkSettingEntity.getHeader(),
+                           linkSettingEntity.getPageReference(),
+                           null,
                            linkSettingEntity.getType(),
                            linkSettingEntity.isLargeIcon(),
                            linkSettingEntity.isShowName(),
@@ -54,12 +54,11 @@ public class EntityMapper {
       return null;
     }
     Long id = existingLinkSettingEntity == null ? null : existingLinkSettingEntity.getId();
-    String pageId = existingLinkSettingEntity == null
-        || StringUtils.isNotBlank(linkSetting.getPageId()) ? linkSetting.getPageId() : existingLinkSettingEntity.getPageId();
+    String pageReference = existingLinkSettingEntity == null
+        || StringUtils.isNotBlank(linkSetting.getPageReference()) ? linkSetting.getPageReference() : existingLinkSettingEntity.getPageReference();
     return new LinkSettingEntity(id,
                                  linkSetting.getName(),
-                                 pageId,
-                                 linkSetting.getHeader(),
+                                 pageReference,
                                  linkSetting.getType(),
                                  linkSetting.isLargeIcon(),
                                  linkSetting.isShowName(),
@@ -70,8 +69,8 @@ public class EntityMapper {
 
   public static Link toModel(LinkEntity linkEntity) {
     return new Link(linkEntity.getId(),
-                    linkEntity.getName(),
-                    linkEntity.getDescription(),
+                    null,
+                    null,
                     linkEntity.getUrl(),
                     linkEntity.isSameTab(),
                     linkEntity.getOrder(),
@@ -80,8 +79,6 @@ public class EntityMapper {
 
   public static LinkEntity fromModel(Link link, LinkSettingEntity linkSettingEntity) {
     return new LinkEntity(link.getId() == 0 ? null : link.getId(),
-                          link.getName(),
-                          link.getDescription(),
                           link.getUrl(),
                           link.isSameTab(),
                           link.getOrder(),

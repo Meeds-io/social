@@ -22,13 +22,17 @@ export function getSettings(name, lang) {
   if (lang) {
     formData.append('lang', lang);
   }
-  const params = formData.entries.length && `?${decodeURIComponent(new URLSearchParams(formData).toString())}` || '';
+  const urlParams = new URLSearchParams(formData).toString();
+  const params = urlParams.length && `?${decodeURIComponent(urlParams)}` || '';
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/links/${name}${params}`, {
     method: 'GET',
     credentials: 'include',
-    body: `name=${name}`,
   }).then((resp) => {
-    if (!resp || !resp.ok) {
+    if (resp?.ok) {
+      return resp.json();
+    } else if (resp?.status === 404) {
+      return null;
+    } else {
       throw new Error('Error getting links setting');
     }
   });
@@ -43,7 +47,9 @@ export function saveSettings(settings) {
     credentials: 'include',
     body: JSON.stringify(settings),
   }).then((resp) => {
-    if (!resp || !resp.ok) {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
       throw new Error('Error saving links setting');
     }
   });
@@ -58,7 +64,7 @@ export function saveSettingName(url, name) {
     credentials: 'include',
     body: `name=${name}`,
   }).then((resp) => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Error saving settings');
     }
   });

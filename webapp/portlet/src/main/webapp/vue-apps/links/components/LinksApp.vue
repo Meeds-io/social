@@ -20,11 +20,11 @@
 -->
 <template>
   <v-app
-    v-if="initialized">
+    v-if="$root.initialized">
     <v-hover v-slot="{ hover }">
       <v-card
         min-height="72"
-        class="d-flex align-center justify-center position-relative"
+        class="d-flex align-center border-box-sizing justify-center position-relative"
         color="white"
         flat>
         <links-list
@@ -65,7 +65,6 @@
 export default {
   data: () => ({
     loading: true,
-    initialized: false,
     edit: false,
   }),
   computed: {
@@ -76,16 +75,8 @@ export default {
       return this.$root.canEdit;
     },
   },
-  watch: {
-    loading() {
-      if (!this.loading && !this.initialized) {
-        this.initialized = true;
-      }
-    },
-  },
   created() {
     this.$root.$on('links-refresh', this.retrieveSettings);
-    this.retrieveSettings();
   },
   beforeDestroy() {
     this.$root.$off('links-refresh', this.retrieveSettings);

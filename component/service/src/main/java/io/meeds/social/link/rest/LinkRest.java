@@ -40,9 +40,10 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.javascript.jscomp.jarjar.com.google.common.base.Objects;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.resources.LocaleConfigService;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.rest.api.RestUtils;
 
 import io.meeds.social.link.model.Link;
@@ -50,7 +51,6 @@ import io.meeds.social.link.model.LinkSetting;
 import io.meeds.social.link.rest.model.LinkSettingRestEntity;
 import io.meeds.social.link.rest.util.EntityBuilder;
 import io.meeds.social.link.service.LinkService;
-import io.meeds.social.translation.service.TranslationService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -60,7 +60,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path("/social/links")
 @Tag(name = "/social/links", description = "Managing links for Links Application")
-public class LinkRest {
+public class LinkRest implements ResourceContainer {
 
   private static final CacheControl CACHE_CONTROL          = new CacheControl();
 
@@ -74,30 +74,20 @@ public class LinkRest {
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
 
-  private LinkService         linkService;
+  private LinkService linkService;
 
-  private TranslationService  translationService;
-
-  private LocaleConfigService localeConfigService;
-
-  public LinkRest(LinkService linkService,
-                  TranslationService translationService,
-                  LocaleConfigService localeConfigService) {
+  public LinkRest(LinkService linkService) {
     this.linkService = linkService;
-    this.translationService = translationService;
-    this.localeConfigService = localeConfigService;
   }
 
   @GET
   @Path("{name}")
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Retrieves a link application settings with associated links", description = "Retrieves a link application settings with associated links", method = "GET")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "304", description = "Not modified"),
       @ApiResponse(responseCode = "401", description = "Unauthorized"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-  })
+      @ApiResponse(responseCode = "404", description = "Resource not found"), })
   public Response getLinkSetting(
                                  @Context
                                  Request request,
@@ -108,7 +98,7 @@ public class LinkRest {
                                  @QueryParam("lang")
                                  String lang) {
     try {
-      LinkSetting linkSetting = linkService.getLinkSetting(name, RestUtils.getCurrentUserAclIdentity());
+      LinkSetting linkSetting = linkService.getLinkSetting(name, lang, RestUtils.getCurrentUserAclIdentity());
       if (linkSetting == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
@@ -116,11 +106,11 @@ public class LinkRest {
       Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
       if (builder == null) {
         builder = Response.ok(getLinkSettingEntity(linkSetting, lang));
-        builder.lastModified(new Date(linkSetting.getLastModified()));
-        builder.tag(eTag);
-        builder.cacheControl(CACHE_CONTROL);
-        builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
       }
+      builder.lastModified(new Date(linkSetting.getLastModified()));
+      builder.tag(eTag);
+      builder.cacheControl(CACHE_CONTROL);
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
       return builder.build();
     } catch (IllegalAccessException e) {
       LOG.warn("Error accessing setting {} for user {}", name, RestUtils.getCurrentUser(), e);
@@ -133,31 +123,29 @@ public class LinkRest {
   @RolesAllowed("users")
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Saves a link application settings with associated links", description = "Saves a link application settings with associated links", method = "GET")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "401", description = "Unauthorized"),
-  })
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized"), })
   public Response saveLinkSetting(LinkSettingRestEntity linkSettingEntity) {
     try {
-      LinkSetting linkSetting = EntityBuilder.toLinkSetting(localeConfigService, linkSettingEntity);
-      List<Link> links = EntityBuilder.toLinks(localeConfigService, linkSettingEntity);
-      linkSetting = linkService.saveLinkSetting(linkSetting, links, RestUtils.getCurrentUserAclIdentity());
+      LinkSetting linkSetting = EntityBuilder.toLinkSetting(linkSettingEntity);
+      List<Link> linksToSave = EntityBuilder.toLinks(linkSettingEntity);
+      linkSetting = linkService.saveLinkSetting(linkSetting, linksToSave, RestUtils.getCurrentUserAclIdentity());
       return Response.ok(getLinkSettingEntity(linkSetting, null)).build();
     } catch (IllegalAccessException e) {
       LOG.warn("Error saving setting '{}' by user '{}'", linkSettingEntity, RestUtils.getCurrentUser(), e);
       return Response.status(Status.UNAUTHORIZED).build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 
   @GET
   @Path("{name}/{id}/icon")
   @Operation(summary = "Gets a link icon specified by setting name and link id", method = "GET", description = "Gets a link icon specified by setting name and link id")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "304", description = "Not modified"),
       @ApiResponse(responseCode = "401", description = "Unauthorized"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-  })
+      @ApiResponse(responseCode = "404", description = "Resource not found"), })
   public Response getLinkIcon(
                               @Context
                               Request request,
@@ -168,7 +156,7 @@ public class LinkRest {
                               @PathParam("id")
                               long id) {
     try {
-      LinkSetting linkSetting = linkService.getLinkSetting(name, RestUtils.getCurrentUserAclIdentity());
+      LinkSetting linkSetting = linkService.getLinkSetting(name, null, RestUtils.getCurrentUserAclIdentity());
       if (linkSetting == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
@@ -198,8 +186,8 @@ public class LinkRest {
   }
 
   private LinkSettingRestEntity getLinkSettingEntity(LinkSetting linkSetting, String lang) {
-    List<Link> links = linkService.getLinks(linkSetting.getName());
-    return EntityBuilder.build(translationService, localeConfigService, linkSetting, links, lang);
+    List<Link> links = linkService.getLinks(linkSetting.getName(), lang, true);
+    return EntityBuilder.build(linkSetting, links);
   }
 
 }

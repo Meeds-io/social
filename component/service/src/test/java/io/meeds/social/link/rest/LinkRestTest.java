@@ -27,17 +27,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.junit.Test;
 import org.mockito.MockedStatic;
 
-import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
@@ -47,7 +43,6 @@ import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.cache.CacheService;
-import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -61,13 +56,10 @@ import io.meeds.social.link.constant.LinkDisplayType;
 import io.meeds.social.link.dao.LinkDAO;
 import io.meeds.social.link.dao.LinkSettingDAO;
 import io.meeds.social.link.model.LinkSetting;
-import io.meeds.social.link.plugin.LinkSettingTranslationPlugin;
-import io.meeds.social.link.plugin.LinkTranslationPlugin;
 import io.meeds.social.link.rest.model.LinkRestEntity;
 import io.meeds.social.link.rest.model.LinkSettingRestEntity;
 import io.meeds.social.link.service.LinkService;
 import io.meeds.social.link.storage.cache.CachedLinkStorage;
-import io.meeds.social.translation.service.TranslationService;
 
 public class LinkRestTest extends AbstractResourceTest { // NOSONAR
 
@@ -97,8 +89,6 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
 
   private MockUploadService              uploadService;
 
-  private TranslationService             translationService;
-
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -106,9 +96,7 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
     identityRegistry = getContainer().getComponentInstanceOfType(IdentityRegistry.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
-    translationService = getContainer().getComponentInstanceOfType(TranslationService.class);
-    LocaleConfigService localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
-    registry(new LinkRest(linkService, translationService, localeConfigService));
+    registry(new LinkRest(linkService));
 
     ExoContainerContext.setCurrentContainer(getContainer());
     restartTransaction();
@@ -209,8 +197,7 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     assertEquals(LINK_SETTING_NAME, linkSettingRestEntity.getName());
     LinkSettingRestEntity newLinkSettingRestEntity = newLinkSettingRestEntity();
     assertEquals(newLinkSettingRestEntity.getName(), linkSettingRestEntity.getName());
-    assertEquals(Collections.singletonMap("en", newLinkSettingRestEntity.getHeader().get("en")),
-                 linkSettingRestEntity.getHeader());
+    assertEquals(newLinkSettingRestEntity.getHeader(), linkSettingRestEntity.getHeader());
     assertEquals(newLinkSettingRestEntity.getSeeMore(), linkSettingRestEntity.getSeeMore());
     assertEquals(newLinkSettingRestEntity.getType(), linkSettingRestEntity.getType());
     assertEquals(newLinkSettingRestEntity.isLargeIcon(), linkSettingRestEntity.isLargeIcon());
@@ -227,8 +214,8 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     assertNull(savedLink1.getIconUrl());
     LinkRestEntity newLink1 = newLinks.get(1);
     assertEquals(newLink1.getOrder(), savedLink1.getOrder());
-    assertEquals(Collections.singletonMap("en", newLink1.getName().get("en")), savedLink1.getName());
-    assertEquals(Collections.singletonMap("en", newLink1.getDescription().get("en")), savedLink1.getDescription());
+    assertEquals(newLink1.getName(), savedLink1.getName());
+    assertEquals(newLink1.getDescription(), savedLink1.getDescription());
     assertEquals(newLink1.getUrl(), savedLink1.getUrl());
     assertEquals(newLink1.isSameTab(), savedLink1.isSameTab());
 
@@ -239,39 +226,16 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     assertNotNull(savedLink2.getIconUrl());
     LinkRestEntity newLink2 = newLinks.get(0);
     assertEquals(newLink2.getOrder(), savedLink2.getOrder());
-    assertEquals(Collections.singletonMap("en", newLink2.getName().get("en")), savedLink2.getName());
-    assertEquals(Collections.singletonMap("en", newLink2.getDescription().get("en")), savedLink2.getDescription());
-    assertEquals(newLink2.getUrl(), savedLink2.getUrl());
-    assertEquals(newLink2.isSameTab(), savedLink2.isSameTab());
-
-    registerAdministratorUser(USERNAME);
-    saveLinkSettingTranslationLabels(linkSettingRestEntity.getId(), newLinkSettingRestEntity.getHeader(), "header");
-    saveLinkTranslationLabels(savedLink1.getId(), newLink1.getName(), "name");
-    saveLinkTranslationLabels(savedLink1.getId(), newLink1.getDescription(), "description");
-    saveLinkTranslationLabels(savedLink2.getId(), newLink2.getName(), "name");
-    saveLinkTranslationLabels(savedLink2.getId(), newLink2.getDescription(), "description");
-
-    response = getLink();
-    assertEquals(200, response.getStatus());
-    linkSettingRestEntity = (LinkSettingRestEntity) response.getEntity();
-    assertEquals(newLinkSettingRestEntity.getHeader(), linkSettingRestEntity.getHeader());
-
-    links = linkSettingRestEntity.getLinks();
-
-    savedLink1 = links.get(0);
-    assertEquals(newLink1.getName(), savedLink1.getName());
-    assertEquals(newLink1.getDescription(), savedLink1.getDescription());
-
-    savedLink2 = links.get(1);
     assertEquals(newLink2.getName(), savedLink2.getName());
     assertEquals(newLink2.getDescription(), savedLink2.getDescription());
+    assertEquals(newLink2.getUrl(), savedLink2.getUrl());
+    assertEquals(newLink2.isSameTab(), savedLink2.isSameTab());
 
     response = getLinkWithLang("fr");
     assertEquals(200, response.getStatus());
     linkSettingRestEntity = (LinkSettingRestEntity) response.getEntity();
     assertEquals(Collections.singletonMap("fr", newLinkSettingRestEntity.getHeader().get("fr")),
                  linkSettingRestEntity.getHeader());
-
     links = linkSettingRestEntity.getLinks();
 
     savedLink1 = links.get(0);
@@ -322,31 +286,6 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     registerAnonymousUser();
     response = getByUrlWithETag(link.getIconUrl(), eTagValue);
     assertEquals(200, response.getStatus());
-  }
-
-  private void saveLinkTranslationLabels(long linkId, Map<String, String> values, String fieldName) throws IllegalAccessException,
-                                                                                                    ObjectNotFoundException {
-    translationService.saveTranslationLabels(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
-                                             linkId,
-                                             fieldName,
-                                             values.entrySet()
-                                                   .stream()
-                                                   .collect(Collectors.toMap(e -> Locale.forLanguageTag(e.getKey()),
-                                                                             Entry::getValue)),
-                                             USERNAME);
-  }
-
-  private void saveLinkSettingTranslationLabels(long linkSettingId,
-                                                Map<String, String> values,
-                                                String fieldName) throws IllegalAccessException, ObjectNotFoundException {
-    translationService.saveTranslationLabels(LinkSettingTranslationPlugin.LINK_SETTINGS_OBJECT_TYPE,
-                                             linkSettingId,
-                                             fieldName,
-                                             values.entrySet()
-                                                   .stream()
-                                                   .collect(Collectors.toMap(e -> Locale.forLanguageTag(e.getKey()),
-                                                                             Entry::getValue)),
-                                             USERNAME);
   }
 
   private String getUrl() {
@@ -434,8 +373,7 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
 
   private LinkSetting initLinkSetting(String linkSettingName, String pageName, boolean anonymous) {
     String pageId = createPage(pageName, anonymous ? UserACL.EVERYONE : USERS_GROUP, ADMINISTRATORS_GROUP);
-    linkService.initLinkSetting(linkSettingName, pageId);
-    return linkService.getLinkSetting(linkSettingName);
+    return linkService.initLinkSetting(linkSettingName, pageId);
   }
 
   private String createPage(String pageName, String accessPermission, String editPermission) {

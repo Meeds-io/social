@@ -101,27 +101,18 @@ public class LinkTranslationPluginTest extends AbstractKernelTest { // NOSONAR
 
     LinkSetting linkSetting = linkService.getLinkSetting(LINK_SETTING_NAME);
     assertNotNull(linkSetting);
-    linkService.saveLinkSetting(linkSetting,
-                                Collections.singletonList(new Link(0,
-                                                                   "Website",
-                                                                   "Website description",
-                                                                   "https://localhost/",
-                                                                   true,
-                                                                   5,
-                                                                   0)),
-                                registerAdministratorUser(USERNAME));
+    Link linkToSave = new Link(0,
+                               Collections.singletonMap("en", "Website"),
+                               Collections.singletonMap("en", "Website description"),
+                               "https://localhost/",
+                               true,
+                               5,
+                               0);
+    linkService.saveLinkSetting(linkSetting, Collections.singletonList(linkToSave), registerAdministratorUser(USERNAME));
     List<Link> links = linkService.getLinks(LINK_SETTING_NAME);
     assertNotNull(links);
     assertEquals(1, links.size());
     Link link = links.get(0);
-
-    TranslationField translationField = translationService.getTranslationField(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
-                                                                               link.getId(),
-                                                                               FIELD_NAME,
-                                                                               null);
-    assertNotNull(translationField);
-    assertNotNull(translationField.getLabels());
-    assertTrue(translationField.getLabels().isEmpty());
 
     pageId = createPage("testLinkSettingHeaderTranslation1", USERS_GROUP, ADMINISTRATORS_GROUP);
     linkService.initLinkSetting(LINK_SETTING_NAME, pageId);
@@ -132,38 +123,20 @@ public class LinkTranslationPluginTest extends AbstractKernelTest { // NOSONAR
                                                               null));
 
     registerInternalUser(USERNAME);
-    translationField = translationService.getTranslationField(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
-                                                              link.getId(),
-                                                              FIELD_NAME,
-                                                              USERNAME);
-    assertNotNull(translationField);
-    assertNotNull(translationField.getLabels());
-    assertTrue(translationField.getLabels().isEmpty());
-
-    String translationValue = "value1";
-    assertThrows(IllegalAccessException.class,
-                 () -> translationService.saveTranslationLabels(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
-                                                                link.getId(),
-                                                                FIELD_NAME,
-                                                                Collections.singletonMap(Locale.ENGLISH, translationValue),
-                                                                USERNAME));
-
-    registerAdministratorUser(USERNAME);
-    translationService.saveTranslationLabels(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
-                                             link.getId(),
-                                             FIELD_NAME,
-                                             Collections.singletonMap(Locale.ENGLISH, translationValue),
-                                             USERNAME);
-
-    registerInternalUser(USERNAME);
-    translationField = translationService.getTranslationField(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
-                                                              link.getId(),
-                                                              FIELD_NAME,
-                                                              USERNAME);
-    assertNotNull(translationField);
-    assertNotNull(translationField.getLabels());
-    assertFalse(translationField.getLabels().isEmpty());
-    assertEquals(translationValue, translationField.getLabels().get(Locale.ENGLISH));
+    TranslationField nameTranslationField = translationService.getTranslationField(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
+                                                                                   link.getId(),
+                                                                                   FIELD_NAME,
+                                                                                   USERNAME);
+    TranslationField descriptionTranslationField = translationService.getTranslationField(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
+                                                                                          link.getId(),
+                                                                                          "description",
+                                                                                          USERNAME);
+    assertNotNull(nameTranslationField);
+    assertNotNull(nameTranslationField.getLabels());
+    assertFalse(nameTranslationField.getLabels().isEmpty());
+    assertEquals(linkToSave.getName().get(Locale.ENGLISH.toLanguageTag()), nameTranslationField.getLabels().get(Locale.ENGLISH));
+    assertEquals(linkToSave.getDescription().get(Locale.ENGLISH.toLanguageTag()),
+                 descriptionTranslationField.getLabels().get(Locale.ENGLISH));
   }
 
   private String createPage(String pageName, String accessPermission, String editPermission) {

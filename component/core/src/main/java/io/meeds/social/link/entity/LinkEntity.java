@@ -19,6 +19,8 @@
 
 package io.meeds.social.link.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -46,15 +48,17 @@ import lombok.NoArgsConstructor;
 @NamedQuery(
   name = "LinkEntity.findByName",
   query = "SELECT l from SocLink l"
-      + " INNER JOIN l.setting s ON s.name = :name"
-      + " ORDER BY l.order ASC"
+    + " INNER JOIN l.setting s ON s.name = :name"
+    + " ORDER BY l.order ASC"
 )
 @NamedQuery(
   name = "LinkEntity.getLinkSettingByLinkId",
   query = "SELECT l.setting.id from SocLink l"
-      + " WHERE l.id = :id"
+  + " WHERE l.id = :id"
 )
-public class LinkEntity {
+public class LinkEntity implements Serializable {
+
+  private static final long serialVersionUID = -8563536841046360579L;
 
   @Id
   @SequenceGenerator(name = "SEQ_SOC_LINK_ID", sequenceName = "SEQ_SOC_LINK_ID", allocationSize = 1)
@@ -62,19 +66,13 @@ public class LinkEntity {
   @Column(name = "LINK_ID")
   private Long              id;
 
-  @Column(name = "NAME")
-  private String            name;
-
-  @Column(name = "DESCRIPTION")
-  private String            description;
-
   @Column(name = "URL", nullable = false)
   private String            url;
 
   @Column(name = "SAME_TAB")
   private boolean           sameTab;
 
-  @Column(name = "ORDER")
+  @Column(name = "LINK_ORDER")
   private int               order;
 
   @Column(name = "ICON_FILE_ID")

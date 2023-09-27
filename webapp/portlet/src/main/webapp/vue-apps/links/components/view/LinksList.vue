@@ -4,7 +4,7 @@
     :min-width="minWidth"
     class="d-flex flex-column pa-4"
     flat>
-    <div v-if="header || seeMore" class="d-flex">
+    <div v-if="header || seeMore" class="d-flex align-center">
       <div v-if="header" class="flex-grow-1 flex-shrink-1 text-truncate caption text-start">
         {{ header }}
       </div>
@@ -25,7 +25,7 @@
       v-if="links && links.length"
       :class="`${parentFlexDirection} ${parentFlexAlign}`"
       :color="!isCard && 'transparent'"
-      class="d-flex flex-wrap mb-n2"
+      class="d-flex flex-nowrap mb-n2"
       flat>
       <links-item
         v-for="link in links"
@@ -35,6 +35,7 @@
         :show-name="showName"
         :large-icon="largeIcon"
         :class="(isCard && 'mx-1') || (isColumn && 'ms-0 me-2') || 'mx-auto pe-2'"
+        :count="links.length"
         class="py-2" />
     </v-card>
   </v-card>
@@ -75,17 +76,16 @@ export default {
       return this.type === 'CARD';
     },
     header() {
-      return this.settings?.header
-          && (this.settings?.header[this.$root.language] || this.settings?.header[this.$root.defaultLanguage]);
+      return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];
     },
     seeMore() {
-      return this.settings?.seeMore;
+      return this.settings?.seeMore?.replace?.('javascript:', '');
     },
     parentFlexDirection() {
       return this.isColumn && 'flex-column' || 'flex-row';
     },
     parentFlexAlign() {
-      return this.isColumn && this.showName && 'align-start justify-center' || 'align-center justify-center';
+      return 'align-start justify-center';
     },
   },
 };

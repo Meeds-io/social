@@ -2,6 +2,8 @@
   <exo-drawer
     ref="drawer"
     :loading="loading || saving"
+    :confirm-close="modified"
+    :confirm-close-labels="confirmCloseLabels"
     class="linkSettingDrawer"
     right
     @closed="reset">
@@ -108,6 +110,7 @@
           {{ $t('links.label.cancel') }}
         </v-btn>
         <v-btn
+          :disabled="!modified"
           :loading="saving"
           class="btn primary"
           @click="save()">
@@ -121,6 +124,7 @@
 export default {
   data: () => ({
     settings: null,
+    originalSettings: null,
     links: null,
     loading: false,
     saving: false,
@@ -141,6 +145,17 @@ export default {
     hasLinks() {
       return this.links?.length;
     },
+    modified() {
+      return this.originalSettings && JSON.stringify(this.originalSettings) !== JSON.stringify(this.settings && {...this.settings, links: this.links} || {});
+    },
+    confirmCloseLabels() {
+      return {
+        title: this.$t('links.title.confirmCloseModification'),
+        message: this.$t('links.message.confirmCloseModification'),
+        ok: this.$t('confirm.yes'),
+        cancel: this.$t('confirm.no'),
+      };
+    },
   },
   created() {
     this.$root.$on('links-settings-drawer', this.open);
@@ -149,22 +164,25 @@ export default {
     open() {
       this.reset();
       this.loading = true;
-      this.$nextTick().then(() => this.$refs.drawer.open());
+      this.$nextTick().then(() => this.$refs?.drawer?.open?.());
       this.$linkService.getSettings(this.$root.name)
         .then(settings => {
           this.settings = settings;
           this.links = settings?.links || [];
+          this.originalSettings = settings && JSON.parse(JSON.stringify({...settings, links: this.links}));
         })
         .finally(() => this.loading = false);
     },
     reset() {
       this.settings = null;
+      this.originalSettings = null;
       this.links = null;
       this.loading = false;
       this.saving = false;
     },
     close() {
-      this.$refs.drawer.close();
+      this.originalSettings = null;
+      return this.$nextTick().then(() => this.$refs.drawer.close());
     },
     save() {
       this.saving = true;
@@ -172,11 +190,12 @@ export default {
         ...this.settings
       };
       this.links.forEach((link, index) => link.order = index);
-      settings.links = this.links;
-      this.$linkService.saveSettings(settings)  
+      settings.links = this.links && JSON.parse(JSON.stringify(this.links)) || [];
+      settings.links.forEach(l => delete l.iconSrc);
+      this.$linkService.saveSettings(settings)
         .then(() => {
+          this.$root.$emit('links-refresh');
           this.close();
-          this.$root.$emit('links-refresh', settings);
           this.$root.$emit('alert-message', this.$t('links.label.savedSuccessfully'), 'success');
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('links.label.errorSaving'), 'error'))

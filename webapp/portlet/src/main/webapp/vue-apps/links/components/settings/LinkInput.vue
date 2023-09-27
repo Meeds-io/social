@@ -2,15 +2,17 @@
   <div class="d-flex flex-nowrap align-center">
     <v-avatar
       :size="iconSize"
-      class="flex-grow-0 flex-shrink-0 me-2">
+      class="flex-grow-0 flex-shrink-0 me-2"
+      tile>
       <img
         v-if="iconUrl"
         :src="iconUrl"
+        :alt="name"
         width="auto"
         height="auto">
       <v-icon v-else :size="iconSize">fa-globe</v-icon>
     </v-avatar>
-    <div class="d-flex flex-grow-1 flex-shrink-1 text-truncate text-color me-2">
+    <div class="d-flex flex-grow-1 flex-shrink-1 text-truncate-2 text-color me-2">
       {{ name || url }}
     </div>
     <div class="d-flex flex-grow-0 flex-shrink-0 align-center">
@@ -31,13 +33,13 @@
         </v-btn>
       </div>
       <v-btn
-        class="me-2"
         icon
+        small
         @click="edit">
         <v-icon size="16">fa-edit</v-icon>
       </v-btn>
       <v-btn
-        class="me-2"
+        small
         icon
         @click="remove">
         <v-icon size="16">fa-trash</v-icon>
@@ -73,7 +75,11 @@ export default {
       return this.link?.url;
     },
     iconUrl() {
-      return this.link?.iconUrl;
+      if (this.link?.iconSrc) {
+        return this.$utils.convertImageDataAsSrc(this.link.iconSrc);
+      } else {
+        return this.link?.iconUrl;
+      }
     },
   },
   methods: {

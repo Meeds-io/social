@@ -42,6 +42,7 @@ export function init(appId, name, canEdit, nameExists, saveSettingsUrl) {
           settings: null,
           language: lang,
           defaultLanguage: 'en',
+          initialized: false,
         },
         computed: {
           links() {
@@ -49,15 +50,30 @@ export function init(appId, name, canEdit, nameExists, saveSettingsUrl) {
           },
         },
         created() {
-          if (!nameExists && canEdit) {
-            this.saveSettingName();
-          }
+          this.init().finally(() => this.initialized = true);
         },
         methods: {
+          init() {
+            if (!nameExists && canEdit) {
+              return this.saveSettingName();
+            } else {
+              return this.retrieveSettings()
+                .then(() => {
+                  if (!this.settings) {
+                    return this.saveSettingName();
+                  }
+                });
+            }
+          },
           saveSettingName() {
             return Vue.prototype.$linkService.saveSettingName(saveSettingsUrl, name)
               .then(() => this.nameExists = true)
+              .then(() => this.retrieveSettings())
               .catch((e) => console.error('Error saving settings', e));
+          },
+          retrieveSettings() {
+            return this.$linkService.getSettings(this.name, this.language)
+              .then(settings => this.settings = settings);
           },
         },
         template: `<links-app id="${appId}"></links-app>`,

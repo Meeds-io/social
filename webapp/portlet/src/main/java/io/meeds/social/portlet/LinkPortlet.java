@@ -21,6 +21,8 @@ import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
 
+import io.meeds.social.link.service.LinkService;
+
 public class LinkPortlet extends GenericDispatchedViewPortlet {
 
   private static final String LINKS_NAME = "name";
@@ -36,10 +38,17 @@ public class LinkPortlet extends GenericDispatchedViewPortlet {
   @Override
   public void processAction(ActionRequest request, ActionResponse response) throws IOException, PortletException {
     PortletPreferences preferences = request.getPreferences();
+    String linkName = request.getParameter(LINKS_NAME);
     if (preferences.getValue(LINKS_NAME, null) == null) {
-      preferences.setValue(LINKS_NAME, request.getParameter(LINKS_NAME));
+      preferences.setValue(LINKS_NAME, linkName);
       preferences.store();
     }
+
+    UIPage uiPage = Util.getUIPage();
+    String pageId = uiPage.getPageId();
+    LinkService linkService = ExoContainerContext.getService(LinkService.class);
+    linkService.initLinkSetting(linkName, pageId);
+
     response.setPortletMode(PortletMode.VIEW);
   }
 

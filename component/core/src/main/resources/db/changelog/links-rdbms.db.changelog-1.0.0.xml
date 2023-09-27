@@ -43,10 +43,9 @@
       <column name="NAME" type="NVARCHAR(255)">
         <constraints nullable="false" unique="true" uniqueConstraintName="UK_SOC_LINK_SETTINGS_NAME" />
       </column>
-      <column name="PAGE_ID" type="NVARCHAR(255)">
+      <column name="PAGE_REFERENCE" type="NVARCHAR(500)">
         <constraints nullable="false" />
       </column>
-      <column name="HEADER" type="NVARCHAR(255)" />
       <column name="TYPE" type="BIGINT" defaultValueNumeric="0">
         <constraints nullable="false" />
       </column>
@@ -58,7 +57,7 @@
       </column>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_unicode_ci" />
     </modifySql>
   </changeSet>
 
@@ -70,15 +69,13 @@
       <column name="LINK_SETTING_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_LINKS_SOC_LINK_SETTINGS" references="SOC_LINK_SETTINGS(LINK_SETTING_ID)" deferrable="false" initiallyDeferred="false" deleteCascade="true" />
       </column>
-      <column name="NAME" type="NVARCHAR(255)" />
-      <column name="DESCRIPTION" type="NVARCHAR(255)" />
       <column name="URL" type="NVARCHAR(2000)" />
       <column name="SAME_TAB" type="BOOLEAN" defaultValueBoolean="false" />
-      <column name="ORDER" type="INT" defaultValueNumeric="0" />
+      <column name="LINK_ORDER" type="INT" defaultValueNumeric="0" />
       <column name="ICON_FILE_ID" type="BIGINT" defaultValueNumeric="0" />
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_unicode_ci" />
     </modifySql>
   </changeSet>
 
@@ -88,7 +85,7 @@
     </createIndex>
     <createIndex tableName="SOC_LINKS" indexName="IDX_SOC_LINKS_01">
       <column name="LINK_SETTING_ID" type="BIGINT"></column>
-      <column name="ORDER" type="INT"></column>
+      <column name="LINK_ORDER" type="INT"></column>
     </createIndex>
   </changeSet>
 

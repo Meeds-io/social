@@ -18,10 +18,10 @@
  */
 package io.meeds.social.link.entity;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -54,7 +54,9 @@ import lombok.NoArgsConstructor;
   query = "SELECT s from SocLinkSetting s"
       + " WHERE s.name = :name"
 )
-public class LinkSettingEntity {
+public class LinkSettingEntity implements Serializable {
+
+  private static final long serialVersionUID = -3658613044697163309L;
 
   @Id
   @SequenceGenerator(name = "SEQ_SOC_LINK_SETTINGS_ID", sequenceName = "SEQ_SOC_LINK_SETTINGS_ID", allocationSize = 1)
@@ -65,11 +67,8 @@ public class LinkSettingEntity {
   @Column(name = "NAME", unique = true, nullable = false)
   private String          name;
 
-  @Column(name = "PAGE_ID")
-  private String          pageId;
-
-  @Column(name = "HEADER")
-  private String          header;
+  @Column(name = "PAGE_REFERENCE")
+  private String          pageReference;
 
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "TYPE", nullable = false)
@@ -89,7 +88,7 @@ public class LinkSettingEntity {
 
   @lombok.EqualsAndHashCode.Exclude
   @lombok.ToString.Exclude
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "setting", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "setting", fetch = FetchType.LAZY)
   private Set<LinkEntity> links;
 
 }
