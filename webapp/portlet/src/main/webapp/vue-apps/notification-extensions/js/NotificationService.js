@@ -76,17 +76,13 @@ export function markAllAsRead(plugins) {
 
 export function markRead(id) {
   return fetch(`/portal/rest/notifications/webNotifications/${id || ''}?operation=markAsRead`, {
-    headers: {
-      credentials: 'include',
-    },
+    credentials: 'include',
     method: 'PATCH',
   });
 }
 
 export function hideNotification(id) {
   return fetch(`/portal/rest/notifications/webNotifications/${id || ''}`, {
-    headers: {
-    },
     method: 'DELETE',
     credentials: 'include',
   });

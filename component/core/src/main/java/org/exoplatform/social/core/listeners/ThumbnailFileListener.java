@@ -18,9 +18,7 @@ package org.exoplatform.social.core.listeners;
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
-import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
-import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
 
 public class ThumbnailFileListener extends Listener<FileInfo, Object> {
 
@@ -38,7 +36,8 @@ public class ThumbnailFileListener extends Listener<FileInfo, Object> {
   public void onEvent(Event<FileInfo, Object> event) throws Exception {
     String eventName = event.getEventName();
     FileInfo fileInfo = event.getSource();
-    if (eventName.equals(FILE_UPDATED_EVENT) || eventName.equals(FILE_DELETED_EVENT)) {
+    if (fileInfo != null
+        && (eventName.equals(FILE_UPDATED_EVENT) || eventName.equals(FILE_DELETED_EVENT))) {
       imageThumbnailService.deleteThumbnails(fileInfo.getId());
     }
   }
