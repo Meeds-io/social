@@ -99,6 +99,9 @@
     <type>io.meeds.social.observer.rest.ObserverRest</type>
   </component>
   <component>
+    <type>io.meeds.social.link.rest.LinkRest</type>
+  </component>
+  <component>
     <type>org.exoplatform.social.rest.api.GettingStartedRestService</type>
   </component>
   <component>

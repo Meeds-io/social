@@ -39,11 +39,12 @@
       :id="id"
       :name="id"
       :placeholder="placeholder"
+      :rules="rules || []"
       :value="$t(defaultLanguageValue)"
       :autofocus="autofocus"
+      :hide-details="noRulesValidation"
       class="border-box-sizing width-auto pt-0"
       type="text"
-      hide-details
       outlined
       readonly
       dense>
@@ -65,12 +66,12 @@
       :id="id"
       :name="id"
       :placeholder="placeholder"
-      :required="required"
+      :required="required || null"
       :aria-required="required"
       :autofocus="autofocus"
       :maxlength="maxlength"
       :rules="rules || []"
-      :hide-details="hasRulesValidation"
+      :hide-details="noRulesValidation"
       class="border-box-sizing width-auto pt-0"
       type="text"
       outlined
@@ -101,6 +102,7 @@
       :rich-editor="richEditor"
       :rich-editor-oembed="richEditorOembed"
       :no-expand-icon="noExpandIcon"
+      :rules="rules || []"
       @input="emitUpdateValues" />
   </div>
 </template>
@@ -193,7 +195,7 @@ export default {
     isI18N() {
       return this.$te(this.defaultLanguageValue);
     },
-    hasRulesValidation() {
+    noRulesValidation() {
       return !this.defaultLanguageValue || !this.rules?.length;
     },
     defaultLocale() {

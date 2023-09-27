@@ -281,6 +281,10 @@ public class RestUtils {
     return id == null ? 0 : Long.parseLong(id);
   }
 
+  public static org.exoplatform.services.security.Identity getCurrentUserAclIdentity() {
+    return isAnonymous() ? null : ConversationState.getCurrent().getIdentity();
+  }
+
   public static String getCurrentUser() {
     return isAnonymous() ? null : ConversationState.getCurrent().getIdentity().getUserId();
   }

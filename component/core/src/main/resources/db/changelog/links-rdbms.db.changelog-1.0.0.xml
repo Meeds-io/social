@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (C) 2003-2021 eXo Platform SAS.
+
+    This is free software; you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    This software is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this software; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+  <!-- Managing both DB that use sequences and db that use auto increment -->
+  <property name="autoIncrement" value="true" dbms="mysql,mssql,h2,sybase,db2,hsqldb" />
+  <property name="autoIncrement" value="false" dbms="oracle,postgresql" />
+
+  <!-- Managing auto generation of timestamp by Database -->
+  <property name="now" value="now()" dbms="mysql,hsqldb,postgresql,h2"/>
+  <property name="now" value="sysdate" dbms="oracle"/>
+  <property name="now" value="CURRENT_TIMESTAMP" dbms="mssql"/>
+
+  <changeSet author="links" id="1.0.0-0" dbms="oracle,postgresql">
+    <createSequence sequenceName="SEQ_SOC_LINK_ID" startValue="1" />
+    <createSequence sequenceName="SEQ_SOC_LINK_SETTINGS_ID" startValue="1" />
+  </changeSet>
+
+  <changeSet author="links" id="1.0.0-1">
+    <createTable tableName="SOC_LINK_SETTINGS">
+      <column name="LINK_SETTING_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_LINK_SETTINGS" />
+      </column>
+      <column name="NAME" type="NVARCHAR(255)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="UK_SOC_LINK_SETTINGS_NAME" />
+      </column>
+      <column name="PAGE_REFERENCE" type="NVARCHAR(500)">
+        <constraints nullable="false" />
+      </column>
+      <column name="TYPE" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false" />
+      </column>
+      <column name="SPACE_ID" type="BIGINT" defaultValueNumeric="0" />
+      <column name="LARGE_ICON" type="BOOLEAN" defaultValueBoolean="false" />
+      <column name="SHOW_NAME" type="BOOLEAN" defaultValueBoolean="false" />
+      <column name="SHOW_DESCRIPTION" type="BOOLEAN" defaultValueBoolean="false" />
+      <column name="SEE_MORE_URL" type="NVARCHAR(2000)" />
+      <column name="LAST_MODIFIED" type="TIMESTAMP" defaultValueDate="${now}">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_unicode_ci" />
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="links" id="1.0.0-2">
+    <createTable tableName="SOC_LINKS">
+      <column name="LINK_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_LINKS" />
+      </column>
+      <column name="LINK_SETTING_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_LINKS_SOC_LINK_SETTINGS" references="SOC_LINK_SETTINGS(LINK_SETTING_ID)" deferrable="false" initiallyDeferred="false" deleteCascade="true" />
+      </column>
+      <column name="URL" type="NVARCHAR(2000)" />
+      <column name="SAME_TAB" type="BOOLEAN" defaultValueBoolean="false" />
+      <column name="LINK_ORDER" type="INT" defaultValueNumeric="0" />
+      <column name="ICON_FILE_ID" type="BIGINT" defaultValueNumeric="0" />
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_unicode_ci" />
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="links" id="1.0.0-3">
+    <createIndex tableName="SOC_LINK_SETTINGS" indexName="IDX_SOC_LINK_SETTINGS_01">
+      <column name="NAME" type="NVARCHAR(255)"></column>
+    </createIndex>
+    <createIndex tableName="SOC_LINKS" indexName="IDX_SOC_LINKS_01">
+      <column name="LINK_SETTING_ID" type="BIGINT"></column>
+      <column name="LINK_ORDER" type="INT"></column>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
