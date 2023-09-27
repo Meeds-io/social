@@ -74,7 +74,7 @@ public class TranslationServiceImpl implements TranslationService {
                                                String fieldName,
                                                String username) throws IllegalAccessException, ObjectNotFoundException {
 
-    checkParameters(objectType, objectId, fieldName, username);
+    checkParameters(objectType, objectId, fieldName);
     checkAccessPermission(objectType, objectId, username);
     return getTranslationField(objectType, objectId, fieldName);
   }
@@ -100,7 +100,7 @@ public class TranslationServiceImpl implements TranslationService {
                                     String fieldName,
                                     Map<Locale, String> labels,
                                     String username) throws IllegalAccessException, ObjectNotFoundException {
-    checkParameters(objectType, objectId, fieldName, username);
+    checkParameters(objectType, objectId, fieldName);
     checkEditPermission(objectType, objectId, username, NO_PERMISSION_TO_EDIT_MESSAGE);
     saveTranslationLabelsNoBroadcast(objectType, objectId, fieldName, labels);
     broadcastEvent(TRANSLATION_SAVED_EVENT_NAME, objectType, objectId, fieldName, null, username);
@@ -134,7 +134,7 @@ public class TranslationServiceImpl implements TranslationService {
   public void deleteTranslationLabels(String objectType,
                                       long objectId,
                                       String username) throws IllegalAccessException, ObjectNotFoundException {
-    checkParameters(objectType, objectId, username);
+    checkParameters(objectType, objectId);
     checkEditPermission(objectType, objectId, username, NO_PERMISSION_TO_DELETE_MESSAGE);
     deleteTranslationLabelsNoBroadcast(objectType, objectId);
     broadcastEvent(TRANSLATION_DELETED_EVENT_NAME, objectType, objectId, null, null, username);
@@ -210,7 +210,7 @@ public class TranslationServiceImpl implements TranslationService {
   }
 
   private void checkParameters(String objectType, long objectId, String fieldName, Locale locale) {
-    checkParameters(objectType, objectId);
+    checkParameters(objectType, objectId, fieldName);
     if (StringUtils.isBlank(fieldName)) {
       throw new IllegalArgumentException("Field name is mandatory");
     }
@@ -219,17 +219,10 @@ public class TranslationServiceImpl implements TranslationService {
     }
   }
 
-  private void checkParameters(String objectType, long objectId, String fieldName, String username) {
-    checkParameters(objectType, objectId, username);
+  private void checkParameters(String objectType, long objectId, String fieldName) {
+    checkParameters(objectType, objectId);
     if (StringUtils.isBlank(fieldName)) {
       throw new IllegalArgumentException("Field name is mandatory");
-    }
-  }
-
-  private void checkParameters(String objectType, long objectId, String username) {
-    checkParameters(objectType, objectId);
-    if (StringUtils.isBlank(username)) {
-      throw new IllegalArgumentException("username is mandatory");
     }
   }
 

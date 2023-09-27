@@ -307,6 +307,7 @@ public class RelationshipManagerTest extends AbstractCoreTest {
     relationshipManager.confirm(maryIdentity, rootIdentity);
     maryToRootRelationship = relationshipManager.get(maryIdentity, rootIdentity);
     assertNotNull("maryToRootRelationship must not be null", maryToRootRelationship);
+    assertNotNull("maryToRootRelationship must not be null", maryToRootRelationship.getStatus());
     assertEquals("maryToRootRelationship.getStatus() must return: " + Relationship.Type.CONFIRMED,
                  Relationship.Type.CONFIRMED, maryToRootRelationship.getStatus());
     
@@ -980,6 +981,7 @@ public class RelationshipManagerTest extends AbstractCoreTest {
     Relationship johnRootRelationship = relationshipManager.invite(johnIdentity, rootIdentity);
     Relationship maryDemoRelationship = relationshipManager.invite(maryIdentity, demoIdentity);
     sleep(5);
+    restartTransaction();
 
     List<Identity> listIdentities = new ArrayList<Identity>();
     listIdentities.add(demoIdentity);
@@ -1369,7 +1371,8 @@ public class RelationshipManagerTest extends AbstractCoreTest {
     assertEquals(paulIdentity.getRemoteId(), identities.get(0).getRemoteId());
     assertEquals(demoIdentity.getRemoteId(), identities.get(1).getRemoteId());
     assertEquals(ghostIdentity.getRemoteId(), identities.get(2).getRemoteId());
-    
+
+    sleep(1);
     Relationship johnToMaryRelationship = relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
     relationshipManager.confirm(johnIdentity, maryIdentity);
     identities = relationshipManager.getLastConnections(maryIdentity, 10);
