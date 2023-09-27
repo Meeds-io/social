@@ -129,11 +129,13 @@ import org.exoplatform.webui.application.WebuiRequestContext;
  */
 public class SpaceUtils {
 
-  private static final Log                                    LOG                   = ExoLogger.getLogger(SpaceUtils.class);
+  private static final Log                                    LOG                      = ExoLogger.getLogger(SpaceUtils.class);
 
-  public static final String                                  SPACE_GROUP           = "/spaces";
+  public static final String                                  SPACE_GROUP              = "/spaces";
 
-  public static final String                                  PLATFORM_USERS_GROUP  = "/platform/users";
+  public static final String                                  PLATFORM_USERS_GROUP     = "/platform/users";
+
+  public static final String                                  PLATFORM_PUBLISHER_GROUP = "/platform/web-contributors";
 
   /**
    * @deprecated Use {@link UserACL#getAdminMSType()} instead. Will be removed

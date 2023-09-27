@@ -437,7 +437,7 @@ export default {
     },
     uploadFile(file) {
       this.$root.$emit('close-alert-message');
-      if (file && file.size) {
+      if (file?.size) {
         if (file.type && file.type.indexOf('image/') !== 0) {
           this.$root.$emit('alert-message', this.$t('imageCropDrawer.mustImage.label'), 'error');
           return;

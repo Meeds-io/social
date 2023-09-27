@@ -152,6 +152,19 @@
       <type>org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO</type>
     </component>
 
+  <component>
+    <type>io.meeds.social.link.dao.LinkDAO</type>
+  </component>
+
+  <component>
+    <type>io.meeds.social.link.dao.LinkSettingDAO</type>
+  </component>
+
+  <component>
+    <key>io.meeds.social.link.storage.LinkStorage</key>
+    <type>io.meeds.social.link.storage.cache.CachedLinkStorage</type>
+  </component>
+
     <component>
       <key>io.meeds.social.translation.storage.TranslationStorage</key>
       <type>io.meeds.social.translation.storage.cache.CachedTranslationStorage</type>
@@ -172,11 +185,6 @@
 
     <component>
       <type>io.meeds.social.observe.storage.ObserverStorage</type>
-    </component>
-
-    <component>
-      <key>io.meeds.social.observe.service.ObserverService</key>
-      <type>io.meeds.social.observe.service.ObserverServiceImpl</type>
     </component>
 
     <!--
@@ -254,7 +262,17 @@
     <component>
       <type>org.exoplatform.social.core.metadata.storage.MetadataStorage</type>
     </component>
-    
+
+  <component>
+    <key>io.meeds.social.link.service.LinkService</key>
+    <type>io.meeds.social.link.service.LinkServiceImpl</type>
+  </component>
+
+    <component>
+      <key>io.meeds.social.observe.service.ObserverService</key>
+      <type>io.meeds.social.observe.service.ObserverServiceImpl</type>
+    </component>
+
     <component>
         <key>org.exoplatform.social.core.manager.ActivityManager</key>
         <type>org.exoplatform.social.core.manager.ActivityManagerImpl</type>
@@ -722,7 +740,6 @@
           <properties-param>
             <name>SocialFeatureProperties</name>
             <property name="exo.feature.SpaceHomeLayoutReset.enabled" value="${exo.feature.SpaceHomeLayoutReset.enabled:false}" />
-            <property name="exo.feature.publisherRolePromotion.enabled" value="${exo.feature.publisherRolePromotion.enabled:false}" />
             <property name="exo.feature.PostToNetwork.enabled" value="${exo.feature.PostToNetwork.enabled:false}" />
           </properties-param>
         </init-params>
@@ -904,5 +921,35 @@
         <type>org.exoplatform.social.core.space.impl.SpaceAccessHandler</type>
       </component-plugin>
     </external-component-plugins>
+
+    <external-component-plugins>
+      <target-component>io.meeds.social.translation.service.TranslationService</target-component>
+      <component-plugin>
+        <name>link-settings</name>
+        <set-method>addPlugin</set-method>
+        <type>io.meeds.social.link.plugin.LinkSettingTranslationPlugin</type>
+      </component-plugin>
+      <component-plugin>
+        <name>links</name>
+        <set-method>addPlugin</set-method>
+        <type>io.meeds.social.link.plugin.LinkTranslationPlugin</type>
+      </component-plugin>
+    </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.api.persistence.DataInitializer</target-component>
+    <component-plugin>
+      <name>SocialLinksRDBMSChangeLogsPlugin</name>
+      <set-method>addChangeLogsPlugin</set-method>
+      <type>org.exoplatform.commons.persistence.impl.ChangeLogsPlugin</type>
+      <init-params>
+        <values-param>
+          <name>changelogs</name>
+          <description>Change logs of Social Links RDBMS</description>
+          <value>db/changelog/links-rdbms.db.changelog-1.0.0.xml</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 
 </configuration>

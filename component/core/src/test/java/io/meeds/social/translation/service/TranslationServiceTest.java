@@ -30,7 +30,7 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.plugin.TranslationPlugin;
 
-public class TranslationServiceTest extends AbstractCoreTest {
+public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
 
   private static final String    OBJECT_TYPE = "activity";
 
@@ -75,7 +75,7 @@ public class TranslationServiceTest extends AbstractCoreTest {
                  () -> translationService.saveTranslationLabels(objectType, objectId, null, labels));
     assertThrows(IllegalArgumentException.class,
                  () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, null));
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(IllegalAccessException.class,
                  () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, null));
 
     assertThrows(IllegalAccessException.class,
@@ -113,7 +113,7 @@ public class TranslationServiceTest extends AbstractCoreTest {
                  () -> translationService.deleteTranslationLabels(objectType, objectId, username));
 
     setTranslationPlugin(true, false, 2, 1);
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(IllegalAccessException.class,
                  () -> translationService.deleteTranslationLabels(objectType, objectId, null));
     assertThrows(IllegalArgumentException.class,
                  () -> translationService.deleteTranslationLabels(null, objectId));
@@ -155,7 +155,7 @@ public class TranslationServiceTest extends AbstractCoreTest {
     setTranslationPlugin(false, false, 2, 1);
     assertThrows(IllegalArgumentException.class,
                  () -> translationService.getTranslationField(objectType, objectId, null, username));
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(IllegalAccessException.class,
                  () -> translationService.getTranslationField(objectType, objectId, fieldName, null));
 
     assertThrows(IllegalAccessException.class,

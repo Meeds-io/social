@@ -2,7 +2,6 @@ package org.exoplatform.social.portlet;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.portlet.*;
 import javax.servlet.http.HttpServletRequest;

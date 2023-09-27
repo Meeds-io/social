@@ -55,6 +55,18 @@
         </properties-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>LinksNameSpacePlugin</name>
+      <set-method>addNameSpacePlugin</set-method>
+      <type>org.exoplatform.commons.file.services.NameSpacePlugin</type>
+      <init-params>
+        <properties-param>
+          <name>fileNameSpace.params</name>
+          <property name="name" value="links"/>
+          <property name="description" value="links application files storage"/>
+        </properties-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>

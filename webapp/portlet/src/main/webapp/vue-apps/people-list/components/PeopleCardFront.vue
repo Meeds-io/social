@@ -43,7 +43,7 @@
         <v-icon size="12">mdi-account-edit</v-icon>
       </v-btn>
       <v-btn
-        v-if="publisherRolePromotionFeatureEnabled && user.isSpacePublisher"
+        v-if="user.isSpacePublisher"
         :title="$t('peopleList.label.spacePublisher')"
         :ripple="false"
         color="primary"
@@ -330,7 +330,6 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    publisherRolePromotionFeatureEnabled: eXo.env.portal.PublisherRolePromotionFeatureEnabled,
     bottomMenu: false
   }),
   watch: {

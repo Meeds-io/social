@@ -75,6 +75,7 @@ let config = {
     translationField: './src/main/webapp/vue-apps/component-translation-field/main.js',
     notificationAdministration: './src/main/webapp/vue-apps/notification-administration/main.js',
     notificationExtensions: './src/main/webapp/vue-apps/notification-extensions/main.js',
+    links: './src/main/webapp/vue-apps/links/main.js',
   },
   module: {
     rules: [
