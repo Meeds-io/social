@@ -210,7 +210,7 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     LinkRestEntity savedLink1 = links.get(0);
     assertNotNull(savedLink1);
     assertTrue(savedLink1.getId() > 0);
-    assertTrue(savedLink1.getIconFileId() == 0);
+    assertEquals(0l, savedLink1.getIconFileId());
     assertNull(savedLink1.getIconUrl());
     LinkRestEntity newLink1 = newLinks.get(1);
     assertEquals(newLink1.getOrder(), savedLink1.getOrder());
