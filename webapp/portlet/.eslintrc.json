@@ -14,6 +14,7 @@
     "DOMPurify": true,
     "ExtendedDomPurify": true,
     "Cropper": true,
+    "Autolinker": true,
     "cCometd": true
   }
 }
