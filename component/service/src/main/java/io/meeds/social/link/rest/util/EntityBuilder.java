@@ -117,8 +117,12 @@ public class EntityBuilder {
   }
 
   public static String buildLinkIconUrl(LinkSetting linkSetting, Link link) {
-    return RestUtils.getBaseRestUrl() + "/links/" + linkSetting.getName() + "/" + link.getId() + "?v="
-        + Objects.hash(linkSetting.getLastModified());
+    if (link.getIconFileId() == 0) {
+      return null;
+    } else {
+      return RestUtils.getBaseRestUrl() + "/social/links/" + linkSetting.getName() + "/" + link.getId() + "/icon?v="
+          + Objects.hash(linkSetting.getLastModified());
+    }
   }
 
   public static LinkSetting toLinkSetting(LocaleConfigService localeConfigService, LinkSettingRestEntity linkSettingEntity) {

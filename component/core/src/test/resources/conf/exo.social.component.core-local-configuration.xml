@@ -33,13 +33,13 @@
   </component>
 
   <component>
-    <key>io.meeds.social.link.service.LinkService</key>
-    <type>io.meeds.social.link.service.LinkServiceImpl</type>
+    <key>io.meeds.social.link.storage.LinkStorage</key>
+    <type>io.meeds.social.link.storage.cache.CachedLinkStorage</type>
   </component>
 
   <component>
-    <key>io.meeds.social.link.storage.LinkStorage</key>
-    <type>io.meeds.social.link.storage.cache.CachedLinkStorage</type>
+    <key>io.meeds.social.link.service.LinkService</key>
+    <type>io.meeds.social.link.service.LinkServiceImpl</type>
   </component>
 
   <component>

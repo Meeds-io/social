@@ -20,6 +20,24 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
   <component>
+    <type>io.meeds.social.link.dao.LinkDAO</type>
+  </component>
+
+  <component>
+    <type>io.meeds.social.link.dao.LinkSettingDAO</type>
+  </component>
+
+  <component>
+    <key>io.meeds.social.link.storage.LinkStorage</key>
+    <type>io.meeds.social.link.storage.cache.CachedLinkStorage</type>
+  </component>
+
+  <component>
+    <key>io.meeds.social.link.service.LinkService</key>
+    <type>io.meeds.social.link.service.LinkServiceImpl</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.social.core.space.SpacesAdministrationService</key>
     <type>org.exoplatform.social.service.test.MockSpacesAdministrationService</type>
   </component>
@@ -28,6 +46,20 @@
     <key>org.exoplatform.commons.api.notification.service.storage.WebNotificationStorage</key>
     <type>org.exoplatform.social.webNotification.service.test.MockWebNotificationStorage</type>
   </component>
+
+  <external-component-plugins>
+    <target-component>io.meeds.social.translation.service.TranslationService</target-component>
+    <component-plugin>
+      <name>link-settings</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.social.link.plugin.LinkSettingTranslationPlugin</type>
+    </component-plugin>
+    <component-plugin>
+      <name>links</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.social.link.plugin.LinkTranslationPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
 
   <!-- Notifications plugins required for IntranetNotificationsRestServiceTest -->
   <external-component-plugins>

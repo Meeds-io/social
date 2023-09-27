@@ -23,7 +23,7 @@ export function getSettings(name, lang) {
     formData.append('lang', lang);
   }
   const params = formData.entries.length && `?${decodeURIComponent(new URLSearchParams(formData).toString())}` || '';
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/links/${name}${params}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/links/${name}${params}`, {
     method: 'GET',
     credentials: 'include',
     body: `name=${name}`,
@@ -35,7 +35,7 @@ export function getSettings(name, lang) {
 }
 
 export function saveSettings(settings) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/links/${settings.name}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/links/${settings.name}`, {
     headers: {
       'Content-Type': 'application/json',
     },

@@ -58,8 +58,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Path("/links")
-@Tag(name = "/links", description = "Managing links for Links Application")
+@Path("/social/links")
+@Tag(name = "/social/links", description = "Managing links for Links Application")
 public class LinkRest {
 
   private static final CacheControl CACHE_CONTROL          = new CacheControl();
@@ -112,7 +112,7 @@ public class LinkRest {
       if (linkSetting == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
-      EntityTag eTag = new EntityTag(String.valueOf(Objects.hashCode(name, lang, linkSetting.getLastModified())));
+      EntityTag eTag = new EntityTag(String.valueOf(Objects.hashCode(name, lang, String.valueOf(linkSetting.getLastModified()))));
       Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
       if (builder == null) {
         builder = Response.ok(getLinkSettingEntity(linkSetting, lang));

@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class LinkWithIconAttachment extends Link {
+public class LinkWithIconAttachment extends Link implements Cloneable {
 
   private static final long serialVersionUID = -5052149626047868897L;
 
@@ -46,4 +46,19 @@ public class LinkWithIconAttachment extends Link {
     this.uploadId = uploadId;
   }
 
+  @Override
+  public LinkWithIconAttachment clone() { // NOSONAR
+    return new LinkWithIconAttachment(getId(),
+                                      getName(),
+                                      getDescription(),
+                                      getUrl(),
+                                      isSameTab(),
+                                      getOrder(),
+                                      getIconFileId(),
+                                      uploadId);
+  }
+
+  public Link toLink() {
+    return new Link(getId(), getName(), getDescription(), getUrl(), isSameTab(), getOrder(), getIconFileId());
+  }
 }

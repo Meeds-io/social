@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Link implements Serializable {
+public class Link implements Serializable, Cloneable {
 
   private static final long serialVersionUID = -5104279089111946609L;
 
@@ -46,4 +46,8 @@ public class Link implements Serializable {
 
   private long              iconFileId;
 
+  @Override
+  public Link clone() { // NOSONAR
+    return new Link(id, name, description, url, sameTab, order, iconFileId);
+  }
 }

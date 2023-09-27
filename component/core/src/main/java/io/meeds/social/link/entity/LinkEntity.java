@@ -47,7 +47,7 @@ import lombok.NoArgsConstructor;
   name = "LinkEntity.findByName",
   query = "SELECT l from SocLink l"
       + " INNER JOIN l.setting s ON s.name = :name"
-      + " ORDER BY l.order DESC"
+      + " ORDER BY l.order ASC"
 )
 @NamedQuery(
   name = "LinkEntity.getLinkSettingByLinkId",

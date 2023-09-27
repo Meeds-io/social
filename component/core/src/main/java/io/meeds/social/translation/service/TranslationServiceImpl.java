@@ -228,9 +228,6 @@ public class TranslationServiceImpl implements TranslationService {
 
   private void checkParameters(String objectType, long objectId, String username) {
     checkParameters(objectType, objectId);
-    if (StringUtils.isBlank(username)) {
-      throw new IllegalArgumentException("username is mandatory");
-    }
   }
 
   private void checkParameters(String objectType, long objectId) {

@@ -79,7 +79,7 @@ public class EntityMapper {
   }
 
   public static LinkEntity fromModel(Link link, LinkSettingEntity linkSettingEntity) {
-    return new LinkEntity(link.getId(),
+    return new LinkEntity(link.getId() == 0 ? null : link.getId(),
                           link.getName(),
                           link.getDescription(),
                           link.getUrl(),
