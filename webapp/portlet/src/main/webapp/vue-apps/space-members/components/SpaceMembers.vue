@@ -56,7 +56,6 @@ export default {
     peopleCount: 0,
     loadingPeople: false,
     space: null,
-    publisherRolePromotionFeatureEnabled: eXo.env.portal.PublisherRolePromotionFeatureEnabled
   }),
   created() {
     this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
@@ -136,7 +135,7 @@ export default {
         icon: 'fa fa-paper-plane',
         order: 1,
         enabled: (user) => {
-          return this.publisherRolePromotionFeatureEnabled && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isSpacePublisher;
+          return !user.isSpacePublisher && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
           this.$spaceService.promotePublisher(eXo.env.portal.spaceDisplayName, user.username)
@@ -149,7 +148,7 @@ export default {
         icon: 'fa fa-paper-plane',
         order: 1,
         enabled: (user) => {
-          return this.publisherRolePromotionFeatureEnabled && user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
+          return user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
           this.$spaceService.removePublisher(eXo.env.portal.spaceName, user.username)
