@@ -42,7 +42,8 @@
             :target="nav.uriTarget"
             link>
             <v-list-item-icon class="flex align-center flex-grow-0 my-2">
-              <i :class="nav.iconClass"></i>
+              <v-icon v-if="isNewLeftNavigationDrawer && nav.icon"> {{ nav.icon }}</v-icon>
+              <i v-else :class="nav.iconClass"></i>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title
@@ -96,6 +97,7 @@ export default {
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     homeLink: eXo.env.portal.homeLink,
     selectedNavigation: null,
+    isNewLeftNavigationDrawer: eXo.env.portal.newLeftNavigationDrawer
   }),
   computed: {
     confirmMessage() {
