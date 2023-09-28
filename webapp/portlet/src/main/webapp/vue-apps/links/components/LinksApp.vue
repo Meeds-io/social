@@ -31,31 +31,20 @@
           v-if="hasLinks"
           :settings="$root.settings"
           :links="$root.links"
-          :hide-see-more="hover && canEdit"
+          :hover="hover"
           min-width="100%"
-          class="mx-auto" />
+          class="mx-auto"
+          @edit="editSettings" />
         <div v-else-if="canEdit" class="d-flex align-center justify-center">
           <v-btn
             class="primary"
             elevation="0"
             outlined
-            text
+            border
             @click="editSettings">
             {{ $t('links.label.addLinksButton') }}
           </v-btn>
         </div>
-        <v-fab-transition>
-          <v-btn
-            v-if="canEdit && hasLinks && hover"
-            :title="$t('links.label.editSettings')"
-            :class="$vuetify.rtl && 'l-0' || 'r-0'"
-            class="position-absolute t-0 mt-4 me-4"
-            small
-            icon
-            @click="editSettings">
-            <v-icon size="18">fa-cog</v-icon>
-          </v-btn>
-        </v-fab-transition>
       </v-card>
     </v-hover>
     <links-settings-drawer
