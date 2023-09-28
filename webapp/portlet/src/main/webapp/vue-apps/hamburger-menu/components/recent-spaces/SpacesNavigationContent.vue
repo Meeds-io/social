@@ -24,7 +24,7 @@
     class="mx-0 spacesNavigationContent"
     flat>
     <v-list dense>
-      <v-list-item-group v-model="selectedSpaceIndex">
+      <v-list-item-group :value="selectedSpaceIndex">
         <space-navigation-item
           v-for="space in filteredSpaces" 
           :key="space.id"
@@ -102,6 +102,7 @@ export default {
     loadingSpaces: false,
     limitToFetch: 0,
     originalLimitToFetch: 0,
+    selectedSpaceIndex: -1,
   }),
   computed: {
     canShowMore() {
@@ -117,9 +118,6 @@ export default {
       } else {
         return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
       }
-    },
-    selectedSpaceIndex() {
-      return this.spaces.findIndex(space => this.url(space) === eXo.env.server.portalBaseURL || eXo.env.server.portalBaseURL.indexOf(`${this.url(space)}/`) === 0);
     },
   },
   watch: {
@@ -138,6 +136,9 @@ export default {
     limitToFetch() {
       this.searchSpaces();
     },
+    spaces() {
+      this.refreshSelectedSpace();
+    },
   }, 
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
@@ -147,8 +148,12 @@ export default {
         this.searchSpaces();
       }
     });
+    this.refreshSelectedSpace();
   },
   methods: {
+    refreshSelectedSpace() {
+      this.selectedSpaceIndex = this.spaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
+    },
     applySpaceUnreadChanges(event) {
       if (!event?.detail) {
         return;
