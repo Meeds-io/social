@@ -9,8 +9,9 @@
         {{ header }}
       </div>
       <v-spacer />
-      <div v-if="!hideSeeMore && seeMore" class="flex-grow-0 flex-shrink-0 text-end">
+      <div v-if="seeMore" class="flex-grow-0 flex-shrink-0 text-end">
         <v-btn
+          v-if="!$root.canEdit || !hover"
           :href="seeMore"
           target="_blank"
           color="primary"
@@ -20,6 +21,27 @@
           rel="nofollow noreferrer noopener">
           <span class="text-none text-font-size">{{ $t('links.label.seeMore') }}</span>
         </v-btn>
+        <v-btn
+          v-if="$root.canEdit && hover"
+          :title="$t('links.label.seeMore')"
+          :href="seeMore"
+          target="_blank"
+          rel="nofollow noreferrer noopener"
+          outlined
+          small
+          icon>
+          <v-icon size="18" class="primary--text">fa-external-link-alt</v-icon>
+        </v-btn>
+        <v-fab-transition hide-on-leave>
+          <v-btn
+            v-if="$root.canEdit && hover"
+            :title="$t('links.label.editSettings')"
+            small
+            icon
+            @click="$emit('edit')">
+            <v-icon size="18">fa-cog</v-icon>
+          </v-btn>
+        </v-fab-transition>
       </div>
     </div>
     <v-card
@@ -64,7 +86,7 @@ export default {
       type: String,
       default: () => '33%',
     },
-    hideSeeMore: {
+    hover: {
       type: Boolean,
       default: false,
     },

@@ -20,7 +20,7 @@ export default {
   props: {
     iconSize: {
       type: Number,
-      default: () => 32,
+      default: () => 30,
     },
     iconUrl: {
       type: String,

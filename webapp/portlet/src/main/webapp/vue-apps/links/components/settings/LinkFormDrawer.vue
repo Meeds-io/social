@@ -12,7 +12,10 @@
       {{ $t('links.label.addLinkDrawerTitle') }}
     </template>
     <template v-if="link && drawer" #content>
-      <v-form ref="form" class="pa-4">
+      <v-form
+        ref="form"
+        autocomplete="off"
+        class="pa-4">
         <div class="d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
           {{ $t('links.label.linkName') }}
         </div>
@@ -28,6 +31,7 @@
           class="width-auto flex-grow-1 mb-4"
           no-expand-icon
           back-icon
+          autofocus
           required />
 
         <div class="d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
@@ -138,7 +142,7 @@ export default {
     rules() {
       return {
         name: [
-          v => !!v?.length || this.$t('links.input.mandatory'),
+          v => !!v?.length || ' ',
           v => !v?.length || v.length < this.maxNameLength || this.$t('links.input.exceedsMaxLength', {
             0: this.maxNameLength,
           }),
@@ -149,10 +153,13 @@ export default {
           }),
         ],
         url: [
-          v => !!v?.length || this.$t('links.input.mandatory'),
+          v => !!v?.length || ' ',
           v => {
             try {
-              return !!(v?.length && new URL(v)?.hostname?.length) || this.$t('links.input.invalidLink');
+              if (v.indexOf('/') === 0) {
+                v = `${window.location.origin}${v}`;
+              }
+              return !!Autolinker.parse(v).length || this.$t('links.input.invalidLink');
             } catch (e) {
               return this.$t('links.input.invalidLink');
             }
@@ -167,6 +174,7 @@ export default {
       handler() {
         if ((this.canValidate || this.edit) && this.$refs.form) {
           this.valid = this.$refs.form.validate();
+          this.$refs.form.resetValidation();
         }
       },
     },

@@ -69,7 +69,7 @@ export default {
       }
     },
     iconSize() {
-      return this.largeIcon && 40 || 34;
+      return this.largeIcon && 48 || 30;
     },
     isCard() {
       return this.type === 'CARD';

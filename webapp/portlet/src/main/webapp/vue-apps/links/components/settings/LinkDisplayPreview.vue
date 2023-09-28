@@ -25,7 +25,7 @@
     flat>
     <links-list
       :settings="settings"
-      :links="links"
+      :links="linksToDisplay"
       min-width="80%"
       class="mx-auto pa-2" />
   </v-card>
@@ -40,6 +40,11 @@ export default {
     links: {
       type: Array,
       default: null,
+    },
+  },
+  computed: {
+    linksToDisplay() {
+      return this.links?.slice?.(0, 6) || [];
     },
   },
 };

@@ -11,8 +11,11 @@
       {{ $t('links.label.displaySettings') }}
     </template>
     <template v-if="settings" #content>
-      <v-form ref="form">
-        <div class="d-flex flex-column pa-4">
+      <v-form
+        ref="form"
+        autocomplete="off"
+        class="pa-4">
+        <div class="d-flex flex-column">
           <div class="d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
             {{ $t('links.label.preview') }}
           </div>
@@ -45,6 +48,7 @@
                 drawer-title="links.label.headerTranslation"
                 class="width-auto flex-grow-1"
                 no-expand-icon
+                autofocus
                 back-icon
                 required />
             </div>
@@ -136,10 +140,11 @@ export default {
     seeMore: false,
     valid: false,
     maxHeaderLength: 25,
+    settingsHeader: null,
   }),
   computed: {
     disabled() {
-      return !this.valid || !this.modified || (this.showHeader && !this.settings?.header[this.$root.defaultLanguage]?.length);
+      return !this.valid || !this.modified || (this.showHeader && !this.settings?.header?.[this.$root.defaultLanguage]?.length);
     },
     modified() {
       return this.originalSettings && JSON.stringify(this.originalSettings) !== JSON.stringify(this.settings || {});
@@ -167,16 +172,19 @@ export default {
     rules() {
       return {
         header: [
-          v => !!v?.length || this.$t('links.input.mandatory'),
+          v => !!v?.length || ' ',
           v => (v && v.length < this.maxHeaderLength) || this.$t('links.input.exceedsMaxLength', {
             0: this.maxHeaderLength,
           }),
         ],
         seeMore: [
-          v => !!v?.length || this.$t('links.input.mandatory'),
+          v => !!v?.length || ' ',
           v => {
             try {
-              return !!(v?.length && new URL(v)?.hostname?.length) || this.$t('links.input.invalidLink');
+              if (v.indexOf('/') === 0) {
+                v = `${window.location.origin}${v}`;
+              }
+              return !!Autolinker.parse(v).length || this.$t('links.input.invalidLink');
             } catch (e) {
               return this.$t('links.input.invalidLink');
             }
@@ -188,10 +196,15 @@ export default {
   watch: {
     showHeader() {
       if (this.showHeader) {
-        if (!this.settings.header[this.$root.defaultLanguage]) {
-          this.settings.header[this.$root.defaultLanguage] = '';
+        if (!this.settings.header?.[this.$root.defaultLanguage]) {
+          this.settings.header = this.settingsHeader || {};
+          if (!this.settingsHeader) {
+            this.settings.header[this.$root.defaultLanguage] = '';
+          }
+          this.settingsHeader = null;
         }
       } else {
+        this.settingsHeader = this.settings.header;
         this.settings.header = null;
       }
       this.refreshValidation();
@@ -220,6 +233,9 @@ export default {
       this.settings = this.value && JSON.parse(JSON.stringify(this.value)) || {};
       this.showHeader = !!this.settings?.header?.en?.length;
       this.seeMore = !!this.settings?.seeMore?.length;
+      if (!this.showHeader) {
+        this.settings.header = null;
+      }
       this.valid = false;
       this.$nextTick().then(() => {
         this.originalSettings = JSON.parse(JSON.stringify(this.settings));
@@ -229,6 +245,7 @@ export default {
     reset() {
       this.settings = null;
       this.originalSettings = null;
+      this.settingsHeader = null;
     },
     close() {
       this.originalSettings = null;
@@ -242,6 +259,7 @@ export default {
       this.$nextTick().then(() => {
         if (this.$refs.form) {
           this.valid = this.$refs.form.validate();
+          this.$refs.form.resetValidation();
         }
       });
     },
