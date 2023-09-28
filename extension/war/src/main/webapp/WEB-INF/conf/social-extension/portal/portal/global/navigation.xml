@@ -33,6 +33,13 @@
     </node>
 
     <node>
+      <name>public</name>
+      <label>#{portal.global.public}</label>
+      <visibility>HIDDEN</visibility>
+      <page-reference>portal::global::public</page-reference>
+    </node>
+
+    <node>
       <name>spaces</name>
       <label>#{portal.global.spaces}</label>
       <page-reference>portal::global::all-spaces</page-reference>
