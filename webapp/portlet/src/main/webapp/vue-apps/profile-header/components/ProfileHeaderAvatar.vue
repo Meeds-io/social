@@ -10,8 +10,8 @@
       max-height="165"
       class="align-start flex-grow-0 border-color profileHeaderAvatar">
       <v-img
-        :lazy-src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
-        :src="(avatarData || user && `${user.avatar}&size=165x165`) || ''"
+        :lazy-src="userAvatarUrl"
+        :src="userAvatarUrl"
         id="profileAvatarImg"
         transition="none"
         min-width="44"
@@ -62,5 +62,11 @@ export default {
       default: () => 165,
     },
   },
+  computed: {
+    userAvatarUrl() {
+      const defaultAvatarUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
+      return this.user?.enabled? (this.avatarData || `${this.user.avatar}${this.user.avatar.includes('?')? '&size=165x165' : '?size=165x165'}` || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar?size=165x165'}`) : `${defaultAvatarUrl}'?size=165x165'}`;
+    }
+  }
 };
 </script>

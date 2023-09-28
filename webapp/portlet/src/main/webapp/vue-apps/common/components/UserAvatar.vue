@@ -282,7 +282,7 @@ export default {
       return this.userIdentity?.position;
     },
     avatarUrl() {
-      return this.userIdentity?.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`;
+      return this.userIdentity?.enabled? this.userIdentity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar` : `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
     },
     profileUrl() {
       if (this.url && !this.clickable) {
