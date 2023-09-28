@@ -217,7 +217,7 @@ export default {
       return this.drawer && this.$refs[this.CK_EDITOR_ID] || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience);
+      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !this.audience);
     },
     spaceSuggesterLabels() {
       return {
