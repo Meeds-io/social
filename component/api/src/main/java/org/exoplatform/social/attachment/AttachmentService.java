@@ -21,6 +21,7 @@ package org.exoplatform.social.attachment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -243,5 +244,10 @@ public interface AttachmentService {
    * @return the {@link List} of supported object types
    */
   Set<String> getSupportedObjectTypes();
+
+  /**
+   * @return the {@link Map} of supported Attachment plugin
+   */
+  Map<String, AttachmentPlugin> getAttachmentPlugins();
 
 }
