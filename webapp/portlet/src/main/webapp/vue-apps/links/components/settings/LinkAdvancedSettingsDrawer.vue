@@ -181,10 +181,7 @@ export default {
           v => !!v?.length || ' ',
           v => {
             try {
-              if (v.indexOf('/') === 0) {
-                v = `${window.location.origin}${v}`;
-              }
-              return !!Autolinker.parse(v).length || this.$t('links.input.invalidLink');
+              return !!this.$linkService.toLinkUrl(v)?.length || this.$t('links.input.invalidLink');
             } catch (e) {
               return this.$t('links.input.invalidLink');
             }

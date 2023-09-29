@@ -114,7 +114,7 @@ export default {
       return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];
     },
     seeMore() {
-      return this.settings?.seeMore?.replace?.('javascript:', '');
+      return this.$linkService.toLinkUrl(this.settings?.seeMore);
     },
     parentFlexDirection() {
       return this.isColumn && 'flex-column' || 'flex-row';
