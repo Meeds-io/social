@@ -1,4 +1,11 @@
 const TEXTAREA = document.createElement('textarea');
+const HTML_ENTITIES = {
+  nbsp: ' ',
+  amp: '&',
+  quot: '"',
+  lt: '<',
+  gt: '>'
+};
 
 export function htmlToText(htmlContent) {
   if (!htmlContent) {
@@ -8,6 +15,10 @@ export function htmlToText(htmlContent) {
   TEXTAREA.innerHTML = content;
   content = TEXTAREA.value;
   return content.replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,' ').trim();
+}
+
+export function replaceHtmlEntites(htmlContent) {
+  return htmlContent.replace(new RegExp(`&(${Object.keys(HTML_ENTITIES).join('|')});`, 'g'), (_match, entity) => HTML_ENTITIES[entity]);
 }
 
 export function trim(text) {
