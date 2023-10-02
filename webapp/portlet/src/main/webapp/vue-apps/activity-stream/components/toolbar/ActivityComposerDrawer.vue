@@ -236,8 +236,8 @@ export default {
     },
     spaceSuggesterLabels() {
       return {
-        placeholder: this.\u0024t('activity.composer.audience.placeholder'),
-        noDataLabel: this.\u0024t('activity.composer.audience.noDataLabel'),
+        placeholder: this.$t('activity.composer.audience.placeholder'),
+        noDataLabel: this.$t('activity.composer.audience.noDataLabel'),
       };
     },
     audienceTypesDisplay() {
@@ -374,7 +374,7 @@ export default {
           }
         } else {
           this.loading = true;
-          this.$activityService.createActivity(message, activityType, this.files, eXo.env.portal.spaceId, this.templateParams)
+          this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
             .then(activity => {
               this.activityId = activity.id;
               this.templateParams = activity.templateParams;
