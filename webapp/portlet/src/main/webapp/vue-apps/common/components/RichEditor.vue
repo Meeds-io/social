@@ -3,7 +3,7 @@
     <div class="richEditor">
       <textarea
         ref="editor"
-        :id="ckEditorType"
+        :id="ckEditorInstanceId"
         v-model="inputVal"
         cols="30"
         rows="10"
@@ -39,6 +39,10 @@ export default {
     maxLength: {
       type: Number,
       default: -1
+    },
+    ckEditorId: {
+      type: String,
+      default: ''
     },
     ckEditorType: {
       type: String,
@@ -101,6 +105,9 @@ export default {
     baseUrl: eXo.env.server.portalBaseURL,
   }),
   computed: {
+    ckEditorInstanceId() {
+      return this.ckEditorId ? this.ckEditorId : this.ckEditorType;
+    },
     buttonId() {
       return `btn_${this.ckEditorType}`;
     },
@@ -119,17 +126,32 @@ export default {
     ckEditorConfigUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/richeditor/configuration?type=${this.ckEditorType || 'default'}&v=${eXo.env.client.assetsVersion}`;
     },
+    supportsOembed() {
+      return this.oembed || this.templateParams;
+    },
   },
   watch: {
-    inputVal(val) {
-      if (this.editorReady) {
-        this.$emit('input', this.getContentToSave(val));
-      }
-      if (this.oembedParams) {
-        this.oembedParams = Object.assign({}, this.oembedParams, {
+    inputVal() {
+      this.updateInput(this.inputVal);
+
+      if (this.supportsOembed) {
+        this.setOembedParams({
           default_title: this.getContentToSave(this.inputVal),
           comment: this.getContentNoEmbed(this.inputVal),
         });
+      } else {
+        this.clearOembedParams();
+      }
+    },
+    oembedParams() {
+      this.updateInput(this.inputVal);
+    },
+    editorReady() {
+      if (this.editorReady) {
+        this.$emit('ready');
+        this.initOembedParams();
+      } else {
+        this.$emit('unloaded');
       }
     },
     validLength: {
@@ -138,42 +160,8 @@ export default {
         this.$emit('validity-updated', this.validLength);
       },
     },
-    oembedParams() {
-      if (this.templateParams) {
-        if (this.oembedParams) {
-          Object.assign(this.templateParams, this.oembedParams);
-        } else {
-          Object.keys(this.templateParams).forEach(key => {
-            this.templateParams[key] = '-';
-          });
-        }
-      }
-      this.$emit('input', this.getContentToSave(this.inputVal));
-    },
-    editorReady() {
-      if (this.editorReady) {
-        this.$emit('ready');
-      } else {
-        this.$emit('unloaded');
-      }
-    },
-    value(val) {
-      if (!this.editor) {
-        this.initCKEditor();
-      }
-      let editorData = null;
-      try {
-        editorData = this.editor.getData();
-      } catch (e) {
-        // When CKEditor not initialized yet
-      }
-      if (this.getContentToCompare(val) !== this.getContentToCompare(editorData)) {
-        // Knowing that using CKEDITOR.setData will rewrite a new CKEditor Body,
-        // the suggester (which writes its settings in body attribute) doesn't
-        // find its settings anymore when using '.setData' after initializing.
-        // Thus, we destroy the ckEditor instance before setting new data.
-        this.initCKEditorData(val || '');
-      }
+    suggesterSpaceURL() {
+      this.initCKEditor(!!this.suggesterSpaceURL, this.value);
     }
   },
   created() {
@@ -186,10 +174,13 @@ export default {
       const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
       const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
       this.initCKEditor(true, storageMessageText);
-      this.$emit('input', this.inputVal);
+      this.updateInput(this.inputVal);
     } else {
       this.initCKEditor(true, this.value);
     }
+  },
+  beforeDestroy() {
+    this.destroyCKEditor();
   },
   methods: {
     initCKEditor(reset, textValue) {
@@ -200,8 +191,8 @@ export default {
       });
     },
     initCKEditorInstance(reset, textValue) {
-      this.inputVal = this.getContentToEdit(textValue);
-      const editor = CKEDITOR.instances[this.ckEditorType];
+      this.inputVal = textValue && this.getContentToEdit(textValue) || '';
+      const editor = CKEDITOR.instances[this.ckEditorInstanceId];
       if (editor) {
         editor.status = 'not-ready';
       }
@@ -230,7 +221,7 @@ export default {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
-      if (this.oembed || this.templateParams) {
+      if (this.supportsOembed) {
         extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
       } else {
         removePlugins = `${removePlugins},embedsemantic,embedbase`;
@@ -281,7 +272,7 @@ export default {
         pasteFilter: 'p; a[!href]; strong; i', 
         on: {
           instanceReady: function () {
-            self.editor = CKEDITOR.instances[self.ckEditorType];
+            self.editor = CKEDITOR.instances[self.ckEditorInstanceId];
             $(self.editor.document.$)
               .find('.atwho-inserted')
               .each(function() {
@@ -299,7 +290,7 @@ export default {
             self.installOembed(embedResponse);
           },
           requestCanceled: function () {
-            self.oembedParams = null;
+            this.clearOembedParams();
           },
           change: function (evt) {
             const newData = evt.editor.getData();
@@ -309,16 +300,23 @@ export default {
             }
           },
           destroy: function () {
-            self.inputVal = '';
+            if (!self) {
+              return;
+            }
+            let data = self?.value;
+            if (data) {
+              data = data?.replace?.(/@\w+/gm, '');
+              self.inputVal = data;
+            } else {
+              self.inputVal = '';
+            }
             self.editor = null;
           }
         }
       });
     },
     destroyCKEditor: function () {
-      if (this.editor) {
-        this.editor.destroy(true);
-      }
+      this.editor?.destroy?.(true);
     },
     initCKEditorData: function(message) {
       this.inputVal = message && this.getContentToEdit(message) || '';
@@ -352,9 +350,9 @@ export default {
     },
     installOembed: function(embedResponse) {
       const response = embedResponse?.data?.data?.response;
-      if ((this.oembed || this.templateParams) && response) {
+      if (this.supportsOembed && response) {
         const oembedUrl = response.url;
-        this.oembedParams = {
+        this.setOembedParams({
           link: oembedUrl || '-',
           image: response.type !== 'video' && response.thumbnail_url || '-',
           html: response.type === 'video' && response.html || '-',
@@ -362,11 +360,11 @@ export default {
           description: response.description || '-',
           previewHeight: response.thumbnail_height || '-',
           previewWidth: response.thumbnail_width || '-',
-          default_title: this.getContentToSave(this.inputVal),
+          default_title: this.getContent(this.inputVal, false),
           comment: this.getContentNoEmbed(this.inputVal),
-        };
+        });
       } else {
-        this.oembedParams = null;
+        this.clearOembedParams();
       }
     },
     getContentToEdit(content) {
@@ -376,20 +374,31 @@ export default {
       if (content.includes('<oembed>') && content.includes('</oembed>')) {
         const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
         content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
-        if (this.oembed || this.templateParams) {
+        if (this.supportsOembed) {
           content = `${content}<oembed>${oembedUrl}</oembed>`;
         }
       }
       content = content.replace(/]]&gt;/g, ']]>');
       content = content.replace(/&lt;!\[CDATA\[/g, '<![CDATA[');
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
+      content = content.replace(/ {2}/g, '&nbsp;&nbsp;');
       return this.replaceWithSuggesterClass(content);
     },
+    getContentToCompare(content) {
+      return this.getContentNoEmbed(content);
+    },
     getContentToSave(content) {
+      return this.getContent(content, true);
+    },
+    getContent(content, cleanOembedParams) {
       if (!content) {
-        return '';
+        content = '';
+      } else {
+        content = this.$utils.replaceHtmlEntites(content);
       }
-      if (!this.templateParams && (this.oembedParams?.url || this.oembedParams?.link)) {
+      if (!content.includes('<oembed>') && cleanOembedParams && this.oembedParams) {
+        this.clearOembedParams();
+      } else if (!this.templateParams && (this.oembedParams?.url || this.oembedParams?.link)) {
         content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
         const link = this.oembedParams?.url || this.oembedParams?.link;
         content = `${content}<oembed>${window.encodeURIComponent(link)}</oembed>`;
@@ -397,6 +406,9 @@ export default {
         const oembedUrl = content.match(/<oembed>(.*)<\/oembed>/i)[1];
         content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
       }
+      return this.getContentWithOembedHtml(content);
+    },
+    getContentWithOembedHtml(content) {
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
       let html = null;
       let aspectRatio = 16 / 9;
@@ -434,9 +446,6 @@ export default {
       }
       return content;
     },
-    getContentToCompare(content) {
-      return this.getContentNoEmbed(content);
-    },
     getContentNoEmbed(content) {
       if (!content) {
         return '';
@@ -448,6 +457,41 @@ export default {
       }
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
       return content;
+    },
+    updateInput(content) {
+      if (this.editorReady) {
+        this.$emit('input', this.getContentToSave(content));
+      }
+    },
+    initOembedParams() {
+      this.setOembedParams({});
+    },
+    clearOembedParams() {
+      this.setOembedParams(null);
+    },
+    setOembedParams(params) {
+      if (this.supportsOembed) {
+        if (!this.oembedParams) {
+          this.oembedParams = this.templateParams || {};
+        }
+        if (params) {
+          Object.assign(this.oembedParams, params);
+        } else {
+          Object.assign(this.oembedParams, {
+            link: '-',
+            image: '-',
+            html: '-',
+            title: '-',
+            description: '-',
+            previewHeight: '-',
+            previewWidth: '-',
+            default_title: '-',
+            comment: '-',
+          });
+        }
+      } else {
+        this.oembedParams = null;
+      }
     },
     replaceWithSuggesterClass(message) {
       const tempdiv = $('<div class=\'temp\'/>').html(message || '');
