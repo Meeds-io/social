@@ -95,7 +95,7 @@ export default {
       return this.siteRootNode.icon;
     },
     siteRootNode() {
-      return this.site?.siteNavigations && this.site?.siteNavigations[0];
+      return this.site?.siteNavigations?.length && this.findSiteRootNode(this.site.siteNavigations);
     },
     itemClass() {
       return ` ${this.isCurrentSite && ' v-item--active v-list-item--active ' || ' ' } ${this.siteRootNode?.pageKey && ' clickable ' || ' not-clickable '}` ;
@@ -140,6 +140,20 @@ export default {
       }
       this.$root.$emit('change-site-menu', this.site);
     },
+    findSiteRootNode(navigations) {
+      let siteRootNode = null;
+      for (const nav of navigations) {
+        if (nav.pageKey) {
+          siteRootNode = nav;
+        } else if (nav.children?.length) {
+          siteRootNode = this.findSiteRootNode(nav.children);
+        }
+        if (siteRootNode) {
+          break;
+        }
+      }
+      return siteRootNode;
+    }
   }
 };
 </script>
