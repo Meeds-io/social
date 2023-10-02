@@ -200,7 +200,6 @@ export default {
             } else {
               this.attachments[index].altText = updatedImage.altText;
             }
-            console.warn('test',this.attachments[index]);
             this.attachments = this.attachments.slice();
           }
         }
