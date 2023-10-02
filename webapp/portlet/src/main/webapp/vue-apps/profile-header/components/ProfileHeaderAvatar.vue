@@ -65,7 +65,7 @@ export default {
   computed: {
     userAvatarUrl() {
       const defaultAvatarUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
-      return this.user?.enabled? (this.avatarData || `${this.user.avatar}${this.user.avatar.includes('?')? '&size=165x165' : '?size=165x165'}` || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar?size=165x165'}`) : `${defaultAvatarUrl}'?size=165x165'}`;
+      return this.user?.enabled? (this.avatarData || `${this.user.avatar}${this.user.avatar.includes('?')? '&size=165x165' : '?size=165x165'}` || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar?size=165x165`) : `${defaultAvatarUrl}?size=165x165`;
     }
   }
 };
