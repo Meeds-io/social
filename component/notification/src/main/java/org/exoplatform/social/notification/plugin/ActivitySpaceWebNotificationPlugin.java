@@ -58,7 +58,10 @@ public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlug
                                                                                        0,
                                                                                        metadataObject.getSpaceId());
       if (activity.isComment()) {
+        spaceWebNotificationItem.setActivityId(activity.getParentId());
         spaceWebNotificationItem.addApplicationSubItem(activity.getId());
+      } else {
+        spaceWebNotificationItem.setActivityId(activity.getId());
       }
       return spaceWebNotificationItem;
     } else {

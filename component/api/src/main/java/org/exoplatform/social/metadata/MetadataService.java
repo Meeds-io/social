@@ -215,6 +215,14 @@ public interface MetadataService {
   void deleteByMetadataTypeAndSpaceIdAndCreatorId(String metadataTypeName, long spaceId, long userIdentityId);
 
   /**
+   * Deletes all metadata items by {@link MetadataType} and audienceId
+   * 
+   * @param metadataTypeName {@link MetadataType} name
+   * @param userIdentityId {@link Identity} id
+   */
+  void deleteByMetadataTypeAndCreatorId(String metadataTypeName, long userIdentityId);
+
+  /**
    * Deletes Metadata items for a given {@link Metadata} type, objectId and
    * objectType. This is generally called when the associated object has been
    * removed (activity removed, comment removed ...)
@@ -348,6 +356,25 @@ public interface MetadataService {
                                                                                       long spaceId,
                                                                                       long offset,
                                                                                       long limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Retrieves the Metadata item attached to a given {@link Metadata} name, type
+   * and {@link MetadataItem} object type and {@link MetadataItem} space id
+   *
+   * @param metadataName {@link Metadata} name
+   * @param metadataTypeName {@link Metadata} type name
+   * @param spaceIds spaceId {@link List} of {@link MetadataItem}
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  default List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndSpaceIds(String metadataName,
+                                                                              String metadataTypeName,
+                                                                              List<Long> spaceIds,
+                                                                              long offset,
+                                                                              long limit) {
     throw new UnsupportedOperationException();
   }
 

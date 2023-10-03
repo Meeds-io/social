@@ -54,6 +54,7 @@ import org.exoplatform.social.core.storage.api.*;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 
 public class RDBMSActivityStorageImpl implements ActivityStorage {
 
@@ -74,6 +75,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   private final SpaceStorage                     spaceStorage;
 
+  private final SpaceWebNotificationService      spaceWebNotificationService;
+
   private final SortedSet<ActivityProcessor>     activityProcessors;
 
   private ActivityStorage                        activityStorage;
@@ -92,6 +95,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                   SpaceStorage spaceStorage,
                                   ActivityShareActionDAO activityShareActionDAO,
                                   ActivityDAO activityDAO,
+                                  SpaceWebNotificationService spaceWebNotificationService,
                                   ConnectionDAO connectionDAO) {
     this.identityStorage = identityStorage;
     this.activityProcessors = new TreeSet<>(processorComparator());
@@ -99,6 +103,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     this.activityShareActionDAO = activityShareActionDAO;
     this.connectionDAO = connectionDAO;
     this.spaceStorage = spaceStorage;
+    this.spaceWebNotificationService = spaceWebNotificationService;
   }
 
   private static Comparator<ActivityProcessor> processorComparator() {
@@ -512,6 +517,28 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return Collections.emptyList();
       }
       break;
+    case UNREAD_SPACES_STREAM:
+      List<Long> activityIds;
+      if (StringUtils.isBlank(activityFilter.getSpaceId())) {
+        activityIds = spaceWebNotificationService.getUnreadActivityIds(viewerIdentity.getRemoteId(), offset, limit);
+      } else {
+        try {
+          activityIds = spaceWebNotificationService.getUnreadActivityIdsBySpace(viewerIdentity.getRemoteId(),
+                                                                                Long.parseLong(activityFilter.getSpaceId()),
+                                                                                offset,
+                                                                                limit);
+        } catch (Exception e) {
+          throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
+                                                        viewerIdentity.getRemoteId(),
+                                                        activityFilter.getSpaceId()),
+                                          e);
+        }
+      }
+      if (CollectionUtils.isEmpty(activityIds)) {
+        return Collections.emptyList();
+      } else {
+        return convertActivityIdsToActivities(activityIds);
+      }
     case MANAGE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMemberEntity.Status.MANAGER),
@@ -551,6 +578,33 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return Collections.emptyList();
       }
       break;
+    case UNREAD_SPACES_STREAM:
+      List<Long> unreadActivityIds;
+      if (StringUtils.isBlank(activityFilter.getSpaceId())) {
+        unreadActivityIds = spaceWebNotificationService.getUnreadActivityIds(viewerIdentity.getRemoteId(), offset, limit);
+      } else {
+        try {
+          Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceId());
+          if (spaceIdentity == null || !spaceIdentity.isEnable() || spaceIdentity.isDeleted() || !spaceIdentity.isSpace()) {
+            return Collections.emptyList();
+          }
+          Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
+          unreadActivityIds = spaceWebNotificationService.getUnreadActivityIdsBySpace(viewerIdentity.getRemoteId(),
+                                                                                      Long.parseLong(space.getId()),
+                                                                                      offset,
+                                                                                      limit);
+        } catch (Exception e) {
+          throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
+                                                        viewerIdentity.getRemoteId(),
+                                                        activityFilter.getSpaceId()),
+                                          e);
+        }
+      }
+      if (CollectionUtils.isEmpty(unreadActivityIds)) {
+        return Collections.emptyList();
+      } else {
+        return unreadActivityIds.stream().map(String::valueOf).toList();
+      }
     case MANAGE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMemberEntity.Status.MANAGER),
@@ -596,6 +650,20 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return 0;
       }
       break;
+    case UNREAD_SPACES_STREAM:
+      if (StringUtils.isBlank(activityFilter.getSpaceId())) {
+        return (int) spaceWebNotificationService.countUnreadActivities(viewerIdentity.getRemoteId());
+      } else {
+        try {
+          return (int) spaceWebNotificationService.countUnreadActivitiesBySpace(viewerIdentity.getRemoteId(),
+                                                                                 Long.parseLong(activityFilter.getSpaceId()));
+        } catch (Exception e) {
+          throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
+                                                        viewerIdentity.getRemoteId(),
+                                                        activityFilter.getSpaceId()),
+                                          e);
+        }
+      }
     case MANAGE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMemberEntity.Status.MANAGER),

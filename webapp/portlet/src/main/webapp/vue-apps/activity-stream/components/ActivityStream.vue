@@ -3,13 +3,16 @@
     <activity-stream-toolbar
       v-if="canPostInitialized"
       :can-post="canPost"
-      :can-filter="canFilter" />
+      :can-filter="canFilter"
+      :filter="filter"
+      :has-activities="hasActivities" />
     <activity-stream-list
       :activity-id="activityId"
       :activity-types="activityTypes"
       :activity-actions="activityActions"
       :comment-types="commentTypes"
       :comment-actions="commentActions"
+      @has-activities="hasActivities = $event"
       @activity-select="displayActivityDetail"
       @can-post-loaded="canPostLoaded($event)" />
     <extension-registry-components
@@ -30,6 +33,7 @@ export default {
     spaceId: eXo.env.portal.spaceId,
     forceReload: false,
     canPost: false,
+    hasActivities: false,
     activityId: null,
     activityTypes: {},
     activityActions: {},

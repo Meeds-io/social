@@ -41,7 +41,7 @@
         <v-btn
           class="dark-grey-color px-1 hidden-xs-only"
           text
-          @click="resetFilter">
+          @click="resetFilter()">
           <template>
             <i class="fas fa-redo me-3"></i>
             {{ $t('activity.filter.resetFilter') }}
@@ -85,6 +85,9 @@ export default {
         value: 'pin_stream',
         enable: !this.spaceId,
       },{
+        text: this.$t('activity.filter.unreadSpacesStream'),
+        value: 'unread_spaces_stream',
+      },{
         text: this.$t('activity.filter.myActivities'),
         value: 'user_stream',
       },{
@@ -102,10 +105,15 @@ export default {
     },
   },
   created() {
+    this.$root.$on('activity-stream-reset-filter', this.resetFilter);
     this.filter = localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-stream-reset-filter', this.resetFilter);
   },
   methods: {
     applyFilter() {
+      this.$root.$emit('close-alert-message');
       document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
       localStorage.setItem('activity-stream-stored-filter', this.filter);
       this.$refs.filterStreamDrawer.close();
@@ -119,9 +127,13 @@ export default {
         this.$refs.filterStreamDrawer.close();
       }
     },
-    resetFilter() {
-      this.filter = 'all_stream';
-      this.applyFilter();
+    resetFilter(silent) {
+      if (silent) {
+        localStorage.setItem('activity-stream-stored-filter', 'all_stream');
+      } else {
+        this.filter = 'all_stream';
+        this.applyFilter();
+      }
     }
   },
 };
