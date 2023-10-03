@@ -58,10 +58,7 @@ public class MetadataStorage {
 
   public Metadata getMetadataByKey(MetadataKey metadataKey) {
     String type = metadataKey.getType();
-    MetadataType metadataType = getMetadataType(type);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + type + " isn't defined");
-    }
+    MetadataType metadataType = getMetadataTypeWithCheck(type);
     MetadataEntity metadataEntity = this.metadataDAO.findMetadata(metadataType.getId(),
                                                                   metadataKey.getName(),
                                                                   metadataKey.getAudienceId());
@@ -115,10 +112,7 @@ public class MetadataStorage {
                                                                                                   String propertyValue,
                                                                                                   long offset,
                                                                                                   long limit) {
-    MetadataType metadataType = getMetadataType(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
-    }
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities =
                                                   metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty(metadataName,
                                                                                                                                         metadataType.getId(),
@@ -173,10 +167,7 @@ public class MetadataStorage {
                                                                            String objectType,
                                                                            long offset,
                                                                            long limit) {
-    MetadataType metadataType = getMetadataType(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
-    }
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities =
                                                   metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName,
                                                                                                                  metadataType.getId(),
@@ -195,10 +186,7 @@ public class MetadataStorage {
                                                                            String objectId,
                                                                            long offset,
                                                                            long limit) {
-    MetadataType metadataType = getMetadataType(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
-    }
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities =
                                                   metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObject(metadataName,
                                                                                                                  metadataType.getId(),
@@ -212,23 +200,38 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
-  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String metadataName,
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndSpaceIds(String metadataName,
+                                                                             String metadataTypeName,
+                                                                             List<Long> spaceIds,
+                                                                             long offset,
+                                                                             long limit) {
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
+    List<MetadataItemEntity> metadataItemEntities =
+                                                  metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndSpaceIds(metadataName,
+                                                                                                                   metadataType.getId(),
+                                                                                                                   spaceIds,
+                                                                                                                   offset,
+                                                                                                                   limit);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
                                                                                      String metadataTypeName,
                                                                                      String objectType,
-                                                                                     long spaceId,
+                                                                                     List<Long> spaceIds,
                                                                                      long offset,
-                                                                                     long limit) {
-    MetadataType metadataType = getMetadataType(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
-    }
+                                                                                      long limit) {
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities =
-                                                  metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(metadataName,
-                                                                                                                           metadataType.getId(),
-                                                                                                                           objectType,
-                                                                                                                           spaceId,
-                                                                                                                           offset,
-                                                                                                                           limit);
+                                                  metadataItemDAO.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(metadataName,
+                                                                                                                            metadataType.getId(),
+                                                                                                                            objectType,
+                                                                                                                            spaceIds,
+                                                                                                                            offset,
+                                                                                                                            limit);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -273,6 +276,14 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
+  public List<MetadataItem> deleteByMetadataTypeAndCreatorId(long metadataType, long userIdentityId) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndCreator(metadataType, userIdentityId, 0, -1);
+    for (MetadataItemEntity metadataItemEntity : metadataItemEntities) {
+      deleteMetadataItemById(metadataItemEntity.getId());
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
   public List<MetadataItem> getMetadataItemsByObject(MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByObject(object.getType(), object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
@@ -282,10 +293,7 @@ public class MetadataStorage {
   }
 
   public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
-    MetadataType metadataType = getMetadataType(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + metadataType + " isn't defined");
-    }
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType.getId(),
                                                                                                             object.getType(),
                                                                                                             object.getId());
@@ -347,14 +355,14 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
-  public List<String> getMetadataObjectIds(String metadataType,
+  public List<String> getMetadataObjectIds(String metadataTypeName,
                                            String metadataName,
                                            String objectType,
                                            long offset,
                                            long limit) {
-    MetadataType type = getMetadataType(metadataType);
+    MetadataType type = getMetadataType(metadataTypeName);
     if (type == null) {
-      throw new IllegalStateException("Metadata type with name " + type + " isn't defined");
+      throw new IllegalStateException(String.format("Metadata type with name %s isn't defined", metadataTypeName));
     }
     List<String> objectIds = metadataItemDAO.getMetadataObjectIds(type.getId(),
                                                                   metadataName,
@@ -372,10 +380,7 @@ public class MetadataStorage {
   }
 
   public List<Metadata> getMetadatas(String metadataTypeName, long limit) {
-    MetadataType metadataType = getMetadataType(metadataTypeName);
-    if (metadataType == null) {
-      throw new IllegalStateException("Metadata type with name " + metadataTypeName + " isn't defined");
-    }
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataEntity> metadatasEntities = metadataDAO.getMetadatas(metadataType.getId(), limit);
     return metadatasEntities.stream().map(this::fromEntity).toList();
   }
@@ -403,6 +408,14 @@ public class MetadataStorage {
 
   public List<MetadataType> getMetadataTypes() {
     return Collections.unmodifiableList(metadataTypes);
+  }
+
+  private MetadataType getMetadataTypeWithCheck(String metadataTypeName) {
+    MetadataType metadataType = getMetadataType(metadataTypeName);
+    if (metadataType == null) {
+      throw new IllegalStateException(String.format("Metadata type with name %s isn't defined", metadataTypeName));
+    }
+    return metadataType;
   }
 
   private Metadata fromEntity(MetadataEntity metadataEntity) {
