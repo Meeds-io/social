@@ -1875,6 +1875,7 @@ public class EntityBuilder {
                           site.getName(),
                           !StringUtils.isBlank(displayName) ? displayName : site.getName(),
                           StringUtils.isNotBlank(translateSiteDescription) ? translateSiteDescription : site.getDescription(),
+                          new UserNodeRestEntity(rootNode),
                           accessPermissions,
                           editPermission,
                           site.isDisplayed(),
