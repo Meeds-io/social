@@ -21,8 +21,10 @@ package org.exoplatform.social.notification.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.ServletContext;
 
@@ -34,6 +36,7 @@ import org.picocontainer.Startable;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.config.PluginConfig;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.PortalContainer;
@@ -56,11 +59,17 @@ import org.exoplatform.social.core.manager.IdentityManager;
 @SuppressWarnings("removal")
 public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService, Startable {
 
-  public static final String               APPLICATION_SUB_ITEM_IDS = "applicationSubItemIds";
+  private static final String              SPACE_NOT_FOUND               = "Space with id %s doesn't exist";
 
-  public static final String               METADATA_TYPE_NAME       = "unread";
+  private static final String              USER_NOT_MEMBER_OF_SPACE      = "User %s isn't member of space %s";
 
-  private static final Log                 LOG                      =
+  public static final String               APPLICATION_SUB_ITEM_IDS      = "applicationSubItemIds";
+
+  public static final String               METADATA_TYPE_NAME            = "unread";
+
+  public static final String               METADATA_ACTIVITY_ID_PROPERTY = "activityId";
+
+  private static final Log                 LOG                           =
                                                ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
 
   private PortalContainer                  container;
@@ -75,7 +84,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
 
   private SpaceService                     spaceService;
 
-  private List<SpaceWebNotificationPlugin> plugins                  = new ArrayList<>();
+  private List<SpaceWebNotificationPlugin> plugins                       = new ArrayList<>();
 
   public SpaceWebNotificationServiceImpl(PortalContainer container,
                                          MetadataService metadataService,
@@ -201,6 +210,17 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   }
 
   @Override
+  public void markAllAsRead(long userIdentityId) throws Exception {
+    if (userIdentityId <= 0) {
+      throw new IllegalArgumentException("userIdentityId is mandatory");
+    }
+    metadataService.deleteByMetadataTypeAndCreatorId(METADATA_TYPE_NAME, userIdentityId);
+    listenerService.broadcast(NOTIFICATION_ALL_READ_EVENT_NAME,
+                              new SpaceWebNotificationItem(null, null, userIdentityId, 0l),
+                              userIdentityId);
+  }
+
+  @Override
   public void markAllAsRead(long userIdentityId, long spaceId) throws Exception {
     if (spaceId <= 0) {
       throw new IllegalArgumentException("spaceId is mandatory");
@@ -220,12 +240,37 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   }
 
   @Override
+  public List<Long> getUnreadActivityIds(String username, long offset, long limit) {
+    Identity userIdentity = getUserIdentity(username);
+    List<String> spaceIds = spaceService.getMemberSpacesIds(username, 0, -1);
+    if (CollectionUtils.isEmpty(spaceIds)) {
+      return Collections.emptyList();
+    }
+    return getUnreadActivityIds(offset, limit, spaceIds, userIdentity);
+  }
+
+  @Override
+  public List<Long> getUnreadActivityIdsBySpace(String username,
+                                                long spaceId,
+                                                long offset,
+                                                long limit) throws IllegalAccessException, ObjectNotFoundException {
+    Identity userIdentity = getUserIdentity(username);
+    String spaceIdString = String.valueOf(spaceId);
+    Space space = spaceService.getSpaceById(spaceIdString);
+    if (space == null) {
+      throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND, spaceId));
+    }
+    if (!spaceService.isSuperManager(username) && !spaceService.isMember(space, username)
+        && !spaceService.isManager(space, username)) {
+      throw new IllegalAccessException(String.format(USER_NOT_MEMBER_OF_SPACE, username, spaceId));
+    }
+    return getUnreadActivityIds(offset, limit, Collections.singletonList(spaceIdString), userIdentity);
+  }
+
+  @Override
   public Map<Long, Long> countUnreadItemsBySpace(String username) {
     List<Long> spaceIds = new ArrayList<>();
-    Identity userIdentity = identityManager.getOrCreateUserIdentity(username);
-    if (userIdentity == null) {
-      throw new IllegalArgumentException("User " + username + " doesn't exist");
-    }
+    Identity userIdentity = getUserIdentity(username);
     List<String> spacesId = spaceService.getMemberSpacesIds(username, 0, -1);
     if (CollectionUtils.isNotEmpty(spacesId)) {
       spaceIds = spacesId.stream().map(Long::parseLong).toList();
@@ -233,6 +278,31 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
     return metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
                                                                                    Long.parseLong(userIdentity.getId()),
                                                                                    spaceIds);
+  }
+
+  @Override
+  public long countUnreadActivities(String username) {
+    Identity userIdentity = getUserIdentity(username);
+    List<String> spaceIds = spaceService.getMemberSpacesIds(username, 0, -1);
+    if (CollectionUtils.isEmpty(spaceIds)) {
+      return 0l;
+    }
+    return countUnreadActivityIds(spaceIds, userIdentity);
+  }
+
+  @Override
+  public long countUnreadActivitiesBySpace(String username, long spaceId) throws IllegalAccessException, ObjectNotFoundException {
+    Identity userIdentity = getUserIdentity(username);
+    String spaceIdString = String.valueOf(spaceId);
+    Space space = spaceService.getSpaceById(spaceIdString);
+    if (space == null) {
+      throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND, spaceId));
+    }
+    if (!spaceService.isSuperManager(username) && !spaceService.isMember(space, username)
+        && !spaceService.isManager(space, username)) {
+      throw new IllegalAccessException(String.format(USER_NOT_MEMBER_OF_SPACE, username, spaceId));
+    }
+    return countUnreadActivityIds(Collections.singletonList(spaceIdString), userIdentity);
   }
 
   private void mergeExistingUnreadProperties(SpaceWebNotificationItem notificationItem,
@@ -257,8 +327,10 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   }
 
   private Map<String, String> toMetadataProperties(SpaceWebNotificationItem notificationItem) {
-    return Collections.singletonMap(APPLICATION_SUB_ITEM_IDS,
-                                    StringUtils.join(notificationItem.getApplicationSubItemIds(), ","));
+    Map<String, String> props = new HashMap<>();
+    props.put(APPLICATION_SUB_ITEM_IDS, StringUtils.join(notificationItem.getApplicationSubItemIds(), ","));
+    props.put(METADATA_ACTIVITY_ID_PROPERTY, notificationItem.getActivityId());
+    return props;
   }
 
   private SpaceWebNotificationItem getSpaceWebNotificationItem(NotificationInfo notification, String username) {
@@ -277,6 +349,46 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
       }
     }
     return null;
+  }
+
+  private List<Long> getUnreadActivityIds(long offset, long limit, List<String> spaceIds, Identity userIdentity) {
+    List<MetadataItem> unreadItems =
+                                   metadataService.getMetadataItemsByMetadataNameAndTypeAndSpaceIds(userIdentity.getId(),
+                                                                                                    METADATA_TYPE_NAME,
+                                                                                                    spaceIds.stream()
+                                                                                                            .map(Long::parseLong)
+                                                                                                            .toList(),
+                                                                                                    offset,
+                                                                                                    limit);
+    if (CollectionUtils.isEmpty(unreadItems)) {
+      return Collections.emptyList();
+    }
+    return unreadItems.stream()
+                      .map(MetadataItem::getProperties)
+                      .filter(Objects::nonNull)
+                      .map(prop -> prop.get(METADATA_ACTIVITY_ID_PROPERTY))
+                      .filter(Objects::nonNull)
+                      .map(Long::parseLong)
+                      .toList();
+  }
+
+  private long countUnreadActivityIds(List<String> spaceIds, Identity userIdentity) {
+    return metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
+                                                                                   Long.parseLong(userIdentity.getId()),
+                                                                                   spaceIds.stream()
+                                                                                           .map(Long::parseLong)
+                                                                                           .toList())
+                          .values()
+                          .stream()
+                          .reduce(0l, Long::sum);
+  }
+
+  private Identity getUserIdentity(String username) {
+    Identity userIdentity = identityManager.getOrCreateUserIdentity(username);
+    if (userIdentity == null) {
+      throw new IllegalArgumentException("User " + username + " doesn't exist");
+    }
+    return userIdentity;
   }
 
 }

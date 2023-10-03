@@ -736,7 +736,7 @@ export function markAllAsRead(spaceId) {
     message: {
       spaceWebNotificationItem: JSON.stringify({
         userId: eXo.env.portal.userIdentityId,
-        spaceId,
+        spaceId: spaceId || 0,
         userEvent: 'click',
       })
     }

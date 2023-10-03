@@ -24,6 +24,15 @@
           class="mx-auto mt-8 fa"
           :class="emptyStreamIcon" />
         <span class="text-sub-title my-7">{{ emptyStreamLabel }}</span>
+        <div v-if="streamFilter !== 'all_stream'">
+          <v-btn
+            class="primary"
+            outlined
+            border
+            @click="$root.$emit('activity-stream-reset-filter', false)">
+            {{ $t('activity.filter.button.resetFilter') }}
+          </v-btn>
+        </div>
       </div>
     </v-flex>
   </div>
@@ -44,6 +53,8 @@ export default {
       switch (this.streamFilter) {
       case 'favorite_spaces_stream':
         return 'fa-star-half-alt';
+      case 'unread_spaces_stream':
+        return 'fa-envelope-open';
       case 'manage_spaces_stream':
         return 'fa-user-cog';
       case 'pin_stream':

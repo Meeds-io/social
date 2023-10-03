@@ -46,6 +46,28 @@
             {{ $t('activity.toolbar.title') }}
           </span>
           <div class="my-auto ms-auto d-flex flex-row">
+            <v-tooltip v-if="markAllReadEnabled" bottom>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  id="toolbarMarkAllReadButton"
+                  :loading="resetting"
+                  class="me-sm-0 me-n2"
+                  height="36px"
+                  width="36px"
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="markAllAsRead">
+                  <v-icon
+                    size="20px">
+                    fa-envelope-open-text
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>
+                {{ $t('activity.filter.button.markAllAsRead') }}
+              </span>
+            </v-tooltip>
             <extension-registry-components
               v-if="!spaceId"
               :params="extensionParams"
@@ -119,13 +141,18 @@ export default {
       type: Boolean,
       default: false
     },
+    hasActivities: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
       user: null,
       MESSAGE_MAX_LENGTH: 1300,
       spaceId: eXo.env.portal.spaceId,
-      streamFilter: localStorage.getItem('activity-stream-stored-filter')
+      streamFilter: localStorage.getItem('activity-stream-stored-filter'),
+      resetting: false,
     };
   },
   computed: {
@@ -144,6 +171,9 @@ export default {
     },
     streamFilterEnabled() {
       return this.canFilter;
+    },
+    markAllReadEnabled() {
+      return this.streamFilterEnabled && this.streamFilter === 'unread_spaces_stream' && this.hasActivities;
     },
     displayToolbar() {
       return this.userCanPost || this.streamFilterEnabled;
@@ -176,6 +206,7 @@ export default {
     document.addEventListener('activity-stream-type-filter-applied', event => {
       this.streamFilter = event && event.detail;
     });
+    this.$root.$on('activity-stream-notify-all-read', this.notifyAsRead);
     this.retrieveUserInformation();
   },
   methods: {
@@ -197,6 +228,33 @@ export default {
           spaceId: this.spaceId
         }}));
       });
+    },
+    markAllAsRead() {
+      this.resetting = true;
+      this.$spaceService.markAllAsRead(this.spaceId);
+      window.setTimeout(() => {
+        this.$root.$emit('activity-stream-reset-filter', false);
+        this.notifyAsRead();
+        this.resetting = false;
+      }, 500);
+    },
+    notifyAsRead(allowReset) {
+      if (allowReset) {
+        window.setTimeout(() => {
+          this.$root.$emit('activity-stream-reset-filter', true);
+          document.dispatchEvent(new CustomEvent('alert-message-html-confeti', {detail: {
+            alertMessage: this.$t('activity.filter.empty_unread_spaces_stream.switchMessage'),
+            alertType: 'success',
+            alertLinkText: this.$t('activity.filter.button.resetFilter'),
+            alertLinkCallback: () => this.$root.$emit('activity-stream-reset-filter', false),
+          }}));
+        }, 500);
+      } else {
+        window.setTimeout(() => {
+          this.$root.$emit('activity-stream-reset-filter', true);
+          this.$root.$emit('alert-message-html-confeti', this.$t('activity.filter.empty_unread_spaces_stream.switchMessage'), 'success');
+        }, 500);
+      }
     },
     openStreamFilterDrawer() {
       this.$refs.filterStreamDrawer.open();
