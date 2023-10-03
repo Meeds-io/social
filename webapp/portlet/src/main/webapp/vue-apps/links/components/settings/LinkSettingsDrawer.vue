@@ -38,7 +38,7 @@
                 {{ $t('links.label.addLinks') }}
               </div>
               <v-btn
-                v-if="stepper === 1 && hasLinks"
+                v-if="(stepper === 1 || expanded) && hasLinks"
                 :title="$t('links.label.addLinks')"
                 :class="{
                   'r-0': !$vuetify.rtl,
