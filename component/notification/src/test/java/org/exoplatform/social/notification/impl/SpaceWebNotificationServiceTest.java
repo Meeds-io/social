@@ -33,6 +33,7 @@ import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.setting.PluginSettingService;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.metadata.MetadataService;
@@ -52,9 +53,11 @@ import org.exoplatform.social.core.identity.model.Identity;
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
 
+  private static final String                    ACTIVITY_ID_PROP     = "activityId";
+
   private static final String                    METADATA_TYPE_NAME   = "unread";
 
-  private static final String                    activityId           = "activityId";
+  private static final String                    activityId           = "5556";
 
   private static final String                    METADATA_OBJECT_TYPE =
                                                                       ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE;
@@ -179,6 +182,7 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
                                                                                      userIdentityId,
                                                                                      spaceId);
     String itemId1 = "subItem1";
+    spaceWebNotificationItem.setActivityId(activityId);
     spaceWebNotificationItem.addApplicationSubItem(itemId1);
 
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME, String.valueOf(userIdentityId), userIdentityId);
@@ -190,13 +194,12 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
 
     verify(metadataService, times(1)).createMetadataItem(eq(metadataObject),
                                                          eq(metadataKey),
-                                                         argThat(new ArgumentMatcher<Map<String, String>>() {
-                                                           @Override
-                                                           public boolean matches(Map<String, String> properties) {
-                                                             return properties != null && properties.size() == 1
-                                                                 && itemId1.equals(properties.values().iterator().next());
-                                                           }
-                                                         }),
+                                                         argThat(
+                                                           props -> 
+                                                             props != null && props.size() == 2
+                                                                 && itemId1.equals(props.get("applicationSubItemIds"))
+                                                                 && spaceWebNotificationItem.getActivityId().equals(props.get(ACTIVITY_ID_PROP))
+                                                         ),
                                                          eq(userIdentityId));
     verify(listenerService, times(1)).broadcast(NOTIFICATION_UNREAD_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
   }
@@ -225,19 +228,17 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
                                                                                      spaceId);
     String itemId2 = "subItem2";
     spaceWebNotificationItem.addApplicationSubItem(itemId2);
+    spaceWebNotificationItem.setActivityId(activityId);
     spaceWebNotificationService.markAsUnread(spaceWebNotificationItem);
 
     verify(metadataService, times(1)).createMetadataItem(eq(metadataObject),
                                                          eq(metadataKey),
-                                                         argThat(new ArgumentMatcher<Map<String, String>>() {
-                                                           @Override
-                                                           public boolean matches(Map<String, String> properties) {
-                                                             return properties != null && properties.size() == 1
-                                                                 && (itemId1 + "," + itemId2).equals(properties.values()
-                                                                                                               .iterator()
-                                                                                                               .next());
-                                                           }
-                                                         }),
+                                                         argThat(
+                                                           props -> 
+                                                             props != null && props.size() == 2
+                                                                 && (itemId1 + "," + itemId2).equals(props.get("applicationSubItemIds"))
+                                                                 && spaceWebNotificationItem.getActivityId().equals(props.get(ACTIVITY_ID_PROP))
+                                                         ),
                                                          eq(userIdentityId));
 
     verify(listenerService, times(1)).broadcast(NOTIFICATION_UNREAD_EVENT_NAME, spaceWebNotificationItem, userIdentityId);
@@ -274,7 +275,94 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     Map<String, Long> result = spaceWebNotificationService.countUnreadItemsByApplication(userIdentityId, spaceId);
     assertEquals(expectedResult, result);
   }
-  
+
+  @Test
+  public void testCountUnreadActivities() {
+    Map<Long, Long> expectedResult = Collections.singletonMap(spaceId, 5l);
+    String username = "test";
+    Identity identity = mock(Identity.class);
+    when(identityManager.getOrCreateUserIdentity(username)).thenReturn(identity);
+    when(identity.getId()).thenReturn(String.valueOf(userIdentityId));
+    when(spaceService.getMemberSpacesIds(username, 0, -1)).thenReturn(Collections.singletonList(String.valueOf(spaceId)));
+    when(metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
+                                                                                 userIdentityId,
+                                                                                 Collections.singletonList(spaceId))).thenReturn(expectedResult);
+
+    long result = spaceWebNotificationService.countUnreadActivities(username);
+    assertEquals(5l, result);
+  }
+
+  @Test
+  public void testCountUnreadActivitiesBySpace() throws IllegalAccessException, ObjectNotFoundException {
+    Map<Long, Long> expectedResult = Collections.singletonMap(spaceId, 5l);
+    when(metadataService.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(METADATA_TYPE_NAME,
+                                                                                 userIdentityId,
+                                                                                 Collections.singletonList(spaceId))).thenReturn(expectedResult);
+    String username = "test";
+    Identity identity = mock(Identity.class);
+    when(identityManager.getOrCreateUserIdentity(username)).thenReturn(identity);
+    when(identity.getId()).thenReturn(String.valueOf(userIdentityId));
+
+    assertThrows(ObjectNotFoundException.class, () -> spaceWebNotificationService.countUnreadActivitiesBySpace(username, spaceId));
+
+    Space space = mock(Space.class);
+    when(spaceService.getSpaceById(String.valueOf(spaceId))).thenReturn(space);
+
+    assertThrows(IllegalAccessException.class, () -> spaceWebNotificationService.countUnreadActivitiesBySpace(username, spaceId));
+
+    when(spaceService.isMember(space, username)).thenReturn(true);
+    long result = spaceWebNotificationService.countUnreadActivitiesBySpace(username, spaceId);
+    assertEquals(5l, result);
+  }
+
+  @Test
+  public void testGetUnreadActivityIds() {
+    String username = "test";
+    Identity identity = mock(Identity.class);
+    when(identityManager.getOrCreateUserIdentity(username)).thenReturn(identity);
+    when(identity.getId()).thenReturn(String.valueOf(userIdentityId));
+    List<String> spaceIds = Collections.singletonList(String.valueOf(spaceId));
+    when(spaceService.getMemberSpacesIds(username, 0, -1)).thenReturn(spaceIds);
+
+    MetadataItem metadataItem = mock(MetadataItem.class);
+    when(metadataItem.getProperties()).thenReturn(Collections.singletonMap(ACTIVITY_ID_PROP, activityId));
+    when(metadataService.getMetadataItemsByMetadataNameAndTypeAndSpaceIds(String.valueOf(userIdentityId),
+                                                                          METADATA_TYPE_NAME,
+                                                                          spaceIds.stream().map(Long::parseLong).toList(),
+                                                                          0,
+                                                                          10)).thenReturn(Collections.singletonList(metadataItem));
+
+    List<Long> result = spaceWebNotificationService.getUnreadActivityIds(username, 0, 10);
+    assertEquals(Collections.singletonList(Long.parseLong(activityId)), result);
+  }
+
+  @Test
+  public void testGetUnreadActivityIdsBySpace() throws IllegalAccessException, ObjectNotFoundException {
+    List<String> spaceIds = Collections.singletonList(String.valueOf(spaceId));
+    MetadataItem metadataItem = mock(MetadataItem.class);
+    when(metadataItem.getProperties()).thenReturn(Collections.singletonMap(ACTIVITY_ID_PROP, activityId));
+    when(metadataService.getMetadataItemsByMetadataNameAndTypeAndSpaceIds(String.valueOf(userIdentityId),
+                                                                          METADATA_TYPE_NAME,
+                                                                          spaceIds.stream().map(Long::parseLong).toList(),
+                                                                          0,
+                                                                          10)).thenReturn(Collections.singletonList(metadataItem));
+    String username = "test";
+    Identity identity = mock(Identity.class);
+    when(identityManager.getOrCreateUserIdentity(username)).thenReturn(identity);
+    when(identity.getId()).thenReturn(String.valueOf(userIdentityId));
+    
+    assertThrows(ObjectNotFoundException.class, () -> spaceWebNotificationService.getUnreadActivityIdsBySpace(username, spaceId, 0, 10));
+    
+    Space space = mock(Space.class);
+    when(spaceService.getSpaceById(String.valueOf(spaceId))).thenReturn(space);
+
+    assertThrows(IllegalAccessException.class, () -> spaceWebNotificationService.getUnreadActivityIdsBySpace(username, spaceId, 0, 10));
+    
+    when(spaceService.isMember(space, username)).thenReturn(true);
+    List<Long> result = spaceWebNotificationService.getUnreadActivityIdsBySpace(username, spaceId, 0, 10);
+    assertEquals(Collections.singletonList(Long.parseLong(activityId)), result);
+  }
+
   @Test
   public void testCountUnreadItemsBySpace() throws Exception {
     List<String> spaceIds = new ArrayList<>();

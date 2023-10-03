@@ -216,6 +216,8 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                                           Long.parseLong(maryIdentity.getId()));
     favoriteService.createFavorite(spaceFavorite);
 
+    restartTransaction();
+
     response = service("GET", getURLResource("activities?streamType=FAVORITE_SPACES_STREAM&limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -1450,6 +1452,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {
+    restartTransaction();
     Space space = new Space();
     space.setDisplayName("space" + number);
     space.setPrettyName(space.getDisplayName());
@@ -1459,6 +1462,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space = this.spaceService.createSpace(space, creator);
+    restartTransaction();
     return space;
   }
 

@@ -18,9 +18,13 @@
  */
 package org.exoplatform.social.notification.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
@@ -77,6 +81,15 @@ public interface SpaceWebNotificationService {
   void markAllAsRead(long userIdentityId, long spaceId) throws Exception; // NOSONAR
 
   /**
+   * Mark a list of unread items per application as read to a given
+   * {@link MetadataItem} creatorId
+   *
+   * @param  userIdentityId {@link MetadataItem} creatorId
+   * @throws Exception
+   */
+  void markAllAsRead(long userIdentityId) throws Exception; // NOSONAR
+
+  /**
    * Get a list of unread items per application to a given {@link MetadataItem}
    * creatorId by a given {@link Space} identifier
    *
@@ -92,7 +105,39 @@ public interface SpaceWebNotificationService {
    * @return Map of space id and unread items
    */
   Map<Long, Long> countUnreadItemsBySpace(String username);
-  
-  
+
+  /**
+   * @param username User {@link Identity} remote id
+   * @param offset offset of the query
+   * @param limit offset of the query results
+   * @return {@link List} of {@link ExoSocialActivity} id
+   */
+  List<Long> getUnreadActivityIds(String username, long offset, long limit);
+
+  /**
+   * @param username User {@link Identity} remote id
+   * @param spaceId {@link Space} id
+   * @param offset offset of the query
+   * @param limit offset of the query results
+   * @return {@link List} of {@link ExoSocialActivity} id
+   * @throws IllegalAccessException when user isn't member of space
+   * @throws ObjectNotFoundException when space not found
+   */
+  List<Long> getUnreadActivityIdsBySpace(String username, long spaceId, long offset, long limit) throws IllegalAccessException, ObjectNotFoundException;
+
+  /**
+   * @param username User {@link Identity} remote id
+   * @return count of unread activities
+   */
+  long countUnreadActivities(String username);
+
+  /**
+   * @param username User {@link Identity} remote id
+   * @param spaceId {@link Space} id
+   * @return count of unread activities
+   * @throws IllegalAccessException when user isn't member of space
+   * @throws ObjectNotFoundException when space not found
+   */
+  long countUnreadActivitiesBySpace(String username, long spaceId) throws IllegalAccessException, ObjectNotFoundException;
 
 }
