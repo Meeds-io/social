@@ -109,14 +109,14 @@ public class SiteRest implements ResourceContainer {
                            @Schema(defaultValue = "All possible values combined")
                            @QueryParam("visibility")
                            List<String> visibilityNames,
-                           @Parameter(description = "to check , in expandNavigations case , the navigation nodes scheduling start and end dates")
+                           @Parameter(description = "to check, in expandNavigations case, the navigation nodes scheduling start and end dates")
                            @DefaultValue("false")
                            @QueryParam("temporalCheck")
                            boolean temporalCheck,
-                           @Parameter(description = "to expand site navigations nodes")
+                           @Parameter(description = "to exclude group nodes without page child nodes")
                            @DefaultValue("false")
-                           @QueryParam("excludeEmptyNavigations")
-                           boolean excludeEmptyNavigations,
+                           @QueryParam("excludeGroupNodesWithoutPageChildNodes")
+                           boolean excludeGroupNodesWithoutPageChildNodes,
                            @Parameter(description = "to sort with display order")
                            @DefaultValue("false")
                            @QueryParam("sortByDisplayOrder")
@@ -170,7 +170,7 @@ public class SiteRest implements ResourceContainer {
                                                          visibilityNames,
                                                          excludeEmptyNavigationSites,
                                                          temporalCheck,
-                                                         excludeEmptyNavigations,
+                                                         excludeGroupNodesWithoutPageChildNodes,
                                                          filterByPermission,
                                                          sortByDisplayOrder,
                                                          getLocale(lang)))
@@ -201,14 +201,14 @@ public class SiteRest implements ResourceContainer {
                               @Schema(defaultValue = "All possible values combined")
                               @QueryParam("visibility")
                               List<String> visibilityNames,
-                              @Parameter(description = "to check , in expandNavigations case , the navigation nodes scheduling start and end dates")
+                              @Parameter(description = "to check, in expandNavigations case, the navigation nodes scheduling start and end dates")
                               @DefaultValue("false")
                               @QueryParam("temporalCheck")
                               boolean temporalCheck,
-                              @Parameter(description = "to expand site navigations nodes")
+                              @Parameter(description = "to exclude group nodes without page child nodes")
                               @DefaultValue("false")
-                              @QueryParam("excludeEmptyNavigation")
-                              boolean excludeEmptyNavigations,
+                              @QueryParam("excludeGroupNodesWithoutPageChildNodes")
+                              boolean excludeGroupNodesWithoutPageChildNodes,
                               @Parameter(description = "to exclude sites with empty navigation")
                               @DefaultValue("false")
                               @QueryParam("excludeEmptyNavigationSites")
@@ -224,7 +224,7 @@ public class SiteRest implements ResourceContainer {
                                                        visibilityNames,
                                                        excludeEmptyNavigationSites,
                                                        temporalCheck,
-                                                       excludeEmptyNavigations,
+                                                       excludeGroupNodesWithoutPageChildNodes,
                                                        getLocale(lang)))
                      .build();
     } catch (Exception e) {

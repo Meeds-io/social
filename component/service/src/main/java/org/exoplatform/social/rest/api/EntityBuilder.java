@@ -1772,7 +1772,7 @@ public class EntityBuilder {
                                                    List<String> visibilityNames,
                                                    boolean excludeEmptyNavigationSites,
                                                    boolean temporalCheck,
-                                                   boolean excludeEmptyNavigations,
+                                                   boolean excludeGroupNodesWithoutPageChildNodes,
                                                    boolean filterByPermission,
                                                    boolean sortByDisplayOrder,
                                                    Locale locale) {
@@ -1786,8 +1786,8 @@ public class EntityBuilder {
                                                                                           expandNavigations,
                                                                                           visibilityNames,
                                                                                           excludeEmptyNavigationSites,
-                                                                     temporalCheck,
-                                                                     excludeEmptyNavigations,
+                                                                                          temporalCheck,
+                                                                                          excludeGroupNodesWithoutPageChildNodes,
                                                                                           locale))
                                                              .filter(Objects::nonNull)
                                                              .toList();
@@ -1801,7 +1801,7 @@ public class EntityBuilder {
                                            List<String> visibilityNames,
                                            boolean excludeEmptyNavigationSites,
                                            boolean temporalCheck,
-                                           boolean excludeEmptyNavigation,
+                                           boolean excludeGroupNodesWithoutPageChildNodes,
                                            Locale locale) {
     if (site == null) {
       return null;
@@ -1843,8 +1843,8 @@ public class EntityBuilder {
                                              getOrganizationService(),
                                              getLayoutService(),
                                              getUserACL());
-      if (excludeEmptyNavigation) {
-        siteNavigations = removeEmptyNavigations(siteNavigations);
+      if (excludeGroupNodesWithoutPageChildNodes) {
+        removeGroupNodesWithoutPageChildNodes(siteNavigations);
       }
     }
     if (SiteType.GROUP.equals(siteType)) {
@@ -1949,33 +1949,38 @@ public class EntityBuilder {
             .toList()
             .toArray(new Visibility[0]);
   }
-  private static List<UserNodeRestEntity> removeEmptyNavigations(List<UserNodeRestEntity> userNodeList) {
+
+  /**
+   * It deletes node groups that have no node page in their child tree
+   * 
+   * @param userNodeList the list to be cleared of empty navigations,
+   */
+  private static void removeGroupNodesWithoutPageChildNodes(List<UserNodeRestEntity> userNodeList) {
     for (Iterator<UserNodeRestEntity> i = userNodeList.iterator(); i.hasNext();) {
       UserNodeRestEntity userNode = i.next();
-      if (userNode.getPageKey() == null && !hasUserNodePageChild(userNode)) {
+      if (userNode.getPageKey() == null && !hasPageChildNode(userNode)) {
         i.remove();
         continue;
       }
-      userNode.setChildren(removeEmptyNavigations(userNode.getChildren()));
+      removeGroupNodesWithoutPageChildNodes(userNode.getChildren());
     }
-    return userNodeList;
   }
 
-  private static boolean hasUserNodePageChild(UserNodeRestEntity userNode) {
+  private static boolean hasPageChildNode(UserNodeRestEntity userNode) {
     if (userNode.getChildren() == null || userNode.getChildren().isEmpty()) {
       return false;
     }
-    boolean hasPageChild = false;
+    boolean hasPageChildNode = false;
     for (UserNodeRestEntity node : userNode.getChildren()) {
       if (node.getPageKey() != null) {
-        hasPageChild = true;
+        hasPageChildNode = true;
       } else if (node.getChildren() != null && !userNode.getChildren().isEmpty()) {
-        hasPageChild = hasUserNodePageChild(node);
+        hasPageChildNode = hasPageChildNode(node);
       }
-      if (hasPageChild) {
+      if (hasPageChildNode) {
         break;
       }
     }
-    return hasPageChild;
+    return hasPageChildNode;
   }
 }
