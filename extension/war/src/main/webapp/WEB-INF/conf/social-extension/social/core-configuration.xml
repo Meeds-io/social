@@ -291,7 +291,7 @@
             <value-param>
                 <name>userStreamComposer.enabled</name>
                 <description>enable/disable user stream composer button</description>
-                <value>${exo.config.mainStreamComposer.enabled:false}</value>
+                <value>${exo.config.mainStreamComposer.enabled:true}</value>
             </value-param>
         </init-params>
     </component>
@@ -723,6 +723,7 @@
             <name>SocialFeatureProperties</name>
             <property name="exo.feature.SpaceHomeLayoutReset.enabled" value="${exo.feature.SpaceHomeLayoutReset.enabled:false}" />
             <property name="exo.feature.publisherRolePromotion.enabled" value="${exo.feature.publisherRolePromotion.enabled:false}" />
+            <property name="exo.feature.PostToNetwork.enabled" value="${exo.feature.PostToNetwork.enabled:false}" />
           </properties-param>
         </init-params>
     </component>

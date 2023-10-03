@@ -15,32 +15,81 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-toolbar
-    v-if="displayToolbar"
-    id="activityComposer"
-    class="activityComposer activityComposerApp pa-0"
-    color="white mb-5"
-    height="52"
-    flat
-    dense>
-    <v-flex class="d-flex">
-      <div v-if="userCanPost" class="openLink my-auto pa-0 font-weight-bold text-truncate">
-        <a @click="openComposerDrawer(true)" class="hover-underline primary--text">
-          <i class="uiIconEdit me-1"></i>{{ composerButtonLabel }}
-        </a>
+  <div>
+    <v-toolbar
+      v-if="displayToolbar"
+      id="activityComposer"
+      class="activityComposer activityComposerApp pa-0 border-radius"
+      color="white mb-5"
+      height="auto"
+      flat
+      dense>
+      <div class="d-flex flex-column full-width">
+        <div 
+          :class="activityStreamToolbarStyle"
+          class="d-flex full-width">
+          <exo-user-avatar
+            v-if="displayUserAvatar"
+            :identity="user"
+            :size="userAvatarSize"
+            class="me-3"
+            extra-class="d-flex align-center"
+            avatar />
+          <v-btn
+            v-if="userCanPost"
+            class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto subtitle-2"
+            text
+            @click="openComposerDrawer(true)">
+            <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
+          </v-btn>
+          <span v-else class="text-sub-title text-body-1 my-auto">
+            {{ $t('activity.toolbar.title') }}
+          </span>
+          <div class="my-auto ms-auto d-flex flex-row">
+            <extension-registry-components
+              v-if="!spaceId"
+              :params="extensionParams"
+              name="ActivityToolbarAction"
+              type="activity-toolbar-action"
+              class="hidden-xs-only" />
+            <v-tooltip bottom>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  v-if="streamFilterEnabled"
+                  id="toolbarFilterButton"
+                  class="me-sm-0 me-n2"
+                  height="36px"
+                  width="36px"
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="openStreamFilterDrawer">
+                  <v-icon
+                    :color="filterIconColor"
+                    size="20px">
+                    fa-sliders-h
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>
+                {{ $t('activity.filter.tooltip') }}
+              </span>
+            </v-tooltip>
+          </div>
+        </div>
+        <div v-if="spaceId" class="hidden-xs-only">
+          <v-divider />
+          <extension-registry-components
+            :params="extensionParams"
+            name="ActivityToolbarAction"
+            type="activity-toolbar-action"
+            class="my-auto d-flex align-center flex-wrap" />
+        </div>
       </div>
-      <div v-else>
-        <v-card-text class="text-sub-title text-uppercase center px-0">
-          {{ $t('activity.toolbar.title') }}
-        </v-card-text>
-      </div>
-      <div
-        v-if="streamFilterEnabled"
-        class="ms-auto my-auto">
-        <activity-stream-filter />
-      </div>
-    </v-flex>
-  </v-toolbar>
+    </v-toolbar>
+    <activity-stream-filter-drawer
+      ref="filterStreamDrawer" />
+  </div>
 </template>
 
 <script>
@@ -71,36 +120,82 @@ export default {
       default: false
     },
   },
+  data() {
+    return {
+      user: null,
+      MESSAGE_MAX_LENGTH: 1300,
+      spaceId: eXo.env.portal.spaceId,
+      streamFilter: localStorage.getItem('activity-stream-stored-filter')
+    };
+  },
   computed: {
     composerButtonLabel() {
       if (eXo.env.portal.spaceDisplayName){
-        return this.$t('activity.composer.link', {0: eXo.env.portal.spaceDisplayName});
+        return this.$t('activity.composer.link.space', {0: eXo.env.portal.spaceDisplayName});
       } else {
-        return this.$t('activity.composer.post');
+        return this.$t('activity.composer.link');
       }
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
     },
     userCanPost() {
       return !this.standalone && this.canPost;
+    },
+    activityStreamToolbarStyle() {
+      return this.userCanPost && 'py-2' || 'py-1';
     },
     streamFilterEnabled() {
       return this.canFilter;
     },
     displayToolbar() {
-      return this.userCanPost || this.streamFilterEnabled;
+      return (this.userCanPost || this.streamFilterEnabled) && this.user;
     },
+    extensionParams() {
+      return {
+        activityId: this.activityId,
+        spaceId: this.spaceId,
+        files: [],
+        templateParams: this.activityParams,
+        message: this.activityBody,
+        maxMessageLength: this.MESSAGE_MAX_LENGTH,
+        activityType: [],
+      };
+    },
+    filterIconColor() {
+      return this.streamFilter !== 'all_stream' && 'primary';
+    },
+    displayUserAvatar() {
+      return this.user && this.userCanPost;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    },
+    userAvatarSize() {
+      return this.isMobile ? '42px' : '45px';
+    }
+  },
+  created() {
+    if (!this.user) {
+      this.$userService.getUser(eXo.env.portal.userName)
+        .then(user => this.user = user);
+    }
+    document.addEventListener('activity-stream-type-filter-applied', event => {
+      this.streamFilter = event && event.detail;
+    });
   },
   methods: {
     openComposerDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
-        activityId: this.activityId,
-        activityBody: this.activityBody,
-        activityParams: this.activityParams,
-        files: [],
-        activityType: []
-      }}));
+      this.$nextTick().then(() => {
+        document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
+          activityId: this.activityId,
+          activityBody: this.activityBody,
+          activityParams: this.activityParams,
+          files: [],
+          activityType: [],
+          spaceId: this.spaceId
+        }}));
+      });
+    },
+    openStreamFilterDrawer() {
+      this.$refs.filterStreamDrawer.open();
     },
   },
 };
