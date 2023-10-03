@@ -173,19 +173,39 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
-  public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(String metadataName,
-                                                                                           long metadataType,
-                                                                                           String objectType,
-                                                                                           long spaceId,
-                                                                                           long offset,
-                                                                                           long limit) {
+  public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndSpaceIds(String metadataName,
+                                                                                   long metadataType,
+                                                                                   List<Long> spaceIds,
+                                                                                   long offset,
+                                                                                   long limit) {
     TypedQuery<MetadataItemEntity> query =
-                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObjectAndSpaceId",
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataNameAndTypeAndSpaceIds",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_NAME, metadataName);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(SPACE_IDS, spaceIds);
+    if (offset > 0) {
+      query.setFirstResult((int) offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    return query.getResultList();
+  }
+
+  public List<MetadataItemEntity> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
+                                                                                            long metadataType,
+                                                                                            String objectType,
+                                                                                            List<Long> spaceIds,
+                                                                                            long offset,
+                                                                                            long limit) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObjectAndSpaceIds",
                                                                              MetadataItemEntity.class);
     query.setParameter(METADATA_NAME, metadataName);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
-    query.setParameter(SPACE_ID, spaceId);
+    query.setParameter(SPACE_IDS, spaceIds);
     if (offset > 0) {
       query.setFirstResult((int) offset);
     }
@@ -332,7 +352,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                                          getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataBySpaceIdAndAudienceId",
                                                                              MetadataItemEntity.class);
     query.setParameter(SPACE_ID, spaceId);
-    query.setParameter("audienceId", audienceId);
+    query.setParameter(AUDIENCE_ID, audienceId);
     List<MetadataItemEntity> items = query.getResultList();
     if (CollectionUtils.isNotEmpty(items)) {
       deleteAll(items);

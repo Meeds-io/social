@@ -91,8 +91,13 @@ export default {
     error: false,
     isDeleted: false,
     streamFilter: 'all_stream',
+    hadUnread: false,
+    unreadCount: 0,
   }),
   computed: {
+    activitiesCount() {
+      return this.activitiesToDisplay.length;
+    },
     activitiesToDisplay() {
       return this.activities && this.activities.filter(activity => activity && !activity.activityId) || [];
     },
@@ -101,6 +106,9 @@ export default {
     },
     pinActivityEnabled() {
       return this.spaceId && (this.streamFilter === null || this.streamFilter === 'all_stream') || false;
+    },
+    allActivitiesRead() {
+      return this.hadUnread && !this.loading && !this.hasMore && this.streamFilter === 'unread_spaces_stream' && !this.unreadCount;
     },
   },
   watch: {
@@ -112,6 +120,25 @@ export default {
         if (!this.activities.length || this.loadedActivities >= this.activitiesToDisplay.length) {
           this.$root.$applicationLoaded();
         }
+        if (!this.activities.length && this.streamFilter === 'unread_spaces_stream') {
+          this.$root.$emit('activity-stream-notify-all-read');
+        }
+        this.$emit('has-activities', this.activitiesCount > 0);
+      }
+    },
+    activities() {
+      this.refreshUnreadCount();
+    },
+    allActivitiesRead() {
+      if (this.allActivitiesRead) {
+        this.$root.$emit('activity-stream-notify-all-read');
+      }
+    },
+    unreadCount() {
+      if (this.unreadCount > 0) {
+        this.hadUnread = true;
+      } else {
+        this.hadUnread = false;
       }
     },
   },
@@ -211,6 +238,9 @@ export default {
         this.updateActivityDisplayById(activityId);
       }
     });
+    this.$root.$on('activities-refresh', this.refreshActivities);
+    this.$root.$on('activity-read', this.markActivityAsRead);
+    this.$root.$on('activity-loaded', this.refreshUnreadCount);
 
     this.limit = this.pageSize;
     this.retrievedSize = this.limit;
@@ -237,6 +267,10 @@ export default {
         .then(this.setDisplayedActivity)
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
+    },
+    refreshActivities() {
+      this.activities = [];
+      this.loadActivityIds();
     },
     loadActivityIds() {
       this.loading = true;
@@ -296,6 +330,9 @@ export default {
       }
     },
     loadMore() {
+      if (this.streamFilter === 'unread_spaces_stream') {
+        this.activities = [];
+      }
       this.limit += this.pageSize;
       this.loadActivityIds();
     },
@@ -317,6 +354,16 @@ export default {
     applyFilter(streamFilter) {
       this.streamFilter = streamFilter;
       this.loadActivityIds();
+    },
+    refreshUnreadCount() {
+      this.unreadCount = this.activities?.filter?.(a => a?.metadatas?.unread?.length)?.length || 0;
+    },
+    markActivityAsRead(activityId) {
+      const activity = this.activities?.find?.(a => a.id === activityId);
+      if (activity?.metadatas?.unread) {
+        activity.metadatas.unread = null;
+      }
+      this.refreshUnreadCount();
     },
     displayAlert(message, type) {
       this.$root.$emit('alert-message', message, type || 'success');

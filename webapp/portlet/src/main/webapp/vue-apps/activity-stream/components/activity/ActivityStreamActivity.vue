@@ -4,7 +4,7 @@
     :unread-metadata="unreadMetadata"
     :space-id="spaceId"
     class="white border-radius activity-detail flex flex-column"
-    @read="unreadMetadata = null">
+    @read="markAsRead">
     <div v-if="displayLoading" class="d-flex">
       <v-progress-circular
         color="primary"
@@ -208,6 +208,7 @@ export default {
     loading() {
       if (!this.loading) {
         this.setWindowTitle();
+        this.$root.$emit('activity-loaded', this.activityId);
       }
     },
     displayLoading() {
@@ -305,6 +306,10 @@ export default {
       if (activityId === this.activityId) {
         this.noExtension = true;
       }
+    },
+    markAsRead() {
+      this.unreadMetadata = null;
+      this.$root.$emit('activity-read', this.activityId);
     },
     scrollTo(element) {
       window.setTimeout(() => {

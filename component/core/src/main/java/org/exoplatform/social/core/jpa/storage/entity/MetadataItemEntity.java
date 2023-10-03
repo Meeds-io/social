@@ -102,12 +102,20 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 )
 
 @NamedQuery(
-    name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObjectAndSpaceId",
-    query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+  name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObjectAndSpaceIds",
+  query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
         + " mi.metadata.type = :metadataType AND"
         + " mi.metadata.name = :metadataName AND"
         + " mi.objectType = :objectType AND"
-        + " mi.spaceId = :spaceId"
+        + " mi.spaceId IN (:spaceIds)"
+        + " ORDER BY mi.createdDate DESC, mi.id DESC"
+)
+@NamedQuery(
+    name = "SocMetadataItemEntity.getMetadataItemsByMetadataNameAndTypeAndSpaceIds",
+    query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.metadata.name = :metadataName AND"
+        + " mi.spaceId IN (:spaceIds)"
         + " ORDER BY mi.createdDate DESC, mi.id DESC"
 )
 @NamedQuery(
