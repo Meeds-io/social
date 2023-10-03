@@ -8,20 +8,10 @@
 <%@page import="org.exoplatform.commons.api.settings.SettingService"%>
 <%@page import="org.exoplatform.social.core.space.SpacesAdministrationService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
-<%@ page import="org.exoplatform.services.security.ConversationState" %>
-<%@ page import="org.exoplatform.commons.api.settings.ExoFeatureService" %>
-<%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
-<%@ page import="org.exoplatform.services.security.Identity"%>
 <%
   boolean canCreateSpace = ExoContainerContext.getService(SpacesAdministrationService.class).canCreateSpace(request.getRemoteUser());
   SettingValue stickySettingValue = ExoContainerContext.getService(SettingService.class).get(Context.USER.id(request.getRemoteUser()), Scope.APPLICATION.id("HamburgerMenu"), "Sticky");
   boolean sticky = stickySettingValue == null ? Boolean.parseBoolean(System.getProperty("io.meeds.userPrefs.HamburgerMenu.sticky", "false")) : Boolean.parseBoolean(stickySettingValue.getValue().toString());
-
-  ExoFeatureService featureService = CommonsUtils.getService(ExoFeatureService.class);
-  Identity currentIdentity = ConversationState.getCurrent().getIdentity();
-  String currentUser = currentIdentity.getUserId();
-  boolean newLeftNavigationDrawer = featureService.isFeatureActiveForUser("newLeftNavigationDrawer", currentUser);
-
 
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
@@ -62,7 +52,6 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      eXo.env.portal.newLeftNavigationDrawer = <%=newLeftNavigationDrawer%>;
       require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
     </script>
   </div>
