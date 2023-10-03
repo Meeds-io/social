@@ -104,7 +104,6 @@ export default {
   data: () => ({
     filterToChange: null,
     bottomMenu: false,
-    publisherRolePromotionFeatureEnabled: eXo.env.portal.PublisherRolePromotionFeatureEnabled,
     startSearchAfterInMilliseconds: 300,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
@@ -116,71 +115,39 @@ export default {
     },
     peopleFilters() {
       if (this.isManager) {
-        if (this.publisherRolePromotionFeatureEnabled) {
-          return [{
-            text: this.$t('peopleList.label.filter.member'),
-            value: 'member',
-          },{
-            text: this.$t('peopleList.label.filter.manager'),
-            value: 'manager',
-          },{
-            text: this.$t('peopleList.label.filter.redactor'),
-            value: 'redactor',
-          },{
-            text: this.$t('peopleList.label.filter.publisher'),
-            value: 'publisher',
-          },{
-            text: this.$t('peopleList.label.filter.invited'),
-            value: 'invited',
-          },{
-            text: this.$t('peopleList.label.filter.pending'),
-            value: 'pending',
-          }];
-        } else {
-          return [{
-            text: this.$t('peopleList.label.filter.member'),
-            value: 'member',
-          },{
-            text: this.$t('peopleList.label.filter.manager'),
-            value: 'manager',
-          },{
-            text: this.$t('peopleList.label.filter.redactor'),
-            value: 'redactor',
-          },{
-            text: this.$t('peopleList.label.filter.invited'),
-            value: 'invited',
-          },{
-            text: this.$t('peopleList.label.filter.pending'),
-            value: 'pending',
-          }];
-        }
+        return [{
+          text: this.$t('peopleList.label.filter.member'),
+          value: 'member',
+        },{
+          text: this.$t('peopleList.label.filter.manager'),
+          value: 'manager',
+        },{
+          text: this.$t('peopleList.label.filter.redactor'),
+          value: 'redactor',
+        },{
+          text: this.$t('peopleList.label.filter.publisher'),
+          value: 'publisher',
+        },{
+          text: this.$t('peopleList.label.filter.invited'),
+          value: 'invited',
+        },{
+          text: this.$t('peopleList.label.filter.pending'),
+          value: 'pending',
+        }];
       } else {
-        if (this.publisherRolePromotionFeatureEnabled) {
-          return [{
-            text: this.$t('peopleList.label.filter.member'),
-            value: 'member',
-          },{
-            text: this.$t('peopleList.label.filter.redactor'),
-            value: 'redactor',
-          },{
-            text: this.$t('peopleList.label.filter.publisher'),
-            value: 'publisher',
-          },{
-            text: this.$t('peopleList.label.filter.manager'),
-            value: 'manager',
-          }];
-        } else {
-          return [{
-            text: this.$t('peopleList.label.filter.member'),
-            value: 'member',
-          },{
-            text: this.$t('peopleList.label.filter.redactor'),
-            value: 'redactor',
-          },{
-            text: this.$t('peopleList.label.filter.manager'),
-            value: 'manager',
-          }];
-        }
+        return [{
+          text: this.$t('peopleList.label.filter.member'),
+          value: 'member',
+        },{
+          text: this.$t('peopleList.label.filter.redactor'),
+          value: 'redactor',
+        },{
+          text: this.$t('peopleList.label.filter.publisher'),
+          value: 'publisher',
+        },{
+          text: this.$t('peopleList.label.filter.manager'),
+          value: 'manager',
+        }];
       }
     },
   },

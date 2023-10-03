@@ -31,91 +31,94 @@
       {{ $t(title) }}
     </template>
     <template v-if="translations" #content>
-      <v-row
-        v-for="(language, index) in existingLanguages"
-        :key="language"
-        class="mx-0 mb-0 mt-4 max-width-fit"
-        no-gutters>
-        <v-col cols="8" class="px-2">
-          <v-card
-            v-if="richEditor"
-            class="text-truncate border-color rounder full-height pe-2 d-flex align-center"
-            flat
-            @click="openOrCloseEditor(index)">
-            <v-btn
-              icon
-              @click.prevent.stop="openOrCloseEditor(index)">
-              <v-icon size="24">{{ editorIndex === index && 'fa-chevron-up' || 'fa-chevron-down' }}</v-icon>
-            </v-btn>
+      <v-form ref="form">
+        <v-row
+          v-for="(language, index) in existingLanguages"
+          :key="language"
+          class="mx-0 mb-0 mt-4 max-width-fit"
+          no-gutters>
+          <v-col cols="8" class="px-2">
             <v-card
-              v-if="editorIndex !== index"
-              max-height="2em"
-              v-sanitized-html="translations[language] || ''"
-              class="d-flex text-truncate full-width mt-2"
-              flat />
-          </v-card>
-          <v-text-field
-            v-else
-            :name="`${language}-translation-value`"
-            :value="translations[language]"
-            :autofocus="language === defaultLanguage && 'autofocus'"
-            :disabled="loading"
-            class="border-box-sizing pt-0"
-            type="text"
-            outlined
-            dense
-            @input="updateValue(language, $event)" />
-        </v-col>
-        <v-col cols="4">
-          <div class="d-flex max-width-fit">
-            <div class="flex-grow-1 text-truncate">
-              <select
-                :disabled="language === defaultLanguage"
-                :title="supportedLanguages[language]"
-                class="max-width-fit ignore-vuetify-classes my-0"
-                @change="changeLanguage(language, $event)">
-                <option :value="language">
-                  {{ supportedLanguages[language] }}
-                </option>
-                <option
-                  v-for="remainingLanguage in remainingLanguages"
-                  :key="remainingLanguage"
-                  :value="remainingLanguage">
-                  {{ supportedLanguages[remainingLanguage] }}
-                </option>
-              </select>
-            </div>
-            <div class="flex-grow-0">
+              v-if="richEditor"
+              class="text-truncate border-color rounder full-height pe-2 d-flex align-center"
+              flat
+              @click="openOrCloseEditor(index)">
               <v-btn
-                v-if="language === defaultLanguage"
-                :disabled="!hasRemainingLanguages"
                 icon
-                @click="addValue">
-                <v-icon>fas fa-plus</v-icon>
+                @click.prevent.stop="openOrCloseEditor(index)">
+                <v-icon size="24">{{ editorIndex === index && 'fa-chevron-up' || 'fa-chevron-down' }}</v-icon>
               </v-btn>
-              <v-btn
-                v-else
-                icon
-                @click="removeValue(language)">
-                <v-icon>fas fa-minus</v-icon>
-              </v-btn>
+              <v-card
+                v-if="editorIndex !== index"
+                max-height="2em"
+                v-sanitized-html="translations[language] || ''"
+                class="d-flex text-truncate full-width mt-2"
+                flat />
+            </v-card>
+            <v-text-field
+              v-else
+              :name="`${language}-translation-value`"
+              :value="translations[language]"
+              :autofocus="language === defaultLanguage && 'autofocus'"
+              :disabled="loading"
+              :rules="rules || []"
+              class="border-box-sizing pt-0"
+              type="text"
+              outlined
+              dense
+              @input="updateValue(language, $event)" />
+          </v-col>
+          <v-col cols="4">
+            <div class="d-flex max-width-fit">
+              <div class="flex-grow-1 text-truncate">
+                <select
+                  :disabled="language === defaultLanguage"
+                  :title="supportedLanguages[language]"
+                  class="max-width-fit ignore-vuetify-classes my-0"
+                  @change="changeLanguage(language, $event)">
+                  <option :value="language">
+                    {{ supportedLanguages[language] }}
+                  </option>
+                  <option
+                    v-for="remainingLanguage in remainingLanguages"
+                    :key="remainingLanguage"
+                    :value="remainingLanguage">
+                    {{ supportedLanguages[remainingLanguage] }}
+                  </option>
+                </select>
+              </div>
+              <div class="flex-grow-0">
+                <v-btn
+                  v-if="language === defaultLanguage"
+                  :disabled="!hasRemainingLanguages"
+                  icon
+                  @click="addValue">
+                  <v-icon>fas fa-plus</v-icon>
+                </v-btn>
+                <v-btn
+                  v-else
+                  icon
+                  @click="removeValue(language)">
+                  <v-icon>fas fa-minus</v-icon>
+                </v-btn>
+              </div>
             </div>
-          </div>
-        </v-col>
-        <v-col
-          v-if="richEditor && editorIndex === index"
-          class="px-2 py-4"
-          cols="12">
-          <rich-editor
-            ref="translationEditor"
-            :value="translations[language]"
-            :max-length="maxLength"
-            :tag-enabled="false"
-            :oembed="richEditorOembed"
-            autofocus
-            @input="updateValue(language, $event)" />
-        </v-col>
-      </v-row>
+          </v-col>
+          <v-col
+            v-if="richEditor && editorIndex === index"
+            class="px-2 py-4"
+            cols="12">
+            <rich-editor
+              ref="translationEditor"
+              :value="translations[language]"
+              :max-length="maxLength"
+              :tag-enabled="false"
+              :oembed="richEditorOembed"
+              autofocus
+              @input="updateValue(language, $event)" />
+          </v-col>
+        </v-row>
+      </v-form>
     </template>
     <template #footer>
       <div class="d-flex">
@@ -190,6 +193,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    rules: {
+      type: Array,
+      default: null,
+    },
   },
   data: () => ({
     drawer: false,
@@ -232,6 +239,9 @@ export default {
       this.$refs.drawer.open();
     },
     apply() {
+      if (!this.$refs.form.validate()) {
+        return;
+      }
       if (this.serverSideFetch && this.save) {
         this.loading = true;
         this.$translationService.saveTranslations(this.objectType, this.objectId, this.fieldName, this.translations)
