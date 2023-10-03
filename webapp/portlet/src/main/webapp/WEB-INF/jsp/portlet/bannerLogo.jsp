@@ -61,9 +61,8 @@
       if (portalConfigList != null && !portalConfigList.isEmpty()) {
         String defaultPortal = portalConfigList.get(0).getName();
         Collection<UserNode> userNodes = portalConfigService.getSiteNavigations(defaultPortal, authenticatedUser, requestContext.getRequest());
-        UserNode userNode = portalConfigService.getFirstAllowedPageNode(userNodes) ;
+        UserNode userNode = portalConfigService.getFirstAllowedPageNode(userNodes);
         portalPath = portalConfigService.getDefaultUri(userNode, defaultPortal);
-        ;
       } else {
         portalPath = defaultHomePath;
       }
