@@ -65,5 +65,5 @@
 
      eXo.env.portal.SpaceHomeLayoutResetEnabled = <%=featureService.isFeatureActiveForUser("SpaceHomeLayoutReset", userName)%>;
      eXo.env.portal.PublisherRolePromotionFeatureEnabled = <%=featureService.isFeatureActiveForUser("publisherRolePromotion", userName)%>;
-     eXo.env.portal.postToNetworkEnabled = <%=PropertyManager.getProperty("exo.feature.PostToNetwork.enabled")%>;
+     eXo.env.portal.postToNetworkEnabled = <%=featureService.isFeatureActiveForUser("PostToNetwork", userName)%>;
 </script>
