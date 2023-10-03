@@ -1,24 +1,19 @@
 <template>
-  <v-container class="px-0 py-0">
-    <v-list-item
-      :href="uri"
-      :target="target"
-      class="d-flex px-0"
-      :class="isNodeGroup && ' ' || 'clickable'"
-      @mouseover="showAction = true"
-      @mouseleave="showAction = false">
-      <v-list-item-icon v-if="icon" class="flex align-center flex-grow-0">
-        <v-icon
-          size="20"
-          class="icon-default-color mt-1 mx-2">
-          {{ icon }}
-        </v-icon>
-      </v-list-item-icon>
-      <v-list-item-content>
-        <v-list-item-title class="body-2 mt-1">
-          {{ navigation.label }}
-        </v-list-item-title>
-      </v-list-item-content>
+  <a
+    :href="uri"
+    :target="target"
+    :class="isNodeGroup && ' ' || 'clickable'"
+    @mouseover="showAction = true"
+    @mouseleave="showAction = false">
+    <v-list-item class="d-flex px-0">
+      <v-icon
+        size="20"
+        class="icon-default-color mt-1 mx-2">
+        {{ icon }}
+      </v-icon>
+      <v-list-item-title class="body-2 mt-1">
+        {{ navigation.label }}
+      </v-list-item-title>
       <v-list-item-action v-if="!isNodeGroup && (isHomeLink || showAction)" class="my-auto">
         <v-btn
           v-bind="attrs"
@@ -34,7 +29,7 @@
         </v-btn>
       </v-list-item-action>
     </v-list-item>
-  </v-container>
+  </a>
 </template>
 
 <script>

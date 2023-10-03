@@ -19,7 +19,10 @@
 
 -->
 <template>
-  <v-list-item v-if="!displaySequentially" @click="openOrCloseDrawer">
+  <v-list-item
+    v-if="!displaySequentially"
+    @click="openOrCloseDrawer"
+    :class="isCurrentSite && ' v-item--active v-list-item--active ' || ' '">
     <v-list-item-icon class="flex align-center flex-grow-0 my-2">
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
@@ -78,6 +81,8 @@ export default {
   },
   data: () => ({
     showItemActions: false,
+    currentPortal: eXo.env.portal.portalName
+    ,
   }),
   computed: {
     uri() {
@@ -93,7 +98,7 @@ export default {
       return this.site?.siteNavigations?.length && this.findSiteRootNode(this.site.siteNavigations);
     },
     itemClass() {
-      return this.siteRootNode?.pageKey && ' clickable ' || ' not-clickable ';
+      return ` ${this.isCurrentSite && ' v-item--active v-list-item--active ' || ' ' } ${this.siteRootNode?.pageKey && ' clickable ' || ' not-clickable '}` ;
     },
     iconClass() {
       const capitilizedName = `${this.siteRootNode.name[0].toUpperCase()}${this.siteRootNode.name.slice(1)}`;
@@ -116,6 +121,9 @@ export default {
     },
     displaySequentially() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+    },
+    isCurrentSite() {
+      return this.currentPortal === this.site.name;
     },
   },
   methods: {
