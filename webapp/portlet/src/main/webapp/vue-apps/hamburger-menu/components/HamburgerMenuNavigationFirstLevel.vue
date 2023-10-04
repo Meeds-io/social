@@ -51,13 +51,8 @@
         flat
         tile>
         <sites-hamburger
-          v-if="newLeftNavigationDrawerEnabled"
           :sites="sites"
           :opened-site="openedSite" />
-        <site-hamburger-navigation
-          v-else
-          :site="currentSite"
-          :navigations="siteNavigations" />
         <spaces-hamburger-navigation
           :recent-spaces="recentSpaces"
           :recent-spaces-drawer-opened="recentSpacesDrawerOpened"
@@ -94,10 +89,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    siteNavigations: {
-      type: Array,
-      default: null,
-    },
     sites: {
       type: Array,
       default: () => [],
@@ -127,10 +118,6 @@ export default {
       default: null,
     },
   },
-  data: () => ({
-    newLeftNavigationDrawerEnabled: eXo.env.portal.newLeftNavigationDrawer,
-    currentSite: eXo.env.portal.portalName,
-  }),
   computed: {
     levelsOpened() {
       return this.secondLevelDrawer || this.thirdLevelDrawer;

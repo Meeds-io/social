@@ -57,7 +57,6 @@
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
           :has-administration-navigations="hasAdministrationNavigations"
-          :site-navigations="siteNavigations"
           :sites="sites"
           :opened-site="site"
           :recent-spaces="recentSpaces"
@@ -75,7 +74,6 @@
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
           :has-administration-navigations="hasAdministrationNavigations"
-          :site-navigations="siteNavigations"
           :sites="sites"
           :opened-site="site"
           :recent-spaces="recentSpaces"
@@ -119,7 +117,6 @@ export default {
     space: null,
     site: null,
     administrationNavigations: null,
-    siteNavigations: null,
     sites: [],
     initStep: 0,
     recentSpaces: null,
@@ -237,7 +234,6 @@ export default {
     init() {
       return Promise.all([
         this.retrieveSites(),
-        this.retrieveSiteNavigations(),
         this.retrieveAdministrationNavigations(),
         this.retrieveRecentSpaces(),
       ]).finally(() => this.initStep++);
@@ -328,17 +324,9 @@ export default {
       this.secondLevel = null;
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
     },
-    retrieveSiteNavigations() {
-      if (!eXo.env.portal.newLeftNavigationDrawer) {
-        return this.$navigationService.getNavigations(eXo.env.portal.portalName, 'portal', 'children', this.visibility)
-          .then(data => this.siteNavigations = data || []);
-      }
-    },
     retrieveSites(){
-      if (eXo.env.portal.newLeftNavigationDrawer) {
-        return this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal'])
-          .then(data => this.sites = data || []);
-      }
+      return this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal'])
+        .then(data => this.sites = data || []);
     },
     retrieveAdministrationNavigations() {
       return this.$navigationService.getNavigations(null, 'group', null, this.visibility)
