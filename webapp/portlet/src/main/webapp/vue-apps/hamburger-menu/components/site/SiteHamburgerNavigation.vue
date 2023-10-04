@@ -42,7 +42,7 @@
             :target="nav.uriTarget"
             link>
             <v-list-item-icon class="flex align-center flex-grow-0 my-2">
-              <v-icon v-if="isNewLeftNavigationDrawer && nav.icon"> {{ nav.icon }}</v-icon>
+              <v-icon v-if="nav.icon"> {{ nav.icon }}</v-icon>
               <i v-else :class="nav.iconClass"></i>
             </v-list-item-icon>
             <v-list-item-content>
@@ -97,7 +97,6 @@ export default {
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     homeLink: eXo.env.portal.homeLink,
     selectedNavigation: null,
-    isNewLeftNavigationDrawer: eXo.env.portal.newLeftNavigationDrawer
   }),
   computed: {
     confirmMessage() {
@@ -112,7 +111,7 @@ export default {
       this.navigations.forEach(nav => {
         const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
         nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
-        nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || eXo.env.portal.newLeftNavigationDrawer ? `/portal/${nav.siteKey.name}/${nav.uri}` : `${this.BASE_SITE_URI}${nav.uri}`;
+        nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || `/portal/${nav.siteKey.name}/${nav.uri}`;
         nav.uriTarget = nav?.target === 'SAME_TAB' && '_self' || '_blank';
       });
       return this.navigations.filter(nav => nav.visibility === 'DISPLAYED' || nav.visibility === 'TEMPORAL').slice();
