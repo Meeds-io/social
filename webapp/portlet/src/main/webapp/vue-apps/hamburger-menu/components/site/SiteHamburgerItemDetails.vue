@@ -17,11 +17,14 @@
       <v-img
         :src="site.bannerUrl"
         class="mx-1 pt-1" />
-      <v-card-title :title="site?.name" class="text-capitalize font-weight-bold text-subtitle-1">
+      <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
       </v-card-title>
       <v-card-subtitle v-sanitized-html="site?.description" class="text-subtitle-2 py-2 text-color rich-editor-content" />
-      <site-hamburger-item-navigation-tree v-if="site?.siteNavigations?.length" :navigations="site.siteNavigations" />
+      <site-hamburger-item-navigation-tree
+        v-if="site?.siteNavigations?.length"
+        :navigations="site.siteNavigations"
+        :site-name="site?.name" />
     </v-card>
     <exo-confirm-dialog
       ref="confirmDialog"

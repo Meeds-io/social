@@ -24,9 +24,14 @@ export default {
       type: Array,
       default: null,
     },
+    siteName: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
-    selectedNodeUri: eXo.env.portal.selectedNodeUri
+    selectedNodeUri: eXo.env.portal.selectedNodeUri,
+    currentSite: eXo.env.portal.portalName,
   }),
   computed: {
     openLevel() {
@@ -34,12 +39,15 @@ export default {
       if (this.navigations?.length) {
         this.navigations.forEach(nav => {
           ids.push(nav.name);
-          ids.push(...nav.children.length && nav.children.map(nav => nav.name) || []);
+          ids.push(...nav.children?.length && nav.children?.map(nav => nav.name) || []);
         });
       }
       return ids;
     },
     active() {
+      if (this.siteName !== this.currentSite) {
+        return [];
+      }
       const splittedCurrentUri = this.selectedNodeUri.split('/');
       return [splittedCurrentUri[splittedCurrentUri.length -1]];
     },
