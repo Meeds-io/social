@@ -151,7 +151,7 @@ export default {
       user: null,
       MESSAGE_MAX_LENGTH: 1300,
       spaceId: eXo.env.portal.spaceId,
-      streamFilter: localStorage.getItem('activity-stream-stored-filter'),
+      streamFilter: null,
       resetting: false,
     };
   },
@@ -203,6 +203,7 @@ export default {
     }
   },
   created() {
+    this.streamFilter = this.$activityUtils.getStreamFilter();
     document.addEventListener('activity-stream-type-filter-applied', event => {
       this.streamFilter = event && event.detail;
     });
