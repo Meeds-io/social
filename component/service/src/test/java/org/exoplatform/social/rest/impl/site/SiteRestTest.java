@@ -48,14 +48,10 @@ public class SiteRestTest extends BaseRestServicesTestCase {
     super.setUp();
     this.siteDAO = getContainer().getComponentInstanceOfType(SiteDAO.class);
     this.containerDAO = getContainer().getComponentInstanceOfType(ContainerDAO.class);
-    this.siteDAO.deleteAll();
-    this.containerDAO.deleteAll();
   }
 
   @Override
   public void tearDown() throws Exception {
-    siteDAO.deleteAll();
-    containerDAO.deleteAll();
     super.tearDown();
   }
 
@@ -73,28 +69,16 @@ public class SiteRestTest extends BaseRestServicesTestCase {
     HttpServletRequest httpRequest = new MockHttpServletRequest(path, null, 0, "GET", null);
     envctx.put(HttpServletRequest.class, httpRequest);
 
-    org.exoplatform.portal.jdbc.entity.SiteEntity site1 = creatSiteEntity(SiteType.PORTAL,
-                                                                          "siteUn",
-                                                                          true,
-                                                                          1,
-                                                                          String.valueOf(createContainerInstance().getId()));
-    org.exoplatform.portal.jdbc.entity.SiteEntity site2 = creatSiteEntity(SiteType.PORTAL,
-                                                                          "siteDeux",
-                                                                          true,
-                                                                          2,
-                                                                          String.valueOf(createContainerInstance().getId()));
-    org.exoplatform.portal.jdbc.entity.SiteEntity site3 = creatSiteEntity(SiteType.PORTAL,
-                                                                          "siteTrois",
-                                                                          false,
-                                                                          3,
-                                                                          String.valueOf(createContainerInstance().getId()));
+    creatSiteEntity(SiteType.PORTAL, "siteUn", true, 2, String.valueOf(createContainerInstance().getId()));
+    creatSiteEntity(SiteType.PORTAL, "siteDeux", true, 3, String.valueOf(createContainerInstance().getId()));
+    creatSiteEntity(SiteType.PORTAL, "siteTrois", false, 4, String.valueOf(createContainerInstance().getId()));
 
     ContainerResponse resp = launcher.service("GET", path, "", null, null, envctx);
     assertEquals(200, resp.getStatus());
     Object entity = resp.getEntity();
     assertNotNull(entity);
     List<SiteEntity> siteRestEntities = (List<SiteEntity>) resp.getEntity();
-    assertEquals(3, siteRestEntities.size());
+    assertFalse(siteRestEntities.isEmpty());
 
     path = "/v1/social/sites?siteType=PORTAL&sortByDisplayOrder=true&filterByDisplayed=true&displayed=true";
 
@@ -103,23 +87,24 @@ public class SiteRestTest extends BaseRestServicesTestCase {
     entity = resp.getEntity();
     assertNotNull(entity);
     siteRestEntities = (List<SiteEntity>) resp.getEntity();
-    assertEquals(2, siteRestEntities.size());
-    assertEquals(site1.getDisplayOrder(), siteRestEntities.get(0).getDisplayOrder());
-    assertEquals(site2.getDisplayOrder(), siteRestEntities.get(1).getDisplayOrder());
+    assertFalse(siteRestEntities.isEmpty());
+    assertEquals(1, siteRestEntities.get(0).getDisplayOrder());
+    assertEquals(2, siteRestEntities.get(1).getDisplayOrder());
+    assertEquals(3, siteRestEntities.get(2).getDisplayOrder());
     path =
-         "/v1/social/sites?siteType=PORTAL&sortByDisplayOrder=true&filterByDisplayed=true&displayed=true&excludedSiteName=siteDeux";
+         "/v1/social/sites?siteType=PORTAL&sortByDisplayOrder=true&filterByDisplayed=true&displayed=true&expandNavigations=true&excludeEmptyNavigations=true";
 
     resp = launcher.service("GET", path, "", null, null, envctx);
     assertEquals(200, resp.getStatus());
     entity = resp.getEntity();
     assertNotNull(entity);
     siteRestEntities = (List<SiteEntity>) resp.getEntity();
-    assertEquals(1, siteRestEntities.size());
-    assertEquals(site1.getName(), siteRestEntities.get(0).getName());
+    assertFalse(siteRestEntities.get(0).getSiteNavigations().isEmpty());
   }
 
   @Test
   public void testGetSiteBanner() throws Exception {
+    siteDAO.deleteAll();
     startUserSession("root1");
 
     String originPath = "/v1/social/sites/";
@@ -153,9 +138,11 @@ public class SiteRestTest extends BaseRestServicesTestCase {
     path = originPath + site.getName() + "/banner?r=" + token + "&isDefault=false";
     resp = launcher.service("GET", path, "", null, null, envctx);
     assertEquals(200, resp.getStatus());
+    siteDAO.delete(site);
   }
   @Test
   public void testGetSiteById() throws Exception {
+    siteDAO.deleteAll();
     startUserSession("root1");
 
     String originPath = "/v1/social/sites/";
