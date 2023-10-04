@@ -926,14 +926,6 @@
     <external-component-plugins>
       <target-component>io.meeds.social.translation.service.TranslationService</target-component>
       <component-plugin>
-<<<<<<< HEAD
-        <name>site</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.social.core.plugin.SiteTranslationPlugin</type>
-      </component-plugin>
-    </external-component-plugins>
-
-=======
         <name>link-settings</name>
         <set-method>addPlugin</set-method>
         <type>io.meeds.social.link.plugin.LinkSettingTranslationPlugin</type>
@@ -960,6 +952,4 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
-
->>>>>>> 3324b76df3 (feat: Add Links Application - MEED-2512 - Meeds-io/MIPs#92 (#2953))
 </configuration>
