@@ -143,7 +143,7 @@ export default {
     },
   },
   created() {
-    this.streamFilter = localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
+    this.streamFilter = this.$activityUtils.getStreamFilter();
     document.addEventListener('activity-favorite-removed', event => {
       const favoriteActivity = event?.detail;
       if (this.streamFilter === 'user_favorite_stream') {
