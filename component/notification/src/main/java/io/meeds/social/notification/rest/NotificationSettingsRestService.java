@@ -298,6 +298,40 @@ public class NotificationSettingsRestService implements ResourceContainer {
   }
 
   @PATCH
+  @Path("{id}/spaces/{spaceId}")
+  @RolesAllowed("users")
+  @Operation(summary = "Change enablement status of Channel for a user", description = "Change enablement status of Channel for a user", method = "PATCH")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+  })
+  public Response saveSpaceMuteStatus(
+                                      @Parameter(description = "User name that will be used to save its settings.", required = true)
+                                      @PathParam("id")
+                                      String username,
+                                      @Parameter(description = "Space technical identifier", required = true)
+                                      @PathParam("spaceId")
+                                      long spaceId,
+                                      @Parameter(description = "Enable/disable a channel", required = true)
+                                      @FormParam("enable")
+                                      boolean enable) {
+    boolean isAdmin = userACL.isSuperUser() || userACL.isUserInGroup(userACL.getAdminGroups());
+    boolean isSameUser = ConversationState.getCurrent().getIdentity().getUserId().equals(username);
+    if (!isAdmin && !isSameUser) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+    UserSetting setting = userSettingService.get(username);
+    if (enable) {
+      setting.removeMutedSpace(spaceId);
+    } else {
+      setting.addMutedSpace(spaceId);
+    }
+    userSettingService.save(setting);
+    return Response.noContent().build();
+  }
+
+  @PATCH
   @Path("{id}/channel/{channelId}")
   @RolesAllowed("users")
   @Operation(
@@ -481,7 +515,8 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                         emailDigestChoices,
                                         channelCheckBoxList,
                                         channelStatus,
-                                        channels);
+                                        channels,
+                                        setting.getMutedSpaces());
   }
 
   public class Context {

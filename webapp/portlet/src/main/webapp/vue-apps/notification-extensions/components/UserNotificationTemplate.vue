@@ -10,6 +10,20 @@
       class="position-relative no-border"
       tile
       flat>
+      <div
+        v-if="hover"
+        :class="$vuetify.rtl && 'l-0' || 'r-0'"
+        class="position-absolute t-0 pt-2px me-1 d-none z-index-two d-sm-block"
+        @click.stop="0">
+        <user-notification-menu
+          :notification="notification"
+          :unread="unread"
+          :can-mute="canMute"
+          class="white"
+          @remove="hideNotification"
+          @mute="muteSpace"
+          @read="markAsRead" />
+      </div>
       <v-slide-x-transition>
         <v-list-item
           :href="url"
@@ -22,7 +36,7 @@
             'min-width': `${minWidth}px`,
             'padding-bottom': '9px !important',
           }"
-          class="d-flex d-relative pa-2"
+          class="d-flex pa-2"
           v-touch="{
             start: moveStart,
             end: moveEnd,
@@ -70,18 +84,6 @@
               </div>
             </v-list-item-subtitle>
           </v-list-item-content>
-          <div
-            v-if="hover"
-            :class="$vuetify.rtl && 'l-0' || 'r-0'"
-            class="position-absolute t-0 pt-2px me-1 d-none d-sm-block ">
-            <v-btn
-              class="remove-item"
-              small
-              icon
-              @click.stop.prevent="hideNotification">
-              <v-icon size="16">fa-times</v-icon>
-            </v-btn>
-          </div>
         </v-list-item>
       </v-slide-x-transition>
     </v-card>
@@ -137,6 +139,7 @@ export default {
     movingLeft: false,
     moving: false,
     markedAsRead: false,
+    markedAsReadMuted: false,
   }),
   computed: {
     remoteId() {
@@ -147,6 +150,9 @@ export default {
     },
     unread() {
       return this.markedAsRead === false && this.notification?.read === false;
+    },
+    canMute() {
+      return !this.markedAsReadMuted && !this.notification?.spaceMuted && this.notification?.canMute && this.notification?.space?.id;
     },
     lastUpdateTime() {
       return this.notification?.created && new Date(this.notification?.created);
@@ -188,8 +194,15 @@ export default {
         });
     },
     markAsRead() {
-      this.markedAsRead = true;
-      return this.$notificationService.markRead(this.notificationId)
+      if (this.unread) {
+        this.markedAsRead = true;
+        return this.$notificationService.markRead(this.notificationId)
+          .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')));
+      }
+    },
+    muteSpace() {
+      this.markedAsReadMuted = true;
+      return this.$spaceService.muteSpace(this.notification?.space?.id)
         .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')));
     },
     reset() {

@@ -47,8 +47,12 @@ public class WebNotificationRestEntity {
   private String              html;
 
   private Map<String, String> parameters = new HashMap<>();
-
+  
   private boolean             read;
+
+  private boolean             canMute;
+
+  private boolean             spaceMuted;
 
   private long                created;
 

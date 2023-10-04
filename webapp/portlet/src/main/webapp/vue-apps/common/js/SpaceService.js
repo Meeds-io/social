@@ -742,3 +742,18 @@ export function markAllAsRead(spaceId) {
     }
   }));
 }
+
+export function muteSpace(spaceId, unmute) {
+  return fetch(`/portal/rest/notifications/settings/${eXo.env.portal.userName}/spaces/${spaceId}`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `enable=${unmute || false}`,
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('Error processing request on server');
+    }
+  });
+}

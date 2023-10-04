@@ -120,6 +120,13 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action class="space-logo-popover flex-row">
+              <v-btn
+                :title="spaceMuted && $t('Notification.tooltip.unmuteSpaceNotification') || $t('Notification.tooltip.muteSpaceNotification')"
+                :loading="saving"
+                icon
+                @click="muteSpace">
+                <v-icon size="16" class="icon-default-color">{{ spaceMuted && 'fa-bell' || 'fa-bell-slash' }}</v-icon>
+              </v-btn>
               <exo-space-favorite-action
                 :is-favorite="isFavorite"
                 :space-id="spaceId"
@@ -194,14 +201,25 @@ export default {
       type: Boolean,
       default: false
     },
+    muted: {
+      type: Boolean,
+      default: false
+    },
     isMember: {
       type: Boolean,
       default: false
     },
   },
+  data: () => ({
+    saving: false,
+    muteValue: null,
+  }),
   computed: {
     mangersToDisplay() {
       return this.managers;
+    },
+    spaceMuted() {
+      return this.muteValue === null ? this.muted : this.muteValue;
     },
     params() {
       return {
@@ -217,7 +235,14 @@ export default {
     openDetails() {
       this.$root.$emit('displaySpaceHosts', this.mangersToDisplay);
       this.popoverActionEvent('displaySpaceHosts');
-    }
+    },
+    muteSpace() {
+      this.saving = true;
+      return this.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
+        .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
+        .then(() => this.muteValue = !this.spaceMuted)
+        .finally(() => this.saving = false);
+    },
   }
 };
 </script>
