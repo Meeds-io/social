@@ -176,7 +176,7 @@ export default {
       return this.streamFilterEnabled && this.streamFilter === 'unread_spaces_stream' && this.hasActivities;
     },
     displayToolbar() {
-      return (this.userCanPost || this.streamFilterEnabled) && this.user;
+      return this.userCanPost || this.streamFilterEnabled;
     },
     extensionParams() {
       return {
@@ -203,16 +203,20 @@ export default {
     }
   },
   created() {
-    if (!this.user) {
-      this.$userService.getUser(eXo.env.portal.userName)
-        .then(user => this.user = user);
-    }
     document.addEventListener('activity-stream-type-filter-applied', event => {
       this.streamFilter = event && event.detail;
     });
     this.$root.$on('activity-stream-notify-all-read', this.notifyAsRead);
+    this.retrieveUserInformation();
   },
   methods: {
+    retrieveUserInformation() {
+      this.user = this.$currentUserIdentity && this.$currentUserIdentity.profile;
+      if (!this.user) {
+        return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
+          .then(data => this.user = data?.profile);
+      }
+    },
     openComposerDrawer() {
       this.$nextTick().then(() => {
         document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
