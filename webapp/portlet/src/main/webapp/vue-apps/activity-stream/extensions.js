@@ -49,8 +49,8 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   rank: 1000,
 });
 
-
 const defaultActivityOptions = {
+  ckEditorType: 'activityComment',
   getEmbeddedHtml: activity => activity && activity.templateParams && activity.templateParams.html,
   getSourceLink: activity => activity && activity.templateParams && !activity.templateParams.html && activity.templateParams.link,
   getTitle: activity => activity && activity.templateParams && (activity.templateParams.title || activity.templateParams.defaultTitle || activity.templateParams.link) || '',
@@ -388,4 +388,36 @@ extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-f
   id: 'reply',
   vueComponent: Vue.options.components['activity-comment-reply-action'],
   rank: 20,
+});
+
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'attachment-dialog',
+  vueComponent: Vue.options.components['attachments-image-preview-dialog'],
+  rank: 50,
+});
+
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'attachment-cropper-drawer',
+  vueComponent: Vue.options.components['attachments-image-crop-drawer'],
+  rank: 40,
+});
+
+extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
+  id: 'attachedItem',
+  isEnabled: (params) => {
+    const activity = params?.activity;
+    return !activity.activityId && activity?.metadatas?.attachments?.length;
+  },
+  vueComponent: Vue.options.components['activity-image-attachments'],
+  rank: 15,
+});
+
+extensionRegistry.registerComponent('CommentContent', 'comment-content-extensions', {
+  id: 'attachedItem',
+  isEnabled: (params) => {
+    const activity = params?.activity;
+    return activity.activityId && activity?.metadatas?.attachments?.length;
+  },
+  vueComponent: Vue.options.components['activity-image-attachments'],
+  rank: 15,
 });

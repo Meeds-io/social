@@ -581,10 +581,6 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
                      .entity("comment identifier is not expected for comment creation")
                      .build();
     }
-    if (StringUtils.isBlank(model.getTitle())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("comment title is mandatory").build();
-    }
-
     org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     String authenticatedUser = authenticatedUserIdentity.getUserId();
     Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
@@ -595,6 +591,11 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     }
 
     ExoSocialActivity comment = new ExoSocialActivityImpl();
+    if (StringUtils.isBlank(model.getTitle())) {
+      comment.setTitle("");
+    } else {
+      comment.setTitle(model.getTitle());
+    }
     comment.setParentCommentId(model.getParentCommentId());
     comment.setPosterId(currentUser.getId());
     comment.setUserId(currentUser.getId());
@@ -650,9 +651,6 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
     if (StringUtils.isBlank(model.getId())) {
       return Response.status(Response.Status.BAD_REQUEST).entity("comment identifier id mandatory").build();
     }
-    if (StringUtils.isBlank(model.getTitle())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("comment title is mandatory").build();
-    }
 
     org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     String authenticatedUser = authenticatedUserIdentity.getUserId();
@@ -677,6 +675,11 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
     EntityBuilder.buildActivityFromEntity(model, comment);
     comment.setFiles(model.getFiles());
+    if (StringUtils.isBlank(model.getTitle())) {
+      comment.setTitle("");
+    } else {
+      comment.setTitle(model.getTitle());
+    }
     comment.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(comment, true);
     CommentEntity commentEntity = EntityBuilder.buildEntityFromComment(activityManager.getActivity(comment.getId()),

@@ -166,6 +166,10 @@
   </component>
 
     <component>
+      <type>org.exoplatform.social.core.attachment.storage.FileAttachmentStorage</type>
+    </component>
+
+    <component>
       <key>io.meeds.social.translation.storage.TranslationStorage</key>
       <type>io.meeds.social.translation.storage.cache.CachedTranslationStorage</type>
     </component>
@@ -410,6 +414,11 @@
     <component>
       <key>org.exoplatform.social.metadata.favorite.FavoriteService</key>
       <type>org.exoplatform.social.core.metadata.favorite.FavoriteServiceImpl</type>
+    </component>
+
+    <component>
+      <key>org.exoplatform.social.attachment.AttachmentService</key>
+      <type>org.exoplatform.social.core.attachment.AttachmentServiceImpl</type>
     </component>
 
     <component>
@@ -745,6 +754,18 @@
         </init-params>
     </component>
 
+    <component>
+        <key>EditorAttachImageFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>EditorAttachImageFeatureProperties</name>
+                <description>Editor attach image plugin Feature enablement flag</description>
+                <property name="exo.feature.EditorAttachImage.enabled" value="${exo.feature.EditorAttachImage.enabled:false}" />
+            </properties-param>
+        </init-params>
+    </component>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
         <component-plugin>
@@ -890,6 +911,14 @@
         <set-method>addPlugin</set-method>
         <type>io.meeds.social.observe.plugin.ActivityOberverPlugin</type>
       </component-plugin>
+    </external-component-plugins>
+    <external-component-plugins>
+        <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+        <component-plugin>
+            <name>social.metadataItem.deleted</name>
+            <set-method>addListener</set-method>
+            <type>org.exoplatform.social.core.listeners.AttachmentMetadataListener</type>
+        </component-plugin>
     </external-component-plugins>
 
     <external-component-plugins>

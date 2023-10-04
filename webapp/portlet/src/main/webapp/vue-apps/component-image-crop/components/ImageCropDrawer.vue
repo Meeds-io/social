@@ -36,116 +36,148 @@
         max-width="100%"
         class="pa-4 content-box-sizing overflow-hidden"
         flat>
-        <v-card
-          :height="height"
-          :width="width"
-          :max-height="height"
-          :max-width="maxWidth"
-          :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
-          class="border-color mx-auto primary position-relative"
-          flat>
-          <img
-            v-if="imageData"
-            ref="imageCrop"
-            :src="imageData"
-            :width="`${width}px`"
-            :height="`${height}px`"
-            alt="Picture to crop">
-        </v-card>
-
-        <div class="d-flex mt-4">
-          <div :title="$t('imageCropDrawer.uploadImage')" class="flex-grow-0">
-            <v-file-input
-              v-if="!resetInput"
-              :title="$t('imageCropDrawer.uploadImage')"
-              id="imageFileInput"
-              ref="imageFileInput"
-              accept="image/*"
-              prepend-icon="fas fa-camera z-index-two rounded-circle primary-border-color white py-1 ms-3"
-              class="file-selector pa-0 ma-0"
-              rounded
-              clearable
-              dense
-              @change="uploadFile" />
+        <div class="overflow-hidden position-relative">
+          <div v-if="isImageGif" class="d-flex position-absolute full-width full-height mask-color z-index-one rounded">
+            <div class="d-flex flex-column align-center flex ma-auto">
+              <v-icon size="52" class="white--text mb-4">fa-ban</v-icon>
+              <div class="white--text text-wrap subtitle-1">{{ $t('imageCropDrawer.gitImage.label.option') }}</div>
+              <div class="white--text text-wrap subtitle-1">{{ $t('imageCropDrawer.gitImage.label.gif') }}</div>
+            </div>
           </div>
-          <div class="d-flex flex-grow-1 d-flex align-center justify-end">
-            <v-btn
-              :title="$t('imageCropDrawer.moveRight')"
-              id="moveImageToRight"
-              icon
-              outlined
-              @click="move(-10, 0)">
-              <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-right</v-icon>
-            </v-btn>
-            <v-btn
-              :title="$t('imageCropDrawer.moveLeft')"
-              id="moveImageToLeft"
-              icon
-              outlined
-              @click="move(10, 0)">
-              <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-left</v-icon>
-            </v-btn>
-            <v-btn
-              :title="$t('imageCropDrawer.moveUp')"
-              id="moveImageToUp"
-              icon
-              outlined
-              @click="move(0, -10)">
-              <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-up</v-icon>
-            </v-btn>
-            <v-btn
-              :title="$t('imageCropDrawer.moveDown')"
-              id="moveImageToBottom"
-              icon
-              outlined
-              @click="move(0, 10)">
-              <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-down</v-icon>
-            </v-btn>
-            <v-btn
-              :title="$t('imageCropDrawer.rotateRight')"
-              id="rotateImageToRight"
-              icon
-              outlined
-              @click="rotateRight">
-              <v-icon size="18" class="fa-flip-horizontal">fas fa-undo</v-icon>
-            </v-btn>
-            <v-btn
-              :title="$t('imageCropDrawer.rotateLeft')"
-              id="rotateImageToLeft"
-              icon
-              outlined
-              @click="rotateLeft">
-              <v-icon size="18">fas fa-undo</v-icon>
-            </v-btn>
+          <div :class="isImageGif && 'filter-blur-3' || ''">
+            <v-card
+              :height="height"
+              :width="width"
+              :max-height="height"
+              :max-width="maxWidth"
+              :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
+              class="border-color mx-auto primary position-relative"
+              flat>
+              <img
+                v-if="imageData && !isImageGif"
+                ref="imageCrop"
+                :src="imageData"
+                :width="`${width}px`"
+                :height="`${height}px`"
+                alt="Picture to crop">
+            </v-card>
+            <div class="d-flex mt-4">
+              <div :title="$t('imageCropDrawer.uploadImage')" class="d-flex align-center flex-grow-0">
+                <v-file-input
+                  v-if="displayUploadIcon"
+                  :title="$t('imageCropDrawer.uploadImage')"
+                  id="imageFileInput"
+                  ref="imageFileInput"
+                  accept="image/*"
+                  prepend-icon="fas fa-camera z-index-two rounded-circle primary-border-color white py-1 ms-3"
+                  class="file-selector pa-0 ma-0"
+                  rounded
+                  clearable
+                  dense
+                  @change="uploadFile" />
+                <v-btn
+                  :title="$t('imageCropDrawer.resetCropper')"
+                  id="cancelChanges"
+                  icon
+                  outlined
+                  @click="resetCropperData()">
+                  <v-icon size="18" class="fa-flip-horizontal">fas fa-ban</v-icon>
+                </v-btn>
+              </div>
+              <div class="d-flex flex-grow-1 d-flex align-center justify-end">
+                <v-btn
+                  :title="$t('imageCropDrawer.moveRight')"
+                  id="resetCropper"
+                  icon
+                  outlined
+                  @click="move(-10, 0)">
+                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-right</v-icon>
+                </v-btn>
+                <v-btn
+                  :title="$t('imageCropDrawer.moveLeft')"
+                  id="moveImageToLeft"
+                  icon
+                  outlined
+                  @click="move(10, 0)">
+                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-left</v-icon>
+                </v-btn>
+                <v-btn
+                  :title="$t('imageCropDrawer.moveUp')"
+                  id="moveImageToUp"
+                  icon
+                  outlined
+                  @click="move(0, -10)">
+                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-up</v-icon>
+                </v-btn>
+                <v-btn
+                  :title="$t('imageCropDrawer.moveDown')"
+                  id="moveImageToBottom"
+                  icon
+                  outlined
+                  @click="move(0, 10)">
+                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-down</v-icon>
+                </v-btn>
+                <v-btn
+                  :title="$t('imageCropDrawer.rotateRight')"
+                  id="rotateImageToRight"
+                  icon
+                  outlined
+                  @click="rotateRight">
+                  <v-icon size="18" class="fa-flip-horizontal">fas fa-undo</v-icon>
+                </v-btn>
+                <v-btn
+                  :title="$t('imageCropDrawer.rotateLeft')"
+                  id="rotateImageToLeft"
+                  icon
+                  outlined
+                  @click="rotateLeft">
+                  <v-icon size="18">fas fa-undo</v-icon>
+                </v-btn>
+              </div>
+            </div>
+            <div class="d-flex mt-4">
+              <div class="flex-grow-0 pt-1 pe-2">
+                {{ $t('imageCropDrawer.zoom') }}
+              </div>
+              <div class="flex-grow-1 d-flex">
+                <v-btn
+                  :title="$t('imageCropDrawer.zoomOut')"
+                  id="zoomImageOut"
+                  icon
+                  outlined
+                  @click="zoom -= stepZoom">
+                  <v-icon size="18">fas fa-isImageGifsearch-minus</v-icon>
+                </v-btn>
+                <v-slider
+                  v-model="zoom"
+                  :step="stepZoom"
+                  :min="minZoom"
+                  :max="maxZoom"
+                  class="mx-n1" />
+                <v-btn
+                  :title="$t('imageCropDrawer.zoomIn')"
+                  id="zoomImageIn"
+                  icon
+                  outlined
+                  @click="zoom += stepZoom">
+                  <v-icon size="18">fas fa-search-plus</v-icon>
+                </v-btn>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="d-flex mt-4">
-          <div class="flex-grow-0 pt-1 pe-2">
-            {{ $t('imageCropDrawer.zoom') }}
+        <div v-if="alt" class="d-flex flex-column mt-4">
+          <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
+            {{ $t('imageCropDrawer.altText.title') }}
           </div>
           <div class="flex-grow-1 d-flex">
-            <v-btn
-              :title="$t('imageCropDrawer.zoomOut')"
-              id="zoomImageOut"
-              icon
-              outlined
-              @click="zoom -= stepZoom">
-              <v-icon size="18">fas fa-search-minus</v-icon>
-            </v-btn>
-            <v-slider
-              v-model="zoom"
-              :step="stepZoom"
-              :min="minZoom"
-              :max="maxZoom"
-              class="mx-n1" />
-            <v-btn
-              :title="$t('imageCropDrawer.zoomIn')"
-              id="zoomImageIn"
-              icon
-              outlined
-              @click="zoom += stepZoom">
-              <v-icon size="18">fas fa-search-plus</v-icon>
-            </v-btn>
+            <extended-textarea
+              v-model="alternativeText"
+              :max-length="altTextMaxLength"
+              :placeholder="$t('imageCropDrawer.altText.placeholder')"
+              extra-class="width-auto"
+              class="pt-0"
+              @input="$emit('alt-text',alternativeText)" />
           </div>
         </div>
       </v-card>
@@ -185,6 +217,10 @@ export default {
       type: Number,
       default: () => 1280,
     },
+    altTextMaxLength: {
+      type: Number,
+      default: () => 1000,
+    },
     backIcon: {
       type: Boolean,
       default: false,
@@ -204,6 +240,18 @@ export default {
     circle: {
       type: Boolean,
       default: false,
+    },
+    canUpload: {
+      type: Boolean,
+      default: true,
+    },
+    alt: {
+      type: Boolean,
+      default: false,
+    },
+    defaultAltText: {
+      type: String,
+      default: '',
     },
     rounded: {
       type: Boolean,
@@ -230,6 +278,8 @@ export default {
     imageData: null,
     resetInput: false,
     sendingImage: false,
+    alternativeText: null,
+    mimetype: null
   }),
   computed: {
     aspectRatio() {
@@ -241,6 +291,12 @@ export default {
     height() {
       return parseInt((this.width + 32) * 9 / 16) - 32;
     },
+    displayUploadIcon() {
+      return !this.resetInput && this.canUpload;
+    },
+    isImageGif() {
+      return this.mimetype && this.mimetype === 'image/gif';
+    }
   },
   watch: {
     imageData() {
@@ -266,11 +322,14 @@ export default {
         this.$nextTick().then(() => this.init(true));
       }
     },
+
   },
   methods: {
-    open() {
+    open(imageItem) {
       this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
-      this.imageData = this.src || null;
+      this.imageData = imageItem?.src || this.src || null;
+      this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
+      this.alternativeText = imageItem?.altText || null;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
@@ -352,9 +411,16 @@ export default {
         this.cropper.zoom(value);
       }
     },
+    resetCropperData() {
+      this.cropper.reset();
+    },
     apply() {
-      this.uploadCroppedImage()
-        .then(() => this.close());
+      if (this.isImageGif) {
+        this.close();
+      } else {
+        this.uploadCroppedImage()
+          .then(() => this.close());
+      }
     },
     uploadCroppedImage() {
       this.$root.$emit('close-alert-message');
@@ -453,6 +519,17 @@ export default {
         reader.readAsDataURL(file);
       }
     },
+    getBase64Mimetype(dataUrl) {
+      let mimetype = null;
+      if (typeof dataUrl !== 'string') {
+        return mimetype;
+      }
+      const dataMimetype = dataUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+      if (dataMimetype && dataMimetype.length) {
+        mimetype = dataMimetype[1];
+      }
+      return mimetype;
+    }
   },
 };
 </script>

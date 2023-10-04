@@ -27,6 +27,7 @@ import org.exoplatform.social.core.identity.IdentityResultTest;
 import org.exoplatform.social.core.identity.model.GlobalIdTest;
 import org.exoplatform.social.core.identity.model.IdentityTest;
 import org.exoplatform.social.core.image.ImageUtilsTest;
+import org.exoplatform.social.core.plugin.ActivityAttachmentPluginTest;
 import org.exoplatform.social.core.processor.ActivityResourceBundlePluginTest;
 import org.exoplatform.social.core.profile.UserProfileComparatorTest;
 import org.exoplatform.social.core.relationship.RelationshipTest;
@@ -44,6 +45,7 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
     ActivityIteratorTest.class,
     IdentityResultTest.class,
     GettingStartedServiceTest.class,
+    ActivityAttachmentPluginTest.class,
     UserProfileComparatorTest.class,
     ActivityIndexingServiceConnectorTest.class,
     ActivitySearchConnectorTest.class,

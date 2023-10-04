@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-hidden">
     <div class="richEditor">
       <textarea
         ref="editor"
@@ -22,6 +22,14 @@
         <i class="uiIconMessageLength"></i>
       </div>
     </div>
+    <attachments-image-input
+      v-if="displayAttachmentEditor"
+      ref="attachmentsInput"
+      :max-file-size="maxFileSize"
+      :object-type="objectType"
+      :object-id="objectId"
+      :disable-paste="disableImageAttachmentPaste"
+      @changed="$emit('attachments-edited', $event)" />
   </div>
 </template>
 
@@ -96,6 +104,30 @@ export default {
       type: Number,
       default: () => 500,
     },
+    maxFileSize: {
+      type: Number,
+      default: () => 20971520,
+    },
+    objectType: {
+      type: String,
+      default: null
+    },
+    objectId: {
+      type: String,
+      default: null
+    },
+    disableImageAttachment: {
+      type: Boolean,
+      default: false
+    },
+    disableImageAttachmentPaste: {
+      type: Boolean,
+      default: false
+    },
+    disableSuggester: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     SMARTPHONE_LANDSCAPE_WIDTH: 768,
@@ -128,6 +160,12 @@ export default {
     },
     supportsOembed() {
       return this.oembed || this.templateParams;
+    },
+    attachmentEnabled() {
+      return !this.disableImageAttachment && eXo.env.portal.editorAttachImageEnabled && this.objectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.objectType) >= 0;
+    },
+    displayAttachmentEditor() {
+      return this.attachmentEnabled && this.editorReady;
     },
   },
   watch: {
@@ -162,7 +200,12 @@ export default {
     },
     suggesterSpaceURL() {
       this.initCKEditor(!!this.suggesterSpaceURL, this.value);
-    }
+    },
+    displayAttachmentEditor(newVal, oldVal) {
+      if (newVal && !oldVal) {
+        this.$nextTick().then(() => this.$refs?.attachmentsInput?.init());
+      }
+    },
   },
   created() {
     // Load CKEditor only when needed
@@ -217,7 +260,7 @@ export default {
 
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
-      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH) {
+      if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH && !this.disableSuggester) {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
@@ -234,6 +277,10 @@ export default {
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
+      }
+      if (this.attachmentEnabled) {
+        extraPlugins = `${extraPlugins},attachImage`;
+        toolbar[0].push('attachImage');
       }
       toolbar[0].unshift('formatOption');
 
@@ -299,6 +346,15 @@ export default {
               localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
             }
           },
+          paste: function (evt) {
+            if (!self.disableImageAttachmentPaste && self.$refs?.attachmentsInput && evt.data.dataTransfer.getFilesCount() > 0) {
+              const files = [];
+              for (let i = 0; i < evt.data.dataTransfer.getFilesCount(); i++ ) {
+                files.push(evt.data.dataTransfer.getFile(i));
+              }
+              self.$refs.attachmentsInput.uploadFiles(files);
+            }
+          },
           destroy: function () {
             if (!self) {
               return;
@@ -317,6 +373,9 @@ export default {
     },
     destroyCKEditor: function () {
       this.editor?.destroy?.(true);
+      if (this.$refs.attachmentsInput) {
+        this.$refs.attachmentsInput.reset();
+      }
     },
     initCKEditorData: function(message) {
       this.inputVal = message && this.getContentToEdit(message) || '';
@@ -365,6 +424,11 @@ export default {
         });
       } else {
         this.clearOembedParams();
+      }
+    },
+    saveAttachments() {
+      if (this.$refs.attachmentsInput) {
+        return this.$refs.attachmentsInput.save();
       }
     },
     getContentToEdit(content) {

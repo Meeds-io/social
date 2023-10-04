@@ -62,11 +62,11 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
                                          IndexingService indexingService) {
     this.indexingService = indexingService;
     this.metadataService = metadataService;
-    if (activityStorage instanceof CachedActivityStorage) {
-      this.cachedActivityStorage = (CachedActivityStorage) activityStorage;
+    if (activityStorage instanceof CachedActivityStorage cachedStorage) {
+      this.cachedActivityStorage = cachedStorage;
     }
-    if (spaceStorage instanceof CachedSpaceStorage) {
-      this.cachedSpaceStorage = (CachedSpaceStorage) spaceStorage;
+    if (spaceStorage instanceof CachedSpaceStorage cachedStorage) {
+      this.cachedSpaceStorage = cachedStorage;
     }
   }
 
@@ -98,12 +98,12 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
   }
 
   protected void handleMetadataModification(String objectType, String objectId) {
-    if (isActivityEvent(objectType)) {
+    if (clearActivityCache(objectType, objectId)) {
       // Ensure to re-execute MetadataActivityProcessor to compute & cache
       // metadatas of the activity again
-      clearActivityCache(objectId);
       reindexActivity(objectId);
-    } else if (isSpaceEvent(objectType)) {
+    }
+    if (isSpaceEvent(objectType)) {
       clearSpaceCache(objectId);
       reindexSpace(objectId);
     }
@@ -143,10 +143,11 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
     indexingService.reindex(ActivityIndexingServiceConnector.TYPE, activityId);
   }
 
-  private void clearActivityCache(String activityId) {
+  private boolean clearActivityCache(String objectType, String objectId) {
     if (cachedActivityStorage != null) {
-      cachedActivityStorage.clearActivityCached(activityId);
+      return cachedActivityStorage.clearActivityByMetadataObject(objectType, objectId);
     }
+    return false;
   }
 
   private void reindexSpace(String spaceId) {

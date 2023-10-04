@@ -158,6 +158,22 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
+    if (metadataItem == null) {
+      throw new IllegalArgumentException("MetadataItem is mandatory");
+    }
+    validateMetadataItemId(metadataItem.getId());
+    validateUserIdentityId(userIdentityId);
+    metadataItem = metadataStorage.updateMetadataItem(metadataItem);
+    try {
+      this.listenerService.broadcast("social.metadataItem.updated", userIdentityId, metadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadataItem update", e);
+    }
+    return metadataItem;
+  }
+
+  @Override
   public MetadataItem deleteMetadataItem(long itemId, boolean broadcast) throws ObjectNotFoundException {
     validateMetadataItemId(itemId);
     MetadataItem metadataItem = this.metadataStorage.getMetadataItemById(itemId);
@@ -191,7 +207,13 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public void deleteMetadataItemsByObject(MetadataObject object) {
+    List<MetadataItem> metadataItems = this.metadataStorage.getMetadataItemsByObject(object);
     this.metadataStorage.deleteMetadataItemsByObject(object);
+    if (CollectionUtils.isNotEmpty(metadataItems)) {
+      for (MetadataItem metadataItem : metadataItems) {
+        broadcastDeleted(metadataItem, 0l);
+      }
+    }
   }
 
   @Override
@@ -372,6 +394,19 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   @Override
   public Set<String> getMetadataNamesByObject(MetadataObject object) {
     return this.metadataStorage.getMetadataNamesByObject(object);
+  }
+
+  @Override
+  public List<String> getMetadataNamesByMetadataTypeAndObject(String metadataTypeName, String objectType, String objectId) {
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    List<MetadataItem> metadataItems = this.metadataStorage.getMetadataItemsByMetadataTypeAndObject(metadataType.getId(),
+                                                                                                    new MetadataObject(objectType,
+                                                                                                                       objectId));
+    return metadataItems.stream()
+                        .map(MetadataItem::getMetadata)
+                        .map(Metadata::getName)
+                        .distinct()
+                        .toList();
   }
 
   @Override

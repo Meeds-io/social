@@ -19,6 +19,7 @@
     id="activityComposerDrawer"
     ref="activityComposerDrawer"
     v-model="drawer"
+    v-draggable="enabled"
     disable-pull-to-refresh
     right
     fixed>
@@ -114,18 +115,22 @@
         <v-card-text>
           <rich-editor
             v-if="drawer"
-            :ref="CK_EDITOR_ID"
+            ref="activityContent"
             v-model="message"
             :max-length="MESSAGE_MAX_LENGTH"
             :template-params="templateParams"
             :placeholder="composerPlaceholder"
+            :object-type="metadataObjectType"
+            :object-id="metadataObjectId"
+            :max-file-size="$root.maxFileSize"
             :suggester-space-u-r-l="spaceURL"
             class="activityRichEditor"
             ck-editor-type="activityContent"
             context-name="activityComposer"
             use-extra-plugins
             use-draft-management
-            autofocus />
+            autofocus
+            @attachments-edited="attachmentsEdit" />
         </v-card-text>
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
@@ -169,7 +174,6 @@ export default {
     return {
       MESSAGE_MAX_LENGTH: 1300,
       MESSAGE_TIMEOUT: 5000,
-      CK_EDITOR_ID: 'activityContent',
       activityId: null,
       spaceId: null,
       spaceURL: eXo.env.portal.spaceUrl,
@@ -178,10 +182,12 @@ export default {
       templateParams: {},
       drawer: false,
       activityBodyEdited: false,
+      activityAttachmentsEdited: false,
       originalBody: '',
       messageEdited: false,
       activityType: null,
       loading: false,
+      attachments: null,
       activityToolbarAction: false,
       postToNetwork: eXo.env.portal.postToNetworkEnabled,
       audienceChoice: 'yourNetwork',
@@ -214,10 +220,19 @@ export default {
       return this.message && this.message.length && this.$utils.htmlToText(this.message).length || 0;
     },
     ckEditorInstance() {
-      return this.drawer && this.$refs[this.CK_EDITOR_ID] || null;
+      return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience);
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience);
+    },
+    metadataObjectId() {
+      return this.templateParams?.metadataObjectId || this.activityId;
+    },
+    metadataObjectType() {
+      return this.templateParams?.metadataObjectType || 'activity';
+    },
+    enabled() {
+      return eXo.env.portal.editorAttachImageEnabled && this.metadataObjectType?.length && eXo.env.portal.attachmentObjectTypes?.indexOf(this.metadataObjectType) >= 0;
     },
     spaceSuggesterLabels() {
       return {
@@ -254,6 +269,13 @@ export default {
         this.messageEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(this.originalBody);
       }
     },
+    drawer() {
+      if (this.drawer) {
+        document.dispatchEvent(new CustomEvent('activity-composer-opened'));
+      } else {
+        document.dispatchEvent(new CustomEvent('activity-composer-closed'));
+      }
+    },
     audience() {
       this.spaceId = this.audience?.spaceId || '';
       this.spaceURL = this.audience?.remoteId || '';
@@ -273,6 +295,10 @@ export default {
     isActivityBodyEdited(event) {
       this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
     },
+    attachmentsEdit(attachments) {
+      this.attachments = attachments;
+      this.activityAttachmentsEdited = true;
+    },
     open(params) {
       params = params && params.detail;
       if (params) {
@@ -283,6 +309,7 @@ export default {
         this.templateParams = params.activityParams || params.templateParams || {};
         this.files = params.files || [];
         this.activityType = params.activityType;
+        this.attachments = this.templateParams?.metadatas?.attachments;
         this.activityToolbarAction = params.activityToolbarAction;
       } else {
         this.activityId = null;
@@ -321,6 +348,8 @@ export default {
         }
         this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
+          .then(this.postUpdateMessage)
+          .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
             this.cleareActivityMessage();
@@ -342,10 +371,17 @@ export default {
             document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
           } else {
             document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
-          }          
+          }
         } else {
           this.loading = true;
           this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
+            .then(activity => {
+              this.activityId = activity.id;
+              this.templateParams = activity.templateParams;
+              return this.$nextTick().then(() => activity);
+            })
+            .then(this.postSaveMessage)
+            .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               this.cleareActivityMessage();
@@ -359,6 +395,40 @@ export default {
             })
             .finally(() => this.loading = false);
         }
+      }
+    },
+    postSaveMessage(activity) {
+      const postSaveOperations = extensionRegistry.loadExtensions('activity', 'saveAction');
+      if (postSaveOperations?.length) {
+        const promises = [];
+        postSaveOperations.forEach(extension => {
+          if (extension.postSave) {
+            const result = extension.postSave(activity);
+            if (result?.then) {
+              promises.push(result);
+            }
+          }
+        });
+        return Promise.all(promises).then(() => activity);
+      } else {
+        return Promise.resolve(activity);
+      }
+    },
+    postUpdateMessage(activity) {
+      const postUpdateOperations = extensionRegistry.loadExtensions('activity', 'updateAction');
+      if (postUpdateOperations?.length) {
+        const promises = [];
+        postUpdateOperations.forEach(extension => {
+          if (extension.postUpdate) {
+            const result = extension.postUpdate(activity);
+            if (result?.then) {
+              promises.push(result);
+            }
+          }
+        });
+        return Promise.all(promises).then(() => activity);
+      } else {
+        return Promise.resolve(activity);
       }
     },
     cleareActivityMessage() {
