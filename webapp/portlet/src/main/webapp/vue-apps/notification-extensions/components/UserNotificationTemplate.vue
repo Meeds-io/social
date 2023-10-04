@@ -151,8 +151,11 @@ export default {
     unread() {
       return this.markedAsRead === false && this.notification?.read === false;
     },
+    spaceId() {
+      return this.notification?.space?.id;
+    },
     canMute() {
-      return !this.markedAsReadMuted && !this.notification?.spaceMuted && this.notification?.canMute && this.notification?.space?.id;
+      return !this.markedAsReadMuted && !this.notification?.spaceMuted && this.notification?.canMute && this.spaceId && !window.MUTED_SPACES?.[this.spaceId];
     },
     lastUpdateTime() {
       return this.notification?.created && new Date(this.notification?.created);
@@ -202,7 +205,7 @@ export default {
     },
     muteSpace() {
       this.markedAsReadMuted = true;
-      return this.$spaceService.muteSpace(this.notification?.space?.id)
+      return this.$spaceService.muteSpace(this.spaceId)
         .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')));
     },
     reset() {

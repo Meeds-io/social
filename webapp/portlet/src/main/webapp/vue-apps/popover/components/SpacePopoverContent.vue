@@ -49,13 +49,9 @@
       </v-list-item-content>
     </v-list-item>
     <div class="d-flex justify-end">
-      <v-btn
-        :title="spaceMuted && $t('Notification.tooltip.unmuteSpaceNotification') || $t('Notification.tooltip.muteSpaceNotification')"
-        :loading="saving"
-        icon
-        @click="muteSpace">
-        <v-icon size="16" class="icon-default-color">{{ spaceMuted && 'fa-bell' || 'fa-bell-slash' }}</v-icon>
-      </v-btn>
+      <space-mute-notification-button
+        :space-id="spaceId"
+        :muted="space?.isMuted === 'true'" />
       <exo-space-favorite-action
         v-if="favoriteActionEnabled"
         :key="space.id"
@@ -91,8 +87,6 @@ export default {
   data() {
     return {
       externalExtensions: [],
-      saving: false,
-      muteValue: null,
     };
   },
   computed: {
@@ -116,10 +110,7 @@ export default {
     },
     favoriteActionEnabled() {
       return this.space?.isMember;
-    },
-    spaceMuted() {
-      return this.muteValue === null ? this.space?.isMuted === 'true' : this.muteValue;
-    },
+    }
   },
   watch: {
     spaceId: {
@@ -154,13 +145,6 @@ export default {
           );
         }
       }
-    },
-    muteSpace() {
-      this.saving = true;
-      return this.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
-        .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
-        .then(() => this.muteValue = !this.spaceMuted)
-        .finally(() => this.saving = false);
     },
   }
 };

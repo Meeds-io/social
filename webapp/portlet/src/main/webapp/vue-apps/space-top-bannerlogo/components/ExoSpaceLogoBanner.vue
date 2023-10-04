@@ -1,9 +1,9 @@
 <template>
   <v-app>
     <v-menu
+      v-model="menu"
       rounded="rounded"
       elevation="2"
-      v-model="menu"
       open-on-hover
       transition="slide-x-transition"
       :close-on-content-click="false"
@@ -35,7 +35,7 @@
           </a>
         </div>
       </template>
-      <v-card elevation="2">
+      <v-card v-if="menu" elevation="2">
         <v-list class="pa-0">
           <v-list-item class="pt-3">
             <v-list-item-avatar
@@ -120,13 +120,9 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action class="space-logo-popover flex-row">
-              <v-btn
-                :title="spaceMuted && $t('Notification.tooltip.unmuteSpaceNotification') || $t('Notification.tooltip.muteSpaceNotification')"
-                :loading="saving"
-                icon
-                @click="muteSpace">
-                <v-icon size="16" class="icon-default-color">{{ spaceMuted && 'fa-bell' || 'fa-bell-slash' }}</v-icon>
-              </v-btn>
+              <space-mute-notification-button
+                :space-id="spaceId"
+                :muted="muted" />
               <exo-space-favorite-action
                 :is-favorite="isFavorite"
                 :space-id="spaceId"
@@ -211,15 +207,11 @@ export default {
     },
   },
   data: () => ({
-    saving: false,
-    muteValue: null,
+    menu: false,
   }),
   computed: {
     mangersToDisplay() {
       return this.managers;
-    },
-    spaceMuted() {
-      return this.muteValue === null ? this.muted : this.muteValue;
     },
     params() {
       return {
@@ -235,14 +227,7 @@ export default {
     openDetails() {
       this.$root.$emit('displaySpaceHosts', this.mangersToDisplay);
       this.popoverActionEvent('displaySpaceHosts');
-    },
-    muteSpace() {
-      this.saving = true;
-      return this.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
-        .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
-        .then(() => this.muteValue = !this.spaceMuted)
-        .finally(() => this.saving = false);
-    },
+    }
   }
 };
 </script>

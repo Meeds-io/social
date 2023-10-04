@@ -755,5 +755,13 @@ export function muteSpace(spaceId, unmute) {
     if (!resp.ok) {
       throw new Error('Error processing request on server');
     }
+    if (!window.MUTED_SPACES) {
+      window.MUTED_SPACES = {};
+    }
+    if (unmute) {
+      window.MUTED_SPACES[spaceId] = false;
+    } else {
+      window.MUTED_SPACES[spaceId] = true;
+    }
   });
 }

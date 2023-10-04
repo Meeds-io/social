@@ -110,6 +110,9 @@
             {{ $t('menu.spaces.markAsRead') }}
           </span>
         </v-tooltip>
+        <space-mute-notification-button
+          :space-id="spaceId"
+          :muted="muted" />
         <exo-space-favorite-action
           :is-favorite="isFavorite"
           :space-id="spaceId"
@@ -183,6 +186,9 @@ export default {
     },
     isFavorite() {
       return this.space?.isFavorite;
+    },
+    muted() {
+      return this.space?.isMuted === 'true';
     },
     isHomeLink() {
       return this.spaceURL === this.homeLink;
