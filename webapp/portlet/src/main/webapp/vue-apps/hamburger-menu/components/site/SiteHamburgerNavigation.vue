@@ -42,8 +42,7 @@
             :target="nav.uriTarget"
             link>
             <v-list-item-icon class="flex align-center flex-grow-0 my-2">
-              <v-icon v-if="nav.icon"> {{ nav.icon }}</v-icon>
-              <i v-else :class="nav.iconClass"></i>
+              <v-icon> {{ nav.icon || defaultIcon }}</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title
@@ -97,6 +96,7 @@ export default {
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     homeLink: eXo.env.portal.homeLink,
     selectedNavigation: null,
+    defaultIcon: 'fas fa-folder'
   }),
   computed: {
     confirmMessage() {
@@ -109,8 +109,6 @@ export default {
     },
     navigationsToDisplay() {
       this.navigations.forEach(nav => {
-        const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
-        nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
         nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || `/portal/${nav.siteKey.name}/${nav.uri}`;
         nav.uriTarget = nav?.target === 'SAME_TAB' && '_self' || '_blank';
       });
