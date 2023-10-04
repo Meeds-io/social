@@ -55,11 +55,11 @@
           v-if="alertLink || alertLinkCallback"
           :href="alertLink"
           :title="alertLinkTooltip"
-          :class="alertLinkText && 'primary--text' || 'secondary--text'"
+          :class="alertLinkText && 'elevation-0 transparent primary--text me-n12' || 'secondary--text'"
           :target="alertLinkTarget || '_blank'"
+          :icon="!alertLinkText && alertLinkIcon"
           name="closeSnackbarButton"
           rel="nofollow noreferrer noopener"
-          icon
           link
           @click="linkCallback">
           <div v-if="alertLinkText" class="text-none mt-1">{{ alertLinkText }}</div>

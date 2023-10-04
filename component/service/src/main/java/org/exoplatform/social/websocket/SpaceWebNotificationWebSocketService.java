@@ -118,10 +118,6 @@ public class SpaceWebNotificationWebSocketService implements Startable {
     if (userId == 0) {
       throw new IllegalArgumentException("Empty userId");
     }
-    long spaceId = spaceWebNotificationItem.getSpaceId();
-    if (spaceId == 0) {
-      throw new IllegalArgumentException("Empty spaceId");
-    }
     Identity identity = identityManager.getIdentity(String.valueOf(userId));
     if (identity == null || identity.isDeleted() || !identity.isEnable()) {
       throw new IllegalAccessException("User Identity with id " + userId + " isn't valid");
@@ -130,19 +126,24 @@ public class SpaceWebNotificationWebSocketService implements Startable {
     if (!continuationBayeux.isSubscribed(username, wsClientId)) {
       throw new IllegalAccessException("User " + username + " isn't subscribed with a valid WebSocket token.");
     }
-    Space space = spaceService.getSpaceById(String.valueOf(spaceId));
-    if (space == null) {
-      throw new IllegalArgumentException("Space with id " + spaceId + " doesn't exists");
-    }
-    if (!spaceService.isMember(space, username)) {
-      throw new IllegalAccessException("User " + username + " isn't member of space " + space.getDisplayName());
-    }
     if (StringUtils.equals(eventName, NOTIFICATION_UNREAD_EVENT_NAME)) {
       spaceWebNotificationService.markAsUnread(spaceWebNotificationItem);
     } else if (StringUtils.equals(eventName, NOTIFICATION_READ_EVENT_NAME)) {
       spaceWebNotificationService.markAsRead(spaceWebNotificationItem);
     } else if (StringUtils.equals(eventName, NOTIFICATION_ALL_READ_EVENT_NAME)) {
-      spaceWebNotificationService.markAllAsRead(userId, spaceId);
+      long spaceId = spaceWebNotificationItem.getSpaceId();
+      if (spaceId == 0) {
+        spaceWebNotificationService.markAllAsRead(userId);
+      } else {
+        Space space = spaceService.getSpaceById(String.valueOf(spaceId));
+        if (space == null) {
+          throw new IllegalArgumentException("Space with id " + spaceId + " doesn't exists");
+        }
+        if (!spaceService.isMember(space, username)) {
+          throw new IllegalAccessException("User " + username + " isn't member of space " + space.getDisplayName());
+        }
+        spaceWebNotificationService.markAllAsRead(userId, spaceId);
+      }
     }
   }
 

@@ -208,6 +208,18 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public void deleteByMetadataTypeAndCreatorId(String metadataTypeName, long userIdentityId) {
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    validateUserIdentityId(userIdentityId);
+    List<MetadataItem> deletedMetadataItems = this.metadataStorage.deleteByMetadataTypeAndCreatorId(metadataType.getId(), userIdentityId);
+    if (CollectionUtils.isNotEmpty(deletedMetadataItems)) {
+      for (MetadataItem metadataItem : deletedMetadataItems) {
+        broadcastDeleted(metadataItem, userIdentityId);
+      }
+    }
+  }
+
+  @Override
   public void deleteMetadataItemsByMetadataTypeAndObject(String metadataType, MetadataObject object) {
     this.metadataStorage.deleteMetadataItemsByMetadataTypeAndObject(metadataType, object);
   }
@@ -288,12 +300,25 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                                                      long spaceId,
                                                                                      long offset,
                                                                                      long limit) {
-    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(metadataName,
-                                                                                         metadataTypeName,
-                                                                                         objectType,
-                                                                                         spaceId,
-                                                                                         offset,
-                                                                                         limit);
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(metadataName,
+                                                                                          metadataTypeName,
+                                                                                          objectType,
+                                                                                          Collections.singletonList(spaceId),
+                                                                                          offset,
+                                                                                          limit);
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndSpaceIds(String metadataName,
+                                                                             String metadataTypeName,
+                                                                             List<Long> spaceIds,
+                                                                             long offset,
+                                                                             long limit) {
+    return this.metadataStorage.getMetadataItemsByMetadataNameAndTypeAndSpaceIds(metadataName,
+                                                                                 metadataTypeName,
+                                                                                 spaceIds,
+                                                                                 offset,
+                                                                                 limit);
   }
 
   @Override

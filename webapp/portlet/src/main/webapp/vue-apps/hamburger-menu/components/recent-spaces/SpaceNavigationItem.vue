@@ -224,6 +224,10 @@ export default {
           this.webSocketSpaceUnreadItems[spaceId] = {};
         }
         this.refreshUnreadItems();
+      } else if (!spaceWebNotificationItem?.spaceId && wsEventName === 'notification.read.allItems') {
+        this.spaceUnreadItems = null;
+        this.webSocketSpaceUnreadItems[this.spaceId] = {};
+        this.refreshUnreadItems();
       }
     },
     refreshUnreadItems() {
