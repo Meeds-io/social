@@ -15,6 +15,13 @@ if (!Vue.prototype.$activityConstants) {
   });
 }
 
+import * as activityUtils from './js/ActivityUtils.js';
+if (!Vue.prototype.$activityUtils) {
+  window.Object.defineProperty(Vue.prototype, '$activityUtils', {
+    value: activityUtils,
+  });
+}
+
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`;

@@ -106,7 +106,7 @@ export default {
   },
   created() {
     this.$root.$on('activity-stream-reset-filter', this.resetFilter);
-    this.filter = localStorage.getItem('activity-stream-stored-filter') || 'all_stream';
+    this.filter = this.$activityUtils.getStreamFilter();
   },
   beforeDestroy() {
     this.$root.$off('activity-stream-reset-filter', this.resetFilter);
@@ -115,21 +115,21 @@ export default {
     applyFilter() {
       this.$root.$emit('close-alert-message');
       document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
-      localStorage.setItem('activity-stream-stored-filter', this.filter);
+      this.$activityUtils.setStreamFilter(this.filter);
       this.$refs.filterStreamDrawer.close();
     },
     open() {
       this.$refs.filterStreamDrawer.open();
     },
     cancel() {
-      this.filter = localStorage.getItem('activity-stream-stored-filter') ;
+      this.filter = this.$activityUtils.getStreamFilter();
       if (this.$refs.filterStreamDrawer) {
         this.$refs.filterStreamDrawer.close();
       }
     },
     resetFilter(silent) {
       if (silent) {
-        localStorage.setItem('activity-stream-stored-filter', 'all_stream');
+        this.$activityUtils.setStreamFilter('all_stream');
       } else {
         this.filter = 'all_stream';
         this.applyFilter();
