@@ -17,12 +17,14 @@
 <%@ page import="org.exoplatform.social.core.identity.model.Profile" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Collection" %>
 <%@ page import="org.exoplatform.social.core.manager.IdentityManager" %>
 <%@ page import="org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider" %>
 <%@ page import="java.util.Optional" %>
 <%@ page import="org.exoplatform.portal.mop.SiteFilter" %>
 <%@ page import="org.exoplatform.portal.mop.SiteType" %>
 <%@ page import="org.exoplatform.portal.config.model.PortalConfig" %>
+<%@ page import="org.exoplatform.portal.mop.user.UserNode" %>
 <%
   String spaceId = null;
   String logoPath = null;
@@ -60,11 +62,12 @@
       siteFilter.setSortByDisplayOrder(true);
       siteFilter.setFilterByDisplayed(true);
       siteFilter.setDisplayed(true);
-      siteFilter.setLimit(1);
-      siteFilter.setOffset(0);
       List<PortalConfig> portalConfigList = portalConfigService.getSites(siteFilter);
       if (portalConfigList != null && !portalConfigList.isEmpty()) {
-        portalPath = "/portal/" + portalConfigList.get(0).getName();
+        String defaultPortal = portalConfigList.get(0).getName();
+        Collection<UserNode> userNodes = portalConfigService.getSiteNavigations(defaultPortal, authenticatedUser, requestContext.getRequest());
+        UserNode userNode = portalConfigService.getFirstAllowedPageNode(userNodes);
+        portalPath = portalConfigService.getDefaultUri(userNode, defaultPortal);
       } else {
         portalPath = defaultHomePath;
       }
