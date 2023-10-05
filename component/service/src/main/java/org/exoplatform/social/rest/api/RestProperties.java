@@ -73,4 +73,6 @@ public class RestProperties {
 
   public static final String NAVIGATIONS_PERMISSION        = "navigations_permission";
 
+  public static final String MUTED         = "muted";
+
 }

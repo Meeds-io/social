@@ -367,6 +367,15 @@ public class SpaceEntity extends BaseEntity {
     return this;
   }
 
+  public String getIsMuted() {
+    return getString("isMuted");
+  }
+
+  public SpaceEntity setIsMuted(String isMuted) {
+    setProperty("isMuted", isMuted);
+    return this;
+  }
+  
   public Map<String, Long> getUnreadItems() {
     return (Map<String, Long>) getProperty("unread");
   }

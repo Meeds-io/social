@@ -4,7 +4,7 @@ import UserSettingNotificationChannel from './components/UserSettingNotification
 import UserSettingNotificationGroup from './components/UserSettingNotificationGroup.vue';
 import UserSettingNotificationPlugin from './components/UserSettingNotificationPlugin.vue';
 import UserSettingNotificationDrawer from './components/UserSettingNotificationDrawer.vue';
-
+import UserSettingNotificationMuteSpacesDrawer from './components/UserSettingNotificationMuteSpacesDrawer.vue';
 
 const components = {
   'user-setting-notifications': UserSettingNotifications,
@@ -13,6 +13,7 @@ const components = {
   'user-setting-notification-group': UserSettingNotificationGroup,
   'user-setting-notification-plugin': UserSettingNotificationPlugin,
   'user-setting-notification-drawer': UserSettingNotificationDrawer,
+  'user-setting-notification-mute-spaces-drawer': UserSettingNotificationMuteSpacesDrawer,
 };
 
 for (const key in components) {

@@ -1,3 +1,23 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-hover
     v-if="!hidden"
@@ -10,6 +30,20 @@
       class="position-relative no-border"
       tile
       flat>
+      <div
+        v-if="hover"
+        :class="$vuetify.rtl && 'l-0' || 'r-0'"
+        class="position-absolute t-0 pt-2px me-2 d-none z-index-two d-sm-block"
+        @click.stop="0">
+        <user-notification-menu
+          :notification="notification"
+          :unread="unread"
+          :can-mute="canMute"
+          class="white"
+          @remove="hideNotification"
+          @mute="muteSpace"
+          @read="markAsRead" />
+      </div>
       <v-slide-x-transition>
         <v-list-item
           :href="url"
@@ -22,7 +56,7 @@
             'min-width': `${minWidth}px`,
             'padding-bottom': '9px !important',
           }"
-          class="d-flex d-relative pa-2"
+          class="d-flex pa-2"
           v-touch="{
             start: moveStart,
             end: moveEnd,
@@ -70,18 +104,6 @@
               </div>
             </v-list-item-subtitle>
           </v-list-item-content>
-          <div
-            v-if="hover"
-            :class="$vuetify.rtl && 'l-0' || 'r-0'"
-            class="position-absolute t-0 pt-2px me-1 d-none d-sm-block ">
-            <v-btn
-              class="remove-item"
-              small
-              icon
-              @click.stop.prevent="hideNotification">
-              <v-icon size="16">fa-times</v-icon>
-            </v-btn>
-          </div>
         </v-list-item>
       </v-slide-x-transition>
     </v-card>
@@ -137,6 +159,7 @@ export default {
     movingLeft: false,
     moving: false,
     markedAsRead: false,
+    markedAsReadMuted: false,
   }),
   computed: {
     remoteId() {
@@ -147,6 +170,12 @@ export default {
     },
     unread() {
       return this.markedAsRead === false && this.notification?.read === false;
+    },
+    spaceId() {
+      return this.notification?.space?.id;
+    },
+    canMute() {
+      return !this.markedAsReadMuted && !this.notification?.spaceMuted && this.notification?.canMute && this.spaceId && !window.MUTED_SPACES?.[this.spaceId];
     },
     lastUpdateTime() {
       return this.notification?.created && new Date(this.notification?.created);
@@ -188,9 +217,24 @@ export default {
         });
     },
     markAsRead() {
-      this.markedAsRead = true;
-      return this.$notificationService.markRead(this.notificationId)
-        .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')));
+      if (this.unread) {
+        this.markedAsRead = true;
+        return this.$notificationService.markRead(this.notificationId)
+          .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')));
+      }
+    },
+    muteSpace() {
+      this.markedAsReadMuted = true;
+      return this.$spaceService.muteSpace(this.spaceId)
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('refresh-notifications'));
+          this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
+          document.dispatchEvent(new CustomEvent('space-muted', {detail: {
+            name: 'notificationAction',
+            spaceId: this.spaceId,
+          }}));
+        })
+        .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'));
     },
     reset() {
       this.absolute = false;
