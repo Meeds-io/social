@@ -55,7 +55,6 @@
             <v-tooltip bottom>
               <template #activator="{on, bind}">
                 <v-btn
-                  small
                   icon
                   v-on="on"
                   v-bind="bind"

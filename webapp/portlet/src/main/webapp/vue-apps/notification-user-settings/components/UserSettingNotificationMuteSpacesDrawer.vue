@@ -27,49 +27,55 @@
         <span class="subtitle-1">
           {{ $t('UserSettings.drawer.label.mutedSpaces') }}
         </span>
-        <v-list-item
+        <v-hover
           v-for="space in mutedSpaces"
           :key="space.id"
-          :href="space.url"
-          class="pa-1 pb-1"
-          dense>
-          <v-list-item-avatar
-            :size="avatarSize"
-            class="me-2"
-            tile>
-            <v-img
-              :src="space.avatarUrl"
-              :height="avatarSize"
-              :width="avatarSize"
-              :max-height="avatarSize"
-              :max-width="avatarSize"
-              class="mx-auto spaceAvatar"
-              role="presentation" />
-          </v-list-item-avatar>
-          <v-list-item-content class="pa-0">
-            <v-list-item-title class="subtitle-2">
-              {{ space.displayName }}
-            </v-list-item-title>
-            <v-list-item-subtitle v-if="space.description" class="caption text-truncate">
-              {{ space.description }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action class="pa-0">
-            <v-tooltip bottom>
-              <template #activator="{on, bind}">
-                <v-btn
-                  icon
-                  small
-                  @click.stop.prevent="muteSpace(space, true)"
-                  v-on="on"
-                  v-bind="bind">
-                  <v-icon class="error-color" small>fa-trash</v-icon>
-                </v-btn>
-              </template>
-              <span>{{ $t('UserSettings.button.tooltip.unmute') }}</span>
-            </v-tooltip>
-          </v-list-item-action>
-        </v-list-item>
+          v-slot="{ hover }">
+          <v-list-item
+            :href="space.url"
+            :key="space.id"
+            class="pa-1 pb-1"
+            dense>
+            <v-list-item-avatar
+              :size="avatarSize"
+              class="me-2"
+              tile>
+              <v-img
+                :src="space.avatarUrl"
+                :height="avatarSize"
+                :width="avatarSize"
+                :max-height="avatarSize"
+                :max-width="avatarSize"
+                class="mx-auto spaceAvatar"
+                role="presentation" />
+            </v-list-item-avatar>
+            <v-list-item-content class="pa-0">
+              <v-list-item-title class="subtitle-2">
+                {{ space.displayName }}
+              </v-list-item-title>
+              <v-list-item-subtitle v-if="space.description" class="caption text-truncate">
+                {{ space.description }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action class="pa-0 my-auto">
+              <v-tooltip
+                v-if="isMobile || hover"
+                :disabled="isMobile"
+                bottom>
+                <template #activator="{on, bind}">
+                  <v-btn
+                    icon
+                    @click.stop.prevent="muteSpace(space, true)"
+                    v-on="on"
+                    v-bind="bind">
+                    <v-icon class="icon-default-color" small>fa-bell-slash</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ $t('UserSettings.button.tooltip.unmute') }}</span>
+              </v-tooltip>
+            </v-list-item-action>
+          </v-list-item>
+        </v-hover>
       </v-flex>
     </template>
   </exo-drawer>
@@ -103,6 +109,9 @@ export default {
     },
     mutedSpaceIds() {
       return this.settings?.mutedSpaces || [];
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.xs;
     },
   },
   watch: {
@@ -148,12 +157,21 @@ export default {
     },
     muteSpace(space, unmute) {
       this.loading = true;
-      return this.$spaceService.muteSpace(space.spaceId || space.id, unmute)
+      const spaceId = space.spaceId || space.id;
+      return this.$spaceService.muteSpace(spaceId, unmute)
         .then(() => {
           this.$emit('refresh');
           if (unmute) {
+            document.dispatchEvent(new CustomEvent('space-unmuted', {detail: {
+              name: 'userSettingsAction',
+              spaceId,
+            }}));
             this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
           } else {
+            document.dispatchEvent(new CustomEvent('space-muted', {detail: {
+              name: 'userSettingsAction',
+              spaceId,
+            }}));
             this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
           }
         })
