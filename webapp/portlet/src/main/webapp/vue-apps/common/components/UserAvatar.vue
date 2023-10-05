@@ -261,7 +261,7 @@ export default {
   },
   computed: {
     userIdentity() {
-      return this.identity || this.retrievedIdentity;
+      return this.retrievedIdentity || this.identity;
     },
     identityId() {
       return this.userIdentity?.id;
