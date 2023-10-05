@@ -51,6 +51,8 @@ public class UserNotificationSettings {
 
   private List<String>                  channels;
 
+  private List<Long>                    mutedSpaces;
+
   private String                        emailChannel        = UserSetting.EMAIL_CHANNEL;
 
   @Getter
@@ -61,7 +63,7 @@ public class UserNotificationSettings {
   @Setter
   private String                        senderName;
 
-  public UserNotificationSettings(List<GroupProvider> groups,
+  public UserNotificationSettings(List<GroupProvider> groups, // NOSONAR
                                   Map<String, String> groupsLabels,
                                   Map<String, String> pluginLabels,
                                   Map<String, String> channelLabels,
@@ -72,7 +74,8 @@ public class UserNotificationSettings {
                                   List<EmailDigestChoice> emailDigestChoices,
                                   List<ChannelActivationChoice> channelCheckBoxList,
                                   Map<String, Boolean> channelStatus,
-                                  List<String> channels) {
+                                  List<String> channels,
+                                  List<Long> mutedSpaces) {
     this.groups = groups;
     this.groupsLabels = groupsLabels;
     this.pluginLabels = pluginLabels;
@@ -85,6 +88,7 @@ public class UserNotificationSettings {
     this.channelCheckBoxList = channelCheckBoxList;
     this.channelStatus = channelStatus;
     this.channels = channels;
+    this.mutedSpaces = mutedSpaces;
   }
 
   public List<GroupProvider> getGroups() {
@@ -191,4 +195,11 @@ public class UserNotificationSettings {
     this.emailChannel = emailChannel;
   }
 
+  public List<Long> getMutedSpaces() {
+    return mutedSpaces;
+  }
+
+  public void setMutedSpaces(List<Long> mutedSpaces) {
+    this.mutedSpaces = mutedSpaces;
+  }
 }

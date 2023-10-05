@@ -33,6 +33,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.api.notification.model.UserSetting;
+import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -622,13 +624,19 @@ public class EntityBuilder {
         if (expandFields.contains(RestProperties.UNREAD)) {
           Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
           SpaceWebNotificationService spaceWebNotificationService =
-                                                                  ExoContainerContext.getService(SpaceWebNotificationService.class);
+              ExoContainerContext.getService(SpaceWebNotificationService.class);
           Map<String, Long> unreadItems =
-                                        spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
-                                                                                                  Long.parseLong(space.getId()));
+              spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
+                                                                        Long.parseLong(space.getId()));
           if (MapUtils.isNotEmpty(unreadItems)) {
             spaceEntity.setUnreadItems(unreadItems);
           }
+        }
+
+        if (expandFields.contains(RestProperties.MUTED)) {
+          UserSettingService userSettingService = ExoContainerContext.getService(UserSettingService.class);
+          UserSetting userSetting = userSettingService.get(userId);
+          spaceEntity.setIsMuted(String.valueOf(userSetting.isSpaceMuted(Long.parseLong(space.getId()))));
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
@@ -1233,7 +1241,7 @@ public class EntityBuilder {
         as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
 
         Space space = getSpaceService().getSpaceByPrettyName(owner.getRemoteId());
-        as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, "favorite"));
+        as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, RestProperties.FAVORITE + "," + RestProperties.MUTED));
       }
       as.put(RestProperties.ID, owner.getRemoteId());
     }
