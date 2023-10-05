@@ -348,20 +348,29 @@ public class SpaceEntity extends BaseEntity {
   public List<String> getExternalInvitedUsers() {
     return (List<String>) getProperty("externalInvitedUsers");
   }
-
+  
   public String getIsFavorite() {
     return getString("isFavorite");
   }
-
+  
   public SpaceEntity setIsFavorite(String isFavorite) {
     setProperty("isFavorite", isFavorite);
     return this;
   }
 
+  public String getIsMuted() {
+    return getString("isMuted");
+  }
+
+  public SpaceEntity setIsMuted(String isMuted) {
+    setProperty("isMuted", isMuted);
+    return this;
+  }
+  
   public Map<String, Long> getUnreadItems() {
     return (Map<String, Long>) getProperty("unread");
   }
-
+  
   public SpaceEntity setUnreadItems(Map<String, Long> getUnreadItems) {
     setProperty("unread", getUnreadItems);
     return this;

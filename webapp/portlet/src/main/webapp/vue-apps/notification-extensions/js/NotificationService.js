@@ -59,6 +59,10 @@ export function resetBadge(plugins) {
   return fetch(`/portal/rest/notifications/webNotifications?operation=resetBadge${params && '&' || ''}${params || ''}`, {
     method: 'PATCH',
     credentials: 'include',
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('Error processing request on server');
+    }
   });
 }
 
@@ -71,6 +75,10 @@ export function markAllAsRead(plugins) {
   return fetch(`/portal/rest/notifications/webNotifications?operation=markAllAsRead${params && '&' || ''}${params || ''}`, {
     method: 'PATCH',
     credentials: 'include',
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('Error processing request on server');
+    }
   });
 }
 
@@ -78,6 +86,10 @@ export function markRead(id) {
   return fetch(`/portal/rest/notifications/webNotifications/${id || ''}?operation=markAsRead`, {
     credentials: 'include',
     method: 'PATCH',
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('Error processing request on server');
+    }
   });
 }
 
@@ -85,5 +97,9 @@ export function hideNotification(id) {
   return fetch(`/portal/rest/notifications/webNotifications/${id || ''}`, {
     method: 'DELETE',
     credentials: 'include',
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error('Error processing request on server');
+    }
   });
 }

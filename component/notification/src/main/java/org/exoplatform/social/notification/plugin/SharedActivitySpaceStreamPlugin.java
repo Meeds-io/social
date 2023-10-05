@@ -57,6 +57,7 @@ public class SharedActivitySpaceStreamPlugin extends BaseNotificationPlugin {
 
       return NotificationInfo.instance()
                              .key(getId())
+                             .setSpaceId(Long.parseLong(space.getId()))
                              .with(SocialNotificationUtils.POSTER.getKey(), poster)
                              .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                              .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())

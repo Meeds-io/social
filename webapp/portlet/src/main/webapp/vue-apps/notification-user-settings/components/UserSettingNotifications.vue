@@ -26,6 +26,26 @@
             :settings="notificationSettings" />
         </template>
 
+        <v-list-item two-line>
+          <v-list-item-content>
+            <v-list-item-title class="text-color">
+              {{ $t('UserSettings.title.muteSpacesNotifications') }}
+            </v-list-item-title>
+            <v-list-item-subtitle class="text-sub-title font-italic">
+              {{ $t('UserSettings.subtitle.muteSpacesNotifications') }}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-btn
+              small
+              icon
+              @click="$refs.muteSpacesDrawer.open()">
+              <v-icon size="24" class="text-sub-title">fa-edit</v-icon>
+            </v-btn>
+          </v-list-item-action>
+        </v-list-item>
+        <v-divider class="mx-4" />
+
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
@@ -45,9 +65,12 @@
         </v-list-item>
       </v-list>
     </v-card>
+    <user-setting-notification-mute-spaces-drawer
+      ref="muteSpacesDrawer"
+      :settings="notificationSettings"
+      @refresh="refresh" />
   </v-app>
 </template>
-
 <script>
 export default {
   data: () => ({

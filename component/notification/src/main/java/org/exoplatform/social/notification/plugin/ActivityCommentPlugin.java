@@ -50,6 +50,7 @@ public class ActivityCommentPlugin extends BaseNotificationPlugin {
     return NotificationInfo.instance()
                            .to(receiversList)
                            .setFrom(poster)
+                           .setSpaceId(activity.getSpaceId() == null ? 0 : Long.parseLong(activity.getSpaceId()))
                            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                            .with(SocialNotificationUtils.COMMENT_ID.getKey(), comment.getId())
                            .with(SocialNotificationUtils.POSTER.getKey(), poster)

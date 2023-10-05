@@ -49,6 +49,9 @@
       </v-list-item-content>
     </v-list-item>
     <div class="d-flex justify-end">
+      <space-mute-notification-button
+        :space-id="spaceId"
+        :muted="space?.isMuted === 'true'" />
       <exo-space-favorite-action
         v-if="favoriteActionEnabled"
         :key="space.id"
