@@ -16,11 +16,12 @@
  */
 package org.exoplatform.social.rest.impl.site;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
@@ -30,16 +31,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteType;
@@ -50,10 +51,12 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.rest.entity.SiteEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,18 +65,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = VersionResources.VERSION_ONE + "/social/sites", description = "Manage sites")
 public class SiteRest implements ResourceContainer {
 
-  private static final Log    LOG                     = ExoLogger.getLogger(SiteRest.class);
+  private static final Log          LOG                    = ExoLogger.getLogger(SiteRest.class);
 
-  private LayoutService       layoutService;
+  private LayoutService             layoutService;
 
-  private PortalContainer     portalContainer;
+  private static final int          CACHE_IN_SECONDS       = 604800;
 
-  private static final String SITE_DEFAULT_BANNER_URL = System.getProperty("sites.defaultBannerPath",
-                                                                           "/images/sites/banner/defaultSiteBanner.png");
+  private static final int          CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
 
-  public SiteRest(LayoutService layoutService, PortalContainer portalContainer) {
+  private static final CacheControl SITES_CACHE_CONTROL          = new CacheControl();
+  
+  private static final CacheControl SITE_CACHE_CONTROL          = new CacheControl();
+
+  private static final CacheControl BANNER_CACHE_CONTROL   = new CacheControl();
+
+  static {
+    SITES_CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
+    SITE_CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
+    BANNER_CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
+    BANNER_CACHE_CONTROL.setPrivate(false);
+  }
+
+  public SiteRest(LayoutService layoutService) {
     this.layoutService = layoutService;
-    this.portalContainer = portalContainer;
   }
 
   @GET
@@ -83,7 +97,8 @@ public class SiteRest implements ResourceContainer {
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
   public Response getSites(@Context
-  HttpServletRequest request,
+  HttpServletRequest httpServletRequest, @Context
+  Request request,
                            @Parameter(description = "Portal site types, possible values: PORTAL, GROUP or USER", required = true)
                            @QueryParam("siteType")
                            String siteType,
@@ -164,20 +179,36 @@ public class SiteRest implements ResourceContainer {
       siteFilter.setLimit(limit);
       siteFilter.setOffset(offset);
       List<PortalConfig> sites = layoutService.getSites(siteFilter);
-      return Response.ok(EntityBuilder.buildSiteEntities(sites,
-                                                         request,
-                                                         expandNavigations,
-                                                         visibilityNames,
-                                                         excludeEmptyNavigationSites,
-                                                         temporalCheck,
-                                                         excludeGroupNodesWithoutPageChildNodes,
-                                                         filterByPermission,
-                                                         sortByDisplayOrder,
-                                                         getLocale(lang)))
-                     .build();
+      List<SiteEntity> siteEntities = EntityBuilder.buildSiteEntities(sites,
+                                                                      httpServletRequest,
+                                                                      expandNavigations,
+                                                                      visibilityNames,
+                                                                      excludeEmptyNavigationSites,
+                                                                      temporalCheck,
+                                                                      excludeGroupNodesWithoutPageChildNodes,
+                                                                      filterByPermission,
+                                                                      sortByDisplayOrder,
+                                                                      getLocale(lang));
+      EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(siteEntities,
+                                                                 siteFilter,
+                                                                 expandNavigations,
+                                                                 visibilityNames,
+                                                                 excludeEmptyNavigationSites,
+                                                                 temporalCheck,
+                                                                 excludeGroupNodesWithoutPageChildNodes,
+                                                                 filterByPermission,
+                                                                 sortByDisplayOrder,
+                                                                 getLocale(lang))));
+      Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+      if (builder == null) {
+        builder = Response.ok(siteEntities);
+      }
+      builder.tag(eTag);
+      builder.cacheControl(SITES_CACHE_CONTROL);
+      return builder.build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving sites", e);
-      return Response.serverError().build();
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -189,7 +220,8 @@ public class SiteRest implements ResourceContainer {
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
   public Response getSiteById(@Context
-  HttpServletRequest request,
+  HttpServletRequest httpServletRequest, @Context
+  Request request,
                               @Parameter(description = "site Id", required = true)
                               @PathParam("siteId")
                               String siteId,
@@ -218,18 +250,32 @@ public class SiteRest implements ResourceContainer {
                               String lang) {
     try {
       PortalConfig site = layoutService.getPortalConfig(Long.parseLong(siteId));
-      return Response.ok(EntityBuilder.buildSiteEntity(site,
-                                                       request,
-                                                       expandNavigations,
-                                                       visibilityNames,
-                                                       excludeEmptyNavigationSites,
-                                                       temporalCheck,
-                                                       excludeGroupNodesWithoutPageChildNodes,
-                                                       getLocale(lang)))
-                     .build();
+      SiteEntity siteEntity = EntityBuilder.buildSiteEntity(site,
+                                                            httpServletRequest,
+                                                            expandNavigations,
+                                                            visibilityNames,
+                                                            excludeEmptyNavigationSites,
+                                                            temporalCheck,
+                                                            excludeGroupNodesWithoutPageChildNodes,
+                                                            getLocale(lang));
+      EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(siteId,
+                                                                 siteEntity,
+                                                                 expandNavigations,
+                                                                 visibilityNames,
+                                                                 excludeEmptyNavigationSites,
+                                                                 temporalCheck,
+                                                                 excludeGroupNodesWithoutPageChildNodes,
+                                                                 getLocale(lang))));
+      Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+      if (builder == null) {
+        builder = Response.ok(siteEntity);
+        builder.tag(eTag);
+      }
+      builder.cacheControl(SITE_CACHE_CONTROL);
+      return builder.build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving site", e);
-      return Response.serverError().build();
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 
@@ -247,41 +293,28 @@ public class SiteRest implements ResourceContainer {
                                 @Parameter(description = "site name", required = true)
                                 @PathParam("siteName")
                                 String siteName,
-                                @Parameter(description = "A mandatory valid token that is used to authorize anonymous request", required = true)
-                                @QueryParam("r")
-                                String token,
-                                @Parameter(description = "A mandatory valid token that is used to determinate if to use default banner", required = true)
-                                @QueryParam("isDefault")
-                                boolean isDefault) {
+                                @Parameter(description = "site banner id", required = false)
+                                @QueryParam("bannerId")
+                                long bannerId) {
     try {
-      if (!isDefault && RestUtils.isAnonymous()
-          && !LinkProvider.isSiteBannerTokenValid(token, siteName, LinkProvider.ATTACHMENT_BANNER_TYPE)) {
-        LOG.warn("An anonymous user attempts to access banner of site {} without a valid access token", siteName);
-        return Response.status(Response.Status.FORBIDDEN).build();
+      boolean isDefault = bannerId == 0;
+      EntityTag eTag = !isDefault ? new EntityTag(String.valueOf(bannerId)) : new EntityTag(siteName);
+      Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+      if (builder == null) {
+        InputStream stream = isDefault ? layoutService.getDefaultSiteBannerStream(siteName)
+                                       : layoutService.getSiteBannerStream(siteName);
+        builder = Response.ok(stream, "image/png");
+        builder.tag(eTag);
       }
-      InputStream stream = isDefault ? getDefaultBannerInputStream(siteName) : layoutService.getSiteBannerStream(siteName);
-      return Response.ok(stream, "image/png").build();
+      builder.cacheControl(BANNER_CACHE_CONTROL);
+      builder.lastModified(new Date(System.currentTimeMillis()));
+      builder.expires(new Date(System.currentTimeMillis() + CACHE_IN_MILLI_SECONDS));
+      return builder.build();
     } catch (ObjectNotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
     } catch (IOException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
-  }
-
-  private InputStream getDefaultBannerInputStream(String siteName) {
-    InputStream defaultSiteBanner = new ByteArrayInputStream(new byte[] {});
-    InputStream is = portalContainer.getPortalContext()
-                                    .getResourceAsStream(System.getProperty("sites." + siteName
-                                        + ".defaultBannerPath", "/images/sites/banner/" + siteName.toLowerCase() + ".png"));
-    if (is == null) {
-      is = portalContainer.getPortalContext().getResourceAsStream(SITE_DEFAULT_BANNER_URL);
-      if (is != null) {
-        defaultSiteBanner = is;
-      }
-    } else {
-      defaultSiteBanner = is;
-    }
-    return defaultSiteBanner;
   }
 
   private Locale getLocale(String lang) {

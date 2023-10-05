@@ -89,7 +89,7 @@ public class LinkProvider {
 
   public static final String TYPE = "file";
 
-  public static final String     BASE_URL_SITE_REST_API   = "/v1/social/sites";
+  public static final String  BASE_URL_SITE_REST_API      = "/v1/social/sites";
 
   public static final String  ATTACHMENT_BANNER_TYPE      = "banner";
 
@@ -598,55 +598,20 @@ public class LinkProvider {
         + BASE_URL_SITE_REST_API;
   }
 
-  public static String buildSiteBannerUrl(String siteName, boolean isDefault) {
+  public static String buildSiteBannerUrl(String siteName, long bannerFileId) {
     if (StringUtils.isBlank(siteName)) {
       return null;
     }
-    String token = generateSiteBannerToken(siteName, ATTACHMENT_BANNER_TYPE);
-    if (StringUtils.isNotBlank(token)) {
-      try {
-        token = URLEncoder.encode(token, "UTF8");
-      } catch (UnsupportedEncodingException e) {
-        LOG.warn("Error encoding token", e);
-        token = StringUtils.EMPTY;
-      }
-    }
+    boolean isDefault = bannerFileId == 0 ;
+    String BannerParam = !isDefault ? "&bannerId=" + bannerFileId : " ";
     return new StringBuilder(getBaseURLSiteRest()).append("/")
                                                   .append(siteName)
                                                   .append("/")
                                                   .append(ATTACHMENT_BANNER_TYPE)
-                                                  .append("?r=")
-                                                  .append(token)
-                                                  .append("&isDefault=")
+                                                  .append("?isDefault=")
                                                   .append(isDefault)
+                                                  .append(BannerParam)
                                                   .toString();
 
-  }
-
-  public static String generateSiteBannerToken(String siteName, String attachmentType) {
-    String token = null;
-    CodecInitializer codecInitializer = ExoContainerContext.getService(CodecInitializer.class);
-    if (codecInitializer == null) {
-      LOG.debug("Can't find an instance of CodecInitializer, an empty token will be generated");
-      token = StringUtils.EMPTY;
-    } else {
-      try {
-        String tokenPlain = attachmentType + ":" + siteName;
-        token = codecInitializer.getCodec().encode(tokenPlain);
-      } catch (TokenServiceInitializationException e) {
-        LOG.warn("Error generating token of {} for site {}. An empty token will be used", attachmentType, siteName, e);
-        token = StringUtils.EMPTY;
-      }
-    }
-    return token;
-  }
-
-  public static boolean isSiteBannerTokenValid(String token, String siteName, String attachmentType) {
-    if (StringUtils.isBlank(token)) {
-      LOG.warn("An empty token is used for {} for site {}", attachmentType, siteName);
-      return false;
-    }
-    String validToken = generateSiteBannerToken(siteName, attachmentType);
-    return StringUtils.equals(validToken, token);
   }
 }

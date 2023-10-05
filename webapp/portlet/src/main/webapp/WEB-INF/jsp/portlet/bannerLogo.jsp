@@ -13,18 +13,12 @@
 <%@ page import="org.exoplatform.web.application.RequestContext"%>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%@ page import="org.exoplatform.portal.branding.BrandingService"%>
-<%@ page import="java.util.Arrays" %>
 <%@ page import="org.exoplatform.social.core.identity.model.Profile" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
-<%@ page import="java.util.Collection" %>
 <%@ page import="org.exoplatform.social.core.manager.IdentityManager" %>
 <%@ page import="org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider" %>
 <%@ page import="java.util.Optional" %>
-<%@ page import="org.exoplatform.portal.mop.SiteFilter" %>
-<%@ page import="org.exoplatform.portal.mop.SiteType" %>
-<%@ page import="org.exoplatform.portal.config.model.PortalConfig" %>
-<%@ page import="org.exoplatform.portal.mop.user.UserNode" %>
 <%
   String spaceId = null;
   String logoPath = null;
@@ -56,19 +50,8 @@
 
     portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     if (portalPath == null) {
-      SiteFilter siteFilter = new SiteFilter();
-      siteFilter.setExcludedSiteName(portalConfigService.getGlobalPortal());
-      siteFilter.setSiteType(SiteType.PORTAL);
-      siteFilter.setSortByDisplayOrder(true);
-      siteFilter.setFilterByDisplayed(true);
-      siteFilter.setDisplayed(true);
-      List<PortalConfig> portalConfigList = portalConfigService.getSites(siteFilter);
-      if (portalConfigList != null && !portalConfigList.isEmpty()) {
-        String defaultPortal = portalConfigList.get(0).getName();
-        Collection<UserNode> userNodes = portalConfigService.getSiteNavigations(defaultPortal, authenticatedUser, requestContext.getRequest());
-        UserNode userNode = portalConfigService.getFirstAllowedPageNode(userNodes);
-        portalPath = portalConfigService.getDefaultUri(userNode, defaultPortal);
-      } else {
+      portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
+      if (portalPath == null) {
         portalPath = defaultHomePath;
       }
     }

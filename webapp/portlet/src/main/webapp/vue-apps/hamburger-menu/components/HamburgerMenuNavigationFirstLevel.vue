@@ -97,10 +97,6 @@ export default {
       type: Object,
       default: null,
     },
-    sites: {
-      type: Array,
-      default: () => [],
-    },
     recentSpaces: {
       type: Array,
       default: null,
@@ -122,9 +118,6 @@ export default {
       default: null,
     },
   },
-  data: () => ({
-    newLeftNavigationDrawerEnabled: eXo.env.portal.newLeftNavigationDrawer,
-  }),
   computed: {
     levelsOpened() {
       return this.secondLevelDrawer || this.thirdLevelDrawer;
