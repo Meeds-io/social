@@ -122,7 +122,8 @@
             <v-list-item-action class="space-logo-popover flex-row">
               <space-mute-notification-button
                 :space-id="spaceId"
-                :muted="muted" />
+                :muted="muted"
+                origin="spaceTopbarpopoverAction" />
               <exo-space-favorite-action
                 :is-favorite="isFavorite"
                 :space-id="spaceId"

@@ -112,7 +112,8 @@
         </v-tooltip>
         <space-mute-notification-button
           :space-id="spaceId"
-          :muted="muted" />
+          :muted="muted"
+          origin="spaceLeftNavigationAction" />
         <exo-space-favorite-action
           :is-favorite="isFavorite"
           :space-id="spaceId"
