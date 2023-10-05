@@ -55,13 +55,19 @@
             </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action class="pa-0">
-            <v-btn
-              :title="$t('UserSettings.button.tooltip.unmute')"
-              icon
-              small
-              @click.stop.prevent="muteSpace(space, true)">
-              <v-icon class="error-color" small>fa-trash</v-icon>
-            </v-btn>
+            <v-tooltip bottom>
+              <template #activator="{on, bind}">
+                <v-btn
+                  icon
+                  small
+                  @click.stop.prevent="muteSpace(space, true)"
+                  v-on="on"
+                  v-bind="bind">
+                  <v-icon class="error-color" small>fa-trash</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ $t('UserSettings.button.tooltip.unmute') }}</span>
+            </v-tooltip>
           </v-list-item-action>
         </v-list-item>
       </v-flex>
