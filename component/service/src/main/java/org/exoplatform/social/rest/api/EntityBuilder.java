@@ -211,10 +211,10 @@ public class EntityBuilder {
   public static final String              PUBLISHER_MEMBERSHIP                       = "publisher";
 
   public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
+  
+  public static final String              GROUP                                      = "group";
 
   private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
-  
-  public static final String GROUP = "group";
   
   private static UserPortalConfigService  userPortalConfigService;
 
@@ -1782,24 +1782,28 @@ public class EntityBuilder {
                                                    boolean excludeGroupNodesWithoutPageChildNodes,
                                                    boolean filterByPermission,
                                                    boolean sortByDisplayOrder,
-                                                   Locale locale) {
+                                                   Locale locale) throws Exception {
     List<PortalConfig> filteredByPermissionSites = sites;
     if (filterByPermission) {
       filteredByPermissionSites = sites.stream().filter(getUserACL()::hasPermission).toList();
     }
-    List<SiteEntity> siteEntities = filteredByPermissionSites.stream()
-                                                             .map(site -> buildSiteEntity(site,
-                                                                                          request,
-                                                                                          expandNavigations,
-                                                                                          visibilityNames,
-                                                                                          excludeEmptyNavigationSites,
-                                                                                          temporalCheck,
-                                                                                          excludeGroupNodesWithoutPageChildNodes,
-                                                                                          locale))
-                                                             .filter(Objects::nonNull)
-                                                             .toList();
+    List<SiteEntity> siteEntities = new ArrayList<SiteEntity>();
+    for (PortalConfig site : filteredByPermissionSites) {
+      siteEntities.add(buildSiteEntity(site,
+                                       request,
+                                       expandNavigations,
+                                       visibilityNames,
+                                       excludeEmptyNavigationSites,
+                                       temporalCheck,
+                                       excludeGroupNodesWithoutPageChildNodes,
+                                       locale));
+    }
+    siteEntities = siteEntities.stream().filter(Objects::nonNull).toList();
     return sortByDisplayOrder ? siteEntities
-                              : siteEntities.stream().sorted(Comparator.comparing(SiteEntity::getDisplayName, String.CASE_INSENSITIVE_ORDER)).toList();
+                              : siteEntities.stream()
+                                            .sorted(Comparator.comparing(SiteEntity::getDisplayName,
+                                                                         String.CASE_INSENSITIVE_ORDER))
+                                            .toList();
   }
 
   public static SiteEntity buildSiteEntity(PortalConfig site,
@@ -1809,7 +1813,7 @@ public class EntityBuilder {
                                            boolean excludeEmptyNavigationSites,
                                            boolean temporalCheck,
                                            boolean excludeGroupNodesWithoutPageChildNodes,
-                                           Locale locale) {
+                                           Locale locale) throws Exception {
     if (site == null) {
       return null;
     }
@@ -1826,18 +1830,20 @@ public class EntityBuilder {
                                                                                          currentUser,
                                                                                          userPortalContext);
 
-      UserPortal userPortal = userPortalConfig.getUserPortal();
-      UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
-      if (navigation != null) {
-        UserNodeFilterConfig.Builder builder = UserNodeFilterConfig.builder();
-        builder.withReadWriteCheck().withVisibility(convertVisibilities(visibilityNames));
-        if (temporalCheck) {
-          builder.withTemporalCheck();
+      if (userPortalConfig != null) {
+        UserPortal userPortal = userPortalConfig.getUserPortal();
+        UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
+        if (navigation != null) {
+          UserNodeFilterConfig.Builder builder = UserNodeFilterConfig.builder();
+          builder.withReadWriteCheck().withVisibility(convertVisibilities(visibilityNames));
+          if (temporalCheck) {
+            builder.withTemporalCheck();
+          }
+          rootNode = userPortal.getNode(navigation, Scope.ALL, builder.build(), null);
         }
-        rootNode = userPortal.getNode(navigation, Scope.ALL, builder.build(), null);
       }
     } catch (Exception e) {
-      LOG.error("Error while getting site {} navigations for user {}", site.getName(), currentUser, e);
+      throw new Exception("Error while getting site " +  site.getName() + " navigations for user " + currentUser);
     }
 
     if (excludeEmptyNavigationSites && (rootNode == null || rootNode.getChildren().isEmpty())) {
@@ -1886,22 +1892,24 @@ public class EntityBuilder {
                           siteNavigations,
                           getUserACL().hasPermission(site.getEditPermission()),
                           site.getBannerFileId(),
-                          LinkProvider.buildSiteBannerUrl(site.getName(), site.getBannerFileId() == 0));
+                          LinkProvider.buildSiteBannerUrl(site.getName(), site.getBannerFileId()));
   }
 
   private static List<Map<String, Object>> computePermissions(String[] permissions) {
-    return Arrays.stream(permissions).map(EntityBuilder::computePermission).toList();
+    return permissions != null ? Arrays.stream(permissions).map(EntityBuilder::computePermission).toList() : new ArrayList<Map<String,Object>>();
   }
 
   private static Map<String, Object> computePermission(String permission) {
     Map<String, Object> sitePermission = new HashMap<>();
     try {
-      sitePermission.put("membershipType", permission.split(":")[0]);
-      String sitePermissionGroupId = permission.split(":")[1];
-      if (!sitePermissionGroupId.startsWith("/")) {
-        sitePermissionGroupId = "/" + sitePermissionGroupId;
+      if (permission != null) {
+        sitePermission.put("membershipType", permission.split(":")[0]);
+        String sitePermissionGroupId = permission.split(":")[1];
+        if (!sitePermissionGroupId.startsWith("/")) {
+          sitePermissionGroupId = "/" + sitePermissionGroupId;
+        }
+        sitePermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(sitePermissionGroupId));
       }
-      sitePermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(sitePermissionGroupId));
     } catch (Exception e) {
       LOG.error("Error while computing user permission {}", permission, e);
     }

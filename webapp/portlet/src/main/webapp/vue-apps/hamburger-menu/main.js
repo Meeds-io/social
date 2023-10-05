@@ -17,6 +17,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
+import * as siteService from './js/SiteService.js';
+
+window.Object.defineProperty(Vue.prototype, '$siteService', {
+  value: siteService,
+});
 
 // get overrided components if exists
 if (extensionRegistry) {

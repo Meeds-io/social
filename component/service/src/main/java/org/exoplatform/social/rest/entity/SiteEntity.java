@@ -18,6 +18,7 @@ package org.exoplatform.social.rest.entity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.rest.model.UserNodeRestEntity;
@@ -60,4 +61,23 @@ public class SiteEntity {
   private long                      bannerFileId;
 
   private String                    bannerUrl;
+  
+  @Override
+  public int hashCode() {
+    int result = 17;
+    result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
+    result = 31 * result + (description != null ? description.hashCode() : 0);
+    result = 31 * result + (accessPermissions != null ? Objects.hash(accessPermissions) : 0);
+    result = 31 * result + (editPermission != null ? editPermission.hashCode() : 0);
+    result = 31 * result + (displayed ? 1 : 0);
+    result = 31 * result + displayOrder;
+    result = 31 * result + (siteNavigations != null ? Objects.hash(siteNavigations) : 0);
+    result = 31 * result + (bannerUrl != null ? bannerUrl.hashCode() : 0);
+    return result;
+  }
+  
+  @Override
+  public boolean equals(Object obj) {
+    return (this == obj);
+  }
 }
