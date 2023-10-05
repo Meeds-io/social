@@ -41,6 +41,10 @@ export default {
       type: String,
       default: null,
     },
+    origin: {
+      type: String,
+      default: null,
+    },
     muted: {
       type: Boolean,
       default: false,
@@ -65,8 +69,16 @@ export default {
           document.dispatchEvent(new CustomEvent('refresh-notifications'));
           if (this.spaceMuted) {
             this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
+            document.dispatchEvent(new CustomEvent('space-unmuted', {detail: {
+              name: this.origin,
+              spaceId: this.spaceId,
+            }}));
           } else {
             this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
+            document.dispatchEvent(new CustomEvent('space-muted', {detail: {
+              name: this.origin,
+              spaceId: this.spaceId,
+            }}));
           }
         })
         .then(() => this.muteValue = !this.spaceMuted)

@@ -13,7 +13,7 @@
       <div
         v-if="hover"
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
-        class="position-absolute t-0 pt-2px me-1 d-none z-index-two d-sm-block"
+        class="position-absolute t-0 pt-2px me-2 d-none z-index-two d-sm-block"
         @click.stop="0">
         <user-notification-menu
           :notification="notification"
@@ -209,6 +209,10 @@ export default {
         .then(() => {
           document.dispatchEvent(new CustomEvent('refresh-notifications'));
           this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
+          document.dispatchEvent(new CustomEvent('space-muted', {detail: {
+            name: 'notificationAction',
+            spaceId: this.spaceId,
+          }}));
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'));
     },
