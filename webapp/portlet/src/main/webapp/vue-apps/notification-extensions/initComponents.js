@@ -19,6 +19,7 @@
 
 import HtmlNotification from './components/HtmlNotification.vue';
 import UserNotification from './components/UserNotification.vue';
+import UserNotificationMenu from './components/UserNotificationMenu.vue';
 import UserNotificationTemplate from './components/UserNotificationTemplate.vue';
 import UserNotifications from './components/UserNotifications.vue';
 import UserNotificationsList from './components/UserNotificationsList.vue';
@@ -53,6 +54,7 @@ const components = {
   'user-notification-empty': UserEmptyNotifications,
   'user-notification': UserNotification,
   'user-notification-template': UserNotificationTemplate,
+  'user-notification-menu': UserNotificationMenu,
   'user-notification-new-user': NewUser,
   'user-notification-relationship-received-request': RelationshipReceivedRequestPlugin,
   'user-notification-space-invitation': SpaceInvitationPlugin,

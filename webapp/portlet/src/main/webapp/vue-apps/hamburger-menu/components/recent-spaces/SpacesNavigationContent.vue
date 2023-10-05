@@ -165,7 +165,7 @@ export default {
       }
     },
     searchSpaces() {
-      return this.$spaceService.getSpaces('', this.offset, this.limitToFetch, 'lastVisited', 'member,managers,favorite,unread')
+      return this.$spaceService.getSpaces('', this.offset, this.limitToFetch, 'lastVisited', 'member,managers,favorite,unread,muted')
         .then(data => {
           this.spaces = data && data.spaces || [];
           return this.$nextTick();
