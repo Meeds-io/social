@@ -19,13 +19,19 @@
 
 -->
 <template>
-  <v-btn
-    :title="spaceMuted && $t('Notification.tooltip.unmuteSpaceNotification') || $t('Notification.tooltip.muteSpaceNotification')"
-    :loading="saving"
-    icon
-    @click="muteSpace">
-    <v-icon size="16" class="icon-default-color">{{ spaceMuted && 'fa-bell' || 'fa-bell-slash' }}</v-icon>
-  </v-btn>
+  <v-tooltip bottom>
+    <template #activator="{ on, attrs }">
+      <v-btn
+        :loading="saving"
+        icon
+        v-bind="attrs"
+        v-on="on"
+        @click="muteSpace">
+        <v-icon size="16" class="icon-default-color">{{ spaceMuted && 'fa-bell-slash' || 'far fa-bell-slash' }}</v-icon>
+      </v-btn>
+    </template>
+    <span>{{ spaceMuted && $t('Notification.tooltip.unmuteSpaceNotification') || $t('Notification.tooltip.muteSpaceNotification') }}</span>
+  </v-tooltip>
 </template>
 
 <script>
