@@ -346,7 +346,12 @@ export default {
       return this.user && this.user.username === eXo.env.portal.userName;
     },
     userAvatarUrl() {
-      let userAvatarUrl = this.user && this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
+      let userAvatarUrl;
+      if (this.user?.enabled) {
+        userAvatarUrl = this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
+      } else {
+        userAvatarUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
+      }
       if (!userAvatarUrl.includes('?')) {
         userAvatarUrl += '?';
       } else {
