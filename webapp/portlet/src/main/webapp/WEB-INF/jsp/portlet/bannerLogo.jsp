@@ -1,3 +1,5 @@
+<%@page import="org.exoplatform.commons.api.notification.model.UserSetting"%>
+<%@page import="org.exoplatform.commons.api.notification.service.setting.UserSettingService"%>
 <%@ page import="org.exoplatform.social.core.space.model.Space"%>
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%@ page import="org.exoplatform.container.ExoContainerContext"%>
@@ -29,13 +31,17 @@
   String homePath= "";
   int membersNumber= 0;
   boolean isFavorite= false;
+  boolean muted= false;
   boolean isMember =false;
+  String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
   List<Profile> managers = new ArrayList<>();
   String spaceDescription= "";
   Space space = SpaceUtils.getSpaceByContext();
   PortalRequestContext requestContext = ((PortalRequestContext) RequestContext.getCurrentInstance());
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
   UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
+  UserSettingService userSettingService = CommonsUtils.getService(UserSettingService.class);
+  UserSetting userSetting = userSettingService.get(authenticatedUser);
 
   defaultHomePath = "/portal/" + requestContext.getPortalOwner();
   if (space == null) {
@@ -50,12 +56,12 @@
     titleClass = "company";
   } else {
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity userIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
     spaceId = space.getId();
     SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
     isMember = spaceService.isMember(space, authenticatedUser);
     isFavorite = favoriteService.isFavorite(new Favorite(space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
+    muted = userSetting.isSpaceMuted(Long.parseLong(spaceId));
     logoPath = space.getAvatarUrl();
     logoTitle = space.getDisplayName();
     String permanentSpaceName = space.getGroupId().split("/")[2];
@@ -85,6 +91,7 @@
   let params = {
     id: `<%=spaceId%>`,
     isFavorite: `<%=isFavorite%>`,
+    muted: `<%=muted%>`,
     isMember: `<%=isMember%>`,
     logoPath: `<%=logoPath%>`,
     portalPath: `<%=portalPath%>`,

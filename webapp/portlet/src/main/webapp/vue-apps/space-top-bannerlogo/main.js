@@ -22,6 +22,7 @@ export function init(params) {
         return {
           spaceId: params.id,
           isFavorite: params.isFavorite,
+          muted: params.muted === 'true',
           isMember: params.isMember,
           logoPath: params.logoPath,
           portalPath: params.portalPath,
@@ -38,6 +39,7 @@ export function init(params) {
                     id="SpaceTopBannerLogo"
                     :space-id="spaceId"
                     :is-favorite="isFavorite"
+                    :muted="muted"
                     :is-member="isMember"
                     :logo-path="logoPath" 
                     :portal-path="portalPath"

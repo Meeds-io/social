@@ -62,6 +62,7 @@ public class LikeCommentPlugin extends BaseNotificationPlugin {
     NotificationInfo notification = NotificationInfo.instance()
                                                     .to(likeTo)
                                                     .setFrom(liker)
+                                                    .setSpaceId(spaceId == null ? 0 : Long.parseLong(spaceId))
                                                     .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                                                     .with(SocialNotificationUtils.LIKER.getKey(), liker)
                                                     .key(getId())

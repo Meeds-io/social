@@ -63,6 +63,8 @@ public class WebNotificationRestEntityBuilder {
                                          webNotificationService.getNotificationMessage(notification, isOnPopover),
                                          notification.getOwnerParameter(),
                                          notification.isRead(),
+                                         notification.isMutable(),
+                                         notification.isSpaceMuted(),
                                          notification.getLastModifiedDate());
   }
 
