@@ -146,11 +146,12 @@ export default {
         .then(() => {
           this.$emit('refresh');
           if (unmute) {
-            this.$root.$emit('alert-message', this.$t('UserSettings.alert.successfullyUnmuted'), 'success');
+            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
           } else {
-            this.$root.$emit('alert-message', this.$t('UserSettings.alert.successfullyMuted'), 'success');
+            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
           }
         })
+        .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'))
         .finally(() => this.loading = false);
     },
   },
