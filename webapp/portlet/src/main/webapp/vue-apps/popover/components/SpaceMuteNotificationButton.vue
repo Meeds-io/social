@@ -35,7 +35,6 @@
 </template>
 
 <script>
-
 export default {
   props: {
     spaceId: {
@@ -62,8 +61,16 @@ export default {
     muteSpace() {
       this.saving = true;
       return this.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
-        .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('refresh-notifications'));
+          if (this.spaceMuted) {
+            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
+          } else {
+            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
+          }
+        })
         .then(() => this.muteValue = !this.spaceMuted)
+        .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'))
         .finally(() => this.saving = false);
     },
   }

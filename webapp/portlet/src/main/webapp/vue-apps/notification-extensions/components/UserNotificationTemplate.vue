@@ -206,7 +206,11 @@ export default {
     muteSpace() {
       this.markedAsReadMuted = true;
       return this.$spaceService.muteSpace(this.spaceId)
-        .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')));
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('refresh-notifications'));
+          this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
+        })
+        .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'));
     },
     reset() {
       this.absolute = false;
