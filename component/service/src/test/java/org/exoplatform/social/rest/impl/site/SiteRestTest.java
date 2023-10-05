@@ -164,6 +164,11 @@ public class SiteRestTest extends BaseRestServicesTestCase {
     assertEquals(200, resp.getStatus());
     entity = resp.getEntity();
     assertNotNull(entity);
+    SiteEntity siteEntity = (SiteEntity) entity;
+    assertEquals(siteEntity.getDescription(), site.getDescription());
+    assertEquals(siteEntity.getBannerFileId(), site.getBannerFileId());
+    assertNotNull(siteEntity.getRootNode());
+    assertNotNull(siteEntity.getBannerUrl());
   }
 
   private org.exoplatform.portal.jdbc.entity.SiteEntity creatSiteEntity(SiteType siteType,
