@@ -261,7 +261,7 @@ export default {
   },
   computed: {
     userIdentity() {
-      return this.identity || this.retrievedIdentity;
+      return this.retrievedIdentity || this.identity;
     },
     identityId() {
       return this.userIdentity?.id;
@@ -351,6 +351,10 @@ export default {
         .then(user => this.retrievedIdentity = user);
     }
   },
-
+  watch: {
+    identity() {
+      this.retrievedIdentity = null;
+    }
+  },
 };
 </script>
