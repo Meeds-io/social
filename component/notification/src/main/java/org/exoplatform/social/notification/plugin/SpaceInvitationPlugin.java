@@ -43,6 +43,7 @@ public class SpaceInvitationPlugin extends BaseNotificationPlugin {
     String senderName = ctx.value(SocialNotificationUtils.SENDER);
     return NotificationInfo.instance()
                            .key(getId())
+                           .setSpaceId(Long.parseLong(space.getId()))
                            .with(SocialNotificationUtils.SENDER.getKey(), senderName)
                            .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
                            .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())

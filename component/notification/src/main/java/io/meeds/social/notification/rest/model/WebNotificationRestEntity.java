@@ -50,6 +50,10 @@ public class WebNotificationRestEntity {
 
   private boolean             read;
 
+  private boolean             canMute;
+
+  private boolean             spaceMuted;
+
   private long                created;
 
 }

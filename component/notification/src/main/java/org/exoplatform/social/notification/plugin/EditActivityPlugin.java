@@ -43,6 +43,7 @@ public class EditActivityPlugin extends BaseNotificationPlugin {
     return NotificationInfo.instance()
                            .to(new ArrayList<>(receivers))
                            .setFrom(poster)
+                           .setSpaceId(spaceId == null ? 0 : Long.parseLong(spaceId))
                            .with(SocialNotificationUtils.ACTIVITY_ID.getKey(), activity.getId())
                            .with(SocialNotificationUtils.POSTER.getKey(), poster)
                            .key(getId());
