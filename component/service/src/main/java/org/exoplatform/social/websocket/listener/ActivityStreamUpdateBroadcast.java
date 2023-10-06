@@ -22,6 +22,7 @@ import org.exoplatform.social.core.activity.ActivityLifeCycleEvent;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.websocket.ActivityStreamWebSocketService;
@@ -35,10 +36,15 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   private ActivityStreamWebSocketService activityStreamWebSocketService;
 
-  private SpaceService spaceService;
+  private ActivityManager                activityManager;
 
-  public ActivityStreamUpdateBroadcast(ActivityStreamWebSocketService activityStreamWebSocketService, SpaceService spaceService) {
+  private SpaceService                   spaceService;
+
+  public ActivityStreamUpdateBroadcast(ActivityStreamWebSocketService activityStreamWebSocketService,
+                                       ActivityManager activityManager,
+                                       SpaceService spaceService) {
     this.activityStreamWebSocketService = activityStreamWebSocketService;
+    this.activityManager = activityManager;
     this.spaceService = spaceService;
   }
 
@@ -63,6 +69,16 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
   }
 
   @Override
+  public void pinActivity(ActivityLifeCycleEvent event) {
+    if (event.getActivity() == null || event.getActivity().isHidden()) {
+      return;
+    }
+    String activityId = getActivityId(event);
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, "pinActivity", getSpaceId(event));
+    activityStreamWebSocketService.sendMessage(activityStreamModification);
+  }
+
+  @Override
   public void deleteActivity(ActivityLifeCycleEvent event) {
     if (event.getActivity() == null || event.getActivity().isHidden()) {
       return;
@@ -80,7 +96,7 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
     String activityId = getActivityId(event);
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
-    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "createComment", getSpaceId(event));
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "createComment", getSpaceId(activityId));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 
@@ -92,7 +108,7 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
     String activityId = getActivityId(event);
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
-    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "deleteComment", getSpaceId(event));
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "deleteComment", getSpaceId(activityId));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 
@@ -104,7 +120,7 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
     String activityId = getActivityId(event);
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
-    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "updateComment", getSpaceId(event));
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "updateComment", getSpaceId(activityId));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 
@@ -126,7 +142,7 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
     String activityId = getActivityId(event);
     String commentId = getCommentId(event);
     String parentCommentId = getParentCommentId(event);
-    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "likeComment", getSpaceId(event));
+    ActivityStreamModification activityStreamModification = new ActivityStreamModification(activityId, commentId, parentCommentId, "likeComment", getSpaceId(activityId));
     activityStreamWebSocketService.sendMessage(activityStreamModification);
   }
 
@@ -136,14 +152,21 @@ public class ActivityStreamUpdateBroadcast extends ActivityListenerPlugin {
 
   private String getSpaceId(ActivityLifeCycleEvent event) {
     ExoSocialActivity activity = event.getActivity();
-    String spaceId = null;
-    if(activity.getActivityStream().getType() == ActivityStream.Type.SPACE) {
+    return getSpaceId(activity);
+  }
+
+  private String getSpaceId(String activityId) {
+    return getSpaceId(activityManager.getActivity(activityId));
+  }
+
+  private String getSpaceId(ExoSocialActivity activity) {
+    if (activity != null && activity.getActivityStream().getType() == ActivityStream.Type.SPACE) {
       Space space = spaceService.getSpaceByPrettyName(activity.getActivityStream().getPrettyId());
       if (space != null) {
-        spaceId = space.getId();
+        return space.getId();
       }
     }
-    return spaceId;
+    return null;
   }
 
   private String getCommentId(ActivityLifeCycleEvent event) {
