@@ -68,7 +68,7 @@ export default {
     },
   },
   created() {
-    this.isFavorite = this.activity && this.activity.metadatas && this.activity.metadatas.favorites && this.activity.metadatas.favorites.length;
+    this.isFavorite = this.activity?.metadatas?.favorites?.length;
   },
   methods: {
     removed() {
