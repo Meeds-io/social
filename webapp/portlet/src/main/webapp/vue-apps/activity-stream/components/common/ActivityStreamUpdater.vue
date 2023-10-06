@@ -15,7 +15,6 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   props: {
@@ -23,7 +22,7 @@ export default {
       type: String,
       default: null,
     },
-    activities: {
+    activityIds: {
       type: Array,
       default: null,
     },
@@ -61,7 +60,9 @@ export default {
       this.$root.$emit(`activity-stream-activity-${updateParams.eventName}`, updateParams.activityId, updateParams.spaceId, updateParams.commentId, updateParams.parentCommentId);
     },
     increaseActivitiesLimitToRetrieve(activityId, spaceId) {
-      if (!eXo.env.portal.spaceId || eXo.env.portal.spaceId === spaceId) {
+      if ((!eXo.env.portal.spaceId || eXo.env.portal.spaceId === spaceId)
+          && !this.updatedActivities.has(activityId)
+          && !this.activityIds.includes(activityId)) {
         this.updatedActivities.add(activityId);
         this.newerActivitiesCount = this.updatedActivities.size;
       }

@@ -242,7 +242,6 @@ export default {
     notifyAsRead(allowReset) {
       if (allowReset) {
         window.setTimeout(() => {
-          this.$root.$emit('activity-stream-reset-filter', true);
           document.dispatchEvent(new CustomEvent('alert-message-html-confeti', {detail: {
             alertMessage: this.$t('activity.filter.empty_unread_spaces_stream.switchMessage'),
             alertType: 'success',
