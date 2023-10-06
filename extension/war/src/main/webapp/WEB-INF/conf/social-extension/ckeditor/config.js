@@ -11,13 +11,12 @@ if (userAgent != null && userAgent.indexOf('exo/') == 0 && userAgent.indexOf('(a
 CKEDITOR.editorConfig = function(config) {
 
   // The configuration options below are needed when running CKEditor from source files.
-  config.plugins = 'dialogui,dialog,about,a11yhelp,basicstyles,blockquote,panel,floatpanel,button,toolbar,enterkey,entities,popup,filebrowser,floatingspace,listblock,richcombo,format,horizontalrule,htmlwriter,wysiwygarea,indent,indentlist,fakeobjects,list,maximize,removeformat,showborders,sourcearea,specialchar,scayt,stylescombo,tab,table,notification,notificationaggregator,filetools,undo,wsc,panelbutton,colorbutton,autogrow,confighelper,uploadwidget,imageresize,confirmBeforeReload,autoembed,embedsemantic';
+  config.plugins = 'dialogui,dialog,about,a11yhelp,basicstyles,blockquote,panel,floatpanel,button,toolbar,enterkey,entities,popup,filebrowser,floatingspace,listblock,richcombo,format,horizontalrule,htmlwriter,wysiwygarea,indent,indentlist,fakeobjects,list,maximize,removeformat,showborders,sourcearea,specialchar,scayt,stylescombo,tab,table,notification,notificationaggregator,filetools,undo,wsc,panelbutton,colorbutton,autogrow,confighelper,uploadwidget,imageresize,autoembed,embedsemantic';
 
   CKEDITOR.plugins.addExternal('simpleLink', '/commons-extension/eXoPlugins/simpleLink/', 'plugin.js');
   CKEDITOR.plugins.addExternal('simpleImage', '/commons-extension/eXoPlugins/simpleImage/', 'plugin.js');
   CKEDITOR.plugins.addExternal('suggester', '/commons-extension/eXoPlugins/suggester/', 'plugin.js');
   CKEDITOR.plugins.addExternal('hideBottomToolbar', '/commons-extension/eXoPlugins/hideBottomToolbar/', 'plugin.js');
-  CKEDITOR.plugins.addExternal('confirmBeforeReload', '/commons-extension/eXoPlugins/confirmBeforeReload/', 'plugin.js');
   CKEDITOR.plugins.addExternal('autoembed', '/commons-extension/eXoPlugins/autoembed/', 'plugin.js');
   CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
   CKEDITOR.plugins.addExternal('tagSuggester', '/commons-extension/eXoPlugins/tagSuggester/', 'plugin.js');
