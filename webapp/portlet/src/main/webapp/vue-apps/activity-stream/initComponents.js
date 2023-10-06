@@ -3,7 +3,6 @@ import ActivityStreamEmptyMessageSpace from './components/empty-stream/ActivityS
 import ActivityStreamEmptyMessageUser from './components/empty-stream/ActivityStreamEmptyMessageUser.vue';
 import ActivityStreamEmptyMessageFilter from './components/empty-stream/ActivityStreamEmptyMessageFilter.vue';
 import ActivityNotFound from './components/empty-stream/ActivityNotFound.vue';
-import ActivityAutoLink from './components/common/ActivityAutoLink.vue';
 import ActivityStreamUpdater from './components/common/ActivityStreamUpdater.vue';
 import ActivityStreamConfirm from './components/common/ActivityStreamConfirm.vue';
 import ActivityStreamList from './components/activity/list/ActivityStreamList.vue';
@@ -47,7 +46,6 @@ const components = {
   'activity-stream-list': ActivityStreamList,
   'activity-stream-toolbar': ActivityStreamToolbar,
   'activity-composer-drawer': ActivityComposerDrawer,
-  'activity-auto-link': ActivityAutoLink,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
   'activity-stream-empty-message-space-icons-column': ActivityStreamEmptyMessageSpaceIconsColumn,
   'activity-stream-empty-message-user': ActivityStreamEmptyMessageUser,
