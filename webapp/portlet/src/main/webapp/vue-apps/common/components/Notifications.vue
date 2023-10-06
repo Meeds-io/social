@@ -44,7 +44,7 @@
       <div class="d-flex flex-nowrap align-center full-width">
         <span
           v-if="useHtml"
-          class="text--lighten-1 flex-grow-1 pe-4"
+          class="text--lighten-1 flex-grow-1 text-start pe-4"
           v-sanitized-html="alertMessage"
           @click="handleAlertClicked">
         </span>
@@ -62,7 +62,7 @@
           rel="nofollow noreferrer noopener"
           link
           @click="linkCallback">
-          <div v-if="alertLinkText" class="text-none mt-1">{{ alertLinkText }}</div>
+          <div v-if="alertLinkText" class="text-none">{{ alertLinkText }}</div>
           <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
         </v-btn>
       </div>

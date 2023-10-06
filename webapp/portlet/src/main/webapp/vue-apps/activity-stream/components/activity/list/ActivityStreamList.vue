@@ -6,7 +6,7 @@
     <activity-stream-updater
       ref="activityUpdater"
       :space-id="spaceId"
-      :activities="activities"
+      :activity-ids="activityIds"
       :standalone="!!activityId"
       :stream-filter="streamFilter"
       @loadActivities="loadActivities" />
@@ -109,6 +109,9 @@ export default {
     },
     allActivitiesRead() {
       return this.hadUnread && !this.loading && !this.hasMore && this.streamFilter === 'unread_spaces_stream' && !this.unreadCount;
+    },
+    activityIds() {
+      return this.activities?.map?.(a => a.id)?.filter?.(id => !!id) || [];
     },
   },
   watch: {
