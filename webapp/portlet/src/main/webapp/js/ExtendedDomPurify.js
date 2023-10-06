@@ -21,7 +21,7 @@
   };
   ExtendedDomPurify.prototype.purify = function(content) {
     content = content.replace(/<div> <\/div>/g, '<div><br><\/div>');
-    content = content.replace(/  /g, '&nbsp;&nbsp;');
+    content = content.trim().replace(/>[ \n]+</g, '><').replace(/  /g, '&nbsp;&nbsp;');
     const pureHtml = DOMPurify.sanitize(Autolinker.link(content, {
       email: false,
       replaceFn : function (match) {
