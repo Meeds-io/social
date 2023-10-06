@@ -50,7 +50,6 @@
       @click="loadMore">
       {{ $t('Search.button.loadMore') }}
     </v-btn>
-    <activity-auto-link />
   </div>
 </template>
 

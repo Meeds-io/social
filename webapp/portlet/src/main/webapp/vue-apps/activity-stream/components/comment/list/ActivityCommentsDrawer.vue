@@ -133,21 +133,23 @@ export default {
       this.$refs.activityCommentsDrawer.close();
     },
     addComment(comment) {
-      this.$root.selectedCommentId = comment.id;
       this.highlightCommentId = this.$root.selectedCommentId;
+      this.$root.selectedCommentId = comment?.id || this.$root.selectedCommentId;
       this.retrieveComments(!comment.parentCommentId);
     },
     deleteComment() {
       this.retrieveComments();
     },
-    updateComment() {
+    updateComment(comment) {
       this.comments = [];
+      this.$root.selectedCommentId = comment.id;
       this.retrieveComments(true, false);
     },
     scrollToEnd() {
       this.initialized = true;
 
       if (this.scrollOnOpen
+          && !this.$root.selectedCommentId
           && (!this.newCommentEditor || !this.selectedCommentIdToReply)
           && !this.highlightCommentId
           && !this.highlightRepliesCommentId) {
@@ -263,10 +265,12 @@ export default {
           let selectedCommentId;
           if (this.$root.selectedCommentId && this.$root.selectedActivityId === this.activity.id) {
             selectedComment = this.highlightComment(comments, this.$root.selectedCommentId);
-            selectedCommentId = this.$root.selectedCommentId;
+            selectedCommentId = selectedComment?.id || this.$root.selectedCommentId;
+            searchSelectedComment = !selectedComment;
           } else if (this.highlightCommentId) {
             selectedComment = this.highlightComment(comments, this.highlightCommentId);
             selectedCommentId = this.highlightCommentId;
+            searchSelectedComment = !selectedComment;
           } else if (this.highlightRepliesCommentId) {
             selectedComment = comments.find(comment => comment.id === this.highlightRepliesCommentId);
             if (selectedComment) {
@@ -274,11 +278,15 @@ export default {
               selectedComment.expandSubComments = true;
             }
             selectedCommentId = this.highlightRepliesCommentId;
+            searchSelectedComment = !selectedComment;
           } else if (this.commentToEdit) {
             selectedComment = comments.find(comment => comment.id === this.commentToEdit.id);
             selectedCommentId = this.commentToEdit.id;
+            searchSelectedComment = !selectedComment;
           } else if (this.selectedCommentIdToReply) {
+            selectedComment = comments.find(comment => comment.id === this.selectedCommentIdToReply);
             selectedCommentId = this.selectedCommentIdToReply;
+            searchSelectedComment = !selectedComment;
           } else {
             searchSelectedComment = false;
           }
