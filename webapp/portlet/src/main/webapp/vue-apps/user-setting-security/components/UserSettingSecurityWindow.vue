@@ -67,18 +67,6 @@
             required>
         </v-card-text>
 
-        <v-card-text v-if="error">
-          <v-alert type="error">
-            {{ error }}
-          </v-alert>
-        </v-card-text>
-
-        <v-card-text v-if="success">
-          <v-alert type="success">
-            {{ success }}
-          </v-alert>
-        </v-card-text>
-
         <v-card-actions class="my-6">
           <v-spacer />
           <v-btn
@@ -112,8 +100,6 @@ export default {
     currentPassword: null,
     newPassword: null,
     confirmNewPassword: null,
-    success: null,
-    error: null,
     saving: false,
     displayed: true,
   }),
@@ -151,28 +137,25 @@ export default {
       }
 
       if (this.$refs.form.validate() && this.$refs.form.$el.reportValidity()) {
-        this.success = null;
-        this.error = null;
         this.saving = true;
         this.$userService.changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
           .then(() => {
-            this.success = this.$t('UserSettings.label.changePasswordSuccess');
+            this.$root.$emit('alert-message', this.$t('UserSettings.label.changePasswordSuccess'), 'success');
             this.$refs.form.$el.reset();
           })
           .catch(e => {
-            const error = String(e);
+            let error = String(e);
 
             if (error.indexOf(WRONG_USER_PASSWORD_ERROR_CODE) > -1) {
-              this.error = this.$t('UserSettings.label.wrongCurrentPassword');
+              error = this.$t('UserSettings.label.wrongCurrentPassword');
             } else if (error.indexOf(USER_NOT_FOUND_ERROR_CODE) > -1) {
-              this.error = this.$t('UserSettings.label.accountNotExist');
+              error = this.$t('UserSettings.label.accountNotExist');
             } else if (error.indexOf(PASSWORD_UNKNOWN_ERROR_CODE) > -1) {
-              this.error = this.$t('UserSettings.label.changePasswordFail');
+              error = this.$t('UserSettings.label.changePasswordFail');
             } else if (error.indexOf(UNCHANGED_NEW_PASSWORD_ERROR_CODE) > -1) {
-              this.error = this.$t('UserSettings.label.changePasswordIdentical');
-            } else {
-              this.error = error;
+              error = this.$t('UserSettings.label.changePasswordIdentical');
             }
+            this.$root.$emit('alert-message', error, 'error');
           })
           .finally(() => {
             this.saving = false;

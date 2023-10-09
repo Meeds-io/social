@@ -28,13 +28,6 @@
         <profile-settings-header :filter="filter" />
         <profile-settings-table :settings="filteredSettings" />
         <profile-setting-form-drawer :settings="settings" :languages="languages" />
-        <v-alert
-          :icon="type === 'warning' ? 'mdi-alert-circle' : ''"
-          v-model="alert"
-          :type="type"
-          dismissible>
-          {{ message }}
-        </v-alert>
       </v-card>
     </v-main>
   </v-app>
@@ -50,9 +43,6 @@ export default {
   },
 
   data: () => ({
-    alert: false,
-    type: '',
-    message: '',
     settings: [],
     filter: 'Active'
   }),
@@ -87,10 +77,7 @@ export default {
   },
   methods: {
     displayMessage(alert) {
-      this.message = alert.message;
-      this.type = alert.type;
-      this.alert = true;
-      window.setTimeout(() => this.alert = false, 5000);
+      this.$root.$emit('alert-message', alert.message, alert.type);
     },
     getSettings() {
       return this.$profileSettingsService.getSettings()
