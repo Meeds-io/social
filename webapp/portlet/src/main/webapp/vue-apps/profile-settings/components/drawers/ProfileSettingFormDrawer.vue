@@ -33,12 +33,6 @@
         ref="settingForm"
         class="form-horizontal pt-0 pb-4"
         flat>
-        <v-card-text v-if="error" class="errorMessage">
-          <v-alert type="error">
-            {{ error }}
-          </v-alert>
-        </v-card-text>
-
         <v-card-text class="d-flex settingNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('profileSettings.label.name') }}<template v-if="newSetting">*</template>
         </v-card-text>
@@ -227,7 +221,6 @@ export default {
     },
   },
   data: () => ({
-    error: null,
     fieldError: false,
     drawer: false,
     newSetting: false,
@@ -338,7 +331,6 @@ export default {
         event.stopPropagation();
       }
 
-      this.error = null;
       this.fieldError = false;
       this.resetCustomValidity();
 

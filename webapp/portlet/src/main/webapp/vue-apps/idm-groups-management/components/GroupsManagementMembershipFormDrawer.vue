@@ -13,12 +13,6 @@
         class="form-horizontal pt-0 pb-4"
         flat
         @submit="saveMembership">
-        <v-card-text v-if="error" class="errorMessage">
-          <v-alert type="error">
-            {{ error }}
-          </v-alert>
-        </v-card-text>
-
         <v-card-text class="d-flex membershipNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('UsersManagement.membershipType') }} *
         </v-card-text>
@@ -193,7 +187,6 @@
 <script>
 export default {
   data: () => ({
-    error: null,
     fieldError: false,
     drawer: false,
     newMembership: false,
@@ -318,7 +311,6 @@ export default {
         event.stopPropagation();
       }
 
-      this.error = null;
       this.fieldError = false;
       this.resetCustomValidity();
 
@@ -371,10 +363,7 @@ export default {
           this.$refs.membershipTypeInput.setCustomValidity(this.$t('GroupsManagement.message.sameMembershipAlreadyExists'));
         } else {
           this.error = String(error);
-
-          window.setTimeout(() => {
-            this.error = null;
-          }, 5000);
+          this.$root.$emit('alert-message', error, 'error');
         }
 
         window.setTimeout(() => {
@@ -383,8 +372,6 @@ export default {
             return;
           }
         }, 200);
-      } else {
-        this.error = null;
       }
     },
     refreshUserSelection(value) {
