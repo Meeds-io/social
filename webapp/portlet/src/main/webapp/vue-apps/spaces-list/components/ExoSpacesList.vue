@@ -1,21 +1,24 @@
 <template>
   <v-app class="transparent" flat>
-    <exo-spaces-toolbar
-      :keyword="keyword"
-      :filter="filter"
-      :spaces-size="spacesSize"
-      :can-create-space="canCreateSpace"
-      @keyword-changed="keyword = $event"
-      @filter-changed="filter = $event" />
-    <exo-spaces-card-list
-      ref="spacesList"
-      :keyword="keyword"
-      :filter="filter"
-      :loading-spaces="loadingSpaces"
-      :spaces-size="spacesSize"
-      @loading-spaces="loadingSpaces = $event"
-      @loaded="spacesLoaded" />
-
+    <widget-wrapper>
+      <template #content>
+        <exo-spaces-toolbar
+          :keyword="keyword"
+          :filter="filter"
+          :spaces-size="spacesSize"
+          :can-create-space="canCreateSpace"
+          @keyword-changed="keyword = $event"
+          @filter-changed="filter = $event" />
+        <exo-spaces-card-list
+          ref="spacesList"
+          :keyword="keyword"
+          :filter="filter"
+          :loading-spaces="loadingSpaces"
+          :spaces-size="spacesSize"
+          @loading-spaces="loadingSpaces = $event"
+          @loaded="spacesLoaded" />
+      </template>
+    </widget-wrapper> 
     <exo-space-managers-drawer />
     <exo-space-form-drawer />
   </v-app>    

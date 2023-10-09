@@ -3,39 +3,34 @@
     v-if="displayApp"
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'"
     class="white">
-    <v-toolbar
-      color="white"
-      flat
-      class="border-box-sizing">
-      <div
-        class="text-header-title text-sub-title">
+    <widget-wrapper>
+      <template #title>
         {{ title }}
-      </div>
-      <v-spacer />
-      <v-btn
-        v-if="owner"
-        id="aboutMeEditButton"
-        icon
-        outlined
-        small
-        @click="editAboutMe">
-        <v-icon size="18">fas fa-edit</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <v-card
-      class="border-box-sizing"
-      flat>
-      <p
-        v-autolinker="aboutMe"
-        v-if="aboutMe || !owner"
-        id="aboutMeParagraph"
-        class="paragraph text-color pt-0 pb-6 px-4"></p>
-      <p
-        v-else
-        id="aboutMeParagraph"
-        class="paragraph text-color pt-0 pb-6 px-4"
-        v-text="$t('profileAboutMe.emptyOwner')"></p>
-    </v-card>
+      </template>
+      <template #action>
+        <v-btn
+          v-if="owner"
+          id="aboutMeEditButton"
+          icon
+          outlined
+          small
+          @click="editAboutMe">
+          <v-icon size="18">fas fa-edit</v-icon>
+        </v-btn>
+      </template>
+      <template #content>
+        <p
+          v-autolinker="aboutMe"
+          v-if="aboutMe || !owner"
+          id="aboutMeParagraph"
+          class="paragraph text-color"></p>
+        <p
+          v-else
+          id="aboutMeParagraph"
+          class="paragraph text-color"
+          v-text="$t('profileAboutMe.emptyOwner')"></p>
+      </template>
+    </widget-wrapper> 
     <exo-drawer
       v-if="owner"
       ref="aboutMeDrawer"

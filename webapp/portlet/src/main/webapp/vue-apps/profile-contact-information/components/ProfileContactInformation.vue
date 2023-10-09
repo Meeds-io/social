@@ -2,41 +2,40 @@
   <v-app
     :class="owner && 'profileContactInformation' || 'profileContactInformationOther'"
     class="white">
-    <v-toolbar
-      color="white"
-      flat
-      class="border-box-sizing">
-      <div
-        class="text-header-title text-sub-title profileContactTitle">
+    <widget-wrapper>
+      <template #title>
         {{ title }}
-      </div>
-      <v-spacer />
-      <v-btn
-        v-if="owner"
-        id="profileContactEditButton"
-        icon
-        outlined
-        small
-        @click="editContactInformation">
-        <v-icon size="18">fas fa-edit</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <div class="px-4 pb-6 white">
-      <div v-for="property in properties" :key="property.id">
-        <profile-multi-valued-property v-if="property.children && property.children.length" :property="property" />
-        <template v-else-if="property && property.visible && property.value">
-          <v-flex class="d-flex">
-            <div class="align-start text-no-wrap font-weight-bold me-3">
-              {{ getResolvedName(property) }}
-            </div>
-            <div v-autolinker="property.value" class="align-end flex-grow-1 text-truncate text-end">
-              {{ property.value }}
-            </div>
-          </v-flex>
-          <v-divider class="my-4" />
-        </template>
-      </div>
-    </div>
+      </template>
+      <template #action>
+        <v-btn
+          v-if="owner"
+          id="profileContactEditButton"
+          icon
+          outlined
+          small
+          @click="editContactInformation">
+          <v-icon size="18">fas fa-edit</v-icon>
+        </v-btn>
+      </template>
+      <template #content>
+        <div class="text-color">
+          <div v-for="property in properties" :key="property.id">
+            <profile-multi-valued-property v-if="property.children && property.children.length" :property="property" />
+            <template v-else-if="property && property.visible && property.value">
+              <v-flex class="d-flex">
+                <div class="align-start text-no-wrap font-weight-bold me-3">
+                  {{ getResolvedName(property) }}
+                </div>
+                <div v-autolinker="property.value" class="align-end flex-grow-1 text-truncate text-end">
+                  {{ property.value }}
+                </div>
+              </v-flex>
+              <v-divider class="my-4" />
+            </template>
+          </div>
+        </div>
+      </template>
+    </widget-wrapper> 
     <profile-contact-information-drawer
       v-if="owner"
       ref="contactInformationEdit"

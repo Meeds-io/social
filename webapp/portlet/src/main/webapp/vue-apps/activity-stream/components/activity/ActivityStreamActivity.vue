@@ -1,83 +1,87 @@
 <template>
-  <unread-badge
-    :id="id"
-    :unread-metadata="unreadMetadata"
-    :space-id="spaceId"
-    class="white border-radius activity-detail flex flex-column"
-    @read="markAsRead">
-    <div v-if="displayLoading" class="d-flex">
-      <v-progress-circular
-        color="primary"
-        size="32"
-        indeterminate
-        class="mx-auto my-10" />
-    </div>
-    <template v-else-if="!noExtension && extendedComponent">
-      <activity-head
-        v-if="!extendedComponent.overrideHeader"
-        :activity="activity"
-        :activity-actions="activityActions"
-        :is-activity-detail="isActivityDetail"
-        :activity-type-extension="activityTypeExtension"
-        :hide-menu="hideMenu"
-        :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'" />
-      <template v-if="!loading">
-        <extension-registry-component
-          :component="extendedComponentOptions"
-          :element="extendedComponent.element"
-          :element-class="extendedComponent.class"
-          :params="extendedComponentParams"
-          class="d-flex flex-column" />
-      </template>
-      <template v-if="!hideFooter">
-        <activity-footer
-          v-if="!extendedComponent.overrideFooter"
-          :activity="activity"
-          :is-activity-detail="isActivityDetail"
-          :activity-types="activityTypes"
-          :activity-type-extension="activityTypeExtension" />
-        <activity-comments-preview
-          v-if="!extendedComponent.overrideComments"
-          :activity="activity"
-          :comment-types="commentTypes"
-          :comment-actions="commentActions"
-          class="px-4" />
-      </template>
+  <widget-wrapper :has-title="false">
+    <template #content>
+      <unread-badge
+        :id="id"
+        :unread-metadata="unreadMetadata"
+        :space-id="spaceId"
+        class="activity-detail"
+        @read="markAsRead">
+        <div v-if="displayLoading" class="d-flex">
+          <v-progress-circular
+            color="primary"
+            size="32"
+            indeterminate
+            class="mx-auto my-10" />
+        </div>
+        <template v-else-if="!noExtension && extendedComponent">
+          <activity-head
+            v-if="!extendedComponent.overrideHeader"
+            :activity="activity"
+            :activity-actions="activityActions"
+            :is-activity-detail="isActivityDetail"
+            :activity-type-extension="activityTypeExtension"
+            :hide-menu="hideMenu"
+            :class="isActivityShared && 'py-4 px-0' || 'pb-2 ps-0 pe-0'" />
+          <template v-if="!loading">
+            <extension-registry-component
+              :component="extendedComponentOptions"
+              :element="extendedComponent.element"
+              :element-class="extendedComponent.class"
+              :params="extendedComponentParams"
+              class="d-flex flex-column" />
+          </template>
+          <template v-if="!hideFooter">
+            <activity-footer
+              v-if="!extendedComponent.overrideFooter"
+              :activity="activity"
+              :is-activity-detail="isActivityDetail"
+              :activity-types="activityTypes"
+              :activity-type-extension="activityTypeExtension" />
+            <activity-comments-preview
+              v-if="!extendedComponent.overrideComments"
+              :activity="activity"
+              :comment-types="commentTypes"
+              :comment-actions="commentActions"
+              class="px-4" />
+          </template>
+        </template>
+        <template v-else>
+          <activity-head
+            :activity="activity"
+            :activity-actions="activityActions"
+            :is-activity-detail="isActivityDetail"
+            :activity-type-extension="activityTypeExtension"
+            :is-activity-shared="isActivityShared"
+            :hide-menu="hideMenu"
+            :class="isActivityShared && 'py-4 px-0' || 'pb-2 ps-0 pe-0'" />
+          <v-card v-if="!loading" flat>
+            <extension-registry-components
+              v-if="initialized"
+              :params="extendedComponentParams"
+              :class="!isActivityShared && ''"
+              name="ActivityContent"
+              type="activity-content-extensions"
+              parent-element="div"
+              element="div"
+              class="d-flex flex-column" />
+          </v-card>
+          <template v-if="!hideFooter">
+            <activity-footer
+              :activity="activity"
+              :is-activity-detail="isActivityDetail"
+              :activity-types="activityTypes"
+              :activity-type-extension="activityTypeExtension" />
+            <activity-comments-preview
+              :activity="activity"
+              :comment-types="commentTypes"
+              :comment-actions="commentActions"
+              class="px-4" />
+          </template>
+        </template>
+        </unread-badge>
     </template>
-    <template v-else>
-      <activity-head
-        :activity="activity"
-        :activity-actions="activityActions"
-        :is-activity-detail="isActivityDetail"
-        :activity-type-extension="activityTypeExtension"
-        :is-activity-shared="isActivityShared"
-        :hide-menu="hideMenu"
-        :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'" />
-      <v-card v-if="!loading" flat>
-        <extension-registry-components
-          v-if="initialized"
-          :params="extendedComponentParams"
-          :class="!isActivityShared && 'px-4'"
-          name="ActivityContent"
-          type="activity-content-extensions"
-          parent-element="div"
-          element="div"
-          class="d-flex flex-column" />
-      </v-card>
-      <template v-if="!hideFooter">
-        <activity-footer
-          :activity="activity"
-          :is-activity-detail="isActivityDetail"
-          :activity-types="activityTypes"
-          :activity-type-extension="activityTypeExtension" />
-        <activity-comments-preview
-          :activity="activity"
-          :comment-types="commentTypes"
-          :comment-actions="commentActions"
-          class="px-4" />
-      </template>
-    </template>
-  </unread-badge>
+    </widget-wrapper>
 </template>
 
 <script>

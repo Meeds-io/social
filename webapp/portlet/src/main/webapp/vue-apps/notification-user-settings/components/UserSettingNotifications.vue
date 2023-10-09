@@ -1,22 +1,16 @@
 <template>
   <v-app v-if="displayed">
-    <user-setting-notifications-window
-      v-if="displayDetails"
-      :settings="notificationSettings"
-      @back="closeDetail" />
-    <v-card
-      v-else
-      class="my-3 border-radius"
-      flat>
-      <v-list @click="openNotificationSettingDetail">
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="title text-color">
-              {{ $t('UserSettings.notifications') }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
+    <widget-wrapper extra-class="mb-5">
+      <template v-if="!displayDetails" #title>
+        {{ $t('UserSettings.notifications') }}
+      </template>
+      <template v-if="displayDetails" #content>
+        <user-setting-notifications-window
+          v-if="displayDetails"
+          :settings="notificationSettings"
+          @back="closeDetail" />
+      </template>
+      <template v-else #content>
         <template v-if="notificationSettings && notificationSettings.channels">
           <user-setting-notification-channel
             v-for="channel in notificationSettings.channels"
@@ -25,8 +19,7 @@
             :active="notificationSettings.channelStatus[channel]"
             :settings="notificationSettings" />
         </template>
-
-        <v-list-item>
+        <v-list-item class="px-0">
           <v-list-item-content>
             <v-list-item-title class="title text-color">
               {{ $t('UserSettings.manageNotifications') }}
@@ -43,9 +36,8 @@
             </v-btn>
           </v-list-item-action>
         </v-list-item>
-        <v-divider class="mx-4" />
-
-        <v-list-item>
+        <v-divider />
+        <v-list-item class="px-0">
           <v-list-item-content>
             <v-list-item-title class="title text-color">
               {{ $t('UserSettings.title.muteSpacesNotifications') }}
@@ -67,8 +59,8 @@
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>
-      </v-list>
-    </v-card>
+      </template>
+    </widget-wrapper> 
     <user-setting-notification-mute-spaces-drawer
       ref="muteSpacesDrawer"
       :settings="notificationSettings"

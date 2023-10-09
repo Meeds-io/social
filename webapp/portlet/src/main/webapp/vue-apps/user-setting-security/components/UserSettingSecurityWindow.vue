@@ -1,8 +1,6 @@
 <template>
   <v-card flat>
-    <v-toolbar
-      class="border-box-sizing"
-      flat>
+    <div class="d-flex align-center">
       <v-btn
         class="mx-1"
         icon
@@ -13,15 +11,13 @@
           {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
         </v-icon>
       </v-btn>
-      <v-toolbar-title class="ps-0">
+      <span class="text-header text-sub-title">
         {{ $t('UserSettings.security') }}
-      </v-toolbar-title>
-      <v-spacer />
-    </v-toolbar>
-
+      </span>
+    </div>
     <v-form
       ref="form"
-      class="mt-6 mx-10 px-5">
+      class="mt-6">
       <!-- Added for accessibility -->
       <input
         id="username"
@@ -33,7 +29,7 @@
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pt-0 pb-2">
           {{ $t('UserSettings.label.currentPassword') }}*
         </v-card-text>
-        <v-card-text class="d-flex py-0">
+        <v-card-text class="d-flex pa-0">
           <input
             ref="currentPassword"
             v-model="currentPassword"
@@ -45,7 +41,7 @@
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('UserSettings.label.newPassword') }}*
         </v-card-text>
-        <v-card-text class="d-flex py-0">
+        <v-card-text class="d-flex pa-0">
           <input
             ref="newPassword"
             v-model="newPassword"
@@ -57,7 +53,7 @@
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('UserSettings.label.confirmNewPassword') }}*
         </v-card-text>
-        <v-card-text class="d-flex py-0">
+        <v-card-text class="d-flex pa-0">
           <input
             ref="confirmNewPassword"
             v-model="confirmNewPassword"

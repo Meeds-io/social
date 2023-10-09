@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-list-item two-line>
+    <v-list-item class="px-0" two-line>
       <v-list-item-content>
         <v-list-item-title class="text-color">
           {{ label }}
@@ -16,7 +16,7 @@
           @change="save" />
       </v-list-item-action>
     </v-list-item>
-    <v-divider class="mx-4" />
+    <v-divider />
   </div>
 </template>
 

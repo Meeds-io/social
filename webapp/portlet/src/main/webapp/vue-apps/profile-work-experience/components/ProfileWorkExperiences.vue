@@ -3,15 +3,11 @@
     v-if="displayApp"
     :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'"
     class="white">
-    <v-toolbar
-      color="white"
-      flat
-      class="border-box-sizing">
-      <div class="text-header-title text-sub-title">
+    <widget-wrapper>
+      <template #title>
         {{ title }}
-      </div>
-      <template v-if="owner">
-        <v-spacer />
+      </template>
+      <template v-if="owner" #action>
         <v-btn
           icon
           outlined
@@ -29,21 +25,21 @@
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>
       </template>
-    </v-toolbar>
-    <div class="px-4 pb-6 white">
-      <v-timeline
-        v-if="hasExperiences"
-        class="workExperienceTimeLine"
-        align-top
-        dense>
-        <profile-work-experience-item
-          v-for="experience in experiences"
-          :key="experience.id"
-          :experience="experience" />
-      </v-timeline>
-      <!-- Must be v-html to preserve the href with javascript -->
-      <div v-else-if="displayEmptyBlock" v-html="emptyExperiencesOwnerTitle"></div>
-    </div>
+      <template #content>
+        <v-timeline
+          v-if="hasExperiences"
+          class="workExperienceTimeLine"
+          align-top
+          dense>
+          <profile-work-experience-item
+            v-for="experience in experiences"
+            :key="experience.id"
+            :experience="experience" />
+        </v-timeline>
+        <!-- Must be v-html to preserve the href with javascript -->
+        <div v-else-if="displayEmptyBlock" v-html="emptyExperiencesOwnerTitle"></div>
+      </template>
+    </widget-wrapper> 
     <profile-work-experience-drawer
       ref="profileWorkExperiencesDrawer"
       :key="workExperiencesDrawerKey"

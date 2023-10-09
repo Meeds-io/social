@@ -1,36 +1,27 @@
 <template>
-  <div v-if="displayed">
-    <space-setting-applications-window
-      v-if="displayDetails"
-      :space-id="spaceId"
-      :applications="applications"
-      @back="closeDetail"
-      @refresh="refresh" />
-    <v-card
-      v-else
-      class="border-radius"
-      flat>
-      <v-list>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="title text-color">
-              {{ $t('SpaceSettings.applications') }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn
-              small
-              icon
-              @click="openDetail">
-              <v-icon size="24" class="text-sub-title">
-                {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
-              </v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-card>
-  </div>
+  <widget-wrapper v-if="displayed">
+    <template v-if="!displayDetails" #title>
+      {{ $t('SpaceSettings.applications') }}
+    </template>
+    <template v-if="!displayDetails" #action>
+      <v-btn
+        small
+        icon
+        @click="openDetail">
+        <v-icon size="24" class="text-sub-title">
+          {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+        </v-icon>
+      </v-btn>
+    </template>
+    <template v-if="displayDetails" #content>
+      <space-setting-applications-window
+        v-if="displayDetails"
+        :space-id="spaceId"
+        :applications="applications"
+        @back="closeDetail"
+        @refresh="refresh" />
+    </template>
+  </widget-wrapper> 
 </template>
 
 <script>

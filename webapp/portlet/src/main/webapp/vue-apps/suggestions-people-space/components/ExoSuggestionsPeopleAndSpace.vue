@@ -1,42 +1,37 @@
 <template>
   <v-app class="hiddenable-widget">
-    <v-flex
-      :class="appVisibilityClass"
-      xs12
-      sm12>
-      <v-layout
-        row
-        wrap
-        mx-0>
-        <v-flex d-flex xs12>
-          <v-card flat class="flex suggestions-wrapper">
-            <v-card-title class="suggestions-title subtitle-1 text-uppercase pb-0">
-              <span>{{ $t('suggestions.label') }}</span>
-            </v-card-title>
-            <v-list
-              v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'"
-              dense
-              class="suggestions-list people-list py-4 mx-4">
-              <exo-suggestions-people-list-item
-                v-for="people in peoplesToDisplay"
-                :key="people.suggestionId"
-                :people="people"
-                :people-suggestions-list="peopleSuggestionsList" />
-            </v-list>
-            <v-list
-              v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'"
-              dense
-              class="suggestions-list space-list py-4 mx-4">
-              <exo-suggestions-space-list-item
-                v-for="space in spacesToDisplay"
-                :key="space.spaceId"
-                :space="space"
-                :spaces-suggestions-list="spacesSuggestionsList" />
-            </v-list>
-          </v-card>
-        </v-flex>
-      </v-layout>
-    </v-flex>
+    <widget-wrapper 
+      v-if="isVisible"
+      :extra-class="'suggestions-wrapper'">
+      <template #title>
+        {{ $t('suggestions.label') }}
+      </template>
+      <template #content>
+        <v-list
+          v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'"
+          dense
+          class="suggestions-list people-list pa-0">
+          <exo-suggestions-people-list-item
+            v-for="people in peoplesToDisplay"
+            :key="people.suggestionId"
+            :people="people"
+            :people-suggestions-list="peopleSuggestionsList" />
+        </v-list>
+        <v-divider 
+          v-if="spacesSuggestionsList.length && peopleSuggestionsList.length" 
+          class="my-2" />
+        <v-list
+          v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'"
+          dense
+          class="suggestions-list space-list pa-0">
+          <exo-suggestions-space-list-item
+            v-for="space in spacesToDisplay"
+            :key="space.spaceId"
+            :space="space"
+            :spaces-suggestions-list="spacesSuggestionsList" />
+        </v-list>
+      </template>
+    </widget-wrapper>
   </v-app>
 </template>
 <script>
@@ -67,12 +62,8 @@ export default {
     spacesToDisplay() {
       return this.spacesSuggestionsList.slice(0, 2);
     },
-    appVisibilityClass() {
-      if (!(this.spacesSuggestionsList && this.spacesSuggestionsList.length)
-          && !(this.peopleSuggestionsList && this.peopleSuggestionsList.length)) {
-        return 'd-none';
-      }
-      return 'd-flex';
+    isVisible() {
+      return this.spacesSuggestionsList?.length || this.peopleSuggestionsList?.length;
     },
   },
   watch: {

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="manageNotification && isEnabledNotificationGroup" class="border-radius border-color ma-4">
+  <div v-if="manageNotification && isEnabledNotificationGroup" class="border-radius border-color my-4">
     <v-list-item dense>
       <v-list-item-content>
         <v-list-item-title class="text-color font-weight-bold subtitle-1">

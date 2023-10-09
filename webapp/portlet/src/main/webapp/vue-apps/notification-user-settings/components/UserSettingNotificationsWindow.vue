@@ -2,9 +2,7 @@
   <v-card
     v-if="settings"
     flat>
-    <v-toolbar
-      class="border-box-sizing"
-      flat>
+    <div class="d-flex align-center">
       <v-btn
         class="mx-1"
         icon
@@ -15,13 +13,11 @@
           {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
         </v-icon>
       </v-btn>
-      <v-toolbar-title class="ps-0">
+      <span class="text-header text-sub-title ps-0">
         {{ $t('UserSettings.manageNotifications') }}
-      </v-toolbar-title>
-      <v-spacer />
-    </v-toolbar>
-
-    <v-flex class="ma-3 white">
+      </span>
+    </div>
+    <v-flex class="white">
       <user-setting-notification-group
         v-for="group in settings.groups"
         :settings="settings"

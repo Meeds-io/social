@@ -8,9 +8,7 @@
       :ok-label="$t('SpaceSettings.label.yes')"
       :cancel-label="$t('SpaceSettings.label.no')"
       @ok="removeConfirm()" />
-    <v-toolbar
-      class="border-box-sizing"
-      flat>
+    <div class="d-flex align-center pb-4">
       <v-btn
         class="mx-1"
         icon
@@ -21,13 +19,11 @@
           {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
         </v-icon>
       </v-btn>
-      <v-toolbar-title class="ps-0">
+      <span class="text-header text-sub-title">
         {{ $t('SpaceSettings.applications') }}
-      </v-toolbar-title>
-      <v-spacer />
-    </v-toolbar>
-
-    <v-container class="border-box-sizing">
+      </span>
+    </div>
+    <div class="border-box-sizing">
       <v-row dense>
         <v-col
           v-for="(app, index) in applications"
@@ -53,7 +49,7 @@
           </v-btn>
         </v-col>
       </v-row>
-    </v-container>
+    </div>
     <space-setting-add-application-drawer
       ref="spaceSettingAddApplicationDrawer"
       :space-id="spaceId"

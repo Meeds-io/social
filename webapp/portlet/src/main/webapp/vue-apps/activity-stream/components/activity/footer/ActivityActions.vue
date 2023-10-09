@@ -2,7 +2,7 @@
   <extension-registry-components
     :params="params"
     :class="actionBarBorderClass"
-    class="d-flex flex-no-wrap ms-lg-auto py-2 activity-footer-actions"
+    class="d-flex flex-no-wrap ms-lg-auto pt-2 activity-footer-actions"
     name="ActivityFooter"
     type="activity-footer-action"
     parent-element="div"

@@ -1,5 +1,5 @@
 <template>
-  <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
+  <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap pt-2">
     <div class="reactionsUsersAvatar position-relative d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
         <exo-user-avatar

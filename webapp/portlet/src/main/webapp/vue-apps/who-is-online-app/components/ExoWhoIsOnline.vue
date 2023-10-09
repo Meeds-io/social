@@ -1,11 +1,13 @@
 <template>
   <v-app class="hiddenable-widget">
-    <div v-if="display" class="onlinePortlet">
-      <div id="onlineContent" class="white">
-        <v-card-title class="title center">
-          {{ $t('header.label') }}
-        </v-card-title>
-        <div id="onlineList" class="d-flex align-center justify-center flex-wrap  py-3">
+    <widget-wrapper 
+      v-if="display"
+      :extra-class="'onlinePortlet'">
+      <template #title>
+        {{ $t('header.label') }}
+      </template>
+      <template #content>
+        <div id="onlineList" class="d-flex align-center justify-center flex-wrap">
           <exo-user-avatar
             v-for="user in users"
             :key="user.id"
@@ -16,8 +18,8 @@
             avatar 
             extra-class="mx-1 mb-1" />
         </div>
-      </div>
-    </div>
+      </template>
+    </widget-wrapper>
   </v-app>
 </template>
 

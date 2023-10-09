@@ -4,14 +4,14 @@
     :class="clickable"
     class="spacesOverviewCard d-flex flex-column"
     @click="count && $emit('click')">
-    <v-flex class="ma-auto" flat>
+  <div class="ma-auto d-flex flex-column">
       <div class="spacesOverviewCount text-center pb-1">
         {{ count }}
       </div>
       <div class="spacesOverviewTitle text-center text-truncate pt-1">
         {{ title }}
       </div>
-    </v-flex>
+    </div>
   </div>
 </template>
 
