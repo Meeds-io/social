@@ -22,15 +22,15 @@
   <component
     :is="list && 'v-list-item-avatar' || 'v-avatar'"
     :height="iconSize"
-    :min-width="width"
-    :width="width"
+    :min-width="iconSize"
+    :width="iconSize"
     tile>
     <v-img
       v-if="iconUrl"
       :src="iconUrl"
       :max-height="iconSize"
       :height="iconSize"
-      :max-width="width"
+      :max-width="iconSize"
       contain
       eager />
     <v-icon
@@ -55,14 +55,6 @@ export default {
     list: {
       type: Boolean,
       default: false,
-    },
-  },
-  data: () => ({
-    iconWidthRatio: 1.3,
-  }),
-  computed: {
-    width() {
-      return this.iconSize * this.iconWidthRatio;
     },
   },
 };
