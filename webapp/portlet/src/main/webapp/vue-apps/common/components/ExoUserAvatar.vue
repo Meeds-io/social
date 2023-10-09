@@ -246,7 +246,7 @@ export default {
       return this.identity?.position || this.retrievedIdentity?.position;
     },
     avatarUrl() {
-      return this.userIdentity?.enabled? this.userIdentity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar` : `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
+      return this.identity?.enabled? this.retrievedIdentity?.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar` : `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
     },
     profileUrl() {
       if ( this.url ) {
