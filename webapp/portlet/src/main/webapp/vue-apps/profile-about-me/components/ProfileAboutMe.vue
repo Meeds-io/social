@@ -61,11 +61,6 @@
               {{ $t('profileAboutMe.save') }}
             </v-btn>
           </v-card-actions>
-          <v-card-text v-if="error">
-            <v-alert type="error">
-              {{ error }}
-            </v-alert>
-          </v-card-text>
         </v-card>
       </template>
     </exo-drawer>
@@ -76,7 +71,6 @@ export default {
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     aboutMe: null,
-    error: null,
     saving: null,
     modifyingAboutMe: null,
     aboutMeTextLength: 2000,
@@ -119,12 +113,11 @@ export default {
       this.$refs.aboutMeDrawer.open();
     },
     saveAboutMe() {
-      this.error = null;
       this.saving = true;
       this.$refs.aboutMeDrawer.startLoading();
       return this.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
         .then(() => this.refresh(this.modifyingAboutMe))
-        .catch(() => this.error = this.$t('profileAboutMe.savingError'))
+        .catch(() => this.$root.$emit('alert-message', this.$t('profileAboutMe.savingError'), 'error'))
         .finally(() => {
           this.saving = false;
           this.$refs.aboutMeDrawer.endLoading();
