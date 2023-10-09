@@ -123,7 +123,9 @@
               <exo-space-favorite-action
                 :is-favorite="isFavorite"
                 :space-id="spaceId"
-                entity-type="SPACE_TOP_BAR_TIPTIP" />
+                entity-type="SPACE_TOP_BAR_TIPTIP"
+                @added="$root.isFavorite = 'true'"
+                @removed="$root.isFavorite = 'false'" />
               <extension-registry-components
                 :params="params"
                 name="SpacePopover"
