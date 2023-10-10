@@ -19,9 +19,7 @@
 package io.meeds.social.cms.service;
 
 import java.util.Arrays;
-import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.portal.config.UserACL;
@@ -29,45 +27,42 @@ import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityConstants;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.metadata.model.MetadataKey;
 
-import io.meeds.social.cms.model.CMSSettingObject;
+import io.meeds.social.cms.model.CMSSetting;
+import io.meeds.social.cms.storage.CMSStorage;
 
 public class CMSServiceImpl implements CMSService {
 
-  public static final String METADATA_TYPE = "CMSSetting";
+  private LayoutService layoutService;
 
-  private LayoutService      layoutService;
+  private SpaceService  spaceService;
 
-  private SpaceService       spaceService;
+  private CMSStorage    cmsStorage;
 
-  private MetadataService    metadataService;
-
-  private UserACL            userACL;
+  private UserACL       userACL;
 
   public CMSServiceImpl(LayoutService layoutService,
                         SpaceService spaceService,
-                        MetadataService metadataService,
+                        CMSStorage cmsStorage,
                         UserACL userACL) {
     this.layoutService = layoutService;
     this.spaceService = spaceService;
-    this.metadataService = metadataService;
+    this.cmsStorage = cmsStorage;
     this.userACL = userACL;
   }
 
   @Override
-  public boolean hasAccessPermission(Identity identity, String contentType, String name) {
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(METADATA_TYPE,
-                                                                                               new CMSSettingObject(contentType,
-                                                                                                                    name));
-    return metadataItems.stream()
-                        .anyMatch(item -> hasAccessPermission(identity, item.getMetadata().getName(), item.getSpaceId()));
+  public CMSSetting getSetting(String type, String name) {
+    return cmsStorage.getSetting(type, name);
+  }
+
+  @Override
+  public boolean hasAccessPermission(Identity identity, String type, String name) {
+    CMSSetting setting = getSetting(type, name);
+    return setting != null && hasAccessPermission(identity, setting.getPageReference(), setting.getSpaceId());
   }
 
   @Override
@@ -85,12 +80,9 @@ public class CMSServiceImpl implements CMSService {
   }
 
   @Override
-  public boolean hasEditPermission(Identity identity, String contentType, String name) {
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(METADATA_TYPE,
-                                                                                               new CMSSettingObject(contentType,
-                                                                                                                    name));
-    return metadataItems.stream()
-                        .anyMatch(item -> hasEditPermission(identity, item.getMetadata().getName(), item.getSpaceId()));
+  public boolean hasEditPermission(Identity identity, String type, String name) {
+    CMSSetting setting = getSetting(type, name);
+    return setting != null && hasEditPermission(identity, setting.getPageReference(), setting.getSpaceId());
   }
 
   @Override
@@ -117,7 +109,7 @@ public class CMSServiceImpl implements CMSService {
   }
 
   @Override
-  public void saveSettingName(String contentType,
+  public void saveSettingName(String type,
                               String name,
                               String pageReference,
                               long spaceId,
@@ -125,29 +117,18 @@ public class CMSServiceImpl implements CMSService {
     if (StringUtils.isBlank(pageReference)) {
       throw new IllegalArgumentException("pageReference is mandatory");
     }
-    if (StringUtils.isBlank(contentType)) {
+    if (StringUtils.isBlank(type)) {
       throw new IllegalArgumentException("contentType is mandatory");
     }
     if (StringUtils.isBlank(name)) {
       throw new IllegalArgumentException("name is mandatory");
     }
-    CMSSettingObject cmsSettingObject = new CMSSettingObject(contentType, name, spaceId);
-    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE,
-                                              pageReference,
-                                              spaceId);
-    try {
-      metadataService.createMetadataItem(cmsSettingObject,
-                                         metadataKey,
-                                         userCreatorId);
-    } catch (ObjectAlreadyExistsException e) {
-      throw new org.exoplatform.commons.ObjectAlreadyExistsException(cmsSettingObject);
-    }
+    cmsStorage.saveSetting(type, name, pageReference, spaceId, userCreatorId);
   }
 
   @Override
-  public boolean isSettingNameExists(String contentType, String name) {
-    List<String> pageReferences = metadataService.getMetadataNamesByMetadataTypeAndObject(METADATA_TYPE, contentType, name);
-    return CollectionUtils.isNotEmpty(pageReferences);
+  public boolean isSettingNameExists(String type, String name) {
+    return getSetting(type, name) != null;
   }
 
 }

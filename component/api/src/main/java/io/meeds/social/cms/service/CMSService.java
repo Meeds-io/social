@@ -23,6 +23,8 @@ import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.cms.model.CMSSetting;
+
 public interface CMSService {
 
   /**
@@ -106,5 +108,12 @@ public interface CMSService {
    * @return true is setting name for corresponding type exists, else false
    */
   boolean isSettingNameExists(String settingType, String settingName);
+
+  /**
+   * @param settingType Setting content type (notes, attachment, links...)
+   * @param settingName Setting content name
+   * @return {@link CMSSetting} if exists elase null
+   */
+  CMSSetting getSetting(String settingType, String settingName);
 
 }

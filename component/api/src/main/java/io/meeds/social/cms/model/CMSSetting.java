@@ -18,19 +18,25 @@
  */
 package io.meeds.social.cms.model;
 
-import org.exoplatform.social.metadata.model.MetadataObject;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public class CMSSettingObject extends MetadataObject {
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class CMSSetting implements Cloneable {
 
-  public CMSSettingObject() {
+  private String type;
+
+  private String name;
+
+  private String pageReference;
+
+  private long   spaceId;
+
+  @Override
+  public CMSSetting clone() { // NOSONAR
+    return new CMSSetting(type, name, pageReference, spaceId);
   }
-
-  public CMSSettingObject(String objectType, String objectId) {
-    super(objectType, objectId, null, 0l);
-  }
-
-  public CMSSettingObject(String objectType, String objectId, long spaceId) {
-    super(objectType, objectId, null, spaceId);
-  }
-
 }

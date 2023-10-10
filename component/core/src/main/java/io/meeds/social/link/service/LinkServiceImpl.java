@@ -47,7 +47,6 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.social.cms.service.CMSService;
-import io.meeds.social.cms.service.CMSServiceImpl;
 import io.meeds.social.link.model.Link;
 import io.meeds.social.link.model.LinkSetting;
 import io.meeds.social.link.model.LinkWithIconAttachment;
