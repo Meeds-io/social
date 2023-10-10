@@ -1,13 +1,3 @@
-<template>
-  <v-alert
-    v-model="displayAlert"
-    :type="alertType"
-    dismissible
-    :icon="alertType === 'warning' ? 'mdi-alert-circle' : ''">
-    <span v-sanitized-html="alertMessage" class="mt-8"> </span>
-  </v-alert>
-</template>
-
 <script>
 export default {
   props: {
@@ -16,11 +6,6 @@ export default {
       default: null,
     },
   },
-  data: () => ({
-    displayAlert: false,
-    alertMessage: null,
-    alertType: null,
-  }),
   created() {
     const params = new URL(location.href).searchParams;
     const feedbackMessage = params.get('feedbackMessage');
@@ -29,12 +14,10 @@ export default {
       this.$identityService.getIdentityByProviderIdAndRemoteId('organization', userName)
         .then(identity => {
           const userFullName = identity.profile.fullname;
-          this.alertType = 'warning';
-          this.alertMessage = this.$t(`Notification.feedback.message.${feedbackMessage}`, {
+          this.$root.$emit('alert-message-html', this.$t(`Notification.feedback.message.${feedbackMessage}`, {
             0: userFullName,
             1: this.spaceDisplayName,
-          });
-          this.displayAlert = true;
+          }), 'warning');
         });
     }   
   },

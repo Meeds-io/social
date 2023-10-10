@@ -13,11 +13,6 @@
       :message="$t('UsersManagement.message.deleteCurrentUserWarning')"
       :title="$t('UsersManagement.title.deleteCurrentUserWarning')"
       :ok-label="$t('UsersManagement.button.ok')" />
-    <v-card-text v-if="error" class="errorMessage">
-      <v-alert type="error">
-        {{ error }}
-      </v-alert>
-    </v-card-text>
     <v-data-table
       :headers="headers"
       :items="filteredUsers"
@@ -151,17 +146,6 @@
         </v-btn>
       </template>
     </v-data-table>
-    <v-alert
-      v-if="selectedUsersUpdated"
-      border="left"
-      class="userUpdated"
-      type="info"
-      close-icon="mdi-close"
-      colored-border
-      color="primary"
-      dismissible>
-      {{ selectedUsersUpdated }}
-    </v-alert>
   </div>
 </template>
 
@@ -177,7 +161,6 @@ export default {
     currentUser: eXo.env.portal.userName,
     selectedUser: null,
     selectedUsers: [],
-    selectedUsersUpdated: '',
     deleteConfirmMessage: null,
     keyword: null,
     filter: 'ENABLED',
@@ -196,7 +179,6 @@ export default {
     initialized: false,
     isSuperUser: false,
     loading: true,
-    error: null,
     fullDateFormat: {
       day: 'numeric',
       month: 'short',
@@ -361,8 +343,7 @@ export default {
           this.searchUsers();
           this.loading = false;
           this.initialized = true;
-          this.selectedUsersUpdated = msg;
-          setTimeout(() => this.selectedUsersUpdated = '', 3000);
+          this.$root.$emit('alert-message', msg, 'success');
         });
       }
     },
@@ -411,10 +392,7 @@ export default {
         if (errorI18N !== errorI18NKey) {
           error = errorI18N;
         }
-        this.error = error;
-        window.setTimeout(() => {
-          this.error = null;
-        }, 5000);
+        this.$root.$emit('alert-message', error, 'error');
       }).finally(() => this.loading = false);
     },
     searchUsers() {
