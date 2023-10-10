@@ -85,23 +85,26 @@ public interface CMSService {
   boolean hasEditPermission(Identity identity, String settingType, String settingName);
 
   /**
-   * @param contentType
-   * @param name
-   * @param pageReference
-   * @param spaceId
+   * Saves the Page reference and corresponding space identifier to the setting
+   * content type and name
+   * 
+   * @param settingType Setting content type (notes, attachment, links...)
+   * @param settingName Setting content name
+   * @param pageReference {@link PageKey#format()} of format TYPE::OWNER::NAME
+   * @param spaceId {@link Space#getId()} technical identifier
    * @throws ObjectAlreadyExistsException when the setting already exists
    */
-  void saveSettingName(String contentType,
-                       String name,
+  void saveSettingName(String settingType,
+                       String settingName,
                        String pageReference,
                        long spaceId,
                        long userCreatorId) throws ObjectAlreadyExistsException;
 
   /**
-   * @param contentType
-   * @param name
-   * @return
+   * @param settingType Setting content type (notes, attachment, links...)
+   * @param settingName Setting content name
+   * @return true is setting name for corresponding type exists, else false
    */
-  boolean isSettingNameExists(String contentType, String name);
+  boolean isSettingNameExists(String settingType, String settingName);
 
 }
