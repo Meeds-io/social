@@ -43,6 +43,7 @@ public class RequestJoinSpacePlugin extends BaseNotificationPlugin {
     String userId = ctx.value(SocialNotificationUtils.REMOTE_ID);
     
     return NotificationInfo.instance().key(getId())
+           .setSpaceId(space.getId() == null ? 0 : Long.parseLong(space.getId()))
            .with(SocialNotificationUtils.REQUEST_FROM.getKey(), userId)
            .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
            .setFrom(userId)

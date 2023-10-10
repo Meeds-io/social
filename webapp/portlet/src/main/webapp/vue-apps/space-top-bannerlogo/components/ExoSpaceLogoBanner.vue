@@ -1,9 +1,9 @@
 <template>
   <v-app>
     <v-menu
+      v-model="menu"
       rounded="rounded"
       elevation="2"
-      v-model="menu"
       open-on-hover
       transition="slide-x-transition"
       :close-on-content-click="false"
@@ -35,7 +35,7 @@
           </a>
         </div>
       </template>
-      <v-card elevation="2">
+      <v-card v-if="menu" elevation="2">
         <v-list class="pa-0">
           <v-list-item class="pt-3">
             <v-list-item-avatar
@@ -120,6 +120,10 @@
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action class="space-logo-popover flex-row">
+              <space-mute-notification-button
+                :space-id="spaceId"
+                :muted="muted"
+                origin="spaceTopbarpopoverAction" />
               <exo-space-favorite-action
                 :is-favorite="isFavorite"
                 :space-id="spaceId"
@@ -196,11 +200,18 @@ export default {
       type: Boolean,
       default: false
     },
+    muted: {
+      type: Boolean,
+      default: false
+    },
     isMember: {
       type: Boolean,
       default: false
     },
   },
+  data: () => ({
+    menu: false,
+  }),
   computed: {
     mangersToDisplay() {
       return this.managers;

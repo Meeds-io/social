@@ -309,7 +309,7 @@ export default {
         .then(data => this.administrationNavigations = data || []);
     },
     retrieveRecentSpaces() {
-      return this.$spaceService.getSpaces('', this.offset, this.limit, 'lastVisited', 'member,managers,favorite,unread')
+      return this.$spaceService.getSpaces('', this.offset, this.limit, 'lastVisited', 'member,managers,favorite,unread,muted')
         .then(data => {
           this.recentSpaces = data && data.spaces || [];
           this.unreadPerSpace = data && data.unreadPerSpace;
