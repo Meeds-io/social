@@ -38,6 +38,11 @@
   </component>
 
   <component>
+    <key>io.meeds.social.cms.service.CMSService</key>
+    <type>io.meeds.social.cms.service.CMSServiceImpl</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.social.core.space.SpacesAdministrationService</key>
     <type>org.exoplatform.social.service.test.MockSpacesAdministrationService</type>
   </component>

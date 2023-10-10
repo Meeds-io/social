@@ -16,31 +16,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.portlet;
+package io.meeds.social.cms.model;
 
-import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.social.metadata.model.MetadataObject;
 
-import io.meeds.social.link.service.LinkService;
+public class CMSSettingObject extends MetadataObject {
 
-public class LinkPortlet extends CMSPortlet {
-
-  private static LinkService linkService;
-
-  @Override
-  protected void saveSettingName(String name, String pageReference, long spaceId) {
-    getLinkService().initLinkSetting(name, pageReference, spaceId);
+  public CMSSettingObject() {
   }
 
-  @Override
-  protected boolean isSettingNameExists(String name) {
-    return getLinkService().hasLinkSetting(name);
+  public CMSSettingObject(String objectType, String objectId) {
+    super(objectType, objectId, null, 0l);
   }
 
-  private static LinkService getLinkService() {
-    if (linkService == null) {
-      linkService = ExoContainerContext.getService(LinkService.class);
-    }
-    return linkService;
+  public CMSSettingObject(String objectType, String objectId, long spaceId) {
+    super(objectType, objectId, null, spaceId);
   }
 
 }

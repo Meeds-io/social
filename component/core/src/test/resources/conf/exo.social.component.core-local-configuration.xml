@@ -43,6 +43,11 @@
   </component>
 
   <component>
+    <key>io.meeds.social.cms.service.CMSService</key>
+    <type>io.meeds.social.cms.service.CMSServiceImpl</type>
+  </component>
+
+  <component>
     <key>io.meeds.social.core.richeditor.RichEditorConfigurationService</key>
     <type>io.meeds.social.richeditor.RichEditorConfigurationServiceImpl</type>
   </component>
