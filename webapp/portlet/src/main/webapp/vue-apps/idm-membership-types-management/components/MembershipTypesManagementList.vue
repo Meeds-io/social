@@ -7,11 +7,6 @@
       :ok-label="$t('MembershipTypesManagement.button.ok')"
       :cancel-label="$t('MembershipTypesManagement.button.cancel')"
       @ok="deleteConfirm()" />
-    <v-card-text v-if="error" class="errorMessage">
-      <v-alert type="error">
-        {{ error }}
-      </v-alert>
-    </v-card-text>
     <v-data-table
       :headers="headers"
       :items="filteredMembershipTypes"
@@ -74,7 +69,6 @@ export default {
       itemsPerPage: 20,
     },
     loading: true,
-    error: null,
   }),
   computed: {
     hasPages() {
@@ -167,10 +161,7 @@ export default {
         if (errorI18N !== errorI18NKey) {
           error = errorI18N;
         }
-        this.error = error;
-        window.setTimeout(() => {
-          this.error = null;
-        }, 5000);
+        this.$root.$emit('alert-message', error, 'error');
       })
         .finally(() => this.loading = false);
     },
