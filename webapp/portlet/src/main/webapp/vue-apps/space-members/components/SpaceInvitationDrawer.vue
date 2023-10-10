@@ -27,30 +27,8 @@
           include-users
           include-spaces
           multiple />
-        <v-alert v-if="error" type="error">
-          {{ error }}
-        </v-alert>
       </form>
-      <v-alert
-        v-else
-        class="ma-4 pa-3 successfulInvitation"
-        outlined
-        text>
-        {{ $t('peopleList.label.successfulInvitation', {0: invitedUserFullName}) }}
-      </v-alert>
       <v-list class="mx-4 rounded externalList" subheader>
-        <v-alert
-          v-if="alreadyExistAlert"
-          outlined
-          text
-          class="mb-0 pa-2 text-center alreadyExistAlert"
-          v-html="alreadyExistAlert" />
-        <v-alert
-          v-if="alreadyInvitedAlert"
-          outlined
-          text
-          class="mb-0 pa-2 text-center alreadyExistAlert"
-          v-html="alreadyInvitedAlert" />
         <v-list-item
           v-for="user in externalInvitedUsers"
           :key="user">
@@ -157,14 +135,11 @@ export default {
     users: [],
     savingSpace: false,
     spaceSaved: false,
-    error: null,
     spacePrettyName: eXo.env.portal.spaceName,
     invitedMembers: [],
     includeExternalUser: false,
     externalInvitedUsers: [],
     invitationSent: false,
-    alreadyExistAlert: '',
-    alreadyInvitedAlert: '',
     externalInvitationsSent: [],
   }),
   computed: {
@@ -201,7 +176,6 @@ export default {
       this.savingSpace = false;
       this.spaceSaved = false;
       this.includeExternalUser = false;
-      this.error = null;
       this.spacePrettyName = eXo.env.portal.spaceName;
       this.invitedMembers = [];
       this.externalInvitedUsers = [];
@@ -223,7 +197,6 @@ export default {
       if (this.spaceSaved || this.savingSpace) {
         return;
       }
-      this.error = null;
       this.savingSpace = true;
       this.$spaceService.updateSpace({
         id: eXo.env.portal.spaceId,
@@ -235,6 +208,7 @@ export default {
           this.$emit('refresh');
           this.externalInvitedUsers = [];
           this.invitationSent = true;
+          this.$root.$emit('alert-message', this.$t('peopleList.label.successfulInvitation', {0: this.invitedUserFullName}), 'success');
 
           window.setTimeout(() => {
             this.$refs.spaceInvitationDrawer.close();
@@ -244,7 +218,7 @@ export default {
         .catch(e => {
           // eslint-disable-next-line no-console
           console.warn('Error updating space ', this.invitedMembers, e);
-          this.error = this.$t('peopleList.error.errorWhenSavingSpace');
+          this.$root.$emit('alert-message', this.$t('peopleList.error.errorWhenSavingSpace'), 'error');
         })
         .finally(() => this.savingSpace = false);
     },
@@ -279,8 +253,7 @@ export default {
               this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId).then(data => {
                 if (data.isMember === 'true') {
                   $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
-                  this.alreadyExistAlert = `<span style="font-style: italic;">${email}</span> ${this.$t('peopleList.label.alreadyMember')}`;
-                  setTimeout(() => this.alreadyExistAlert ='', 3000);
+                  this.$root.$emit('alert-message-html', `<span style="font-style: italic;">${email}</span> ${this.$t('peopleList.label.alreadyMember')}`, 'warning');
                 } else {
                   this.users.push(user);
                   const indexOfuser = this.invitedMembers.findIndex(u => u.remoteId === user.remoteId);
@@ -296,8 +269,7 @@ export default {
                 const user = this.externalInvitationsSent.find(invited => invited.userEmail === email);
                 if (user) {
                   $(`#${this.$refs.autoFocusInput3.id} input`)[0].blur();
-                  this.alreadyInvitedAlert = this.$t('peopleList.label.alreadyInvited');
-                  setTimeout(() => this.alreadyInvitedAlert ='', 3000);
+                  this.$root.$emit('alert-message-html', this.$t('peopleList.label.alreadyInvited'), 'warning');
                 } else if (this.externalInvitedUsers.indexOf(email) === -1) {
                   this.externalInvitedUsers.push(email);
                 }

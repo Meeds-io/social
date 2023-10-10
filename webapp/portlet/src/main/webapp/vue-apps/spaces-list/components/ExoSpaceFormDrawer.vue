@@ -188,17 +188,6 @@
             </form>
           </v-stepper-content>
         </v-stepper>
-        <div>
-          <v-alert
-            v-if="selectedSpacesWithExternals.length != 0"
-            v-model="externalAlert"
-            dismissible
-            class="elevation-0 mb-14 me-2 pe-4"
-            icon="mdi-alert-circle"
-            type="warning">
-            <p v-sanitized-html="invitedSpacesWithExternals"></p>
-          </v-alert>
-        </div>
       </div>
     </template>
     <template slot="footer">
@@ -265,7 +254,10 @@ export default {
     },
     isMobile() {
       return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
-    }
+    },
+    spaceInvitedMembers() {
+      return this.space?.invitedMembers;
+    },
   },
   watch: {
     savingSpace() {
@@ -300,17 +292,25 @@ export default {
         this.setSpaceTemplateProperties();
       }
     },
-    'space.invitedMembers': function (items){
-      this.selectedSpacesWithExternals = [];
-      items.filter(item => item.providerId === 'space')
-        .forEach(space => {
-          this.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
-            if (hasExternals && hasExternals === 'true') {
-              this.selectedSpacesWithExternals.push(space.displayName);
-              this.externalAlert = true;
-            }
+    externalAlert() {
+      if (this.externalAlert) {
+        this.$root.$emit('alert-message-html', this.invitedSpacesWithExternals, 'warning');
+      }
+    },
+    spaceInvitedMembers() {
+      if (this.spaceInvitedMembers) {
+        this.selectedSpacesWithExternals = [];
+        this.externalAlert = false;
+        this.spaceInvitedMembers.filter(item => item.providerId === 'space')
+          .forEach(space => {
+            this.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
+              if (hasExternals && hasExternals === 'true') {
+                this.selectedSpacesWithExternals.push(space.displayName);
+                this.$nextTick().then(() => this.externalAlert = true);
+              }
+            });
           });
-        });
+      }
     }
   },
   created() {
