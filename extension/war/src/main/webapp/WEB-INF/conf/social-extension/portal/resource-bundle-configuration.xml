@@ -36,6 +36,7 @@
           <name>init.resources</name>
           <description>Store the following resources into the db for the first launch </description>
           <value>locale.navigation.group.platform.delegated</value>
+          <value>locale.navigation.portal.administration</value>
         </values-param>
         <values-param>
           <name>portal.resource.names</name>
