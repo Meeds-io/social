@@ -5,68 +5,66 @@
         <widget-wrapper 
           :expanded="false"
           :has-title="false">
-          <template #content>
+          <v-card
+            height="13vw"
+            max-height="175"
+            class="d-flex position-relative overflow-hidden">
+            <img
+              :src="user && user.banner"
+              alt=""
+              width="100%"
+              height="auto"
+              class="profileBannerImg position-absolute"
+              lazy>
+            <profile-header-banner-button
+              v-if="owner"
+              :user="user"
+              :hover="hover"
+              class="justify-end full-width position-absolute t-0 r-3 pt-3"
+              @edit="editBanner"
+              @refresh="refresh" />
+          </v-card>
+          <v-card
+            color="white"
+            class="d-flex flex-column flex-md-row border-color px-4" 
+            flat>
             <v-card
-              height="13vw"
-              max-height="175"
-              class="d-flex position-relative overflow-hidden">
-              <img
-                :src="user && user.banner"
-                alt=""
-                width="100%"
-                height="auto"
-                class="profileBannerImg position-absolute"
-                lazy>
-              <profile-header-banner-button
-                v-if="owner"
+              :width="imageSize"
+              :max-width="165"
+              max-height="70"
+              height="11vw"
+              class="flex-shrink-0 position-relative me-2"
+              flat
+              tile>
+              <v-card
+                class="position-absolute z-index-two b-0 mb-2 mb-md-2"
+                color="transparent"
+                flat
+                tile>
+                <profile-header-avatar
+                  :user="user"
+                  :owner="owner"
+                  :hover="hover"
+                  :size="imageSize"
+                  @edit="editAvatar" />
+              </v-card>
+            </v-card>
+            <v-card
+              min-height="70"
+              class="d-flex flex-column flex-sm-row flex-grow-1"
+              flat
+              tile>
+              <profile-header-text
+                :user="user"
+                class="d-flex flex-grow-0 text-truncate" />
+              <profile-header-actions
+                v-if="!owner"
                 :user="user"
                 :hover="hover"
-                class="justify-end full-width position-absolute t-0 r-3 pt-3"
-                @edit="editBanner"
+                class="profileHeader flex-grow-1 flex-shrink-0 d-flex flex-row justify-start justify-sm-end my-auto"
                 @refresh="refresh" />
             </v-card>
-            <v-card
-              color="white"
-              class="d-flex flex-column flex-md-row border-color px-4" 
-              flat>
-              <v-card
-                :width="imageSize"
-                :max-width="165"
-                max-height="70"
-                height="11vw"
-                class="flex-shrink-0 position-relative me-2"
-                flat
-                tile>
-                <v-card
-                  class="position-absolute z-index-two b-0 mb-2 mb-md-2"
-                  color="transparent"
-                  flat
-                  tile>
-                  <profile-header-avatar
-                    :user="user"
-                    :owner="owner"
-                    :hover="hover"
-                    :size="imageSize"
-                    @edit="editAvatar" />
-                </v-card>
-              </v-card>
-              <v-card
-                min-height="70"
-                class="d-flex flex-column flex-sm-row flex-grow-1"
-                flat
-                tile>
-                <profile-header-text
-                  :user="user"
-                  class="d-flex flex-grow-0 text-truncate" />
-                <profile-header-actions
-                  v-if="!owner"
-                  :user="user"
-                  :hover="hover"
-                  class="profileHeader flex-grow-1 flex-shrink-0 d-flex flex-row justify-start justify-sm-end my-auto"
-                  @refresh="refresh" />
-              </v-card>
-            </v-card>
-          </template>
+          </v-card>
         </widget-wrapper>
       </div>
     </v-hover>

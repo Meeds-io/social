@@ -25,20 +25,18 @@
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>
       </template>
-      <template #content>
-        <v-timeline
-          v-if="hasExperiences"
-          class="workExperienceTimeLine"
-          align-top
-          dense>
-          <profile-work-experience-item
-            v-for="experience in experiences"
-            :key="experience.id"
-            :experience="experience" />
-        </v-timeline>
-        <!-- Must be v-html to preserve the href with javascript -->
-        <div v-else-if="displayEmptyBlock" v-html="emptyExperiencesOwnerTitle"></div>
-      </template>
+      <v-timeline
+        v-if="hasExperiences"
+        class="workExperienceTimeLine"
+        align-top
+        dense>
+        <profile-work-experience-item
+          v-for="experience in experiences"
+          :key="experience.id"
+          :experience="experience" />
+      </v-timeline>
+      <!-- Must be v-html to preserve the href with javascript -->
+      <div v-else-if="displayEmptyBlock" v-html="emptyExperiencesOwnerTitle"></div>
     </widget-wrapper> 
     <profile-work-experience-drawer
       ref="profileWorkExperiencesDrawer"

@@ -4,7 +4,7 @@
       <template #title>
         {{ $t('NotificationAdmin.title') }}
       </template>
-      <template #content>
+      <template>
         <notification-administration-contact
           :settings="notificationSettings" />
         <notification-administration-channels

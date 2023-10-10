@@ -13,14 +13,12 @@
         </v-icon>
       </v-btn>
     </template>
-    <template v-if="displayDetails" #content>
-      <space-setting-applications-window
-        v-if="displayDetails"
-        :space-id="spaceId"
-        :applications="applications"
-        @back="closeDetail"
-        @refresh="refresh" />
-    </template>
+    <space-setting-applications-window
+      v-if="displayDetails"
+      :space-id="spaceId"
+      :applications="applications"
+      @back="closeDetail"
+      @refresh="refresh" />
   </widget-wrapper> 
 </template>
 

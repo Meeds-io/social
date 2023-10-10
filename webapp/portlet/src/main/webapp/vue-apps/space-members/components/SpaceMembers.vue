@@ -2,28 +2,26 @@
   <v-app 
     class="transparent"
     flat>
-    <widget-wrapper>
-      <template #content>
-        <space-members-toolbar
-          :keyword="keyword"
-          :filter="filter"
-          :people-count="peopleCount"
-          :is-manager="isManager"
-          @keyword-changed="keyword = $event"
-          @filter-changed="filter = $event"
-          @invite-users="$refs.spaceInvitationDrawer.open()"
-          @refresh="refreshInvited" />
-        <alert-space-members v-if="space" :space-display-name="space.displayName" />
-        <people-card-list
-          ref="spaceMembers"
-          :keyword="keyword"
-          :filter="filter"
-          :loading-people="loadingPeople"
-          :space-id="spaceId"
-          :people-count="peopleCount"
-          :is-manager="isManager"
-          @loaded="peopleLoaded" />
-      </template> 
+    <widget-wrapper :has-title="false">
+      <space-members-toolbar
+        :keyword="keyword"
+        :filter="filter"
+        :people-count="peopleCount"
+        :is-manager="isManager"
+        @keyword-changed="keyword = $event"
+        @filter-changed="filter = $event"
+        @invite-users="$refs.spaceInvitationDrawer.open()"
+        @refresh="refreshInvited" />
+      <alert-space-members v-if="space" :space-display-name="space.displayName" />
+      <people-card-list
+        ref="spaceMembers"
+        :keyword="keyword"
+        :filter="filter"
+        :loading-people="loadingPeople"
+        :space-id="spaceId"
+        :people-count="peopleCount"
+        :is-manager="isManager"
+        @loaded="peopleLoaded" />
     </widget-wrapper> 
     <space-invitation-drawer
       ref="spaceInvitationDrawer"

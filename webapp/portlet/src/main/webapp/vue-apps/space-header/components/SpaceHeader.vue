@@ -4,79 +4,77 @@
       :expanded="false"
       :has-title="false"
       extra-class="mb-5">
-      <template #content>
-        <v-hover>
-          <v-img
-            slot-scope="{ hover }"
-            :lazy-src="bannerUrl || ''"
-            :src="bannerUrl || ''"
-            :min-height="36"
-            :max-height="height"
-            id="spaceAvatarImg"
-            height="auto"
-            min-width="100%"
-            class="d-flex border-radius"
-            eager>
-            <div
-              v-if="admin"
-              v-show="hover"
-              class="d-flex flex-grow-1 position-absolute full-height full-width">
-              <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
-                <v-btn
-                  v-show="!isDefaultBanner && hover"
-                  :title="$t('UIPopupBannerUploader.title.deleteBanner')"
-                  id="spaceBannerDeleteButton"
-                  class="changeBannerButton border-color"
-                  outlined
-                  icon
-                  dark
-                  @click="removeBanner">
-                  <v-icon size="18">mdi-delete</v-icon>
-                </v-btn>
-                <v-btn
-                  v-show="hover"
-                  ref="bannerInput"
-                  id="spaceBannerEditButton"
-                  class="changeBannerButton border-color"
-                  icon
-                  outlined
-                  dark
-                  @click="$refs.imageCropDrawer.open()">
-                  <v-icon size="18">fas fa-file-image</v-icon>
-                </v-btn>
-              </div>
+      <v-hover>
+        <v-img
+          slot-scope="{ hover }"
+          :lazy-src="bannerUrl || ''"
+          :src="bannerUrl || ''"
+          :min-height="36"
+          :max-height="height"
+          id="spaceAvatarImg"
+          height="auto"
+          min-width="100%"
+          class="d-flex border-radius"
+          eager>
+          <div
+            v-if="admin"
+            v-show="hover"
+            class="d-flex flex-grow-1 position-absolute full-height full-width">
+            <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
+              <v-btn
+                v-show="!isDefaultBanner && hover"
+                :title="$t('UIPopupBannerUploader.title.deleteBanner')"
+                id="spaceBannerDeleteButton"
+                class="changeBannerButton border-color"
+                outlined
+                icon
+                dark
+                @click="removeBanner">
+                <v-icon size="18">mdi-delete</v-icon>
+              </v-btn>
+              <v-btn
+                v-show="hover"
+                ref="bannerInput"
+                id="spaceBannerEditButton"
+                class="changeBannerButton border-color"
+                icon
+                outlined
+                dark
+                @click="$refs.imageCropDrawer.open()">
+                <v-icon size="18">fas fa-file-image</v-icon>
+              </v-btn>
             </div>
-          </v-img>
-        </v-hover>
-        <image-crop-drawer
-          v-if="admin"
-          ref="imageCropDrawer"
-          :crop-options="cropOptions"
-          :max-file-size="maxUploadSizeInBytes"
-          :src="bannerUrl"
-          max-image-width="1280"
-          drawer-title="UIPopupBannerUploader.title.ChangeBanner"
-          @input="uploadBanner" />
-        <v-tabs
-          v-if="hasNavigations"
-          :value="selectedNavigationUri"
-          active-class="SelectedTab"
-          class="mx-auto"
-          show-arrows
-          center-active
-          slider-size="4"
-          @change="$root.$emit('application-cache')">
-          <v-tab
-            v-for="nav in navigations"
-            :key="nav.id"
-            :value="nav.id"
-            :href="urlVerify(nav.uri)"
-            :target="nav?.target === 'SAME_TAB' && '_self' || '_blank'"
-            class="spaceNavigationTab">
-            {{ nav.label }}
-          </v-tab>
-        </v-tabs>
-      </template>
+          </div>
+        </v-img>
+      </v-hover>
+      <image-crop-drawer
+        v-if="admin"
+        ref="imageCropDrawer"
+        :crop-options="cropOptions"
+        :max-file-size="maxUploadSizeInBytes"
+        :src="bannerUrl"
+        max-image-width="1280"
+        drawer-title="UIPopupBannerUploader.title.ChangeBanner"
+        @input="uploadBanner" />
+      <v-tabs
+        v-if="hasNavigations"
+        :value="selectedNavigationUri"
+        active-class="SelectedTab"
+        class="mx-auto"
+        show-arrows
+        center-active
+        slider-size="4"
+        @change="$root.$emit('application-cache')">
+        <v-tab
+          v-for="nav in navigations"
+          :key="nav.id"
+          :value="nav.id"
+          :href="urlVerify(nav.uri)"
+          :target="nav?.target === 'SAME_TAB' && '_self' || '_blank'"
+          class="spaceNavigationTab">
+          {{ nav.label }}
+        </v-tab>
+      </v-tabs>
     </widget-wrapper>
   </v-app>
 </template>

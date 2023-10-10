@@ -6,31 +6,29 @@
       <template #title>
         {{ $t('suggestions.label') }}
       </template>
-      <template #content>
-        <v-list
-          v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'"
-          dense
-          class="suggestions-list people-list pa-0">
-          <exo-suggestions-people-list-item
-            v-for="people in peoplesToDisplay"
-            :key="people.suggestionId"
-            :people="people"
-            :people-suggestions-list="peopleSuggestionsList" />
-        </v-list>
-        <v-divider 
-          v-if="spacesSuggestionsList.length && peopleSuggestionsList.length" 
-          class="my-2" />
-        <v-list
-          v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'"
-          dense
-          class="suggestions-list space-list pa-0">
-          <exo-suggestions-space-list-item
-            v-for="space in spacesToDisplay"
-            :key="space.spaceId"
-            :space="space"
-            :spaces-suggestions-list="spacesSuggestionsList" />
-        </v-list>
-      </template>
+      <v-list
+        v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'"
+        dense
+        class="suggestions-list people-list pa-0">
+        <exo-suggestions-people-list-item
+          v-for="people in peoplesToDisplay"
+          :key="people.suggestionId"
+          :people="people"
+          :people-suggestions-list="peopleSuggestionsList" />
+      </v-list>
+      <v-divider 
+        v-if="spacesSuggestionsList.length && peopleSuggestionsList.length" 
+        class="my-2" />
+      <v-list
+        v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'"
+        dense
+        class="suggestions-list space-list pa-0">
+        <exo-suggestions-space-list-item
+          v-for="space in spacesToDisplay"
+          :key="space.spaceId"
+          :space="space"
+          :spaces-suggestions-list="spacesSuggestionsList" />
+      </v-list>
     </widget-wrapper>
   </v-app>
 </template>

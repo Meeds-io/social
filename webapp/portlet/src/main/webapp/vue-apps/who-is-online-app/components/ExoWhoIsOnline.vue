@@ -6,19 +6,17 @@
       <template #title>
         {{ $t('header.label') }}
       </template>
-      <template #content>
-        <div id="onlineList" class="d-flex align-center justify-center flex-wrap">
-          <exo-user-avatar
-            v-for="user in users"
-            :key="user.id"
-            :identity="user"
-            :size="34"
-            :popover-left-position="true"
-            popover
-            avatar 
-            extra-class="mx-1 mb-1" />
-        </div>
-      </template>
+      <div id="onlineList" class="d-flex align-center justify-center flex-wrap">
+        <exo-user-avatar
+          v-for="user in users"
+          :key="user.id"
+          :identity="user"
+          :size="34"
+          :popover-left-position="true"
+          popover
+          avatar 
+          extra-class="mx-1 mb-1" />
+      </div>
     </widget-wrapper>
   </v-app>
 </template>

@@ -4,56 +4,54 @@
       <template #title>
         {{ $t("social.space.description.title") }}
       </template>
-      <template #content>
-        <p 
-          id="spaceDescription"
-          :class="description?.length && 'mb-4' || 'mb-0'"
-          class="text-color"> 
-          {{ description }} 
-        </p>
-        <div id="spaceManagersList" class="px-1">
-          <div class="d-flex align-center">
-            <v-icon size="16" class="me-2">fa-user-cog</v-icon>
-            <span class="me-2">{{ $t("social.space.description.managers") }}</span>
-            <v-divider />
-          </div>
-          <div id="spaceManagers">
-            <exo-user-avatar
-              v-for="manager in managers"
-              :key="manager"
-              :identity="manager"
-              :size="30"
-              :extra-class="'my-2'"
-              :popover-left-position="true"
-              :offset-x="true"
-              :offset-y="false"
-              popover
-              link-style />
-          </div>
+      <p 
+        id="spaceDescription"
+        :class="description?.length && 'mb-4' || 'mb-0'"
+        class="text-color"> 
+        {{ description }} 
+      </p>
+      <div id="spaceManagersList" class="px-1">
+        <div class="d-flex align-center">
+          <v-icon size="16" class="me-2">fa-user-cog</v-icon>
+          <span class="me-2">{{ $t("social.space.description.managers") }}</span>
+          <v-divider />
         </div>
-        <div
-          v-if="redactors?.length"
-          id="spaceRedactorsList"
-          class="px-1 pt-2">
-          <div class="d-flex align-center">
-            <v-icon size="16" class="me-2">fa-user-edit</v-icon>
-            <span class="me-2">{{ $t("social.space.description.redactors") }}</span>
-            <v-divider />
-          </div>
-          <div id="spaceRedactors">
-            <exo-user-avatar
-              v-for="redactor in redactors"
-              :key="redactor"
-              :ref="redactor.id"
-              :identity="redactor"
-              :size="30"
-              :extra-class="'my-2'"
-              :popover-left-position="true"
-              popover
-              link-style />
-          </div>
+        <div id="spaceManagers">
+          <exo-user-avatar
+            v-for="manager in managers"
+            :key="manager"
+            :identity="manager"
+            :size="30"
+            :extra-class="'my-2'"
+            :popover-left-position="true"
+            :offset-x="true"
+            :offset-y="false"
+            popover
+            link-style />
         </div>
-      </template>
+      </div>
+      <div
+        v-if="redactors?.length"
+        id="spaceRedactorsList"
+        class="px-1 pt-2">
+        <div class="d-flex align-center">
+          <v-icon size="16" class="me-2">fa-user-edit</v-icon>
+          <span class="me-2">{{ $t("social.space.description.redactors") }}</span>
+          <v-divider />
+        </div>
+        <div id="spaceRedactors">
+          <exo-user-avatar
+            v-for="redactor in redactors"
+            :key="redactor"
+            :ref="redactor.id"
+            :identity="redactor"
+            :size="30"
+            :extra-class="'my-2'"
+            :popover-left-position="true"
+            popover
+            link-style />
+        </div>
+      </div>
     </widget-wrapper>
   </v-app>
 </template>

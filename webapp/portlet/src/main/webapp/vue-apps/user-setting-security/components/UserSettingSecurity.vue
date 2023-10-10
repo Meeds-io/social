@@ -18,11 +18,9 @@
           </v-btn>
         </span>
       </template>
-      <template #content>
-        <user-setting-security-window
-          v-if="displayDetails"
-          @back="closeSecurityDetail" />
-      </template>
+      <user-setting-security-window
+        v-if="displayDetails"
+        @back="closeSecurityDetail" />
     </widget-wrapper> 
   </v-app>
 </template>

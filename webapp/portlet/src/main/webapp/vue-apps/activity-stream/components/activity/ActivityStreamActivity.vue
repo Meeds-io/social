@@ -1,6 +1,6 @@
 <template>
   <widget-wrapper :has-title="false">
-    <template #content>
+    <template>
       <unread-badge
         :id="id"
         :unread-metadata="unreadMetadata"
@@ -79,9 +79,9 @@
               class="px-4" />
           </template>
         </template>
-        </unread-badge>
+      </unread-badge>
     </template>
-    </widget-wrapper>
+  </widget-wrapper>
 </template>
 
 <script>

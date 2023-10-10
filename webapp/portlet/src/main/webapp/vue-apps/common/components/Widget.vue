@@ -16,31 +16,34 @@
 <template>
   <v-card
     :class="[extraClass, expanded && 'pa-5' || 'pa-0']"
-    class="white d-flex flex-column border-radius"
+    class="white d-flex flex-column"
     flat>
-    <v-card-title v-if="hasTitle" class="text-header text-sub-title justify-space-between flex-nowrap px-0 pt-0 pb-4">
+    <v-card-title 
+      v-if="hasTitle" 
+      :class="hasSubtitle && 'pb-4' || 'pb-5'"
+      class="text-header text-sub-title justify-space-between flex-nowrap px-0 pt-0 pb-0">
       <slot name="title"></slot>
       <div>
         <slot name="action"></slot>
         <a 
-          v-if="seeAllUrl" 
+          v-if="actionUrl" 
           class="flex-shrink-0" 
-          :href="seeAllUrl"> <h5 class="subtitle-1 primary--text my-0"> {{ $t('overview.myContributions.seeAll') }} </h5> </a>
+          :href="actionUrl"> <h5 class="subtitle-1 primary--text my-0"> {{ $t('overview.myContributions.seeAll') }} </h5> </a>
       </div>
     </v-card-title>
-    <v-card-subtitle class="text-color pa-0">
+    <v-card-subtitle v-if="hasSubtitle" class="text-color pa-0">
       <slot name="subtitle"></slot>
     </v-card-subtitle>
 
     <v-card-text class="d-flex flex-column flex-grow-1 pa-0">
-      <slot name="content"></slot>
+      <slot></slot>
     </v-card-text>
   </v-card>
 </template>
 <script>
 export default {
   props: {
-    seeAllUrl: {
+    actionUrl: {
       type: String,
       default: () => '',
     },
@@ -51,6 +54,10 @@ export default {
     hasTitle: {
       type: Boolean,
       default: () => true,
+    },
+    hasSubtitle: {
+      type: Boolean,
+      default: () => false,
     },
     expanded: {
       type: Boolean,

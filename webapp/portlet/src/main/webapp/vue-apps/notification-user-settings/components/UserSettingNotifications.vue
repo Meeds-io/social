@@ -4,13 +4,13 @@
       <template v-if="!displayDetails" #title>
         {{ $t('UserSettings.notifications') }}
       </template>
-      <template v-if="displayDetails" #content>
+      <template v-if="displayDetails">
         <user-setting-notifications-window
           v-if="displayDetails"
           :settings="notificationSettings"
           @back="closeDetail" />
       </template>
-      <template v-else #content>
+      <template v-else>
         <template v-if="notificationSettings && notificationSettings.channels">
           <user-setting-notification-channel
             v-for="channel in notificationSettings.channels"

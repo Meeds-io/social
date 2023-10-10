@@ -1,23 +1,21 @@
 <template>
   <v-app>
     <widget-wrapper :has-title="false">
-      <template #content>
-        <div class="d-flex flex-row justify-center ">
-          <people-overview-card
-            id="peopleInvitationsOverview"
-            :title="$t('peopleOverview.label.invitations')"
-            :count="invitations"
-            :class="invitations === '-' && 'text-sub-title'"
-            @click="$refs.peopleDrawer.open('invitations', $t('peopleOverview.label.invitations'))" />
-          <v-divider class="peopleOverviewVertivalSeparator ma-auto" vertical />
-          <people-overview-card
-            id="peoplePendingOverview"
-            :title="$t('peopleOverview.label.pending')"
-            :count="pending"
-            :class="pending === '-' && 'text-sub-title'"
-            @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
-        </div>
-      </template>
+      <div class="d-flex flex-row justify-center ">
+        <people-overview-card
+          id="peopleInvitationsOverview"
+          :title="$t('peopleOverview.label.invitations')"
+          :count="invitations"
+          :class="invitations === '-' && 'text-sub-title'"
+          @click="$refs.peopleDrawer.open('invitations', $t('peopleOverview.label.invitations'))" />
+        <v-divider class="peopleOverviewVertivalSeparator ma-auto" vertical />
+        <people-overview-card
+          id="peoplePendingOverview"
+          :title="$t('peopleOverview.label.pending')"
+          :count="pending"
+          :class="pending === '-' && 'text-sub-title'"
+          @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
+      </div>
     </widget-wrapper>
     <people-overview-drawer ref="peopleDrawer" @refresh="refresh()" />
   </v-app>    

@@ -18,18 +18,16 @@
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>
       </template>
-      <template #content>
-        <p
-          v-autolinker="aboutMe"
-          v-if="aboutMe || !owner"
-          id="aboutMeParagraph"
-          class="paragraph text-color"></p>
-        <p
-          v-else
-          id="aboutMeParagraph"
-          class="paragraph text-color"
-          v-text="$t('profileAboutMe.emptyOwner')"></p>
-      </template>
+      <p
+        v-autolinker="aboutMe"
+        v-if="aboutMe || !owner"
+        id="aboutMeParagraph"
+        class="paragraph text-color"></p>
+      <p
+        v-else
+        id="aboutMeParagraph"
+        class="paragraph text-color"
+        v-text="$t('profileAboutMe.emptyOwner')"></p>
     </widget-wrapper> 
     <exo-drawer
       v-if="owner"

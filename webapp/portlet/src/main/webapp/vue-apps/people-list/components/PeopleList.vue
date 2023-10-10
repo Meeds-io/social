@@ -1,22 +1,21 @@
 <template>
   <v-app 
     class="transparent peopleList"
+    :has-title="false"
     flat>
     <widget-wrapper>
-      <template #content>
-        <people-toolbar
-          :filter="filter"
-          :people-count="peopleCount"
-          @keyword-changed="keyword = $event"
-          @filter-changed="filter = $event" />
-        <people-card-list
-          ref="peopleList"
-          :keyword="keyword"
-          :filter="filter"
-          :loading-people="loadingPeople"
-          :people-count="peopleCount"
-          @loaded="peopleLoaded" />
-      </template>> 
+      <people-toolbar
+        :filter="filter"
+        :people-count="peopleCount"
+        @keyword-changed="keyword = $event"
+        @filter-changed="filter = $event" />
+      <people-card-list
+        ref="peopleList"
+        :keyword="keyword"
+        :filter="filter"
+        :loading-people="loadingPeople"
+        :people-count="peopleCount"
+        @loaded="peopleLoaded" />
     </widget-wrapper>
     <people-advanced-filter-drawer />
   </v-app>    
