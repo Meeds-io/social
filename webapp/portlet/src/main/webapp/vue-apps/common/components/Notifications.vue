@@ -23,9 +23,10 @@
     :left="!$vuetify.rtl"
     :right="$vuetify.rtl"
     :timeout="timeout"
-    :content-class="isMobile && 'pa-0 ma-n2'"
+    :content-class="isMobile && 'pa-0 ma-0'"
+    :class="isMobile && 'full-height'"
     class="z-index-snackbar"
-    color="transparent"
+    color="transparent ma-0"
     elevation="0"
     app>
     <confeti-animation
@@ -37,9 +38,10 @@
       :max-width="maxWidth"
       :min-height="minHeight"
       :dense="isMobile"
+      :dismissible="!isMobile"
       :icon="false"
       :border="!isMobile && 'left' || false"
-      :class="isMobile && 'no-border-radius mb-n2'"
+      :class="isMobile && 'no-border-radius b-0 mb-0' || 'mb-5'"
       :style="absolute && {
         left: `${left}px`,
       }"
@@ -48,22 +50,21 @@
         end: moveEnd,
         move: moveSwipe,
       }"
-      class="d-flex flex-column justify-center white ma-0 py-2 pe-0 px-md-4 border-box-sizing position-absolute b-0 z-index-snackbar"
+      class="d-flex flex-column justify-center white mt-0 mx-0 py-2 px-4 border-box-sizing"
       elevation="2"
       light
       outlined
-      dismissible
       colored-border
       @input="closeAlertIfDismissed">
       <div
         :class="isMobile && 'mt-2'"
-        class="d-flex flex-nowrap text-start align-start justify-center full-width">
+        class="d-flex flex-nowrap text-start align-center justify-center full-width">
         <v-progress-linear
           v-if="isMobile"
           :color="`${alertType}-color-background`"
           :value="progression"
           height="6"
-          class="position-absolute mt-n5 l-0 r-0" />
+          class="position-absolute t-0 l-0 r-0 mt-n1" />
         <span
           v-if="useHtml"
           class="text--lighten-1 flex-grow-1 me-4"
@@ -77,7 +78,7 @@
           v-if="alertLink || alertLinkCallback"
           :href="alertLink"
           :title="alertLinkTooltip"
-          :class="alertLinkText && 'elevation-0 transparent primary--text ms-4' || 'secondary--text'"
+          :class="alertLinkText && 'elevation-0 transparent primary--text' || 'secondary--text'"
           :target="alertLinkTarget || '_blank'"
           :icon="!alertLinkText && alertLinkIcon"
           name="closeSnackbarButton"
@@ -88,7 +89,7 @@
           <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
         </v-btn>
       </div>
-      <template #close="{toggle}">
+      <template v-if="!isMobile" #close="{toggle}">
         <v-btn
           icon
           @click="toggle">
@@ -115,13 +116,11 @@ export default {
     alertLinkTooltip: null,
     timeoutInstance: null,
     maxIconsSize: '20px',
-    minHeight: 57,
     interval: 0,
     progression: 0,
     absolute: false,
     left: 0,
     startEvent: null,
-    movingLeft: false,
     moving: false,
   }),
   computed: {
@@ -136,6 +135,9 @@ export default {
     },
     minWidth() {
       return this.isMobile && '100vw' || 400;
+    },
+    minHeight() {
+      return this.isMobile && 69 || 57;
     },
   },
   watch: {
@@ -211,6 +213,14 @@ export default {
       });
     });
     this.$root.$on('close-alert-message', this.closeAlert);
+
+    // Kept for backward compatibility
+    document.addEventListener('notification-alert', event => {
+      this.openAlert({
+        alertType: event?.detail?.type,
+        alertMessage: event?.detail?.message,
+      });
+    });
   },
   methods: {
     openAlert(params) {
@@ -265,7 +275,6 @@ export default {
     reset() {
       this.absolute = false;
       this.left = -8;
-      this.movingLeft = false;
       this.startEvent = null;
       this.moving = false;
     },
@@ -293,12 +302,7 @@ export default {
       } else if (!this.moving) {
         this.moving = true;
         this.$nextTick().then(() => {
-          if (this.unread) {
-            this.left = parseInt(event.touchmoveX - this.startEvent.touchmoveX) - 8;
-          } else {
-            this.left = Math.max(0, parseInt(event.touchmoveX - this.startEvent.touchmoveX)) - 8;
-          }
-          this.movingLeft = this.left < 0;
+          this.left = parseInt(event.touchmoveX - this.startEvent.touchmoveX) - 8;
           this.moving = false;
         });
       }
