@@ -129,10 +129,7 @@ export default {
         if (errorI18N !== errorI18NKey) {
           error = errorI18N;
         }
-        this.$root.$emit('error', error);
-        window.setTimeout(() => {
-          this.$root.$emit('error', null);
-        }, 5000);
+        this.$root.$emit('alert-message', error, 'error');
       }).finally(() => this.loading = false);
     },
   },

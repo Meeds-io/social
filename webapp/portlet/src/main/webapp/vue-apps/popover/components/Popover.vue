@@ -21,7 +21,6 @@
 <template>
   <div>
     <popover-menu v-if="!isMobile" />
-    <notification-alerts />
     <users-list-drawer />
   </div>
 </template>

@@ -23,8 +23,10 @@
     :left="!$vuetify.rtl"
     :right="$vuetify.rtl"
     :timeout="timeout"
-    class="z-index-modal"
-    color="transparent"
+    :content-class="isMobile && 'pa-0 ma-0'"
+    :class="isMobile && 'full-height'"
+    class="z-index-snackbar"
+    color="transparent ma-0"
     elevation="0"
     app>
     <confeti-animation
@@ -32,30 +34,51 @@
       class="overflow-hidden" />
     <v-alert
       :type="alertType"
+      :min-width="minWidth"
       :max-width="maxWidth"
-      class="white position-relative z-index-modal"
-      border="left"
+      :min-height="minHeight"
+      :dense="isMobile"
+      :dismissible="!isMobile"
+      :icon="false"
+      :border="!isMobile && 'left' || false"
+      :class="isMobile && 'no-border-radius b-0 mb-0' || 'mb-5'"
+      :style="absolute && {
+        left: `${left}px`,
+      }"
+      v-touch="{
+        start: moveStart,
+        end: moveEnd,
+        move: moveSwipe,
+      }"
+      class="d-flex flex-column justify-center white mt-0 mx-0 py-2 px-4 border-box-sizing"
       elevation="2"
       light
       outlined
-      dismissible
       colored-border
       @input="closeAlertIfDismissed">
-      <div class="d-flex flex-nowrap align-center full-width">
+      <div
+        :class="isMobile && 'mt-2'"
+        class="d-flex flex-nowrap text-start align-center justify-center full-width">
+        <v-progress-linear
+          v-if="isMobile"
+          :color="`${alertType}-color-background`"
+          :value="progression"
+          height="6"
+          class="position-absolute t-0 l-0 r-0 mt-n1" />
         <span
           v-if="useHtml"
-          class="text--lighten-1 flex-grow-1 text-start pe-4"
+          class="text--lighten-1 flex-grow-1 me-4"
           v-sanitized-html="alertMessage"
           @click="handleAlertClicked">
         </span>
-        <span v-else class="text--lighten-1 flex-grow-1 pe-4">
+        <span v-else class="text--lighten-1 flex-grow-1 me-4">
           {{ alertMessage }}
         </span>
         <v-btn
           v-if="alertLink || alertLinkCallback"
           :href="alertLink"
           :title="alertLinkTooltip"
-          :class="alertLinkText && 'elevation-0 transparent primary--text me-n12' || 'secondary--text'"
+          :class="alertLinkText && 'elevation-0 transparent primary--text' || 'secondary--text'"
           :target="alertLinkTarget || '_blank'"
           :icon="!alertLinkText && alertLinkIcon"
           name="closeSnackbarButton"
@@ -66,6 +89,13 @@
           <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
         </v-btn>
       </div>
+      <template v-if="!isMobile" #close="{toggle}">
+        <v-btn
+          icon
+          @click="toggle">
+          <v-icon size="16" class="icon-default-color">fa-times</v-icon>
+        </v-btn>
+      </template>
     </v-alert>
   </v-snackbar>
 </template>
@@ -86,6 +116,12 @@ export default {
     alertLinkTooltip: null,
     timeoutInstance: null,
     maxIconsSize: '20px',
+    interval: 0,
+    progression: 0,
+    absolute: false,
+    left: 0,
+    startEvent: null,
+    moving: false,
   }),
   computed: {
     isMobile() {
@@ -96,6 +132,26 @@ export default {
     },
     maxWidth() {
       return this.isMobile && '100vw' || '50vw';
+    },
+    minWidth() {
+      return this.isMobile && '100vw' || 400;
+    },
+    minHeight() {
+      return this.isMobile && 69 || 57;
+    },
+  },
+  watch: {
+    snackbar() {
+      if (this.isMobile) {
+        if (this.snackbar) {
+          this.interval = window.setInterval(() => {
+            this.progression -= this.timeout / 1000;
+          }, 1000);
+        } else if (this.interval) {
+          window.clearInterval(this.interval);
+          this.interval = 0;
+        }
+      }
     },
   },
   created() {
@@ -157,10 +213,20 @@ export default {
       });
     });
     this.$root.$on('close-alert-message', this.closeAlert);
+
+    // Kept for backward compatibility
+    document.addEventListener('notification-alert', event => {
+      this.openAlert({
+        alertType: event?.detail?.type,
+        alertMessage: event?.detail?.message,
+      });
+    });
   },
   methods: {
     openAlert(params) {
+      this.reset();
       this.closeAlert();
+      this.progression = 100;
       this.$nextTick().then(() => {
         this.useHtml = params.useHtml || false;
         this.confeti = params.confeti || false;
@@ -204,6 +270,41 @@ export default {
       }
       if (!event || event?.target?.tagName?.toLowerCase() === 'a') {
         this.linkCallback();
+      }
+    },
+    reset() {
+      this.absolute = false;
+      this.left = -8;
+      this.startEvent = null;
+      this.moving = false;
+    },
+    moveStart() {
+      if (this.absolute) {
+        return;
+      }
+      this.reset();
+      window.setTimeout(() => this.absolute = true, 50);
+    },
+    moveEnd() {
+      const confirm = Math.abs(this.left) > (window.innerWidth / 4);
+      if (confirm) {
+        this.snackbar = false;
+      } else {
+        this.reset();
+      }
+    },
+    moveSwipe(event) {
+      if (!this.absolute) {
+        return;
+      }
+      if (!this.startEvent) {
+        this.startEvent = event;
+      } else if (!this.moving) {
+        this.moving = true;
+        this.$nextTick().then(() => {
+          this.left = parseInt(event.touchmoveX - this.startEvent.touchmoveX) - 8;
+          this.moving = false;
+        });
       }
     },
   },

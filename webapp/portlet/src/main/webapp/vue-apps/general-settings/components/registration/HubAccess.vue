@@ -344,21 +344,13 @@ export default {
         if (newVal !== oldVal) {
           if (this.accessType === 'OPEN') {
             this.$root.$emit('alert-message-html', `
-                <div>
-                  ${this.$t('generalSettings.access.openChangeInformation1')}
-                </div>
-                <div>
-                  ${this.$t('generalSettings.access.openChangeInformation2')}
-                </div>
+                <div>${this.$t('generalSettings.access.openChangeInformation1')}</div>
+                <div>${this.$t('generalSettings.access.openChangeInformation2')}</div>
             `, 'info');
           } else if (this.accessType === 'RESTRICTED') {
             this.$root.$emit('alert-message-html', `
-                <div>
-                  ${this.$t('generalSettings.access.restrictedChangeInformation1')}
-                </div>
-                <div>
-                  ${this.$t('generalSettings.access.restrictedChangeInformation2')}
-                </div>
+                <div>${this.$t('generalSettings.access.restrictedChangeInformation1')}</div>
+                <div>${this.$t('generalSettings.access.restrictedChangeInformation2')}</div>
             `, 'info');
           }
         }
