@@ -25,7 +25,6 @@ import java.util.List;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.social.core.space.model.Space;
 
 import io.meeds.social.link.model.Link;
 import io.meeds.social.link.model.LinkSetting;
@@ -121,18 +120,16 @@ public interface LinkService {
 
   /**
    * @param linkSettingName {@link LinkSetting} name
+   * @return true if setting name exists else false
+   */
+  boolean hasLinkSetting(String linkSettingName);
+
+  /**
+   * @param linkSettingName {@link LinkSetting} name
    * @param identity User Acl {@link Identity} making the operation
    * @return true if has read access else false
    */
   boolean hasAccessPermission(String linkSettingName, Identity identity);
-
-  /**
-   * @param identity User Acl {@link Identity} making the operation
-   * @param pageReference {@link Page} key composite id
-   * @param spaceId current {@link Space} id
-   * @return true if has read access else false
-   */
-  boolean hasAccessPermission(Identity identity, String pageReference, long spaceId);
 
   /**
    * @param linkSettingName {@link LinkSetting} name
@@ -140,13 +137,5 @@ public interface LinkService {
    * @return true if has write access else false
    */
   boolean hasEditPermission(String linkSettingName, Identity identity);
-
-  /**
-   * @param identity User Acl {@link Identity} making the operation
-   * @param pageReference {@link Page} key composite id
-   * @param spaceId current {@link Space} id
-   * @return true if has write access else false
-   */
-  boolean hasEditPermission(Identity identity, String pageReference, long spaceId);
 
 }
