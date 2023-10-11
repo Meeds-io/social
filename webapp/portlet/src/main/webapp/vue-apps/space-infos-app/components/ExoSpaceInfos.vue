@@ -1,10 +1,18 @@
 <template>
   <v-app>
-    <div>
-      <div class="body-1 text-uppercase text-sub-title">{{ $t("social.space.description.title") }}</div>
-      <p id="spaceDescription">{{ description }}</p>
+    <widget-wrapper :title="$t('social.space.description.title')">
+      <p 
+        id="spaceDescription"
+        :class="description?.length && 'mb-4' || 'mb-0'"
+        class="text-color"> 
+        {{ description }} 
+      </p>
       <div id="spaceManagersList" class="px-1">
-        <h5>{{ $t("social.space.description.managers") }}</h5>
+        <div class="d-flex align-center">
+          <v-icon size="16" class="me-2">fa-user-cog</v-icon>
+          <span class="me-2">{{ $t("social.space.description.managers") }}</span>
+          <v-divider />
+        </div>
         <div id="spaceManagers">
           <exo-user-avatar
             v-for="manager in managers"
@@ -20,10 +28,14 @@
         </div>
       </div>
       <div
-        v-if="redactors && redactors.length"
+        v-if="redactors?.length"
         id="spaceRedactorsList"
-        class="px-1">
-        <h5>{{ $t("social.space.description.redactors") }}</h5>
+        class="px-1 pt-2">
+        <div class="d-flex align-center">
+          <v-icon size="16" class="me-2">fa-user-edit</v-icon>
+          <span class="me-2">{{ $t("social.space.description.redactors") }}</span>
+          <v-divider />
+        </div>
         <div id="spaceRedactors">
           <exo-user-avatar
             v-for="redactor in redactors"
@@ -37,7 +49,7 @@
             link-style />
         </div>
       </div>
-    </div>
+    </widget-wrapper>
   </v-app>
 </template>
 
