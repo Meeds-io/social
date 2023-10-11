@@ -2,7 +2,7 @@
   <v-app 
     class="transparent"
     flat>
-    <v-card flat>
+    <div class="card-border-radius">
       <space-members-toolbar
         :keyword="keyword"
         :filter="filter"
@@ -22,7 +22,7 @@
         :people-count="peopleCount"
         :is-manager="isManager"
         @loaded="peopleLoaded" />
-    </v-card>
+    </div>
     <space-invitation-drawer
       ref="spaceInvitationDrawer"
       :is-external-feature-enabled="isExternalFeatureEnabled"

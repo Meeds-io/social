@@ -9,7 +9,7 @@
       :cancel-label="$t('SpaceSettings.label.no')"
       @ok="removeConfirm()" />
     <v-toolbar
-      class="border-box-sizing border-radius"
+      class="border-box-sizing card-border-radius"
       flat>
       <v-btn
         class="mx-1"

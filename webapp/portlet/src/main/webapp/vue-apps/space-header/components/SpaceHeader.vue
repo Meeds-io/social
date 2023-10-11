@@ -14,7 +14,7 @@
           id="spaceAvatarImg"
           height="auto"
           min-width="100%"
-          class="d-flex border-radius"
+          class="d-flex card-border-radius"
           eager>
           <div
             v-if="admin"

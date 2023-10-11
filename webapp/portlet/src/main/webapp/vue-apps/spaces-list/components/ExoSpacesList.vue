@@ -1,6 +1,6 @@
 <template>
   <v-app class="transparent" flat>
-    <v-card flat>
+    <div class="card-border-radius">
       <exo-spaces-toolbar
         :keyword="keyword"
         :filter="filter"
@@ -16,7 +16,7 @@
         :spaces-size="spacesSize"
         @loading-spaces="loadingSpaces = $event"
         @loaded="spacesLoaded" />
-    </v-card>
+    </div>
     <exo-space-managers-drawer />
     <exo-space-form-drawer />
   </v-app>    

@@ -1,7 +1,7 @@
 <template>
   <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover>
-      <div slot-scope="{ hover }" class="white border-radius">
+      <div slot-scope="{ hover }" class="white card-border-radius">
         <v-card
           height="13vw"
           max-height="175"

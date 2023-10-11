@@ -2,7 +2,7 @@
   <v-app 
     class="transparent peopleList"
     flat>
-    <v-card flat>
+    <div class="card-border-radius">
       <people-toolbar
         :filter="filter"
         :people-count="peopleCount"
@@ -15,7 +15,7 @@
         :loading-people="loadingPeople"
         :people-count="peopleCount"
         @loaded="peopleLoaded" />
-    </v-card>
+    </div>
     <people-advanced-filter-drawer />
   </v-app>    
 </template>
