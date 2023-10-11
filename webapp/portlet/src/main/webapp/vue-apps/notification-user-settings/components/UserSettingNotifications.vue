@@ -55,11 +55,12 @@
             <v-tooltip bottom>
               <template #activator="{on, bind}">
                 <v-btn
-                  icon
                   v-on="on"
                   v-bind="bind"
+                  small
+                  icon
                   @click="$refs.muteSpacesDrawer.open()">
-                  <v-icon size="24" class="text-sub-title">fa-edit</v-icon>
+                  <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
                 </v-btn>
               </template>
               <span>{{ $t('UserSettings.subtitle.muteSpacesNotifications') }}</span>
