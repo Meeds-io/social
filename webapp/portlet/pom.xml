@@ -32,7 +32,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>social-component-webui</artifactId>
+      <artifactId>social-component-web</artifactId>
       <scope>provided</scope>
     </dependency>
     <!-- Platform-ui for Less Variables use-->

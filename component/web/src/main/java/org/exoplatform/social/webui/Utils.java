@@ -61,10 +61,7 @@ import org.exoplatform.webui.application.WebuiRequestContext;
 
 /**
  * Contains some common methods for using as utility.
- * 
- * @deprecated the dependency for WebUI framework
  */
-@Deprecated(forRemoval = true, since = "6.5.0")
 public class Utils {
   /** . */
   public static final String ACTIVITY_STREAM_TAB_SELECTED_COOKIED = "exo_social_activity_stream_tab_selected_%s";

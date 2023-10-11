@@ -138,6 +138,16 @@
   </component>
 
   <component>
+    <key>io.meeds.social.cms.storage.CMSStorage</key>
+    <type>io.meeds.social.cms.storage.cache.CachedCMSStorage</type>
+  </component>
+
+  <component>
+    <key>io.meeds.social.cms.service.CMSService</key>
+    <type>io.meeds.social.cms.service.CMSServiceImpl</type>
+  </component>
+
+  <component>
     <key>io.meeds.social.translation.service.TranslationService</key>
     <type>io.meeds.social.translation.service.TranslationServiceImpl</type>
   </component>
@@ -501,6 +511,34 @@
             </field>
             <field name="name">
               <string>observers</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>CMSSettingMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <description>Whether to share metadatas when an associated object has been shared to a different space or to a user</description>
+          <value>false</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>false</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <int>45512643</int>
+            </field>
+            <field name="name">
+              <string>CMSSetting</string>
             </field>
           </object>
         </object-param>
