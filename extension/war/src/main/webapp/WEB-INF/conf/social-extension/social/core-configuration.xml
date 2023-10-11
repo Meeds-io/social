@@ -750,6 +750,7 @@
             <name>SocialFeatureProperties</name>
             <property name="exo.feature.SpaceHomeLayoutReset.enabled" value="${exo.feature.SpaceHomeLayoutReset.enabled:false}" />
             <property name="exo.feature.PostToNetwork.enabled" value="${exo.feature.PostToNetwork.enabled:false}" />
+            <property name="exo.feature.newLeftNavigationDrawer.enabled" value="${exo.feature.newLeftNavigationDrawer.enabled:false}" />
           </properties-param>
         </init-params>
     </component>
@@ -978,6 +979,15 @@
           <value>db/changelog/links-rdbms.db.changelog-1.0.0.xml</value>
         </values-param>
       </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.social.translation.service.TranslationService</target-component>
+    <component-plugin>
+      <name>site</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.SiteTranslationPlugin</type>
     </component-plugin>
   </external-component-plugins>
 

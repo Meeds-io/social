@@ -13,7 +13,6 @@
   SettingValue stickySettingValue = ExoContainerContext.getService(SettingService.class).get(Context.USER.id(request.getRemoteUser()), Scope.APPLICATION.id("HamburgerMenu"), "Sticky");
   boolean sticky = stickySettingValue == null ? Boolean.parseBoolean(System.getProperty("io.meeds.userPrefs.HamburgerMenu.sticky", "false")) : Boolean.parseBoolean(stickySettingValue.getValue().toString());
 
-
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
 

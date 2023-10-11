@@ -89,6 +89,10 @@ public class LinkProvider {
 
   public static final String TYPE = "file";
 
+  public static final String  BASE_URL_SITE_REST_API      = "/v1/social/sites";
+
+  public static final String  ATTACHMENT_BANNER_TYPE      = "banner";
+
   public LinkProvider() {
   }
 
@@ -587,5 +591,27 @@ public class LinkProvider {
   public static String getResourceBundleLabel(Locale locale, String label) {
     ResourceBundleService resourceBundleService =  ExoContainerContext.getService(ResourceBundleService.class);
     return resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), locale).getString(label);
+  }
+
+  public static String getBaseURLSiteRest() {
+    return "/" + PortalContainer.getCurrentPortalContainerName() + "/" + PortalContainer.getCurrentRestContextName()
+        + BASE_URL_SITE_REST_API;
+  }
+
+  public static String buildSiteBannerUrl(String siteName, long bannerFileId) {
+    if (StringUtils.isBlank(siteName)) {
+      return null;
+    }
+    boolean isDefault = bannerFileId == 0 ;
+    String BannerParam = !isDefault ? "&bannerId=" + bannerFileId : " ";
+    return new StringBuilder(getBaseURLSiteRest()).append("/")
+                                                  .append(siteName)
+                                                  .append("/")
+                                                  .append(ATTACHMENT_BANNER_TYPE)
+                                                  .append("?isDefault=")
+                                                  .append(isDefault)
+                                                  .append(BannerParam)
+                                                  .toString();
+
   }
 }

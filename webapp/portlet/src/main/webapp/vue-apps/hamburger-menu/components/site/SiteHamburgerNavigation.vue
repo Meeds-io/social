@@ -28,8 +28,9 @@
       <v-list  
         dense 
         min-width="90%"
-        class="pb-0">
-        <v-list-item-group v-model="selectedNavigationIndex">
+        class="pb-0"
+        :class="extraClass">
+        <v-list-item-group v-model="selectedNavigationIndex" :aria-label="navigationsLabel">
           <v-list-item
             v-for="nav in navigationsToDisplay"
             :key="nav.uri"
@@ -41,7 +42,7 @@
             :target="nav.uriTarget"
             link>
             <v-list-item-icon class="flex align-center flex-grow-0 my-2">
-              <i :class="nav.iconClass"></i>
+              <v-icon> {{ nav.icon || defaultIcon }}</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title
@@ -78,15 +79,24 @@
 <script>
 export default {
   props: {
+    site: {
+      type: Object,
+      default: null
+    },
     navigations: {
       type: Array,
       default: null,
+    },
+    extraClass: {
+      type: String,
+      default: '',
     },
   },
   data: () => ({
     BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     homeLink: eXo.env.portal.homeLink,
     selectedNavigation: null,
+    defaultIcon: 'fas fa-folder'
   }),
   computed: {
     confirmMessage() {
@@ -99,13 +109,14 @@ export default {
     },
     navigationsToDisplay() {
       this.navigations.forEach(nav => {
-        const capitilizedName = `${nav.name[0].toUpperCase()}${nav.name.slice(1)}`;
-        nav.iconClass = `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${nav.icon}`;
-        nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || `${this.BASE_SITE_URI}${nav.uri}`;
+        nav.fullUri = nav?.pageLink && this.urlVerify(nav?.pageLink) || `/portal/${nav.siteKey.name}/${nav.uri}`;
         nav.uriTarget = nav?.target === 'SAME_TAB' && '_self' || '_blank';
       });
-      return this.navigations.slice();
+      return this.navigations.filter(nav => nav.visibility === 'DISPLAYED' || nav.visibility === 'TEMPORAL').slice();
     },
+    navigationsLabel() {
+      return `${this.site}MetaSiteNavigations`;
+    } 
   },
   watch: {
     navigations() {

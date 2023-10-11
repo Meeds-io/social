@@ -50,7 +50,9 @@
         class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
         flat
         tile>
-        <site-hamburger-navigation :navigations="siteNavigations" />
+        <sites-hamburger
+          :sites="sites"
+          :opened-site="openedSite" />
         <spaces-hamburger-navigation
           :recent-spaces="recentSpaces"
           :recent-spaces-drawer-opened="recentSpacesDrawerOpened"
@@ -87,8 +89,12 @@ export default {
       type: Boolean,
       default: false,
     },
-    siteNavigations: {
+    sites: {
       type: Array,
+      default: () => [],
+    },
+    openedSite: {
+      type: Object,
       default: null,
     },
     recentSpaces: {

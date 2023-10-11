@@ -173,7 +173,7 @@ export default {
       return url ;
     },
     handleCloseSiblingMenus(emitter) {
-      if (!emitter.navigationNodeUri.includes(this.navigationNodeUri) && this.showMenu) {
+      if (!emitter.navigation.pageLink && !emitter.navigationNodeUri.includes(this.navigationNodeUri) && this.showMenu) {
         this.showMenu = false;
       }
     },

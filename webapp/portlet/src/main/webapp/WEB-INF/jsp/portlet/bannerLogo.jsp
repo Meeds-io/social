@@ -13,7 +13,6 @@
 <%@ page import="org.exoplatform.web.application.RequestContext"%>
 <%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
 <%@ page import="org.exoplatform.portal.branding.BrandingService"%>
-<%@ page import="java.util.Arrays" %>
 <%@ page import="org.exoplatform.social.core.identity.model.Profile" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
@@ -51,7 +50,10 @@
 
     portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     if (portalPath == null) {
-      portalPath = defaultHomePath;
+      portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
+      if (portalPath == null) {
+        portalPath = defaultHomePath;
+      }
     }
     titleClass = "company";
   } else {
