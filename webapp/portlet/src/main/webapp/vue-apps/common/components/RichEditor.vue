@@ -14,6 +14,7 @@
         indeterminate
         class="loadingRing position-absolute" />
       <div
+        v-if="!hideCharsCount"
         :v-show="editorReady"
         :id="buttonId"
         :class="!validLength && 'tooManyChars' || ''"
@@ -127,7 +128,11 @@ export default {
     disableSuggester: {
       type: Boolean,
       default: false
-    }
+    },
+    hideCharsCount: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     SMARTPHONE_LANDSCAPE_WIDTH: 768,
