@@ -19,7 +19,8 @@
     class="white d-flex flex-column pa-5"
     flat>
     <div 
-      :class="$slots.subtitle && 'pb-4' || 'pb-5'" 
+      v-if="hasHeader"
+      :class="headerPadding" 
       class="d-flex align-center">
       <slot v-if="$slots.title" name="title"></slot>
       <div v-else-if="title" class="widget-text-header text-truncate">{{ title }}</div> 
@@ -38,7 +39,7 @@
     </div>
     <div v-else-if="subtitle" class="pb-4">{{ subtitle }}</div>
     <div class="d-flex flex-column flex-grow-1">
-      <slot v-id="$slots.default"></slot>
+      <slot v-if="$slots.default"></slot>
     </div>
   </v-card>
 </template>
@@ -66,5 +67,21 @@ export default {
       default: () => false
     }
   },
+  computed: {
+    hasHeader() {
+      return this.$slots.title || this.title || this.$slots.actions || this.actionUrl;
+    },
+    headerPadding() {
+      if (!this.$slots.default) {
+        if (this.subtitle || this.$slots.subtitle) {
+          return 'mb-4';
+        } else {
+          return '';
+        }
+      } else {
+        return 'mb-5';
+      }
+    }
+  }
 };
 </script>

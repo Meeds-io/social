@@ -2,7 +2,7 @@
   <v-app :class="hasNavigations && 'hasNavigations' | ''">
     <v-card
       color="transparent"
-      class="mb-6"
+      class="mb-6 overflow-hidden"
       flat>
       <v-hover>
         <v-img
@@ -14,7 +14,7 @@
           id="spaceAvatarImg"
           height="auto"
           min-width="100%"
-          class="d-flex card-border-radius"
+          class="d-flex"
           eager>
           <div
             v-if="admin"

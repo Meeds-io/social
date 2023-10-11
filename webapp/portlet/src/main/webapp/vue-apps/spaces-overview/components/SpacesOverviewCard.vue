@@ -4,7 +4,7 @@
     :class="clickable"
     class="spacesOverviewCard d-flex flex-column"
     @click="count && $emit('click')">
-  <div class="ma-auto d-flex flex-column">
+    <div class="ma-auto d-flex flex-column">
       <div class="spacesOverviewCount text-center pb-1">
         {{ count }}
       </div>

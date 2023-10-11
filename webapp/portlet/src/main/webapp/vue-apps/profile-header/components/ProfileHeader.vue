@@ -1,11 +1,12 @@
 <template>
   <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover>
-      <div slot-scope="{ hover }" class="white card-border-radius">
+      <div slot-scope="{ hover }" class="white overflow-hidden card-border-radius">
         <v-card
           height="13vw"
           max-height="175"
-          class="d-flex position-relative overflow-hidden">
+          class="d-flex position-relative overflow-hidden"
+          tile>
           <img
             :src="user && user.banner"
             alt=""
@@ -24,7 +25,8 @@
         <v-card
           color="white"
           class="d-flex flex-column flex-md-row border-color px-4" 
-          flat>
+          flat
+          tile>
           <v-card
             :width="imageSize"
             :max-width="165"

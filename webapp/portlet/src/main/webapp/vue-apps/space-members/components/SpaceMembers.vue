@@ -1,6 +1,6 @@
 <template>
   <v-app 
-    class="transparent card-border-radius"
+    class="transparent card-border-radius overflow-hidden"
     flat>
     <space-members-toolbar
       :keyword="keyword"

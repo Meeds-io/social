@@ -1,5 +1,6 @@
 <template>
   <v-card
+    class="overflow-hidden"
     flat>
     <exo-confirm-dialog
       ref="deleteApplicationDialog"
@@ -9,7 +10,7 @@
       :cancel-label="$t('SpaceSettings.label.no')"
       @ok="removeConfirm()" />
     <v-toolbar
-      class="border-box-sizing card-border-radius"
+      class="border-box-sizing"
       flat>
       <v-btn
         class="mx-1"
