@@ -37,7 +37,6 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.model.Application;
 import org.exoplatform.portal.config.model.ApplicationState;
 import org.exoplatform.portal.config.model.ApplicationType;
-import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
@@ -76,7 +75,7 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
   @Override
   protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
     String name = getOrCreateSettingName(request.getPreferences());
-    request.setAttribute("canEdit", canEdit());
+    request.setAttribute("canEdit", canEdit(name));
     request.setAttribute("settingName", name);
     super.doView(request, response);
   }
@@ -113,16 +112,8 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     return getCmsService().isSettingNameExists(contentType, name);
   }
 
-  protected final boolean canEdit() {
-    return getCmsService().hasEditPermission(getCurrentAclIdentity(), getPageReference(), getSpaceId());
-  }
-
-  protected final SiteKey getSiteKey() {
-    return Util.getUIPortal().getSiteKey();
-  }
-
-  protected final String getEditPermission() {
-    return Util.getUIPage().getEditPermission();
+  protected boolean canEdit(String name) {
+    return getCmsService().hasEditPermission(getCurrentAclIdentity(), contentType, name);
   }
 
   protected final String getPageReference() {
@@ -134,7 +125,7 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     return spaceId == null ? 0l : Long.parseLong(spaceId);
   }
 
-  private String getOrCreateSettingName(PortletPreferences preferences) {
+  protected String getOrCreateSettingName(PortletPreferences preferences) {
     String name = preferences.getValue(NAME, null);
     if (!isInitialized(name)) {
       if (name == null) {
@@ -149,7 +140,7 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     return name;
   }
 
-  private final boolean isInitialized(String name) {
+  protected final boolean isInitialized(String name) {
     if (StringUtils.isBlank(name)) {
       return false;
     } else {
@@ -157,7 +148,7 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     }
   }
 
-  private void savePreference(String name, String value) {
+  protected void savePreference(String name, String value) {
     String storageId = UIPortlet.getCurrentUIPortlet().getStorageId();
     LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
     Application<Portlet> applicationModel = layoutService.getApplicationModel(storageId);
@@ -167,7 +158,12 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     layoutService.save(state, prefs);
   }
 
-  private String generateRandomId() {
+  protected Identity getCurrentAclIdentity() {
+    ConversationState conversationState = ConversationState.getCurrent();
+    return conversationState == null ? null : conversationState.getIdentity();
+  }
+
+  protected String generateRandomId() {
     String name;
     do {
       name = PREFIX_UNTITLED_NAME + String.valueOf(RANDOM.nextLong());
@@ -175,12 +171,7 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     return name;
   }
 
-  private Identity getCurrentAclIdentity() {
-    ConversationState conversationState = ConversationState.getCurrent();
-    return conversationState == null ? null : conversationState.getIdentity();
-  }
-
-  public CMSService getCmsService() {
+  protected CMSService getCmsService() {
     if (cmsService == null) {
       cmsService = ExoContainerContext.getService(CMSService.class);
     }

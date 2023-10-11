@@ -36,6 +36,11 @@ public class LinkPortlet extends CMSPortlet {
     return getLinkService().hasLinkSetting(name);
   }
 
+  @Override
+  protected boolean canEdit(String name) {
+    return getLinkService().hasEditPermission(name, getCurrentAclIdentity());
+  }
+
   private static LinkService getLinkService() {
     if (linkService == null) {
       linkService = ExoContainerContext.getService(LinkService.class);
