@@ -2,10 +2,8 @@
   <v-app class="hiddenable-widget">
     <widget-wrapper 
       v-if="display"
+      :title="$t('header.label')"
       :extra-class="'onlinePortlet'">
-      <template #title>
-        {{ $t('header.label') }}
-      </template>
       <div id="onlineList" class="d-flex align-center justify-center flex-wrap">
         <exo-user-avatar
           v-for="user in users"

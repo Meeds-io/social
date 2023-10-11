@@ -2,7 +2,7 @@
   <v-app 
     class="transparent"
     flat>
-    <widget-wrapper :has-title="false">
+    <v-card flat>
       <space-members-toolbar
         :keyword="keyword"
         :filter="filter"
@@ -22,7 +22,7 @@
         :people-count="peopleCount"
         :is-manager="isManager"
         @loaded="peopleLoaded" />
-    </widget-wrapper> 
+    </v-card>
     <space-invitation-drawer
       ref="spaceInvitationDrawer"
       :is-external-feature-enabled="isExternalFeatureEnabled"

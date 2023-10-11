@@ -1,9 +1,6 @@
 <template>
   <v-app>
-    <widget-wrapper>
-      <template #title>
-        {{ $t("social.space.description.title") }}
-      </template>
+    <widget-wrapper :title="$t('social.space.description.title')">
       <p 
         id="spaceDescription"
         :class="description?.length && 'mb-4' || 'mb-0'"

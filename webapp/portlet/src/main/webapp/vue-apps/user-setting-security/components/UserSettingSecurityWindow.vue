@@ -1,6 +1,8 @@
 <template>
   <v-card flat>
-    <div class="d-flex align-center">
+    <v-toolbar
+      class="border-box-sizing"
+      flat>
       <v-btn
         class="mx-1"
         icon
@@ -11,13 +13,15 @@
           {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
         </v-icon>
       </v-btn>
-      <span class="text-header text-sub-title">
+      <v-toolbar-title class="ps-0">
         {{ $t('UserSettings.security') }}
-      </span>
-    </div>
+      </v-toolbar-title>
+      <v-spacer />
+    </v-toolbar>
+
     <v-form
       ref="form"
-      class="mt-6">
+      class="mt-6 mx-10 px-5">
       <!-- Added for accessibility -->
       <input
         id="username"

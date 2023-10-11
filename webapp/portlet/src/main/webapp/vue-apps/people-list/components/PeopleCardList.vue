@@ -5,7 +5,7 @@
       indeterminate
       height="2"
       color="primary" />
-    <v-card-text id="peopleListBody" class="pb-0 px-0">
+    <v-card-text id="peopleListBody" class="pb-0">
       <v-item-group>
         <v-container class="pa-0">
           <v-row v-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">

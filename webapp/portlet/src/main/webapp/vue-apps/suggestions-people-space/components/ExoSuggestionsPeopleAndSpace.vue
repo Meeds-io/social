@@ -2,10 +2,8 @@
   <v-app class="hiddenable-widget">
     <widget-wrapper 
       v-if="isVisible"
+      :title="$t('suggestions.label')"
       :extra-class="'suggestions-wrapper'">
-      <template #title>
-        {{ $t('suggestions.label') }}
-      </template>
       <v-list
         v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'"
         dense

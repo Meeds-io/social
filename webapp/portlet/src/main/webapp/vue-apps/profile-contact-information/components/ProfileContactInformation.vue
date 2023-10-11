@@ -2,10 +2,7 @@
   <v-app
     :class="owner && 'profileContactInformation' || 'profileContactInformationOther'"
     class="white">
-    <widget-wrapper>
-      <template #title>
-        {{ title }}
-      </template>
+    <widget-wrapper :title="title">
       <template #action>
         <v-btn
           v-if="owner"

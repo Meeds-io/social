@@ -18,31 +18,39 @@
     :class="[extraClass, expanded && 'pa-5' || 'pa-0']"
     class="white d-flex flex-column"
     flat>
-    <v-card-title 
-      v-if="hasTitle" 
-      :class="hasSubtitle && 'pb-4' || 'pb-5'"
-      class="text-header text-sub-title justify-space-between flex-nowrap px-0 pt-0 pb-0">
-      <slot name="title"></slot>
-      <div>
-        <slot name="action"></slot>
-        <a 
-          v-if="actionUrl" 
-          class="flex-shrink-0" 
-          :href="actionUrl"> <h5 class="subtitle-1 primary--text my-0"> {{ $t('overview.myContributions.seeAll') }} </h5> </a>
-      </div>
-    </v-card-title>
-    <v-card-subtitle v-if="hasSubtitle" class="text-color pa-0">
-      <slot name="subtitle"></slot>
-    </v-card-subtitle>
-
-    <v-card-text class="d-flex flex-column flex-grow-1 pa-0">
-      <slot></slot>
-    </v-card-text>
+    <div 
+      :class="$slots.subtitle && 'pb-4' || 'pb-5'" 
+      class="d-flex align-center">
+      <slot v-if="$slots.title" name="title"></slot>
+      <div v-else-if="title" class="widget-text-header text-truncate">{{ title }}</div> 
+      <v-spacer />
+      <slot v-if="$slots.action" name="action"></slot>
+      <v-btn 
+        v-else-if="actionUrl" 
+        class="flex-shrink-0" 
+        :href="actionUrl"
+        :target="externalLink && '_blank' || '_self'"> 
+        {{ $t('overview.myContributions.seeAll') }}
+      </v-btn>
+    </div>
+    <slot v-if="$slots.subtitle" name="subtitle"></slot>
+    <div v-else-if="subtitle"></div>
+    <div class="d-flex flex-column flex-grow-1 pa-0">
+      <slot v-id="$slots.default"></slot>
+    </div>
   </v-card>
 </template>
 <script>
 export default {
   props: {
+    title: {
+      type: String,
+      default: () => '',
+    },
+    subtitle: {
+      type: String,
+      default: () => '',
+    },
     actionUrl: {
       type: String,
       default: () => '',
@@ -51,17 +59,13 @@ export default {
       type: String,
       default: () => '',
     },
-    hasTitle: {
-      type: Boolean,
-      default: () => true,
-    },
-    hasSubtitle: {
-      type: Boolean,
-      default: () => false,
-    },
     expanded: {
       type: Boolean,
       default: () => true
+    },
+    externalLink: {
+      type: Boolean,
+      default: () => false
     }
   },
 };

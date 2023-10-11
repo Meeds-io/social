@@ -1,6 +1,6 @@
 <template>
   <v-app class="transparent" flat>
-    <widget-wrapper>
+    <v-card flat>
       <exo-spaces-toolbar
         :keyword="keyword"
         :filter="filter"
@@ -16,7 +16,7 @@
         :spaces-size="spacesSize"
         @loading-spaces="loadingSpaces = $event"
         @loaded="spacesLoaded" />
-    </widget-wrapper> 
+    </v-card>
     <exo-space-managers-drawer />
     <exo-space-form-drawer />
   </v-app>    

@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <widget-wrapper :has-title="false">
-      <div class="d-flex flex-row justify-center ">
+    <v-card class="pa-4 text-center" flat>
+      <v-card class="border-box-sizing d-flex flex-row justify-center ma-0" flat>
         <people-overview-card
           id="peopleInvitationsOverview"
           :title="$t('peopleOverview.label.invitations')"
@@ -15,8 +15,8 @@
           :count="pending"
           :class="pending === '-' && 'text-sub-title'"
           @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
-      </div>
-    </widget-wrapper>
+      </v-card>
+    </v-card>
     <people-overview-drawer ref="peopleDrawer" @refresh="refresh()" />
   </v-app>    
 </template>

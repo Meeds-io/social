@@ -1,27 +1,38 @@
 <template>
-  <v-app v-if="displayed">
-    <widget-wrapper extra-class="mb-2 pa-0">
-      <template v-if="!displayDetails" #title>
-        {{ $t('UserSettings.security') }}
-      </template>
-      <template v-if="!displayDetails" #action>
-        <span
-          :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
-          <v-btn
-            :disabled="!allowedToChangePassword"
-            small
-            icon
-            @click="openSecurityDetail">
-            <v-icon size="24" class="text-sub-title">
-              {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
-            </v-icon>
-          </v-btn>
-        </span>
-      </template>
+  <v-app>
+    <template v-if="displayed">
       <user-setting-security-window
         v-if="displayDetails"
         @back="closeSecurityDetail" />
-    </widget-wrapper> 
+      <v-card
+        v-else
+        class="my-3 border-radius"
+        flat>
+        <v-list>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title class="title text-color">
+                {{ $t('UserSettings.security') }}
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <span
+                :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
+                <v-btn
+                  :disabled="!allowedToChangePassword"
+                  small
+                  icon
+                  @click="openSecurityDetail">
+                  <v-icon size="24" class="text-sub-title">
+                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                  </v-icon>
+                </v-btn>
+              </span>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </template>
   </v-app>
 </template>
 

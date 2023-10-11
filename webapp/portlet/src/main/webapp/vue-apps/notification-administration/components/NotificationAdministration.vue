@@ -1,18 +1,18 @@
 <template>
   <v-app>
-    <widget-wrapper v-if="notificationSettings">
-      <template #title>
-        {{ $t('NotificationAdmin.title') }}
-      </template>
-      <template>
+    <v-main v-if="notificationSettings">
+      <v-card class="pa-5" flat>
+        <h4 class="font-weight-bold my-0">
+          {{ $t('NotificationAdmin.title') }}
+        </h4>
         <notification-administration-contact
           :settings="notificationSettings" />
         <notification-administration-channels
           :settings="notificationSettings" />
         <notification-administration-plugins
           :settings="notificationSettings" />
-      </template>
-    </widget-wrapper>
+      </v-card>
+    </v-main>
   </v-app>
 </template>
 

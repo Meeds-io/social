@@ -3,10 +3,7 @@
     v-if="displayApp"
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'"
     class="white">
-    <widget-wrapper>
-      <template #title>
-        {{ title }}
-      </template>
+    <widget-wrapper :title="title">
       <template #action>
         <v-btn
           v-if="owner"

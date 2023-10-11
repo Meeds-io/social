@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar id="spacesListToolbar" class="px-0" flat>
+  <v-toolbar id="spacesListToolbar" flat>
     <v-toolbar-title 
       v-if="canCreateSpace" 
       class="flex-shrink-0">

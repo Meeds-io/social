@@ -1,9 +1,8 @@
 <template>
   <v-app 
     class="transparent peopleList"
-    :has-title="false"
     flat>
-    <widget-wrapper>
+    <v-card flat>
       <people-toolbar
         :filter="filter"
         :people-count="peopleCount"
@@ -16,7 +15,7 @@
         :loading-people="loadingPeople"
         :people-count="peopleCount"
         @loaded="peopleLoaded" />
-    </widget-wrapper>
+    </v-card>
     <people-advanced-filter-drawer />
   </v-app>    
 </template>

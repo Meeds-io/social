@@ -1,7 +1,9 @@
 <template>
   <div v-if="displayed">
-    <v-card class="border-radius" flat>
-      <v-list two-line>
+    <v-card flat>
+      <v-list
+        two-line
+        class="border-radius">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
@@ -13,7 +15,7 @@
               small
               icon
               @click="openDrawer">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+              <i class="uiIconEdit uiIconLightBlue pb-2"></i>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -25,6 +27,7 @@
     </v-card>
   </div>
 </template>
+
 <script>
 export default {
   props: {
