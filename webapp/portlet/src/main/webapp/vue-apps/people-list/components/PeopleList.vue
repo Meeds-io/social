@@ -1,21 +1,19 @@
 <template>
   <v-app 
-    class="transparent peopleList"
+    class="transparent peopleList card-border-radius"
     flat>
-    <div class="card-border-radius">
-      <people-toolbar
-        :filter="filter"
-        :people-count="peopleCount"
-        @keyword-changed="keyword = $event"
-        @filter-changed="filter = $event" />
-      <people-card-list
-        ref="peopleList"
-        :keyword="keyword"
-        :filter="filter"
-        :loading-people="loadingPeople"
-        :people-count="peopleCount"
-        @loaded="peopleLoaded" />
-    </div>
+    <people-toolbar
+      :filter="filter"
+      :people-count="peopleCount"
+      @keyword-changed="keyword = $event"
+      @filter-changed="filter = $event" />
+    <people-card-list
+      ref="peopleList"
+      :keyword="keyword"
+      :filter="filter"
+      :loading-people="loadingPeople"
+      :people-count="peopleCount"
+      @loaded="peopleLoaded" />
     <people-advanced-filter-drawer />
   </v-app>    
 </template>
