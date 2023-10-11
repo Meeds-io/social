@@ -8,7 +8,6 @@
       @refresh="refresh" />
     <v-card
       v-else
-      class="border-radius"
       flat>
       <v-list>
         <v-list-item>
