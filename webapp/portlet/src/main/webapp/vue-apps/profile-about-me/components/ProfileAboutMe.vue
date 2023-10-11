@@ -3,39 +3,29 @@
     v-if="displayApp"
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'"
     class="white">
-    <v-toolbar
-      color="white"
-      flat
-      class="border-box-sizing">
-      <div
-        class="text-header-title text-sub-title">
-        {{ title }}
-      </div>
-      <v-spacer />
-      <v-btn
-        v-if="owner"
-        id="aboutMeEditButton"
-        icon
-        outlined
-        small
-        @click="editAboutMe">
-        <v-icon size="18">fas fa-edit</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <v-card
-      class="border-box-sizing"
-      flat>
+    <widget-wrapper :title="title">
+      <template #action>
+        <v-btn
+          v-if="owner"
+          id="aboutMeEditButton"
+          icon
+          outlined
+          small
+          @click="editAboutMe">
+          <v-icon size="18">fas fa-edit</v-icon>
+        </v-btn>
+      </template>
       <p
         v-autolinker="aboutMe"
         v-if="aboutMe || !owner"
         id="aboutMeParagraph"
-        class="paragraph text-color pt-0 pb-6 px-4"></p>
+        class="paragraph text-color"></p>
       <p
         v-else
         id="aboutMeParagraph"
-        class="paragraph text-color pt-0 pb-6 px-4"
+        class="paragraph text-color"
         v-text="$t('profileAboutMe.emptyOwner')"></p>
-    </v-card>
+    </widget-wrapper> 
     <exo-drawer
       v-if="owner"
       ref="aboutMeDrawer"

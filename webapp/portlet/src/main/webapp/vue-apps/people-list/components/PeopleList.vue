@@ -1,6 +1,6 @@
 <template>
   <v-app 
-    class="transparent peopleList"
+    class="transparent peopleList card-border-radius overflow-hidden"
     flat>
     <people-toolbar
       :filter="filter"
