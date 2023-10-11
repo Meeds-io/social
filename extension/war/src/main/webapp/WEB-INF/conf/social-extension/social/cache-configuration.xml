@@ -268,6 +268,17 @@
                         <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.TranslationCache.cacheMode:replication}</string></field>
                     </object>
                 </object-param>
+                <object-param>
+                    <name>social.cmsSetting</name>
+                    <description>The Cache configuration for the CMSStorage</description>
+                    <object type="org.exoplatform.services.cache.impl.infinispan.generic.GenericExoCacheConfig">
+                        <field name="name"><string>social.cmsSetting</string></field>
+                        <field name="strategy" profiles="cluster"><string>${exo.cache.social.cmsSettingCache.strategy:LIRS}</string></field>
+                        <field name="maxSize"><int>${exo.cache.social.cmsSettingCache.MaxNodes:5000}</int></field>
+                        <field name="liveTime"><long>${exo.cache.social.cmsSettingCache.TimeToLive:86400}</long></field>
+                        <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.TranslationCache.cacheMode:replication}</string></field>
+                    </object>
+                </object-param>
             </init-params>
         </component-plugin>
     </external-component-plugins>
