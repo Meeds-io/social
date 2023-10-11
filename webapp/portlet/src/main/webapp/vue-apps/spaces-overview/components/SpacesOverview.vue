@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <widget-wrapper>
+    <v-card class="pa-4 text-center" flat>
       <v-card class="border-box-sizing d-flex flex-row justify-center ma-0" flat>
         <spaces-overview-card
           :id="spacesInvitationOverview"
@@ -32,7 +32,7 @@
           :class="managing === '-' && 'text-sub-title'"
           @click="$refs.spacesDrawer.open('manager', $t('spacesOverview.label.managedSpaces'))" />
       </v-card>
-    </widget-wrapper>
+    </v-card>
     <spaces-overview-drawer ref="spacesDrawer" @refresh="refresh($event)" />
   </v-app>    
 </template>

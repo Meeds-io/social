@@ -1,9 +1,9 @@
 <template>
   <v-app :class="hasNavigations && 'hasNavigations' | ''">
-    <widget-wrapper 
-      :expanded="false"
-      :has-title="false"
-      extra-class="mb-5">
+    <v-card
+      color="transparent"
+      class="mb-6"
+      flat>
       <v-hover>
         <v-img
           slot-scope="{ hover }"
@@ -75,7 +75,7 @@
           {{ nav.label }}
         </v-tab>
       </v-tabs>
-    </widget-wrapper>
+    </v-card>
   </v-app>
 </template>
 
