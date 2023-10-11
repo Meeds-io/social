@@ -16,7 +16,7 @@
 <template>
   <v-card
     :class="extraClass"
-    class="white d-flex flex-column"
+    class="white d-flex flex-column pa-5"
     flat>
     <div 
       :class="$slots.subtitle && 'pb-4' || 'pb-5'" 
@@ -33,9 +33,11 @@
         {{ $t('overview.myContributions.seeAll') }}
       </v-btn>
     </div>
-    <slot v-if="$slots.subtitle" name="subtitle"></slot>
-    <div v-else-if="subtitle"></div>
-    <div class="d-flex flex-column flex-grow-1 pa-0">
+    <div v-if="$slots.subtitle" class="pb-4">
+      <slot name="subtitle"></slot>
+    </div>
+    <div v-else-if="subtitle" class="pb-4">{{ subtitle }}</div>
+    <div class="d-flex flex-column flex-grow-1">
       <slot v-id="$slots.default"></slot>
     </div>
   </v-card>
