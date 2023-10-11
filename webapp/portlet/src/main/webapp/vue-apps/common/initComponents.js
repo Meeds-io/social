@@ -25,6 +25,7 @@ import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
 import AttachmentsDraggableZone from './components/AttachmentsDraggableZone.vue';
+import WidgetWrapper from './components/Widget.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -60,6 +61,7 @@ const components = {
   'alert-notifications': Notifications,
   'ripple-hover-button': RippleHoverButton,
   'attachments-draggable-zone': AttachmentsDraggableZone,
+  'widget-wrapper': WidgetWrapper,
 };
 
 for (const key in components) {
