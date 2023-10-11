@@ -15,7 +15,7 @@
 -->
 <template>
   <v-card
-    :class="[extraClass, expanded && 'pa-5' || 'pa-0']"
+    :class="extraClass"
     class="white d-flex flex-column"
     flat>
     <div 
@@ -58,10 +58,6 @@ export default {
     extraClass: {
       type: String,
       default: () => '',
-    },
-    expanded: {
-      type: Boolean,
-      default: () => true
     },
     externalLink: {
       type: Boolean,
