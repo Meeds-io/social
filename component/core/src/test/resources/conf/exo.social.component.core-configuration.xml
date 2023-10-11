@@ -138,6 +138,16 @@
   </component>
 
   <component>
+    <key>io.meeds.social.cms.storage.CMSStorage</key>
+    <type>io.meeds.social.cms.storage.cache.CachedCMSStorage</type>
+  </component>
+
+  <component>
+    <key>io.meeds.social.cms.service.CMSService</key>
+    <type>io.meeds.social.cms.service.CMSServiceImpl</type>
+  </component>
+
+  <component>
     <key>io.meeds.social.translation.service.TranslationService</key>
     <type>io.meeds.social.translation.service.TranslationServiceImpl</type>
   </component>

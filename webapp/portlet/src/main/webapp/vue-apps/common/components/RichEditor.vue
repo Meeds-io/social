@@ -133,6 +133,10 @@ export default {
       type: Boolean,
       default: false
     },
+    toolbarPosition: {
+      type: String,
+      default: () => 'bottom',
+    },
   },
   data: () => ({
     SMARTPHONE_LANDSCAPE_WIDTH: 768,
@@ -322,6 +326,7 @@ export default {
         autoGrow_maxHeight: 300,
         startupFocus: this.autofocus && 'end',
         pasteFilter: 'p; a[!href]; strong; i', 
+        toolbarLocation: this.toolbarPosition,
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorInstanceId];

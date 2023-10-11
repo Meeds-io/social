@@ -26,18 +26,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
-import javax.portlet.ReadOnlyException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.portlet.ValidatorException;
 
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.config.model.Application;
+import org.exoplatform.portal.config.model.ApplicationState;
+import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.pom.spi.portlet.Portlet;
+import org.exoplatform.portal.webui.application.UIPortlet;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -49,13 +53,15 @@ import io.meeds.social.cms.service.CMSService;
 
 public class CMSPortlet extends GenericDispatchedViewPortlet {
 
-  protected static final Random             RANDOM      = new Random();
+  protected static final Random             RANDOM               = new Random();
 
-  protected static final String             NAME        = "name";
+  protected static final String             NAME                 = "name";
 
-  private static final Map<String, Boolean> INITIALIZED = new ConcurrentHashMap<>();
+  private static final String               PREFIX_UNTITLED_NAME = "Untitled";
 
-  private static final Log                  LOG         = ExoLogger.getLogger(CMSPortlet.class);
+  private static final Map<String, Boolean> INITIALIZED          = new ConcurrentHashMap<>();
+
+  private static final Log                  LOG                  = ExoLogger.getLogger(CMSPortlet.class);
 
   private CMSService                        cmsService;
 
@@ -128,15 +134,14 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     return spaceId == null ? 0l : Long.parseLong(spaceId);
   }
 
-  private String getOrCreateSettingName(PortletPreferences preferences) throws ReadOnlyException,
-                                                                        ValidatorException,
-                                                                        IOException {
+  private String getOrCreateSettingName(PortletPreferences preferences) {
     String name = preferences.getValue(NAME, null);
     if (!isInitialized(name)) {
       if (name == null) {
         name = generateRandomId();
-        preferences.setValue(NAME, name);
-        preferences.store();
+        // In view mode, can't use preferences.store()
+        // Thus use storageId
+        savePreference(NAME, name);
       }
       saveSettingName(name, getPageReference(), getSpaceId());
       INITIALIZED.remove(name);
@@ -152,11 +157,21 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     }
   }
 
+  private void savePreference(String name, String value) {
+    String storageId = UIPortlet.getCurrentUIPortlet().getStorageId();
+    LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
+    Application<Portlet> applicationModel = layoutService.getApplicationModel(storageId);
+    ApplicationState<Portlet> state = applicationModel.getState();
+    Portlet prefs = layoutService.load(state, ApplicationType.PORTLET);
+    prefs.setValue(name, value);
+    layoutService.save(state, prefs);
+  }
+
   private String generateRandomId() {
     String name;
     do {
-      name = String.valueOf(RANDOM.nextLong());
-    } while (!isSettingNameExists(name));
+      name = PREFIX_UNTITLED_NAME + String.valueOf(RANDOM.nextLong());
+    } while (isSettingNameExists(name));
     return name;
   }
 

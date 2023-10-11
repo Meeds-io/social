@@ -33,18 +33,8 @@
   </component>
 
   <component>
-    <key>io.meeds.social.cms.storage.CMSStorage</key>
-    <type>io.meeds.social.cms.storage.cache.CachedCMSStorage</type>
-  </component>
-
-  <component>
     <key>io.meeds.social.link.service.LinkService</key>
     <type>io.meeds.social.link.service.LinkServiceImpl</type>
-  </component>
-
-  <component>
-    <key>io.meeds.social.cms.service.CMSService</key>
-    <type>io.meeds.social.cms.service.CMSServiceImpl</type>
   </component>
 
   <component>
