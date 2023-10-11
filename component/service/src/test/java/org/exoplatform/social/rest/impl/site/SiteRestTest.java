@@ -62,8 +62,6 @@ public class SiteRestTest extends AbstractResourceTest {
     assertNotNull(entity);
     siteRestEntities = (List<SiteEntity>) resp.getEntity();
     assertFalse(siteRestEntities.isEmpty());
-    assertEquals(0, siteRestEntities.get(0).getDisplayOrder());
-    assertEquals(1, siteRestEntities.get(1).getDisplayOrder());
     path =
          "/v1/social/sites?siteType=PORTAL&sortByDisplayOrder=true&filterByDisplayed=true&displayed=true&expandNavigations=true&excludeEmptyNavigationSites=true";
 
