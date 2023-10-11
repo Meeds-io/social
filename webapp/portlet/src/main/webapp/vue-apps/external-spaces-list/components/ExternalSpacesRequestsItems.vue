@@ -7,7 +7,7 @@
     mx-0>
     <v-flex
       xs12>
-      <v-list>
+      <v-list v-if="spacesRequests?.length">
         <template v-for="item in spacesRequests">
           <v-list-item
             :key="item.id"

@@ -1,23 +1,21 @@
 <template>
   <v-app class="hiddenable-widget">
-    <div v-if="display" class="onlinePortlet">
-      <div id="onlineContent" class="white">
-        <v-card-title class="title center">
-          {{ $t('header.label') }}
-        </v-card-title>
-        <div id="onlineList" class="d-flex align-center justify-center flex-wrap  py-3">
-          <exo-user-avatar
-            v-for="user in users"
-            :key="user.id"
-            :identity="user"
-            :size="34"
-            :popover-left-position="true"
-            popover
-            avatar 
-            extra-class="mx-1 mb-1" />
-        </div>
+    <widget-wrapper 
+      v-if="display"
+      :title="$t('header.label')"
+      :extra-class="'onlinePortlet'">
+      <div id="onlineList" class="d-flex align-center justify-center flex-wrap">
+        <exo-user-avatar
+          v-for="user in users"
+          :key="user.id"
+          :identity="user"
+          :size="34"
+          :popover-left-position="true"
+          popover
+          avatar 
+          extra-class="mx-1 mb-1" />
       </div>
-    </div>
+    </widget-wrapper>
   </v-app>
 </template>
 
