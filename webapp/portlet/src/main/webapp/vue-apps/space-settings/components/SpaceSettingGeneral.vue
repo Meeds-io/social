@@ -13,7 +13,7 @@
               small
               icon
               @click="openDrawer">
-              <i class="uiIconEdit uiIconLightBlue pb-2"></i>
+              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
