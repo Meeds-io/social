@@ -7,10 +7,10 @@
         class="text-color"> 
         {{ description }} 
       </p>
-      <div id="spaceManagersList" class="px-1">
-        <div class="d-flex align-center">
-          <v-icon size="16" class="me-2">fa-user-cog</v-icon>
-          <span class="me-2">{{ $t("social.space.description.managers") }}</span>
+      <div id="spaceManagersList">
+        <div class="d-flex align-center mb-4">
+          <v-icon size="16" class="me-2 icon-default-color">fa-user-cog</v-icon>
+          <span class="me-2 subtitle-1 text-color">{{ $t("social.space.description.managers") }}</span>
           <v-divider />
         </div>
         <div id="spaceManagers">
@@ -29,11 +29,10 @@
       </div>
       <div
         v-if="redactors?.length"
-        id="spaceRedactorsList"
-        class="px-1 pt-2">
-        <div class="d-flex align-center">
-          <v-icon size="16" class="me-2">fa-user-edit</v-icon>
-          <span class="me-2">{{ $t("social.space.description.redactors") }}</span>
+        id="spaceRedactorsList">
+        <div class="d-flex align-center mb-4 mt-5">
+          <v-icon size="16" class="me-2 icon-default-color">fa-user-edit</v-icon>
+          <span class="me-2 subtitle-1 text-color">{{ $t("social.space.description.redactors") }}</span>
           <v-divider />
         </div>
         <div id="spaceRedactors">
