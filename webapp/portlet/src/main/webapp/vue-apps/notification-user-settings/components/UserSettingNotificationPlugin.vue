@@ -9,8 +9,11 @@
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action class="ma-auto">
-        <v-btn icon @click="$emit('edit')">
-          <i class="uiIconEdit uiIconLightBlue pb-2"></i>
+        <v-btn
+          small
+          icon
+          @click="$emit('edit')">
+          <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
         </v-btn>
       </v-list-item-action>
     </v-list-item>
