@@ -59,7 +59,7 @@
         <node>
           <name>groups</name>
           <label>#{portal.administration.groups}</label>
-          <icon>fas fa-simply-build</icon>
+          <icon>fab fa-simplybuilt</icon>
           <page-reference>portal::administration::groupsManagement</page-reference>
         </node>
         <node>
