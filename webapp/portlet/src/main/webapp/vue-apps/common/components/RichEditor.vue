@@ -60,7 +60,7 @@ export default {
       type: String,
       default: 'mention_activity_stream'
     },
-    suggesterSpaceURL: {
+    suggesterSpaceUrl: {
       type: String,
       default: eXo.env.portal.spaceUrl
     },
@@ -198,8 +198,8 @@ export default {
         this.$emit('validity-updated', this.validLength);
       },
     },
-    suggesterSpaceURL() {
-      this.initCKEditor(!!this.suggesterSpaceURL, this.value);
+    suggesterSpaceUrl() {
+      this.initCKEditor(!!this.suggesterSpaceUrl, this.value);
     },
     displayAttachmentEditor(newVal, oldVal) {
       if (newVal && !oldVal) {
@@ -311,7 +311,7 @@ export default {
         allowedContent: true,
         enterMode: 3, // div
         typeOfRelation: this.suggestorTypeOfRelation,
-        spaceURL: this.suggesterSpaceURL,
+        spaceURL: this.suggesterSpaceUrl,
         activityId: this.activityId,
         autoGrow_onStartup: false,
         autoGrow_maxHeight: 300,
