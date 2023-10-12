@@ -7,6 +7,7 @@
       @back="closeDetail"
       @refresh="refresh" />
     <v-card
+      class="card-border-radius"
       v-else
       flat>
       <v-list>

@@ -6,7 +6,7 @@
         @back="closeSecurityDetail" />
       <v-card
         v-else
-        class="my-3 border-radius"
+        class="my-3 card-border-radius"
         flat>
         <v-list>
           <v-list-item>
