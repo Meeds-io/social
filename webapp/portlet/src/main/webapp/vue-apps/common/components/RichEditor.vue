@@ -1,6 +1,8 @@
 <template>
   <div class="overflow-hidden">
-    <div class="richEditor">
+    <div
+      class="richEditor"
+      :class="largeToolbar && 'large-toolbar'">
       <textarea
         ref="editor"
         :id="ckEditorInstanceId"
@@ -136,6 +138,14 @@ export default {
     toolbarPosition: {
       type: String,
       default: () => 'bottom',
+    },
+    disableAutoGrow: {
+      type: Boolean,
+      default: false,
+    },
+    largeToolbar: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -311,7 +321,7 @@ export default {
       // this line is mandatory when a custom skin is defined
       CKEDITOR.basePath = '/commons-extension/ckeditor/';
       const self = this;
-      $(this.$refs.editor).ckeditor({
+      const options = {
         customConfig: this.ckEditorConfigUrl,
         extraPlugins,
         removePlugins,
@@ -322,11 +332,15 @@ export default {
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
         activityId: this.activityId,
-        autoGrow_onStartup: false,
-        autoGrow_maxHeight: 300,
         startupFocus: this.autofocus && 'end',
         pasteFilter: 'p; a[!href]; strong; i', 
         toolbarLocation: this.toolbarPosition,
+      };
+      if (!this.disableAutoGrow) {
+        options.autoGrow_onStartup = false;
+        options.autoGrow_maxHeight = 300;
+      }
+      $(this.$refs.editor).ckeditor({...options,
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorInstanceId];
