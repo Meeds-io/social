@@ -25,7 +25,7 @@
   <page>
     <name>public</name>
     <title>Public Page</title>
-    <access-permissions>manager:/platform/administrators</access-permissions>
+    <access-permissions>Everyone</access-permissions>
     <edit-permission>manager:/platform/administrators</edit-permission>
     <container
       template="system:/groovy/portal/webui/container/UIContainer.gtmpl"
