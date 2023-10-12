@@ -32,7 +32,7 @@
         <div class="flex hiddenable-widget d-flex xs12 sm12">
           <div class="layout row wrap mx-0">
             <div class="flex d-flex xs12">
-              <div class="flex v-card v-card--flat v-sheet pa-5 theme--light">
+              <div class="flex v-card v-card--flat v-sheet card-border-radius pa-5 theme--light">
                 <div
                   class="pb-5">
                   <span class="widget-text-header">
