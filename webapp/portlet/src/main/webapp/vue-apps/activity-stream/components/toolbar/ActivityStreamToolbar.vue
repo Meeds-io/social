@@ -99,7 +99,7 @@
             </v-tooltip>
           </div>
         </div>
-        <div v-if="spaceId" class="hidden-xs-only">
+        <div v-if="spaceId && userCanPost" class="hidden-xs-only">
           <v-divider />
           <extension-registry-components
             :params="extensionParams"
