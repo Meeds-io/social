@@ -97,9 +97,6 @@ export default {
     attachments: null,
     comment: null
   }),
-  created() {
-    document.addEventListener('activity-composer-edited', (event) => this.files = event.detail);
-  },
   computed: {
     avatarUrl() {
       return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.avatar;
@@ -146,13 +143,20 @@ export default {
       return this.templateParams?.metadataObjectType || 'activity';
     },
   },
+  created() {
+    document.addEventListener('activity-composer-edited', this.activityComposerEdit);
+  },
   mounted() {
     this.init();
   },
   beforeDestroy() {
+    document.removeEventListener('activity-composer-edited', this.activityComposerEdit);
     this.reset();
   },
   methods: {
+    activityComposerEdit(event) {
+      this.files = event?.detail;
+    },
     attachmentsEdit(attachments) {
       this.attachments = attachments;
       this.activityCommentAttachmentsEdited = true;
@@ -195,7 +199,7 @@ export default {
       }
 
       if (this.$refs.commentEditor) {
-        this.$refs.commentEditor.initCKEditor();
+        this.$refs.commentEditor.initCKEditor(false, this.message);
         this.initialized = true;
         this.scrollToCommentEditor();
       }
