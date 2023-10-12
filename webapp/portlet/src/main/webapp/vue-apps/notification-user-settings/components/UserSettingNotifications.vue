@@ -6,7 +6,7 @@
       @back="closeDetail" />
     <v-card
       v-else
-      class="my-3"
+      class="my-3 card-border-radius"
       flat>
       <v-list @click="openNotificationSettingDetail">
         <v-list-item>
