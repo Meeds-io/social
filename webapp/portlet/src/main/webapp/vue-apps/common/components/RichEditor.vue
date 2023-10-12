@@ -79,6 +79,10 @@ export default {
       type: Boolean,
       default: false
     },
+    focusPosition: {
+      type: String,
+      default: () => 'end',
+    },
     useExtraPlugins: {
       type: Boolean,
       default: false
@@ -332,7 +336,7 @@ export default {
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
         activityId: this.activityId,
-        startupFocus: this.autofocus && 'end',
+        startupFocus: this.autofocus && this.focusPosition,
         pasteFilter: 'p; a[!href]; strong; i', 
         toolbarLocation: this.toolbarPosition,
       };
