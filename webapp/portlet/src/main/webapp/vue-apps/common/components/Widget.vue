@@ -16,7 +16,7 @@
 <template>
   <v-card
     :class="extraClass"
-    class="white d-flex flex-column pa-5"
+    class="white d-flex flex-column pa-5 card-border-radius"
     flat>
     <div 
       v-if="hasHeader"

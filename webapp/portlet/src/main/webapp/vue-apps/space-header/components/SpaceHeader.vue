@@ -2,7 +2,7 @@
   <v-app :class="hasNavigations && 'hasNavigations' | ''">
     <v-card
       color="transparent"
-      class="mb-6 overflow-hidden"
+      class="mb-6 card-border-radius overflow-hidden"
       flat>
       <v-hover>
         <v-img
