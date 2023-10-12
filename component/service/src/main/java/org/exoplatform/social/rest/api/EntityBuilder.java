@@ -709,17 +709,17 @@ public class EntityBuilder {
           }
         }
         
+        if (expandFields.contains(RestProperties.MUTED)) {
+          UserSettingService userSettingService = ExoContainerContext.getService(UserSettingService.class);
+          UserSetting userSetting = userSettingService.get(userId);
+          spaceEntity.setIsMuted(String.valueOf(userSetting.isSpaceMuted(Long.parseLong(space.getId()))));
+        }
+        
         if (expandFields.contains(RestProperties.NAVIGATIONS_PERMISSION)) {
           UserPortalConfigService service =
                   ExoContainerContext.getService(UserPortalConfigService.class);
           PortalConfig sitePortalConfig = service.getDataStorage().getPortalConfig(new SiteKey(SiteType.GROUP, space.getGroupId()));
           spaceEntity.setCanEditNavigations(service.getUserACL().hasPermission(sitePortalConfig));
-	}
-
-        if (expandFields.contains(RestProperties.MUTED)) {
-          UserSettingService userSettingService = ExoContainerContext.getService(UserSettingService.class);
-          UserSetting userSetting = userSettingService.get(userId);
-          spaceEntity.setIsMuted(String.valueOf(userSetting.isSpaceMuted(Long.parseLong(space.getId()))));
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
