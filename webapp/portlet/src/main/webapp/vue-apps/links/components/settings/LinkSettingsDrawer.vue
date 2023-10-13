@@ -50,7 +50,8 @@
           }"
           class="flex-shrink-0">
           <v-stepper-step
-            step="1"
+            :step="1"
+            :editable="!expanded"
             width="100%"
             class="ma-0 pa-0 position-relative">
             <div class="d-flex">
@@ -113,7 +114,8 @@
           }"
           class="flex-grow-0 flex-shrink-0">
           <v-stepper-step
-            step="2"
+            :step="2"
+            :editable="!expanded && !disabledSecondStep"
             class="ma-0 pa-0 position-relative">
             <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate font-weight-bold dark-grey-color text-subtitle-1">
               {{ $t('links.label.configureDisplay') }}
@@ -256,7 +258,7 @@
         </v-btn>
         <v-btn
           v-if="!expanded && stepper === 1"
-          :disabled="!hasLinks && !hadLinks"
+          :disabled="disabledSecondStep"
           :loading="saving"
           class="btn primary"
           @click="stepper++">
@@ -309,6 +311,9 @@ export default {
     },
     hadLinks() {
       return this.originalSettings?.links?.length;
+    },
+    disabledSecondStep() {
+      return !this.hasLinks && !this.hadLinks;
     },
     modified() {
       return this.originalSettings && JSON.stringify(this.originalSettings) !== JSON.stringify(this.settings && {...this.settings, links: this.links} || {});
