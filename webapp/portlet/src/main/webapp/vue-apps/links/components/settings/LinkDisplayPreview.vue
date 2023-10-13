@@ -20,9 +20,6 @@
 -->
 <template>
   <v-card
-    :style="{
-      zoom: isColumn && '40%' || '100%'
-    }"
     class="d-flex align-center justify-center grey-background"
     flat>
     <v-card
