@@ -138,7 +138,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
 
     LinkSetting nameNotFoundLinkSetting = linkSetting.clone();
     nameNotFoundLinkSetting.setName("NotFound");
-    assertThrows(IllegalAccessException.class,
+    assertThrows(ObjectNotFoundException.class,
                  () -> linkService.saveLinkSetting(nameNotFoundLinkSetting, null, registerAdministratorUser(USERNAME)));
 
     Thread.sleep(2); // NOSONAR wait for 10 milliseconds to have a different
@@ -160,7 +160,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     updatedLinkSetting = linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
     assertNotNull(updatedLinkSetting);
 
-    updatedLinkSetting = linkService.getLinkSetting(updatedLinkSetting.getName(), null, true);
+    updatedLinkSetting = linkService.getLinkSetting(updatedLinkSetting.getName(), "en", true);
     assertNotEquals(linkSetting.getLastModified(), updatedLinkSetting.getLastModified());
     linkSetting.setLastModified(updatedLinkSetting.getLastModified());
     assertEquals(linkSetting, updatedLinkSetting);
@@ -171,7 +171,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     updatedLinkSetting = linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
     assertNotNull(updatedLinkSetting);
 
-    updatedLinkSetting = linkService.getLinkSetting(updatedLinkSetting.getName(), null, true);
+    updatedLinkSetting = linkService.getLinkSetting(updatedLinkSetting.getName(), "en", true);
     assertNotEquals(linkSetting.getLastModified(), updatedLinkSetting.getLastModified());
     linkSetting.setLastModified(updatedLinkSetting.getLastModified());
     assertEquals(linkSetting, updatedLinkSetting);

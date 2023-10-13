@@ -16,37 +16,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.portlet;
+package io.meeds.social.cms.model;
 
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.services.security.Identity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import io.meeds.social.link.service.LinkService;
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class CMSSetting implements Cloneable {
 
-public class LinkPortlet extends CMSPortlet {
+  private String type;
 
-  private static LinkService linkService;
+  private String name;
 
-  @Override
-  protected void saveSettingName(String name, String pageReference, long spaceId) {
-    getLinkService().initLinkSetting(name, pageReference, spaceId);
-  }
+  private String pageReference;
 
-  @Override
-  protected boolean isSettingNameExists(String name) {
-    return getLinkService().hasLinkSetting(name);
-  }
+  private long   spaceId;
 
   @Override
-  protected boolean canEdit(String name, Identity userAclIdentity) {
-    return getLinkService().hasEditPermission(name, userAclIdentity);
+  public CMSSetting clone() { // NOSONAR
+    return new CMSSetting(type, name, pageReference, spaceId);
   }
-
-  private static LinkService getLinkService() {
-    if (linkService == null) {
-      linkService = ExoContainerContext.getService(LinkService.class);
-    }
-    return linkService;
-  }
-
 }

@@ -387,11 +387,11 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>social-component-webui</artifactId>
+      <artifactId>social-component-web</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>social-component-webui</artifactId>
+      <artifactId>social-component-web</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

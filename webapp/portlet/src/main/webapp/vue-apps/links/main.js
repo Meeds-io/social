@@ -32,7 +32,7 @@ if (extensionRegistry) {
 const lang = eXo.env.portal.language;
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Links-${lang}.json`;
 
-export function init(appId, name, canEdit, nameExists, saveSettingsUrl) {
+export function init(appId, name, canEdit) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       Vue.createApp({
@@ -43,7 +43,6 @@ export function init(appId, name, canEdit, nameExists, saveSettingsUrl) {
           language: lang,
           defaultLanguage: 'en',
           initialized: false,
-          iconMaxWidthRatio: 1.3,
         },
         computed: {
           links() {
@@ -58,22 +57,7 @@ export function init(appId, name, canEdit, nameExists, saveSettingsUrl) {
         },
         methods: {
           init() {
-            if (!nameExists && canEdit) {
-              return this.saveSettingName();
-            } else {
-              return this.retrieveSettings()
-                .then(() => {
-                  if (!this.settings) {
-                    return this.saveSettingName();
-                  }
-                });
-            }
-          },
-          saveSettingName() {
-            return Vue.prototype.$linkService.saveSettingName(saveSettingsUrl, name)
-              .then(() => this.nameExists = true)
-              .then(() => this.retrieveSettings())
-              .catch((e) => console.error('Error saving settings', e));
+            return this.retrieveSettings();
           },
           retrieveSettings() {
             return this.$linkService.getSettings(this.name, this.language)
