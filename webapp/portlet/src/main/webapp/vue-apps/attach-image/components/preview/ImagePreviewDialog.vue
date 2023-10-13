@@ -22,7 +22,7 @@
     :persistent="false"
     width="80vw"
     overlay-opacity="0.9"
-    content-class="uiPopup overflow-y-initial "
+    content-class="overflow-y-initial"
     max-width="80vw">
     <template v-if="dialog">
       <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
