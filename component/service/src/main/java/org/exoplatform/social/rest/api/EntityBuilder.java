@@ -1910,8 +1910,16 @@ public class EntityBuilder {
     Map<String, Object> sitePermission = new HashMap<>();
     try {
       if (permission != null) {
-        sitePermission.put("membershipType", permission.split(":")[0]);
-        String sitePermissionGroupId = permission.split(":")[1];
+        String[] permissionParts = permission.split(":");
+        String sitePermissionGroupId;
+        if (permissionParts.length == 1) {
+          sitePermissionGroupId = permission;
+        } else if (permissionParts.length == 2) {
+          sitePermission.put("membershipType", permissionParts[0]);
+          sitePermissionGroupId = permissionParts[1];
+        } else {
+          return sitePermission;
+        }
         if (!sitePermissionGroupId.startsWith("/")) {
           sitePermissionGroupId = "/" + sitePermissionGroupId;
         }

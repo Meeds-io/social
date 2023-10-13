@@ -33,10 +33,7 @@ import org.exoplatform.web.application.RequestContext;
 
 /**
  * Processes url and returns the some type of result base on url.
- * 
- * @deprecated the dependency for WebUI framework
  */
-@Deprecated(forRemoval = true, since = "6.5.0")
 public class URLUtils {
 
   /**

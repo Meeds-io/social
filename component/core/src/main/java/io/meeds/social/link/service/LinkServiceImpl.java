@@ -21,7 +21,6 @@ package io.meeds.social.link.service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -38,22 +37,16 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.file.services.FileStorageException;
-import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.portal.config.model.Page;
-import org.exoplatform.portal.mop.page.PageKey;
-import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityConstants;
-import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
+import io.meeds.social.cms.service.CMSService;
 import io.meeds.social.link.model.Link;
 import io.meeds.social.link.model.LinkSetting;
 import io.meeds.social.link.model.LinkWithIconAttachment;
@@ -93,39 +86,31 @@ public class LinkServiceImpl implements LinkService {
 
   private ListenerService     listenerService;
 
-  private UserACL             userACL;
-
-  private LayoutService       layoutService;
-
   private FileService         fileService;
 
   private UploadService       uploadService;
-
-  private SpaceService        spaceService;
 
   private TranslationService  translationService;
 
   private LocaleConfigService localeConfigService;
 
+  private CMSService          cmsService;
+
   private LinkStorage         linkStorage;
 
   public LinkServiceImpl(ListenerService listenerService, // NOSONAR
-                         UserACL userACL,
-                         LayoutService layoutService,
                          FileService fileService,
                          UploadService uploadService,
                          TranslationService translationService,
                          LocaleConfigService localeConfigService,
-                         SpaceService spaceService,
+                         CMSService cmsService,
                          LinkStorage linkStorage) {
     this.listenerService = listenerService;
-    this.userACL = userACL;
-    this.layoutService = layoutService;
     this.fileService = fileService;
     this.uploadService = uploadService;
     this.translationService = translationService;
     this.localeConfigService = localeConfigService;
-    this.spaceService = spaceService;
+    this.cmsService = cmsService;
     this.linkStorage = linkStorage;
   }
 
@@ -135,16 +120,12 @@ public class LinkServiceImpl implements LinkService {
     if (linkSetting == null) {
       return null;
     }
-    String pageReference = linkSetting.getPageReference();
-    if (StringUtils.isBlank(pageReference)) {
-      throw new IllegalAccessException(String.format(NO_ASSOCIATED_PAGE_TO_LINK, linkSetting.getName()));
-    }
-    if (hasAccessPermission(identity, pageReference, linkSetting.getSpaceId())) {
-      return linkSetting;
-    } else {
+    if (!hasAccessPermission(linkSettingName, identity)) {
       throw new IllegalAccessException(String.format(PAGE_NOT_ACCESSIBLE_FOR_USER,
-                                                     pageReference,
+                                                     linkSetting.getPageReference(),
                                                      identity == null ? IdentityConstants.ANONIM : identity.getUserId()));
+    } else {
+      return linkSetting;
     }
   }
 
@@ -172,6 +153,11 @@ public class LinkServiceImpl implements LinkService {
   }
 
   @Override
+  public boolean hasLinkSetting(String linkSettingName) {
+    return linkStorage.hasLinkSetting(linkSettingName);
+  }
+
+  @Override
   public LinkSetting getLinkSettingByLinkId(long linkId) {
     return linkStorage.getLinkSettingByLinkId(linkId);
   }
@@ -195,15 +181,11 @@ public class LinkServiceImpl implements LinkService {
     String linkSettingName = linkSetting.getName();
     LinkSetting existingLinkSetting = linkStorage.getLinkSetting(linkSettingName);
     if (existingLinkSetting == null) {
-      throw new IllegalAccessException("Link setting not found");
+      throw new ObjectNotFoundException("Link setting not found");
     }
-    String pageReference = existingLinkSetting.getPageReference();
-    if (StringUtils.isBlank(pageReference)) {
-      throw new IllegalAccessException(String.format(NO_ASSOCIATED_PAGE_TO_LINK, linkSetting.getName()));
-    }
-    if (!hasEditPermission(identity, pageReference, existingLinkSetting.getSpaceId())) {
+    if (!hasEditPermission(linkSettingName, identity)) {
       throw new IllegalAccessException(String.format(PAGE_NOT_EDITABLE_BY_USER,
-                                                     pageReference,
+                                                     existingLinkSetting.getPageReference(),
                                                      identity == null ? IdentityConstants.ANONIM : identity.getUserId()));
     }
 
@@ -281,7 +263,7 @@ public class LinkServiceImpl implements LinkService {
     if (linkSetting == null || StringUtils.isBlank(linkSetting.getPageReference())) {
       return false;
     }
-    return hasAccessPermission(identity, linkSetting.getPageReference(), linkSetting.getSpaceId());
+    return cmsService.hasAccessPermission(identity, linkSetting.getPageReference(), linkSetting.getSpaceId());
   }
 
   @Override
@@ -290,44 +272,7 @@ public class LinkServiceImpl implements LinkService {
     if (linkSetting == null || StringUtils.isBlank(linkSetting.getPageReference())) {
       return false;
     }
-    return hasEditPermission(identity, linkSetting.getPageReference(), linkSetting.getSpaceId());
-  }
-
-  @Override
-  public boolean hasAccessPermission(Identity identity, String pageReference, long spaceId) {
-    Page page = layoutService.getPage(pageReference);
-    if (page == null) {
-      return false;
-    }
-    String[] accessPermissions = page.getAccessPermissions();
-    return accessPermissions == null || accessPermissions.length == 0
-        || StringUtils.equals(UserACL.EVERYONE, accessPermissions[0])
-        || (identity != null && Arrays.stream(accessPermissions).anyMatch(perm -> userACL.hasPermission(identity, perm)))
-        || hasEditPermission(identity, pageReference, spaceId);
-  }
-
-  @Override
-  public boolean hasEditPermission(Identity identity, String pageReference, long spaceId) {
-    if (identity == null) {
-      return false;
-    }
-    PageKey pageKey = PageKey.parse(pageReference);
-    Page page = layoutService.getPage(pageKey);
-    if (page == null) {
-      return false;
-    }
-    String editPermission = page.getEditPermission();
-    boolean hasEditPermission = (identity.isMemberOf(userACL.getAdminGroups())
-        || identity.isMemberOf(SpaceUtils.PLATFORM_PUBLISHER_GROUP, SpaceUtils.PUBLISHER))
-        || (editPermission != null && userACL.hasPermission(identity, editPermission));
-    if (hasEditPermission || spaceId <= 0) {
-      return hasEditPermission;
-    } else {
-      String username = identity.getUserId();
-      Space space = spaceService.getSpaceById(String.valueOf(spaceId));
-      return spaceService.isSuperManager(username)
-          || (space != null && (spaceService.isPublisher(space, username) || spaceService.isManager(space, username)));
-    }
+    return cmsService.hasEditPermission(identity, linkSetting.getPageReference(), linkSetting.getSpaceId());
   }
 
   private void processNewLinks(String linkSettingName, List<Link> existingLinks, List<Link> links) {
@@ -376,7 +321,8 @@ public class LinkServiceImpl implements LinkService {
   }
 
   private void processLinkIcon(Link link, List<Link> existingLinks) {
-    long oldFileId = existingLinks.stream().filter(l -> l.getId() == link.getId()).map(Link::getIconFileId).findFirst().orElse(0l);
+    long oldFileId =
+                   existingLinks.stream().filter(l -> l.getId() == link.getId()).map(Link::getIconFileId).findFirst().orElse(0l);
     if (link instanceof LinkWithIconAttachment linkWithIconAttachment
         && StringUtils.isNotBlank(linkWithIconAttachment.getUploadId())) {
       String uploadId = linkWithIconAttachment.getUploadId();
@@ -388,7 +334,7 @@ public class LinkServiceImpl implements LinkService {
                                          FILE_API_NAMESPACE,
                                          inputStream.available(),
                                          new Date(),
-                                         userACL.getSuperUser(),
+                                         IdentityConstants.SYSTEM,
                                          false,
                                          inputStream);
         fileItem = fileService.writeFile(fileItem);
@@ -447,7 +393,8 @@ public class LinkServiceImpl implements LinkService {
         if (StringUtils.equals(defaultLanguage, language)) {
           return Collections.singletonMap(defaultLanguage, "");
         } else {
-          return Collections.singletonMap(language, getTranslations(objectType, objectId, fieldName, defaultLanguage).get(defaultLanguage));
+          return Collections.singletonMap(language,
+                                          getTranslations(objectType, objectId, fieldName, defaultLanguage).get(defaultLanguage));
         }
       } else {
         return Collections.singletonMap(language, label);
@@ -458,11 +405,11 @@ public class LinkServiceImpl implements LinkService {
   private Map<String, String> toTranslations(TranslationField translationField, String defaultValue) {
     boolean hasTranslation = translationField == null || MapUtils.isEmpty(translationField.getLabels());
     return hasTranslation ? Collections.singletonMap(localeConfigService.getDefaultLocaleConfig().getLocale().toLanguageTag(),
-                                                     defaultValue)
-                          : translationField.getLabels()
-                                            .entrySet()
-                                            .stream()
-                                            .collect(Collectors.toMap(e -> e.getKey().toLanguageTag(), Entry::getValue));
+                                                     defaultValue) :
+                          translationField.getLabels()
+                                          .entrySet()
+                                          .stream()
+                                          .collect(Collectors.toMap(e -> e.getKey().toLanguageTag(), Entry::getValue));
   }
 
   private void broadcast(String eventName, Object source, Object data) {

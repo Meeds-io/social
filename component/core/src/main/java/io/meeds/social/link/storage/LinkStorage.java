@@ -53,6 +53,11 @@ public class LinkStorage {
     return toModel(linkSettingEntity);
   }
 
+  public boolean hasLinkSetting(String linkSettingName) {
+    // Reuse cached DTO instead of requesting Database using DAO
+    return getLinkSetting(linkSettingName) != null;
+  }
+
   public LinkSetting initLinkSetting(String name, String pageReference, long spaceId) {
     LinkSettingEntity linkSettingEntity = linkSettingDAO.findByName(name);
     if (linkSettingEntity == null) {
