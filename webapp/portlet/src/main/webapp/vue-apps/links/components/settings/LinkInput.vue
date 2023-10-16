@@ -80,7 +80,7 @@ export default {
     },
   },
   data: () => ({
-    iconSize: 30,
+    iconSize: 34,
   }),
   computed: {
     name() {
