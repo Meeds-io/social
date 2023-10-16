@@ -98,7 +98,7 @@ export default {
       }
     },
     iconSize() {
-      return this.largeIcon && 48 || 30;
+      return this.largeIcon && 48 || 34;
     },
     itemSize() {
       return this.largeIcon && 150 || 135;
