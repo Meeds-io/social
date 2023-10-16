@@ -63,7 +63,7 @@ export default {
     },
   },
   data: () => ({
-    iconSize: 30,
+    iconSize: 34,
     maxFileSize: 102400,
     sending: false,
     resetInput: false,

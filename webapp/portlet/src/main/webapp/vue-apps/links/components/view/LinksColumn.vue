@@ -87,7 +87,7 @@ export default {
       }
     },
     iconSize() {
-      return this.largeIcon && 48 || 30;
+      return this.largeIcon && 48 || 34;
     },
   },
 };
