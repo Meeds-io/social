@@ -16,7 +16,7 @@
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
 
-  responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/portal?siteName=" + rcontext.getPortalOwner() + "&scope=children&visibility=displayed&visibility=temporal&expand=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
+  responseWrapper.addHeader("Link", "</portal/rest/v1/social/sites?siteType=PORTAL&excludedSiteName=global&lang=en&excludeEmptyNavigationSites=true&excludeGroupNodesWithoutPageChildNodes=true&temporalCheck=true&excludeSpaceSites=true&expandNavigations=true&visibility=displayed&visibility=temporal&filterByDisplayed=true&sortByDisplayOrder=true&displayed=true&filterByPermissions=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
   responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/group?visibility=displayed&visibility=temporal&expand=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread,muted>; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>
