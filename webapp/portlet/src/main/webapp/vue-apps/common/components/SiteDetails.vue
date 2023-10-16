@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-card elevation="0">
+  <v-container :class="extraClass">
+    <v-card elevation="0" class="full-height">
       <row
         class="px-4"
         v-if="!displaySequentially"
@@ -21,10 +21,11 @@
         {{ site?.displayName }}
       </v-card-title>
       <v-card-subtitle v-sanitized-html="site?.description" class="text-subtitle-2 py-2 text-color rich-editor-content" />
-      <site-hamburger-item-navigation-tree
+      <site-navigations-tree
         v-if="site?.siteNavigations?.length"
         :navigations="site.siteNavigations"
-        :site-name="site?.name" />
+        :site-name="site?.name"
+        :enable-change-home="enableChangeHome" />
     </v-card>
     <exo-confirm-dialog
       ref="confirmDialog"
@@ -48,6 +49,14 @@ export default {
     displaySequentially: {
       type: Boolean,
       default: false,
+    },
+    enableChangeHome: {
+      type: Boolean,
+      default: false,
+    },
+    extraClass: {
+      type: String,
+      default: '',
     },
   },
   data: () => ({

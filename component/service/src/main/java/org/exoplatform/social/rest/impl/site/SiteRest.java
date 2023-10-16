@@ -18,10 +18,7 @@ package org.exoplatform.social.rest.impl.site;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +41,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -66,6 +64,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class SiteRest implements ResourceContainer {
 
   private static final Log          LOG                    = ExoLogger.getLogger(SiteRest.class);
+  
+  private static final String       SITE_ADMINISTRATION   = "administration";
 
   private LayoutService             layoutService;
 
@@ -73,9 +73,9 @@ public class SiteRest implements ResourceContainer {
 
   private static final int          CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
 
-  private static final CacheControl SITES_CACHE_CONTROL          = new CacheControl();
-  
-  private static final CacheControl SITE_CACHE_CONTROL          = new CacheControl();
+  private static final CacheControl SITES_CACHE_CONTROL    = new CacheControl();
+
+  private static final CacheControl SITE_CACHE_CONTROL     = new CacheControl();
 
   private static final CacheControl BANNER_CACHE_CONTROL   = new CacheControl();
 
@@ -314,6 +314,42 @@ public class SiteRest implements ResourceContainer {
       return Response.status(Response.Status.NOT_FOUND).build();
     } catch (IOException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  @GET
+  @Path("/administration")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(summary = "Gets a specific site by id", description = "Gets site by id", method = "GET")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"), })
+  public Response getAdministrationSite(@Context
+  HttpServletRequest httpServletRequest, @Context
+  Request request,
+                                        @Parameter(description = "Used to retrieve the site label and description in the requested language")
+                                        @QueryParam("lang")
+                                        String lang) {
+    try {
+      PortalConfig administrationSite = layoutService.getPortalConfig(SITE_ADMINISTRATION);
+      if (administrationSite == null) {
+        return Response.status(Response.Status.NOT_FOUND).build();
+      }
+      List<String> visibilities = new ArrayList<>();
+      visibilities.add(Visibility.DISPLAYED.name());
+      visibilities.add(Visibility.TEMPORAL.name());
+      SiteEntity siteEntity = EntityBuilder.buildSiteEntity(administrationSite,
+                                                            httpServletRequest,
+                                                            true,
+                                                            visibilities,
+                                                            true,
+                                                            true,
+                                                            true,
+                                                            getLocale(lang));
+      return Response.ok(siteEntity).build();
+    } catch (Exception e) {
+      LOG.warn("Error while retrieving administration site", e);
+      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 

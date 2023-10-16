@@ -25,7 +25,9 @@ import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
 import AttachmentsDraggableZone from './components/AttachmentsDraggableZone.vue';
-
+import SiteDetails from './components/SiteDetails.vue';
+import SiteNavigationsTree from './components/SiteNavigationsTree.vue';
+import SiteNavigationItem from './components/SiteNavigationItem.vue';
 const components = {
   'card-carousel': CardCarousel,
   'exo-user-avatars-list': ExoUserAvatarsList,
@@ -60,6 +62,9 @@ const components = {
   'alert-notifications': Notifications,
   'ripple-hover-button': RippleHoverButton,
   'attachments-draggable-zone': AttachmentsDraggableZone,
+  'site-details': SiteDetails,
+  'site-navigations-tree': SiteNavigationsTree,
+  'site-navigation-item': SiteNavigationItem,
 };
 
 for (const key in components) {
