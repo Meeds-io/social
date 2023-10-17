@@ -37,7 +37,7 @@
         text
         small> 
         <span class="text-font-size primary--text text-capitalize-first-letter"> 
-          {{ $t('overview.myContributions.seeAll') }} 
+          {{ $t('Widget.label.seeAll') }} 
         </span>
       </v-btn>
     </div>
