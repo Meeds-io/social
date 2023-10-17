@@ -7,31 +7,30 @@
       :close-on-content-click="false"
       :min-width="'350px'"
       :max-width="'350px'"
-      content-class="white AdministrationSiteMenu elevation-0 z-index-drawer"
+      content-class="white VerticalMenu elevation-0 z-index-drawer"
       attach="#ParentSiteStickyMenu"
       eager
       tile>
       <site-details
         display-sequentially
-        :site="administrationSite"
-        :extra-class="' px-0 py-0 '"
-        class="AdministrationSiteClass " />
+        :site="site"
+        :extra-class="' px-0 py-0 '" />
     </v-menu>
   </v-app>
 </template>
 <script>
 export default {
   data: () => ({
-    administrationSite: null,
+    site: null,
   }),
   created() {
     this.retrieveAdministrationSite();
   },
   methods: {
     retrieveAdministrationSite(){
-      return this.$AdministrationSiteMenuService.getAdministrationSite()
+      return this.$VerticalMenuService.getSite('PORTAL', eXo.env.portal.portalName, eXo.env.portal.language)
         .then(site => {
-          this.administrationSite = site ;
+          this.site = site ;
         });
     },
   }

@@ -260,22 +260,22 @@
                 <value>
                   <object type="org.exoplatform.application.registry.Application">
                     <field name="applicationName">
-                      <string>AdministrationSiteMenu</string>
+                      <string>VerticalMenu</string>
                     </field>
                     <field name="categoryName">
                       <string>Navigation</string>
                     </field>
                     <field name="displayName">
-                      <string>Administration site menu</string>
+                      <string>vertical site menu</string>
                     </field>
                     <field name="description">
-                      <string>Administration site menu Portlet</string>
+                      <string>vertical site menu Portlet</string>
                     </field>
                     <field name="type">
                       <string>portlet</string>
                     </field>
                     <field name="contentId">
-                      <string>social-portlet/AdministrationSiteMenu</string>
+                      <string>social-portlet/VerticalMenu</string>
                     </field>
                     <field name="accessPermissions">
                       <collection type="java.util.ArrayList" item-type="java.lang.String">

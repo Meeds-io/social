@@ -305,9 +305,9 @@
 
   <portlet-skin>
     <application-name>social-portlet</application-name>
-    <portlet-name>AdministrationSiteMenu</portlet-name>
+    <portlet-name>VerticalMenu</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/AdministrationSiteMenu/Style.css</css-path>
+    <css-path>/skin/css/portlet/VerticalMenu/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
 
@@ -1371,6 +1371,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>siteDetailsComponents</module>
+      </depends>
     </module>
   </portlet>
 
@@ -1628,11 +1631,11 @@
   </portlet>
 
   <portlet>
-    <name>AdministrationSiteMenu</name>
+    <name>VerticalMenu</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/administrationSiteMenu.bundle.js</path>
+        <path>/js/verticalMenu.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -1641,7 +1644,7 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>commonVueComponents</module>
+        <module>siteDetailsComponents</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1655,6 +1658,20 @@
       </depends>
     </module>
   </portlet>
+
+  <module>
+    <name>siteDetailsComponents</name>
+    <load-group>vueGRP</load-group>
+    <script>
+      <path>/js/siteDetails.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
 
   <module>
     <name>commonVueComponents</name>

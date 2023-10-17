@@ -18,14 +18,14 @@
  */
 
 import './initComponents.js';
-import * as AdministrationSiteMenuService from './AdministrationSiteMenuService.js';
+import * as VerticalMenuService from './VerticalMenuService.js';
 
-window.Object.defineProperty(Vue.prototype, '$AdministrationSiteMenuService', {
-  value: AdministrationSiteMenuService,
+window.Object.defineProperty(Vue.prototype, '$VerticalMenuService', {
+  value: VerticalMenuService,
 });
 // get overridden components if exists
 if (extensionRegistry) {
-  const components = extensionRegistry.loadComponents('administrationSiteMenu');
+  const components = extensionRegistry.loadComponents('verticalMenu');
   if (components && components.length > 0) {
     components.forEach(cmp => {
       Vue.component(cmp.componentName, cmp.componentOptions);
@@ -36,19 +36,19 @@ if (extensionRegistry) {
 Vue.use(Vuetify);
 const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
 
-const appId = 'administrationSiteMenu';
+const appId = 'verticalMenu';
 
 const lang = eXo && eXo.env.portal.language || 'en';
 
-const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.administrationSiteMenu-${lang}.json`];
+const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.verticalMenu-${lang}.json`];
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
-      template: `<administration-site-menu id="${appId}"/>`,
+      template: `<site-vertical-menu id="${appId}"/>`,
       vuetify,
       i18n},
-    `#${appId}`, 'administration site menu');
+    `#${appId}`, 'Vertical site menu');
   });
 }

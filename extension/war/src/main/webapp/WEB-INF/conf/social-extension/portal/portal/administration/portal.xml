@@ -42,9 +42,9 @@
             <portlet-application>
               <portlet>
                 <application-ref>social-portlet</application-ref>
-                <portlet-ref>AdministrationSiteMenu</portlet-ref>
+                <portlet-ref>VerticalMenu</portlet-ref>
               </portlet>
-              <title>Administration Site Menu</title>
+              <title>Vertical site Menu</title>
               <access-permissions>*:/platform/users</access-permissions>
               <show-info-bar>false</show-info-bar>
               <show-application-state>false</show-application-state>

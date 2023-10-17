@@ -837,18 +837,18 @@
   </portlet>
 
   <portlet>
-    <portlet-name>AdministrationSiteMenu</portlet-name>
-    <display-name>Administration site menu Portlet</display-name>
+    <portlet-name>VerticalMenu</portlet-name>
+    <display-name>Vertical Menu Portlet for site </display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/administrationSiteMenu.jsp</value>
+      <value>/WEB-INF/jsp/portlet/verticalMenu.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.administrationSiteMenu</resource-bundle>
+    <resource-bundle>locale.portlet.verticalMenu</resource-bundle>
     <portlet-info>
       <title>Administration site menu</title>
       <keywords>Administration site menu</keywords>

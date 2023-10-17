@@ -123,7 +123,7 @@
                 <include>portlet/SuggestionsPeopleAndSpace/Style.less</include>
                 <include>portlet/TopBarMenu/Style.less</include>
                 <include>portlet/WhoIsOnLine/Style.less</include>
-                <include>portlet/AdministrationSiteMenu/Style.less</include>
+                <include>portlet/VerticalMenu/Style.less</include>
                 <!-- Deprecated Portlets -->
                 <include>portlet/TopBarNotification/Style.less</include>
                 <!-- Standalone Modules -->

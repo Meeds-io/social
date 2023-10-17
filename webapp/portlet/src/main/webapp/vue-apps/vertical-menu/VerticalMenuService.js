@@ -1,8 +1,9 @@
-export function getAdministrationSite() {
+export function getSite(siteType, siteName, lang) {
   const formData = new FormData();
-  formData.append('lang', eXo.env.portal.language);
+  formData.append('lang', lang);
+  formData.append('siteName', siteName);
   const params = new URLSearchParams(formData).toString();
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/administration?${params}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/details/${siteType}?${params}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
