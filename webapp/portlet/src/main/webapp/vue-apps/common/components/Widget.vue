@@ -37,7 +37,7 @@
         text
         small> 
         <span class="text-font-size primary--text text-capitalize-first-letter"> 
-          {{ $t('Widget.label.seeAll') }} 
+          {{ actionText }} 
         </span>
       </v-btn>
     </div>
@@ -62,6 +62,10 @@ export default {
       default: () => '',
     },
     actionUrl: {
+      type: String,
+      default: () => '',
+    },
+    actionLabel: {
       type: String,
       default: () => '',
     },
@@ -100,6 +104,9 @@ export default {
       } else {
         return 'mb-5';
       }
+    },
+    actionText() {
+      return this.actionLabel || this.$t('Widget.label.seeAll');
     }
   }
 };
