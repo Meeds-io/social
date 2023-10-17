@@ -294,7 +294,6 @@ export default {
       }
     },
     spaceURL() {
-      this.ckEditorInstance.refreshSuggester();
       this.resetRichEditorData();
     }
   },
@@ -458,51 +457,53 @@ export default {
     removeAudience() {
       this.audience = '';
     },
-    removeUser() {
-      var removeIcons = document.querySelectorAll('.uiIconClose');
-        // removeIcons.forEach(function(icon) {
-        // });
-    },
     resetRichEditorData() {
       if (this.audience) {
         let message = this.ckEditorInstance.getMessage();
         if (message?.length) {
           const mentionedUsers = message.match(/@([A-Za-z0-9_'.+-]+)/g).map(a => a.replace('@', ''));
           if (mentionedUsers?.length) {
-            const spaceMembers = [];
-            const invalidUsers = [];
-            for (let i = 0; i < mentionedUsers.length; i++) {
-              this.$userService.getUser(mentionedUsers[i])
-                .then(user => { 
-                  mentionedUsers[i] = {username: user.username, fullName: user.fullname};
-                });
-            }
-             
-            this.$spaceService.getSpaceMembers(null, 0, this.audience.membersCount, null, 'member', this.audience.spaceId, null)
-              .then(result => {
-                const members = result.users;
-                for (let i = 0; i < members.length; i++) {
-                  const member = members[i];
-                  spaceMembers.push(member.username);
-                }
-                Promise.all(spaceMembers)
-                  .then((members) => { 
-                    for (let i = 0; i < mentionedUsers.length; i++) {
-                      const username = mentionedUsers[i].username;
-                      if (members.indexOf(username) < 0) {
-                        invalidUsers.push(mentionedUsers[i]);
+            // Clear suggester cache
+            document.dispatchEvent(new CustomEvent('suggester-clear-people-cache'));
+            Promise
+              .all(mentionedUsers.map(username => {
+                return this.$identityService.getIdentityByProviderIdAndRemoteId('organization', username)
+                  .then(identity => identity?.profile && this.$spaceService.isSpaceMember(this.audience.spaceId, username)
+                    .then(data => {
+                      if (data) {
+                        const profile = identity.profile;
+                        profile.isMember = data?.isMember === 'true';
+                        return profile;
+                      } else {
+                        return null;
                       }
-                    }
-                    Promise
-                      .all(invalidUsers)
-                      .then(users => {
-                        users.forEach(invalidUser => { 
-                          message = message.replace(new RegExp(`@${invalidUser.username}`, 'g'), `<span class="invalid-mention" id="${invalidUser.username}">${invalidUser.fullName}<a @click="removeUser" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>`);
-                        });
-                        this.ckEditorInstance.initCKEditorData(message);
-                        console.warn('this.ckEditorInstance', this.ckEditorInstance);
-                      });
-                  });
+                    }));
+              }))
+              .then(userProfiles => userProfiles.filter(p => p))
+              .then(userProfiles => {
+                userProfiles.forEach(profile => {
+                  if (profile.isMember) {
+                    message = message.replace(new RegExp(`@${profile.username}`, 'g'), ExtendedDomPurify.purify(`
+                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
+                        <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
+                      </span>
+                    `));
+                  } else {
+                    message = message.replace(new RegExp(`@${profile.username}`, 'g'), ExtendedDomPurify.purify(`
+                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="" contenteditable="false" title="${this.$t('activity.composer.invalidUser.message')}">
+                        <span class="exo-mention">
+                          <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text" style="font-size: 16px;">
+                          </i>
+                          <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}</del>
+                          <a href="#" class="remove">
+                            <i class="uiIconClose uiIconLightGray"></i>
+                          </a>
+                        </span>
+                      </span>
+                    `));
+                  }
+                });
+                this.ckEditorInstance.initCKEditorData(message);
               });
           }
         }
