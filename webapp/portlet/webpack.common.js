@@ -47,7 +47,6 @@ let config = {
     userSettingLanguage: './src/main/webapp/vue-apps/user-setting-language/main.js',
     userSettingNotifications: './src/main/webapp/vue-apps/notification-user-settings/main.js',
     userSettingSecurity: './src/main/webapp/vue-apps/user-setting-security/main.js',
-    userSettingTimezone: './src/main/webapp/vue-apps/user-setting-timezone/main.js',
     spaceInfos: './src/main/webapp/vue-apps/space-infos-app/main.js',
     whoIsOnline: './src/main/webapp/vue-apps/who-is-online-app/main.js',
     spaceAccess: './src/main/webapp/vue-apps/space-access/main.js',
