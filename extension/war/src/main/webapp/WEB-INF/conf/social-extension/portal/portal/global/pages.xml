@@ -209,16 +209,6 @@
       <portlet-application>
         <portlet>
           <application-ref>social-portlet</application-ref>
-          <portlet-ref>UserSettingTimezone</portlet-ref>
-        </portlet>
-        <title>User Setting Timezone</title>
-        <access-permissions>*:/platform/users;*:/platform/externals</access-permissions>
-        <show-info-bar>false</show-info-bar>
-        <show-application-state>false</show-application-state>
-      </portlet-application>
-      <portlet-application>
-        <portlet>
-          <application-ref>social-portlet</application-ref>
           <portlet-ref>UserSettingNotifications</portlet-ref>
         </portlet>
         <title>User Setting Notifications</title>
