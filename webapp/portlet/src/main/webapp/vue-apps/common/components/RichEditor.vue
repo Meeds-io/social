@@ -222,7 +222,9 @@ export default {
       },
     },
     suggesterSpaceURL() {
-      this.initCKEditor(!!this.suggesterSpaceURL, this.value);
+      if (this.editorReady) {
+        this.editor.config.spaceURL = this.suggesterSpaceURL;
+      }
     },
     displayAttachmentEditor(newVal, oldVal) {
       if (newVal && !oldVal) {
@@ -387,9 +389,8 @@ export default {
             if (!self) {
               return;
             }
-            let data = self?.value;
+            const data = self?.inputVal;
             if (data) {
-              data = data?.replace?.(/@\w+/gm, '');
               self.inputVal = data;
             } else {
               self.inputVal = '';
@@ -403,6 +404,11 @@ export default {
       this.editor?.destroy?.(true);
       if (this.$refs.attachmentsInput) {
         this.$refs.attachmentsInput.reset();
+      }
+    },
+    refreshSuggester: function() {
+      if (this.editorReady) {
+        this.editor.config.refreshSuggester = true;
       }
     },
     initCKEditorData: function(message) {

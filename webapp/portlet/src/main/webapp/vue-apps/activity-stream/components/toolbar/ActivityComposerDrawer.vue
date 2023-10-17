@@ -132,6 +132,7 @@
             use-draft-management
             autofocus
             @attachments-edited="attachmentsEdit" />
+          <div v-if="containInvalidUsers" class="mt-4">{{ $t('activity.composer.invalidUsers.message') }}</div>
         </v-card-text>
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
@@ -194,6 +195,7 @@ export default {
       audienceChoice: 'yourNetwork',
       audience: '',
       username: eXo.env.portal.userName,
+      containInvalidUsers: false
     };
   },
   computed: {
@@ -269,6 +271,11 @@ export default {
         this.activityBodyEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(oldVal);
         this.messageEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(this.originalBody);
       }
+      if (newVal.search('invalid-mention') >= 0) {
+        this.containInvalidUsers = true;
+      } else {
+        this.containInvalidUsers = false;
+      }
     },
     drawer() {
       if (this.drawer) {
@@ -285,6 +292,10 @@ export default {
       if (newVal === 'yourNetwork') {
         this.removeAudience();
       }
+    },
+    spaceURL() {
+      this.ckEditorInstance.refreshSuggester();
+      this.resetRichEditorData();
     }
   },
   created() {
@@ -339,7 +350,10 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const message = this.ckEditorInstance.getMessage();
+      const value = this.ckEditorInstance.getMessage();
+      const message = value.replace(/<span class="invalid-mention"(.*?)<\/span>/g, '');
+      this.templateParams.comment = message;
+      this.templateParams.default_title = message;
       if (this.activityId) {
         let activityType = this.activityType;
         if (this.templateParams && this.templateParams.link && !this.activityType) {
@@ -443,6 +457,56 @@ export default {
     },
     removeAudience() {
       this.audience = '';
+    },
+    removeUser() {
+      var removeIcons = document.querySelectorAll('.uiIconClose');
+        // removeIcons.forEach(function(icon) {
+        // });
+    },
+    resetRichEditorData() {
+      if (this.audience) {
+        let message = this.ckEditorInstance.getMessage();
+        if (message?.length) {
+          const mentionedUsers = message.match(/@([A-Za-z0-9_'.+-]+)/g).map(a => a.replace('@', ''));
+          if (mentionedUsers?.length) {
+            const spaceMembers = [];
+            const invalidUsers = [];
+            for (let i = 0; i < mentionedUsers.length; i++) {
+              this.$userService.getUser(mentionedUsers[i])
+                .then(user => { 
+                  mentionedUsers[i] = {username: user.username, fullName: user.fullname};
+                });
+            }
+             
+            this.$spaceService.getSpaceMembers(null, 0, this.audience.membersCount, null, 'member', this.audience.spaceId, null)
+              .then(result => {
+                const members = result.users;
+                for (let i = 0; i < members.length; i++) {
+                  const member = members[i];
+                  spaceMembers.push(member.username);
+                }
+                Promise.all(spaceMembers)
+                  .then((members) => { 
+                    for (let i = 0; i < mentionedUsers.length; i++) {
+                      const username = mentionedUsers[i].username;
+                      if (members.indexOf(username) < 0) {
+                        invalidUsers.push(mentionedUsers[i]);
+                      }
+                    }
+                    Promise
+                      .all(invalidUsers)
+                      .then(users => {
+                        users.forEach(invalidUser => { 
+                          message = message.replace(new RegExp(`@${invalidUser.username}`, 'g'), `<span class="invalid-mention" id="${invalidUser.username}">${invalidUser.fullName}<a @click="removeUser" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>`);
+                        });
+                        this.ckEditorInstance.initCKEditorData(message);
+                        console.warn('this.ckEditorInstance', this.ckEditorInstance);
+                      });
+                  });
+              });
+          }
+        }
+      }
     },
   },
 };

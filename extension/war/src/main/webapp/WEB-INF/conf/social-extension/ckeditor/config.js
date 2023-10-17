@@ -106,6 +106,9 @@ CKEDITOR.editorConfig = function(config) {
             return;
           }
         }
+        if (CKEDITOR.currentInstance.config.refreshSuggester) {
+          peopleSearchCached = {};
+        }
         if (peopleSearchCached[query]) {
           callback.call(this, peopleSearchCached[query]);
         } else {
