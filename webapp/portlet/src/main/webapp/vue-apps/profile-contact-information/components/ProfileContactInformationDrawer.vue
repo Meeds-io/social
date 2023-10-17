@@ -12,11 +12,6 @@
         ref="profileContactForm"
         class="form-horizontal"
         flat>
-        <v-card-text v-if="error" class="errorMessage">
-          <v-alert type="error">
-            {{ error }}
-          </v-alert>
-        </v-card-text>   
         <div v-for="property in properties" :key="property.id">
           <profile-contact-edit-multi-field
             v-if="property.editable && (property.multiValued || (property.children && property.children.length))"
@@ -70,7 +65,6 @@ export default {
   data: () => ({
     propertiesToSave: [],
     properties: [],
-    error: null,
     saving: null,
     fieldError: false,
     disabled: true,
@@ -92,7 +86,6 @@ export default {
     },
     
     save() {
-      this.error = null;
       this.fieldError = false;
       
       this.resetCustomValidity();
@@ -166,7 +159,7 @@ export default {
       
       if (error) {
         if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
-          this.error = this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.uploadLimit});
+          this.$root.$emit('alert-message', this.$t('profileHeader.label.avatarExcceededAllowedSize', {0: this.uploadLimit}), 'error');
         } else if (this.fieldError && this.fieldError.indexOf('FIRSTNAME:') === 0) {
           const firstNameError = this.fieldError.replace('FIRSTNAME:', '');
           if (this.$refs.firstNameInput) { this.$refs.firstNameInput[0].setCustomValidity(firstNameError);}
@@ -187,10 +180,7 @@ export default {
           if (errorI18N !== errorI18NKey) {
             error = errorI18N;
           }
-          this.error = error;
-          window.setTimeout(() => {
-            this.error = null;
-          }, 5000);
+          this.$root.$emit('alert-message', error, 'error');
         }
 
         window.setTimeout(() => {
@@ -200,7 +190,7 @@ export default {
           }
         }, 200);
       } else {
-        this.error = null;
+        this.$root.$emit('close-alert-message');
       }
     },
     refresh() {

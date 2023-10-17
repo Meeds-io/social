@@ -102,9 +102,6 @@
             </v-radio-group>
           </div>
           <div class="caption font-italic font-weight-light ps-1 muted">{{ $t(`SpaceSettings.description.${space.subscription || 'open'}`) }}</div>
-          <v-alert v-if="error" type="error">
-            {{ error }}
-          </v-alert>
         </form>
       </template>
       <template slot="footer">
@@ -158,7 +155,6 @@ export default {
     spaceSaved: false,
     space: {},
     spaceToUpdate: {},
-    error: null,
     template: null,
     spaceTemplate: null,
     templates: [],
@@ -199,7 +195,6 @@ export default {
       this.savingSpace = false;
       this.spaceSaved = false;
       this.spaceSaved = false;
-      this.error = null;
       this.template = null;
       this.spaceTemplate = null;
       this.avatarData = null;
@@ -228,14 +223,11 @@ export default {
     handleImageUploadError(error) {
       if (error) {
         if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
-          this.error = this.$t('SpaceSettings.label.avatarExcceededAllowedSize', {0: this.maxUploadSize});
+          error = this.$t('SpaceSettings.label.avatarExcceededAllowedSize', {0: this.maxUploadSize});
         } else {
-          this.error = String(error);
+          error = String(error);
         }
-
-        window.setTimeout(() => {
-          this.error = null;
-        }, 5000);
+        this.$root.$emit('alert-message', error, 'error');
       }
     },
     saveSpace(event) {
