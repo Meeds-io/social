@@ -12,13 +12,11 @@
   import org.exoplatform.social.core.search.SearchConnector;
   import org.exoplatform.commons.utils.PropertyManager;
   import org.exoplatform.portal.branding.BrandingService;
-  import java.util.TimeZone;
   import java.util.Set;
 
   def rcontext = _ctx.getRequestContext();
   Space space = SpaceUtils.getSpaceByContext();
   Identity spaceIdentity = SpaceUtils.getSpaceIdentityByContext();
-  TimeZone timezone = Utils.getViewerTimezone();
   ContinuationService continuationService = uicomponent.getApplicationComponent(ContinuationService.class);
   EXoContinuationBayeux continuationBayeux = uicomponent.getApplicationComponent(EXoContinuationBayeux.class);
   AttachmentService attachmentService = uicomponent.getApplicationComponent(AttachmentService.class);
@@ -43,9 +41,6 @@
      eXo.env.portal.companyName = "<%=brandingService.getCompanyName()%>" ;
      eXo.env.portal.isExternal = "<%=Utils.isExternal(Utils.getViewerIdentity())%>" ;
      eXo.env.portal.isSpacesManager = "<%=Utils.isSpacesManager(Utils.getViewerIdentity())%>" ;
-     eXo.env.portal.timezone = "<%=timezone.getID()%>" ;
-     eXo.env.portal.timezoneOffset = <%=timezone.getRawOffset()%> ;
-     eXo.env.portal.timezoneDSTSavings = <%=Utils.getViewerTimezoneDSTSavings()%> ;
      eXo.env.portal.cometdToken = "<%=cometdToken%>";
      eXo.env.portal.cometdContext = "<%=cometdContext%>";
      eXo.env.server.sessionId = "<%=rcontext.getRequest().getSession(true).getId()%>";

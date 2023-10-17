@@ -103,7 +103,10 @@ export default {
   },
   methods: {
     refresh() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`)
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
+        method: 'GET',
+        credentials: 'include',
+      })
         .then(resp => resp && resp.ok && resp.json())
         .then(settings => {
           if (this.displayed && !settings?.channels?.length) {
