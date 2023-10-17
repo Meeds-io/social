@@ -289,10 +289,8 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/userSettingNotifications.html</value>
+      <value>/WEB-INF/jsp/portlet/userSettingNotifications.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -317,23 +315,6 @@
     <resource-bundle>locale.portlet.social.UserSettings</resource-bundle>
     <portlet-info>
       <title>User Setting security</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
-    <portlet-name>UserSettingTimezone</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/userSettingTimezone.jsp</value>
-    </init-param>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.social.UserSettings</resource-bundle>
-    <portlet-info>
-      <title>User Setting timezone</title>
     </portlet-info>
   </portlet>
 

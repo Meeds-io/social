@@ -53,7 +53,7 @@ export function init(settings) {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<notification-administration id="${appId}" :languages="settings && settings.languages" :timezones="settings && settings.timezones" />`,
+      template: `<notification-administration id="${appId}" :languages="settings && settings.languages" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'Notification Administration');
