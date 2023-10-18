@@ -281,6 +281,7 @@ export default {
     },
     audience() {
       this.spaceId = this.audience?.spaceId || '';
+      this.containInvalidUsers = false;
       this.spaceURL = this.audience?.remoteId || '';
     },
     audienceChoice(newVal) {
