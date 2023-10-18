@@ -25,12 +25,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
 import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
+import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.model.MetadataType;
 
 public interface AttachmentService {
@@ -72,6 +75,22 @@ public interface AttachmentService {
    * @return            {@link ObjectAttachmentOperationReport}
    */
   ObjectAttachmentOperationReport saveAttachments(FileAttachmentResourceList attachment);
+
+  /**
+   * @param uploadedAttachmentDetail {@link UploadedAttachmentDetail} object to attach
+   * @param objectType Object type
+   * @param objectId Object identifier
+   * @param parentObjectId Parent object identifier
+   * @param userIdentityId User {@link org.exoplatform.social.core.identity.model.Identity} id
+   * @throws IOException when an error occurred while accessing uploaded resource
+   * @throws ObjectAlreadyExistsException when attachment already exists for given object
+   * @throws ObjectNotFoundException when attachment not found
+   */
+  void saveAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
+                      String objectType,
+                      String objectId,
+                      String parentObjectId,
+                      long userIdentityId) throws IOException, ObjectAlreadyExistsException, ObjectNotFoundException;
 
   /**
    * Delete attachments of a given object identified by its type and id
@@ -128,6 +147,29 @@ public interface AttachmentService {
    */
   ObjectAttachmentList getAttachments(String objectType,
                                       String objectId);
+
+  /**
+   * @param objectType object type, can be of any type: activity, comment,
+   *          notes...
+   * @param objectId object technical unique identifier
+   * @param userAclIdentity user ACL identity retrieved used
+   *          {@link IdentityRegistry}
+   * @return {@link List} of attached {@link FileInfo} id
+   * @throws IllegalAccessException  when user identified by its
+   *                                   {@link org.exoplatform.social.core.identity.model.Identity}
+   *                                   id doesn't have "read" permission of
+   *                                   selected object
+   * @throws ObjectNotFoundException when the object identified by its id doesn't exists
+   */
+  List<String> getAttachmentFileIds(String objectType, String objectId, Identity userAclIdentity) throws IllegalAccessException, ObjectNotFoundException;
+
+  /**
+   * @param objectType object type, can be of any type: activity, comment,
+   *          notes...
+   * @param objectId object technical unique identifier
+   * @return {@link List} of attached {@link FileInfo} id
+   */
+  List<String> getAttachmentFileIds(String objectType, String objectId);
 
   /**
    * Retrieve an attached file to a dedicated object identified by its type and

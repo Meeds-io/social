@@ -316,6 +316,34 @@
   </scripts>
 
   <portlet>
+    <name>Image</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/image.bundle.js</path>
+      </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>attachImage</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
     <name>Links</name>
     <module>
       <script>

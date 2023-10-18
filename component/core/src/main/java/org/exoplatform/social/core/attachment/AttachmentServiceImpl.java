@@ -38,9 +38,11 @@ import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.attachment.AttachmentPlugin;
 import org.exoplatform.social.attachment.AttachmentService;
 import org.exoplatform.social.attachment.model.*;
+import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.attachment.storage.FileAttachmentStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.MetadataService;
@@ -126,7 +128,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                          .forEach(fileId -> deleteAttachment(objectType, objectId, fileId, username));
       remainingFiles = remainingFiles.stream()
                                      .filter(remainingFile -> StringUtils.isNotEmpty(remainingFile.getId()))
-                                     .collect(Collectors.toList());
+                                     .toList();
     }
 
     String parentObjectId = attachmentList.getParentObjectId();
@@ -141,6 +143,52 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     broadcastAttachmentsChange(ATTACHMENTS_UPDATED_EVENT, objectType, objectId, username);
     return report;
+  }
+
+  @Override
+  public void saveAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
+                             String objectType,
+                             String objectId,
+                             String parentObjectId,
+                             long userIdentityId) throws IOException,
+                                                  ObjectAlreadyExistsException,
+                                                  ObjectNotFoundException {
+    UploadResource uploadResource = uploadedAttachmentDetail.getUploadedResource();
+    String altText = uploadedAttachmentDetail.getAltText();
+    String format = uploadedAttachmentDetail.getFormat();
+    Map<String, String> properties = new HashMap<>();
+    properties.put("alt", altText);
+    properties.put("format", format);
+
+    Long attachmentId =
+                      !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ?
+                                                                               Long.parseLong(uploadedAttachmentDetail.getId()) :
+                                                                               null;
+    if (uploadResource == null) {
+      if (attachmentId != null) {
+        updateAttachment(String.valueOf(attachmentId), objectType, objectId, userIdentityId, properties);
+      }
+    } else {
+      String fileDiskLocation = uploadResource.getStoreLocation();
+      String uploadId = uploadResource.getUploadId();
+      try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
+        String fileId = attachmentStorage.uploadAttachment(attachmentId,
+                                                           objectType,
+                                                           objectId,
+                                                           uploadResource.getFileName(),
+                                                           uploadResource.getMimeType(),
+                                                           inputStream,
+                                                           userIdentityId);
+        if (attachmentId == null) {
+          createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, properties);
+        } else {
+          updateAttachment(fileId, objectType, objectId, userIdentityId, properties);
+        }
+
+      } finally {
+        uploadService.removeUploadResource(uploadId);
+      }
+    }
   }
 
   @Override
@@ -166,6 +214,21 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
+  public List<String> getAttachmentFileIds(String objectType,
+                                           String objectId,
+                                           Identity userAclIdentity) throws IllegalAccessException, ObjectNotFoundException {
+    checkAccessPermission(objectType, objectId, userAclIdentity);
+    return getAttachmentFileIds(objectType, objectId);
+  }
+
+  @Override
+  public List<String> getAttachmentFileIds(String objectType, String objectId) {
+    return metadataService.getMetadataNamesByMetadataTypeAndObject(METADATA_TYPE.getName(), objectType, objectId)
+                          .stream()
+                          .toList();
+  }
+
+  @Override
   public ObjectAttachmentList getAttachments(String objectType, String objectId) {
     List<String> fileIds = getAttachmentFileIds(objectType, objectId);
     List<ObjectAttachmentDetail> attachments =
@@ -186,7 +249,9 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                                                                          0);
         if (CollectionUtils.isNotEmpty(attachmentItem) && attachmentItem.get(0).getProperties() != null
             && attachmentItem.get(0).getProperties().containsKey("alt")) {
-          attachment.setAltText(attachmentItem.get(0).getProperties().get("alt"));
+          Map<String, String> metadataItemProperties = attachmentItem.get(0).getProperties();
+          attachment.setAltText(metadataItemProperties.get("alt"));
+          attachment.setFormat(metadataItemProperties.get("format"));
         }
       });
     }
@@ -264,17 +329,12 @@ public class AttachmentServiceImpl implements AttachmentService {
     if (userAclIdentity == null) {
       throw new IllegalArgumentException("User ACL identity is mandatory");
     }
-    org.exoplatform.social.core.identity.model.Identity userIdentity =
-                                                                     identityManager.getOrCreateUserIdentity(userAclIdentity.getUserId());
-    if (userIdentity == null || userIdentity.isDeleted() || !userIdentity.isEnable()) {
-      throw new IllegalStateException("User with id " + userAclIdentity.getUserId() + " isn't valid");
-    }
-
     if (!hasAccessPermission(userAclIdentity, objectType, objectId)) {
-      throw new IllegalAccessException("User " + userAclIdentity.getUserId()
-          + " doesn't have enough permissions to attach files on object " + objectType + "/" + objectId);
+      throw new IllegalAccessException("User " + userAclIdentity.getUserId() +
+          " doesn't have enough permissions to attach files on object " + objectType + "/" + objectId);
     }
-    return userIdentity;
+    return isAnonymous(userAclIdentity) ? null :
+                                        identityManager.getOrCreateUserIdentity(userAclIdentity.getUserId());
   }
 
   private void checkEditPermissions(FileAttachmentResourceList attachmentList,
@@ -323,10 +383,6 @@ public class AttachmentServiceImpl implements AttachmentService {
     return attachmentPlugin == null ? 0 : attachmentPlugin.getSpaceId(objectId);
   }
 
-  private List<String> getAttachmentFileIds(String objectType, String objectId) {
-    return metadataService.getMetadataNamesByMetadataTypeAndObject(METADATA_TYPE.getName(), objectType, objectId);
-  }
-
   private ObjectAttachmentOperationReport attachUploadFiles(List<FileAttachmentObject> uploadedFiles,
                                                             String objectType,
                                                             String objectId,
@@ -342,6 +398,7 @@ public class AttachmentServiceImpl implements AttachmentService {
       }
       uploadedAttachmentDetail.setId(uploadedFile.getId());
       uploadedAttachmentDetail.setAltText(uploadedFile.getAltText());
+      uploadedAttachmentDetail.setFormat(uploadedFile.getFormat());
       uploadedAttachmentDetail.setUploadedResource(uploadedResource);
       return uploadedAttachmentDetail;
     })
@@ -361,44 +418,17 @@ public class AttachmentServiceImpl implements AttachmentService {
                               String parentObjectId,
                               long userIdentityId,
                               ObjectAttachmentOperationReport report) {
-    UploadResource uploadResource = uploadedAttachmentDetail.getUploadedResource();
-    String altText = uploadedAttachmentDetail.getAltText();
-    Long attachmentId =
-                      !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ? Long.parseLong(uploadedAttachmentDetail.getId())
-                                                                               : null;
-    if (uploadResource == null) {
-      if (attachmentId != null) {
-        updateAttachment(String.valueOf(attachmentId), objectType, objectId, userIdentityId, altText);
-      }
-    } else {
-      String fileDiskLocation = uploadResource.getStoreLocation();
-      String uploadId = uploadResource.getUploadId();
-      try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
-        String fileId = attachmentStorage.uploadAttachment(attachmentId,
-                                                           objectType,
-                                                           objectId,
-                                                           uploadResource.getFileName(),
-                                                           uploadResource.getMimeType(),
-                                                           inputStream,
-                                                           userIdentityId);
-        if (attachmentId == null) {
-          createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, altText);
-        } else {
-          updateAttachment(fileId, objectType, objectId, userIdentityId, altText);
-        }
-
-      } catch (FileNotFoundException e) {
-        LOG.warn("File with upload id " + uploadId + " doesn't exist", e);
-        report.addError(uploadId, "attachment.uploadIdFileNotExistsError");
-      } catch (IOException e) {
-        LOG.warn("Error accessing resource with upload id " + uploadId, e);
-        report.addError(uploadId, "attachment.uploadIdIOError");
-      } catch (Exception e) {
-        LOG.warn("Error attaching file with upload id " + uploadId, e);
-        report.addError(uploadId, "attachment.uploadIdNotAttachedError");
-      } finally {
-        uploadService.removeUploadResource(uploadId);
-      }
+    try {
+      saveAttachment(uploadedAttachmentDetail, objectType, objectId, parentObjectId, userIdentityId);
+    } catch (FileNotFoundException e) {
+      LOG.warn("Uploaded File wasn't found", e);
+      report.addError(uploadedAttachmentDetail.getUploadedResource().getUploadId(), "attachment.uploadIdFileNotExistsError");
+    } catch (IOException e) {
+      LOG.warn("Error accessing Uploaded resource", e);
+      report.addError(uploadedAttachmentDetail.getUploadedResource().getUploadId(), "attachment.uploadIdIOError");
+    } catch (Exception e) {
+      LOG.warn("Error attaching uploaded file", e);
+      report.addError(uploadedAttachmentDetail.getUploadedResource().getUploadId(), "attachment.uploadIdNotAttachedError");
     }
   }
 
@@ -407,15 +437,13 @@ public class AttachmentServiceImpl implements AttachmentService {
                                 String objectId,
                                 String parentObjectId,
                                 long userIdentityId,
-                                String altText) throws Exception {
+                                Map<String, String> properties) throws ObjectNotFoundException, ObjectAlreadyExistsException  {
     MetadataKey metadataKey = null;
     metadataKey = new MetadataKey(METADATA_TYPE.getName(), fileId, getAudienceId(objectType, objectId));
     MetadataObject object = new MetadataObject(objectType,
                                                objectId,
                                                parentObjectId,
                                                getSpaceId(objectType, objectId));
-    Map<String, String> properties = new HashMap<String, String>();
-    properties.put("alt", altText);
     metadataService.createMetadataItem(object,
                                        metadataKey,
                                        properties,
@@ -431,7 +459,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                 String objectType,
                                 String objectId,
                                 long userIdentityId,
-                                String altText) {
+                                Map<String, String> properties) {
     List<MetadataItem> attachmentItem =
                                       metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(fileId,
                                                                                                      AttachmentService.METADATA_TYPE.getName(),
@@ -441,13 +469,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                                                                      0);
     if (CollectionUtils.isNotEmpty(attachmentItem)) {
       MetadataItem attachmentItemMetadata = attachmentItem.get(0);
-      if (attachmentItemMetadata.getProperties() != null && !attachmentItemMetadata.getProperties().isEmpty()) {
-        attachmentItemMetadata.getProperties().put("alt", altText);
-      } else {
-        Map<String, String> properties = new HashMap<>();
-        properties.put("alt", altText);
-        attachmentItemMetadata.setProperties(properties);
-      }
+      attachmentItemMetadata.setProperties(properties);
       metadataService.updateMetadataItem(attachmentItemMetadata, userIdentityId);
       broadcastAttachmentChange(ATTACHMENTS_UPDATED_EVENT,
                                 fileId,
@@ -517,6 +539,10 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                                  userIdentityId > 0 ? identityManager.getIdentity(String.valueOf(userIdentityId))
                                                                                     : null;
     return identity == null ? null : identity.getRemoteId();
+  }
+
+  private boolean isAnonymous(Identity userAclIdentity) {
+    return userAclIdentity == null || IdentityConstants.ANONIM.equals(userAclIdentity.getUserId());
   }
 
 }
