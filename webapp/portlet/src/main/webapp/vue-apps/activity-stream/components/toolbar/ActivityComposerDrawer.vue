@@ -271,11 +271,6 @@ export default {
         this.activityBodyEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(oldVal);
         this.messageEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(this.originalBody);
       }
-      if (newVal.search('invalid-mention') >= 0) {
-        this.containInvalidUsers = true;
-      } else {
-        this.containInvalidUsers = false;
-      }
     },
     drawer() {
       if (this.drawer) {
@@ -349,8 +344,14 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const value = this.ckEditorInstance.getMessage();
-      const message = value.replace(/<span class="invalid-mention"(.*?)<\/span>/g, '');
+      let message = this.ckEditorInstance.getMessage();
+      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+      tempdiv.find('[data-atwho-at-value]')
+        .each(function() {
+          const value = $(this).attr('data-atwho-at-value');
+          const pattern = new RegExp(`<span class="atwho-inserted" data-atwho-at-query="[^"]*" data-atwho-at-value="${value}"[^>]*>(.*?)</span>`, 'g');
+          message = message.replace(pattern, value ? `@${value}` : '');
+        });
       this.templateParams.comment = message;
       this.templateParams.default_title = message;
       if (this.activityId) {
@@ -458,8 +459,8 @@ export default {
       this.audience = '';
     },
     resetRichEditorData() {
+      let message = this.ckEditorInstance.getMessage();
       if (this.audience) {
-        let message = this.ckEditorInstance.getMessage();
         if (message?.length) {
           const mentionedUsers = message.match(/@([A-Za-z0-9_'.+-]+)/g).map(a => a.replace('@', ''));
           if (mentionedUsers?.length) {
@@ -492,7 +493,7 @@ export default {
                     message = message.replace(new RegExp(`@${profile.username}`, 'g'), ExtendedDomPurify.purify(`
                       <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="" contenteditable="false" title="${this.$t('activity.composer.invalidUser.message')}">
                         <span class="exo-mention">
-                          <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text" style="font-size: 16px;">
+                          <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text error-color" style="font-size: 16px;">
                           </i>
                           <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}</del>
                           <a href="#" class="remove">
@@ -501,12 +502,44 @@ export default {
                         </span>
                       </span>
                     `));
+                    this.containInvalidUsers = true;
                   }
                 });
                 this.ckEditorInstance.initCKEditorData(message);
               });
           }
         }
+      } else {
+        const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+        const mentionedUsers = [];
+        tempdiv.find('[data-atwho-at-query]')
+          .each(function() {
+            const value = $(this).attr('data-atwho-at-query');
+            mentionedUsers.push(value);
+          });
+        Promise
+          .all(mentionedUsers.map(username => { 
+            return this.$identityService.getIdentityByProviderIdAndRemoteId('organization', username.substr(1))
+              .then(identity => {
+                return identity;
+              });
+          }))
+          .then(identities => {
+            identities.map(identity => {
+              const profile = identity.profile;
+              const pattern = new RegExp(`<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span>`, 'g');
+              message = message.replace(pattern, ExtendedDomPurify.purify(`
+                <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
+                  <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}
+                    <a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a>
+                  </span>
+                </span>`));
+            });
+          })
+          .finally(() => {
+            this.ckEditorInstance.initCKEditorData(message);
+            this.containInvalidUsers = false;
+          });
       }
     },
   },

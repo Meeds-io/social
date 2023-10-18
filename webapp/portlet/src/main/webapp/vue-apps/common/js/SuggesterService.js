@@ -47,7 +47,6 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
             groupId: item.groupId,
             providerId: 'space',
             displayName: item.displayName,
-            membersCount: item.membersCount,
             profile: {
               fullName: item.displayName,
               originalName: item.shortName,

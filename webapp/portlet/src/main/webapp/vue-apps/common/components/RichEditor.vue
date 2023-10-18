@@ -406,11 +406,6 @@ export default {
         this.$refs.attachmentsInput.reset();
       }
     },
-    refreshSuggester: function() {
-      if (this.editorReady) {
-        this.editor.config.refreshSuggester = true;
-      }
-    },
     initCKEditorData: function(message) {
       this.inputVal = message && this.getContentToEdit(message) || '';
       try {
