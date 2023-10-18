@@ -46,35 +46,6 @@
           <page-reference>portal::administration::notification</page-reference>
         </node>
       </node>
-      <node>
-        <name>organisation</name>
-        <label>#{portal.administration.organisation}</label>
-        <icon>fas fa-building</icon>
-        <node>
-          <name>users</name>
-          <label>#{portal.administration.users}</label>
-          <icon>fas fa-users-cog</icon>
-          <page-reference>portal::administration::usersManagement</page-reference>
-        </node>
-        <node>
-          <name>groups</name>
-          <label>#{portal.administration.groups}</label>
-          <icon>fab fa-simplybuilt</icon>
-          <page-reference>portal::administration::groupsManagement</page-reference>
-        </node>
-        <node>
-          <name>profile</name>
-          <label>#{portal.administration.profile}</label>
-          <icon>fas fa-user-cog</icon>
-          <page-reference>portal::administration::profileManagement</page-reference>
-        </node>
-        <node>
-          <name>spaces</name>
-          <label>#{portal.administration.spaces}</label>
-          <icon>fas fa-people-arrows</icon>
-          <page-reference>portal::administration::spacesAdministration</page-reference>
-        </node>
-      </node>
     </node>
   </page-nodes>
 </node-navigation>
