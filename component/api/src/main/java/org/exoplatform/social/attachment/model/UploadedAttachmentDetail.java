@@ -35,8 +35,15 @@ public class UploadedAttachmentDetail implements Cloneable {
 
   private String         altText;
 
+  private String         format;
+
+  public UploadedAttachmentDetail(UploadResource uploadedResource) {
+    this.uploadedResource = uploadedResource;
+  }
+
   @Override
   public UploadedAttachmentDetail clone() { // NOSONAR
-    return new UploadedAttachmentDetail(id, uploadedResource, altText);
+    return new UploadedAttachmentDetail(id, uploadedResource, altText, format);
   }
+
 }

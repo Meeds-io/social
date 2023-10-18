@@ -144,7 +144,6 @@ public class AttachmentRest implements ResourceContainer {
   @GET
   @Path("{objectType}/{objectId}")
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
   @Operation(summary = "Retrieves files of a given object identified by its id", description = "Retrieves files of a given object identified by its id", method = "GET")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
@@ -187,7 +186,6 @@ public class AttachmentRest implements ResourceContainer {
 
   @GET
   @Path("{objectType}/{objectId}/{fileId}")
-  @RolesAllowed("users")
   @Operation(summary = "Retrieves file stream content attached to a given object identified by its id", description = "Retrieves file stream content attached to a given object identified by its id", method = "GET")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Request fulfilled"),
