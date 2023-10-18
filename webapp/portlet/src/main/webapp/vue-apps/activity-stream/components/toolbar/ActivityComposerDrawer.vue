@@ -458,6 +458,28 @@ export default {
     removeAudience() {
       this.audience = '';
     },
+    replaceValidSuggestedUser(message, profile, containsExoMentionClass) {
+      const pattern = containsExoMentionClass ? `<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span>` : `@${profile.username}`;
+      return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
+                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
+                        <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
+                      </span>
+                    `));
+    },
+    replaceInvalidSuggestedUser(message, profile) {
+      return message.replace(new RegExp(`@${profile.username}`, 'g'), ExtendedDomPurify.purify(`
+                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="" contenteditable="false" title="${this.$t('activity.composer.invalidUser.message')}">
+                        <span class="exo-mention">
+                          <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text error-color" style="font-size: 16px;">
+                          </i>
+                          <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}</del>
+                          <a href="#" class="remove">
+                            <i class="uiIconClose uiIconLightGray"></i>
+                          </a>
+                        </span>
+                      </span>
+                    `));
+    },
     resetRichEditorData() {
       let message = this.ckEditorInstance.getMessage();
       const mentionedUsers =  message.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
@@ -493,32 +515,15 @@ export default {
           .then(userProfiles => userProfiles.filter(p => p))
           .then(userProfiles => {
             const containsExoMentionClass = message.search('exo-mention') >= 0;
+            this.containInvalidUsers = !!userProfiles.find(profile => profile.isMember !== true);
             userProfiles.forEach(profile => {
               if (profile.isMember) {
-                const pattern = containsExoMentionClass ? `<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span>` : `@${profile.username}`;
-                message = message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
-                
-                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
-                        <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
-                      </span>
-                    `));
+                message = this.replaceValidSuggestedUser(message, profile, containsExoMentionClass);
               } else {
-                message = message.replace(new RegExp(`@${profile.username}`, 'g'), ExtendedDomPurify.purify(`
-                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="" contenteditable="false" title="${this.$t('activity.composer.invalidUser.message')}">
-                        <span class="exo-mention">
-                          <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text error-color" style="font-size: 16px;">
-                          </i>
-                          <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}</del>
-                          <a href="#" class="remove">
-                            <i class="uiIconClose uiIconLightGray"></i>
-                          </a>
-                        </span>
-                      </span>
-                    `));
-                this.containInvalidUsers = true;
+                message = this.replaceInvalidSuggestedUser(message, profile);
               }
             });
-            this.ckEditorInstance?.initCKEditorData(message);
+            this.ckEditorInstance?.initCKEditorData?.(message);
           });
       }
     },
