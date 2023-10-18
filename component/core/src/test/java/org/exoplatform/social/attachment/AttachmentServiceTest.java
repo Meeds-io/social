@@ -42,6 +42,10 @@ import org.exoplatform.upload.UploadService;
 
 public class AttachmentServiceTest extends AbstractCoreTest {
 
+  private static final String   FORMAT               = "landscape";
+
+  private static final String   ALT_TEXT             = "Test alternative text";
+
   private static final String   USERNAME             = "demo";
 
   private static final String   MIME_TYPE            = "image/png";
@@ -186,6 +190,7 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
     fileUploadedObject.setUploadId(UPLOAD_ID);
     fileUploadedObject.setAltText("");
+    fileUploadedObject.setFormat("");
     fileUploadedObjectList.add(fileUploadedObject);
     attachmentList.setUploadedFiles(fileUploadedObjectList);
     attachmentList.setAttachedFiles(fileAttachmentObjectList);
@@ -324,6 +329,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
     assertEquals(1, attachments.size());
     assertListenerCount(1l, 0l, 1l, 0l);
+    assertEquals(ALT_TEXT, attachments.get(0).getAltText());
+    assertEquals(FORMAT, attachments.get(0).getFormat());
 
     attachmentService.deleteAttachments(OBJECT_TYPE, objectId);
     objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
@@ -352,7 +359,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
       hasEditPermission.set(true);
       FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
       fileAttachmentObject.setUploadId(UPLOAD_ID);
-      fileAttachmentObject.setAltText("Test alternative text");
+      fileAttachmentObject.setAltText(ALT_TEXT);
+      fileAttachmentObject.setFormat(FORMAT);
       attachmentList.setUploadedFiles(Collections.singletonList(fileAttachmentObject));
       uploadResource();
 

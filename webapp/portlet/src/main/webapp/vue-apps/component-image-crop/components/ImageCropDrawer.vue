@@ -166,6 +166,35 @@
             </div>
           </div>
         </div>
+        <div v-if="useFormat" class="d-flex flex-column mt-4">
+          <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
+            {{ $t('imageCropDrawer.format') }}
+          </div>
+          <div class="flex-grow-1 d-flex mx-n2">
+            <v-card
+              v-for="item in imageDisplayFormat"
+              :key="item.value"
+              :outlined="format !== item.value"
+              :class="format === item.value && 'primary-border-color'"
+              class="col-4 pa-0 flex-grow-1 flex-shrink-1 mx-2 border-box-sizing"
+              flat
+              @click="format = item.value">
+              <v-responsive :aspect-ratio="110 / 70">
+                <div class="d-flex flex-column align-center justify-center fill-height">
+                  <div class="d-flex flex-grow-1 align-center justify-center">
+                    <v-card
+                      :width="item.width"
+                      :height="item.height"
+                      max-width="100%"
+                      color="grey lighten-2"
+                      flat />
+                  </div>
+                  <div>{{ item.text }}</div>
+                </div>
+              </v-responsive>
+            </v-card>
+          </div>
+        </div>
         <div v-if="alt" class="d-flex flex-column mt-4">
           <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
             {{ $t('imageCropDrawer.altText.title') }}
@@ -192,6 +221,7 @@
           {{ $t('imageCropDrawer.cancel') }}
         </v-btn>
         <v-btn
+          :disabled="!imageData"
           :loading="sendingImage"
           id="imageCropDrawerApply"
           class="btn btn-primary"
@@ -221,6 +251,10 @@ export default {
       type: Number,
       default: () => 1000,
     },
+    useFormat: {
+      type: Boolean,
+      default: false,
+    },
     backIcon: {
       type: Boolean,
       default: false,
@@ -249,9 +283,9 @@ export default {
       type: Boolean,
       default: false,
     },
-    defaultAltText: {
+    defaultFormat: {
       type: String,
-      default: '',
+      default: () => 'landscape',
     },
     rounded: {
       type: Boolean,
@@ -267,6 +301,7 @@ export default {
   data: () => ({
     drawer: false,
     title: null,
+    format: null,
     zoom: 1,
     stepZoom: 0.1,
     minZoom: 1,
@@ -283,7 +318,7 @@ export default {
   }),
   computed: {
     aspectRatio() {
-      return this.cropOptions?.aspectRatio || 1;
+      return this.formaCropOptions?.aspectRatio || 1;
     },
     maxImageHeight() {
       return this.maxImageWidth && this.aspectRatio * this.maxImageWidth;
@@ -296,7 +331,34 @@ export default {
     },
     isImageGif() {
       return this.mimetype && this.mimetype === 'image/gif';
-    }
+    },
+    imageDisplayFormat() {
+      return [{
+        value: 'landscape',
+        text: this.$t('imageCropDrawer.landscape'),
+        width: 1280,
+        height: 175,
+      },{
+        value: 'portrait',
+        text: this.$t('imageCropDrawer.portrait'),
+        width: 1280,
+        height: 425,
+      },{
+        value: 'square',
+        text: this.$t('imageCropDrawer.square'),
+        width: 1280,
+        height: 1280,
+      }];
+    },
+    selectedFormat() {
+      return this.useFormat && this.imageDisplayFormat.find(f => f.value === this.format);
+    },
+    formatCropOptions() {
+      return this.selectedFormat && {
+        ...this.cropOptions,
+        aspectRatio: this.selectedFormat.width / this.selectedFormat.height,
+      } || this.cropOptions;
+    },
   },
   watch: {
     imageData() {
@@ -322,7 +384,13 @@ export default {
         this.$nextTick().then(() => this.init(true));
       }
     },
-
+    format() {
+      this.$emit('format', this.format);
+    },
+    formatCropOptions() {
+      this.resetCropper();
+      this.init();
+    },
   },
   methods: {
     open(imageItem) {
@@ -330,6 +398,7 @@ export default {
       this.imageData = imageItem?.src || this.src || null;
       this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
       this.alternativeText = imageItem?.altText || null;
+      this.format = imageItem?.format || 'landscape';
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
@@ -369,7 +438,7 @@ export default {
                 ready: () => {
                   this.cropperReady = true;
                 },
-              }, this.cropOptions));
+              }, this.formatCropOptions));
             }
           });
       } else {
@@ -412,7 +481,7 @@ export default {
       }
     },
     resetCropperData() {
-      this.cropper.reset();
+      this.cropper?.reset?.();
     },
     apply() {
       if (this.isImageGif) {

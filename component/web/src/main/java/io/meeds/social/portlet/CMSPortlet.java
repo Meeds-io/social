@@ -62,21 +62,22 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
 
   private static final Log                  LOG                  = ExoLogger.getLogger(CMSPortlet.class);
 
+  protected String                          contentType;
+
   private CMSService                        cmsService;
 
-  private String                            contentType;
-
   @Override
-  public final void init(PortletConfig config) throws PortletException {
+  public void init(PortletConfig config) throws PortletException {
     super.init(config);
     contentType = config.getInitParameter("content-type");
   }
 
   @Override
-  public final void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+  public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
     String name = getOrCreateSettingName(request.getPreferences());
     request.setAttribute("canEdit", canEdit(name, getCurrentAclIdentity()));
     request.setAttribute("settingName", name);
+    setViewRequestAttributes(name, request, response);
     super.doView(request, response);
   }
 
@@ -100,6 +101,7 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     } catch (ObjectAlreadyExistsException e) {
       LOG.debug("CMS Setting {}/{} already exists", contentType, name, e);
     }
+    INITIALIZED.remove(name);
   }
 
   /**
@@ -122,6 +124,28 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     return getCmsService().hasEditPermission(getCurrentAclIdentity(), contentType, name);
   }
 
+  protected void setViewRequestAttributes(String name, RenderRequest request, RenderResponse response) {
+    // No default behavior
+  }
+
+  protected void preSettingInit(PortletPreferences preferences, String name) {
+    // No default behavior
+  }
+
+  protected void postSettingInit(PortletPreferences preferences, String name) {
+    // No default behavior
+  }
+
+  protected void savePreference(String name, String value) {
+    String storageId = UIPortlet.getCurrentUIPortlet().getStorageId();
+    LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
+    Application<Portlet> applicationModel = layoutService.getApplicationModel(storageId);
+    ApplicationState<Portlet> state = applicationModel.getState();
+    Portlet prefs = layoutService.load(state, ApplicationType.PORTLET);
+    prefs.setValue(name, value);
+    layoutService.save(state, prefs);
+  }
+
   private String getOrCreateSettingName(PortletPreferences preferences) {
     String name = preferences.getValue(NAME, null);
     if (!isInitialized(name)) {
@@ -131,8 +155,9 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
         // Thus use storageId
         savePreference(NAME, name);
       }
+      preSettingInit(preferences, name);
       saveSettingName(name, getCurrentPageReference(), getCurrentSpaceId());
-      INITIALIZED.remove(name);
+      postSettingInit(preferences, name);
     }
     return name;
   }
@@ -143,16 +168,6 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     } else {
       return INITIALIZED.computeIfAbsent(name, this::isSettingNameExists);
     }
-  }
-
-  private void savePreference(String name, String value) {
-    String storageId = UIPortlet.getCurrentUIPortlet().getStorageId();
-    LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
-    Application<Portlet> applicationModel = layoutService.getApplicationModel(storageId);
-    ApplicationState<Portlet> state = applicationModel.getState();
-    Portlet prefs = layoutService.load(state, ApplicationType.PORTLET);
-    prefs.setValue(name, value);
-    layoutService.save(state, prefs);
   }
 
   private String generateRandomId() {

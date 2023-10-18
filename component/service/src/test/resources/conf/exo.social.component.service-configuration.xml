@@ -120,6 +120,11 @@
       <set-method>addPlugin</set-method>
       <type>org.exoplatform.social.core.plugin.ActivityAttachmentPlugin</type>
     </component-plugin>
+    <component-plugin>
+      <name>ImageAttachmentPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.social.image.plugin.ImageAttachmentPlugin</type>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
