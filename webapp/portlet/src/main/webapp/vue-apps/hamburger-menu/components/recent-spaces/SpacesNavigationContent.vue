@@ -23,27 +23,52 @@
     :class="shaped && 'ms-12'"
     class="mx-0 spacesNavigationContent"
     flat>
-    <v-list dense>
-      <v-list-item-group :value="selectedSpaceIndex">
-        <space-navigation-item
-          v-for="space in filteredSpaces" 
-          :key="space.id"
-          :space="space"
-          :space-url="url(space)"
-          :home-icon="homeIcon"
-          :home-link="homeLink"
-          :opened-space="openedSpace"
-          :third-level="thirdLevel" />
-      </v-list-item-group>
-    </v-list>
-    <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
+    <div v-if="spaces.length">
+      <v-list dense>
+        <v-list-item-group :value="selectedSpaceIndex">
+          <space-navigation-item
+              v-for="space in filteredSpaces"
+              :key="space.id"
+              :space="space"
+              :space-url="url(space)"
+              :home-icon="homeIcon"
+              :home-link="homeLink"
+              :opened-space="openedSpace"
+              :third-level="thirdLevel" />
+        </v-list-item-group>
+      </v-list>
+      <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
+        <v-btn
+            small
+            depressed
+            @click="loadNextPage()">
+          {{ $t('menu.spaces.showMore') }}
+        </v-btn>
+      </v-row>
+    </div>
+    <div  v-if="!spaces.length && thirdLevel" class="text-center mt-16">
+      <v-icon style="font-size: 40px">fa-people-arrows</v-icon>
+      <p class="mt-5 subtitle-2">
+        {{ $t('UIActivity.share.spaces.noDataLabel') }}
+      </p>
+      <p class="subtitle-2">
+        <span v-if="canAddSpaces">
+          {{ $t('spacesList.label.joinOrCreateSpace') }}
+        </span>
+          <span v-else>
+          {{ $t('spacesList.label.joinSpace') }}
+        </span>
+      </p>
       <v-btn
-        small
-        depressed
-        @click="loadNextPage()">
-        {{ $t('menu.spaces.showMore') }}
+          link
+          class="btn btn-primary mx-2 mx-md-0 px-md-2 mt-3"
+          style="text-transform: none"
+          :href="allSpacesLink" >
+          <span class="d-lg-inline">
+            {{ $t('spacesList.label.explore') }}
+          </span>
       </v-btn>
-    </v-row>
+    </div>
   </v-flex>
 </template>
 <script>
@@ -103,6 +128,8 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
     selectedSpaceIndex: -1,
+    canAddSpaces: false,
+    allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces`,
   }),
   computed: {
     canShowMore() {
@@ -141,6 +168,7 @@ export default {
     },
   }, 
   created() {
+    this.canAddSpaces = this.$root.canAddSpaces;
     this.originalLimitToFetch = this.limitToFetch = this.limit;
     document.addEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
     document.addEventListener('unread-items-deleted', (event) => {
@@ -168,6 +196,9 @@ export default {
       return this.$spaceService.getSpaces('', this.offset, this.limitToFetch, 'lastVisited', 'member,managers,favorite,unread,muted')
         .then(data => {
           this.spaces = data && data.spaces || [];
+          if (!this.spaces.length) {
+            this.$emit('no-spaces');
+          }
           return this.$nextTick();
         })
         .then(() => {

@@ -34,7 +34,7 @@
           class="fas fa-arrow-right"
           small />
       </v-list-item-icon>
-      <v-list-item class="recentSpacesTitle px-2">
+      <v-list-item v-if="spacesAreEmpty === false" class="recentSpacesTitle px-2">
         <v-list-item-icon 
           class="me-2 align-self-center " 
           @click="closeMenu()"> 
@@ -76,7 +76,8 @@
       show-more-button
       third-level
       class="recentSpacesWrapper mt-4"
-      @open-space-panel="$emit('open-space-panel',$event)" />
+      @open-space-panel="$emit('open-space-panel',$event)"
+      @no-spaces="noSpaces()"/>
   </v-container>
 </template>
 <script>
@@ -96,6 +97,7 @@ export default {
       itemsToShow: 15,
       showFilter: false,
       keyword: '',
+      spacesAreEmpty: false,
     };
   },
   methods: {
@@ -123,6 +125,9 @@ export default {
     openFilter() {
       this.showFilter = true;
       this.leftNavigationActionEvent('filterBySpaces');
+    },
+    noSpaces() {
+      this.spacesAreEmpty = true;
     },
   }
 };
