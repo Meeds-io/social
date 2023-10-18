@@ -77,7 +77,7 @@
       third-level
       class="recentSpacesWrapper mt-4"
       @open-space-panel="$emit('open-space-panel',$event)"
-      @no-spaces="noSpaces()"/>
+      @no-spaces="spacesAreEmpty = true"/>
   </v-container>
 </template>
 <script>
@@ -125,9 +125,6 @@ export default {
     openFilter() {
       this.showFilter = true;
       this.leftNavigationActionEvent('filterBySpaces');
-    },
-    noSpaces() {
-      this.spacesAreEmpty = true;
     },
   }
 };
