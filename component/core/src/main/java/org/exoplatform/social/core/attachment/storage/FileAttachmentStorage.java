@@ -75,8 +75,7 @@ public class FileAttachmentStorage {
         fileItem = fileService.updateFile(fileItem);
       }
 
-      long fileId = fileItem.getFileInfo().getId();
-      return String.valueOf(fileId);
+      return String.valueOf(fileItem.getFileInfo().getId());
     } catch (Exception e) {
       throw new IOException("Error attaching file " + fileName + " to object " + objectType + "/" + objectId, e);
     }
@@ -90,8 +89,7 @@ public class FileAttachmentStorage {
                                         fileInfo.getMimetype(),
                                         fileInfo.getSize(),
                                         fileInfo.getUpdatedDate().getTime(),
-                                        fileInfo.getUpdater(),
-                                        "");
+                                        fileInfo.getUpdater());
     }
     return null;
   }

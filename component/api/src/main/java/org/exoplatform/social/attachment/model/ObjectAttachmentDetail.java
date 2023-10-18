@@ -18,6 +18,9 @@
  */
 package org.exoplatform.social.attachment.model;
 
+import org.exoplatform.ws.frameworks.json.impl.JsonException;
+import org.exoplatform.ws.frameworks.json.impl.JsonGeneratorImpl;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,9 +44,33 @@ public class ObjectAttachmentDetail implements Cloneable {
 
   private String altText;
 
+  private String format;
+
+  public ObjectAttachmentDetail(String id, String name, String mimetype, long size, long updated, String updater) {
+    this.id = id;
+    this.name = name;
+    this.mimetype = mimetype;
+    this.size = size;
+    this.updated = updated;
+    this.updater = updater;
+  }
+
   @Override
   public ObjectAttachmentDetail clone() { // NOSONAR
-    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater, altText);
+    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater, altText, format);
+  }
+
+  @Override
+  public String toString() {
+    return toJsonString();
+  }
+
+  public String toJsonString() {
+    try {
+      return new JsonGeneratorImpl().createJsonObject(this).toString();
+    } catch (JsonException e) {
+      throw new IllegalStateException("Error parsing current object to string", e);
+    }
   }
 
 }
