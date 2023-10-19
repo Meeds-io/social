@@ -458,16 +458,15 @@ export default {
     removeAudience() {
       this.audience = '';
     },
-    replaceValidSuggestedUser(message, profile, containsExoMentionClass) {
-      const pattern = containsExoMentionClass ? `<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span>` : `@${profile.username}`;
+    replaceValidSuggestedUser(message, profile, pattern) {
       return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
                       <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
                         <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
                       </span>
                     `));
     },
-    replaceInvalidSuggestedUser(message, profile) {
-      return message.replace(new RegExp(`@${profile.username}`, 'g'), ExtendedDomPurify.purify(`
+    replaceInvalidSuggestedUser(message, profile, pattern) {
+      return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
                       <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="" contenteditable="false" title="${this.$t('activity.composer.invalidUser.message')}">
                         <span class="exo-mention">
                           <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text error-color" style="font-size: 16px;">
@@ -517,10 +516,11 @@ export default {
             const containsExoMentionClass = message.search('exo-mention') >= 0;
             this.containInvalidUsers = !!userProfiles.find(profile => profile.isMember !== true);
             userProfiles.forEach(profile => {
+              const pattern = containsExoMentionClass ? `<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span> </span>` : `@${profile.username}`;
               if (profile.isMember) {
-                message = this.replaceValidSuggestedUser(message, profile, containsExoMentionClass);
+                message = this.replaceValidSuggestedUser(message, profile, pattern);
               } else {
-                message = this.replaceInvalidSuggestedUser(message, profile);
+                message = this.replaceInvalidSuggestedUser(message, profile, pattern);
               }
             });
             this.ckEditorInstance?.initCKEditorData?.(message);

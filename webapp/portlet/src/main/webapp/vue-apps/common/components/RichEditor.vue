@@ -411,6 +411,7 @@ export default {
       try {
         if (this.editor) {
           this.editor.setData(this.inputVal);
+          this.inputVal = this.editor.getData();
         }
       } catch (e) {
         // When CKEditor not initialized or is detroying
