@@ -19,34 +19,44 @@
     :class="extraClass"
     :height="height"
     :min-width="minWidth"
-    class="white d-flex flex-column pa-5 card-border-radius"
+    class="d-flex flex-column white card-border-radius overflow-hidden"
     flat>
-    <div 
-      v-if="hasHeader"
-      :class="headerPadding" 
-      class="d-flex align-center">
-      <slot v-if="$slots.title" name="title"></slot>
-      <div v-else-if="title" class="widget-text-header text-capitalize-first-letter text-truncate">{{ title }}</div> 
-      <v-spacer />
-      <slot v-if="$slots.action" name="action"></slot>
-      <v-btn 
-        v-else-if="actionUrl" 
-        class="flex-shrink-0 px-0" 
-        :href="actionUrl"
-        :target="externalLink && '_blank' || '_self'"
-        text
-        small> 
-        <span class="text-font-size primary--text text-capitalize-first-letter"> 
-          {{ actionText }} 
-        </span>
-      </v-btn>
-    </div>
-    <div v-if="$slots.subtitle" class="pb-4">
-      <slot name="subtitle"></slot>
-    </div>
-    <div v-else-if="subtitle" class="pb-4">{{ subtitle }}</div>
-    <div v-if="$slots.default" class="d-flex flex-column flex-grow-1">
-      <slot></slot>
+    <div class="d-flex flex-column flex-grow-1 pa-5">
+      <div 
+        v-if="hasHeader"
+        :class="headerPadding" 
+        class="d-flex align-center">
+        <slot v-if="$slots.title" name="title"></slot>
+        <div v-else-if="title" class="widget-text-header text-capitalize-first-letter text-truncate">{{ title }}</div> 
+        <v-spacer />
+        <slot v-if="$slots.action" name="action"></slot>
+        <v-btn 
+          v-else-if="actionUrl" 
+          class="flex-shrink-0 px-0" 
+          :href="actionUrl"
+          :target="externalLink && '_blank' || '_self'"
+          text
+          small> 
+          <span class="text-font-size primary--text text-capitalize-first-letter"> 
+            {{ actionText }} 
+          </span>
+        </v-btn>
+      </div>
+      <div 
+        v-if="$slots.subtitle"
+        class="pb-4">
+        <slot name="subtitle"></slot>
+      </div>
+      <div 
+        v-else-if="subtitle"
+        class="pb-4"> 
+        {{ subtitle }}
+      </div>
+      <div 
+        v-if="$slots.default"
+        class="d-flex flex-column flex-grow-1">
+        <slot></slot>
+      </div>
     </div>
   </v-card>
 </template>

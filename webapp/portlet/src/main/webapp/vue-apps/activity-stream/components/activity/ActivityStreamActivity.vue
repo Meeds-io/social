@@ -53,7 +53,10 @@
         :is-activity-shared="isActivityShared"
         :hide-menu="hideMenu"
         :class="isActivityShared && 'py-4 px-0' || 'py-2 ps-4 pe-1'" />
-      <v-card v-if="!loading" flat>
+      <v-card 
+        v-if="!loading" 
+        color="transparent" 
+        flat>
         <extension-registry-components
           v-if="initialized"
           :params="extendedComponentParams"

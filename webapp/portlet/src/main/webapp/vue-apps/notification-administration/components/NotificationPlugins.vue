@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <div>
     <div class="pt-8 subtitle-1">{{ $t('NotificationAdmin.allowedNotificationChannels.title') }}</div>
     <notification-administration-plugin-group
       v-for="group in settings.groups"
@@ -10,7 +10,7 @@
     <notification-administration-plugin-drawer
       ref="drawer"
       :settings="settings" />
-  </v-card>
+  </div>
 </template>
 
 <script>
