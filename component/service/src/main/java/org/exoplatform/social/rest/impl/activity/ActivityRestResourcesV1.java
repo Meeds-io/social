@@ -1076,7 +1076,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
   private void addPreloadActivityIds(List<String> activityIds, int preloadLimit, String expand, ResponseBuilder responseBuilder) {
     int offset = preloadLimit > MAX_TO_PRELOAD ? preloadLimit - MAX_TO_PRELOAD : 0;
     List<String> preloadActivityIds =
-                                    activityIds.size() >= preloadLimit ? activityIds.subList(offset, preloadLimit) : activityIds;
+                                    activityIds.size() >= preloadLimit ? activityIds.subList(offset, preloadLimit) :  activityIds.subList(offset > MAX_TO_PRELOAD ? offset : 0, activityIds.size());
     for (String activityId : preloadActivityIds) {
       String activityLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=" + expand;
       responseBuilder.header("Link", "<" + activityLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials");
