@@ -22,8 +22,6 @@ import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
-import javax.ws.rs.core.Response;
-
 public class ActivityRestResourcesTest extends AbstractResourceTest {
 
   private ActivityRestResourcesV1 activityRestResourcesV1;
@@ -1528,7 +1526,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
      Max to preload is 10
      Preload limit is limit / 2 = 60
      Offset is Preload limit - max to preload = 50
-     Expected: 2 activity ids  */
+     Expected: 2 links  */
     assertEquals(2, outputHeadersMap.get("Link").size());
   }
 
