@@ -848,8 +848,8 @@
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Site Vertical Menu </title>
-      <keywords>Site Vertical Menu </keywords>
+      <title>Site Vertical Menu</title>
+      <keywords>Site Vertical Menu</keywords>
     </portlet-info>
   </portlet>
 </portlet-app>

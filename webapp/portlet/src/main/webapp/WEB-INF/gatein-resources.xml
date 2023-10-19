@@ -314,7 +314,7 @@
   <portal-skin>
     <skin-name>Enterprise</skin-name>
     <skin-module>siteDetailsComponent</skin-module>
-    <css-path>/skin/css/portlet/siteDetails/Style.css</css-path>
+    <css-path>/skin/css/common/siteDetails/Style.css</css-path>
     <css-priority>11</css-priority>
   </portal-skin>
   <!-- ATTENTION ! <End> DO NOT DELETE -->
