@@ -34,21 +34,13 @@ if (extensionRegistry) {
 }
 
 Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'verticalMenu';
 
-const lang = eXo && eXo.env.portal.language || 'en';
-
-const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.verticalMenu-${lang}.json`];
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    // init Vue app when locale ressources are ready
-    Vue.createApp({
-      template: `<vertical-menu-app id="${appId}"/>`,
-      vuetify,
-      i18n},
-    `#${appId}`, 'Vertical menu application');
-  });
+  Vue.createApp({
+    template: `<vertical-menu-app id="${appId}"/>`,
+    vuetify: Vue.prototype.vuetifyOptions,
+    i18n: exoi18n.i18n},
+  `#${appId}`, 'Vertical menu application');
 }
