@@ -864,7 +864,7 @@
     <mime-type>text/html</mime-type>
     </supports>
     <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.platformSettings</resource-bundle>
+    <resource-bundle>locale.portlet.PlatformSettings</resource-bundle>
     <portlet-info>
       <title>Platform Settings</title>
       <keywords>Platform Settings</keywords>

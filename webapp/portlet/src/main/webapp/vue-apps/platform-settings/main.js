@@ -36,7 +36,7 @@ const appId = 'platformSettings';
 
 const lang = eXo && eXo.env.portal.language || 'en';
 
-const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.platformSettings-${lang}.json`];
+const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.PlatformSettings-${lang}.json`];
 export function init(url) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
