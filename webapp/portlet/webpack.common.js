@@ -79,6 +79,7 @@ let config = {
     image: './src/main/webapp/vue-apps/image/main.js',
     verticalMenu: './src/main/webapp/vue-apps/vertical-menu/main.js',
     siteDetails: './src/main/webapp/vue-apps/site-details/main.js',
+    platformSettings: './src/main/webapp/vue-apps/platform-settings/main.js',
   },
   module: {
     rules: [
