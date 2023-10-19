@@ -225,5 +225,72 @@
         </object-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>Navigation.portlets.registry</name>
+      <set-method>initListener</set-method>
+      <type>org.exoplatform.application.registry.ApplicationCategoriesPlugins</type>
+      <description>this listener init the portlets are registered in PortletRegister</description>
+      <init-params>
+        <value-param>
+          <name>system</name>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>Navigation</name>
+          <description>description</description>
+          <object type="org.exoplatform.application.registry.ApplicationCategory">
+            <field name="name">
+              <string>Navigation</string>
+            </field>
+            <field name="displayName">
+              <string>Navigation</string>
+            </field>
+            <field name="description">
+              <string>Applications for Navigation</string>
+            </field>
+            <field name="accessPermissions">
+              <collection type="java.util.ArrayList" item-type="java.lang.String">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+              </collection>
+            </field>
+            <field name="applications">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <object type="org.exoplatform.application.registry.Application">
+                    <field name="applicationName">
+                      <string>VerticalMenu</string>
+                    </field>
+                    <field name="categoryName">
+                      <string>Navigation</string>
+                    </field>
+                    <field name="displayName">
+                      <string>Site Vertical Menu</string>
+                    </field>
+                    <field name="description">
+                      <string>Site Vertical Menu Portlet</string>
+                    </field>
+                    <field name="type">
+                      <string>portlet</string>
+                    </field>
+                    <field name="contentId">
+                      <string>social-portlet/VerticalMenu</string>
+                    </field>
+                    <field name="accessPermissions">
+                      <collection type="java.util.ArrayList" item-type="java.lang.String">
+                        <value>
+                          <string>*:/platform/users</string>
+                        </value>
+                      </collection>
+                    </field>
+                  </object>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 </configuration>

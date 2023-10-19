@@ -302,6 +302,21 @@
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/standalone-pages/AccountSetup.css</css-path>
   </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>VerticalMenu</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/VerticalMenu/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portal-skin>
+    <skin-name>Enterprise</skin-name>
+    <skin-module>siteDetailsComponent</skin-module>
+    <css-path>/skin/css/common/siteDetails/Style.css</css-path>
+    <css-priority>11</css-priority>
+  </portal-skin>
   <!-- ATTENTION ! <End> DO NOT DELETE -->
 
   <!-- Bootstrap Javascripts -->
@@ -1362,6 +1377,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>siteDetailsComponent</module>
+      </depends>
     </module>
   </portlet>
 
@@ -1617,6 +1635,52 @@
       </depends>
     </module>
   </portlet>
+
+  <portlet>
+    <name>VerticalMenu</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/verticalMenu.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>siteDetailsComponent</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+    </module>
+  </portlet>
+
+  <module>
+    <name>siteDetailsComponent</name>
+    <load-group>vueGRP</load-group>
+    <script>
+      <path>/js/siteDetails.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
 
   <module>
     <name>commonVueComponents</name>
