@@ -25,6 +25,7 @@ import UnreadBadge from './components/UnreadBadge.vue';
 import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
 import AttachmentsDraggableZone from './components/AttachmentsDraggableZone.vue';
+
 const components = {
   'card-carousel': CardCarousel,
   'exo-user-avatars-list': ExoUserAvatarsList,

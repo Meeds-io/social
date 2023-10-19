@@ -22,15 +22,16 @@
 export default {
   data: () => ({
     site: null,
+    siteId: eXo.env.portal.siteId,
   }),
   created() {
-    this.retrieveAdministrationSite();
+    this.retrieveCurrentSite();
   },
   methods: {
-    retrieveAdministrationSite(){
-      return this.$VerticalMenuService.getSite('PORTAL', eXo.env.portal.portalName, eXo.env.portal.language)
+    retrieveCurrentSite(){
+      return this.$VerticalMenuService.getSiteById(this.siteId, true, true, eXo.env.portal.language)
         .then(site => {
-          this.site = site ;
+          this.site = site;
         });
     },
   }

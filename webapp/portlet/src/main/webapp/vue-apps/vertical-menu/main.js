@@ -18,7 +18,7 @@
  */
 
 import './initComponents.js';
-import * as VerticalMenuService from './VerticalMenuService.js';
+import * as VerticalMenuService from './js/VerticalMenuService.js';
 
 window.Object.defineProperty(Vue.prototype, '$VerticalMenuService', {
   value: VerticalMenuService,
@@ -46,9 +46,9 @@ export function init() {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
-      template: `<site-vertical-menu id="${appId}"/>`,
+      template: `<vertical-menu-app id="${appId}"/>`,
       vuetify,
       i18n},
-    `#${appId}`, 'Vertical site menu');
+    `#${appId}`, 'Vertical menu application');
   });
 }

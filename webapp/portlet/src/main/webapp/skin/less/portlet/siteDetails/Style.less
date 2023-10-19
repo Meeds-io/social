@@ -21,12 +21,32 @@
 @import "../../variables.less";
 @import "../../mixins.less";
 
-.VerticalMenu {
-  overflow-x: hidden;
-  overflow-y: auto;
-  min-height: 100vh;
-  max-height: 100vh;
-  max-width:350px;
-  min-width:350px;
-  left: 0;
+.siteDetails {
+  #siteNavigationTree {
+    .v-treeview-node__content {
+      margin-left: 0px  ~'!important; /** orientation=lt */ ';
+      margin-right: 0px ~'!important; /** orientation=rt */ ';
+    }
+    .v-list-item--active {
+      color: @textLightColor!important;
+      background: @greyColorLighten1Opacity1;
+      &:before {
+        content: '';
+        width: 8px;
+        background:@secondaryColor;
+        position: absolute;
+        left: 0;
+        opacity: 1!important;
+      }
+      .v-list-item__icon {
+        i {
+          color: @toolbarLightIconColor !important;
+        }
+        .spaceRightArrow {
+          color: @toolbarDarkLinkHoverColor !important;
+        }
+      }
+    }
+  }
 }
+

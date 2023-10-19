@@ -117,23 +117,4 @@ public class SiteRestTest extends AbstractResourceTest {
     assertNotNull(siteEntity.getRootNode());
     assertNotNull(siteEntity.getBannerUrl());
   }
-  @Test
-  public void testGetSiteByTypeAndName() throws Exception {
-    String originPath = "/v1/social/sites/details/";
-    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().get(0);
-    String path = originPath + "PORTAL?siteName=notExist";
-    ContainerResponse resp = getResponse("GET", path, "");
-    assertEquals(404, resp.getStatus());
-    Object entity = resp.getEntity();
-    assertNull(entity);
-
-    path = originPath + site.getSiteType().getName() + "?siteName=" + site.getName();
-    resp = getResponse("GET", path, "");
-    assertEquals(200, resp.getStatus());
-    entity = resp.getEntity();
-    assertNotNull(entity);
-    SiteEntity siteEntity = (SiteEntity) entity;
-    assertEquals(siteEntity.getSiteType().getName(), site.getSiteType().getName());
-    assertEquals(siteEntity.getName(), site.getName());
-  }
 }

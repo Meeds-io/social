@@ -850,8 +850,8 @@
     <supported-locale>en</supported-locale>
     <resource-bundle>locale.portlet.verticalMenu</resource-bundle>
     <portlet-info>
-      <title>Administration site menu</title>
-      <keywords>Administration site menu</keywords>
+      <title>Site Vertical Menu </title>
+      <keywords>Site Vertical Menu </keywords>
     </portlet-info>
   </portlet>
 </portlet-app>

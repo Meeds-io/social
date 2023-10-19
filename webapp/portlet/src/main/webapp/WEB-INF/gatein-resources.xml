@@ -311,6 +311,12 @@
     <css-priority>1</css-priority>
   </portlet-skin>
 
+  <portal-skin>
+    <skin-name>Enterprise</skin-name>
+    <skin-module>siteDetailsComponent</skin-module>
+    <css-path>/skin/css/portlet/siteDetails/Style.css</css-path>
+    <css-priority>11</css-priority>
+  </portal-skin>
   <!-- ATTENTION ! <End> DO NOT DELETE -->
 
   <!-- Bootstrap Javascripts -->
@@ -1372,7 +1378,7 @@
         <module>extensionRegistry</module>
       </depends>
       <depends>
-        <module>siteDetailsComponents</module>
+        <module>siteDetailsComponent</module>
       </depends>
     </module>
   </portlet>
@@ -1644,7 +1650,10 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>siteDetailsComponents</module>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>siteDetailsComponent</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>
@@ -1660,7 +1669,7 @@
   </portlet>
 
   <module>
-    <name>siteDetailsComponents</name>
+    <name>siteDetailsComponent</name>
     <load-group>vueGRP</load-group>
     <script>
       <path>/js/siteDetails.bundle.js</path>

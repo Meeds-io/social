@@ -18,7 +18,10 @@ package org.exoplatform.social.rest.impl.site;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
@@ -40,13 +43,14 @@ import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
-import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.rest.api.EntityBuilder;
+import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.SiteEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -69,9 +73,9 @@ public class SiteRest implements ResourceContainer {
 
   private static final int          CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
 
-  private static final CacheControl SITES_CACHE_CONTROL    = new CacheControl();
+  private static final CacheControl SITES_CACHE_CONTROL          = new CacheControl();
 
-  private static final CacheControl SITE_CACHE_CONTROL     = new CacheControl();
+  private static final CacheControl SITE_CACHE_CONTROL          = new CacheControl();
 
   private static final CacheControl BANNER_CACHE_CONTROL   = new CacheControl();
 
@@ -310,80 +314,6 @@ public class SiteRest implements ResourceContainer {
       return Response.status(Response.Status.NOT_FOUND).build();
     } catch (IOException e) {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-    }
-  }
-
-  @GET
-  @Path("/details/{siteType}")
-  @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
-  @Operation(summary = "Gets a specific site by id", description = "Gets site by id", method = "GET")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "500", description = "Internal server error"), })
-  public Response getSite(@Context
-  HttpServletRequest httpServletRequest, @Context
-  Request request,
-                          @Parameter(description = "Portal site type, possible values: PORTAL, GROUP or USER", required = true)
-                          @PathParam("siteType")
-                          String siteTypeName,
-                          @Parameter(description = "Portal site name", required = true)
-                          @QueryParam("siteName")
-                          String siteName,
-                          @Parameter(description = "to expand site navigations nodes")
-                          @DefaultValue("false")
-                          @QueryParam("expandNavigations")
-                          boolean expandNavigations,
-                          @Parameter(description = "Multivalued visibilities of navigation nodes to retrieve, possible values: DISPLAYED, HIDDEN, SYSTEM or TEMPORAL. If empty, all visibilities will be used.", required = false)
-                          @Schema(defaultValue = "All possible values combined")
-                          @QueryParam("visibility")
-                          List<String> visibilityNames,
-                          @Parameter(description = "to check, in expandNavigations case, the navigation nodes scheduling start and end dates")
-                          @DefaultValue("false")
-                          @QueryParam("temporalCheck")
-                          boolean temporalCheck,
-                          @Parameter(description = "to exclude group nodes without page child nodes")
-                          @DefaultValue("false")
-                          @QueryParam("excludeGroupNodesWithoutPageChildNodes")
-                          boolean excludeGroupNodesWithoutPageChildNodes,
-                          @Parameter(description = "to exclude sites with empty navigation")
-                          @DefaultValue("false")
-                          @QueryParam("excludeEmptyNavigationSites")
-                          boolean excludeEmptyNavigationSites,
-                          @Parameter(description = "Used to retrieve the site label and description in the requested language")
-                          @QueryParam("lang")
-                          String lang) {
-    try {
-      PortalConfig site = layoutService.getPortalConfig(new SiteKey(siteTypeName, siteName));
-      if (site == null) {
-        return Response.status(Response.Status.NOT_FOUND).build();
-      }
-      SiteEntity siteEntity = EntityBuilder.buildSiteEntity(site,
-                                                            httpServletRequest,
-                                                            true,
-                                                            visibilityNames,
-                                                            true,
-                                                            true,
-                                                            true,
-                                                            getLocale(lang));
-      EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(siteTypeName,
-                                                                 siteName,
-                                                                 siteEntity,
-                                                                 expandNavigations,
-                                                                 visibilityNames,
-                                                                 excludeEmptyNavigationSites,
-                                                                 temporalCheck,
-                                                                 excludeGroupNodesWithoutPageChildNodes,
-                                                                 getLocale(lang))));
-      Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-      if (builder == null) {
-        builder = Response.ok(siteEntity);
-        builder.tag(eTag);
-      }
-      builder.cacheControl(SITE_CACHE_CONTROL);
-      return builder.build();
-    } catch (Exception e) {
-      LOG.warn("Error while retrieving administration site", e);
-      return Response.serverError().entity(e.getMessage()).build();
     }
   }
 

@@ -266,10 +266,10 @@
                       <string>Navigation</string>
                     </field>
                     <field name="displayName">
-                      <string>vertical site menu</string>
+                      <string>Site Vertical Menu</string>
                     </field>
                     <field name="description">
-                      <string>vertical site menu Portlet</string>
+                      <string>Site Vertical Menu Portlet</string>
                     </field>
                     <field name="type">
                       <string>portlet</string>

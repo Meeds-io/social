@@ -124,6 +124,7 @@
                 <include>portlet/TopBarMenu/Style.less</include>
                 <include>portlet/WhoIsOnLine/Style.less</include>
                 <include>portlet/VerticalMenu/Style.less</include>
+                <include>portlet/siteDetails/Style.less</include>
                 <!-- Deprecated Portlets -->
                 <include>portlet/TopBarNotification/Style.less</include>
                 <!-- Standalone Modules -->
