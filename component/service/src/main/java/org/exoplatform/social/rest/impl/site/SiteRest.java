@@ -74,7 +74,7 @@ public class SiteRest implements ResourceContainer {
   private static final int          CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
 
   private static final CacheControl SITES_CACHE_CONTROL          = new CacheControl();
-
+  
   private static final CacheControl SITE_CACHE_CONTROL          = new CacheControl();
 
   private static final CacheControl BANNER_CACHE_CONTROL   = new CacheControl();
