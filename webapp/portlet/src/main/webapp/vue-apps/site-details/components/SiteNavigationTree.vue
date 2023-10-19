@@ -1,6 +1,6 @@
 <template>
   <v-treeview
-    id="siteHamburgerItemNavigationTree"
+    id="siteNavigationTree"
     :open.sync="openLevel"
     :items="navigations"
     :active="active"
@@ -12,7 +12,7 @@
     open-on-click
     transition>
     <template #label="{ item }">
-      <site-hamburger-item-navigation :navigation="item" />
+      <site-navigation-item :navigation="item" :enable-change-home="enableChangeHome" />
     </template>
   </v-treeview>
 </template>
@@ -27,6 +27,10 @@ export default {
     siteName: {
       type: String,
       default: null,
+    },
+    enableChangeHome: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
