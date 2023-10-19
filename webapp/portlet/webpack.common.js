@@ -77,6 +77,8 @@ let config = {
     attachImage: './src/main/webapp/vue-apps/attach-image/main.js',
     links: './src/main/webapp/vue-apps/links/main.js',
     image: './src/main/webapp/vue-apps/image/main.js',
+    verticalMenu: './src/main/webapp/vue-apps/vertical-menu/main.js',
+    siteDetails: './src/main/webapp/vue-apps/site-details/main.js',
   },
   module: {
     rules: [
