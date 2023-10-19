@@ -852,4 +852,22 @@
       <keywords>Site Vertical Menu</keywords>
     </portlet-info>
   </portlet>
+
+  <portlet>
+    <portlet-name>PlatformSettings</portlet-name>
+    <display-name>Platform Settings portlet</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/platformSettings.jsp</value>
+    </init-param>    <supports>
+    <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.platformSettings</resource-bundle>
+    <portlet-info>
+      <title>Platform Settings</title>
+      <keywords>Platform Settings</keywords>
+    </portlet-info>
+  </portlet>
 </portlet-app>
