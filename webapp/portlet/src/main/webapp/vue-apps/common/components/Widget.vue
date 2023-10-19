@@ -19,12 +19,12 @@
     :class="extraClass"
     :height="height"
     :min-width="minWidth"
-    class="white d-flex flex-column pa-5 card-border-radius"
+    class="white d-flex flex-column px-5 pb-5 card-border-radius"
     flat>
     <div 
       v-if="hasHeader"
       :class="headerPadding" 
-      class="d-flex align-center">
+      class="d-flex align-center pt-5">
       <slot v-if="$slots.title" name="title"></slot>
       <div v-else-if="title" class="widget-text-header text-capitalize-first-letter text-truncate">{{ title }}</div> 
       <v-spacer />
@@ -41,11 +41,22 @@
         </span>
       </v-btn>
     </div>
-    <div v-if="$slots.subtitle" class="pb-4">
+    <div 
+      v-if="$slots.subtitle" 
+      :class="!hasHeader && 'pt-5' || ''"
+      class="pb-4">
       <slot name="subtitle"></slot>
     </div>
-    <div v-else-if="subtitle" class="pb-4">{{ subtitle }}</div>
-    <div v-if="$slots.default" class="d-flex flex-column flex-grow-1">
+    <div 
+      v-else-if="subtitle" 
+      :class="!hasHeader && 'pt-5' || ''"
+      class="pb-4"> 
+      {{ subtitle }}
+    </div>
+    <div 
+      v-if="$slots.default" 
+      :class="!hasHeader && !hasSubTitle && 'pt-5' || ''"
+      class="d-flex flex-column flex-grow-1">
       <slot></slot>
     </div>
   </v-card>
@@ -93,6 +104,9 @@ export default {
   computed: {
     hasHeader() {
       return this.$slots.title || this.title || this.$slots.actions || this.actionUrl;
+    },
+    hasSubTitle() {
+      return this.$slots.subtitle || this.subtitle;
     },
     headerPadding() {
       if (!this.$slots.default) {
