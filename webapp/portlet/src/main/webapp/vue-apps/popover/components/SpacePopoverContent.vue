@@ -21,7 +21,7 @@
 <template>
   <v-card
     elevation="2"
-    class="pa-2"
+    class="pa-2 card-border-radius"
     max-width="250"
     min-width="250"
     id="identity-popover"
