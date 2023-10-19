@@ -178,7 +178,7 @@
               :class="format === item.value && 'primary-border-color'"
               class="col-4 pa-0 flex-grow-1 flex-shrink-1 mx-2 border-box-sizing"
               flat
-              @click="format = item.value">
+              @click="selectFormat(item.value)">
               <v-responsive :aspect-ratio="110 / 70">
                 <div class="d-flex flex-column align-center justify-center fill-height">
                   <div class="d-flex flex-grow-1 align-center justify-center">
@@ -314,7 +314,10 @@ export default {
     resetInput: false,
     sendingImage: false,
     alternativeText: null,
-    mimetype: null
+    mimetype: null,
+    checkFormat: false,
+    specificFormatSelected: false,
+    imageAspectRatio: 0,
   }),
   computed: {
     aspectRatio() {
@@ -367,11 +370,14 @@ export default {
         this.init();
       }
     },
-    sendingImage() {
+    sendingImage(newVal, oldVal) {
       if (this.sendingImage) {
         this.$refs?.drawer?.startLoading();
       } else {
         this.$refs?.drawer?.endLoading();
+      }
+      if (this.useFormat && oldVal && !newVal) {
+        this.checkFormat = true;
       }
     },
     zoom(newVal, oldVal) {
@@ -391,6 +397,23 @@ export default {
       this.resetCropper();
       this.init();
     },
+    cropperReady() {
+      if (this.checkFormat && this.cropperReady) {
+        this.checkFormat = false;
+        this.imageAspectRatio = this.cropper?.getImageData?.()?.aspectRatio;
+      }
+    },
+    imageAspectRatio() {
+      if (this.imageAspectRatio && this.useFormat && !this.specificFormatSelected) {
+        if (this.imageAspectRatio < 0.9) {
+          this.format = 'portrait';
+        } else if (this.imageAspectRatio > 1.5) {
+          this.format = 'landscape';
+        } else {
+          this.format = 'square';
+        }
+      }
+    },
   },
   methods: {
     open(imageItem) {
@@ -399,6 +422,7 @@ export default {
       this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
       this.alternativeText = imageItem?.altText || null;
       this.format = imageItem?.format || 'landscape';
+      this.specificFormatSelected = !!imageItem?.format;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
@@ -588,6 +612,10 @@ export default {
         };
         reader.readAsDataURL(file);
       }
+    },
+    selectFormat(format) {
+      this.specificFormatSelected = true;
+      this.format = format;
     },
     getBase64Mimetype(dataUrl) {
       let mimetype = null;
