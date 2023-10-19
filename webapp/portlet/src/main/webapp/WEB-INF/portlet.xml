@@ -860,8 +860,9 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/platformSettings.jsp</value>
-    </init-param>    <supports>
-    <mime-type>text/html</mime-type>
+    </init-param>    
+    <supports>
+      <mime-type>text/html</mime-type>
     </supports>
     <supported-locale>en</supported-locale>
     <resource-bundle>locale.portlet.PlatformSettings</resource-bundle>

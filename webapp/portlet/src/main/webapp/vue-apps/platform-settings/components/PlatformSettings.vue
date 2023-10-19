@@ -16,7 +16,7 @@
         </v-icon>
       </v-btn>
     </template>
-    <span> {{ $t('platformSettings.label.openAdministration') }}</span>
+    <span>{{ $t('platformSettings.label.openAdministration') }}</span>
   </v-tooltip>
 </template>
 
