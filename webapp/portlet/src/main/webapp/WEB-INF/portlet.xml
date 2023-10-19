@@ -836,4 +836,20 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>VerticalMenu</portlet-name>
+    <display-name>Vertical Menu Portlet for site </display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/verticalMenu.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Site Vertical Menu</title>
+      <keywords>Site Vertical Menu</keywords>
+    </portlet-info>
+  </portlet>
 </portlet-app>
