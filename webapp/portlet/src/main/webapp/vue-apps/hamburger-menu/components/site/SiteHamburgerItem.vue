@@ -101,7 +101,7 @@ export default {
       return ` ${this.isCurrentSite && ' v-item--active v-list-item--active ' || ' ' } ${this.siteRootNode?.pageKey && ' clickable ' || ' not-clickable '}` ;
     },
     iconClass() {
-      const capitilizedName = `${this.siteRootNode.name[0].toUpperCase()}${this.siteRootNode.name.slice(1)}`;
+      const capitilizedName = (this.siteRootNode?.name?.length || 0) > 1 && `${this.siteRootNode.name[0].toUpperCase()}${this.siteRootNode.name.slice(1)}` || '';
       return `uiIcon uiIconFile uiIconToolbarNavItem uiIcon${capitilizedName} icon${capitilizedName} ${this.siteRootNode.icon}`;
     },
     toggleArrow() {
