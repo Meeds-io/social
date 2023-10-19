@@ -32,8 +32,7 @@
             :loading="loading"
             @edit="editSettings"
             @remove="removeImage" />
-          <image-view
-            :loading="loading" />
+          <image-view />
         </v-responsive>
       </v-card>
     </v-hover>

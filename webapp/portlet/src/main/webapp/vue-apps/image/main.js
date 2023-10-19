@@ -54,6 +54,7 @@ export function init(appId, name, canEdit, files) {
           name,
           canEdit,
           files,
+          offsetWidth: 0,
         },
         computed: {
           hasImages() {
@@ -76,14 +77,54 @@ export function init(appId, name, canEdit, files) {
           imageFormat() {
             return this.imageDisplayFormat[this.imageFormatName];
           },
+          isSmall() {
+            return !this.isXSmall && this.$vuetify?.breakpoint?.sm;
+          },
+          isXSmall() {
+            return this.$vuetify?.breakpoint?.xsOnly;
+          },
+          fixedHeight() {
+            if (this.imageFormatName === 'landscape' && this.isSmall) {
+              return 90;
+            } else if (this.imageFormatName === 'landscape' && this.isXSmall) {
+              return 60;
+            } else {
+              return 0;
+            }
+          },
           imageWidth() {
-            return this.imageFormat.width;
+            if (this.fixedHeight) {
+              return this.offsetWidth || this.$el?.offsetWidth;
+            } else {
+              return this.imageFormat.width;
+            }
           },
           imageHeight() {
-            return this.imageFormat.height;
+            return this.fixedHeight || this.imageFormat.height;
           },
           imageAspectRatio() {
             return this.imageWidth / this.imageHeight;
+          },
+          formatAspectRatio() {
+            return this.imageFormat && (this.imageFormat.width / this.imageFormat.height);
+          },
+        },
+        watch: {
+          fixedHeight: {
+            immediate: true,
+            handler(newVal, oldVal) {
+              if (newVal && !oldVal) {
+                window.addEventListener('resize', this.updateWidth);
+              } else if (oldVal && !newVal) {
+                this.resizeListenerInstalled = false;
+                window.removeEventListener('resize', this.updateWidth);
+              }
+            },
+          },
+        },
+        methods: {
+          updateWidth() {
+            this.offsetWidth = this.$el?.offsetWidth;
           },
         },
         template: `<image-app id="${appId}"></image-app>`,

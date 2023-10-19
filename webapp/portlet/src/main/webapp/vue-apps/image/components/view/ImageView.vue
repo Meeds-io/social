@@ -24,8 +24,45 @@
     id="spaceAvatarImg"
     :src="$root.imageUrl"
     :alt="$root.imageAltText"
-    :aspect-ratio="$root.imageAspectRatio"
-    width="100%"
-    height="100%"
-    class="fill-height fill-width border-box-sizing">
+    :width="$root.fixedHeight && `${width}px` || '100%'"
+    :height="$root.fixedHeight && `${$root.fixedHeight}px` || '100%'"
+    :class="cssClass"
+    :style="cssStyle"
+    class="border-box-sizing">
 </template>
+<script>
+export default {
+  computed: {
+    appWidth() {
+      return this.$root.imageAspectRatio * this.$root.imageHeight;
+    },
+    imgWidth() {
+      return this.$root.formatAspectRatio * this.$root.imageHeight;
+    },
+    width() {
+      return Math.max(this.appWidth, this.imgWidth);
+    },
+    appHeight() {
+      return this.$root.fixedHeight;
+    },
+    imgHeight() {
+      return this.width / this.$root.formatAspectRatio;
+    },
+    height() {
+      return Math.max(this.appHeight, this.imgHeight);
+    },
+    cssClass() {
+      return this.$root.fixedHeight
+        && ((this.imgWidth < this.appWidth) && 'absolute-vertical-center' || 'absolute-horizontal-center t-0')
+        || 'fill-height fill-width';
+    },
+    cssStyle() {
+      return this.$root.fixedHeight && {
+        height: `${this.height}px`,
+        'width': `${this.width}px`,
+        'min-width': `${this.width}px`,
+      };
+    },
+  },
+};
+</script>
