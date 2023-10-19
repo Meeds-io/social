@@ -1,6 +1,7 @@
 <template>
   <v-card
     v-if="settings"
+    class="card-border-radius"
     flat>
     <v-toolbar
       class="border-box-sizing"
@@ -21,7 +22,7 @@
       <v-spacer />
     </v-toolbar>
 
-    <v-flex class="ma-3 white">
+    <v-flex class="ma-3">
       <user-setting-notification-group
         v-for="group in settings.groups"
         :settings="settings"

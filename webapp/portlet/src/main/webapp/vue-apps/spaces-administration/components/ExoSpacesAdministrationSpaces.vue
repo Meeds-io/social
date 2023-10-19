@@ -7,6 +7,7 @@
         <v-flex>
           <v-tabs
             v-model="selectedTab"
+            class="card-border-radius overflow-hidden"
             slider-size="4">
             <v-tab key="manage" href="#manage">
               {{ $t('social.spaces.administration.manageSpaces') }}
@@ -31,7 +32,7 @@
             </v-tab>
           </v-tabs>
 
-          <v-tabs-items v-model="selectedTab" class="mt-2">
+          <v-tabs-items v-model="selectedTab" class="mt-2 card-border-radius overflow-hidden">
             <v-tab-item
               id="manage"
               value="manage"
