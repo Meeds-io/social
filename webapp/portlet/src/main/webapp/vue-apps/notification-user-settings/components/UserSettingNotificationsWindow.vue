@@ -1,42 +1,43 @@
 <template>
-  <div>
-    <v-card
-      v-if="settings"
-      class="card-border-radius"
+  <v-card
+    v-if="settings"
+    class="card-border-radius"
+    flat>
+    <v-toolbar
+      class="border-box-sizing"
       flat>
-      <v-toolbar
-        class="border-box-sizing"
-        flat>
-        <v-btn
-          class="mx-1"
-          icon
-          height="36"
-          width="36"
-          @click="$emit('back')">
-          <v-icon size="20">
-            {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
-          </v-icon>
-        </v-btn>
-        <v-toolbar-title class="ps-0">
-          {{ $t('UserSettings.manageNotifications') }}
-        </v-toolbar-title>
-        <v-spacer />
-      </v-toolbar>
-      <v-flex class="ma-3">
-        <user-setting-notification-group
-          v-for="group in settings.groups"
-          :settings="settings"
-          :key="group.groupId"
-          :group="group"
-          :digest-mail-notification-enabled="digestMailNotificationEnabled"
-          @edit="openDrawer" />
-      </v-flex>
-    </v-card>
-    <user-setting-notification-drawer
-      ref="drawer"
-      :settings="settings"
-      :digest-mail-notification-enabled="digestMailNotificationEnabled" />
-  </div>
+      <v-btn
+        class="mx-1"
+        icon
+        height="36"
+        width="36"
+        @click="$emit('back')">
+        <v-icon size="20">
+          {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
+        </v-icon>
+      </v-btn>
+      <v-toolbar-title class="ps-0">
+        {{ $t('UserSettings.manageNotifications') }}
+      </v-toolbar-title>
+      <v-spacer />
+    </v-toolbar>
+
+    <v-flex class="ma-3">
+      <user-setting-notification-group
+        v-for="group in settings.groups"
+        :settings="settings"
+        :key="group.groupId"
+        :group="group"
+        :digest-mail-notification-enabled="digestMailNotificationEnabled"
+        @edit="openDrawer" />
+    </v-flex>
+    <div>
+      <user-setting-notification-drawer
+        ref="drawer"
+        :settings="settings"
+        :digest-mail-notification-enabled="digestMailNotificationEnabled" />
+    </div>
+  </v-card>
 </template>
 
 <script>

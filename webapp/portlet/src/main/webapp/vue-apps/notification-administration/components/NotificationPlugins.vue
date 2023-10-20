@@ -1,14 +1,12 @@
 <template>
   <div>
-    <v-card flat>
-      <div class="pt-8 subtitle-1">{{ $t('NotificationAdmin.allowedNotificationChannels.title') }}</div>
-      <notification-administration-plugin-group
-        v-for="group in settings.groups"
-        :settings="settings"
-        :key="group.groupId"
-        :group="group"
-        @edit="openDrawer" />
-    </v-card>
+    <div class="pt-8 subtitle-1">{{ $t('NotificationAdmin.allowedNotificationChannels.title') }}</div>
+    <notification-administration-plugin-group
+      v-for="group in settings.groups"
+      :settings="settings"
+      :key="group.groupId"
+      :group="group"
+      @edit="openDrawer" />
     <notification-administration-plugin-drawer
       ref="drawer"
       :settings="settings" />
