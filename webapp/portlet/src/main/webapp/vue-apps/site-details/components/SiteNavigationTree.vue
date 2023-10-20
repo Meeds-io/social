@@ -46,6 +46,8 @@ export default {
           ids.push(...nav.children?.length && nav.children?.map(nav => nav.name) || []);
         });
       }
+      const splittedCurrentUri = this.selectedNodeUri.split('/');
+      ids.push (... splittedCurrentUri);
       return ids;
     },
     active() {

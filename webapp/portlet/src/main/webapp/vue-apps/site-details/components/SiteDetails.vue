@@ -15,7 +15,7 @@
           small />
       </row>
       <v-img
-        :src="site.bannerUrl"
+        :src="site?.bannerUrl"
         class="mx-1 pt-1" />
       <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
