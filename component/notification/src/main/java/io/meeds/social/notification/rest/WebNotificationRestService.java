@@ -18,6 +18,7 @@
 package io.meeds.social.notification.rest;
 
 import io.meeds.social.notification.rest.model.WebNotificationListRestEntity;
+import io.meeds.social.notification.rest.model.WebNotificationRestEntity;
 import io.meeds.social.notification.rest.utils.WebNotificationRestEntityBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -231,5 +232,35 @@ public class WebNotificationRestService implements ResourceContainer {
     }
     return Response.noContent().build();
   }
+
+    @GET
+    @Path("{id}")
+    @RolesAllowed("users")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Get notification by id", description = "This gets a specific notifications by id", method = "GET")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Notification returned"),
+            @ApiResponse(responseCode = "404", description = "Notification not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error") })
+    public Response getNotifications(
+            @Parameter(description = "notification id", required = true)
+            @PathParam("id")
+            String notificationId){
+        if (notificationId == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        NotificationInfo notification = webNftService.getNotificationInfo(notificationId);
+        if (notification == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        WebNotificationRestEntity webNotificationRestEntity = WebNotificationRestEntityBuilder.toRestEntity(
+                webNftService,
+                identityManager,
+                spaceService,
+                notification,
+                false);
+
+        return Response.ok(webNotificationRestEntity).build();
+    }
 
 }

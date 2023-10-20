@@ -78,9 +78,132 @@ export default {
     },
     updateBadgeByEvent(event) {
       this.updateBadge(event?.detail?.data?.numberOnBadge || 0);
+      this.sendDesktopNotification(event?.detail?.data);
     },
     updateBadge(badge) {
       this.badge = badge;
+    },
+    sendDesktopNotification(data) {
+      if (window.Notification) {
+        if (window.Notification.permission === 'granted') {
+          this.handleNotification(data);
+
+        } else {
+          window.Notification.requestPermission();
+        }
+      }
+    },
+    handleNotification(eventData) {
+      this.$notificationService.getNotification(eventData?.id)
+        .then((notificationData) => {
+          const accepted = notificationData?.parameters?.status === 'accepted';
+
+          const profileFullName = notificationData?.from?.fullname || notificationData?.parameters?.sender;
+          const spaceDisplayName = notificationData?.space?.displayName  || '';
+          
+          switch (notificationData.plugin) {
+          case 'ActivityCommentPlugin':
+          case 'ActivityReplyToCommentPlugin':
+          case 'LikeCommentPlugin':
+          case 'LikePlugin': {
+            this.getPosterIdentities(notificationData);
+            break;
+          }
+
+          case 'SpaceInvitationPlugin': {
+            const messageKey = accepted && 'Notification.intranet.message.accept.SpaceInvitationPlugin' || 'Notification.intranet.message.SpaceInvitationPlugin';
+            const message = this.$t(messageKey, accepted && {
+              0: spaceDisplayName,
+            } || {
+              0: profileFullName,
+              1: spaceDisplayName,
+            });
+            new Notification(eXo.env.portal.companyName, {
+              body: message
+            });
+            break;
+          }
+
+          case 'RelationshipReceivedRequestPlugin': {
+            const messageKey = accepted && `Notification.intranet.message.accept.${notificationData?.plugin}` || `Notification.intranet.message.${notificationData?.plugin}`;
+            const message = this.$t(messageKey, {
+              0: profileFullName,
+            });
+            new Notification(message);
+            break;
+          }
+
+          case 'RequestJoinSpacePlugin':
+          case 'ActivityMentionPlugin':
+          case 'EditActivityPlugin':
+          case 'EditCommentPlugin':
+          case 'PostActivityPlugin':
+          case 'PostActivitySpaceStreamPlugin':
+          case 'SharedActivitySpaceStreamPlugin': {
+            const messageKey =  `Notification.intranet.message.${notificationData?.plugin}`;
+            const message= this.$t(messageKey, {
+              0: profileFullName,
+              1: spaceDisplayName,
+            });
+            new Notification(eXo.env.portal.companyName, {
+              body: message
+            });
+            break;
+          }
+          case 'NewUser': {
+            const messageKey = 'Notification.intranet.message.NewUserPlugin';
+            const message= this.$t(messageKey, {
+              0: profileFullName,
+              1: eXo.env.portal.companyName,
+            });
+            new Notification(message);
+            break;
+          }}});
+    },
+
+    getPosterIdentities(notificationData) {
+      const posterUsernames = notificationData?.parameters?.poster
+          && notificationData.parameters.poster.split(',')
+          || [notificationData.parameters.poster];
+      let posterIdentities = [];
+
+      if (posterUsernames?.length && posterUsernames?.length > 1) {
+        return Promise.all(posterUsernames.slice(0, 2).map(u => this.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
+          .then(identities => {
+            posterIdentities = identities.map(i => i?.profile).filter(p => !!p);
+            this.constructPosterIdentitiesNotification(posterIdentities, posterUsernames, notificationData?.plugin);
+          });
+      } else {
+        posterIdentities = notificationData.from && [notificationData.from] || [];
+        this.constructPosterIdentitiesNotification(posterIdentities, posterUsernames, notificationData?.plugin);
+      }
+    },
+
+    constructPosterIdentitiesNotification(posterIdentities, posterUsernames, pluginId) {
+      let message;
+
+      if (!posterIdentities?.length) {
+        message = `Notification.intranet.message.one.${pluginId}`;
+      } else if (posterUsernames.length < 2) {
+        message = this.$t(`Notification.intranet.message.one.${pluginId}`, {
+          0: posterIdentities[0].fullname,
+        });
+      } else if (posterUsernames.length < 3) {
+        message = this.$t(`Notification.intranet.message.two.${pluginId}`, {
+          0: posterIdentities[0].fullname,
+          1: posterIdentities[1].fullname,
+        });
+      } else {
+        message = this.$t(`Notification.intranet.message.more.${pluginId}`, {
+          0: posterIdentities[0].fullname,
+          1: posterIdentities[1].fullname,
+          2: posterUsernames.length - 2,
+        });
+      }
+
+      new Notification(eXo.env.portal.companyName, {
+        body: message
+      });
     },
   },
 };
