@@ -1,8 +1,7 @@
 <template>
-  <v-card
+  <div
     v-if="settings"
-    class="card-border-radius"
-    flat>
+    class="card-border-radius overflow-hidden white">
     <v-toolbar
       class="border-box-sizing"
       flat>
@@ -31,13 +30,11 @@
         :digest-mail-notification-enabled="digestMailNotificationEnabled"
         @edit="openDrawer" />
     </v-flex>
-    <div>
-      <user-setting-notification-drawer
-        ref="drawer"
-        :settings="settings"
-        :digest-mail-notification-enabled="digestMailNotificationEnabled" />
-    </div>
-  </v-card>
+    <user-setting-notification-drawer
+      ref="drawer"
+      :settings="settings"
+      :digest-mail-notification-enabled="digestMailNotificationEnabled" />
+  </div>
 </template>
 
 <script>

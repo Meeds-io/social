@@ -1,5 +1,5 @@
 <template>
-  <v-card class="card-border-radius" flat>
+  <v-card class="card-border-radius overflow-hidden" flat>
     <v-toolbar
       class="border-box-sizing"
       flat>

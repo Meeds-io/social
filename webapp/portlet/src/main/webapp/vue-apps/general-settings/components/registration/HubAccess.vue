@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <div class="pb-1" flat>
+  <div class="pb-1">
     <v-list-item class="px-0 mb-2" three-line>
       <v-list-item-content class="py-0">
         <v-list-item-title class="my-0">
