@@ -349,7 +349,7 @@ export default {
       tempdiv.find('[data-atwho-at-value]')
         .each(function() {
           const value = $(this).attr('data-atwho-at-value');
-          const pattern = new RegExp(`<span class="atwho-inserted" data-atwho-at-query="[^"]*" data-atwho-at-value="${value}"[^>]*>(.*?)</span>`, 'g');
+          const pattern = new RegExp(`<span class="atwho-inserted" data-atwho-at-query="[^"]*" data-atwho-at-value="${value}"[^>]*>(.*?)</span> </span>`, 'g');
           message = message.replace(pattern, value ? `@${value}` : '');
         });
       this.templateParams.comment = message;
