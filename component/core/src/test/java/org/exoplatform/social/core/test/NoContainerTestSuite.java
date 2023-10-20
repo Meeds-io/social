@@ -34,6 +34,8 @@ import org.exoplatform.social.core.relationship.RelationshipTest;
 import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 
+import io.meeds.social.image.plugin.ImageAttachmentPluginTest;
+
 @RunWith(Suite.class)
 @SuiteClasses({
     GlobalIdTest.class,
@@ -46,6 +48,7 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
     IdentityResultTest.class,
     GettingStartedServiceTest.class,
     ActivityAttachmentPluginTest.class,
+    ImageAttachmentPluginTest.class,
     UserProfileComparatorTest.class,
     ActivityIndexingServiceConnectorTest.class,
     ActivitySearchConnectorTest.class,
