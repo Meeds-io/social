@@ -16,10 +16,10 @@
 <template>
   <v-card
     :loading="loading"
-    :class="extraClass"
+    :class="[extraClass, defaultPadding]"
     :height="height"
     :min-width="minWidth"
-    class="white d-flex flex-column px-5 pb-5 card-border-radius"
+    class="white d-flex flex-column card-border-radius"
     flat>
     <div 
       v-if="hasHeader"
@@ -43,19 +43,19 @@
     </div>
     <div 
       v-if="$slots.subtitle" 
-      :class="!hasHeader && 'pt-5' || ''"
+      :class="!hasHeader && !hidePaddingTop && 'pt-5' || ''"
       class="pb-4">
       <slot name="subtitle"></slot>
     </div>
     <div 
       v-else-if="subtitle" 
-      :class="!hasHeader && 'pt-5' || ''"
+      :class="!hasHeader && !hidePaddingTop && 'pt-5' || ''"
       class="pb-4"> 
       {{ subtitle }}
     </div>
     <div 
       v-if="$slots.default" 
-      :class="!hasHeader && !hasSubTitle && 'pt-5' || ''"
+      :class="!hasHeader && !hasSubTitle && !hidePaddingTop && 'pt-5' || ''"
       class="d-flex flex-column flex-grow-1">
       <slot></slot>
     </div>
@@ -84,7 +84,15 @@ export default {
       type: String,
       default: () => '',
     },
+    defaultPadding: {
+      type: String,
+      default: () => 'px-5 pb-5',
+    },
     externalLink: {
+      type: Boolean,
+      default: () => false
+    },
+    hidePaddingTop: {
       type: Boolean,
       default: () => false
     },
