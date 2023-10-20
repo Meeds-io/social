@@ -1522,7 +1522,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(52, collections.getEntities().size());
     outputHeadersMap = (OutputHeadersMap) response.getHttpHeaders();
     assertEquals(4, outputHeadersMap.size());
-    /* Activity ids list length is 53
+    /* Activity ids list length is 52
      Max to preload is 10
      Preload limit is limit / 2 = 60
      Offset is Preload limit - max to preload = 50
