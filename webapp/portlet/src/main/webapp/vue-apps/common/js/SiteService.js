@@ -41,12 +41,19 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
   });
 }
 
-export function getSiteById(siteId, expandNavigations, excludeEmptyNavigationSites, lang) {
+export function getSiteById(siteId, expandNavigations, excludeEmptyNavigationSites, lang, visibility, excludeGroupNodesWithoutPageChildNodes, temporalCheck) {
   const formData = new FormData();
   formData.append('lang', lang);
   formData.append('excludeEmptyNavigationSites', excludeEmptyNavigationSites);
   formData.append('expandNavigations', expandNavigations);
-
+  formData.append('excludeEmptyNavigationSites', excludeEmptyNavigationSites);
+  formData.append('excludeGroupNodesWithoutPageChildNodes', excludeGroupNodesWithoutPageChildNodes);
+  formData.append('temporalCheck', temporalCheck);
+  if (visibility) {
+    visibility.forEach(visibility => {
+      formData.append('visibility', visibility);
+    });
+  }
   const params = new URLSearchParams(formData).toString();
 
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${siteId}?${params}`, {
