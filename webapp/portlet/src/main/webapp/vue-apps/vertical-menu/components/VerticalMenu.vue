@@ -8,10 +8,10 @@
       :min-width="'350px'"
       :max-width="'350px'"
       content-class="white VerticalMenu elevation-0 z-index-drawer"
-      attach="#ParentSiteStickyMenu"
       eager
       tile>
       <site-details
+        v-if="site"
         display-sequentially
         :site="site"
         :extra-class="' px-0 py-0 '" />
@@ -29,7 +29,7 @@ export default {
   },
   methods: {
     retrieveCurrentSite(){
-      return this.$VerticalMenuService.getSiteById(this.siteId, true, true, eXo.env.portal.language)
+      return this.$siteService.getSiteById(this.siteId, true, true, eXo.env.portal.language, ['displayed', 'temporal'], true, true)
         .then(site => {
           this.site = site;
         });

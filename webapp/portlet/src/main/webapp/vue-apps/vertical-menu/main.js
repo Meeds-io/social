@@ -18,11 +18,7 @@
  */
 
 import './initComponents.js';
-import * as VerticalMenuService from './js/VerticalMenuService.js';
 
-window.Object.defineProperty(Vue.prototype, '$VerticalMenuService', {
-  value: VerticalMenuService,
-});
 // get overridden components if exists
 if (extensionRegistry) {
   const components = extensionRegistry.loadComponents('verticalMenu');
