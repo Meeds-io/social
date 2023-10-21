@@ -51,6 +51,9 @@ export function init(appId, name, canEdit) {
           hasLinks() {
             return this.links?.length;
           },
+          isMobile() {
+            return this.$vuetify?.breakpoint?.smAndDown;
+          },
         },
         created() {
           this.init().finally(() => this.initialized = true);
