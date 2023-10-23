@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card class="card-border-radius overflow-hidden" flat>
     <v-toolbar
       class="border-box-sizing"
       flat>
@@ -33,7 +33,7 @@
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pt-0 pb-2">
           {{ $t('UserSettings.label.currentPassword') }}*
         </v-card-text>
-        <v-card-text class="d-flex py-0">
+        <v-card-text class="d-flex pa-0">
           <input
             ref="currentPassword"
             v-model="currentPassword"
@@ -45,7 +45,7 @@
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('UserSettings.label.newPassword') }}*
         </v-card-text>
-        <v-card-text class="d-flex py-0">
+        <v-card-text class="d-flex pa-0">
           <input
             ref="newPassword"
             v-model="newPassword"
@@ -57,7 +57,7 @@
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
           {{ $t('UserSettings.label.confirmNewPassword') }}*
         </v-card-text>
-        <v-card-text class="d-flex py-0">
+        <v-card-text class="d-flex pa-0">
           <input
             ref="confirmNewPassword"
             v-model="confirmNewPassword"
