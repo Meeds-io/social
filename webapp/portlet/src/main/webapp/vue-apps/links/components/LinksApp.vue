@@ -26,7 +26,7 @@
         min-width="100%"
         max-width="100%"
         min-height="72"
-        class="d-flex flex-column align-center border-box-sizing justify-center pa-4 overflow-hidden position-relative"
+        class="d-flex flex-column align-center border-box-sizing justify-center pa-5 overflow-hidden position-relative card-border-radius"
         color="white"
         flat>
         <links-header
