@@ -22,8 +22,8 @@
   <v-app>
     <v-main>
       <v-card
-        min-height="calc(var(--100vh, 100vh) - 160px)"
-        class="px-6"
+        min-height="calc(100vh - 160px)"
+        class="px-6 card-border-radius overflow-hidden"
         flat>
         <v-list-item dense class="px-0 mb-4">
           <v-list-item-action v-if="$root.selectedTab" class="my-auto me-0 ms-n2">
