@@ -1,6 +1,6 @@
 <template>
   <v-app 
-    class="transparent"
+    class="transparent card-border-radius overflow-hidden"
     flat>
     <space-members-toolbar
       :keyword="keyword"
@@ -12,7 +12,6 @@
       @invite-users="$refs.spaceInvitationDrawer.open()"
       @refresh="refreshInvited" />
     <alert-space-members v-if="space" :space-display-name="space.displayName" />
-
     <people-card-list
       ref="spaceMembers"
       :keyword="keyword"
@@ -22,7 +21,6 @@
       :people-count="peopleCount"
       :is-manager="isManager"
       @loaded="peopleLoaded" />
-
     <space-invitation-drawer
       ref="spaceInvitationDrawer"
       :is-external-feature-enabled="isExternalFeatureEnabled"

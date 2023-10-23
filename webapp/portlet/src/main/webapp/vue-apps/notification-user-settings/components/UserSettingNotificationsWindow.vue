@@ -1,7 +1,7 @@
 <template>
-  <v-card
+  <div
     v-if="settings"
-    flat>
+    class="card-border-radius overflow-hidden white">
     <v-toolbar
       class="border-box-sizing"
       flat>
@@ -21,7 +21,7 @@
       <v-spacer />
     </v-toolbar>
 
-    <v-flex class="ma-3 white">
+    <v-flex class="ma-3">
       <user-setting-notification-group
         v-for="group in settings.groups"
         :settings="settings"
@@ -34,7 +34,7 @@
       ref="drawer"
       :settings="settings"
       :digest-mail-notification-enabled="digestMailNotificationEnabled" />
-  </v-card>
+  </div>
 </template>
 
 <script>

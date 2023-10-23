@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-card class="pa-4 text-center" flat>
+    <widget-wrapper>
       <v-card class="border-box-sizing d-flex flex-row justify-center ma-0" flat>
         <people-overview-card
           id="peopleInvitationsOverview"
@@ -16,7 +16,7 @@
           :class="pending === '-' && 'text-sub-title'"
           @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
       </v-card>
-    </v-card>
+    </widget-wrapper>
     <people-overview-drawer ref="peopleDrawer" @refresh="refresh()" />
   </v-app>    
 </template>
