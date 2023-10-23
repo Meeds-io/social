@@ -25,7 +25,7 @@
       'position-relative pb-4': showHeader,
     }"
     class="d-flex align-center">
-    <div v-if="header" class="flex-grow-1 flex-shrink-1 text-truncate subtitle-1 text-sub-title text-start">
+    <div v-if="header" class="flex-grow-1 flex-shrink-1 text-truncate widget-text-header text-start">
       {{ header }}
     </div>
     <v-spacer />
