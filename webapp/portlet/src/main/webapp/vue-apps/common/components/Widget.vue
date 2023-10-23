@@ -19,7 +19,7 @@
     :class="extraClass"
     :height="height"
     :min-width="minWidth"
-    class="d-flex flex-column white card-border-radius"
+    class="d-flex flex-column white card-border-radius overflow-hidden"
     flat>
     <div class="d-flex flex-column flex-grow-1 pa-5">
       <div 
@@ -27,7 +27,7 @@
         :class="headerPadding" 
         class="d-flex align-center">
         <slot v-if="$slots.title" name="title"></slot>
-        <div v-else-if="title" class="widget-text-header text-truncate">{{ title }}</div> 
+        <div v-else-if="title" class="widget-text-header text-capitalize-first-letter text-truncate">{{ title }}</div> 
         <v-spacer />
         <slot v-if="$slots.action" name="action"></slot>
         <v-btn 
