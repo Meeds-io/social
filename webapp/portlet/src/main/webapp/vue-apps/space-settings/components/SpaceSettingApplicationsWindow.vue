@@ -1,5 +1,6 @@
 <template>
   <v-card
+    class="card-border-radius overflow-hidden"
     flat>
     <exo-confirm-dialog
       ref="deleteApplicationDialog"

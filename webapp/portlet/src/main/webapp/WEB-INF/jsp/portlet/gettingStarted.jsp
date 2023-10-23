@@ -32,10 +32,10 @@
         <div class="flex hiddenable-widget d-flex xs12 sm12">
           <div class="layout row wrap mx-0">
             <div class="flex d-flex xs12">
-              <div class="flex v-card v-card--flat v-sheet theme--light">
+              <div class="flex v-card v-card--flat v-sheet card-border-radius pa-5 theme--light">
                 <div
-                  class="v-card__title getting-started-title subtitle-1 text-uppercase pb-0">
-                  <span class="title">
+                  class="pb-5">
+                  <span class="widget-text-header">
                     <%=title%>
                     <% if (canClose) { %>
                       <a title="Close" href="#" rel="tooltip" data-placement="bottom" class="btClose">x</a>
@@ -43,14 +43,14 @@
                   </span>
                 </div>
                 <div role="list"
-                  class="v-list getting-started-list v-sheet theme--light v-list--dense">
+                  class="v-list getting-started-list py-0 v-sheet theme--light v-list--dense">
                   <% 
                   for (int i = 0; i < steps.size(); i++) {
                     GettingStartedStep step = steps.get(i);
                     String stepTitle = bundle.getString("locale.portlet.gettingStarted.step." + step.getName());
                     if (step.getStatus() != null && step.getStatus().booleanValue()) { %>
                     <div tabindex="-1" role="listitem"
-                      class="getting-started-list-item v-list-item theme--light">
+                      class="getting-started-list-item v-list-item theme--light px-0">
                       <div class="v-list-item__icon me-3 steps-icon">
                         <i class="UICheckIcon white--text"></i>
                       </div>
@@ -62,7 +62,7 @@
                     </div>
                   <% } else { %>
                     <div tabindex="-1" role="listitem"
-                      class="getting-started-list-item v-list-item theme--light">
+                      class="getting-started-list-item v-list-item theme--light px-0">
                       <div class="v-list-item__icon me-3 steps-icon">
                         <span
                           class="step-number font-weight-bold text-center white--text"><span><%=i + 1%></span></span>
