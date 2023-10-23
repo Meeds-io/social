@@ -1,6 +1,6 @@
 <template>
-  <v-app class="white">
-    <v-card flat>
+  <v-app>
+    <v-card class="card-border-radius overflow-hidden" flat>
       <users-management-toolbar />
       <users-management-list />
       <users-management-user-form-drawer />
