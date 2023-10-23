@@ -4,8 +4,8 @@
     class="transparent"
     flat
     v-if="displayed">
-    <space-setting-general :space-id="spaceId" class="mb-6" />
-    <space-setting-applications :space-id="spaceId" class="mb-6" />
+    <space-setting-general :space-id="spaceId" class="mb-5" />
+    <space-setting-applications :space-id="spaceId" class="mb-5" />
     <template>
       <extension-registry-components
         :params="spaceSettingParam"

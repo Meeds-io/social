@@ -2,7 +2,7 @@
   <v-list-item :href="url" class="pa-1 pb-1">
     <v-list-item-avatar
       :href="url"
-      class="my-0 ps-4"
+      class="my-0"
       tile>
       <v-avatar :size="avatarSize" tile>
         <v-img
