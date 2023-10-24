@@ -31,6 +31,8 @@ import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.v
 import HelpDrawer from './components/registration/HelpDrawer.vue';
 import HelpTooltip from './components/registration/HelpTooltip.vue';
 
+import PublicSiteEditDrawer from './components/public-site/PublicSiteEditDrawer.vue';
+
 const components = {
   'portal-general-settings': GeneralSettings,
   'portal-general-settings-branding-site': SiteBranding,
@@ -43,6 +45,7 @@ const components = {
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
   'portal-general-settings-help-drawer': HelpDrawer,
   'portal-general-settings-help-tooltip': HelpTooltip,
+  'portal-general-settings-public-site-drawer': PublicSiteEditDrawer,
 };
 
 for (const key in components) {

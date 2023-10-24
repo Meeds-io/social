@@ -109,12 +109,12 @@ export default {
   },
   methods: {
     installBodyScrollListener() {
-      const siteBodyElement = document.querySelector('#UISiteBody');
+      const siteBodyElement = document.querySelector('.site-scroll-parent');
       siteBodyElement.addEventListener('scroll', this.computePagePosition, false);
       document.addEventListener('visibilitychange', this.computeIsPageHidden, false);
     },
     uninstallBodyScrollListener() {
-      const siteBodyElement = document.querySelector('#UISiteBody');
+      const siteBodyElement = document.querySelector('.site-scroll-parent');
       siteBodyElement.removeEventListener('scroll', this.computePagePosition, false);
       document.removeEventListener('visibilitychange', this.computeIsPageHidden, false);
     },
