@@ -33,7 +33,7 @@
           v-if="$root.initialized"
           :settings="$root.settings"
           :has-links="$root.hasLinks"
-          :can-edit="$root.canEdit"
+          :can-edit="canEdit"
           :hover="hover"
           class="full-width"
           @edit="editSettings()"
@@ -55,23 +55,28 @@ export default {
   data: () => ({
     loading: true,
     edit: false,
+    previewMode: false,
   }),
   computed: {
     hasLinks() {
       return this.$root.links?.length;
     },
     canView() {
-      return this.$root.canEdit || (this.$root.initialized && this.$root.hasLinks);
+      return this.canEdit || (this.$root.initialized && this.$root.hasLinks);
     },
     canEdit() {
-      return this.$root.canEdit;
+      return !this.previewMode && this.$root.canEdit;
     },
   },
   created() {
+    document.addEventListener('cms-preview-mode', this.switchToPreview);
+    document.addEventListener('cms-edit-mode', this.switchToEdit);
     this.$root.$on('links-refresh', this.retrieveSettings);
   },
   beforeDestroy() {
     this.$root.$off('links-refresh', this.retrieveSettings);
+    document.removeEventListener('cms-edit-mode', this.switchToEdit);
+    document.removeEventListener('cms-preview-mode', this.switchToPreview);
   },
   methods: {
     retrieveSettings(settings) {
@@ -92,6 +97,12 @@ export default {
           this.$root.$emit('links-settings-drawer', openForm);
         });
       });
+    },
+    switchToPreview() {
+      this.previewMode = true;
+    },
+    switchToEdit() {
+      this.previewMode = false;
     },
   },
 };
