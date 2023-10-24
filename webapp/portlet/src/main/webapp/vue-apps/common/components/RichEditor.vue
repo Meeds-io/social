@@ -25,6 +25,7 @@
         <i class="uiIconMessageLength"></i>
       </div>
     </div>
+    <div v-if="containInvalidUsers" class="mt-4 text-sub-title">{{ $t('activity.composer.invalidUsers.message') }}</div>
     <attachments-image-input
       v-if="displayAttachmentEditor"
       ref="attachmentsInput"
@@ -158,6 +159,7 @@ export default {
     oembedParams: null,
     editor: null,
     baseUrl: eXo.env.server.portalBaseURL,
+    containInvalidUsers: false
   }),
   computed: {
     ckEditorInstanceId() {
@@ -602,6 +604,81 @@ export default {
         });
       return tempdiv.html();
     },
+    replaceValidSuggestedUser(message, profile, pattern) {
+      return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
+                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
+                        <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
+                      </span>
+                    `));
+    },
+    replaceInvalidSuggestedUser(message, profile, pattern) {
+      return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
+                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="" contenteditable="false" title="${this.$t('activity.composer.invalidUser.message')}">
+                        <span class="exo-mention">
+                          <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text error-color" style="font-size: 16px;">
+                          </i>
+                          <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}</del>
+                          <a href="#" class="remove">
+                            <i class="uiIconClose uiIconLightGray"></i>
+                          </a>
+                        </span>
+                      </span>
+                    `));
+    },
+    replaceSuggestedUsers(message, mentionedUsers, spaceId) {
+      this.containInvalidUsers = false;
+      Promise
+        .all(mentionedUsers.map(username => {
+          return this.$identityService.getIdentityByProviderIdAndRemoteId('organization', username)
+            .then(identity => {
+              if (!identity?.profile) {
+                return null;
+              }
+              if (spaceId) {
+                return this.$spaceService.isSpaceMember(spaceId, username)
+                  .then(data => {
+                    if (data) {
+                      const profile = identity.profile;
+                      profile.isMember = data?.isMember === 'true';
+                      return profile;
+                    } else {
+                      return null;
+                    }
+                  });
+              } else {
+                const profile = identity.profile;
+                profile.isMember = true;
+                return profile;
+              }
+            });
+        }))
+        .then(userProfiles => userProfiles.filter(p => p))
+        .then(userProfiles => {
+          const containsExoMentionClass = message.search('exo-mention') >= 0;
+          this.containInvalidUsers = !!userProfiles.find(profile => profile.isMember !== true);
+          userProfiles.forEach(profile => {
+            const pattern = containsExoMentionClass ? `<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span> </span>` : `@${profile.username}`;
+            if (profile.isMember) {
+              message = this.replaceValidSuggestedUser(message, profile, pattern);
+            } else {
+              message = this.replaceInvalidSuggestedUser(message, profile, pattern);
+            }
+          });
+          this.initCKEditorData(message);
+        });
+    },
+    updateMessageBeforPost() {
+      let message = this.getMessage();
+      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
+      tempdiv.find('[data-atwho-at-value]')
+        .each(function() {
+          const value = $(this).attr('data-atwho-at-value');
+          const pattern = new RegExp(`<span class="atwho-inserted" data-atwho-at-query="[^"]*" data-atwho-at-value="${value}"[^>]*>(.*?)</span> </span>`, 'g');
+          message = message.replace(pattern, value ? `@${value}` : '');
+        });
+      message = message.replace(/&nbsp;/g, ' ');
+      return message;
+    }
   }
 };
 </script>
