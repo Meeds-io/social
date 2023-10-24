@@ -203,6 +203,9 @@ public class Utils {
    */
   @Deprecated(forRemoval = true, since = "6.5.0")
   public static Identity getUserIdentity(String userName, boolean loadProfile) {
+    if (StringUtils.isBlank(userName)) {
+      return null;
+    }
     return Utils.getIdentityManager().getOrCreateUserIdentity(userName);
   }
 

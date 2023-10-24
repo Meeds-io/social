@@ -26,6 +26,7 @@
   String cometdContext = continuationBayeux.getCometdContextName();
   BrandingService brandingService = uicomponent.getApplicationComponent(BrandingService.class);
   Set<String> supportedAttachmentObjectTypes = attachmentService.getSupportedObjectTypes();
+  String viewerIdentityId = Utils.getViewerIdentityId();
 %>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
@@ -37,7 +38,7 @@
      eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
      eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
-     eXo.env.portal.userIdentityId = "<%=Utils.getViewerIdentityId()%>" ;
+     eXo.env.portal.userIdentityId = "<%=viewerIdentityId == null ? "" : viewerIdentityId%>" ;
      eXo.env.portal.companyName = "<%=brandingService.getCompanyName()%>" ;
      eXo.env.portal.isExternal = "<%=Utils.isExternal(Utils.getViewerIdentity())%>" ;
      eXo.env.portal.isSpacesManager = "<%=Utils.isSpacesManager(Utils.getViewerIdentity())%>" ;
