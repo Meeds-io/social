@@ -23,8 +23,8 @@
     v-if="links?.length"
     :is="isColumn && 'v-list' || 'card-carousel'"
     :class="isColumn && 'pa-0'"
-    v-bind="isColumn && {
-      dense: !largeIcon
+    v-bind="{
+      dense: !largeIcon || !isColumn
     }">
     <component
       v-for="link in links"
