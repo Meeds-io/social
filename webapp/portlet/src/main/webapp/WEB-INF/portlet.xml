@@ -378,7 +378,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/bannerLogo.jsp</value>
+      <value>/WEB-INF/jsp/portlet/topbarLogo.jsp</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
@@ -387,6 +387,53 @@
     <init-param>
       <name>preload.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/identities/{userId}]]></value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Top Bar Login Button</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>TopBarPreview</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/topbarPreview.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Top Preview Button</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>TopBarLogin</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/topbarLogin.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Top Bar Logo</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>TopBarPublishSite</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/topBarPublishSite.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -520,7 +567,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/externalSpaceList.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -678,10 +724,8 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
         <name>portlet-view-dispatched-file-path</name>
-        <value>/html/generalSettings.html</value>
+        <value>/WEB-INF/jsp/portlet/generalSettings.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
