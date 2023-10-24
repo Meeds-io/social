@@ -52,6 +52,9 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    parentScrollableSelector: '.site-scroll-parent',
+  }),
   computed: {
     displaySpaceNavigations() {
       return this.navigations && this.navigations.length;
@@ -102,10 +105,10 @@ export default {
     computedSiteBodyMargin() {
       if (this.isMobile && this.displaySpaceNavigations) {
         window.setTimeout(() => {
-          $('#UISiteBody').css('margin-bottom', '70px');
+          $(this.parentScrollableSelector).css('margin-bottom', '70px');
         }, 200);
       } else {
-        $('#UISiteBody').css('margin-bottom', '');
+        $(this.parentScrollableSelector).css('margin-bottom', '');
       }
       this.refreshWindowSize();
     },
