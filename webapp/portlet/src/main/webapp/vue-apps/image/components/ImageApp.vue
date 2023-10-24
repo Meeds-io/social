@@ -20,14 +20,14 @@
 -->
 <template>
   <v-app ref="app" class="card-border-radius overflow-hidden position-relative">
-    <v-hover v-model="hover" :disabled="!$root.canEdit">
+    <v-hover v-model="hover" :disabled="!canEdit">
       <v-card
         :color="$root.hasImages && 'transparent' || 'primary'"
         min-width="100%"
         flat>
         <v-responsive :aspect-ratio="$root.imageAspectRatio">
           <image-settings-header
-            v-if="$root.canEdit"
+            v-if="canEdit"
             :hover="hover || loading"
             :loading="loading"
             @edit="editSettings"
@@ -36,7 +36,7 @@
         </v-responsive>
       </v-card>
     </v-hover>
-    <template v-if="$root.canEdit">
+    <template v-if="canEdit">
       <image-settings-drawer
         v-if="edit"
         ref="drawer"
@@ -63,6 +63,7 @@ export default {
     saving: false,
     edit: false,
     removeConfirm: false,
+    previewMode: false,
   }),
   computed: {
     width() {
@@ -71,6 +72,13 @@ export default {
     height() {
       return this.$refs?.app?.$el?.offsetHeight;
     },
+    canEdit() {
+      return !this.previewMode && this.$root.canEdit;
+    },
+  },
+  created() {
+    document.addEventListener('cms-preview-mode', this.switchToPreview);
+    document.addEventListener('cms-edit-mode', this.switchToEdit);
   },
   methods: {
     editSettings() {
@@ -113,6 +121,12 @@ export default {
       return this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
         .then(data => this.$root.files = data?.attachments || [])
         .finally(() => this.loading = false);
+    },
+    switchToPreview() {
+      this.previewMode = true;
+    },
+    switchToEdit() {
+      this.previewMode = false;
     },
   },
 };

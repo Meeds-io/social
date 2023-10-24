@@ -80,10 +80,10 @@
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
 %>
 <script type="text/javascript" defer="defer">
-  let managers = new Array();
+  let topbarLogoManagers = new Array();
   <%
    for (int i =0 ; i < managers.size(); i++) { %>
-  managers.push({
+   topbarLogoManagers.push({
     id: `<%=managers.get(i).getId()%>`,
     userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
     fullName: `<%=managers.get(i).getFullName()%>`,
@@ -100,7 +100,7 @@
     logoTitle: `<%=logoTitle%>`,
     membersNumber: `<%=membersNumber%>`,
     spaceDescription: `<%=spaceDescription%>`,
-    managers: managers,
+    managers: topbarLogoManagers,
     homePath: `<%=homePath%>`
   };
   document.addEventListener('spaceDetailUpdated', event => {
