@@ -38,13 +38,20 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.GeneralSettings-${lang}.json`,
 ];
 
-export function init() {
+export function init(publicSiteVisible, publicSiteId) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n =>
       Vue.createApp({
         data: {
           selectedTab: null,
           loading: false,
+          publicSiteVisible,
+          publicSiteId,
+        },
+        computed: {
+          isMobile() {
+            return this.$vuetify.breakpoint.mobile;
+          },
         },
         watch: {
           loading() {

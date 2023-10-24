@@ -82,6 +82,7 @@
       outlined
       border
       @click="$emit('add')">
+      <v-icon size="18" class="me-2">fa-globe</v-icon>
       {{ $t('links.label.addLinksButton') }}
     </v-btn>
   </div>
