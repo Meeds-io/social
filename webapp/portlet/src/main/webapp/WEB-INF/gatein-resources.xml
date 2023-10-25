@@ -1617,11 +1617,11 @@
   </portlet>
 
   <portlet>
-    <name>BannerPublishSite</name>
+    <name>TopBarPublishSite</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/bannerPublishSite.bundle.js</path>
+        <path>/js/topBarPublishSite.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>

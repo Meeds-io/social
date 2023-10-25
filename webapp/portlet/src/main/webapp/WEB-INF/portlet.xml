@@ -418,8 +418,10 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/topbarLogin.jsp</value>
+      <value>/html/topbarLogin.html</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -429,11 +431,11 @@
   </portlet>
 
   <portlet>
-    <portlet-name>BannerPublishSite</portlet-name>
+    <portlet-name>TopBarPublishSite</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/bannerPublishSite.jsp</value>
+      <value>/WEB-INF/jsp/portlet/topBarPublishSite.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>

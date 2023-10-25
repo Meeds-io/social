@@ -22,7 +22,7 @@ import './initComponents.js';
 //getting language of user
 const lang = window.eXo?.env?.portal?.language || 'en';
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
-const appId = 'bannerPublishSite';
+const appId = 'topBarPublishSite';
 
 export function init(publicMode, publicSiteId) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
@@ -32,7 +32,7 @@ export function init(publicMode, publicSiteId) {
         publicMode,
         publicSiteId,
       },
-      template: `<banner-publish-site id="${appId}" />`,
+      template: `<top-bar-publish-site id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
     }, `#${appId}`, 'Banner Publish Site');

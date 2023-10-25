@@ -24,11 +24,12 @@
     <v-tooltip bottom>
       <template #activator="{on, bind}">
         <v-btn
-          id="topBarPreviewbutton"
+          id="topBarPreviewButton"
           v-on="on"
           v-bind="bind"
           :class="previewMode && 'primary'"
-          class="mx-5"
+          :outlined="previewMode"
+          class="ms-5"
           icon
           @click="previewMode = !previewMode">
           <v-icon>fa-eye</v-icon>
