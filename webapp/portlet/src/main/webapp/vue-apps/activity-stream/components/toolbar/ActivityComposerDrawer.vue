@@ -285,11 +285,6 @@ export default {
       if (newVal === 'yourNetwork') {
         this.removeAudience();
       }
-    },
-    spaceURL() {
-      // Clear suggester cache
-      document.dispatchEvent(new CustomEvent('suggester-clear-people-cache'));
-      this.resetRichEditorData();
     }
   },
   created() {
@@ -344,9 +339,7 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      const message = this.ckEditorInstance.updateMessageBeforPost();
-      this.templateParams.comment = message;
-      this.templateParams.default_title = message;
+      const message = this.ckEditorInstance.getMessage();
       if (this.activityId) {
         let activityType = this.activityType;
         if (this.templateParams && this.templateParams.link && !this.activityType) {
@@ -450,14 +443,7 @@ export default {
     },
     removeAudience() {
       this.audience = '';
-    },
-    resetRichEditorData() {
-      const message = this.ckEditorInstance.getMessage();
-      const mentionedUsers =  message.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
-      if (mentionedUsers?.length) {
-        this.ckEditorInstance?.replaceSuggestedUsers?.(message, mentionedUsers, this.spaceId);
-      }
-    },
+    }
   },
 };
 </script>

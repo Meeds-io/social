@@ -159,7 +159,9 @@ export default {
     oembedParams: null,
     editor: null,
     baseUrl: eXo.env.server.portalBaseURL,
-    containInvalidUsers: false
+    containInvalidUsers: false,
+    spaceId: null,
+    backUpMessage: null
   }),
   computed: {
     ckEditorInstanceId() {
@@ -225,7 +227,12 @@ export default {
     },
     suggesterSpaceURL() {
       if (this.editorReady) {
-        this.editor.config.spaceURL = this.suggesterSpaceURL;
+        if (this.suggesterSpaceURL) {
+          this.getSpaceId();
+        } else {
+          this.spaceId = null;
+        }
+        this.initCKEditor(true, this.backUpMessage);
       }
     },
     displayAttachmentEditor(newVal, oldVal) {
@@ -233,6 +240,15 @@ export default {
         this.$nextTick().then(() => this.$refs?.attachmentsInput?.init());
       }
     },
+    spaceId(){
+      this.initCKEditorData(this.inputVal);
+    },
+    editor() {
+      const mentionedUsers =  this.backUpMessage?.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
+      if (mentionedUsers?.length && !this.spaceId) {
+        this.replaceSuggestedUsers(this.backUpMessage, mentionedUsers, this.spaceId);
+      }
+    }
   },
   created() {
     // Load CKEditor only when needed
@@ -467,6 +483,10 @@ export default {
       if (!content) {
         return '';
       }
+      const mentionedUsers =  content.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
+      if (mentionedUsers?.length) {
+        this.replaceSuggestedUsers(content, mentionedUsers, this.spaceId);
+      }
       if (content.includes('<oembed>') && content.includes('</oembed>')) {
         const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
         content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
@@ -484,6 +504,7 @@ export default {
       return this.getContentNoEmbed(content);
     },
     getContentToSave(content) {
+      content = this.updateMessageBeforPost(content);
       return this.getContent(content, true);
     },
     getContent(content, cleanOembedParams) {
@@ -657,18 +678,18 @@ export default {
           const containsExoMentionClass = message.search('exo-mention') >= 0;
           this.containInvalidUsers = !!userProfiles.find(profile => profile.isMember !== true);
           userProfiles.forEach(profile => {
-            const pattern = containsExoMentionClass ? `<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span> </span>` : `@${profile.username}`;
+            const pattern = containsExoMentionClass ? `<span [^>]* data-atwho-at-query="@${profile.username}" class="atwho-inserted">(.*?)</span> </span>` : `@${profile.username}`;
             if (profile.isMember) {
               message = this.replaceValidSuggestedUser(message, profile, pattern);
             } else {
               message = this.replaceInvalidSuggestedUser(message, profile, pattern);
             }
           });
-          this.initCKEditorData(message);
+          this.backUpMessage = message;
+          this.editor?.setData(message);
         });
     },
-    updateMessageBeforPost() {
-      let message = this.getMessage();
+    updateMessageBeforPost(message) {
       const tempdiv = $('<div class=\'temp\'/>').html(message || '');
       tempdiv.find('[data-atwho-at-value]')
         .each(function() {
@@ -676,8 +697,13 @@ export default {
           const pattern = new RegExp(`<span class="atwho-inserted" data-atwho-at-query="[^"]*" data-atwho-at-value="${value}"[^>]*>(.*?)</span> </span>`, 'g');
           message = message.replace(pattern, value ? `@${value}` : '');
         });
-      message = message.replace(/&nbsp;/g, ' ');
       return message;
+    },
+    getSpaceId() {
+      this.$spaceService.getSpaceByPrettyName(this.suggesterSpaceURL)
+        .then(space => {
+          this.spaceId = space.id;
+        });
     }
   }
 };
