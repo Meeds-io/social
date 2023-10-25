@@ -90,7 +90,7 @@ export default {
       this.loading = true;
       const formData = new FormData();
       formData.append('name', 'accessPermissions');
-      formData.append('value', this.publicMode && 'Everyone' || '*:/platform/administrators,*:/platform/web-contributors');
+      formData.append('value', this.publicMode && 'Everyone' || '*:/platform/administrators,publisher:/platform/web-contributors');
       const params = new URLSearchParams(formData).toString();
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${this.$root.publicSiteId}`, {
         headers: {
