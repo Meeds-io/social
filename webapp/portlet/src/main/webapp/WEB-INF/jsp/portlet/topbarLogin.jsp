@@ -1,3 +1,6 @@
+<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@page import="org.exoplatform.portal.config.UserPortalConfigService"%>
+<%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.social.core.identity.model.Identity"%>
 <%@page import="org.exoplatform.social.webui.Utils"%>
 <%
@@ -23,13 +26,18 @@
 <%
   Identity viewerIdentity = Utils.getViewerIdentity();
   String avatarUrl = viewerIdentity == null ? "" : viewerIdentity.getProfile().getAvatarUrl();
+  UserPortalConfigService portalConfigService = ExoContainerContext.getService(UserPortalConfigService.class);
+  String userHomeUrl = viewerIdentity == null ? "" : portalConfigService.getUserHomePage(request.getRemoteUser());
+  if (viewerIdentity != null && StringUtils.isBlank(userHomeUrl) || StringUtils.equals(userHomeUrl, "/portal")) {
+    userHomeUrl = "/portal/" + portalConfigService.getDefaultPortal();
+  }
 %>
 <div class="VuetifyApp">
   <div
    class="v-application border-box-sizing v-application--is-ltr theme--light"
    id="topbarLogin">
    <script type="text/javascript">
-     require(['PORTLET/social-portlet/TopBarLogin'], app => app.init('<%=avatarUrl%>'));
+     require(['PORTLET/social-portlet/TopBarLogin'], app => app.init('<%=avatarUrl%>', '<%=userHomeUrl%>'));
    </script>
   </div>
 </div>

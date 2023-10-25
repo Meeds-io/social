@@ -33,7 +33,7 @@
     <v-btn
       v-else
       id="topBarAccessButton"
-      href="/portal"
+      :href="$root.userHomeUrl"
       target="_blank"
       class="primary"
       outlined>
