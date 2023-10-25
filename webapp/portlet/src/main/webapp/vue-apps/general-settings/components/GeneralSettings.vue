@@ -89,7 +89,7 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'branding'">
-                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
@@ -106,7 +106,7 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'login'">
-                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
@@ -123,7 +123,7 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'access'">
-                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
