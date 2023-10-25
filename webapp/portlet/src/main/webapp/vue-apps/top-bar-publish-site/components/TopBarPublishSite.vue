@@ -20,27 +20,24 @@
 
 -->
 <template>
-  <v-app class="white card-border-radius">
-    <v-alert
-      v-show="canView"
-      type="warning"
-      border="left"
-      class="ma-0"
-      dense
-      outlined
-      prominent>
-      <div class="d-flex align-center">
-        <div class="flex-grow-1 text-start text-color">{{ $t('publicAccess.makeSiteVisible') }}</div>
-        <div class="flex-grow-0">
-          <v-switch
-            v-model="publicMode"
-            :loading="loading"
-            class="my-auto"
-            hide-details
-            @click="switchSiteMode" />
-        </div>
-      </div>
-    </v-alert>
+  <v-app v-show="canView">
+    <v-tooltip bottom>
+      <template #activator="{on, bind}">
+        <v-btn
+          id="topBarPublishSiteButton"
+          v-on="on"
+          v-bind="bind"
+          :loading="loading"
+          :class="publicMode && 'primary'"
+          :outlined="publicMode"
+          class="ms-5"
+          icon
+          @click="switchSiteMode">
+          <v-icon size="18">{{ publicMode && 'fa-globe' || 'fa-user-lock' }}</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ publicMode && $t('publicAccess.siteIsVisibleTooltip') || $t('publicAccess.siteIsNotVisibleTooltip') }}</span>
+    </v-tooltip>
   </v-app>
 </template>
 <script>
@@ -90,7 +87,7 @@ export default {
       this.loading = true;
       const formData = new FormData();
       formData.append('name', 'accessPermissions');
-      formData.append('value', this.publicMode && 'Everyone' || '*:/platform/administrators,publisher:/platform/web-contributors');
+      formData.append('value', this.publicMode && '*:/platform/administrators,publisher:/platform/web-contributors' || 'Everyone');
       const params = new URLSearchParams(formData).toString();
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${this.$root.publicSiteId}`, {
         headers: {
@@ -102,9 +99,9 @@ export default {
       })
         .then(resp => {
           if (resp?.ok) {
+            this.publicMode = !this.publicMode;
             this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdatedSuccessfully'), 'success');
           } else {
-            this.publicMode = !this.publicMode;
             this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdateError'), 'error');
           }
         })

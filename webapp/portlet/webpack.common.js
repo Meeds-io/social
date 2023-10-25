@@ -70,7 +70,7 @@ let config = {
     topBarMenu: './src/main/webapp/vue-apps/top-bar-menu/main.js',
     topBarLogin: './src/main/webapp/vue-apps/top-bar-login/main.js',
     topBarPreview: './src/main/webapp/vue-apps/top-bar-preview/main.js',
-    bannerPublishSite: './src/main/webapp/vue-apps/banner-publish-site/main.js',
+    topBarPublishSite: './src/main/webapp/vue-apps/top-bar-publish-site/main.js',
     profileSettings: './src/main/webapp/vue-apps/profile-settings/main.js',
     generalSettings: './src/main/webapp/vue-apps/general-settings/main.js',
     imageCropper: './src/main/webapp/vue-apps/component-image-crop/main.js',

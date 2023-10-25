@@ -20,25 +20,13 @@
 
 -->
 <template>
-  <v-app>
+  <v-app v-if="publicMode">
     <v-btn
-      v-if="publicMode"
       id="topBarLoginButton"
       href="/portal/login"
       class="primary"
       outlined>
       <span class="text-none">{{ $t('publicAccess.login') }}</span>
-    </v-btn>
-    <v-btn
-      v-else
-      id="topBarAccessButton"
-      :href="$root.userHomeUrl"
-      class="primary"
-      outlined>
-      <v-avatar size="20" class="me-2">
-        <v-img :src="$root.avatarUrl" eager />
-      </v-avatar>
-      <span class="text-none">{{ $t('publicAccess.access') }}</span>
     </v-btn>
   </v-app>
 </template>
@@ -49,7 +37,7 @@ export default {
   }),
   computed: {
     publicMode() {
-      return this.previewMode || !this.$root.avatarUrl;
+      return this.previewMode || !eXo?.env?.portal?.userIdentityId?.length;
     },
   },
   created() {

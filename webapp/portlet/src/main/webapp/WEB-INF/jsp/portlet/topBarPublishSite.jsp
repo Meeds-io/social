@@ -31,9 +31,9 @@
 <div class="VuetifyApp">
   <div
    class="v-application border-box-sizing theme--light"
-   id="bannerPublishSite">
+   id="topBarPublishSite">
    <script type="text/javascript">
-     require(['PORTLET/social-portlet/BannerPublishSite'], app => app.init(<%=publisSiteAccessible%>, <%=siteId%>));
+     require(['PORTLET/social-portlet/TopBarPublishSite'], app => app.init(<%=publisSiteAccessible%>, <%=siteId%>));
    </script>
   </div>
 </div>
