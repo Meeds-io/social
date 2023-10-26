@@ -33,6 +33,7 @@
       <v-btn
         id="topBarLoginButton"
         :icon="$vuetify.breakpoint.mobile"
+        :tile="$vuetify.breakpoint.mobile"
         :href="authenticated && '#' || '/portal/login'"
         class="primary me-1"
         outlined>
