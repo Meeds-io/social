@@ -33,8 +33,8 @@
       <v-btn
         id="topBarLoginButton"
         :icon="$vuetify.breakpoint.mobile"
-        :tile="$vuetify.breakpoint.mobile"
         :href="authenticated && '#' || '/portal/login'"
+        :class="$vuetify.breakpoint.mobile && 'rounded'"
         class="primary me-1"
         outlined>
         <span v-if="!$vuetify.breakpoint.mobile" class="text-none">{{ $t('publicAccess.login') }}</span>
