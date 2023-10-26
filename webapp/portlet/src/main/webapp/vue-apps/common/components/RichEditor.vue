@@ -228,20 +228,17 @@ export default {
     suggesterSpaceURL() {
       if (this.editorReady) {
         if (this.suggesterSpaceURL) {
-          this.getSpaceId();
+          this.getSpaceId().then(() => this.initCKEditor(true, this.backUpMessage));
         } else {
           this.spaceId = null;
+          this.initCKEditor(true, this.backUpMessage);
         }
-        this.initCKEditor(true, this.backUpMessage);
       }
     },
     displayAttachmentEditor(newVal, oldVal) {
       if (newVal && !oldVal) {
         this.$nextTick().then(() => this.$refs?.attachmentsInput?.init());
       }
-    },
-    spaceId(){
-      this.initCKEditorData(this.inputVal);
     },
     editor() {
       const mentionedUsers =  this.backUpMessage?.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
@@ -700,10 +697,8 @@ export default {
       return message;
     },
     getSpaceId() {
-      this.$spaceService.getSpaceByPrettyName(this.suggesterSpaceURL)
-        .then(space => {
-          this.spaceId = space.id;
-        });
+      return this.$spaceService.getSpaceByPrettyName(this.suggesterSpaceURL)
+        .then(space => this.spaceId = space.id);
     }
   }
 };
