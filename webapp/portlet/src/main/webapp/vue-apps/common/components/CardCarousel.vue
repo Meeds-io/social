@@ -17,7 +17,8 @@
       </v-btn>
     </v-fab-transition>
     <v-card
-      class="carousel-middle-parent scrollbar-width-none d-flex px-0 pb-4 pt-2 overflow-x-scroll"
+      :class="!dense && 'px-0 pb-4 pt-2'"
+      class="carousel-middle-parent scrollbar-width-none d-flex overflow-x-scroll"
       flat
       @scroll="computeProperties"
       @resize="computeProperties">
@@ -50,6 +51,10 @@ export default {
     parentClass: {
       type: Object,
       default: null,
+    },
+    dense: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
