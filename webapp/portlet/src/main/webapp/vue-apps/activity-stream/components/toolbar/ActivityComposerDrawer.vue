@@ -132,7 +132,6 @@
             use-draft-management
             autofocus
             @attachments-edited="attachmentsEdit" />
-          <div v-if="containInvalidUsers" class="mt-4">{{ $t('activity.composer.invalidUsers.message') }}</div>
         </v-card-text>
         <v-card-actions class="d-flex px-4">
           <extension-registry-components
@@ -194,8 +193,7 @@ export default {
       postToNetwork: eXo.env.portal.postToNetworkEnabled,
       audienceChoice: 'yourNetwork',
       audience: '',
-      username: eXo.env.portal.userName,
-      containInvalidUsers: false
+      username: eXo.env.portal.userName
     };
   },
   computed: {
@@ -287,9 +285,6 @@ export default {
       if (newVal === 'yourNetwork') {
         this.removeAudience();
       }
-    },
-    spaceURL() {
-      this.resetRichEditorData();
     }
   },
   created() {
@@ -344,16 +339,7 @@ export default {
     postMessage() {
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
-      let message = this.ckEditorInstance.getMessage();
-      const tempdiv = $('<div class=\'temp\'/>').html(message || '');
-      tempdiv.find('[data-atwho-at-value]')
-        .each(function() {
-          const value = $(this).attr('data-atwho-at-value');
-          const pattern = new RegExp(`<span class="atwho-inserted" data-atwho-at-query="[^"]*" data-atwho-at-value="${value}"[^>]*>(.*?)</span> </span>`, 'g');
-          message = message.replace(pattern, value ? `@${value}` : '');
-        });
-      this.templateParams.comment = message;
-      this.templateParams.default_title = message;
+      const message = this.ckEditorInstance.getMessage();
       if (this.activityId) {
         let activityType = this.activityType;
         if (this.templateParams && this.templateParams.link && !this.activityType) {
@@ -457,76 +443,7 @@ export default {
     },
     removeAudience() {
       this.audience = '';
-    },
-    replaceValidSuggestedUser(message, profile, pattern) {
-      return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
-                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="${profile.username}" contenteditable="false">
-                        <span class="exo-mention">${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>
-                      </span>
-                    `));
-    },
-    replaceInvalidSuggestedUser(message, profile, pattern) {
-      return message.replace(new RegExp(pattern, 'g'), ExtendedDomPurify.purify(`
-                      <span class="atwho-inserted" data-atwho-at-query="@${profile.username}" data-atwho-at-value="" contenteditable="false" title="${this.$t('activity.composer.invalidUser.message')}">
-                        <span class="exo-mention">
-                          <i aria-hidden="true" class="v-icon notranslate fa fa-exclamation-triangle theme--light orange--text error-color" style="font-size: 16px;">
-                          </i>
-                          <del>${profile.fullname}${profile.isExternal === 'true' ? ` (${  this.$t('UsersManagement.type.external')  })` : ''}</del>
-                          <a href="#" class="remove">
-                            <i class="uiIconClose uiIconLightGray"></i>
-                          </a>
-                        </span>
-                      </span>
-                    `));
-    },
-    resetRichEditorData() {
-      let message = this.ckEditorInstance.getMessage();
-      const mentionedUsers =  message.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
-      this.containInvalidUsers = false;
-      if (mentionedUsers?.length) {
-        // Clear suggester cache
-        document.dispatchEvent(new CustomEvent('suggester-clear-people-cache'));
-        Promise
-          .all(mentionedUsers.map(username => {
-            return this.$identityService.getIdentityByProviderIdAndRemoteId('organization', username)
-              .then(identity => {
-                if (!identity?.profile) {
-                  return null;
-                }
-                if (this.audience?.spaceId) {
-                  return this.$spaceService.isSpaceMember(this.audience.spaceId, username)
-                    .then(data => {
-                      if (data) {
-                        const profile = identity.profile;
-                        profile.isMember = data?.isMember === 'true';
-                        return profile;
-                      } else {
-                        return null;
-                      }
-                    });
-                } else {
-                  const profile = identity.profile;
-                  profile.isMember = true;
-                  return profile;
-                }
-              });
-          }))
-          .then(userProfiles => userProfiles.filter(p => p))
-          .then(userProfiles => {
-            const containsExoMentionClass = message.search('exo-mention') >= 0;
-            this.containInvalidUsers = !!userProfiles.find(profile => profile.isMember !== true);
-            userProfiles.forEach(profile => {
-              const pattern = containsExoMentionClass ? `<span class="atwho-inserted" data-atwho-at-query="@${profile.username}"[^>]*>(.*?)</span> </span>` : `@${profile.username}`;
-              if (profile.isMember) {
-                message = this.replaceValidSuggestedUser(message, profile, pattern);
-              } else {
-                message = this.replaceInvalidSuggestedUser(message, profile, pattern);
-              }
-            });
-            this.ckEditorInstance?.initCKEditorData?.(message);
-          });
-      }
-    },
+    }
   },
 };
 </script>
