@@ -354,6 +354,9 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
         <module>vue</module>
       </depends>
       <depends>
@@ -1559,6 +1562,81 @@
     <module>
       <depends>
         <module>spaceBannerLogoPopover</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>TopBarPreview</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/topBarPreview.bundle.js</path>
+      </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>TopBarLogin</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/topBarLogin.bundle.js</path>
+      </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>TopBarPublishSite</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/topBarPublishSite.bundle.js</path>
+      </script>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
       </depends>
     </module>
   </portlet>

@@ -89,7 +89,7 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'branding'">
-                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
@@ -106,7 +106,7 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'login'">
-                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
@@ -123,6 +123,23 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'access'">
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <h4 class="my-0">{{ $t('generalSettings.managePublicSite') }}</h4>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.managePublicSite') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.$emit('public-site-edit')">
                     <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
                   </v-btn>
                 </v-list-item-action>
@@ -139,6 +156,7 @@
         :cancel-label="$t('generalSettings.no')"
         persistent
         @ok="closeEffectively" />
+      <portal-general-settings-public-site-drawer />
     </v-main>
   </v-app>
 </template>
