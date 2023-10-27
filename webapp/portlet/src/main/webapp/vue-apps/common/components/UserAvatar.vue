@@ -19,7 +19,7 @@
         :class="avatarClass"
         class="ma-0 flex-shrink-0">
         <img
-          :src="avatarUrl"
+          :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
@@ -62,7 +62,7 @@
         :class="avatarClass"
         class="ma-0">
         <img
-          :src="avatarUrl"
+          :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
@@ -104,7 +104,7 @@
         :class="avatarClass"
         class="ma-0 flex-shrink-0">
         <img
-          :src="avatarUrl"
+          :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
@@ -147,7 +147,7 @@
         :class="avatarClass"
         class="ma-0">
         <img
-          :src="avatarUrl"
+          :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
@@ -188,6 +188,14 @@ export default {
     profileId: {
       type: String,
       default: () => null,
+    },
+    avatarUrl: {
+      type: String,
+      default: null,
+    },
+    name: {
+      type: String,
+      default: null,
     },
     avatar: {
       type: Boolean,
@@ -274,18 +282,18 @@ export default {
     },  
     deleted() {
       return this.userIdentity?.deleted;
-    },    
+    },
     userFullname() {
-      return this.userIdentity?.fullname;
+      return this.userIdentity?.fullname || this.name;
     },
     position() {
       return this.userIdentity?.position;
     },
-    avatarUrl() {
-      return this.userIdentity?.enabled? this.userIdentity.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar` : `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
+    userAvatarUrl() {
+      return this.userIdentity?.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
     },
     profileUrl() {
-      if (this.url && !this.clickable) {
+      if (this.url && !this.clickable && this.username) {
         return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
       } else {
         return null;
@@ -326,7 +334,7 @@ export default {
         deleted: this.deleted,       
         fullName: this.userFullname,
         position: this.position,
-        avatar: this.avatarUrl,
+        avatar: this.userAvatarUrl,
         external: this.isExternal,
       };
     },
