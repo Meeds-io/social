@@ -18,6 +18,7 @@
     :loading="loading"
     :class="extraClass"
     :height="height"
+    :min-height="minHeight"
     :min-width="minWidth"
     class="d-flex flex-column white card-border-radius overflow-hidden"
     flat>
@@ -92,6 +93,10 @@ export default {
       default: () => false,
     },
     height: {
+      type: String,
+      default: () => '',
+    },
+    minHeight: {
       type: String,
       default: () => '',
     },
