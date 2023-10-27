@@ -261,10 +261,7 @@
             <field name="permissions">
               <collection type="java.util.ArrayList">
                 <value>
-                  <string>*:/platform/users</string>
-                </value>
-                <value>
-                  <string>*:/platform/externals</string>
+                  <string>Everyone</string>
                 </value>
               </collection>
             </field>
@@ -355,10 +352,7 @@
             <field name="permissions">
               <collection type="java.util.ArrayList">
                 <value>
-                  <string>*:/platform/users</string>
-                </value>
-                <value>
-                  <string>*:/platform/externals</string>
+                  <string>Everyone</string>
                 </value>
               </collection>
             </field>
