@@ -642,7 +642,7 @@
     </init-param>
     <init-param>
       <name>preload.resource.rest</name>
-      <value><![CDATA[|/portal/rest/v1/social/users?q=&offset=0&limit=21&expand=all,spacesCount,relationshipStatus,connectionsCount,binding&returnSize=true]]></value>
+      <value><![CDATA[|/portal/rest/v1/social/users?q=&offset=0&limit=21&expand=all,spacesCount,relationshipStatus,connectionsCount,binding&returnSize=true&excludeCurrentUser=true]]></value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
