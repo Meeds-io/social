@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.OutputHeadersMap;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.*;
@@ -1425,6 +1426,69 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space = this.spaceService.createSpace(space, creator);
     return space;
+  }
+
+  public void testPreloadActivitiesId() throws Exception {
+    startSessionAs("john");
+    Space space = getSpaceInstance(1, "john");
+    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    for (int i = 0; i < 4; i++) {
+      ExoSocialActivity activity = new ExoSocialActivityImpl();
+      activity.setTitle("activity"+i);
+      activity.setUserId(johnIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    }
+    restartTransaction();
+    ContainerResponse response = service("GET",
+            getURLResource("activities?streamType=ALL_STREAM&spaceId=" + space.getId() + "&limit=20&offset=0&expand=ids"),
+            "",
+            null,
+            null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(5, collections.getEntities().size());
+    OutputHeadersMap outputHeadersMap = (OutputHeadersMap) response.getHttpHeaders();
+    assertEquals(5, outputHeadersMap.get("Link").size());
+    //
+    for (int i = 5; i < 52; i++) {
+      ExoSocialActivity activity = new ExoSocialActivityImpl();
+      activity.setTitle("activity"+i);
+      activity.setUserId(johnIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    }
+    restartTransaction();
+    response = service("GET",
+            getURLResource("activities?streamType=ALL_STREAM&spaceId=" + space.getId() + "&limit=40&offset=0&expand=ids"),
+            "",
+            null,
+            null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(40, collections.getEntities().size());
+    outputHeadersMap = (OutputHeadersMap) response.getHttpHeaders();
+     //Max to preload is 10
+    assertEquals(10, outputHeadersMap.get("Link").size());
+    //
+    restartTransaction();
+    response = service("GET",
+            getURLResource("activities?streamType=ALL_STREAM&spaceId=" + space.getId() + "&limit=120&offset=0&expand=ids"),
+            "",
+            null,
+            null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(52, collections.getEntities().size());
+    outputHeadersMap = (OutputHeadersMap) response.getHttpHeaders();
+    assertEquals(4, outputHeadersMap.size());
+    /* Activity ids list length is 52
+     Max to preload is 10
+     Preload limit is limit / 2 = 60
+     Offset is Preload limit - max to preload = 50
+     Expected: 2 links  */
+    assertEquals(2, outputHeadersMap.get("Link").size());
   }
 
 }
