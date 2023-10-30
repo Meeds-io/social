@@ -1,3 +1,4 @@
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.exoplatform.commons.api.notification.model.UserSetting"%>
 <%@page import="org.exoplatform.commons.api.notification.service.setting.UserSettingService"%>
 <%@ page import="org.exoplatform.social.core.space.model.Space"%>
@@ -48,11 +49,15 @@
     logoPath = brandingService.getLogoPath();
     logoTitle = brandingService.getCompanyName();
 
-    portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
-    if (portalPath == null) {
-      portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
+    if (StringUtils.equals(requestContext.getPortalOwner(), "public")) {
+      portalPath = "/portal/public";
+    } else {
+      portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
       if (portalPath == null) {
-        portalPath = defaultHomePath;
+        portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
+        if (portalPath == null) {
+          portalPath = defaultHomePath;
+        }
       }
     }
     titleClass = "company";
@@ -80,10 +85,10 @@
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
 %>
 <script type="text/javascript" defer="defer">
-  let managers = new Array();
+  let topbarLogoManagers = new Array();
   <%
    for (int i =0 ; i < managers.size(); i++) { %>
-  managers.push({
+   topbarLogoManagers.push({
     id: `<%=managers.get(i).getId()%>`,
     userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
     fullName: `<%=managers.get(i).getFullName()%>`,
@@ -100,7 +105,7 @@
     logoTitle: `<%=logoTitle%>`,
     membersNumber: `<%=membersNumber%>`,
     spaceDescription: `<%=spaceDescription%>`,
-    managers: managers,
+    managers: topbarLogoManagers,
     homePath: `<%=homePath%>`
   };
   document.addEventListener('spaceDetailUpdated', event => {
