@@ -1,6 +1,6 @@
 <template>
   <v-treeview
-    id="siteHamburgerItemNavigationTree"
+    id="siteNavigationTree"
     :open.sync="openLevel"
     :items="navigations"
     :active="active"
@@ -12,7 +12,7 @@
     open-on-click
     transition>
     <template #label="{ item }">
-      <site-hamburger-item-navigation :navigation="item" />
+      <site-navigation-item :navigation="item" :enable-change-home="enableChangeHome" />
     </template>
   </v-treeview>
 </template>
@@ -28,6 +28,10 @@ export default {
       type: String,
       default: null,
     },
+    enableChangeHome: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     selectedNodeUri: eXo.env.portal.selectedNodeUri,
@@ -42,6 +46,8 @@ export default {
           ids.push(...nav.children?.length && nav.children?.map(nav => nav.name) || []);
         });
       }
+      const splittedCurrentUri = this.selectedNodeUri.split('/');
+      ids.push (... splittedCurrentUri);
       return ids;
     },
     active() {

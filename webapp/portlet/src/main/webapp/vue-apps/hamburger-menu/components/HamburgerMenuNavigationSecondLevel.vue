@@ -46,10 +46,11 @@
         :space="openedSpace"
         :home-link="homeLink"
         @close="drawer = false" />
-      <site-hamburger-item-details
+      <site-details
         v-else-if="secondLevel === 'site'"
         :site="site"
         :display-sequentially="displaySequentially"
+        enable-change-home
         @close="drawer = false" />
     </template>
   </v-navigation-drawer>
