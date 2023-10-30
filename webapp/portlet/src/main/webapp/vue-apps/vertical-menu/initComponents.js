@@ -17,16 +17,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import VerticalMenuApp from './components/VerticalMenuApp.vue';
-import VerticalMenuDrawer from './components/VerticalMenuDrawer.vue';
-import VerticalMenuContent from './components/VerticalMenuContent.vue';
-import VerticalMenuButton from './components/VerticalMenuButton.vue';
+import VerticalMenuApp from './components/VerticalMenu.vue';
 
 const components = {
   'vertical-menu-app': VerticalMenuApp,
-  'vertical-menu-content': VerticalMenuContent,
-  'vertical-menu-button': VerticalMenuButton,
-  'vertical-menu-drawer': VerticalMenuDrawer,
 };
 
 for (const key in components) {
