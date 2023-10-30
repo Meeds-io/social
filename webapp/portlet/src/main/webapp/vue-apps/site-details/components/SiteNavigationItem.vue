@@ -14,7 +14,7 @@
       <v-list-item-title class="body-2 mt-1">
         {{ navigation.label }}
       </v-list-item-title>
-      <v-list-item-action v-if="!isNodeGroup && (isHomeLink || showAction)" class="my-auto">
+      <v-list-item-action v-if="enableChangeHome && !isNodeGroup && (isHomeLink || showAction)" class="my-auto">
         <v-btn
           v-bind="attrs"
           v-on="on"
@@ -38,6 +38,10 @@ export default {
     navigation: {
       type: Object,
       default: null
+    },
+    enableChangeHome: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
