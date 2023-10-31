@@ -202,7 +202,7 @@ export default {
       if (this.supportsOembed) {
         this.setOembedParams({
           default_title: this.getContentToSave(this.inputVal),
-          comment: this.getContentNoEmbed(this.inputVal),
+          comment: this.getContentToSave(this.inputVal),
         });
       } else {
         this.clearOembedParams();
@@ -242,7 +242,7 @@ export default {
     },
     editor() {
       const mentionedUsers =  this.backUpMessage?.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
-      if (mentionedUsers?.length && !this.spaceId) {
+      if (mentionedUsers?.length && this.editor) {
         this.replaceSuggestedUsers(this.backUpMessage, mentionedUsers, this.spaceId);
       }
     }
