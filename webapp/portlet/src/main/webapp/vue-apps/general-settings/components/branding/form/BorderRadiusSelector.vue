@@ -3,23 +3,23 @@
     <v-btn 
       text
       small
-      @click="setBorderRadius(0)">
+      @click="bordeRadius = 0">
       {{ $t('generalSettings.widgetAndAppStyle.square') }}
     </v-btn>
     <v-slider
       v-model="bordeRadius"
       :thumb-size="24"
+      :max="maxBorderRadius"
       tick-size="2"
       thumb-label="always"
       ticks
       min="0"
-      max="20"
       step="4"
       color="primary" />
     <v-btn
       text
       small
-      @click="setBorderRadius(20)"> 
+      @click="bordeRadius = maxBorderRadius"> 
       {{ $t('generalSettings.widgetAndAppStyle.rounded') }} 
     </v-btn>
   </div>
@@ -33,7 +33,8 @@ export default {
     },
   },
   data: () => ({
-    bordeRadius: 8
+    bordeRadius: 8,
+    maxBorderRadius: 20
   }),
   watch: {
     value() {
@@ -45,12 +46,6 @@ export default {
   },
   created() {
     this.bordeRadius = this.value;
-  },
-  methods: {
-    setBorderRadius(value) {
-      this.bordeRadius = value;
-      this.$emit('input', this.bordeRadius);
-    }
   }
 };
 </script>
