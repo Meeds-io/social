@@ -74,11 +74,37 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     profile.setProperty("postalCode", "2100");
     identityManager.updateProfile(profile, true);
 
-    Group group = organizationService.getGroupHandler().findGroupById("/profile/postalCode/2100");
+    Group group = organizationService.getGroupHandler().findGroupById("/profile/postalcode/2100");
     assertNotNull(group);
-    Collection<Group> groups = organizationService.getGroupHandler().findGroupByMembership(paulRemoteId, "member");
+    Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
     assertTrue(groups.contains(group));
     Group group1 = organizationService.getGroupHandler().findGroupById("/profile/street");
     assertNull(group1);
+    //
+    String propertyName = "propertytest";
+    profilePropertySetting.setPropertyName(propertyName);
+    profilePropertyService.createPropertySetting(profilePropertySetting);
+    String groupLabel = "Test'propertytest";
+    String expectedGroupName = "testpropertytest";
+    StringBuilder expectedGroupId = new StringBuilder();
+    expectedGroupId.append("/profile/");
+    expectedGroupId.append(propertyName);
+    expectedGroupId.append("/");
+    expectedGroupId.append(expectedGroupName);
+    profile.setProperty("propertytest", groupLabel);
+    identityManager.updateProfile(profile, true);
+    Group group2 = organizationService.getGroupHandler().findGroupById(expectedGroupId.toString());
+    assertNotNull(group2);
+    assertEquals(group2.getLabel(), groupLabel);
+    assertEquals(group2.getGroupName(), expectedGroupName);
+    groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
+    assertTrue(groups.contains(group2));
+    assertEquals(3, groups.size());
+    //
+    identityManager.updateProfile(profile);
+    groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
+    assertEquals(3, groups.size());
+
+
   }
 }
