@@ -25,7 +25,9 @@ import java.util.Objects;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -37,20 +39,21 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.rest.resource.ResourceContainer;
-import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.SiteEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -69,6 +72,8 @@ public class SiteRest implements ResourceContainer {
 
   private LayoutService             layoutService;
 
+  private UserACL                   userACL;
+
   private static final int          CACHE_IN_SECONDS       = 604800;
 
   private static final int          CACHE_IN_MILLI_SECONDS = CACHE_IN_SECONDS * 1000;
@@ -86,8 +91,10 @@ public class SiteRest implements ResourceContainer {
     BANNER_CACHE_CONTROL.setPrivate(false);
   }
 
-  public SiteRest(LayoutService layoutService) {
+  public SiteRest(LayoutService layoutService,
+                  UserACL userACL) {
     this.layoutService = layoutService;
+    this.userACL = userACL;
   }
 
   @GET
@@ -250,6 +257,12 @@ public class SiteRest implements ResourceContainer {
                               String lang) {
     try {
       PortalConfig site = layoutService.getPortalConfig(Long.parseLong(siteId));
+      if (site == null) {
+        return Response.status(Status.NOT_FOUND).build();
+      }
+      if (!userACL.hasAccessPermission(site)) {
+        return Response.status(Status.UNAUTHORIZED).build();
+      }
       SiteEntity siteEntity = EntityBuilder.buildSiteEntity(site,
                                                             httpServletRequest,
                                                             expandNavigations,
@@ -275,6 +288,48 @@ public class SiteRest implements ResourceContainer {
       return builder.build();
     } catch (Exception e) {
       LOG.warn("Error while retrieving site", e);
+      return Response.serverError().entity(e.getMessage()).build();
+    }
+  }
+
+  @PATCH
+  @Path("{siteId}")
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @RolesAllowed("users")
+  @Operation(summary = "Updates a specific site attribute by id", description = "Updates a specific site attribute by id", method = "PATCH")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Bad request"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+    @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public Response updateSiteById(
+                                 @Parameter(description = "site Id", required = true)
+                                 @PathParam("siteId")
+                                 String siteId,
+                                 @Parameter(description = "Site attribute name", required = true)
+                                 @FormParam("name")
+                                 String name,
+                                 @Parameter(description = "Site attribute value", required = true)
+                                 @FormParam("value")
+                                 String value) {
+    try {
+      PortalConfig site = layoutService.getPortalConfig(Long.parseLong(siteId));
+      if (site == null) {
+        return Response.status(Status.NOT_FOUND).build();
+      }
+      if (!userACL.hasEditPermission(site)) {
+        return Response.status(Status.UNAUTHORIZED).build();
+      }
+      if (StringUtils.equals(name, "accessPermissions")) {
+        site.setAccessPermissions(StringUtils.split(value, ","));
+        layoutService.save(site);
+        return Response.status(Status.NO_CONTENT).build();
+      } else {
+        return Response.status(Status.BAD_REQUEST).build();
+      }
+    } catch (Exception e) {
+      LOG.warn("Error while saving site attribute {} with value {}", name, value, e);
       return Response.serverError().entity(e.getMessage()).build();
     }
   }

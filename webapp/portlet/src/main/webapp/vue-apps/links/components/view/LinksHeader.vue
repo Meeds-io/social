@@ -23,7 +23,6 @@
     v-if="hasLinks && (showHeader || canEdit)"
     :class="{
       'position-relative pb-4': showHeader,
-      'pb-2': !showHeader,
     }"
     class="d-flex align-center">
     <div v-if="header" class="flex-grow-1 flex-shrink-1 text-truncate subtitle-1 text-sub-title text-start">
@@ -82,6 +81,7 @@
       outlined
       border
       @click="$emit('add')">
+      <v-icon size="18" class="me-2">fa-link</v-icon>
       {{ $t('links.label.addLinksButton') }}
     </v-btn>
   </div>

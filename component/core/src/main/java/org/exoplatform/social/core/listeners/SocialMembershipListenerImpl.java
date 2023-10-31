@@ -34,6 +34,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 
 /**
  * SocialMembershipListenerImpl is registered to OrganizationService to handle membership operation associated
@@ -100,6 +101,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
           spaceService.removePublisher(space, m.getUserName());
         }
         SpaceUtils.refreshNavigation();
+        clearOwnerGlobalStreamCache(m.getUserName());
       }
     }
     else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
@@ -125,6 +127,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
           space.setEditor(state.getIdentity().getUserId());
         }
         String userName = m.getUserName();
+        clearOwnerGlobalStreamCache(userName);
         if (acl.getAdminMSType().equalsIgnoreCase(m.getMembershipType()) ||
             MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.equalsIgnoreCase(m.getMembershipType())) {
           if (spaceService.isManager(space, userName)) {
@@ -182,5 +185,9 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
     
     //clear caching for identity
     storage.updateIdentityMembership(null);
+  }
+  protected void clearOwnerGlobalStreamCache(String owner) {
+    CachedActivityStorage cachedActivityStorage = CommonsUtils.getService(CachedActivityStorage.class);
+    cachedActivityStorage.clearOwnerStreamCache(owner);
   }
 }

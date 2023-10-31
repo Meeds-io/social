@@ -73,7 +73,8 @@ export default {
     siteType: 'PORTAL',
     exclude: 'global',
     tab: null,
-    navigationTabState: 'topNavigationTabState'
+    navigationTabState: 'topNavigationTabState',
+    parentScrollableSelector: '.site-scroll-parent',
   }),
   computed: {
     isMobile() {
@@ -186,10 +187,10 @@ export default {
     computeSiteBodyMargin() {
       if (this.isMobile) {
         window.setTimeout(() => {
-          $('#UISiteBody').css('margin-bottom', '70px');
+          $(this.parentScrollableSelector).css('margin-bottom', '70px');
         }, 200);
       } else {
-        $('#UISiteBody').css('margin-bottom', '');
+        $(this.parentScrollableSelector).css('margin-bottom', '');
       }
     },
     refreshWindowSize() {

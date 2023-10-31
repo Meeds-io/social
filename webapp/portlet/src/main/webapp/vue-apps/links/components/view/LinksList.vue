@@ -22,7 +22,7 @@
   <component
     v-if="links?.length"
     :is="isColumn && 'v-list' || 'card-carousel'"
-    :class="isColumn && 'pa-0'"
+    :class="isColumn && 'pa-0' || 'mt-n2 mb-n4'"
     v-bind="isColumn && {
       dense: !largeIcon
     }">
