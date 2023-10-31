@@ -150,14 +150,16 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   }
 
   private Group getOrCreateGroup(String groupName, Group parentGroup) throws Exception {
+    String groupLabel = groupName;
+    groupName = Utils.cleanString(groupName);
     Group group = getGroup(buildGroupId(parentGroup, groupName));
     if (group != null) {
       return group;
     }
     GroupHandler groupHandler = organizationService.getGroupHandler();
     Group newGroup = groupHandler.createGroupInstance();
-    newGroup.setGroupName(Utils.cleanString(groupName.toLowerCase()));
-    newGroup.setLabel(StringUtils.capitalize(groupName));
+    newGroup.setGroupName(groupName.toLowerCase());
+    newGroup.setLabel(StringUtils.capitalize(groupLabel));
     newGroup.setDescription(groupName + " group");
     groupHandler.addChild(parentGroup, newGroup, true);
     return getGroup(buildGroupId(parentGroup, groupName));

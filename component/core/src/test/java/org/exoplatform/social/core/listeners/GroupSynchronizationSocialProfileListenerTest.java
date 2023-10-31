@@ -97,5 +97,14 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     assertNotNull(group2);
     assertEquals(group2.getLabel(), groupLabel);
     assertEquals(group2.getGroupName(), expectedGroupName);
+    groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
+    assertTrue(groups.contains(group2));
+    assertEquals(3, groups.size());
+    //
+    identityManager.updateProfile(profile);
+    groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
+    assertEquals(3, groups.size());
+
+
   }
 }
