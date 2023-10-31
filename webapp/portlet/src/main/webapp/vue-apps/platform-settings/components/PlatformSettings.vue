@@ -1,5 +1,5 @@
 <template>
-  <v-tooltip bottom v-if="url && !isMobile">
+  <v-tooltip bottom v-if="url">
     <template #activator="{ on, attrs }">
       <v-btn
         v-if="url"
@@ -28,10 +28,5 @@ export default {
       default: null,
     }
   },
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.width < 768;
-    }
-  }
 };
 </script>
