@@ -7,7 +7,7 @@
       {{ $t('generalSettings.widgetAndAppStyle.square') }}
     </v-btn>
     <v-slider
-      v-model="defaultBorderRadius"
+      v-model="bordeRadius"
       :thumb-size="24"
       tick-size="2"
       thumb-label="always"
@@ -15,8 +15,7 @@
       min="0"
       max="20"
       step="4"
-      color="primary"
-      @change="$emit('input', defaultBorderRadius)" />
+      color="primary" />
     <v-btn
       text
       small
@@ -28,27 +27,29 @@
 <script>
 export default {
   props: {
-    borderRadius: {
+    value: {
       type: String,
       default: null,
     },
   },
   data: () => ({
-    defaultBorderRadius: 8
+    bordeRadius: 8
   }),
   watch: {
-    borderRadius() {
-      this.defaultBorderRadius = this.borderRadius && Number(this.borderRadius.split('px')[0]);
-    }
+    value() {
+      this.bordeRadius = this.value;
+    },
+    bordeRadius() {
+      this.$emit('input', this.bordeRadius);
+    },
   },
   created() {
-    this.defaultBorderRadius = this.borderRadius && Number(this.borderRadius.split('px')[0]);
+    this.bordeRadius = this.value;
   },
   methods: {
     setBorderRadius(value) {
-      this.defaultBorderRadius = value;
-      console.warn(this.defaultBorderRadius);
-      this.$emit('input', this.defaultBorderRadius);
+      this.bordeRadius = value;
+      this.$emit('input', this.bordeRadius);
     }
   }
 };

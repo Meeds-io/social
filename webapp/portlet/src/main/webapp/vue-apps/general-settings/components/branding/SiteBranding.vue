@@ -123,9 +123,9 @@
         {{ $t('generalSettings.widgetAndAppStyle.subtitle') }}
       </h6>
       <portal-general-settings-border-radius
+        v-model="borderRadius"
         ref="borderRadius"
-        :border-radius="borderRadius"
-        @input="setBorderRadius" />
+        @input="borderRadius = $event" />
     </v-col>
     <v-col
       cols="12"
@@ -189,7 +189,7 @@ export default {
       return this.branding?.themeStyle?.tertiaryColor;
     },
     defaultBorderRadius() {
-      return this.branding?.themeStyle?.borderRadius;
+      return this.branding?.themeStyle?.borderRadius && Number(this.branding.themeStyle.borderRadius.split('px')[0]);
     },
     validForm() {
       return this.changed && this.isValidForm;
@@ -199,7 +199,7 @@ export default {
           && this.primaryColor?.length
           && this.secondaryColor?.length
           && this.tertiaryColor?.length
-          && this.borderRadius?.length;
+          && this.borderRadius >= 0;
     },
     changed() {
       if (!this.branding) {
@@ -215,7 +215,7 @@ export default {
       newBranding.themeStyle.primaryColor = this.primaryColor;
       newBranding.themeStyle.secondaryColor = this.secondaryColor;
       newBranding.themeStyle.tertiaryColor = this.tertiaryColor;
-      newBranding.themeStyle.borderRadius = this.borderRadius;
+      newBranding.themeStyle.borderRadius = `${this.borderRadius}px`;
       return JSON.stringify(oldBranding) !== JSON.stringify(newBranding);
     },
   },
@@ -257,7 +257,7 @@ export default {
           primaryColor: this.primaryColor,
           secondaryColor: this.secondaryColor,
           tertiaryColor: this.tertiaryColor,
-          borderRadius: this.borderRadius,
+          borderRadius: `${this.borderRadius}px`,
         },
         logo: {
           uploadId: this.logoUploadId,
@@ -274,11 +274,6 @@ export default {
         .catch(e => this.errorMessage = String(e))
         .finally(() => this.$root.loading = false);
     },
-    setBorderRadius(value) {
-      if (value >= 0) {
-        this.borderRadius = `${value}px`;
-      }
-    }
   }
 };
 </script>
