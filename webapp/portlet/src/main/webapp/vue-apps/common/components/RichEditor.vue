@@ -202,7 +202,7 @@ export default {
       if (this.supportsOembed) {
         this.setOembedParams({
           default_title: this.getContentToSave(this.inputVal),
-          comment: this.getContentToSave(this.inputVal),
+          comment: this.getContentNoEmbed(this.inputVal),
         });
       } else {
         this.clearOembedParams();
@@ -501,7 +501,7 @@ export default {
       return this.getContentNoEmbed(content);
     },
     getContentToSave(content) {
-      content = this.updateMessageBeforPost(content);
+      content = this.replaceSuggesterHtmlToText(content);
       return this.getContent(content, true);
     },
     getContent(content, cleanOembedParams) {
@@ -574,7 +574,9 @@ export default {
     },
     updateInput(content) {
       if (this.editorReady) {
-        this.$emit('input', this.getContentToSave(content));
+        const message = this.getContentToSave(content);
+        this.inputVal = message;
+        this.$emit('input', message);
       }
     },
     initOembedParams() {
@@ -686,7 +688,7 @@ export default {
           this.editor?.setData(message);
         });
     },
-    updateMessageBeforPost(message) {
+    replaceSuggesterHtmlToText(message) {
       const tempdiv = $('<div class=\'temp\'/>').html(message || '');
       tempdiv.find('[data-atwho-at-value]')
         .each(function() {
