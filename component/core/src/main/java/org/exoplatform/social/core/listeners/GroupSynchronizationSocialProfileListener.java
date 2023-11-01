@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profile.ProfileListenerPlugin;
@@ -149,6 +150,8 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   }
 
   private Group getOrCreateGroup(String groupName, Group parentGroup) throws Exception {
+    String groupLabel = groupName;
+    groupName = Utils.cleanString(groupName);
     Group group = getGroup(buildGroupId(parentGroup, groupName));
     if (group != null) {
       return group;
@@ -156,7 +159,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     GroupHandler groupHandler = organizationService.getGroupHandler();
     Group newGroup = groupHandler.createGroupInstance();
     newGroup.setGroupName(groupName.toLowerCase());
-    newGroup.setLabel(StringUtils.capitalize(groupName));
+    newGroup.setLabel(StringUtils.capitalize(groupLabel));
     newGroup.setDescription(groupName + " group");
     groupHandler.addChild(parentGroup, newGroup, true);
     return getGroup(buildGroupId(parentGroup, groupName));
