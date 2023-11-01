@@ -25,6 +25,7 @@ import ColorPicker from './components/branding/form/ColorPicker.vue';
 import CompanyLogo from './components/branding/form/CompanyLogo.vue';
 import CompanyFavicon from './components/branding/form/CompanyFavicon.vue';
 import LoginBackgroundSelector from './components/branding/form/LoginBackgroundSelector.vue';
+import BorderRadiusSelector from './components/branding/form/BorderRadiusSelector.vue';
 
 import HubAccess from './components/registration/HubAccess.vue';
 import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.vue';
@@ -40,6 +41,7 @@ const components = {
   'portal-general-settings-color-picker': ColorPicker,
   'portal-general-settings-company-logo': CompanyLogo,
   'portal-general-settings-company-favicon': CompanyFavicon,
+  'portal-general-settings-border-radius': BorderRadiusSelector,
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,
   'portal-general-settings-hub-access': HubAccess,
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
