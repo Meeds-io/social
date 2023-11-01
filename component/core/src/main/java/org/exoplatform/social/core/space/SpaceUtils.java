@@ -1996,7 +1996,6 @@ public class SpaceUtils {
       navigations.addAll(parentNavigation.getChildren());
       filterUnreachablePages(navigations);
       computeNavigationLabels(navigations, locale);
-      computeNavigationIcons(navigations);
     } catch (Exception e) {
       LOG.error("Get UserNode of Space failed.",e);
     }
@@ -2023,29 +2022,8 @@ public class SpaceUtils {
     }
   }
 
-  public static void computeNavigationIcons(List<UserNode> navigations) {
-    for (UserNode node : navigations) {
-      if (node == null) {
-        continue;
-      }
-      String nodeIcon = getIconClass(node);
-      node.setIcon(nodeIcon);
-    }
-  }
-
   public static boolean hasSettingPermission(Space space, String username) {
     return getSpaceService().hasSettingPermission(space, username);
-  }
-
-  public static String getIconClass(UserNode node) {
-    if (node == null) {
-      return null;
-    }
-    if (isHomeNavigation(node)) {
-      return "uiIconAppSpaceHomePage uiIconDefaultApp";
-    }
-    String appName = node.getPageRef().getName();
-    return "uiIconApp" + node.getName() + " uiIconApp" + appName + " uiIconDefaultApp";
   }
 
   public static boolean isHomeNavigation(UserNode node) {
