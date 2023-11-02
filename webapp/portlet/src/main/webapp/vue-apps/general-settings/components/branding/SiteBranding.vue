@@ -29,103 +29,110 @@
       cols="12"
       lg="6"
       class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.companyNameTitle') }}
-      </h4>
-      <h6 class="text-subtitle grey--text me-2">
-        {{ $t('generalSettings.companyNameSubtitle') }}
-      </h6>
-      <v-card
-        max-width="350px"
-        class="me-2"
-        flat>
-        <v-text-field
-          id="companyName"
-          v-model="companyName"
-          :placeholder="$t('generalSettings.companyNamePlaceholder')"
-          class="setup-company-name border-box-sizing pt-0"
-          name="companyName"
-          type="text"
-          autofocus="autofocus"
-          aria-required="true"
-          required="required"
-          outlined
-          dense />
-      </v-card>
-    </v-col>
-    <v-col
-      cols="12"
-      lg="6"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.companyLogoTitle') }}
-      </h4>
-      <h6 class="text-subtitle grey--text me-2">
-        {{ $t('generalSettings.companyLogoSubtitle') }}
-      </h6>
-      <portal-general-settings-company-logo
-        ref="companyLogo"
-        v-model="logoUploadId"
-        :branding="branding"
-        class="mt-n2" />
-    </v-col>
-    <v-col
-      cols="12"
-      lg="6"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.themeColorsTitle') }}
-      </h4>
-      <h6 class="text-subtitle grey--text me-2">
-        {{ $t('generalSettings.themeColorsSubtitle') }}
-      </h6>
-      <div class="d-flex flex-wrap mt-n2">
-        <div>
-          <portal-general-settings-color-picker
-            v-model="primaryColor"
-            :label="$t('generalSettings.primaryColor.label')" />
+      <div>
+        <h4 class="mb-0 mt-4">
+          {{ $t('generalSettings.companyNameTitle') }}
+        </h4>
+        <h6 class="text-subtitle grey--text me-2">
+          {{ $t('generalSettings.companyNameSubtitle') }}
+        </h6>
+        <v-card
+          max-width="350px"
+          class="me-2"
+          flat>
+          <v-text-field
+            id="companyName"
+            v-model="companyName"
+            :placeholder="$t('generalSettings.companyNamePlaceholder')"
+            class="setup-company-name border-box-sizing pt-0"
+            name="companyName"
+            type="text"
+            autofocus="autofocus"
+            aria-required="true"
+            required="required"
+            outlined
+            dense />
+        </v-card>
+      </div>
+      <div>
+        <h4 class="mb-0 mt-4">
+          {{ $t('generalSettings.companyLogoTitle') }}
+        </h4>
+        <h6 class="text-subtitle grey--text me-2">
+          {{ $t('generalSettings.companyLogoSubtitle') }}
+        </h6>
+        <portal-general-settings-company-logo
+          ref="companyLogo"
+          v-model="logoUploadId"
+          :branding="branding"
+          class="mt-n2" />
+      </div>
+      <div>
+        <h4 class="mb-0 mt-4">
+          {{ $t('generalSettings.themeColorsTitle') }}
+        </h4>
+        <h6 class="text-subtitle grey--text me-2">
+          {{ $t('generalSettings.themeColorsSubtitle') }}
+        </h6>
+        <div class="d-flex flex-wrap mt-n2">
+          <div>
+            <portal-general-settings-color-picker
+              v-model="primaryColor"
+              :label="$t('generalSettings.primaryColor.label')" />
+          </div>
+          <div>
+            <portal-general-settings-color-picker
+              v-model="secondaryColor"
+              :label="$t('generalSettings.secondaryColor.label')" />
+          </div>
+          <div>
+            <portal-general-settings-color-picker
+              v-model="tertiaryColor"
+              :label="$t('generalSettings.tertiaryColor.label')" />
+          </div>
         </div>
-        <div>
-          <portal-general-settings-color-picker
-            v-model="secondaryColor"
-            :label="$t('generalSettings.secondaryColor.label')" />
-        </div>
-        <div>
-          <portal-general-settings-color-picker
-            v-model="tertiaryColor"
-            :label="$t('generalSettings.tertiaryColor.label')" />
-        </div>
+      </div>
+      <div>
+        <h4 class="mb-0 mt-4">
+          {{ $t('generalSettings.companyFaviconTitle') }}
+        </h4>
+        <h6 class="text-subtitle grey--text me-2 mb-3">
+          {{ $t('generalSettings.companyFaviconSubtitle') }}
+        </h6>
+        <portal-general-settings-company-favicon
+          ref="companyFavicon"
+          v-model="faviconUploadId"
+          :branding="branding" />
+      </div>
+      <div>
+        <h4 class="mb-0 mt-4">
+          {{ $t('generalSettings.widgetAndAppStyle.title') }}
+        </h4>
+        <h6 class="text-subtitle grey--text me-2 mb-3">
+          {{ $t('generalSettings.widgetAndAppStyle.subtitle') }}
+        </h6>
+        <portal-general-settings-border-radius
+          v-model="borderRadius"
+          ref="borderRadius"
+          @input="borderRadius = $event" />
       </div>
     </v-col>
     <v-col
       cols="12"
       lg="6"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.companyFaviconTitle') }}
-      </h4>
-      <h6 class="text-subtitle grey--text me-2 mb-3">
-        {{ $t('generalSettings.companyFaviconSubtitle') }}
-      </h6>
-      <portal-general-settings-company-favicon
-        ref="companyFavicon"
-        v-model="faviconUploadId"
-        :branding="branding" />
-    </v-col>
-    <v-col
-      cols="12"
-      lg="6"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.widgetAndAppStyle.title') }}
-      </h4>
-      <h6 class="text-subtitle grey--text me-2 mb-3">
-        {{ $t('generalSettings.widgetAndAppStyle.subtitle') }}
-      </h6>
-      <portal-general-settings-border-radius
-        v-model="borderRadius"
-        ref="borderRadius"
-        @input="borderRadius = $event" />
+      class="pa-0 d-none d-lg-flex">
+      <div class="position-relative border-color full-width overflow-hidden border-radius" style="height:450px;">
+        <iframe 
+          id="previewIframe" 
+          :title="$t('generalSettings.preview.title.label')"
+          :src="pageHomeLink" 
+          width="250%"
+          height="250%"
+          style="transform: scale(0.4); transform-origin: 0 0;"
+          class="no-border">
+        </iframe>
+        <div class="position-absolute full-width full-height t-0"></div>
+      </div>
     </v-col>
     <v-col
       cols="12"
@@ -174,6 +181,7 @@ export default {
     errorMessage: null,
     logoUploadId: null,
     faviconUploadId: null,
+    pageHomeLink: eXo.env.portal.homeLink 
   }),
   computed: {
     defaultCompanyName() {
@@ -272,7 +280,11 @@ export default {
         .then(() => this.$emit('saved'))
         .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
         .catch(e => this.errorMessage = String(e))
-        .finally(() => this.$root.loading = false);
+        .finally(() => {
+          document.getElementById('previewIframe').src = this.pageHomeLink;
+          this.$root.loading = false;
+        }
+        );
     },
   }
 };
