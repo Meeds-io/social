@@ -27,7 +27,7 @@
         :class="headerPadding" 
         class="d-flex align-center">
         <slot v-if="$slots.title" name="title"></slot>
-        <div v-else-if="title" class="widget-text-header text-capitalize-first-letter text-truncate">{{ title }}</div> 
+        <div v-else-if="title" class="widget-text-header text-truncate">{{ title }}</div> 
         <v-spacer />
         <slot v-if="$slots.action" name="action"></slot>
         <v-btn 
