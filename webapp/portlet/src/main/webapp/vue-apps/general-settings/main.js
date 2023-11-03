@@ -79,7 +79,7 @@ export function init(publicSiteVisible, publicSiteId) {
             }
           },
         },
-        template: `<portal-general-settings id="${appId}" :params="params" />`,
+        template: `<portal-general-settings id="${appId}" />`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n
       }, `#${appId}`, 'General Settings')
