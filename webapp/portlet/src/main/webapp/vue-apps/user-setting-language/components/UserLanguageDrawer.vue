@@ -53,7 +53,7 @@ export default {
     },
     saveLanguage() {
       const lang = this.value.replace('_', '-');
-      window.location.replace(`${eXo.env.portal.context}/${lang}/${eXo.env.portal.portalName}/settings`);
+      window.location.replace(`${eXo.env.portal.context}/${lang}/${eXo.env.portal.defaultPortal}/settings`);
     },
     cancel() {
       this.$refs.userLanguageDrawer.close();

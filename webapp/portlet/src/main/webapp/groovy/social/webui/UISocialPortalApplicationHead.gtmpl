@@ -27,6 +27,7 @@
   BrandingService brandingService = uicomponent.getApplicationComponent(BrandingService.class);
   Set<String> supportedAttachmentObjectTypes = attachmentService.getSupportedObjectTypes();
   String viewerIdentityId = Utils.getViewerIdentityId();
+  String ownerIdentityId = Utils.getOwnerIdentityId();
 %>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
@@ -36,8 +37,8 @@
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
      eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
      eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
-     eXo.env.portal.profileOwner = "<%=Utils.getOwnerRemoteId()%>" ;
-     eXo.env.portal.profileOwnerIdentityId = "<%=Utils.getOwnerIdentityId()%>" ;
+     eXo.env.portal.profileOwner = "<%=ownerIdentityId == null ? "" : Utils.getOwnerRemoteId()%>" ;
+     eXo.env.portal.profileOwnerIdentityId = "<%=ownerIdentityId == null ? "" : Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=viewerIdentityId == null ? "" : viewerIdentityId%>" ;
      eXo.env.portal.companyName = "<%=brandingService.getCompanyName()%>" ;
      eXo.env.portal.isExternal = "<%=Utils.isExternal(Utils.getViewerIdentity())%>" ;
