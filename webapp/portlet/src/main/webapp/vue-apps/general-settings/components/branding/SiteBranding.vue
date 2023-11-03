@@ -308,8 +308,7 @@ export default {
         .finally(() => {
           this.$root.$emit('refresh-iframe');
           this.$root.loading = false;
-        }
-        );
+        });
     },
   }
 };

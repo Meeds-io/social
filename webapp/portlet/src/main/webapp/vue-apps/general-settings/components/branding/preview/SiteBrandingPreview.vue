@@ -42,7 +42,7 @@
 <script>
 export default {
   data: ()=> ({
-    pageHomeLink: `${eXo.env.portal.homeLink}?sticky=true`,
+    pageHomeLink: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/stream?sticky=true`,
   }),
   mounted() {
     this.$root.$on('refresh-style-property', this.setStyleProperty);
