@@ -1,4 +1,4 @@
-const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`;
+const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/activity`;
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'share-drawer',

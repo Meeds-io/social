@@ -59,7 +59,7 @@ export default {
     isFavorite: true
   }),
   created() {
-    this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity?id=${this.id}`;
+    this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/activity?id=${this.id}`;
     this.$spaceService.getSpaceById(this.id)
       .then((spaceData)=> {
         this.space = spaceData;

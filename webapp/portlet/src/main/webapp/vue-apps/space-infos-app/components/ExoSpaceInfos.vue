@@ -59,7 +59,7 @@ export default {
       description: '',
       managers: [],
       redactors: [],
-      profileUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/`
+      profileUrl: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/`
     };
   },
   created() {
