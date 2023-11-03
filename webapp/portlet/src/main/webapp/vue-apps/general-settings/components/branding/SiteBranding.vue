@@ -27,7 +27,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyNameTitle') }}
@@ -55,7 +54,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyLogoTitle') }}
@@ -71,7 +69,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.themeColorsTitle') }}
@@ -99,7 +96,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyFaviconTitle') }}
@@ -112,9 +108,8 @@
         v-model="faviconUploadId"
         :branding="branding" />
     </v-col>
-    <v-col
+    <v-col 
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.widgetAndAppStyle.title') }}
@@ -130,7 +125,7 @@
     <v-col
       cols="12"
       class="pa-0">
-      <div class="d-flex my-12 justify-end">
+      <div :class="!isMobile && 'position-absolute b-0 r-0' || ''" class="d-flex justify-end pb-5">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
           :disabled="loading"
@@ -191,6 +186,9 @@ export default {
     defaultBorderRadius() {
       return this.branding?.themeStyle?.borderRadius && Number(this.branding.themeStyle.borderRadius.split('px')[0]);
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+    },
     validForm() {
       return this.changed && this.isValidForm;
     },
@@ -230,6 +228,41 @@ export default {
     changed() {
       this.$emit('changed', this.changed);
     },
+    primaryColor() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesPrimaryColor',
+          propertyValue: this.primaryColor
+        }
+      });
+    },
+    secondaryColor() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesSecondaryColor',
+          propertyValue: this.secondaryColor
+        }
+      });
+    },
+    tertiaryColor() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesTertiaryColor',
+          propertyValue: this.tertiaryColor
+        }
+      });
+    },
+    borderRadius() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesBorderRadius',
+          propertyValue: `${this.borderRadius}px`
+        }
+      });
+    },
+    companyName() {
+      this.$root.$emit('refresh-company-name', this.companyName);
+    }
   },
   mounted() {
     this.init();
@@ -272,7 +305,10 @@ export default {
         .then(() => this.$emit('saved'))
         .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
         .catch(e => this.errorMessage = String(e))
-        .finally(() => this.$root.loading = false);
+        .finally(() => {
+          this.$root.$emit('refresh-iframe');
+          this.$root.loading = false;
+        });
     },
   }
 };
