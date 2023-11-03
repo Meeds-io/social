@@ -125,7 +125,7 @@ export default {
       spacesLimit: 7,
       showItemActions: false,
       arrowIcon: 'fa-arrow-right',
-      allSpacesLink: `${eXo.env.portal.context}/${ eXo.env.portal.portalName }/all-spaces?createSpace=true`,
+      allSpacesLink: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/spaces?createSpace=true`,
       canAddSpaces: false,
       space: null,
       spacePanel: false,
