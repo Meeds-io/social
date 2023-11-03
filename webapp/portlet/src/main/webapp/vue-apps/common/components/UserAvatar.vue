@@ -290,11 +290,11 @@ export default {
       return this.userIdentity?.position;
     },
     userAvatarUrl() {
-      return this.userIdentity?.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username ? this.username : this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
+      return this.userIdentity?.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
     },
     profileUrl() {
       if (this.url && !this.clickable && this.username) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
+        return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.username}`;
       } else {
         return null;
       }

@@ -30,8 +30,8 @@
 export default {
   data: () =>({
     activityStreamUrl: eXo.env.portal.isExternal === 'true' ?
-      `${eXo.env.portal.context}/${eXo.env.portal.portalName}/external-stream`
-      : `${eXo.env.portal.context}/${eXo.env.portal.portalName}/stream`,
+      `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/external-stream`
+      : `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/stream`,
   }),
 };
 </script>
