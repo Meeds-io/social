@@ -138,37 +138,6 @@
           <value>true</value>
         </value-param>
         <object-param>
-          <name>group.configuration</name>
-          <description>description</description>
-          <object type="org.exoplatform.portal.config.NewPortalConfig">
-            <field name="predefinedOwner">
-              <collection type="java.util.HashSet">
-                <value>
-                  <string>/platform/administrators</string>
-                </value>
-                <value>
-                  <string>/platform/users</string>
-                </value>
-                <value>
-                  <string>/platform/delegated</string>
-                </value>
-              </collection>
-            </field>
-            <field name="ownerType">
-              <string>group</string>
-            </field>
-            <field name="location">
-              <string>war:/conf/portal</string>
-            </field>
-            <field name="override">
-              <boolean>${exo.social.groups.portalConfig.metadata.override:true}</boolean>
-            </field>
-            <field name="importMode">
-              <string>${exo.social.groups.portalConfig.metadata.importmode:overwrite}</string>
-            </field>
-          </object>
-        </object-param>
-        <object-param>
           <name>portal.configuration</name>
           <object type="org.exoplatform.portal.config.NewPortalConfig">
             <field name="predefinedOwner">
