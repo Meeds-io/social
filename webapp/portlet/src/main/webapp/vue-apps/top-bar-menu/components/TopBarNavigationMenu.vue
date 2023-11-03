@@ -22,7 +22,7 @@
 <template>
   <v-app :class="componentId" class="topBarMenu">
     <v-footer
-      v-if="isMobile && this.mobileNavigations.length"
+      v-if="isMobile && mobileNavigations.length"
       class="white pt-0 pr-0 pl-0 elevation-2"
       inset
       fixed>
@@ -74,15 +74,20 @@ export default {
     exclude: 'global',
     tab: null,
     navigationTabState: 'topNavigationTabState',
-    parentScrollableSelector: '.site-scroll-parent',
   }),
   computed: {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
+    navigationsLength() {
+      return this.mobileNavigations?.length || 0;
+    },
     loadingFinished() {
       return this.initialized && this.mounted;
-    }
+    },
+    parentScrollableSelector() {
+      return document.querySelector('.site-scroll-parent .UIPageBody') ? '.site-scroll-parent' : '.site-scroll-parent .UIPage';
+    },
   },
   watch: {
     isMobile() {
@@ -91,6 +96,9 @@ export default {
       } else {
         this.computeSiteBodyMargin();
       }
+    },
+    navigationsLength() {
+      this.computeSiteBodyMargin();
     },
     loadingFinished() {
       if (this.loadingFinished) {
@@ -185,7 +193,7 @@ export default {
       }
     },
     computeSiteBodyMargin() {
-      if (this.isMobile) {
+      if (this.isMobile && this.navigationsLength > 0) {
         window.setTimeout(() => {
           $(this.parentScrollableSelector).css('margin-bottom', '70px');
         }, 200);
