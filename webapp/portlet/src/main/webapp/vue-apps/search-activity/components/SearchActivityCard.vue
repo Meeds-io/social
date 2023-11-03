@@ -143,9 +143,9 @@ export default {
     },
     link() {
       if (this.isComment) {
-        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.result.id}#comment-comment${this.result.comment.id}`;
+        return `/${eXo.env.portal.containerName}/${eXo.env.portal.defaultPortal}/activity?id=${this.result.id}#comment-comment${this.result.comment.id}`;
       } else {
-        return `/${eXo.env.portal.containerName}/${eXo.env.portal.portalName}/activity?id=${this.activity.id}`;
+        return `/${eXo.env.portal.containerName}/${eXo.env.portal.defaultPortal}/activity?id=${this.activity.id}`;
       }
     },
   },
