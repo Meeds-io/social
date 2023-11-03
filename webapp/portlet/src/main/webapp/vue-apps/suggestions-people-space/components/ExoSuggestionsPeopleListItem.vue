@@ -65,7 +65,7 @@ export default {
       if (!this.people || !this.people.suggestionId) {
         return '#';
       }
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.people.username}`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.people.username}`;
     },
   },
   methods: {

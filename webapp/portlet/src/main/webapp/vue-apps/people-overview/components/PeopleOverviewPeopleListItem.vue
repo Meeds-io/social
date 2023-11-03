@@ -115,7 +115,7 @@ export default {
       return this.user && this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
     },
     url() {
-      return this.user && this.user.profile || `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.user.username}/`;
+      return this.user && this.user.profile || `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.user.username}/`;
     },
   },
   methods: {

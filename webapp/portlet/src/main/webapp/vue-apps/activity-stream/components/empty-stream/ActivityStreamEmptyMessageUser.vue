@@ -73,10 +73,10 @@ export default {
       return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.fullname;
     },
     profileUri() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile`;
     },
     spacesUri() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/spaces`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/spaces`;
     },
     profilelink() {
       return `<a href="${this.profileUri}"><strong class="text-color">${this.profileName}</strong></a>`;

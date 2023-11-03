@@ -24,7 +24,7 @@ if (!Vue.prototype.$activityUtils) {
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.portalName}/activity`;
+const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/activity`;
 
 // get overrided components if exists
 if (extensionRegistry) {

@@ -42,7 +42,7 @@
 <script>
 export default {
   data: () => ({
-    settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings`,
+    settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/settings`,
     logoutUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/?portal:action=Logout&portal:componentId=UIPortal`,
   }),
 };
