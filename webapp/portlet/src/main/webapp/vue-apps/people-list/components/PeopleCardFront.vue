@@ -381,7 +381,7 @@ export default {
     },
     url() {
       if (this.user && this.user.username) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.user.username}`;
+        return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.user.username}`;
       } else {
         return '#';
       }
