@@ -69,7 +69,7 @@ export default {
       return this.user && !this.user.relationshipStatus && !this.sameUser;
     },
     profileUrl() {
-      return this.user && `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.user.username}`;
+      return this.user && `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.user.username}`;
     },
   },
   created() {
