@@ -20,8 +20,8 @@
 
 -->
 <template>
-  <v-app v-if="publicMode">
-    <div class="d-flex">
+  <v-app>
+    <div v-if="publicMode" class="d-flex">
       <v-btn
         v-if="$root.canRegister"
         id="topBarRegisterButton"
@@ -41,6 +41,18 @@
         <v-icon v-else size="16">fa-sign-in-alt</v-icon>
       </v-btn>
     </div>
+    <v-btn
+      v-else-if="authenticated"
+      id="topBarAccessButton"
+      href="/portal"
+      target="_blank"
+      class="primary"
+      outlined>
+      <v-avatar size="20" class="me-2">
+        <v-img :src="$root.avatarUrl" eager />
+      </v-avatar>
+      <span class="text-none">{{ $t('publicAccess.access') }}</span>
+    </v-btn>
   </v-app>
 </template>
 <script>
