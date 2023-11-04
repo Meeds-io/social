@@ -32,7 +32,7 @@
       :aria-label="$t('menu.role.navigation.first.level')"
       :min-width="drawerWidth"
       :max-width="drawerWidth"
-      max-height="100vh"
+      max-height="var(--100vh, 100vh)"
       class="d-flex flex-column fill-height HamburgerNavigationMenu"
       role="navigation"
       color="white"
