@@ -1,11 +1,21 @@
 function() {
-  const topBar = document.querySelector('#UITopBarContainerParent');
-  const topBarHeight = topBar && topBar.offsetHeight;
-  const bodyMaxHeight = topBarHeight && `calc(100vh - ${topBarHeight}px)` || '100vh';
 
   $(document).ready(installScrollControlListener);
+  window.onresize = computeViewPort;
+
+  function computeViewPort() {
+    if (window.innerWidth < (eXo.env.portal?.vuetifyPreset?.breakpoint?.thresholds?.xs || 768)) {
+      document.documentElement.style.setProperty('--100vh', `${window.innerHeight}px`);
+    } else {
+      document.documentElement.style.removeProperty('--100vh');
+    }
+  }
 
   function installScrollControlListener() {
+    computeViewPort();
+    const topBarHeight = document.querySelector('#UITopBarContainerParent')?.offsetHeight || 0;
+    const bodyMaxHeight = `calc(var(--100vh, 100vh) - ${topBarHeight}px)`;
+
     const parentScrollableSelector = document.querySelector('#UISiteBody .UITopBarContainer') && '#UIPageBody' || '#UISiteBody';
     const siteBody = document.querySelector(parentScrollableSelector) || document.querySelector('#UIPageBody');
     siteBody.classList.add('site-scroll-parent');
