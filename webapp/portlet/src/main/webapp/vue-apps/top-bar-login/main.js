@@ -24,11 +24,12 @@ const lang = window.eXo?.env?.portal?.language || 'en';
 const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
 const appId = 'topbarLogin';
 
-export function init(canRegister) {
+export function init(avatarUrl, canRegister) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale resources are ready
     Vue.createApp({
       data: {
+        avatarUrl,
         canRegister,
       },
       template: `<top-bar-login id="${appId}" />`,
