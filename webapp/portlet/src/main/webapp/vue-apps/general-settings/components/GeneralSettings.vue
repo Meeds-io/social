@@ -22,7 +22,7 @@
   <v-app>
     <v-main>
       <v-card
-        min-height="calc(100vh - 160px)"
+        min-height="calc(var(--100vh, 100vh) - 160px)"
         class="px-6 card-border-radius overflow-hidden"
         flat>
         <v-list-item dense class="px-0 mb-4">
