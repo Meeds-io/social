@@ -20,7 +20,7 @@ import './initComponents.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
-  const components = extensionRegistry.loadComponents('SpaceAccess');
+  const components = extensionRegistry.loadComponents('PageNotFound');
   if (components && components.length > 0) {
     components.forEach(cmp => {
       Vue.component(cmp.componentName, cmp.componentOptions);
@@ -28,28 +28,24 @@ if (extensionRegistry) {
   }
 }
 
-const appId = 'SpaceAccess';
+const appId = 'PageNotFound';
 
 //getting language of the PLF 
-const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+const lang = eXo?.env?.portal?.language || 'en';
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`;
+const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
-export function init(parameters) {
+export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
-      data: {
-        parameters: parameters,
-      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<space-access id="${appId}" :parameters="parameters" />`,
+      template: `<page-not-found id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
-    }, `#${appId}`, 'Space Access');
+    }, `#${appId}`, 'Page Not Found App');
   });
 }
