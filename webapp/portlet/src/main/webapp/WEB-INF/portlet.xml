@@ -43,6 +43,27 @@
   </portlet>
 
   <portlet>
+    <description>Page Not Found Portlet</description>
+    <portlet-name>PageNotFound</portlet-name>
+    <display-name>Page Not Found Portlet</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/pageNotFound.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Page Not Found Portlet</title>
+      <short-title>Page Not Found</short-title>
+      <keywords>social</keywords>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <description>Users Management Portlet</description>
     <portlet-name>IDMUsersManagement</portlet-name>
     <display-name>Users Management</display-name>

@@ -49,6 +49,7 @@ let config = {
     userSettingSecurity: './src/main/webapp/vue-apps/user-setting-security/main.js',
     spaceInfos: './src/main/webapp/vue-apps/space-infos-app/main.js',
     whoIsOnline: './src/main/webapp/vue-apps/who-is-online-app/main.js',
+    pageNotFound: './src/main/webapp/vue-apps/page-not-found/main.js',
     spaceAccess: './src/main/webapp/vue-apps/space-access/main.js',
     spaceMenu: './src/main/webapp/vue-apps/space-menu/main.js',
     spaceHeader: './src/main/webapp/vue-apps/space-header/main.js',
