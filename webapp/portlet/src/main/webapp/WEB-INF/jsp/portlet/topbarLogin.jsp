@@ -1,3 +1,5 @@
+<%@page import="org.exoplatform.social.core.identity.model.Identity"%>
+<%@page import="org.exoplatform.social.webui.Utils"%>
 <%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
@@ -24,6 +26,8 @@
 <%
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
   boolean canRegister = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
+  Identity viewerIdentity = Utils.getViewerIdentity();
+  String avatarUrl = viewerIdentity == null ? "" : viewerIdentity.getProfile().getAvatarUrl();
 %>
 <div class="VuetifyApp">
   <div data-app="true"
@@ -40,7 +44,7 @@
     </div>
     <% } %>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/TopBarLogin'], app => app.init(<%=canRegister%>));
+      require(['PORTLET/social-portlet/TopBarLogin'], app => app.init('<%=avatarUrl%>', <%=canRegister%>));
     </script>
   </div>
 </div>
