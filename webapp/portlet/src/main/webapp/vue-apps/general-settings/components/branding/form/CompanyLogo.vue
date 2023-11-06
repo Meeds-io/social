@@ -102,6 +102,9 @@ export default {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       }
     },
+    logoSrc() {
+      this.$root.$emit('refresh-company-logo', this.$utils.convertImageDataAsSrc(this.logoSrc));
+    }
   },
   methods: {
     resetLogo() {
