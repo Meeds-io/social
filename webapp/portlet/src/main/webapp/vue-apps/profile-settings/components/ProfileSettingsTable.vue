@@ -30,7 +30,7 @@
     hide-default-footer
     disable-pagination
     disable-filtering
-    class="settings-table data-table-light-border py-6">
+    class="settings-table data-table-light-border py-6 transparent">
     <template slot="item.propertyName" slot-scope="{ item }">
       {{ getResolvedName(item) }}
     </template>
