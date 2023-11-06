@@ -23,7 +23,7 @@
     <v-main>
       <v-card
         color="white"
-        class="px-4 py-6 mb-12 mb-sm-0 card-border-radius overflow-hidden"
+        class="px-4 py-6 mb-12 mb-sm-0 card-border-radius"
         flat>
         <profile-settings-header :filter="filter" />
         <profile-settings-table :settings="filteredSettings" />
