@@ -54,7 +54,7 @@
 
         <template v-if="intialized">
           <v-expand-transition>
-            <portal-general-settings-branding-site
+            <portal-general-settings-branding-site-window
               v-if="$root.selectedTab === 'branding'"
               ref="brandingSettings"
               :branding="branding"
