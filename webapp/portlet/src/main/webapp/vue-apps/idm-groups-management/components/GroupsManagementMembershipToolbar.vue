@@ -1,5 +1,8 @@
 <template>
-  <v-toolbar id="groupsManagementToolbar" flat>
+  <v-toolbar 
+    id="groupsManagementToolbar" 
+    flat
+    class="transparent">
     <v-toolbar-title>
       <v-btn
         :disabled="!group"
