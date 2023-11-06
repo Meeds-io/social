@@ -25,14 +25,14 @@
         {{ $t('generalSettings.preview.title') }}
       </h4>
     </div>
-    <div class="mt-4 position-relative border-color full-width overflow-hidden border-radius" style="height:450px;">
+    <div class="mt-4 position-relative border-color full-width overflow-hidden border-radius" style="height:470px;">
       <iframe 
         id="previewIframe" 
         :title="$t('generalSettings.preview.title')"
         :src="pageHomeLink" 
-        width="250%"
-        height="250%"
-        style="transform: scale(0.4); transform-origin: 0 0;"
+        width="167%"
+        height="220%"
+        style="transform: scale(0.6); transform-origin: 0 0;"
         class="no-border">
       </iframe>
       <div class="position-absolute full-width full-height t-0"></div>
@@ -42,7 +42,7 @@
 <script>
 export default {
   data: ()=> ({
-    pageHomeLink: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/stream?sticky=true`,
+    pageHomeLink: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/stream?sticky=false`,
   }),
   mounted() {
     this.$root.$on('refresh-style-property', this.setStyleProperty);
