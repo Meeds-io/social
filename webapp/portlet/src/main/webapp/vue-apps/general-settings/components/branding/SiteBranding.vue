@@ -303,12 +303,12 @@ export default {
       this.$root.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
         .then(() => this.$emit('saved'))
-        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
-        .catch(e => this.errorMessage = String(e))
-        .finally(() => {
+        .then(() =>  {
+          this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
           this.$root.$emit('refresh-iframe');
-          this.$root.loading = false;
-        });
+        })
+        .catch(e => this.errorMessage = String(e))
+        .finally(() => this.$root.loading = false);
     },
   }
 };
