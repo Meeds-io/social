@@ -19,7 +19,7 @@
     :class="extraClass"
     :height="height"
     :min-width="minWidth"
-    class="d-flex flex-column white card-border-radius overflow-hidden"
+    class="d-flex flex-column white card-border-radius"
     flat>
     <div class="d-flex flex-column flex-grow-1 pa-5">
       <div 
