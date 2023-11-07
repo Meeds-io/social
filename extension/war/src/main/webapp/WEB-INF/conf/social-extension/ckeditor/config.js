@@ -92,7 +92,6 @@ CKEDITOR.editorConfig = function(config) {
 
   // Here is configure for suggester
   var peopleSearchCached = {};
-  document.addEventListener('suggester-clear-people-cache', () => peopleSearchCached = {});
   var lastNoResultQuery = false;
   config.suggester = {
     suffix: '\u00A0',
