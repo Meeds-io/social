@@ -15,14 +15,15 @@
               <v-btn
                 min-width="45px"
                 class="pa-0 flex-shrink-1 text-truncate "
-                :class="breadcrumb.path && 'clickable' || ' not-clickable '"
+                :class="breadcrumb.uri && 'clickable' || ' not-clickable '"
                 text
                 v-bind="attrs"
                 v-on="on"
-                :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.path || null">
+                :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.uri || null"
+                :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'">
                 <a
                   class="caption text-truncate text-h6 text-capitalize"
-                  :class="index === breadcrumbToDisplay.length - 1 && ' dark-grey-color ' || (breadcrumb.path && ' text-sub-title ' || ' text-light-color not-clickable ') ">
+                  :class="index === breadcrumbToDisplay.length - 1 && ' dark-grey-color ' || (breadcrumb.uri && ' text-sub-title ' || ' text-light-color not-clickable ') ">
                   {{ breadcrumb.label }}
                 </a>
               </v-btn>
