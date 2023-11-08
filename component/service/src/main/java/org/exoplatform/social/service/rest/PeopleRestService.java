@@ -274,6 +274,9 @@ public class PeopleRestService implements ResourceContainer{
           opt.setOrder(3);
           nameList.addOption(opt);
           exclusions.add(s);
+          if (nameList.getOptions().size() >= SUGGEST_LIMIT) {
+            break;
+          }
         }
       }
     } else if (SHARE_DOCUMENT.equals(typeOfRelation)) {
@@ -576,6 +579,9 @@ public class PeopleRestService implements ResourceContainer{
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
       if (identity.isEnable() && !identity.isDeleted()) {
         userInfos = addUsernameToInfosList(spaceMember, identityFilter, userInfos, currentUser, true, locale);
+        if (userInfos.size() >= SUGGEST_LIMIT) {
+          break;
+        }
       }
     }
     return userInfos;
@@ -586,6 +592,9 @@ public class PeopleRestService implements ResourceContainer{
     for (String commentedUser : commentedUsers) {
       identityFilter.setExcludedIdentityList(excludedIdentityList);
       userInfos = addUsernameToInfosList(commentedUser, identityFilter, userInfos, currentUser, true, locale);
+      if (userInfos.size() >= SUGGEST_LIMIT) {
+        break;
+      }
     }
     return userInfos;
   }
@@ -595,6 +604,9 @@ public class PeopleRestService implements ResourceContainer{
     for (String mentionedUser : mentionedUsers) {
       identityFilter.setExcludedIdentityList(excludedIdentityList);
       userInfos = addUsernameToInfosList(mentionedUser, identityFilter, userInfos, currentUser, true, locale);
+      if (userInfos.size() >= SUGGEST_LIMIT) {
+        break;
+      }
     }
     return userInfos;
   }
@@ -604,6 +616,9 @@ public class PeopleRestService implements ResourceContainer{
     for (String likedUser : likedUsers) {
       identityFilter.setExcludedIdentityList(excludedIdentityList);
       userInfos = addUsernameToInfosList(likedUser, identityFilter, userInfos, currentUser, true, locale);
+      if (userInfos.size() >= SUGGEST_LIMIT) {
+        break;
+      }
     }
     return userInfos;
   }
@@ -634,6 +649,9 @@ public class PeopleRestService implements ResourceContainer{
       }
       opt.setOrder(order);
       options.addOption(opt);
+      if (options.getOptions().size() >= SUGGEST_LIMIT) {
+        break;
+      }
     }
   }
 
