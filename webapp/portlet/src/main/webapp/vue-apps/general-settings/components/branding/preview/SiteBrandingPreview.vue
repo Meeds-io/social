@@ -71,13 +71,17 @@ export default {
     refreshCompanyName(event) {
       if (event) {
         const companyNameElement =  document.getElementById('previewIframe').contentWindow.document.getElementsByClassName('logoTitle')[0];
-        companyNameElement.innerHTML = event;
+        if (companyNameElement) {
+          companyNameElement.innerHTML = event;
+        }
       }
     },
     refreshCompanyLogo(event) {
       if (event) {
         const companyNameElement =  document.getElementById('previewIframe').contentWindow.document.getElementById('UserHomePortalLink').getElementsByTagName('img')[0];
-        companyNameElement.src = event;
+        if (companyNameElement) {
+          companyNameElement.src = event;
+        }
       }
     }
   }
