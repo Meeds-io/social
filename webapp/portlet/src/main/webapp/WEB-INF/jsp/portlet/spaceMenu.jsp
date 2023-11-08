@@ -33,7 +33,9 @@ if (navigations != null) {
           out.print(userNode.getResolvedLabel());
           out.print("\",");
           out.print("\"icon\": \"");
-          out.print(userNode.getIcon());
+          if (userNode.getIcon() != null) {
+            out.print(userNode.getIcon());
+          }
           out.print("\",");
           out.print("\"uri\": \"");
           out.print(navigationsUri.get(userNode.getId()));
