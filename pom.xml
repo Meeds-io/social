@@ -30,7 +30,7 @@
   <version>6.5.x-maintenance-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo PLF:: Social</name>
-  <description>eXo Social - Enterprise Social Networking </description>
+  <description>eXo Social - Enterprise Social Networking</description>
   <modules>
     <module>extension</module>
     <module>component</module>
