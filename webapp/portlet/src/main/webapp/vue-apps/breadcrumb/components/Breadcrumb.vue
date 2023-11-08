@@ -57,7 +57,7 @@ export default {
   data: () => ({
     navigation: null,
     userNodeBreadcrumbItemList: null,
-    scope: 'ALL',
+    scope: 'SINGLE',
     visibility: ['displayed', 'temporal'],
     siteType: 'PORTAL',
     ellipsis: '...',
