@@ -37,7 +37,7 @@
     <container template="system:/groovy/portal/webui/container/UISimpleTableContainer.gtmpl">
       <access-permissions>*:/platform/users</access-permissions>
       <container template="system:/groovy/portal/webui/container/UIResponsiveColumnGroupContainer.gtmpl">
-        <container template="system:/groovy/portal/webui/container/UISimpleColumnContainer.gtmpl" width="350px">
+        <container template="system:/groovy/portal/webui/container/UISimpleColumnContainer.gtmpl" cssClass="administrationSiteVerticalMenuContainerClass">
           <access-permissions>*:/platform/users</access-permissions>
           <portlet-application>
             <portlet>
@@ -51,7 +51,7 @@
             <show-application-mode>false</show-application-mode>
           </portlet-application>
           </container>
-        <container template="system:/groovy/portal/webui/container/UISimpleColumnContainer.gtmpl" width="calc(100% - 350px)">
+        <container template="system:/groovy/portal/webui/container/UISimpleColumnContainer.gtmpl" cssClass="administrationSitePageBodyContainerClass">
           <page-body> </page-body>
         </container>
       </container>
