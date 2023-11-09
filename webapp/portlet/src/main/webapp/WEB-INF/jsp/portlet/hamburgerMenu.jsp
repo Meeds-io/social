@@ -28,6 +28,7 @@
   Identity currentIdentity = ConversationState.getCurrent().getIdentity();
   String currentUser = currentIdentity.getUserId();
   boolean oldAdministrationMenu = featureService.isFeatureActiveForUser("oldAdministrationMenu", currentUser);
+  boolean dynamicSpaceNodeIcons = featureService.isFeatureActiveForUser("dynamicSpaceNodeIcons", currentUser);
 %>
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
@@ -62,6 +63,7 @@
     </div>
     <script type="text/javascript">
       eXo.env.portal.oldAdministrationMenu = <%=oldAdministrationMenu%>;
+      eXo.env.portal.dynamicSpaceNodeIcons = <%=dynamicSpaceNodeIcons%>;
       require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
     </script>
   </div>
