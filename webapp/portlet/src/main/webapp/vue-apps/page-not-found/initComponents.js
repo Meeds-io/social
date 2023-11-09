@@ -1,8 +1,8 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- *
- * Copyright (C) 2023 Meeds Association contact@meeds.io
- *
+ * 
+ * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -16,25 +16,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import PageNotFound from './components/PageNotFound.vue';
 
-import './initComponents.js';
+const components = {
+  'page-not-found': PageNotFound,
+};
 
-//getting language of user
-const lang = window.eXo?.env?.portal?.language || 'en';
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
-const appId = 'topbarLogin';
-
-export function init(avatarUrl, canRegister) {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    // init Vue app when locale resources are ready
-    Vue.createApp({
-      data: {
-        avatarUrl,
-        canRegister,
-      },
-      template: `<top-bar-login id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
-      i18n
-    }, `#${appId}`, 'Top Bar Login Button');
-  });
+for (const key in components) {
+  Vue.component(key, components[key]);
 }

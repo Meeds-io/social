@@ -56,7 +56,7 @@ export default {
   },
   data() {
     return {
-      PROFILE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile`,
+      PROFILE_URI: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile`,
       IDENTITY_REST_API_URI: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${eXo.env.portal.userIdentityId}`,
       profile: null,
     };

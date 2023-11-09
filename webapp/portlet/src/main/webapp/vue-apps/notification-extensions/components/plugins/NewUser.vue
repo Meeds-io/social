@@ -18,7 +18,7 @@ export default {
       return this.notification?.from;
     },
     profileUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.portalName}/profile/${this.username}`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.username}`;
     },
     username() {
       return this.profile?.username;

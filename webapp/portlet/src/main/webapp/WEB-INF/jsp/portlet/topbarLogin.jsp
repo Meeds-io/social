@@ -1,3 +1,5 @@
+<%@page import="org.exoplatform.social.core.identity.model.Identity"%>
+<%@page import="org.exoplatform.social.webui.Utils"%>
 <%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
@@ -24,13 +26,25 @@
 <%
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
   boolean canRegister = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
+  Identity viewerIdentity = Utils.getViewerIdentity();
+  String avatarUrl = viewerIdentity == null ? "" : viewerIdentity.getProfile().getAvatarUrl();
 %>
 <div class="VuetifyApp">
-  <div
-   class="v-application border-box-sizing v-application--is-ltr theme--light"
-   id="topbarLogin">
-   <script type="text/javascript">
-     require(['PORTLET/social-portlet/TopBarLogin'], app => app.init(<%=canRegister%>));
-   </script>
+  <div data-app="true"
+    class="v-application v-application--is-ltr theme--light"
+    id="topbarLogin">
+    <% if (request.getRemoteUser() == null) { %>
+    <div class="v-application--wrap">
+      <div class="d-flex">
+        <a href="/portal/login"
+          class="primary me-1 v-btn v-btn--depressed v-btn--flat v-btn--outlined theme--light v-size--default"
+          id="topBarLoginButton"><span class="v-btn__content"><span
+            class="text-none">&nbsp;</span></span></a>
+      </div>
+    </div>
+    <% } %>
+    <script type="text/javascript">
+      require(['PORTLET/social-portlet/TopBarLogin'], app => app.init('<%=avatarUrl%>', <%=canRegister%>));
+    </script>
   </div>
 </div>
