@@ -291,6 +291,8 @@ export default {
     document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
+
+    this.resetAudienceChoice();
   },
   methods: {
     isActivityBodyEdited(event) {
@@ -438,7 +440,11 @@ export default {
       }
     },
     resetAudienceChoice() {
-      this.audienceChoice = 'yourNetwork';
+      if (this.postToNetwork) {
+        this.audienceChoice = 'yourNetwork';
+      } else {
+        this.audienceChoice = 'oneOfYourSpaces';
+      }
       this.audience = '';
     },
     removeAudience() {
