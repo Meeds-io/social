@@ -31,6 +31,11 @@ export default {
       default: null
     }
   },
+  data() {
+    return {
+      dynamicSpaceNodeIconsEnabled: eXo.env.portal.dynamicSpaceNodeIcons,
+    };
+  },
   computed: {
     uri() {
       return this.navigation?.uri;
@@ -39,7 +44,30 @@ export default {
       return this.navigation?.label;
     },
     icon() {
-      return this.navigation?.icon || 'fas fa-folder';
+      if (this.dynamicSpaceNodeIconsEnabled) {
+        return this.navigation?.icon || 'fas fa-folder';
+      }
+      else {
+        const navigationIcon = this.navigation && this.navigation.icon || '';
+        if (!navigationIcon?.length) {
+          return 'fas fa-sticky-note';
+        }
+        if (navigationIcon.includes('uiIconAppSpaceHomePage')) {
+          return 'fas fa-stream';
+        } else if (navigationIcon.includes('uiIconAppMembersPortlet')) {
+          return 'fas fa-users';
+        } else if (navigationIcon.includes('uiIconAppTasksManagement') || navigationIcon.includes('uiIconApptasks')) {
+          return 'fas fa-tasks';
+        } else if (navigationIcon.includes('uiIconAppNotes') || navigationIcon.includes('uiIconAppnotes') ) {
+          return 'fas fa-clipboard';
+        } else if (navigationIcon.includes('uiIconAppSpaceWallet')) {
+          return 'fas fa-wallet';
+        } else if (navigationIcon.includes('uiIconAppSpaceSettingPortlet')) {
+          return 'fas fa-cog';
+        } else {
+          return navigationIcon;
+        }
+      }
     }
   }
 };
