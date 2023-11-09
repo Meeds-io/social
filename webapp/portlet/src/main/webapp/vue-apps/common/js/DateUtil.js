@@ -97,7 +97,7 @@ export function getRelativeTimeLabelKey(dateObj, short) {
     return short && 'TimeConvert.type.JUSTNOW' || 'TimeConvert.label.Less_Than_A_Minute';
   } else if (periodInSeconds < 120) {
     return short && 'TimeConvert.type.MINUTE' ||'TimeConvert.label.About_A_Minute';
-  } else if (periodInSeconds < 3600) {
+  } else if (periodInSeconds < 3540) {
     return short && 'TimeConvert.type.MINUTES' ||'TimeConvert.label.About_?_Minutes';
   } else if (periodInSeconds < 7200) {
     return short && 'TimeConvert.type.HOUR' ||'TimeConvert.label.About_An_Hour';
