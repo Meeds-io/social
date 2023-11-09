@@ -76,6 +76,16 @@
                     <value>6.5.0</value>
                 </value-param>
                 <value-param>
+                    <name>nav.node.name</name>
+                    <description>The plugin will replace the node icon corresponding to one of these node names</description>
+                    <value>settings;members;note;tasks;wallet</value>
+                </value-param>
+                <value-param>
+                    <name>nav.node.icon</name>
+                    <description>The plugin will replace the old node icon with one of these icons</description>
+                    <value>fas fa-cog;fas fa-users;fas fa-clipboard;fas fa-tasks;fas fa-wallet</value>
+                </value-param>
+                <value-param>
                     <name>plugin.execution.order</name>
                     <description>The plugin execution order</description>
                     <value>100</value>
