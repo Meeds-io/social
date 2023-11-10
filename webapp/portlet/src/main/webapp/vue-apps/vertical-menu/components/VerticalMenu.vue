@@ -1,21 +1,13 @@
 <template>
   <v-app>
-    <v-menu
-      :value="true"
-      :absolute="false"
-      :close-on-click="false"
-      :close-on-content-click="false"
-      :min-width="'350px'"
-      :max-width="'350px'"
-      content-class="white VerticalMenu elevation-0 z-index-drawer"
-      eager
-      tile>
+    <v-card class="VerticalMenu elevation-0">
       <site-details
         v-if="site"
         display-sequentially
         :site="site"
         :extra-class="' px-0 py-0 '" />
-    </v-menu>
+    </v-card>
+    <drawers-overlay />
   </v-app>
 </template>
 <script>

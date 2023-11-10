@@ -8,7 +8,7 @@
     <v-list-item class="d-flex px-0">
       <v-icon
         size="20"
-        class="icon-default-color mt-1 mx-2">
+        class="icon-default-color mt-1 ma-2 me-3">
         {{ icon }}
       </v-icon>
       <v-list-item-title class="body-2 mt-1">
