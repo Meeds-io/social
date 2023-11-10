@@ -26,30 +26,8 @@
   overflow-y: auto;
   min-height: 100vh;
   max-height: 100vh;
-  max-width:350px !important;
-  min-width:350px !important;
+  max-width:350px;
+  min-width:350px;
   left: 0 !important;
   top: 0 !important;
-  position: fixed !important;
-}
-
-@media (min-width: 1280px) {
-  .administrationSiteVerticalMenuContainerClass {
-    width: 350px !important;
-  }
-  .administrationSitePageBodyContainerClass {
-    width: ~"calc(100% - 350px)" !important;
-  }
-}
-
-@media (max-width: 1280px) {
-  .administrationSiteVerticalMenuContainerClass {
-    width: 0px !important;
-  }
-  .administrationSitePageBodyContainerClass {
-    width: 100%;
-    margin-left: -18px ~'!important; /** orientation=lt */ ';
-    margin-right: -18px ~'!important; /** orientation=rt */ ';
-    margin-top: 25px;
-  }
 }
