@@ -31,6 +31,20 @@
       tile
       flat>
       <div
+        v-if="absolute"
+        :class="movingLeft && 'r-0' || 'l-0'"
+        class="position-absolute my-auto t-0 b-0 full-height d-flex flex-column align-center justify-center">
+        <v-card
+          class="transparent d-flex flex-column align-center justify-center"
+          :width="gapSize"
+          min-width="85"
+          dark
+          flat>
+          <v-icon size="24">{{ movingLeft && 'fa-envelope-open-text' || 'fa-trash' }}</v-icon>
+          <span class="text-no-wrap mt-3">{{ movingLeft && $t('Notification.markRead') || $t('Notification.deleteNotification') }}</span>
+        </v-card>
+      </div>
+      <div
         v-if="hover"
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
         class="position-absolute t-0 pt-2px me-2 d-none z-index-two d-sm-block"
@@ -162,6 +176,9 @@ export default {
     markedAsReadMuted: false,
   }),
   computed: {
+    gapSize() {
+      return Math.abs(this.left);
+    },
     remoteId() {
       return this.notification.parameters.remoteId;
     },
