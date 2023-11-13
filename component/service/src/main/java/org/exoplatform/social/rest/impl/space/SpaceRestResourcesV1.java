@@ -116,7 +116,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
 public class SpaceRestResourcesV1 implements SpaceRestResources {
@@ -527,7 +526,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response getSpaceAvatarById(@Context UriInfo uriInfo,
                                      @Context Request request,
                                      @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                     @Parameter(description = "Space pretty name", required = true) @PathParam("id") String id,
+                                     @Parameter(description = "Space pretty name or space id", required = true) @PathParam("id") String id,
+                                     @Parameter(description = "Whether to retrieve avatar by id or pretty name", required = false)
+                                     @DefaultValue("false")
+                                     @QueryParam("byId")
+                                     boolean byId,
                                      @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("45x45") @QueryParam("size") String size,
                                      @Parameter(
                                          description = "A mandatory valid token that is used to authorize anonymous request",
@@ -550,7 +553,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       }
 
       String authenticatedUser = RestUtils.getCurrentUser();
-      Space space = spaceService.getSpaceByPrettyName(id);
+      Space space = byId ? spaceService.getSpaceById(id)
+                         : spaceService.getSpaceByPrettyName(id);
       if (space == null
           || (Space.HIDDEN.equals(space.getVisibility()) && RestUtils.isAnonymous())
           || (Space.HIDDEN.equals(space.getVisibility()) && !RestUtils.isAnonymous()
@@ -624,6 +628,10 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                      @Context Request request,
                                      @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                      @Parameter(description = "Space id", required = true) @PathParam("id") String id,
+                                     @Parameter(description = "Whether to retrieve banner by id or pretty name", required = false)
+                                     @DefaultValue("false")
+                                     @QueryParam("byId")
+                                     boolean byId,
                                      @Parameter(
                                        description = "A mandatory valid token that is used to authorize anonymous request",
                                        required = false
@@ -643,7 +651,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     String authenticatedUser = RestUtils.getCurrentUser();
-    Space space = spaceService.getSpaceByPrettyName(id);
+    Space space = byId ? spaceService.getSpaceById(id)
+                       : spaceService.getSpaceByPrettyName(id);
     if (space == null
         || (Space.HIDDEN.equals(space.getVisibility()) && RestUtils.isAnonymous())
         || (Space.HIDDEN.equals(space.getVisibility()) && !RestUtils.isAnonymous()
