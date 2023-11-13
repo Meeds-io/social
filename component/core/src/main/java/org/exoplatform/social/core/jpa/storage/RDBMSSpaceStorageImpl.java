@@ -869,14 +869,14 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     if (lastUpdated != null) {
       space.setAvatarLastUpdated(entity.getAvatarLastUpdated().getTime());
     }
-    space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getPrettyName(), lastUpdated == null ? null : lastUpdated.getTime()));
+    space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getId(), true, lastUpdated == null ? null : lastUpdated.getTime()));
     lastUpdated = entity.getBannerLastUpdated();
     if (lastUpdated == null && !StringUtils.isBlank(space.getTemplate())) {
       space.setBannerUrl(LinkProvider.buildBannerURL("spaceTemplates", space.getTemplate(), null));
     } else {
       Long bannerLastUpdated = lastUpdated == null ? null : lastUpdated.getTime();
       space.setBannerLastUpdated(bannerLastUpdated);
-      space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getPrettyName(), bannerLastUpdated));
+      space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getId(), true, bannerLastUpdated));
     }
     return space;
   }
