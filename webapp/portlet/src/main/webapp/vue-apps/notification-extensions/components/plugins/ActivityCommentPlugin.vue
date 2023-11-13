@@ -10,7 +10,7 @@
       <v-btn
         v-if="!watchCanceled"
         :loading="unwatching"
-        class="btn primary px-2 position-relative z-index-two"
+        class="btn primary px-2 position-relative z-index-one"
         outlined
         small
         @click.stop.prevent="unwatch">
