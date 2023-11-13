@@ -28,7 +28,6 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.entity.AppEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
@@ -83,44 +82,52 @@ public class EntityConverterUtils {
     Map<String, String> properties = entity.getProperties();
     
     Map<String, Object> props = p.getProperties();
-    String providerId = entity.getProviderId();
     Identity identity = p.getIdentity();
-    if (!OrganizationIdentityProvider.NAME.equals(providerId) && !SpaceIdentityProvider.NAME.equals(providerId)) {
+    Long avatarLastUpdated = null;
+    if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
+      avatarLastUpdated = getFileLastUpdated(entity.getAvatarFileId());
+    }
+    Long bannerLastUpdated = null;
+    if (entity.getBannerFileId() != null && entity.getBannerFileId() > 0) {
+      bannerLastUpdated = getFileLastUpdated(entity.getBannerFileId());
+    }
+    if (!identity.isUser() && !identity.isSpace()) {
       p.setUrl(properties.get(Profile.URL));
-      p.setAvatarUrl(LinkProvider.buildAvatarURL(identity.getProviderId(), identity.getRemoteId()));
-      p.setBannerUrl(LinkProvider.buildBannerURL(identity.getProviderId(), identity.getRemoteId()));
+      p.setAvatarUrl(LinkProvider.buildAvatarURL(identity.getProviderId(),
+                                                 identity.getRemoteId(),
+                                                 avatarLastUpdated));
+      p.setBannerUrl(LinkProvider.buildBannerURL(identity.getProviderId(),
+                                                 identity.getRemoteId(),
+                                                 bannerLastUpdated));
     } else {
       String remoteId = entity.getRemoteId();
-      if (OrganizationIdentityProvider.NAME.equals(providerId)) {
+      if (identity.isUser()) {
         p.setUrl(LinkProvider.getUserProfileUri(remoteId));
-
-      } else if (SpaceIdentityProvider.NAME.equals(providerId)) {
-          p.setUrl(LinkProvider.getSpaceUri(remoteId));
+      } else if (identity.isSpace()) {
+        p.setUrl(LinkProvider.getSpaceUri(remoteId));
       }
-      Long lastUpdated = null;
-      if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
-        lastUpdated = getFileLastUpdated(entity.getAvatarFileId());
+      if (avatarLastUpdated != null) {
+        p.setAvatarLastUpdated(avatarLastUpdated);
       }
-      p.setAvatarUrl(LinkProvider.buildAvatarURL(identity.getProviderId(), identity.getRemoteId(), lastUpdated));
-      if (lastUpdated != null) {
-        p.setAvatarLastUpdated(lastUpdated);
+      if (bannerLastUpdated != null) {
+        p.setBannerLastUpdated(bannerLastUpdated);
       }
-      lastUpdated = null;
-      if (entity.getBannerFileId() != null && entity.getBannerFileId() > 0) {
-        lastUpdated = getFileLastUpdated(entity.getBannerFileId());
-      }
-      p.setBannerUrl(LinkProvider.buildBannerURL(identity.getProviderId(), identity.getRemoteId(), lastUpdated));
-      if (lastUpdated != null) {
-        p.setBannerLastUpdated(lastUpdated);
-      }
+      p.setAvatarUrl(LinkProvider.buildAvatarURL(identity.getProviderId(),
+                                                 identity.isUser() ? identity.getId() : identity.getRemoteId(),
+                                                 identity.isUser(),
+                                                 avatarLastUpdated));
+      p.setBannerUrl(LinkProvider.buildBannerURL(identity.getProviderId(),
+                                                 identity.isUser() ? identity.getId() : identity.getRemoteId(),
+                                                 identity.isUser(),
+                                                 bannerLastUpdated));
     }
     StringBuilder skills = new StringBuilder();
     StringBuilder positions = new StringBuilder();
     Set<ProfileExperienceEntity> experiences = entity.getExperiences();
-    if (experiences != null && experiences.size() > 0) {
+    if (experiences != null && !experiences.isEmpty()) {
       List<Map<String, Object>> xpData = new ArrayList<>();
       for (ProfileExperienceEntity exp : experiences){
-        Map<String, Object> xpMap = new HashMap<String, Object>();
+        Map<String, Object> xpMap = new HashMap<>();
         if (exp.getSkills() != null && !exp.getSkills().isEmpty()) {
           skills.append(exp.getSkills()).append(",");
         }

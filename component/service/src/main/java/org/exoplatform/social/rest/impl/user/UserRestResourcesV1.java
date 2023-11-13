@@ -645,6 +645,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   public Response getUserAvatarById(@Context UriInfo uriInfo,
                                     @Context Request request,
                                     @Parameter(description = "User name", required = true) @PathParam("id") String id,
+                                    @Parameter(description = "Whether to retrieve avatar by identity id or username", required = true)
+                                    @DefaultValue("false")
+                                    @QueryParam("byId")
+                                    boolean byId,
                                     @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
                                     @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("45x45") @QueryParam("size") String size,
                                     @Parameter(
@@ -659,8 +663,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (isDefault) {
       lastUpdated = DEFAULT_IMAGES_LAST_MODIFED.getTime();
     } else {
-      identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-      if (identity == null) {
+      identity = byId ? identityManager.getIdentity(id)
+                      : identityManager.getOrCreateUserIdentity(id);
+      if (identity == null || !identity.isUser()) {
         LOG.debug("Identity of user {} is not found, thus no avatar will be returned", id);
         return Response.status(Status.NOT_FOUND).build();
       } else {
@@ -746,7 +751,13 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   public Response getUserBannerById(@Context UriInfo uriInfo,
                                     @Context Request request,
                                     @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
+                                    @Parameter(description = "Whether to retrieve banner by identity id or username", required = true)
+                                    @DefaultValue("false")
+                                    @QueryParam("byId")
+                                    boolean byId,
+                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
+                                    @QueryParam("lastModified")
+                                    String lastModified,
                                     @Parameter(
                                         description = "A mandatory valid token that is used to authorize anonymous request"
                                     ) @QueryParam("r") String token) throws IOException {
@@ -759,8 +770,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     if (isDefault) {
       lastUpdated = DEFAULT_IMAGES_LAST_MODIFED.getTime();
     } else {
-      identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-      if (identity == null) {
+      identity = byId ? identityManager.getIdentity(id)
+                      : identityManager.getOrCreateUserIdentity(id);
+      if (identity == null || !identity.isUser()) {
         LOG.debug("Identity of user {} is not found, thus no banner will be returned", id);
         return Response.status(Status.NOT_FOUND).build();
       } else {
