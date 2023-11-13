@@ -3,7 +3,7 @@
 <%
   UserNode selectedUserNode = Util.getUIPortal().getSelectedUserNode();
 %>
-<div class="VuetifyApp">
+<div class="VuetifyApp singlePageApplication">
   <div id="breadcrumb">
     <script type="text/javascript">
       eXo.env.portal.selectedNodeId = '<%= selectedUserNode.getId() %>'
