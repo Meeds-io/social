@@ -378,12 +378,12 @@ public class LinkProvider {
    * @param providerId
    * @param remoteId
    * @return
-   * @deprecated user {@link LinkProvider#buildAvatarURL(String, String, Long)}
+   * @deprecated user {@link LinkProvider#buildAvatarURL(String, String, boolean, Long)}
    *             to use browser cache
    */
   @Deprecated
   public static String buildAvatarURL(String providerId, String remoteId) {
-    return buildAttachmentUrl(providerId, remoteId, null, AvatarAttachment.TYPE);
+    return buildAttachmentUrl(providerId, remoteId, false, null, AvatarAttachment.TYPE);
   }
 
   /**
@@ -394,62 +394,74 @@ public class LinkProvider {
    * @return
    */
   public static String buildAvatarURL(String providerId, String remoteId, Long lastModifiedDate) {
-    return buildAttachmentUrl(providerId, remoteId, lastModifiedDate, AvatarAttachment.TYPE);
+    return buildAttachmentUrl(providerId, remoteId, false, lastModifiedDate, AvatarAttachment.TYPE);
+  }
+
+  public static String buildAvatarURL(String providerId, String id, boolean byId, Long lastModifiedDate) {
+    return buildAttachmentUrl(providerId, id, byId, lastModifiedDate, AvatarAttachment.TYPE);
   }
 
   /**
    * Builds the banner URL for a given profile
    * @param providerId
-   * @param remoteId
+   * @param id
    * @return
-   * @deprecated user {@link LinkProvider#buildBannerURL(String, String, Long)}
+   * @deprecated user {@link LinkProvider#buildBannerURL(String, String, boolean, Long)}
    *             to use browser cache
    */
   @Deprecated
-  public static String buildBannerURL(String providerId, String remoteId) {
-    return buildAttachmentUrl(providerId, remoteId, null, BannerAttachment.TYPE);
+  public static String buildBannerURL(String providerId, String id) {
+    return buildAttachmentUrl(providerId, id, false, null, BannerAttachment.TYPE);
   }
   
   /**
    * Builds the banner URL for a given profile
    * @param providerId
-   * @param remoteId
+   * @param id
    * @param lastModifiedDate last modified date of avatar
    * @return
    */
-  public static String buildBannerURL(String providerId, String remoteId, Long lastModifiedDate) {
-    return buildAttachmentUrl(providerId, remoteId, lastModifiedDate, BannerAttachment.TYPE);
+  public static String buildBannerURL(String providerId, String id, Long lastModifiedDate) {
+    return buildAttachmentUrl(providerId, id, false, lastModifiedDate, BannerAttachment.TYPE);
   }
 
-  private static String buildAttachmentUrl(String providerId, String remoteId, Long lastModifiedDate, String type) {
-    if (providerId == null || remoteId == null) {
+  public static String buildBannerURL(String providerId, String id, boolean byId, Long lastModifiedDate) {
+    return buildAttachmentUrl(providerId, id, byId, lastModifiedDate, BannerAttachment.TYPE);
+  }
+
+  private static String buildAttachmentUrl(String providerId,
+                                           String id,
+                                           boolean byId,
+                                           Long lastModifiedDate,
+                                           String type) {
+    if (providerId == null || id == null) {
       return null;
     } else if (providerId.equals("spaceTemplates")) {
       return new StringBuilder(getBaseURLSocialRest())
-          .append("/")
-          .append(providerId)
-          .append("/")
-          .append(remoteId)
-          .append("/")
-          .append(type)
-          .append("?lastModified=")
-          .append(DEFAULT_IMAGES_LAST_MODIFED)
-          .toString();
+                                                      .append("/")
+                                                      .append(providerId)
+                                                      .append("/")
+                                                      .append(id)
+                                                      .append("/")
+                                                      .append(type)
+                                                      .append("?lastModified=")
+                                                      .append(DEFAULT_IMAGES_LAST_MODIFED)
+                                                      .toString();
     }
 
     try {
-      remoteId = URLEncoder.encode(remoteId, "UTF-8");
+      id = URLEncoder.encode(id, "UTF-8");
     } catch (UnsupportedEncodingException ex) {
       LOG.warn("Failure to encode username for build URL", ex);
     }
 
     if (lastModifiedDate == null || lastModifiedDate <= 0 || lastModifiedDate == DEFAULT_IMAGES_LAST_MODIFED) {
-      remoteId = DEFAULT_IMAGE_REMOTE_ID;
+      id = DEFAULT_IMAGE_REMOTE_ID;
       lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
     }
 
     String lastModifiedString = String.valueOf(lastModifiedDate);
-    String token = generateAttachmentToken(providerId, remoteId, type, lastModifiedString);
+    String token = generateAttachmentToken(providerId, id, type, lastModifiedString);
     if (StringUtils.isNotBlank(token)) {
       try {
         token = URLEncoder.encode(token, "UTF8");
@@ -460,25 +472,33 @@ public class LinkProvider {
     }
 
     if (providerId.equals(OrganizationIdentityProvider.NAME)) {
-      return new StringBuilder(getBaseURLSocialUserRest()).append("/")
-                                                          .append(remoteId)
-                                                          .append("/")
-                                                          .append(type)
-                                                          .append("?lastModified=")
-                                                          .append(lastModifiedString)
-                                                          .append("&r=")
-                                                          .append(token)
-                                                          .toString();
+      StringBuilder urlBuilder = new StringBuilder(getBaseURLSocialUserRest());
+      urlBuilder.append("/")
+                .append(id)
+                .append("/")
+                .append(type)
+                .append("?lastModified=")
+                .append(lastModifiedString)
+                .append("&r=")
+                .append(token);
+      if (byId) {
+        urlBuilder.append("&byId=true");
+      }
+      return urlBuilder.toString();
     } else if (providerId.equals(SpaceIdentityProvider.NAME)) {
-      return new StringBuilder(getBaseURLSocialSpaceRest()).append("/")
-                                                           .append(remoteId)
-                                                           .append("/")
-                                                           .append(type)
-                                                           .append("?lastModified=")
-                                                           .append(lastModifiedString)
-                                                           .append("&r=")
-                                                           .append(token)
-                                                           .toString();
+      StringBuilder urlBuilder = new StringBuilder(getBaseURLSocialSpaceRest());
+      urlBuilder.append("/")
+                .append(id)
+                .append("/")
+                .append(type)
+                .append("?lastModified=")
+                .append(lastModifiedString)
+                .append("&r=")
+                .append(token);
+      if (byId) {
+        urlBuilder.append("&byId=true");
+      }
+      return urlBuilder.toString();
     } else {
       return null;
     }
