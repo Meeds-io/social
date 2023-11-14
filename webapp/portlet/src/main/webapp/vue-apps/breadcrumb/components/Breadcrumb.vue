@@ -1,12 +1,12 @@
 <template>
   <v-app>
-    <v-main class="white px-2 py-2">
+    <v-main class="white px-4 py-4">
       <div v-if="breadcrumbToDisplay.length" class="d-flex">
         <div
           v-for="(breadcrumb, index) in breadcrumbToDisplay"
           :key="index"
           :class="breadcrumbToDisplay.length === 1 && 'single-path-element' || ''"
-          class="text-truncate text-body-1">
+          class="text-truncate">
           <v-tooltip
             v-if="breadcrumb.label != ellipsis"
             max-width="300"
@@ -14,8 +14,7 @@
             <template #activator="{ on, attrs }">
               <v-btn
                 min-width="45px"
-                max-width="250px"
-                class="pa-0 text-truncate d-inline-block text-body-1"
+                class="pa-0 flex-shrink-1 text-truncate "
                 :disabled="!breadcrumb.uri"
                 :class="breadcrumb.uri && 'clickable' || ' not-clickable '"
                 text
@@ -24,13 +23,13 @@
                 :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.uri || null"
                 :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'">
                 <a
-                  class="text-truncate"
+                  class="caption text-truncate text-h6 text-capitalize"
                   :class="index === breadcrumbToDisplay.length - 1 && ' dark-grey-color ' || (breadcrumb.uri && ' text-sub-title ' || ' text-light-color not-clickable ') ">
                   {{ breadcrumb.label }}
                 </a>
               </v-btn>
             </template>
-            <span class="caption">
+            <span class="caption breadcrumbName">
               {{ breadcrumb.label }}
             </span>
           </v-tooltip>
@@ -67,26 +66,16 @@ export default {
   }),
   computed: {
     breadcrumbToDisplay() {
-      if (!this.userNodeBreadcrumbItemList || (!this.isMobile && this.userNodeBreadcrumbItemList.length <= 4) || (this.isMobile && this.userNodeBreadcrumbItemList.length === 1)) {
+      if (!this.userNodeBreadcrumbItemList || this.userNodeBreadcrumbItemList.length <= 4) {
         return this.userNodeBreadcrumbItemList || [];
-      }
-      const length = this.userNodeBreadcrumbItemList.length;
-      let userNodeBreadcrumbItemListToDisplay = [];
-      if (!this.isMobile) {
-        userNodeBreadcrumbItemListToDisplay  = [this.userNodeBreadcrumbItemList[0], ... this.userNodeBreadcrumbItemList.slice(length - 3, length)];
+      } else {
+        const length = this.userNodeBreadcrumbItemList.length;
+        const userNodeBreadcrumbItemListToDisplay = [this.userNodeBreadcrumbItemList[0], ... this.userNodeBreadcrumbItemList.slice(length - 3, length)];
         userNodeBreadcrumbItemListToDisplay[1] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[1], {
           label: this.ellipsis,
         });
-      } else {
-        userNodeBreadcrumbItemListToDisplay = [this.userNodeBreadcrumbItemList[0], this.userNodeBreadcrumbItemList[length - 1]];
-        userNodeBreadcrumbItemListToDisplay[0] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[0], {
-          label: this.ellipsis,
-        });
+        return userNodeBreadcrumbItemListToDisplay;
       }
-      return userNodeBreadcrumbItemListToDisplay;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.width < 980;
     },
   },
   created() {
