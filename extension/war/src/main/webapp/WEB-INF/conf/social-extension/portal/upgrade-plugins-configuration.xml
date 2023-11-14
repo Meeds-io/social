@@ -72,7 +72,7 @@
         <value-param>
           <name>space.node.names</name>
           <description>The plugin will set the icons of these space nodes names</description>
-          <value>settings;members;note;tasks;wallet</value>
+          <value>settings;members;notes;tasks,TaskManagementApplication,Tasks;SpaceWallet</value>
         </value-param>
         <value-param>
           <name>space.node.icons</name>
