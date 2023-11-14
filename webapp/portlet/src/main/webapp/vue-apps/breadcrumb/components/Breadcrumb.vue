@@ -15,6 +15,7 @@
               <v-btn
                 min-width="45px"
                 class="pa-0 flex-shrink-1 text-truncate "
+                :disabled="!breadcrumb.uri"
                 :class="breadcrumb.uri && 'clickable' || ' not-clickable '"
                 text
                 v-bind="attrs"
@@ -34,6 +35,7 @@
           </v-tooltip>
           <v-btn
             v-else
+            disabled
             min-width="45px"
             class="pa-0 flex-shrink-1 not-clickable"
             text>
