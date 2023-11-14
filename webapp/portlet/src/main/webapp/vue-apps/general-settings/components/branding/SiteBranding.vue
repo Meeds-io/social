@@ -27,7 +27,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyNameTitle') }}
@@ -55,7 +54,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyLogoTitle') }}
@@ -71,7 +69,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.themeColorsTitle') }}
@@ -99,7 +96,6 @@
     </v-col>
     <v-col
       cols="12"
-      lg="6"
       class="pa-0">
       <h4 class="mb-0 mt-4">
         {{ $t('generalSettings.companyFaviconTitle') }}
@@ -112,10 +108,24 @@
         v-model="faviconUploadId"
         :branding="branding" />
     </v-col>
+    <v-col 
+      cols="12"
+      class="pa-0">
+      <h4 class="mb-0 mt-4">
+        {{ $t('generalSettings.widgetAndAppStyle.title') }}
+      </h4>
+      <h6 class="text-subtitle grey--text me-2 mb-3">
+        {{ $t('generalSettings.widgetAndAppStyle.subtitle') }}
+      </h6>
+      <portal-general-settings-border-radius
+        v-model="borderRadius"
+        ref="borderRadius"
+        @input="borderRadius = $event" />
+    </v-col>
     <v-col
       cols="12"
       class="pa-0">
-      <div class="d-flex my-12 justify-end">
+      <div :class="!isMobile && 'position-absolute b-0 r-0' || ''" class="d-flex justify-end pb-5">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
           :disabled="loading"
@@ -155,6 +165,7 @@ export default {
     primaryColor: null,
     secondaryColor: null,
     tertiaryColor: null,
+    borderRadius: null,
     errorMessage: null,
     logoUploadId: null,
     faviconUploadId: null,
@@ -164,13 +175,19 @@ export default {
       return this.branding?.companyName;
     },
     defaultPrimaryColor() {
-      return this.branding?.themeColors?.primaryColor;
+      return this.branding?.themeStyle?.primaryColor;
     },
     defaultSecondaryColor() {
-      return this.branding?.themeColors?.secondaryColor;
+      return this.branding?.themeStyle?.secondaryColor;
     },
     defaultTertiaryColor() {
-      return this.branding?.themeColors?.tertiaryColor;
+      return this.branding?.themeStyle?.tertiaryColor;
+    },
+    defaultBorderRadius() {
+      return this.branding?.themeStyle?.borderRadius && Number(this.branding.themeStyle.borderRadius.split('px')[0]);
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
     validForm() {
       return this.changed && this.isValidForm;
@@ -179,7 +196,8 @@ export default {
       return this.companyName?.length
           && this.primaryColor?.length
           && this.secondaryColor?.length
-          && this.tertiaryColor?.length;
+          && this.tertiaryColor?.length
+          && this.borderRadius >= 0;
     },
     changed() {
       if (!this.branding) {
@@ -192,9 +210,10 @@ export default {
       const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
         companyName: this.companyName,
       });
-      newBranding.themeColors.primaryColor = this.primaryColor;
-      newBranding.themeColors.secondaryColor = this.secondaryColor;
-      newBranding.themeColors.tertiaryColor = this.tertiaryColor;
+      newBranding.themeStyle.primaryColor = this.primaryColor;
+      newBranding.themeStyle.secondaryColor = this.secondaryColor;
+      newBranding.themeStyle.tertiaryColor = this.tertiaryColor;
+      newBranding.themeStyle.borderRadius = `${this.borderRadius}px`;
       return JSON.stringify(oldBranding) !== JSON.stringify(newBranding);
     },
   },
@@ -209,6 +228,41 @@ export default {
     changed() {
       this.$emit('changed', this.changed);
     },
+    primaryColor() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesPrimaryColor',
+          propertyValue: this.primaryColor
+        }
+      });
+    },
+    secondaryColor() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesSecondaryColor',
+          propertyValue: this.secondaryColor
+        }
+      });
+    },
+    tertiaryColor() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesTertiaryColor',
+          propertyValue: this.tertiaryColor
+        }
+      });
+    },
+    borderRadius() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesBorderRadius',
+          propertyValue: `${this.borderRadius}px`
+        }
+      });
+    },
+    companyName() {
+      this.$root.$emit('refresh-company-name', this.companyName);
+    }
   },
   mounted() {
     this.init();
@@ -221,6 +275,7 @@ export default {
       this.primaryColor = this.defaultPrimaryColor;
       this.secondaryColor = this.defaultSecondaryColor;
       this.tertiaryColor = this.defaultTertiaryColor;
+      this.borderRadius = this.defaultBorderRadius;
       this.logoUploadId = null;
       this.faviconUploadId = null;
       this.errorMessage = null;
@@ -231,10 +286,11 @@ export default {
       const branding = Object.assign({}, this.branding);
       Object.assign(branding, {
         companyName: this.companyName,
-        themeColors: {
+        themeStyle: {
           primaryColor: this.primaryColor,
           secondaryColor: this.secondaryColor,
           tertiaryColor: this.tertiaryColor,
+          borderRadius: `${this.borderRadius}px`,
         },
         logo: {
           uploadId: this.logoUploadId,
@@ -247,7 +303,10 @@ export default {
       this.$root.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
         .then(() => this.$emit('saved'))
-        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
+        .then(() =>  {
+          this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
+          this.$root.$emit('refresh-iframe');
+        })
         .catch(e => this.errorMessage = String(e))
         .finally(() => this.$root.loading = false);
     },
