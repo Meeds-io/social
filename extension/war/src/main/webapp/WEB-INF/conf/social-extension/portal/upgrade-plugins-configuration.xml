@@ -18,43 +18,83 @@
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd http://www.exoplatform.org/xml/ns/kernel_1_3.xsd"
                xmlns="http://www.exoplatform.org/xml/ns/kernel_1_3.xsd">
-    <external-component-plugins>
-        <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
-        <component-plugin>
-            <name>UserPasswordHashMigration</name>
-            <set-method>addUpgradePlugin</set-method>
-            <type>org.exoplatform.social.core.upgrade.UserPasswordHashMigration</type>
-            <description>Update users passwords hash algorithm</description>
-            <init-params>
-                <value-param>
-                    <name>product.group.id</name>
-                    <description>The groupId of the product</description>
-                    <value>org.exoplatform.platform</value>
-                </value-param>
-                <value-param>
-                    <name>plugin.upgrade.target.version</name>
-                    <description>
-                        The plugin target version (will not be executed if previous version is equal or higher than
-                        6.5.0)
-                    </description>
-                    <value>6.5.0</value>
-                </value-param>
-                <value-param>
-                    <name>plugin.execution.order</name>
-                    <description>The plugin execution order</description>
-                    <value>100</value>
-                </value-param>
-                <value-param>
-                    <name>plugin.upgrade.execute.once</name>
-                    <description>The plugin must be executed only once</description>
-                    <value>true</value>
-                </value-param>
-                <value-param>
-                    <name>plugin.upgrade.async.execution</name>
-                    <description>The plugin will be executed in an asynchronous mode</description>
-                    <value>true</value>
-                </value-param>
-            </init-params>
-        </component-plugin>
-    </external-component-plugins>
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
+    <component-plugin>
+      <name>UserPasswordHashMigration</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.social.core.upgrade.UserPasswordHashMigration</type>
+      <description>Update users passwords hash algorithm</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.5.0)</description>
+          <value>6.5.0</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>100</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>The plugin must be executed only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>true</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>SpaceNodeIconsPlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>org.exoplatform.social.core.upgrade.SpaceNodeIconsPlugin</type>
+      <description>Configure space node icons</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <description>The groupId of the product</description>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.5.0)</description>
+          <value>6.5.0</value>
+        </value-param>
+        <value-param>
+          <name>space.node.names</name>
+          <description>The plugin will set the icons of these space nodes names</description>
+          <value>settings;members;notes;tasks,TaskManagementApplication,Tasks;SpaceWallet</value>
+        </value-param>
+        <value-param>
+          <name>space.node.icons</name>
+          <description>The plugin will set the space nodes icons with these icons</description>
+          <value>fas fa-cog;fas fa-users;fas fa-clipboard;fas fa-tasks;fas fa-wallet</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <description>The plugin execution order</description>
+          <value>100</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <description>The plugin must be executed only once</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <description>The plugin will be executed in an asynchronous mode</description>
+          <value>true</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
 </configuration>
