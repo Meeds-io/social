@@ -31,6 +31,10 @@ public class SpaceNodeIconsPlugin extends UpgradeProductPlugin {
 
   private int                        migratedSpaceNodeIcons;
 
+  public int getMigratedSpaceNodeIcons() {
+    return migratedSpaceNodeIcons;
+  }
+
   public SpaceNodeIconsPlugin(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
     super(initParams);
     this.entityManagerService = entityManagerService;
