@@ -224,7 +224,13 @@ export default {
       return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience && !this.messageEdited);
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited)
+        || this.messageLength > this.MESSAGE_MAX_LENGTH
+        || this.loading
+        || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length)
+        || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited)
+        || (this.postInYourSpacesChoice && !this.audience)
+        || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience && !this.messageEdited);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -291,8 +297,9 @@ export default {
     document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
-
-    this.resetAudienceChoice();
+    if (!eXo.env.portal.spaceId) {
+      this.resetAudienceChoice();
+    }
   },
   methods: {
     isActivityBodyEdited(event) {
