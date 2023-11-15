@@ -1,67 +1,93 @@
 package org.exoplatform.social.core.utils;
 
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.test.AbstractCoreTest;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.regex.Pattern;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.service.LinkProvider;
 
+@RunWith(MockitoJUnitRunner.class)
+public class MentionUtilsTest { // NOSONAR
 
-public class MentionUtilsTest extends AbstractCoreTest {
+  private static final String                     ROOT_FULL_NAME       = "Root Root";
 
-    private IdentityManager identityManager;
+  private static final String                     ROOT_FULL_NAME_MATCH = "<span>" + ROOT_FULL_NAME + "</span>";
 
-    private static final Pattern MENTION_PATTERN                 = Pattern.compile("@([^\\s<]+)|@([^\\s<]+)$");
+  private static final String                     JOHN_FULL_NAME       = "John Anthony";
 
-    public void setUp() throws Exception {
-        super.setUp();
-        System.setProperty("gatein.email.domain.url", "http://test.com");
-        identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
+  private static final String                     JOHN_FULL_NAME_MATCH = "<span>" + JOHN_FULL_NAME + "</span>";
 
-    }
+  private static final String                     PORTAL_OWNER         = "public";
 
-    @Test
-    public void testSubstituteUsernames(){
-        Identity mentionedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
-        Profile profile = mentionedUserIdentity.getProfile();
-        profile.setUrl("/profile/root");
-        profile.setProperty("fullName", "Root Root");
+  private static final MockedStatic<LinkProvider> LINK_PROVIDER_UTIL   = mockStatic(LinkProvider.class);
 
-        String portalOwner = "dw";
-        String message = "hello <p>@root</p>";
+  @Mock
+  private IdentityManager                         identityManager;
 
-        message = MentionUtils.substituteUsernames(portalOwner, message);
-        assertEquals("hello <p><a href=\"http://test.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>", message);
-    }
+  @Mock
+  private Identity                                identity;
 
-    @Test
-    public void testWrongFormatMentionWithSubstituteUsernames(){
-        String portalOwner = "dw";
-        String message = "hello @ jhon";
-        message = MentionUtils.substituteUsernames(portalOwner, message);
-        assertEquals("hello @ jhon", message);
-    }
+  @AfterClass
+  public static void afterClass() {
+    LINK_PROVIDER_UTIL.close();
+  }
 
-    @Test
-    public void testMultipleSubstituteUsernames(){
-        Identity mentionedUserIdentity1 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
-        Profile profile1 = mentionedUserIdentity1.getProfile();
-        profile1.setUrl("/profile/root");
-        profile1.setProperty("fullName", "Root Root");
+  @Before
+  public void beforeMethod() {
+    when(identityManager.getOrCreateUserIdentity(anyString())).thenReturn(identity);
+    when(identity.isEnable()).thenReturn(true);
+    LINK_PROVIDER_UTIL.when(() -> LinkProvider.getProfileLink("root", PORTAL_OWNER)).thenAnswer(invocation -> ROOT_FULL_NAME_MATCH);
+    LINK_PROVIDER_UTIL.when(() -> LinkProvider.getProfileLink("john", PORTAL_OWNER)).thenAnswer(invocation -> JOHN_FULL_NAME_MATCH);
+  }
 
-        Identity mentionedUserIdentity12 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
-        Profile profile2 = mentionedUserIdentity12.getProfile();
-        profile2.setUrl("/profile/john");
-        profile2.setProperty("fullName", "John Anthony");
+  @Test
+  public void testSubstituteUsernames() {
+    String message = "hello <p>@root</p>";
 
-        String portalOwner = "dw";
-        String message = "hello <p>@root</p> hey! <p>@john</p> ";
+    message = MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, message);
+    assertEquals(1, StringUtils.countMatches(message, ROOT_FULL_NAME_MATCH));
+  }
 
-        message = MentionUtils.substituteUsernames(portalOwner, message);
-        assertEquals("hello <p><a href=\"http://test.com/portal/dw/profile/root\" target=\"_parent\">Root Root</a></p>" +
-                " hey! <p><a href=\"http://test.com/portal/dw/profile/john\" target=\"_parent\">John Anthony</a></p> ", message);
-    }
+  @Test
+  public void testWrongFormatMentionWithSubstituteUsernames() {
+    String message = "hello @ jhon";
+    message = MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, message);
+    assertEquals("hello @ jhon", message);
+  }
+
+  @Test
+  public void testMultipleSubstituteUsernames() {
+    String message = "hello <p>@root</p> hey! <p>@john</p> ";
+
+    message = MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, message);
+    assertEquals(1, StringUtils.countMatches(message, ROOT_FULL_NAME_MATCH));
+    assertEquals(1, StringUtils.countMatches(message, JOHN_FULL_NAME_MATCH));
+  }
+
+  @Test
+  public void testMultipleSubstituteUsernamesWithSpecialCharacters() {
+    String message = "hello <p>@root</p> http://test.com/@john/testtest hey!";
+
+    message = MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, message);
+    assertEquals(1, StringUtils.countMatches(message, ROOT_FULL_NAME_MATCH));
+    assertEquals(0, StringUtils.countMatches(message, ">John Anthony"));
+
+    message = "hello <p>@root</p> http://test.com/@john/testtest hey! @john";
+
+    message = MentionUtils.substituteUsernames(identityManager, PORTAL_OWNER, message);
+    assertEquals(1, StringUtils.countMatches(message, ROOT_FULL_NAME_MATCH));
+    assertEquals(1, StringUtils.countMatches(message, JOHN_FULL_NAME_MATCH));
+  }
 }
