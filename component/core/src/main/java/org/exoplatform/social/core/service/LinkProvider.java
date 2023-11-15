@@ -159,7 +159,7 @@ public class LinkProvider {
    * @return The link.
    * @LevelAPI Platform
    */
-  public static String getProfileLink(final String username, final String portalOwner) {
+  public static String getProfileLink(String username, String portalOwner) {
     Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
     Validate.notNull(identity, "Identity must not be null.");
     String lang = getCurrentUserLanguage(username);
