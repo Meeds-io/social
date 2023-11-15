@@ -17,6 +17,8 @@
 package org.exoplatform.social.core.jpa.test;
 
 import org.exoplatform.social.core.upgrade.UserPasswordHashMigrationTest;
+import org.exoplatform.social.core.utils.MentionUtilsTest;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -131,6 +133,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ActivityOberverPluginTest.class,
   AttachmentActivityProcessorTest.class,
   AttachmentServiceTest.class,
+  MentionUtilsTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

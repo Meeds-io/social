@@ -389,7 +389,9 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
       if (SPACE_CREATED_TITLE_ID.equals(titleId))
         titleId = USER_JOINED_TITLE_ID;
       ExoSocialActivity comment = createComment(activityMessage, titleId, null, SPACE_APP_ID, identity, templateParams);
-      activityManager.saveComment(activity, comment);
+      if (comment != null) {
+        activityManager.saveComment(activity, comment);
+      }
     }
   }
 
