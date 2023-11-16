@@ -270,9 +270,10 @@
       > #StreamRightContainer, > .StreamRightContainer {
         #stickyBlockDesktop, .stickyBlockDesktop, &.stickyBlockDesktop {
           position: sticky;
-          top: 13px;
+          top: 0;
           height: auto;
           display: block;
+          padding-bottom: @applicationSpaceBottom !important;
           z-index: @zindexStickyContainer;
         }
       }
