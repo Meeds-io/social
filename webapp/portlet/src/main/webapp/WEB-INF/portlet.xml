@@ -231,6 +231,7 @@
 
   <portlet>
     <portlet-name>SpaceMenuPortlet</portlet-name>
+    <display-name>SpaceBannerPortlet</display-name>
     <portlet-class>org.exoplatform.social.portlet.SpaceHeaderPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
