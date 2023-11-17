@@ -46,7 +46,6 @@ export default {
     }
   },
   mounted() {
-    this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
     this.$root.$applicationLoaded();
   },
   created() {
