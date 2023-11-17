@@ -36,6 +36,15 @@ export default {
       return this.users && this.users.length;
     },
   },
+  watch: {
+    display() {
+      if (this.display) {
+        this.$el.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
+      } else {
+        this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+      }
+    }
+  },
   mounted() {
     this.$root.$applicationLoaded();
   },
