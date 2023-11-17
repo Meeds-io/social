@@ -12,7 +12,6 @@ import javax.persistence.Query;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
-import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -35,7 +34,7 @@ public class SpaceNodeIconsPlugin extends UpgradeProductPlugin {
     return migratedSpaceNodeIcons;
   }
 
-  public SpaceNodeIconsPlugin(PortalContainer container, EntityManagerService entityManagerService, InitParams initParams) {
+  public SpaceNodeIconsPlugin(EntityManagerService entityManagerService, InitParams initParams) {
     super(initParams);
     this.entityManagerService = entityManagerService;
     if (initParams.containsKey(SPACE_NODE_NAMES) && initParams.containsKey(SPACE_NODE_ICONS)) {
@@ -66,30 +65,24 @@ public class SpaceNodeIconsPlugin extends UpgradeProductPlugin {
   @ExoTransactional
   public int upgradeSpaceNodeIcons(Set<Map.Entry<String, String>> spaceNodesEntrySet) {
     EntityManager entityManager = entityManagerService.getEntityManager();
-    StringBuilder sqlString = new StringBuilder("""
-            UPDATE PORTAL_NAVIGATION_NODES AS n
-            INNER JOIN PORTAL_PAGES AS p ON n.PAGE_ID = p.ID
-            INNER JOIN PORTAL_SITES AS s ON s.ID = p.SITE_ID
-            LEFT JOIN PORTAL_NAVIGATION_NODES AS parent_nodes ON n.PARENT_ID = parent_nodes.NODE_ID
-        """);
-    sqlString.append("""
-            SET n.ICON =
-              CASE
-                WHEN parent_nodes.NAME = 'default' THEN 'fas fa-stream'
-        """);
+    StringBuilder sqlString = new StringBuilder("UPDATE PORTAL_NAVIGATION_NODES n\n");
+    sqlString.append("SET n.ICON =\n");
+    sqlString.append("  CASE\n");
+    sqlString.append("    WHEN (SELECT pn.NAME FROM (SELECT * FROM PORTAL_NAVIGATION_NODES) pn WHERE pn.NODE_ID = n.PARENT_ID) = 'default' THEN TRIM('fas fa-stream')\n");
 
     for (Map.Entry<String, String> spaceNodesEntry : spaceNodesEntrySet) {
       List<String> spaceNodesNames = Stream.of(spaceNodesEntry.getKey().split(","))
                                            .map(spaceNodeName -> "'" + spaceNodeName + "'")
                                            .toList();
-      sqlString.append("   WHEN n.NAME in (")
+      sqlString.append("    WHEN n.NAME in (")
                .append(String.join(",", spaceNodesNames))
-               .append(") THEN '")
+               .append(") THEN TRIM('")
                .append(spaceNodesEntry.getValue())
-               .append("'\n");
+               .append("')\n");
     }
     sqlString.append("  END\n");
-    sqlString.append("WHERE n.ICON IS NULL AND s.TYPE = 1 AND s.NAME LIKE '/spaces/%'");
+    sqlString.append("WHERE n.ICON IS NULL\n");
+    sqlString.append("AND EXISTS (SELECT * FROM PORTAL_PAGES p INNER JOIN PORTAL_SITES s ON s.ID = p.SITE_ID WHERE n.PAGE_ID = p.ID AND s.TYPE = 1 AND s.NAME LIKE '/spaces/%')");
 
     Query query = entityManager.createNativeQuery(sqlString.toString());
     return query.executeUpdate();
