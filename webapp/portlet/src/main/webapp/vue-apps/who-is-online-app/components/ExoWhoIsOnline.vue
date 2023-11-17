@@ -36,7 +36,17 @@ export default {
       return this.users && this.users.length;
     },
   },
+  watch: {
+    display() {
+      if (this.display) {
+        this.$el.parentElement.parentElement.classList.remove('hidden');
+      } else {
+        this.$el.parentElement.parentElement.classList.add('hidden');
+      }
+    }
+  },
   mounted() {
+    this.$el.parentElement.parentElement.classList.add('hidden');
     this.$root.$applicationLoaded();
   },
   created() {

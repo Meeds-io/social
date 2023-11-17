@@ -12,6 +12,8 @@ export function hideGettingStarted() {
 const parentAppElement = document.querySelector('#GettingStartedPortlet .btClose');
 if (parentAppElement) {
   parentAppElement.onclick = () => {
-    hideGettingStarted().then(() => document.querySelector('#GettingStartedPortlet').parentElement.remove());
+    hideGettingStarted().then(() => document.querySelector('#GettingStartedPortlet').parentElement.parentElement.remove());
   };
+} else {
+  document.querySelector('#GettingStartedContainerChildren .PORTLET-FRAGMENT').classList.add('hidden');
 }

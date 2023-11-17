@@ -68,6 +68,13 @@ export default {
         this.$nextTick().then(() => this.$root.$applicationLoaded());
       }
     },
+    isVisible() {
+      if (this.isVisible) {
+        this.$el.parentElement.parentElement.classList.remove('hidden');
+      } else {
+        this.$el.parentElement.parentElement.classList.add('hidden');
+      }
+    }
   },
   created() {
     if (this.displayPeopleSuggestions) {
@@ -80,6 +87,9 @@ export default {
     } else {
       this.loading--;
     }
+  },
+  mounted() {
+    this.$el.parentElement.parentElement.classList.add('hidden');
   },
   methods: {
     initPeopleSuggestionsList() {
