@@ -12,8 +12,14 @@ export function hideGettingStarted() {
 const parentAppElement = document.querySelector('#GettingStartedPortlet .btClose');
 if (parentAppElement) {
   parentAppElement.onclick = () => {
-    hideGettingStarted().then(() => document.querySelector('#GettingStartedPortlet').parentElement.parentElement.remove());
+    hideGettingStarted().then(() => {
+      const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
+      hideGettingStarted().then(() => parentElementToHide.classList.add('hidden'));
+    });
   };
 } else {
-  document.querySelector('#GettingStartedContainerChildren .PORTLET-FRAGMENT').classList.add('hidden');
+  const parentElementToHide = document.querySelector('#GettingStartedPortlet');
+  if (parentElementToHide) {
+    parentElementToHide.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+  }
 }
