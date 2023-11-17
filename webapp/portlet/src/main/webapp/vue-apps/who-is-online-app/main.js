@@ -16,11 +16,6 @@ if (extensionRegistry) {
   }
 }
 
-const onlineUsers = JSON.parse(document.getElementById('whoIsOnlineDefaultValue').value);
-if (!onlineUsers.length) {
-  document.querySelector('#OnlinePortlet').closest('.PORTLET-FRAGMENT').classList.add('hidden');
-}
-
 const appId = 'OnlinePortlet';
 const appName = 'Who is Online';
 
@@ -32,6 +27,10 @@ export function init() {
   }}));
   exoi18n.loadLanguageAsync(lang, url)
     .then(() => {
+      const onlineUsers = JSON.parse(document.getElementById('whoIsOnlineDefaultValue').value);
+      if (!onlineUsers.length) {
+        document.querySelector('#OnlinePortlet').closest('.PORTLET-FRAGMENT').classList.add('hidden');
+      }
       if (onlineUsers && onlineUsers.length) {
         const avatars = JSON.parse(document.getElementById('whoIsOnlineAvatarsDefaultValue').value);
         onlineUsers.forEach(user => {
