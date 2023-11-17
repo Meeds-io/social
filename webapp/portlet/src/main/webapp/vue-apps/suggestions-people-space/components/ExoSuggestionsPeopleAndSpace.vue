@@ -68,6 +68,13 @@ export default {
         this.$nextTick().then(() => this.$root.$applicationLoaded());
       }
     },
+    isVisible() {
+      if (this.isVisible) {
+        this.$el.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
+      } else {
+        this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+      }
+    }
   },
   created() {
     if (this.displayPeopleSuggestions) {
@@ -79,6 +86,11 @@ export default {
       this.initSpaceSuggestionsList();
     } else {
       this.loading--;
+    }
+  },
+  mounted() {
+    if (!this.isVisible) {
+      this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
     }
   },
   methods: {
