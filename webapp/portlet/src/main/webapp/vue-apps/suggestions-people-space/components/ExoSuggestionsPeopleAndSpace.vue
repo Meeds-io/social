@@ -89,7 +89,9 @@ export default {
     }
   },
   mounted() {
-    this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+    if (!this.isVisible) {
+      this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+    }
   },
   methods: {
     initPeopleSuggestionsList() {
