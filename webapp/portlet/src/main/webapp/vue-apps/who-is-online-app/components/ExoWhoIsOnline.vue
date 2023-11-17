@@ -39,14 +39,14 @@ export default {
   watch: {
     display() {
       if (this.display) {
-        this.$el.parentElement.parentElement.classList.remove('hidden');
+        this.$el.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
       } else {
-        this.$el.parentElement.parentElement.classList.add('hidden');
+        this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
       }
     }
   },
   mounted() {
-    this.$el.parentElement.parentElement.classList.add('hidden');
+    this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
     this.$root.$applicationLoaded();
   },
   created() {
