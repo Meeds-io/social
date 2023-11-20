@@ -9,9 +9,10 @@ import org.junit.Test;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.component.test.AbstractKernelTest;
 import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
+import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -19,9 +20,6 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.dao.NodeDAO;
-import org.exoplatform.portal.mop.navigation.NavigationContext;
-import org.exoplatform.portal.mop.navigation.NodeData;
-import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.security.ConversationState;
@@ -31,8 +29,6 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
 
 @ConfiguredBy({ @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),

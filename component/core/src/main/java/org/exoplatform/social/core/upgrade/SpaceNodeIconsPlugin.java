@@ -28,12 +28,6 @@ public class SpaceNodeIconsPlugin extends UpgradeProductPlugin {
 
   private final Map<String, String>  spaceNodes       = new HashMap<>();
 
-  private int                        migratedSpaceNodeIcons;
-
-  public int getMigratedSpaceNodeIcons() {
-    return migratedSpaceNodeIcons;
-  }
-
   public SpaceNodeIconsPlugin(EntityManagerService entityManagerService, InitParams initParams) {
     super(initParams);
     this.entityManagerService = entityManagerService;
@@ -48,7 +42,7 @@ public class SpaceNodeIconsPlugin extends UpgradeProductPlugin {
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
-    if (spaceNodes == null || spaceNodes.isEmpty()) {
+    if (spaceNodes.isEmpty()) {
       LOG.error("Couldn't process upgrade, the parameters '{}' and '{}' are mandatory", SPACE_NODE_NAMES, SPACE_NODE_ICONS);
       return;
     }
@@ -56,7 +50,7 @@ public class SpaceNodeIconsPlugin extends UpgradeProductPlugin {
 
     LOG.info("Start:: Upgrade of space node icons");
     Set<Map.Entry<String, String>> spaceNodesEntrySet = spaceNodes.entrySet();
-    migratedSpaceNodeIcons = upgradeSpaceNodeIcons(spaceNodesEntrySet);
+    int migratedSpaceNodeIcons = upgradeSpaceNodeIcons(spaceNodesEntrySet);
     LOG.info("End:: Upgrade of '{}' space node icons. It tooks {} ms",
              migratedSpaceNodeIcons,
              (System.currentTimeMillis() - startupTime));
