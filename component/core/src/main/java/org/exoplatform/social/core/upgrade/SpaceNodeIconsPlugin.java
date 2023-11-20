@@ -1,0 +1,84 @@
+package org.exoplatform.social.core.upgrade;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
+public class SpaceNodeIconsPlugin extends UpgradeProductPlugin {
+
+  private static final Log           LOG              = ExoLogger.getExoLogger(SpaceNodeIconsPlugin.class);
+
+  private static final String        SPACE_NODE_NAMES = "space.node.names";
+
+  private static final String        SPACE_NODE_ICONS = "space.node.icons";
+
+  private final EntityManagerService entityManagerService;
+
+  private final Map<String, String>  spaceNodes       = new HashMap<>();
+
+  public SpaceNodeIconsPlugin(EntityManagerService entityManagerService, InitParams initParams) {
+    super(initParams);
+    this.entityManagerService = entityManagerService;
+    if (initParams.containsKey(SPACE_NODE_NAMES) && initParams.containsKey(SPACE_NODE_ICONS)) {
+      String[] spaceNodeNames = initParams.getValueParam(SPACE_NODE_NAMES).getValue().split(";");
+      String[] spaceNodeIcons = initParams.getValueParam(SPACE_NODE_ICONS).getValue().split(";");
+      for (int i = 0; i < spaceNodeNames.length; i++) {
+        this.spaceNodes.put(spaceNodeNames[i], spaceNodeIcons[i]);
+      }
+    }
+  }
+
+  @Override
+  public void processUpgrade(String oldVersion, String newVersion) {
+    if (spaceNodes.isEmpty()) {
+      LOG.error("Couldn't process upgrade, the parameters '{}' and '{}' are mandatory", SPACE_NODE_NAMES, SPACE_NODE_ICONS);
+      return;
+    }
+    long startupTime = System.currentTimeMillis();
+
+    LOG.info("Start:: Upgrade of space node icons");
+    Set<Map.Entry<String, String>> spaceNodesEntrySet = spaceNodes.entrySet();
+    int migratedSpaceNodeIcons = upgradeSpaceNodeIcons(spaceNodesEntrySet);
+    LOG.info("End:: Upgrade of '{}' space node icons. It tooks {} ms",
+             migratedSpaceNodeIcons,
+             (System.currentTimeMillis() - startupTime));
+  }
+
+  @ExoTransactional
+  public int upgradeSpaceNodeIcons(Set<Map.Entry<String, String>> spaceNodesEntrySet) {
+    EntityManager entityManager = entityManagerService.getEntityManager();
+    StringBuilder sqlString = new StringBuilder("UPDATE PORTAL_NAVIGATION_NODES n\n");
+    sqlString.append("SET n.ICON =\n");
+    sqlString.append("  CASE\n");
+    sqlString.append("    WHEN (SELECT pn.NAME FROM (SELECT * FROM PORTAL_NAVIGATION_NODES) pn WHERE pn.NODE_ID = n.PARENT_ID) = 'default' THEN TRIM('fas fa-stream')\n");
+
+    for (Map.Entry<String, String> spaceNodesEntry : spaceNodesEntrySet) {
+      List<String> spaceNodesNames = Stream.of(spaceNodesEntry.getKey().split(","))
+                                           .map(spaceNodeName -> "'" + spaceNodeName + "'")
+                                           .toList();
+      sqlString.append("    WHEN n.NAME in (")
+               .append(String.join(",", spaceNodesNames))
+               .append(") THEN TRIM('")
+               .append(spaceNodesEntry.getValue())
+               .append("')\n");
+    }
+    sqlString.append("  END\n");
+    sqlString.append("WHERE n.ICON IS NULL\n");
+    sqlString.append("AND EXISTS (SELECT * FROM PORTAL_PAGES p INNER JOIN PORTAL_SITES s ON s.ID = p.SITE_ID WHERE n.PAGE_ID = p.ID AND s.TYPE = 1 AND s.NAME LIKE '/spaces/%')");
+
+    Query query = entityManager.createNativeQuery(sqlString.toString());
+    return query.executeUpdate();
+  }
+}
