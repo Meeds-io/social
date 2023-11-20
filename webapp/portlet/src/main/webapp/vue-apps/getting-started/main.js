@@ -17,9 +17,8 @@ if (parentAppElement) {
       hideGettingStarted().then(() => parentElementToHide.classList.add('hidden'));
     });
   };
-} else {
-  const parentElementToHide = document.querySelector('#GettingStartedPortlet');
-  if (parentElementToHide) {
-    parentElementToHide.closest('.PORTLET-FRAGMENT').classList.add('hidden');
-  }
+}
+const parentElementToHide = document.querySelector('#GettingStartedPortlet');
+if (parentElementToHide && parentElementToHide.dataset.canClose === 'true') {
+  parentElementToHide.closest('.PORTLET-FRAGMENT').classList.add('hidden');
 }

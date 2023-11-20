@@ -25,7 +25,7 @@
     }
 %>
 <div class="VuetifyApp">
-  <div style="" id="GettingStartedPortlet">
+  <div style="" id="GettingStartedPortlet" data-can-close="<%=canClose%>">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light" id="app">
       <div class="v-application--wrap">
