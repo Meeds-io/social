@@ -72,7 +72,8 @@
             min-width="270"
             width="270"
             max-width="30%"
-            flat>
+            flat
+            class="card-border-radius">
             <user-notification-types
               ref="notificationTypes"
               id="notificationTypes"
@@ -88,7 +89,7 @@
           </v-expand-x-transition>
           <v-card
             :max-height="expanded && '100%' || 'auto'"
-            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent overflow-hidden"
+            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent overflow-hidden card-border-radius"
             flat>
             <v-card
               :max-height="expanded && '100%' || 'auto'"
