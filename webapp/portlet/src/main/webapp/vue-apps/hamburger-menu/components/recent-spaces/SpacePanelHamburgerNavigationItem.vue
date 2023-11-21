@@ -50,19 +50,9 @@ export default {
       default: null
     },
   },
-  data() {
-    return {
-      dynamicSpaceNodeIconsEnabled: eXo.env.portal.dynamicSpaceNodeIcons,
-    };
-  },
   computed: {
     navigationIcon() {
-      if (this.dynamicSpaceNodeIconsEnabled) {
-        return this.navigation?.icon ? `${this.navigation.icon} icon-default-color icon-default-size` : 'fas fa-folder';
-      }
-      else {
-        return `${this.applicationIcon(this.navigation.icon)} icon-default-color icon-default-size`;
-      }
+      return this.navigation?.icon ? `${this.navigation.icon} icon-default-color icon-default-size` : 'fas fa-folder';
     },
     navigationLabel() {
       return this.navigation?.label;
@@ -85,29 +75,6 @@ export default {
       return this.spaceUnreadItems
         && (this.badgeApplicationName === 'activity' && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0)
       || 0;
-    },
-  },
-  methods: {
-    applicationIcon(iconClass) {
-      const navigationIcon = iconClass || '';
-      if (!navigationIcon?.length) {
-        return 'fas fa-sticky-note';
-      }
-      if (navigationIcon.includes('uiIconAppSpaceHomePage')) {
-        return 'fas fa-stream';
-      } else if (navigationIcon.includes('uiIconAppMembersPortlet')) {
-        return 'fas fa-users';
-      } else if (navigationIcon.includes('uiIconAppTasksManagement') || navigationIcon.includes('uiIconApptasks')) {
-        return 'fas fa-tasks';
-      } else if (navigationIcon.includes('uiIconAppNotes') || navigationIcon.includes('uiIconAppnotes') ) {
-        return 'fas fa-clipboard';
-      } else if (navigationIcon.includes('uiIconAppSpaceWallet')) {
-        return 'fas fa-wallet';
-      } else if (navigationIcon.includes('uiIconAppSpaceSettingPortlet')) {
-        return 'fas fa-cog';
-      } else {
-        return navigationIcon;
-      } 
     },
   },
 };
