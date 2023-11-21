@@ -99,8 +99,13 @@ public class SpaceAccessHandler extends WebRequestHandler {
         && requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
       Space space = spaceService.getSpaceByGroupId(requestSiteName);
       if (space != null && canAccessSpace(remoteId, space)) {
-        spaceService.updateSpaceAccessed(remoteId, space);
+        HttpSession session = controllerContext.getRequest().getSession();
+        String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
+        if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
+          spaceService.updateSpaceAccessed(remoteId, space);
+        }
         cleanupSession(controllerContext);
+        session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
       } else {
         processSpaceAccess(controllerContext, remoteId, space);
         return true;
