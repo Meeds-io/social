@@ -19,11 +19,6 @@
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/sites?siteType=PORTAL&excludedSiteName=global&lang=en&excludeEmptyNavigationSites=true&excludeGroupNodesWithoutPageChildNodes=true&temporalCheck=true&excludeSpaceSites=true&expandNavigations=true&visibility=displayed&visibility=temporal&filterByDisplayed=true&sortByDisplayOrder=true&displayed=true&filterByPermissions=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
   responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/group?visibility=displayed&visibility=temporal&expand=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread,muted>; rel=preload; as=fetch; crossorigin=use-credentials", false);
-
-  ExoFeatureService featureService = CommonsUtils.getService(ExoFeatureService.class);
-  Identity currentIdentity = ConversationState.getCurrent().getIdentity();
-  String currentUser = currentIdentity.getUserId();
-  boolean dynamicSpaceNodeIcons = featureService.isFeatureActiveForUser("dynamicSpaceNodeIcons", currentUser);
 %>
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
@@ -57,7 +52,6 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      eXo.env.portal.dynamicSpaceNodeIcons = <%=dynamicSpaceNodeIcons%>;
       require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
     </script>
   </div>
