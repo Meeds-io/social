@@ -9,16 +9,21 @@ export function hideGettingStarted() {
   });
 }
 
-const parentAppElement = document.querySelector('#GettingStartedPortlet .btClose');
+const parentAppElement = document.querySelector('#GettingStartedPortlet');
+const parentAppElementBtn = document.querySelector('#GettingStartedPortlet .btClose');
 if (parentAppElement) {
-  parentAppElement.onclick = () => {
-    hideGettingStarted().then(() => {
-      const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
-      hideGettingStarted().then(() => parentElementToHide.classList.add('hidden'));
-    });
-  };
+  if (parentAppElementBtn) {
+    parentAppElementBtn.onclick = () => {
+      hideGettingStarted().then(() => {
+        const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
+        hideGettingStarted().then(() => parentElementToHide.classList.add('hidden'));
+      });
+    };
+  }
+} else {
+  document.querySelector('#GettingStartedContainerChildren .PORTLET-FRAGMENT').classList.add('hidden');
 }
-const parentElementToHide = document.querySelector('#GettingStartedPortlet');
-if (parentElementToHide && parentElementToHide.dataset.canClose === 'true') {
-  parentElementToHide.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+
+if (parentAppElement && parentAppElement.dataset.canClose === 'true') {
+  parentAppElement.closest('.PORTLET-FRAGMENT').classList.add('hidden');
 }
