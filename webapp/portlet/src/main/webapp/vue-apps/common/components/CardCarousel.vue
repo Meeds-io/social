@@ -3,6 +3,7 @@
     <v-fab-transition>
       <v-btn
         v-show="displayLeftArrow"
+        :aria-label="$t('cardCarousel.leftArrowButtonTitle')"
         color="while"
         width="23px"
         height="23px"
@@ -29,6 +30,7 @@
     <v-fab-transition>
       <v-btn
         v-show="displayRightArrow"
+        :aria-label="$t('cardCarousel.rightArrowButtonTitle')"
         color="while"
         width="23px"
         height="23px"
