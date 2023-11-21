@@ -33,6 +33,7 @@ import SpacePanelHamburgerNavigation from './components/recent-spaces/SpacePanel
 import SpacePanelHamburgerNavigationItem from './components/recent-spaces/SpacePanelHamburgerNavigationItem.vue';
 import SpacesHamburgerNavigation from './components/recent-spaces/SpacesHamburgerNavigation.vue';
 import SpacesNavigationContent from './components/recent-spaces/SpacesNavigationContent.vue';
+import SpacesNavigationEmpty from './components/recent-spaces/SpacesNavigationEmpty.vue';
 import SiteHamburgerNavigation from './components/site/SiteHamburgerNavigation.vue';
 import UserHamburgerNavigation from './components/user/UserHamburgerNavigation.vue';
 import SitesHamburger from './components/site/SitesHamburger.vue';
@@ -59,6 +60,7 @@ const components = {
   'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation,
   'space-panel-hamburger-navigation-item': SpacePanelHamburgerNavigationItem,
   'spaces-navigation-content': SpacesNavigationContent,
+  'spaces-navigation-empty': SpacesNavigationEmpty,
   'site-hamburger-navigation': SiteHamburgerNavigation,
   'user-hamburger-navigation': UserHamburgerNavigation,
   'sites-hamburger': SitesHamburger,
