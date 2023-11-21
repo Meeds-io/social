@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-main class="white px-4 py-4">
+    <v-main class="white px-2 py-2">
       <div v-if="breadcrumbToDisplay.length" class="d-flex">
         <div
           v-for="(breadcrumb, index) in breadcrumbToDisplay"
@@ -66,16 +66,26 @@ export default {
   }),
   computed: {
     breadcrumbToDisplay() {
-      if (!this.userNodeBreadcrumbItemList || this.userNodeBreadcrumbItemList.length <= 4) {
+      if (!this.userNodeBreadcrumbItemList || (!this.isMobile && this.userNodeBreadcrumbItemList.length <= 4) || (this.isMobile && this.userNodeBreadcrumbItemList.length === 1)) {
         return this.userNodeBreadcrumbItemList || [];
-      } else {
-        const length = this.userNodeBreadcrumbItemList.length;
-        const userNodeBreadcrumbItemListToDisplay = [this.userNodeBreadcrumbItemList[0], ... this.userNodeBreadcrumbItemList.slice(length - 3, length)];
+      }
+      const length = this.userNodeBreadcrumbItemList.length;
+      let userNodeBreadcrumbItemListToDisplay = [];
+      if (!this.isMobile) {
+        userNodeBreadcrumbItemListToDisplay  = [this.userNodeBreadcrumbItemList[0], ... this.userNodeBreadcrumbItemList.slice(length - 3, length)];
         userNodeBreadcrumbItemListToDisplay[1] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[1], {
           label: this.ellipsis,
         });
-        return userNodeBreadcrumbItemListToDisplay;
+      } else {
+        userNodeBreadcrumbItemListToDisplay = [this.userNodeBreadcrumbItemList[0], this.userNodeBreadcrumbItemList[length - 1]];
+        userNodeBreadcrumbItemListToDisplay[0] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[0], {
+          label: this.ellipsis,
+        });
       }
+      return userNodeBreadcrumbItemListToDisplay;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.width < 980;
     },
   },
   created() {
