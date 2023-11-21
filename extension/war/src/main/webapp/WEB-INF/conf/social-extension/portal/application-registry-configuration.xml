@@ -119,7 +119,7 @@
           <description>description</description>
           <object type="org.exoplatform.application.registry.ApplicationCategory">
             <field name="name">
-              <string>content</string>
+              <string>Content</string>
             </field>
             <field name="displayName">
               <string>Content</string>
