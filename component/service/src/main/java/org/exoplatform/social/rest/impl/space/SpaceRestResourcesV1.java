@@ -141,6 +141,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
+  private static final CacheControl CACHE_REVALIDATE_CONTROL    = new CacheControl();
+
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
 
   // 7 days
@@ -176,6 +178,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     this.securitySettingService = securitySettingService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
+    CACHE_REVALIDATE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
+    CACHE_REVALIDATE_CONTROL.setMustRevalidate(true);
   }
 
   /**
@@ -270,40 +274,56 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       return Response.status(400).entity("Unrecognized space filter type").build();
     }
 
-    List<DataEntity> spaceInfos = new ArrayList<>();
+    List<Space> spaces;
     if (limit > 0) {
-      for (Space space : listAccess.load(offset, limit)) {
+      spaces = Arrays.asList(listAccess.load(offset, limit));
+    } else {
+      spaces = Collections.emptyList();
+    }
+    String eTagValue = String.valueOf(Objects.hash(spaces.stream()
+                                                         .map(Space::getCacheTime)
+                                                         .reduce(Long::sum)
+                                                         .orElse(0l),
+                                                   Objects.hash(spaces.stream()
+                                                                      .map(Space::getId)
+                                                                      .map(Long::parseLong)
+                                                                      .toArray()),
+                                                   spaceFilter,
+                                                   filterType,
+                                                   offset,
+                                                   limit,
+                                                   returnSize,
+                                                   expand,
+                                                   authenticatedUser));
+    EntityTag eTag = new EntityTag(eTagValue);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      List<DataEntity> spaceInfos = new ArrayList<>();
+      for (Space space : spaces) {
         SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
         spaceInfos.add(spaceInfo.getDataEntity()); 
       }
-    }
 
-    CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
-    if (returnSize) {
-      collectionSpace.setSize(listAccess.getSize());
-    }
-
-    if (StringUtils.isNotBlank(expand) && Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
-      SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
-      Map<Long, Long> unreadItemsPerSpace = spaceWebNotificationService.countUnreadItemsBySpace(authenticatedUser);
-      if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
-        collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
-                                                             .stream()
-                                                             .collect(Collectors.toMap(e -> e.getKey().toString(),
-                                                                                       e -> e.getValue())));
+      CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
+      if (returnSize) {
+        collectionSpace.setSize(listAccess.getSize());
       }
-    }
 
-    String eTagValue = String.valueOf(Objects.hash(collectionSpace.hashCode(), authenticatedUser, expand));
-    EntityTag eTag = new EntityTag(eTagValue);
+      if (StringUtils.isNotBlank(expand) && Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
+        SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
+        Map<Long, Long> unreadItemsPerSpace = spaceWebNotificationService.countUnreadItemsBySpace(authenticatedUser);
+        if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
+          collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
+                                                               .stream()
+                                                               .collect(Collectors.toMap(e -> e.getKey().toString(),
+                                                                                         e -> e.getValue())));
+        }
+      }
 
-    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
-    if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       builder.tag(eTag);
-      Date date = new Date(System.currentTimeMillis());
-      builder.lastModified(date);
-      builder.expires(date);
+      builder.lastModified(new Date());
+      builder.cacheControl(CACHE_REVALIDATE_CONTROL);
     }
 
     return builder.build();
