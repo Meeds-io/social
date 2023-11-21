@@ -294,11 +294,11 @@ public class SpaceListAccess implements ListAccess<Space> {
           Space storedSpace = spaceStorage.getSpaceById(space.getId());
           storedSpace.setPendingUsers(space.getPendingUsers());
           return storedSpace;
-        }).collect(Collectors.toList());
+        }).toList();
       }
       break;
     }
-    return listSpaces.toArray(new Space[listSpaces.size()]);
+    return listSpaces == null ? new Space[0] : listSpaces.toArray(new Space[listSpaces.size()]);
   }
   
   /**
