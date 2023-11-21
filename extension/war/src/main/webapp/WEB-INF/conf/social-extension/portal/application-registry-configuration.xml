@@ -165,6 +165,35 @@
                     </field>
                   </object>
                 </value>
+                <value>
+                  <object type="org.exoplatform.application.registry.Application">
+                    <field name="applicationName">
+                      <string>Links</string>
+                    </field>
+                    <field name="categoryName">
+                      <string>content</string>
+                    </field>
+                    <field name="displayName">
+                      <string>Links</string>
+                    </field>
+                    <field name="description">
+                      <string>Links Portlet</string>
+                    </field>
+                    <field name="type">
+                      <string>portlet</string>
+                    </field>
+                    <field name="contentId">
+                      <string>social-portlet/Links</string>
+                    </field>
+                    <field name="accessPermissions">
+                      <collection type="java.util.ArrayList" item-type="java.lang.String">
+                        <value>
+                          <string>Everyone</string>
+                        </value>
+                      </collection>
+                    </field>
+                  </object>
+                </value>
               </collection>
             </field>
           </object>
@@ -280,6 +309,151 @@
                     </field>
                     <field name="contentId">
                       <string>social-portlet/WhoIsOnLinePortlet</string>
+                    </field>
+                    <field name="accessPermissions">
+                      <collection type="java.util.ArrayList" item-type="java.lang.String">
+                        <value>
+                          <string>*:/platform/users</string>
+                        </value>
+                      </collection>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.application.registry.Application">
+                    <field name="applicationName">
+                      <string>PeopleOverview</string>
+                    </field>
+                    <field name="categoryName">
+                      <string>tools</string>
+                    </field>
+                    <field name="displayName">
+                      <string>People Overview</string>
+                    </field>
+                    <field name="description">
+                      <string>People Overview Portlet</string>
+                    </field>
+                    <field name="type">
+                      <string>portlet</string>
+                    </field>
+                    <field name="contentId">
+                      <string>social-portlet/PeopleOverview</string>
+                    </field>
+                    <field name="accessPermissions">
+                      <collection type="java.util.ArrayList" item-type="java.lang.String">
+                        <value>
+                          <string>*:/platform/users</string>
+                        </value>
+                      </collection>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.application.registry.Application">
+                    <field name="applicationName">
+                      <string>SpaceActivityStreamPortlet</string>
+                    </field>
+                    <field name="categoryName">
+                      <string>tools</string>
+                    </field>
+                    <field name="displayName">
+                      <string>Space Activity Stream</string>
+                    </field>
+                    <field name="description">
+                      <string>Space Activity Stream Portlet</string>
+                    </field>
+                    <field name="type">
+                      <string>portlet</string>
+                    </field>
+                    <field name="contentId">
+                      <string>social-portlet/SpaceActivityStreamPortlet</string>
+                    </field>
+                    <field name="accessPermissions">
+                      <collection type="java.util.ArrayList" item-type="java.lang.String">
+                        <value>
+                          <string>*:/platform/users</string>
+                        </value>
+                      </collection>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.application.registry.Application">
+                    <field name="applicationName">
+                      <string>SpacesOverview</string>
+                    </field>
+                    <field name="categoryName">
+                      <string>tools</string>
+                    </field>
+                    <field name="displayName">
+                      <string>Spaces Overview</string>
+                    </field>
+                    <field name="description">
+                      <string>Spaces Overview Portlet</string>
+                    </field>
+                    <field name="type">
+                      <string>portlet</string>
+                    </field>
+                    <field name="contentId">
+                      <string>social-portlet/SpacesOverview</string>
+                    </field>
+                    <field name="accessPermissions">
+                      <collection type="java.util.ArrayList" item-type="java.lang.String">
+                        <value>
+                          <string>*:/platform/users</string>
+                        </value>
+                      </collection>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.application.registry.Application">
+                    <field name="applicationName">
+                      <string>SuggestionsPeopleAndSpace</string>
+                    </field>
+                    <field name="categoryName">
+                      <string>tools</string>
+                    </field>
+                    <field name="displayName">
+                      <string>Suggestions Peoples And Spaces</string>
+                    </field>
+                    <field name="description">
+                      <string>Suggestions Peoples And Spaces Portlet</string>
+                    </field>
+                    <field name="type">
+                      <string>portlet</string>
+                    </field>
+                    <field name="contentId">
+                      <string>social-portlet/SuggestionsPeopleAndSpace</string>
+                    </field>
+                    <field name="accessPermissions">
+                      <collection type="java.util.ArrayList" item-type="java.lang.String">
+                        <value>
+                          <string>*:/platform/users</string>
+                        </value>
+                      </collection>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.application.registry.Application">
+                    <field name="applicationName">
+                      <string>SpaceInfos</string>
+                    </field>
+                    <field name="categoryName">
+                      <string>tools</string>
+                    </field>
+                    <field name="displayName">
+                      <string>Space Infos</string>
+                    </field>
+                    <field name="description">
+                      <string>Space Infos Portlet</string>
+                    </field>
+                    <field name="type">
+                      <string>portlet</string>
+                    </field>
+                    <field name="contentId">
+                      <string>social-portlet/SpaceInfos</string>
                     </field>
                     <field name="accessPermissions">
                       <collection type="java.util.ArrayList" item-type="java.lang.String">
