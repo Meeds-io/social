@@ -8,21 +8,26 @@
     <template v-if="!accepted" #actions>
       <v-btn
         :loading="accepting"
-        class="btn success me-2"
+        class="ignore-vuetify-classes me-2"
+        color="success"
+        elevation="0"
         small
-        dark
+        outlined
         @click.stop.prevent="acceptToConnect">
-        <v-icon size="14" class="me-2">fa-check</v-icon>
-        {{ $t('Notification.label.Accept') }}
+        <v-icon size="14" class="me-2 pt-2px">fa-check</v-icon>
+        <span class="text-none">{{ $t('Notification.label.Accept') }}</span>
       </v-btn>
       <v-btn
         :loading="refusing"
-        class="btn error"
+        class="ignore-vuetify-classes"
+        color="error"
+        elevation="0"
         small
+        outlined
         dark
         @click.stop.prevent="refuseToConnect">
-        <v-icon size="14" class="me-2">fa-times</v-icon>
-        {{ $t('Notification.label.Refuse') }}
+        <v-icon size="14" class="me-2 pt-2px">fa-times</v-icon>
+        <span class="text-none">{{ $t('Notification.label.Refuse') }}</span>
       </v-btn>
     </template>
   </user-notification-template>
