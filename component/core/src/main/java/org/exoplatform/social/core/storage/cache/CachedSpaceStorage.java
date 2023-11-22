@@ -943,15 +943,14 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     // we remove all cache entries for the given userId and for space type LATEST_ACCESSED
     LastAccessedSpacesCacheSelector selector = new LastAccessedSpacesCacheSelector(remoteId, space, cacheService);
     try {
+      // Update the storage only if the user has accessed a different space
+      if (selector.isUpdateStore()) {
+        super.updateSpaceAccessed(remoteId, space);
+      }
       exoSpacesCache.select(selector);
     } catch (Exception e) {
       LOG.error("Error while removing cache entries for remoteId=" + remoteId + ", space=" + space.getDisplayName() +
               " and type=" + SpaceType.LATEST_ACCESSED.name() + " or type=" + SpaceType.VISITED, e);
-    }
-
-    // Update the storage only if the user has accessed a different space
-    if (selector.isUpdateStore()) {
-      super.updateSpaceAccessed(remoteId, space);
     }
   }
 

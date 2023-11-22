@@ -28,7 +28,11 @@
       size="28"
       class="me-3 ms-3 tile my-0 spaceAvatar"
       tile>
-      <v-img :src="spaceAvatar" />
+      <img
+        :src="spaceAvatar"
+        :alt="spaceDisplayName"
+        width="28"
+        height="28">
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title class="body-2" v-text="spaceDisplayName" />
@@ -58,7 +62,12 @@
       size="28"
       class="me-3 ms-2 tile my-0 spaceAvatar"
       tile>
-      <v-img :src="spaceAvatar" />
+      <img
+        :src="spaceAvatar"
+        :alt="spaceDisplayName"
+        class="rounded"
+        width="28"
+        height="28">
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title class="body-2" v-text="spaceDisplayName" />

@@ -38,8 +38,8 @@
     </v-list>
     <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
       <v-btn
+        class="btn"
         small
-        depressed
         @click="loadNextPage()">
         {{ $t('menu.spaces.showMore') }}
       </v-btn>
@@ -136,8 +136,14 @@ export default {
     limitToFetch() {
       this.searchSpaces();
     },
+    filteredSpaces() {
+      this.$emit('spaces-count', this.filteredSpaces?.length);
+    },
     spaces() {
       this.refreshSelectedSpace();
+    },
+    loadingSpaces() {
+      this.$emit('loading', this.loadingSpaces);
     },
   }, 
   created() {
@@ -165,6 +171,7 @@ export default {
       }
     },
     searchSpaces() {
+      this.loadingSpaces = true;
       return this.$spaceService.getSpaces('', this.offset, this.limitToFetch, 'lastVisited', 'member,managers,favorite,unread,muted')
         .then(data => {
           this.spaces = data && data.spaces || [];
@@ -205,4 +212,3 @@ export default {
   }
 };
 </script>
-

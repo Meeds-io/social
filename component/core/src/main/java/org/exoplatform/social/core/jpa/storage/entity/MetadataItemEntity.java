@@ -175,8 +175,8 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
         + " INNER JOIN SOC_METADATAS sm"
         + " ON item.metadata_id = sm.metadata_id "
         + " AND sm.type = :metadataType "
-        + " AND sm.audience_id = :creatorId "
-        + " WHERE item.space_id = :spaceId "
+        + " WHERE item.creator_id = :creatorId"
+        + " AND item.space_id = :spaceId"
         + " GROUP BY item.object_type"
 )
 @NamedNativeQuery(
