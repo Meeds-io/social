@@ -23,9 +23,10 @@
       <div v-if="reply" class="mt-1">
         <v-btn
           :href="replyUrl"
-          class="btn primary px-2"
-          outlined
-          small>
+          color="primary"
+          elevation="0"
+          small
+          outlined>
           <v-icon size="14" class="me-1">{{ replyIcon }}</v-icon>
           <span class="text-none">
             {{ $t(replyKey) }}
