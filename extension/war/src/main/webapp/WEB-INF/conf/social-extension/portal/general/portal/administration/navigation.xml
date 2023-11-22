@@ -32,7 +32,7 @@
       <node>
         <name>general</name>
         <label>#{portal.administration.general}</label>
-        <icon>fas fa-folder</icon>
+        <icon>fas fa-cog</icon>
         <node>
           <name>mainsettings</name>
           <label>#{portal.administration.mainsettings}</label>
