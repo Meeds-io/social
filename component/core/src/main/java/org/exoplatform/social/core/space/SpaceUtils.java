@@ -52,7 +52,6 @@ import com.ibm.icu.text.Transliterator;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
-import org.exoplatform.commons.api.settings.ExoFeatureService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ExpressionUtil;
 import org.exoplatform.commons.utils.ListAccess;
@@ -1997,11 +1996,6 @@ public class SpaceUtils {
       navigations.add(parentNavigation);
       navigations.addAll(parentNavigation.getChildren());
       filterUnreachablePages(navigations);
-      ExoFeatureService featureService = CommonsUtils.getService(ExoFeatureService.class);
-      String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
-      if (!featureService.isFeatureActiveForUser("dynamicSpaceNodeIcons", currentUser)) {
-        computeNavigationIcons(navigations);
-      }
       computeNavigationLabels(navigations, locale);
     } catch (Exception e) {
       LOG.error("Get UserNode of Space failed.",e);
@@ -2027,27 +2021,6 @@ public class SpaceUtils {
       node.setLabel(null);
       node.setResolvedLabel(nodeTitle);
     }
-  }
-  
-  public static void computeNavigationIcons(List<UserNode> navigations) {
-    for (UserNode node : navigations) {
-      if (node == null) {
-        continue;
-      }
-      String nodeIcon = getIconClass(node);
-      node.setIcon(nodeIcon);
-    }
-  }
-  
-  public static String getIconClass(UserNode node) {
-    if (node == null) {
-      return null;
-    }
-    if (isHomeNavigation(node)) {
-      return "uiIconAppSpaceHomePage uiIconDefaultApp";
-    }
-    String appName = node.getPageRef().getName();
-    return "uiIconApp" + node.getName() + " uiIconApp" + appName + " uiIconDefaultApp";
   }
 
   public static boolean hasSettingPermission(Space space, String username) {

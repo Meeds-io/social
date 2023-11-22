@@ -1,6 +1,6 @@
 <template>
   <v-app v-if="displayed">
-    <v-card class="mb-3 card-border-radius overflow-hidden" flat>
+    <div class="card-border-radius overflow-hidden">
       <v-list two-line>
         <v-list-item>
           <v-list-item-content>
@@ -25,7 +25,7 @@
         ref="languagesDrawer"
         v-model="language"
         :languages="languages" />
-    </v-card>
+    </div>
   </v-app>
 </template>
 

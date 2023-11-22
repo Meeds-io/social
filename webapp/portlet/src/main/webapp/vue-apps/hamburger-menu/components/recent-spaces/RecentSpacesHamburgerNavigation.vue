@@ -20,7 +20,7 @@
 -->
 <template>
   <v-container class="recentDrawer" flat>
-    <v-flex class="filterSpaces d-flex align-center">
+    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center">
       <v-list-item-icon
         v-if="!displaySequentially"
         class="backToMenu my-5 mx-2 icon-default-color justify-center"
@@ -44,6 +44,7 @@
           <v-text-field
             v-model="keyword"
             :placeholder="$t('menu.spaces.recentSpaces')"
+            :loading="loading"
             class="recentSpacesFilter border-bottom-color pt-0 mt-0"
             single-line
             hide-details
@@ -68,6 +69,16 @@
         </v-list-item-action>
       </v-list-item>
     </v-flex>
+    <div class="position-relative">
+      <v-progress-linear
+        v-if="(!initialized && !hasSpaces) && loading"
+        class="position-absolute ful-width"
+        indeterminate />
+      <spaces-navigation-empty
+        v-if="!hasSpaces && !loading"
+        :keyword="keyword"
+        class="py-5" />
+    </div>
     <spaces-navigation-content
       :limit="itemsToShow"
       :page-size="itemsToShow"
@@ -76,7 +87,9 @@
       show-more-button
       third-level
       class="recentSpacesWrapper mt-4"
-      @open-space-panel="$emit('open-space-panel',$event)" />
+      @open-space-panel="$emit('open-space-panel',$event)"
+      @loading="loading = $event"
+      @spaces-count="hasSpaces = $event" />
   </v-container>
 </template>
 <script>
@@ -91,12 +104,20 @@ export default {
       default: false,
     },
   },
-  data () {
-    return {
-      itemsToShow: 15,
-      showFilter: false,
-      keyword: '',
-    };
+  data: () => ({
+    itemsToShow: 15,
+    showFilter: false,
+    loading: false,
+    initialized: false,
+    hasSpaces: false,
+    keyword: '',
+  }),
+  watch: {
+    loading() {
+      if (!this.loading) {
+        this.initialized = true;
+      }
+    },
   },
   methods: {
     closeMenu() {
