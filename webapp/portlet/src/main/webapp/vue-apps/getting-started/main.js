@@ -12,6 +12,13 @@ export function hideGettingStarted() {
 const parentAppElement = document.querySelector('#GettingStartedPortlet .btClose');
 if (parentAppElement) {
   parentAppElement.onclick = () => {
-    hideGettingStarted().then(() => document.querySelector('#GettingStartedPortlet').parentElement.remove());
+    hideGettingStarted().then(() => {
+      const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
+      hideGettingStarted().then(() => parentElementToHide.classList.add('hidden'));
+    });
   };
+}
+const parentElementToHide = document.querySelector('#GettingStartedPortlet');
+if (parentElementToHide && parentElementToHide.dataset.canClose === 'true') {
+  parentElementToHide.closest('.PORTLET-FRAGMENT').classList.add('hidden');
 }
