@@ -10,9 +10,11 @@
       <v-btn
         v-if="!watchCanceled"
         :loading="unwatching"
-        class="btn primary px-2 position-relative z-index-one"
-        outlined
+        class="primary-border-color px-2 position-relative z-index-one"
+        color="primary"
+        elevation="0"
         small
+        outlined
         @click.stop.prevent="unwatch">
         <v-hover v-slot="{hover}">
           <div>
