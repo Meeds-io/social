@@ -77,6 +77,15 @@ export default {
       return this.owner || !this.initialized || this.aboutMe?.trim().length;
     },
   },
+  watch: {
+    displayApp() {
+      if (this.displayApp) {
+        this.$el.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
+      } else {
+        this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+      }
+    }
+  },
   created() {
     this.$userService.getUser(eXo.env.portal.profileOwner)
       .then(user => this.refresh(user && user.aboutMe || ''))
