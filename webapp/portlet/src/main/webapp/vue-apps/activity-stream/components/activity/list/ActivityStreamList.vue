@@ -21,12 +21,12 @@
         :comment-actions="commentActions"
         :is-activity-detail="activityId"
         :pin-activity-enabled="pinActivityEnabled"
-        class="mb-6 contentBox"
+        class="mb-5 contentBox"
         @loaded="activityLoaded(activity.id)" />
     </template>
     <div
       v-else-if="loading"
-      class="white border-radius activity-detail flex d-flex flex-column mb-6 contentBox">
+      class="white border-radius activity-detail flex d-flex flex-column mb-5 contentBox">
       <v-progress-circular
         color="primary"
         size="32"

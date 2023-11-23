@@ -2,7 +2,7 @@
   <div
     v-if="activityLoading"
     :key="activity.id"
-    class="white border-radius activity-detail flex d-flex flex-column mb-6 contentBox">
+    class="white border-radius activity-detail flex d-flex flex-column mb-5 contentBox">
     <v-progress-circular
       color="primary"
       size="32"
@@ -29,7 +29,7 @@
       :comment-types="commentTypes"
       :comment-actions="commentActions"
       :is-activity-detail="isActivityDetail"
-      class="mb-6 contentBox"
+      class="mb-5 contentBox"
       @loaded="$emit('loaded')" />
   </transition>
 </template>
