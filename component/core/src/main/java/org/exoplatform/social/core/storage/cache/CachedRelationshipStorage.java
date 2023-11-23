@@ -104,8 +104,8 @@ public class CachedRelationshipStorage implements RelationshipStorage {
       exoRelationshipsCache.select(new RelationshipCacheSelector(identities.toArray(new String[] {})));
       exoRelationshipCountCache.select(new RelationshipCacheSelector(identities.toArray(new String[] {})));
       exoSuggestionCache.select(new SuggestionCacheSelector(identities.toArray(new String[] {})));
-      exoActivitiesCache.select(new CacheSelector<ListActivitiesKey, ListActivitiesData>());
-      exoActivitiesCountCache.select(new CacheSelector<ActivityCountKey, IntegerData>());
+      exoActivitiesCache.clearCache();
+      exoActivitiesCountCache.clearCache();
     } catch (Exception e) {
       LOG.error(e);
     }
