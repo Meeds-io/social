@@ -26,14 +26,14 @@ import org.exoplatform.social.core.storage.cache.model.key.CacheKey;
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
  * @version $Revision$
  */
-public class CacheSelector<T extends CacheKey, U> implements CachedObjectSelector<T, U> {
+public abstract class CacheSelector<T extends CacheKey, U> implements CachedObjectSelector<T, U> {
 
   private T key;
 
-  public CacheSelector() {
+  CacheSelector() {
   }
 
-  public CacheSelector(T key) {
+  CacheSelector(T key) {
     this.key = key;
   }
 
