@@ -67,8 +67,8 @@ public class CachedActivityStorage implements ActivityStorage {
   public void clearCache() {
 
     try {
-      exoActivitiesCache.select(new CacheSelector<ListActivitiesKey, ListActivitiesData>());
-      exoActivitiesCountCache.select(new CacheSelector<ActivityCountKey, IntegerData>());
+      exoActivitiesCache.clearCache();
+      exoActivitiesCountCache.clearCache();
     } catch (Exception e) {
       LOG.error(e);
     }

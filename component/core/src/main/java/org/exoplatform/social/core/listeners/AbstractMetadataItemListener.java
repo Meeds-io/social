@@ -90,10 +90,20 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
             // systematically Trigger clearing cache when it's about a space
             // metadata
             cachedActivityStorage.clearOwnerStreamCache(space.getPrettyName());
+            clearSpaceCache(space.getId());
           }
         }
       }
       handleMetadataModification(objectType, metadataItem.getObjectId());
+    }
+  }
+
+  protected void handleMetadataDeletion(MetadataItem metadataItem) {
+    String objectType = metadataItem.getObjectType();
+    String objectId = metadataItem.getObjectId();
+    handleMetadataModification(objectType, objectId);
+    if (metadataItem.getSpaceId() > 0) {
+      clearSpaceCache(String.valueOf(metadataItem.getSpaceId()));
     }
   }
 

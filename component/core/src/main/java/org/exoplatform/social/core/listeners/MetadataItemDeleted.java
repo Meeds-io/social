@@ -35,9 +35,7 @@ public class MetadataItemDeleted extends AbstractMetadataItemListener<Long, Meta
   public void onEvent(Event<Long, MetadataItem> event) throws Exception {
     // If the modified metadata concerns an 'activity'
     MetadataItem metadataItem = event.getData();
-    String objectType = event.getData().getObjectType();
-    String objectId = metadataItem.getObjectId();
-    handleMetadataModification(objectType, objectId);
+    handleMetadataDeletion(metadataItem);
   }
 
 }
