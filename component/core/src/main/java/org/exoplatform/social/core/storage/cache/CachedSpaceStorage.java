@@ -240,8 +240,8 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   void clearSpaceCache() {
 
     try {
-      exoSpacesCache.select(new CacheSelector<ListSpacesKey, ListSpacesData>());
-      exoSpacesCountCache.select(new CacheSelector<SpaceFilterKey, IntegerData>());
+      exoSpacesCache.clearCache();
+      exoSpacesCountCache.clearCache();
     }
     catch (Exception e) {
       LOG.error("Error deleting space caches", e);
