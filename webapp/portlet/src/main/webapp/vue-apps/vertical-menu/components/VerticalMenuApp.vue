@@ -16,9 +16,11 @@
 -->
 <template>
   <v-app>
-    <vertical-menu-content v-if="fullDisplayAllowed" :extra-class="'VerticalMenu'" />
-    <vertical-menu-button v-else />
-    <vertical-menu-drawer v-if="!fullDisplayAllowed" />
+    <vertical-menu-content v-if="fullDisplayAllowed" extra-class="VerticalMenu" />
+    <template v-else>
+      <vertical-menu-button />
+      <vertical-menu-drawer />
+    </template>
     <drawers-overlay />
   </v-app>
 </template>
