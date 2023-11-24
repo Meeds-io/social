@@ -6,7 +6,7 @@
           v-for="(breadcrumb, index) in breadcrumbToDisplay"
           :key="index"
           :class="breadcrumbToDisplay.length === 1 && 'single-path-element' || ''"
-          class="text-truncate">
+          class="text-truncate text-body-1">
           <v-tooltip
             v-if="breadcrumb.label != ellipsis"
             max-width="300"
@@ -14,7 +14,8 @@
             <template #activator="{ on, attrs }">
               <v-btn
                 min-width="45px"
-                class="pa-0 flex-shrink-1 text-truncate "
+                max-width="250px"
+                class="pa-0 text-truncate d-inline-block text-body-1"
                 :disabled="!breadcrumb.uri"
                 :class="breadcrumb.uri && 'clickable' || ' not-clickable '"
                 text
@@ -23,13 +24,13 @@
                 :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.uri || null"
                 :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'">
                 <a
-                  class="caption text-truncate text-h6 text-capitalize"
+                  class="text-truncate"
                   :class="index === breadcrumbToDisplay.length - 1 && ' dark-grey-color ' || (breadcrumb.uri && ' text-sub-title ' || ' text-light-color not-clickable ') ">
                   {{ breadcrumb.label }}
                 </a>
               </v-btn>
             </template>
-            <span class="caption breadcrumbName">
+            <span class="caption">
               {{ breadcrumb.label }}
             </span>
           </v-tooltip>
