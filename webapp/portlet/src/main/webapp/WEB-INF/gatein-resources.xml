@@ -310,6 +310,13 @@
     <css-path>/skin/css/portlet/VerticalMenu/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
+  
+  <portal-skin>
+    <skin-name>Enterprise</skin-name>
+    <skin-module>administrationSite</skin-module>
+    <css-path>/skin/css/common/AdministrationSite/Style.css</css-path>
+    <css-priority>11</css-priority>
+  </portal-skin>
 
   <!-- ATTENTION ! <End> DO NOT DELETE -->
 
