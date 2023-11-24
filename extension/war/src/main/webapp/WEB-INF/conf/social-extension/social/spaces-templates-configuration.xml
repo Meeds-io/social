@@ -72,6 +72,9 @@
                 <field name="appTitle">
                   <string>Home</string>
                 </field>
+                <field name="icon">
+                  <string>fas fa-stream</string>
+                </field>
               </object>
             </field>
             <field name="applications">
@@ -96,6 +99,9 @@
                     <field name="uri">
                       <string>settings</string>
                     </field>
+                    <field name="icon">
+                      <string>fas fa-cog</string>
+                    </field>
                   </object>
                 </value>
                 <value>
@@ -117,6 +123,9 @@
                     </field>
                     <field name="uri">
                       <string>members</string>
+                    </field>
+                    <field name="icon">
+                      <string>fas fa-users</string>
                     </field>
                   </object>
                 </value>
@@ -166,6 +175,9 @@
                 <field name="appTitle">
                   <string>Home</string>
                 </field>
+                <field name="icon">
+                  <string>fas fa-stream</string>
+                </field>
               </object>
             </field>
             <field name="applications">
@@ -190,6 +202,9 @@
                     <field name="uri">
                       <string>members</string>
                     </field>
+                    <field name="icon">
+                      <string>fas fa-users</string>
+                    </field>
                   </object>
                 </value>
                 <value>
@@ -211,6 +226,9 @@
                     </field>
                     <field name="uri">
                       <string>settings</string>
+                    </field>
+                    <field name="icon">
+                      <string>fas fa-cog</string>
                     </field>
                   </object>
                 </value>
@@ -261,6 +279,9 @@
                 <field name="appTitle">
                   <string>Home</string>
                 </field>
+                <field name="icon">
+                  <string>fas fa-stream</string>
+                </field>
               </object>
             </field>
             <field name="applications">
@@ -285,6 +306,9 @@
                     <field name="uri">
                       <string>members</string>
                     </field>
+                    <field name="icon">
+                      <string>fas fa-users</string>
+                    </field>
                   </object>
                 </value>
                 <value>
@@ -306,6 +330,9 @@
                     </field>
                     <field name="uri">
                       <string>settings</string>
+                    </field>
+                    <field name="icon">
+                      <string>fas fa-cog</string>
                     </field>
                   </object>
                 </value>
@@ -356,6 +383,9 @@
                 <field name="appTitle">
                   <string>Home</string>
                 </field>
+                <field name="icon">
+                  <string>fas fa-stream</string>
+                </field>
               </object>
             </field>
             <field name="applications">
@@ -380,6 +410,9 @@
                     <field name="uri">
                       <string>members</string>
                     </field>
+                    <field name="icon">
+                      <string>fas fa-users</string>
+                    </field>
                   </object>
                 </value>
                 <value>
@@ -401,6 +434,9 @@
                     </field>
                     <field name="uri">
                       <string>settings</string>
+                    </field>
+                    <field name="icon">
+                      <string>fas fa-cog</string>
                     </field>
                   </object>
                 </value>
