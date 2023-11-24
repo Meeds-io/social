@@ -52,7 +52,7 @@ export default {
   },
   computed: {
     navigationIcon() {
-      return this.navigation?.icon ? `${this.navigation.icon} icon-default-color icon-default-size` : 'fas fa-folder';
+      return `${this.navigation.icon || 'fas fa-folder'} icon-default-color icon-default-size`;
     },
     navigationLabel() {
       return this.navigation?.label;
