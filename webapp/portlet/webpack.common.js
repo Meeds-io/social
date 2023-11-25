@@ -83,6 +83,7 @@ let config = {
     image: './src/main/webapp/vue-apps/image/main.js',
     verticalMenu: './src/main/webapp/vue-apps/vertical-menu/main.js',
     siteDetails: './src/main/webapp/vue-apps/site-details/main.js',
+    breadcrumb: './src/main/webapp/vue-apps/breadcrumb/main.js',
   },
   module: {
     rules: [
