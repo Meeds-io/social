@@ -37,7 +37,7 @@ public class I18NActivityUtilsTest extends TestCase {
   }
   
   public void testGetParamValues() throws Exception {
-    String input = "v1#v2#v3";
+    String input = "v1&#v2#v2#v3";
     
     String[] got = I18NActivityUtils.getParamValues(input);
     
