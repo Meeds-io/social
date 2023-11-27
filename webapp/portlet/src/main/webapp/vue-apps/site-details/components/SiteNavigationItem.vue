@@ -6,11 +6,13 @@
     @mouseover="showAction = true"
     @mouseleave="showAction = false">
     <v-list-item class="d-flex px-0">
-      <v-icon
-        size="20"
-        class="icon-default-color mt-1 ma-2 me-3">
-        {{ icon }}
-      </v-icon>
+      <v-list-item-icon class="ps-2 pe-3 mx-0 mb-0 mt-2 py-2">
+        <v-icon
+          size="20"
+          class="icon-default-color">
+          {{ icon }}
+        </v-icon>
+      </v-list-item-icon>
       <v-list-item-title class="body-2 mt-1">
         {{ navigation.label }}
       </v-list-item-title>
