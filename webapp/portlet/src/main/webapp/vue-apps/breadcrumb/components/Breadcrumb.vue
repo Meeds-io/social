@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <div v-if="breadcrumbToDisplay.length" class="white px-2 py-2 card-border-radius d-flex">
+    <div v-if="breadcrumbToDisplay.length" class="white mx-5 px-2 py-2 card-border-radius d-flex">
       <div
         v-for="(breadcrumb, index) in breadcrumbToDisplay"
         :key="index"
