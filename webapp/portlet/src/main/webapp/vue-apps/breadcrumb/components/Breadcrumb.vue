@@ -12,21 +12,19 @@
           bottom>
           <template #activator="{ on, attrs }">
             <v-btn
-              min-width="45px"
-              max-width="250px"
-              class="pa-0 text-truncate d-inline-block text-body-1"
+              :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.uri || null"
+              :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'"
               :disabled="!breadcrumb.uri"
               :class="breadcrumb.uri && 'clickable' || ' not-clickable '"
+              min-width="45px"
+              max-width="250px"
+              class="pa-0 text-truncate d-inline-block text-body-1 text-color"
               text
               v-bind="attrs"
-              v-on="on"
-              :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.uri || null"
-              :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'">
-              <a
-                class="text-truncate"
-                :class="index === breadcrumbToDisplay.length - 1 && ' dark-grey-color ' || (breadcrumb.uri && ' text-sub-title ' || ' text-light-color not-clickable ') ">
+              v-on="on">
+              <span class="text-truncate text-color">
                 {{ breadcrumb.label }}
-              </a>
+              </span>
             </v-btn>
           </template>
           <span class="caption">
@@ -39,7 +37,7 @@
           min-width="45px"
           class="pa-0 flex-shrink-1 not-clickable"
           text>
-          <span class="text-light-color not-clickable">
+          <span class="text-color not-clickable">
             {{ breadcrumb.label }}
           </span>
         </v-btn>
