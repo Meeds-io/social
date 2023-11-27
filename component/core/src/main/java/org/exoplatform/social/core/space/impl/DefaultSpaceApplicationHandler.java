@@ -556,8 +556,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       
       SiteKey siteKey = navContext.getKey();
       PageKey pageKey = new PageKey(siteKey, page.getName());
-      PageState pageState = new PageState(
-                                          page.getTitle(), 
+      PageState pageState = new PageState(page.getTitle(), 
                                           page.getDescription(), 
                                           page.isShowMaxWindow(), 
                                           page.getFactoryId(), 
