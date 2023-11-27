@@ -17,7 +17,10 @@
 
 <template>
   <v-container class="siteDetails" :class="extraClass">
-    <v-card v-if="site" flat class="full-height">
+    <v-card
+      v-if="site"
+      flat
+      class="full-height">
       <row
         class="px-4"
         v-if="!displaySequentially"

@@ -17,15 +17,15 @@
 <template>
   <v-app id="verticalMenuSiteDetails">
     <v-card
-        :loading="loading"
-        :class="extraClass"
-        min-height="50"
-        flat>
+      :loading="loading"
+      :class="extraClass"
+      min-height="50"
+      flat>
       <site-details
         v-if="site"
         :site="site"
         extra-class=" px-0 py-0 "
-        display-sequentially/>
+        display-sequentially />
     </v-card>
   </v-app>
 </template>
