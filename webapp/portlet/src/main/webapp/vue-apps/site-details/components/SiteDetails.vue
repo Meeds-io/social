@@ -1,6 +1,23 @@
+<!--
+  This file is part of the Meeds project (https://meeds.io/).
+  Copyright (C) 2023 Meeds Association
+  contact@meeds.io
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
+
 <template>
-  <v-container>
-    <v-card elevation="0">
+  <v-container class="siteDetails" :class="extraClass">
+    <v-card v-if="site" flat class="full-height">
       <row
         class="px-4"
         v-if="!displaySequentially"
@@ -15,16 +32,17 @@
           small />
       </row>
       <v-img
-        :src="site.bannerUrl"
+        :src="site?.bannerUrl"
         class="mx-1 pt-1" />
       <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
       </v-card-title>
       <v-card-subtitle v-sanitized-html="site?.description" class="text-subtitle-2 py-2 text-color rich-editor-content" />
-      <site-hamburger-item-navigation-tree
+      <site-navigation-tree
         v-if="site?.siteNavigations?.length"
         :navigations="site.siteNavigations"
-        :site-name="site?.name" />
+        :site-name="site?.name"
+        :enable-change-home="enableChangeHome" />
     </v-card>
     <exo-confirm-dialog
       ref="confirmDialog"
@@ -48,6 +66,14 @@ export default {
     displaySequentially: {
       type: Boolean,
       default: false,
+    },
+    enableChangeHome: {
+      type: Boolean,
+      default: false,
+    },
+    extraClass: {
+      type: String,
+      default: '',
     },
   },
   data: () => ({

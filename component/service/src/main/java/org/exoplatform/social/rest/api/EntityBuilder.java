@@ -1829,6 +1829,7 @@ public class EntityBuilder {
     org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
     UserNode rootNode = null;
     String currentUser = userIdentity.getUserId();
+    UserPortal userPortal = null;
     try {
       HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
       UserPortalConfig userPortalConfig =
@@ -1838,7 +1839,7 @@ public class EntityBuilder {
                                                                                          userPortalContext);
 
       if (userPortalConfig != null) {
-        UserPortal userPortal = userPortalConfig.getUserPortal();
+        userPortal = userPortalConfig.getUserPortal();
         UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
         if (navigation != null) {
           UserNodeFilterConfig.Builder builder = UserNodeFilterConfig.builder();
@@ -1862,7 +1863,9 @@ public class EntityBuilder {
                                              true,
                                              getOrganizationService(),
                                              getLayoutService(),
-                                             getUserACL());
+                                             getUserACL(),
+                                             userPortal,
+                                             false);
       if (excludeGroupNodesWithoutPageChildNodes) {
         removeGroupNodesWithoutPageChildNodes(siteNavigations);
       }

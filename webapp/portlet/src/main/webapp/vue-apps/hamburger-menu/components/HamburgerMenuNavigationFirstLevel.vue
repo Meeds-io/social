@@ -59,7 +59,7 @@
           :opened-space="openedSpace"
           :third-level="thirdLevelDrawer" />
         <administration-hamburger-navigation
-          v-if="hasAdministrationNavigations"
+          v-if="hasAdministrationNavigations && oldAdministrationMenuEnabled"
           :opened-menu="secondLevel === 'administration'" />
         <user-hamburger-navigation />
       </v-card>
@@ -117,6 +117,11 @@ export default {
       type: Number,
       default: null,
     },
+  },
+  data(){
+    return {
+      oldAdministrationMenuEnabled: eXo.env.portal.oldAdministrationMenu,
+    };
   },
   computed: {
     levelsOpened() {

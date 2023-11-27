@@ -19,6 +19,7 @@ import * as brandingService from './js/brandingService.js';
 import * as navigationService from '../common/js/NavigationService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
 import * as profileLabelService from '../common/js/ProfileLabelService.js';
+import * as siteService from './js/SiteService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -34,6 +35,10 @@ Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
 Vue.prototype.vuetifyOptions = new Vuetify(eXo.env.portal.vuetifyPreset);
 
 Vue.use(Vuetify);
+
+window.Object.defineProperty(Vue.prototype, '$siteService', {
+  value: siteService,
+});
 
 window.Object.defineProperty(Vue.prototype, '$userService', {
   value: userService,
