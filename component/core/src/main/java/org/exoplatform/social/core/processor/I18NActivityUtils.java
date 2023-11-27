@@ -33,7 +33,9 @@ public class I18NActivityUtils {
   
   /** */
   private final static String RESOURCE_BUNDLE_VALUES_CHARACTER = "#";
-  
+
+  private final static String RESOURCE_BUNDLE_VALUES_REGEX = "(?<!&)#";
+
   /** */
   private final static String RESOURCE_BUNDLE_ESCAPE_CHARACTER = "${_}";
   
@@ -62,7 +64,7 @@ public class I18NActivityUtils {
     if (valueParam == null) {
       return null;
     }
-    String[] got = valueParam.split(RESOURCE_BUNDLE_VALUES_CHARACTER);
+    String[] got = valueParam.split(RESOURCE_BUNDLE_VALUES_REGEX);
     for(int i = 0; i<got.length; i++) {
       got[i] = postProcess(got[i].trim());
     }
