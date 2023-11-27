@@ -16,37 +16,37 @@
 -->
 
 <template>
-  <a
+  <v-list-item
     :href="uri"
     :target="target"
-    :class="isNodeGroup && ' ' || 'clickable'"
+    class="d-flex px-0"
+    dense
+    inactive
     @mouseover="showAction = true"
     @mouseleave="showAction = false">
-    <v-list-item class="d-flex px-0">
-      <v-icon
-        size="20"
-        class="icon-default-color mt-1 ma-2 me-3">
+    <v-list-item-icon size="20" class="d-flex align-center justify-center ms-0 me-3">
+      <v-icon size="20" class="icon-default-color">
         {{ icon }}
       </v-icon>
-      <v-list-item-title class="body-2 mt-1">
-        {{ navigation.label }}
-      </v-list-item-title>
-      <v-list-item-action v-if="enableChangeHome && !isNodeGroup && (isHomeLink || showAction)" class="my-auto">
-        <v-btn
-          v-bind="attrs"
-          v-on="on"
-          icon
-          @click="selectHome($event)">
-          <v-icon
-            class="me-0 pa-2"
-            :class="isHomeLink && 'primary--text' || 'icon-default-color'"
-            small>
-            fa-house-user
-          </v-icon>
-        </v-btn>
-      </v-list-item-action>
-    </v-list-item>
-  </a>
+    </v-list-item-icon>
+    <v-list-item-title class="font-weight-normal text-font-size text-color">
+      {{ navigation.label }}
+    </v-list-item-title>
+    <v-list-item-action v-if="enableChangeHome && !isNodeGroup && (isHomeLink || showAction)" class="my-auto">
+      <v-btn
+        v-bind="attrs"
+        v-on="on"
+        icon
+        @click="selectHome($event)">
+        <v-icon
+          class="me-0 pa-2"
+          :class="isHomeLink && 'primary--text' || 'icon-default-color'"
+          small>
+          fa-house-user
+        </v-icon>
+      </v-btn>
+    </v-list-item-action>
+  </v-list-item>
 </template>
 
 <script>
