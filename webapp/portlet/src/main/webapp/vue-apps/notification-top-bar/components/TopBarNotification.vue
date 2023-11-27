@@ -25,7 +25,7 @@
         <v-btn
           icon
           class="text-xs-center"
-          :title="notificationIconTooltip"
+          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
           @click="openDrawer">
           <v-badge
             :value="badge > 0"
