@@ -1,58 +1,56 @@
 <template>
   <v-app>
-    <v-main class="white px-2 py-2">
-      <div v-if="breadcrumbToDisplay.length" class="d-flex">
-        <div
-          v-for="(breadcrumb, index) in breadcrumbToDisplay"
-          :key="index"
-          :class="breadcrumbToDisplay.length === 1 && 'single-path-element' || ''"
-          class="text-truncate text-body-1">
-          <v-tooltip
-            v-if="breadcrumb.label != ellipsis"
-            max-width="300"
-            bottom>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                min-width="45px"
-                max-width="250px"
-                class="pa-0 text-truncate d-inline-block text-body-1"
-                :disabled="!breadcrumb.uri"
-                :class="breadcrumb.uri && 'clickable' || ' not-clickable '"
-                text
-                v-bind="attrs"
-                v-on="on"
-                :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.uri || null"
-                :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'">
-                <a
-                  class="text-truncate"
-                  :class="index === breadcrumbToDisplay.length - 1 && ' dark-grey-color ' || (breadcrumb.uri && ' text-sub-title ' || ' text-light-color not-clickable ') ">
-                  {{ breadcrumb.label }}
-                </a>
-              </v-btn>
-            </template>
-            <span class="caption">
-              {{ breadcrumb.label }}
-            </span>
-          </v-tooltip>
-          <v-btn
-            v-else
-            disabled
-            min-width="45px"
-            class="pa-0 flex-shrink-1 not-clickable"
-            text>
-            <span class="text-light-color not-clickable">
-              {{ breadcrumb.label }}
-            </span>
-          </v-btn>
-          <v-icon
-            v-if="index < breadcrumbToDisplay.length-1"
-            size="14"
-            class="px-2">
-            fa-chevron-right
-          </v-icon>
-        </div>
+    <div v-if="breadcrumbToDisplay.length" class="white px-2 py-2 card-border-radius d-flex">
+      <div
+        v-for="(breadcrumb, index) in breadcrumbToDisplay"
+        :key="index"
+        :class="breadcrumbToDisplay.length === 1 && 'single-path-element' || ''"
+        class="text-truncate text-body-1">
+        <v-tooltip
+          v-if="breadcrumb.label != ellipsis"
+          max-width="300"
+          bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              min-width="45px"
+              max-width="250px"
+              class="pa-0 text-truncate d-inline-block text-body-1"
+              :disabled="!breadcrumb.uri"
+              :class="breadcrumb.uri && 'clickable' || ' not-clickable '"
+              text
+              v-bind="attrs"
+              v-on="on"
+              :href="index < breadcrumbToDisplay.length - 1 && breadcrumb.uri || null"
+              :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'">
+              <a
+                class="text-truncate"
+                :class="index === breadcrumbToDisplay.length - 1 && ' dark-grey-color ' || (breadcrumb.uri && ' text-sub-title ' || ' text-light-color not-clickable ') ">
+                {{ breadcrumb.label }}
+              </a>
+            </v-btn>
+          </template>
+          <span class="caption">
+            {{ breadcrumb.label }}
+          </span>
+        </v-tooltip>
+        <v-btn
+          v-else
+          disabled
+          min-width="45px"
+          class="pa-0 flex-shrink-1 not-clickable"
+          text>
+          <span class="text-light-color not-clickable">
+            {{ breadcrumb.label }}
+          </span>
+        </v-btn>
+        <v-icon
+          v-if="index < breadcrumbToDisplay.length-1"
+          size="14"
+          class="px-2">
+          fa-chevron-right
+        </v-icon>
       </div>
-    </v-main>
+    </div>
   </v-app>
 </template>
 <script>
