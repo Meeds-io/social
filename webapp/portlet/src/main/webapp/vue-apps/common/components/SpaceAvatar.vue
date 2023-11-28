@@ -18,7 +18,7 @@
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
-          alt="">
+          :alt="$t('space.avatar.img.alt',{0:spacePrettyName})">
       </v-avatar>
       <div
         v-if="fullname || !isMobile"
@@ -36,6 +36,7 @@
       v-on="on"
       :id="id"
       :href="url"
+      :arial-label="$t('space.avatar.href.title',{0:prettyName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
@@ -48,7 +49,7 @@
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
-          alt="">
+          :alt="$t('space.avatar.img.alt',{0:prettyName})">
       </v-avatar>
     </a>
     <a
@@ -80,6 +81,7 @@
       v-on="on"
       :id="id"
       :href="url"
+      :aria-label="$t('space.avatar.href.title',{0:prettyName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
@@ -92,7 +94,7 @@
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
-          alt="">
+          :alt="$t('space.avatar.img.alt',{0:prettyName})">
       </v-avatar>
       <div
         v-if="displayName || $slots.subTitle"
@@ -171,6 +173,7 @@ export default {
       type: String,
       default: () => '',
     },
+      
   },
   data() {
     return {
