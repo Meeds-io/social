@@ -310,20 +310,14 @@
     <css-path>/skin/css/portlet/VerticalMenu/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
-
-  <portal-skin>
-    <skin-name>Enterprise</skin-name>
-    <skin-module>siteDetailsComponent</skin-module>
-    <css-path>/skin/css/common/siteDetails/Style.css</css-path>
-    <css-priority>11</css-priority>
-  </portal-skin>
-
+  
   <portal-skin>
     <skin-name>Enterprise</skin-name>
     <skin-module>administrationSite</skin-module>
     <css-path>/skin/css/common/AdministrationSite/Style.css</css-path>
     <css-priority>11</css-priority>
   </portal-skin>
+
   <!-- ATTENTION ! <End> DO NOT DELETE -->
 
   <!-- Bootstrap Javascripts -->
@@ -1805,13 +1799,13 @@
       </depends>
     </module>
   </portlet>
-
+  
   <portlet>
-    <name>PlatformSettings</name>
+    <name>Breadcrumb</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/platformSettings.bundle.js</path>
+        <path>/js/breadcrumb.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -1834,13 +1828,13 @@
       </depends>
     </module>
   </portlet>
-
+  
   <portlet>
-    <name>Breadcrumb</name>
+    <name>PlatformSettings</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/breadcrumb.bundle.js</path>
+        <path>/js/platformSettings.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -1877,7 +1871,7 @@
       <module>vuetify</module>
     </depends>
   </module>
-
+  
   <module>
     <name>commonVueComponents</name>
     <load-group>vueGRP</load-group>

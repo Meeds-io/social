@@ -1,8 +1,9 @@
-package org.exoplatform.social.core.upgrade;
+package io.meeds.social.core.upgrade;
 
 import java.util.HashSet;
 import java.util.List;
 
+import io.meeds.social.core.upgrade.SpaceNavigationIconUpgradePlugin;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration-local.xml"),
     @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "org/exoplatform/portal/config/conf/configuration.xml"), })
-public class SpaceNodeIconsPluginTest extends AbstractKernelTest {
+public class SpaceNavigationIconUpgradePluginTest extends AbstractKernelTest {
 
   protected PortalContainer      container;
 
@@ -48,7 +49,7 @@ public class SpaceNodeIconsPluginTest extends AbstractKernelTest {
 
   protected SettingService       settingService;
 
-  private SpaceNodeIconsPlugin   spaceNodeIconsPlugin;
+  private SpaceNavigationIconUpgradePlugin spaceNavigationIconUpgradePlugin;
 
   private NodeDAO                nodeDao;
 
@@ -74,7 +75,7 @@ public class SpaceNodeIconsPluginTest extends AbstractKernelTest {
     initParams.addParameter(productGroupIdValueParam);
     initParams.addParameter(spaceNodeNamesValueParam);
     initParams.addParameter(spaceNodeIconsValueParam);
-    spaceNodeIconsPlugin = new SpaceNodeIconsPlugin(entityManagerService, initParams);
+    spaceNavigationIconUpgradePlugin = new SpaceNavigationIconUpgradePlugin(entityManagerService, initParams);
   }
 
   @After
@@ -127,7 +128,7 @@ public class SpaceNodeIconsPluginTest extends AbstractKernelTest {
     assertNotNull(nodeDao.find(membersNodeId));
     assertNull(nodeDao.find(membersNodeId).getIcon());
 
-    spaceNodeIconsPlugin.processUpgrade(null, null);
+    spaceNavigationIconUpgradePlugin.processUpgrade(null, null);
     restartTransaction();
     assertEquals("fas fa-stream", nodeDao.find(streamNodeId).getIcon());
     assertNull(nodeDao.find(dashboardNodeId).getIcon());

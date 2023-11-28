@@ -39,7 +39,7 @@ export default {
       return this.navigation?.label;
     },
     icon() {
-      return this.navigation?.icon || 'fas fa-folder';
+      return `${this.navigation.icon || 'fas fa-folder'} icon-default-color icon-default-size`;
     }
   }
 };

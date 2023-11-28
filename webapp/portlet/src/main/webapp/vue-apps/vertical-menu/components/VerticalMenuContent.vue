@@ -16,12 +16,16 @@
 -->
 <template>
   <v-app id="verticalMenuSiteDetails">
-    <v-card class="elevation-0" :class="extraClass">
+    <v-card
+        :loading="loading"
+        :class="extraClass"
+        min-height="50"
+        flat>
       <site-details
         v-if="site"
-        display-sequentially
         :site="site"
-        :extra-class="' px-0 py-0 '" />
+        extra-class=" px-0 py-0 "
+        display-sequentially/>
     </v-card>
   </v-app>
 </template>
@@ -34,6 +38,7 @@ export default {
     }
   },
   data: () => ({
+    loading: false,
     site: null,
     siteId: eXo.env.portal.siteId,
   }),
@@ -42,10 +47,19 @@ export default {
   },
   methods: {
     retrieveCurrentSite(){
-      return this.$siteService.getSiteById(this.siteId, true, true, eXo.env.portal.language, ['displayed', 'temporal'], true, true)
+      this.loading = true;
+      return this.$siteService.getSiteById(this.siteId, {
+        expandNavigations: true,
+        excludeEmptyNavigationSites: true,
+        lang: eXo.env.portal.language,
+        visibility: ['displayed', 'temporal'],
+        excludeGroupNodesWithoutPageChildNodes: true,
+        temporalCheck: true,
+      })
         .then(site => {
           this.site = site;
-        });
+        })
+        .finally(() => this.loading = false);
     },
   }
 };

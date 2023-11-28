@@ -54,9 +54,9 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>SpaceNodeIconsPlugin</name>
+      <name>SpaceNavigationIconUpgradePlugin</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>org.exoplatform.social.core.upgrade.SpaceNodeIconsPlugin</type>
+      <type>io.meeds.social.core.upgrade.SpaceNavigationIconUpgradePlugin</type>
       <description>Configure space node icons</description>
       <init-params>
         <value-param>
