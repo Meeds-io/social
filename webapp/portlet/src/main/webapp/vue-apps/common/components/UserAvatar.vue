@@ -11,6 +11,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
+      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -23,7 +24,7 @@
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
-          alt="">
+          :alt="$t('popover.userAvatar.alt',{0:userFullname})">
       </v-avatar>
     </component>
     <component
@@ -54,6 +55,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
+      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -66,7 +68,7 @@
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
-          alt="">
+          :alt="$t('popover.userAvatar.alt',{0:userFullname})">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
@@ -96,6 +98,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
+      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -107,8 +110,7 @@
           :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation"
-          alt="">
+          :alt="$t('popover.userAvatar.alt',{0:userFullname})">
       </v-avatar>
     </component>
     <component 
@@ -139,6 +141,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
+      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -151,7 +154,7 @@
           class="object-fit-cover ma-auto"
           loading="lazy"
           role="presentation"
-          alt="">
+          :alt="$t('popover.userAvatar.alt',{0:userFullname})">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
