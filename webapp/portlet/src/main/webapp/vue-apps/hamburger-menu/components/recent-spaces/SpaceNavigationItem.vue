@@ -30,7 +30,7 @@
       tile>
       <img
         :src="spaceAvatar"
-        :alt="spaceDisplayName"
+        :alt="$t('space.avatar.img.alt',{0:space.prettyName})"
         width="28"
         height="28">
     </v-list-item-avatar>
@@ -55,6 +55,7 @@
     :href="spaceLink"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     link
+    :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
     class="px-2 spaceItem"
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
@@ -64,7 +65,7 @@
       tile>
       <img
         :src="spaceAvatar"
-        :alt="spaceDisplayName"
+        :alt="$t('space.avatar.img.alt',{0:space.prettyName})"
         class="rounded"
         width="28"
         height="28">
