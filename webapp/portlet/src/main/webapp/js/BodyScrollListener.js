@@ -21,6 +21,7 @@ function() {
     siteBody.classList.add('site-scroll-parent');
     if (!siteBody.getAttribute('scroll-control')) {
       siteBody.classList.add('overflow-y-auto');
+      siteBody.classList.add('overflow-x-hidden');
       siteBody.style.maxHeight = bodyMaxHeight;
       siteBody.setAttribute('scroll-control', 'true');
       const middleBar = document.querySelector('.MiddleToolBarTDContainer .MiddleToolBar');
