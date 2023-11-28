@@ -20,11 +20,9 @@
     size="22"
     outlined
     icon
-    class="mx-2">
-    <v-icon
-      class="mb-2"
-      size="22"
-      @click="$root.$emit('open-vertical-menu-drawer')">
+    class="ma-2"
+    @click="$root.$emit('open-vertical-menu-drawer')">
+    <v-icon size="22">
       fas fa-bars
     </v-icon>
   </v-btn>
