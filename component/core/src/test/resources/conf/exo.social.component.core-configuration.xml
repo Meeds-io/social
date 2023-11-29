@@ -1007,7 +1007,7 @@
       <description>this listener init the portal configuration for social test</description>
       <init-params>
         <value-param>
-          <name>default.portal</name>
+          <name>meta.portal</name>
           <description>The default portal for checking db is empty or not</description>
           <value>classic</value>
         </value-param>
