@@ -293,7 +293,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption';
+      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption,linkBalloon';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
