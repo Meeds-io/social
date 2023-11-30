@@ -13,6 +13,7 @@
           :loading="loading"
           icon
           small
+          :aria-label="$t('activity.head.menu.title.open')"
           class="me-2"
           v-bind="attrs"
           v-on="on">
