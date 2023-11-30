@@ -8,6 +8,7 @@
           :style="buttonStyle"
           :loading="loading"
           :disabled="loading"
+          :aria-label="favoriteTooltip"
           class="pa-0 mt-0"
           icon
           :small="small"
@@ -28,6 +29,7 @@
         <v-list-item 
           v-bind="attrs" 
           v-on="on" 
+          :aria-label="favoriteTooltip"
           @click="changeFavorite">
           <v-icon 
             class="mr-3"
