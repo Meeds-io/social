@@ -38,18 +38,18 @@ public class SpaceNavigationIconUpgradePlugin extends UpgradeProductPlugin {
 
   private static final String        ICON_UPDATE_SQL      =
                                                      """
-                                                           UPDATE PORTAL_NAVIGATION_NODES n
-                                                           SET n.ICON =
+                                                           UPDATE PORTAL_NAVIGATION_NODES
+                                                           SET ICON =
                                                              CASE
-                                                               WHEN (SELECT pn.NAME FROM (SELECT * FROM PORTAL_NAVIGATION_NODES) pn WHERE pn.NODE_ID = n.PARENT_ID) = 'default' THEN TRIM('fas fa-stream')
+                                                               WHEN (SELECT pn.NAME FROM (SELECT * FROM PORTAL_NAVIGATION_NODES) pn WHERE pn.NODE_ID = PARENT_ID) = 'default' THEN TRIM('fas fa-stream')
                                                                %s
                                                              END
-                                                           WHERE n.ICON IS NULL
-                                                           AND EXISTS (SELECT * FROM PORTAL_PAGES p INNER JOIN PORTAL_SITES s ON s.ID = p.SITE_ID WHERE n.PAGE_ID = p.ID AND s.TYPE = 1 AND s.NAME LIKE '/spaces/%%')
+                                                           WHERE ICON IS NULL
+                                                           AND EXISTS (SELECT * FROM PORTAL_PAGES p INNER JOIN PORTAL_SITES s ON s.ID = p.SITE_ID WHERE PAGE_ID = p.ID AND s.TYPE = 1 AND s.NAME LIKE '/spaces/%%')
                                                          """;
 
   private static final String        ICON_UPDATE_CASE_SQL = """
-         WHEN n.NAME in (%s) THEN TRIM('%s')
+         WHEN NAME in (%s) THEN TRIM('%s')
       """;
 
   private static final String        SPACE_NODE_NAMES     = "space.node.names";
