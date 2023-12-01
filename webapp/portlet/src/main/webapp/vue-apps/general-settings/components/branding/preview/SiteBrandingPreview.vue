@@ -30,6 +30,7 @@
         id="previewIframe" 
         :title="$t('generalSettings.preview.title')"
         :src="pageHomeLink" 
+        name="pageHomeLink"
         width="167%"
         height="220%"
         style="transform: scale(0.6); transform-origin: 0 0;"

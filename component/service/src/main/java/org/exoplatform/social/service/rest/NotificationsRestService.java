@@ -165,7 +165,7 @@ public class NotificationsRestService implements ResourceContainer {
     }
 
     //redirect to the requesters list and display a feedback message
-    String targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("people/" + receiver.getRemoteId() + "?feedbackMessage=ConnectionRequestRefuse&userName=" + sender.getRemoteId());
+    String targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("people/receivedInvitations/" + receiver.getRemoteId() + "?feedbackMessage=ConnectionRequestRefuse&userName=" + sender.getRemoteId());
 
     // redirect to target page
     return Response.seeOther(URI.create(targetURL)).build();
@@ -322,7 +322,7 @@ public class NotificationsRestService implements ResourceContainer {
     
     String baseUrl = Util.getBaseUrl();
     String spaceHomeUrl = LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", ""));
-    StringBuilder targetURL = new StringBuilder().append(baseUrl).append(spaceHomeUrl).append("/settings/members?feedbackMessage=");
+    StringBuilder targetURL = new StringBuilder().append(baseUrl).append(spaceHomeUrl).append("/members?feedbackMessage=");
     if (getSpaceService().isMember(space, userId)) {
       targetURL.append("SpaceRequestAlreadyMember&spaceId=").append(spaceId).append("&userName=").append(userId);
     } else {
@@ -434,11 +434,11 @@ public class NotificationsRestService implements ResourceContainer {
         }
         case connections_request: {
           userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, objectId, true);
-          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("profile/" + userIdentity.getRemoteId());
+          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("people/receivedInvitations/" + userIdentity.getRemoteId());
           break;
         }
         case space_invitation: {
-          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("spaces");
+          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("spaces/receivedInvitations");
           break;
         }
         case notification_settings: {
