@@ -76,18 +76,19 @@
           {{ alertMessage }}
         </span>
         <v-btn
-          v-if="alertLink || alertLinkCallback"
-          :href="alertLink"
-          :title="alertLinkTooltip"
-          :class="alertLinkText && 'elevation-0 transparent primary--text' || 'secondary--text'"
-          :target="alertLinkTarget || '_blank'"
-          :icon="!alertLinkText && alertLinkIcon"
-          name="closeSnackbarButton"
-          rel="nofollow noreferrer noopener"
-          link
-          @click="linkCallback">
-          <div v-if="alertLinkText" class="text-none">{{ alertLinkText }}</div>
-          <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
+            v-for="(item, index) in alertLinks"
+            :key="index"
+            :href="item.alertLink"
+            :title="item.alertLinkTooltip"
+            :class="item.alertLinkText && 'elevation-0 transparent primary--text' || 'secondary--text'"
+            :target="item.alertLinkTarget || '_blank'"
+            :icon="!item.alertLinkText && item.alertLinkIcon"
+            name="closeSnackbarButton"
+            rel="nofollow noreferrer noopener"
+            link
+            @click="linkCallback(item.alertLinkCallback)">
+          <div v-if="item.alertLinkText" class="text-none">{{ item.alertLinkText }}</div>
+          <v-icon v-else-if="item.alertLinkIcon">{{ item.alertLinkIcon }}</v-icon>
         </v-btn>
       </div>
       <template v-if="!isMobile" #close="{toggle}">
@@ -109,12 +110,6 @@ export default {
     useHtml: false,
     confeti: false,
     alertType: null,
-    alertLink: null,
-    alertLinkCallback: null,
-    alertLinkIcon: null,
-    alertLinkText: null,
-    alertLinkTarget: null,
-    alertLinkTooltip: null,
     timeoutInstance: null,
     maxIconsSize: '20px',
     interval: 0,
@@ -123,6 +118,7 @@ export default {
     left: 0,
     startEvent: null,
     moving: false,
+    alertLinks: [],
   }),
   computed: {
     isMobile() {
@@ -183,16 +179,17 @@ export default {
       this.closeAlert();
     });
 
-    this.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip) => {
+    this.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip, alertLinks) => {
       this.openAlert({
         alertType: type,
         alertMessage: message,
         alertLinkCallback: linkCallback,
         alertLinkIcon: linkIcon,
         alertLinkTooltip: linkTooltip,
+        alertLinks: alertLinks
       });
     });
-    this.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip) => {
+    this.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip, alertLinks) => {
       this.openAlert({
         useHtml: true,
         alertType: type,
@@ -200,9 +197,10 @@ export default {
         alertLinkCallback: linkCallback,
         alertLinkIcon: linkIcon,
         alertLinkTooltip: linkTooltip,
+        alertLinks: alertLinks
       });
     });
-    this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip) => {
+    this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip, alertLinks) => {
       this.openAlert({
         confeti: true,
         useHtml: true,
@@ -211,6 +209,7 @@ export default {
         alertLinkCallback: linkCallback,
         alertLinkIcon: linkIcon,
         alertLinkTooltip: linkTooltip,
+        alertLinks: alertLinks
       });
     });
     this.$root.$on('close-alert-message', this.closeAlert);
@@ -232,19 +231,28 @@ export default {
     openAlert(params) {
       this.reset();
       this.closeAlert();
+      this.alertLinks = [];
       this.progression = 100;
       this.$nextTick().then(() => {
         this.useHtml = params.useHtml || false;
         this.confeti = params.confeti || false;
-        this.alertLink = params.alertLink || null;
         this.alertMessage = params.alertMessage || null;
-        this.alertLinkText = params.alertLinkText || null;
-        this.alertLinkTarget = params.alertLinkTarget || null;
-        this.alertLinkIcon = params.alertLinkIcon || null;
         this.alertType = params.alertType || 'info';
-        this.alertLinkTooltip = params.alertLinkTooltip || null;
-        this.alertLinkCallback = params.alertLinkCallback || null;
         this.timeoutInstance = window.setTimeout(() => this.snackbar = true, 500);
+        // push alert link to alertLinks list
+        if (params.alertLink || params.alertLinkCallback) {
+          this.alertLinks.push({
+            alertLink: params.alertLink || null,
+            alertLinkText: params.alertLinkText || null,
+            alertLinkTarget: params.alertLinkTarget || null,
+            alertLinkIcon: params.alertLinkIcon || null,
+            alertLinkTooltip: params.alertLinkTooltip || null,
+            alertLinkCallback: params.alertLinkCallback || null,
+          });
+        }
+        if (params.alertLinks) {
+          this.alertLinks.push(...params.alertLinks);
+        }
       });
     },
     closeAlertIfDismissed(closed) {
@@ -258,9 +266,9 @@ export default {
       }
       this.snackbar = false;
     },
-    linkCallback() {
-      if (this.alertLinkCallback) {
-        this.alertLinkCallback();
+    linkCallback(callback) {
+      if (callback) {
+        callback();
       }
     },
     cancelEvent(event) {
