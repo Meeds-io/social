@@ -27,7 +27,8 @@
     hoverable
     activatable
     open-on-click
-    transition>
+    transition
+    dense>
     <template #label="{ item }">
       <site-navigation-item :navigation="item" :enable-change-home="enableChangeHome" />
     </template>
