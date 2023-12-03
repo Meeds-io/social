@@ -32,7 +32,8 @@
       {{ navigation.label }}
     </v-list-item-title>
     <v-list-item-action
-      v-if="enableChangeHome && !isNodeGroup && (isHomeLink || showAction)" class="my-auto">
+      v-if="enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
+      class="my-auto">
       <v-btn
         icon
         @click="selectHome($event)">
