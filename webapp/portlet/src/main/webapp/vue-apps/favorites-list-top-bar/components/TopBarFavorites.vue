@@ -16,18 +16,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
   <v-app>
-    <v-flex>
-      <v-layout>
-        <top-bar-favorites-button />
-      </v-layout>
-    </v-flex>
+    <top-bar-favorites-button />
     <top-bar-favorites-drawer />
   </v-app>
 </template>
 <script>
 export default {
   mounted() {
-    this.$root.$applicationLoaded();
+    this.$root.$emit('open-favorite-drawer');
   },
 };
 </script>
