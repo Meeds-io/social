@@ -15,19 +15,18 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-app id="verticalMenuSiteDetails">
-    <v-card
-      :loading="loading"
-      :class="extraClass"
-      min-height="50"
-      flat>
-      <site-details
-        v-if="site"
-        :site="site"
-        extra-class=" px-0 py-0 "
-        display-sequentially />
-    </v-card>
-  </v-app>
+  <v-card
+    id="verticalMenuSiteDetails"
+    :loading="loading"
+    :class="extraClass"
+    min-height="100%"
+    flat>
+    <site-details
+      v-if="site"
+      :site="site"
+      extra-class=" px-0 py-0 "
+      display-sequentially />
+  </v-card>
 </template>
 <script>
 export default {
