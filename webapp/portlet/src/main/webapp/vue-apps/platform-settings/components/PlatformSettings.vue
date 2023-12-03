@@ -1,37 +1,23 @@
 <template>
-  <v-tooltip bottom v-if="url && !isMobile">
-    <template #activator="{ on, attrs }">
-      <v-btn
-        v-if="url"
-        icon
-        class="mx-2"
-        :href="url"
-        target="_blank">
-        <v-icon
+  <v-app>
+    <v-tooltip bottom>
+      <template #activator="{ on, attrs }">
+        <v-btn
+          :href="$root.url"
+          target="_blank"
+          class="mx-2 d-none d-sm-block"
+          icon
           v-on="on"
-          v-bind="attrs"
-          class="icon-default-color"
-          size="22">
-          fas fa-cog
-        </v-icon>
-      </v-btn>
-    </template>
-    <span>{{ $t('platformSettings.label.openAdministration') }}</span>
-  </v-tooltip>
+          v-bind="attrs">
+          <v-icon
+            class="icon-default-color"
+            size="22">
+            fas fa-cog
+          </v-icon>
+        </v-btn>
+      </template>
+      <span>{{ $t('platformSettings.label.openAdministration') }}</span>
+    </v-tooltip>
+  </v-app>
 </template>
 
-<script>
-export default {
-  props: {
-    url: {
-      type: String,
-      default: null,
-    }
-  },
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.width < 768;
-    }
-  }
-};
-</script>

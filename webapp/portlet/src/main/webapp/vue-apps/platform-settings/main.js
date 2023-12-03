@@ -29,24 +29,20 @@ if (extensionRegistry) {
   }
 }
 
-Vue.use(Vuetify);
-const vuetify = new Vuetify(eXo.env.portal.vuetifyPreset);
-
 const appId = 'platformSettings';
+const lang = window?.eXo?.env?.portal?.language || 'en';
+const i18NUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.PlatformSettings-${lang}.json`;
 
-const lang = eXo && eXo.env.portal.language || 'en';
-
-const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.PlatformSettings-${lang}.json`];
 export function init(url) {
-  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    // init Vue app when locale ressources are ready
+  exoi18n.loadLanguageAsync(lang, i18NUrl).then(i18n => {
     Vue.createApp({
       data: {
         url: url
       },
-      template: `<platform-settings id="${appId}" :url="url" />`,
-      vuetify,
-      i18n},
-    `#${appId}`, 'platform settings');
+      template: `<platform-settings id="${appId}" />`,
+      vuetify: Vue.prototype.vuetifyOptions,
+      i18n
+    },
+    `#${appId}`, 'Platform Settings');
   });
 }
