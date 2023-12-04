@@ -52,7 +52,7 @@
   ResourceBundle rb = service.getResourceBundle(service.getSharedResourceBundleNames(), request.getLocale());
 
   UserPortalConfigService userPortalConfigService = portalContainer.getComponentInstanceOfType(UserPortalConfigService.class);
-  String skinName = userPortalConfigService.getDefaultPortalSkinName();
+  String skinName = userPortalConfigService.getMetaPortalSkinName();
   SkinService skinService = portalContainer.getComponentInstanceOfType(SkinService.class);
   SkinConfig skin = skinService.getSkin("portal/AccountSetup", skinName);
   String cssPath = "";
