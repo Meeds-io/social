@@ -28,7 +28,8 @@
     class="z-index-snackbar"
     color="transparent ma-0"
     elevation="0"
-    app>
+    app
+    @input="dispatchDismissed">
     <confeti-animation
       v-if="confeti"
       class="overflow-hidden" />
@@ -92,7 +93,7 @@
       <template v-if="!isMobile" #close="{toggle}">
         <v-btn
           icon
-          @click="toggle">
+          @click="dispatchDismissed(!toggle)">
           <v-icon size="16" class="icon-default-color">fa-times</v-icon>
         </v-btn>
       </template>
@@ -223,6 +224,11 @@ export default {
     });
   },
   methods: {
+    dispatchDismissed(opened) {
+      if (!opened) {
+        document.dispatchEvent(new CustomEvent('alert-message-dismissed'));
+      }
+    },
     openAlert(params) {
       this.reset();
       this.closeAlert();
