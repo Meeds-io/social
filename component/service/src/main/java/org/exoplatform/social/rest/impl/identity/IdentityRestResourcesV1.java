@@ -86,7 +86,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       String providerId = (type != null && type.equals("space")) ? SpaceIdentityProvider.NAME : OrganizationIdentityProvider.NAME;
       ListAccess<Identity> listAccess = identityManager.getIdentitiesByProfileFilter(providerId, new ProfileFilter(), true);
       Identity[] identities = listAccess.load(offset, limit);
-      List<DataEntity> identityEntities = new ArrayList<DataEntity>();
+      List<DataEntity> identityEntities = new ArrayList<>();
       for (Identity identity : identities) {
         identityEntities.add(EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand).getDataEntity());
       }
@@ -97,8 +97,8 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
 
       return EntityBuilder.getResponse(collectionIdentity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
     } catch (Exception e) {
-   	  return EntityBuilder.getResponse(new CollectionEntity(new ArrayList<DataEntity>(), EntityBuilder.IDENTITIES_TYPE, offset, limit), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-	}
+   	  return EntityBuilder.getResponse(new CollectionEntity(new ArrayList<>(), EntityBuilder.IDENTITIES_TYPE, offset, limit), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    }
   }
   
   /**
@@ -140,6 +140,44 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
       builder.expires(new Date(cacheTime));
     }
     return builder.build();
+  }
+
+  @GET
+  @Path("byParams")
+  @RolesAllowed("users")
+  @Operation(
+      summary = "Gets an identity by id",
+      method = "GET",
+      description = "This returns the identity if the authenticated user has permissions to view the object linked to this identity."
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input") }
+  )
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getIdentityByProviderIdAndRemoteIdInQuery(
+                                                            @Context
+                                                            UriInfo uriInfo,
+                                                            @Context
+                                                            Request request,
+                                                            @Parameter(
+                                                                description = "Identity provider id which can be of type 'space' or 'organization' for example",
+                                                                required = true)
+                                                            @QueryParam("providerId")
+                                                            String providerId,
+                                                            @Parameter(
+                                                                description = "Identity id which is the unique name (remote id) of identity",
+                                                                required = true)
+                                                            @QueryParam("remoteId")
+                                                            String remoteId,
+                                                            @Parameter(
+                                                                description = "Asking for a full representation of a specific subresource if any",
+                                                                required = false)
+                                                            @QueryParam("expand")
+                                                            String expand) {
+    return getIdentityByProviderIdAndRemoteId(uriInfo, request, providerId, remoteId, expand);
   }
 
   @GET
