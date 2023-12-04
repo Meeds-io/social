@@ -1295,7 +1295,7 @@ public class SpaceUtils {
     } else {
       remoteId = conversationState.getIdentity().getUserId();
     }
-    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getDefaultPortal(),
+    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getMetaPortal(),
                                                    remoteId,
                                                    NULL_CONTEXT);
   }
