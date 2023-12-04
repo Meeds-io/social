@@ -46,8 +46,13 @@
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
+<<<<<<< HEAD
     <org.exoplatform.commons.version>6.6.x-exo-SNAPSHOT</org.exoplatform.commons.version>
     <org.exoplatform.platform-ui.version>6.6.x-exo-SNAPSHOT</org.exoplatform.platform-ui.version>
+=======
+    <org.exoplatform.commons.version>6.6.x-SNAPSHOT</org.exoplatform.commons.version>
+    <org.exoplatform.platform-ui.version>6.6.x-SNAPSHOT</org.exoplatform.platform-ui.version>
+>>>>>>> 8ea126ef6a (Update Project version and Dependencies to 6.6.x-SNAPSHOT)
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
