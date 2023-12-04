@@ -156,8 +156,7 @@ export default {
     badgeByPlugin: null,
     separatorWidth: 0,
     markingAllAsRead: false,
-    settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/settings#notifications`,
-    allNotificationsLink: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/allNotifications`,
+    settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings#notifications`,
   }),
   computed: {
     markingAsReadDisabled() {
