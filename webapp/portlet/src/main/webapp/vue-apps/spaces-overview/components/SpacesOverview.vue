@@ -50,6 +50,9 @@ export default {
     loading(newVal, oldVal) {
       if (oldVal && !newVal) {
         this.$root.$applicationLoaded();
+        if (window.location.pathname.includes('receivedInvitations')) {
+          this.$refs?.spacesDrawer?.open?.('invited', this.$t('spacesOverview.label.invitations'));
+        }
       }
     },
   },

@@ -200,7 +200,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
   private String getURI(ControllerContext controllerContext, String uri) {
     String portalName = (String) controllerContext.getRequest().getSession().getAttribute(LAST_PORTAL_NAME);
     if (StringUtils.isBlank(portalName)) {
-      portalName = userPortalConfigService.getDefaultPortal();
+      portalName = userPortalConfigService.getMetaPortal();
     }
 
     SiteKey siteKey = SiteKey.portal(portalName);

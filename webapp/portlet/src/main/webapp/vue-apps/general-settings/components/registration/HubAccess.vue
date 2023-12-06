@@ -278,8 +278,8 @@ export default {
     },
   },
   data: () => ({
-    createUsersLink: '/portal/g/:platform:administrators/usersManagement',
-    mandatorySpacesLink: '/portal/g/:platform:users/spacesAdministration',
+    createUsersLink: '/portal/administration/home/organisation/users',
+    mandatorySpacesLink: '/portal/administration/home/organisation/spaces',
     accessType: 'OPEN',
     externalUserOpenRegistration: false,
     externalUserRestrictedRegistration: false,
