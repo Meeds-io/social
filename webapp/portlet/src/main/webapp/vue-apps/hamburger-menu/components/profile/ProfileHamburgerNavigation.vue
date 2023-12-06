@@ -24,7 +24,11 @@
       :href="PROFILE_URI"
       class="accountTitleItem top-bar-height">
       <v-list-item-avatar size="44" class="me-3 mt-0 mb-0 elevation-1">
-        <v-img :src="avatar" eager />
+        <img
+          :src="avatar"
+          :alt="fullName"
+          width="44"
+          height="44">
       </v-list-item-avatar>
       <v-list-item-content class="py-0 accountTitleLabel">
         <v-list-item-title class="font-weight-bold body-2 mb-0">{{ fullName }} <span v-if="external" class="externalFlagClass">{{ $t('menu.profile.external') }}</span></v-list-item-title>
