@@ -19,7 +19,7 @@
     id="verticalMenuDrawer"
     ref="verticalMenuDrawer"
     :right="$vuetify.rtl"
-    drawer-width="350"
+    drawer-width="310"
     eager
     allow-expand
     @closed="close">
