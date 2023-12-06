@@ -68,12 +68,12 @@
           class="singlePageApplication pa-0 d-flex fill-height">
           <v-card
             v-if="expanded"
+            class="card-border-radius"
             height="fit-content"
             min-width="270"
             width="270"
             max-width="30%"
-            flat
-            class="card-border-radius">
+            flat>
             <user-notification-types
               ref="notificationTypes"
               id="notificationTypes"
@@ -89,14 +89,15 @@
           </v-expand-x-transition>
           <v-card
             :max-height="expanded && '100%' || 'auto'"
-            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent overflow-hidden card-border-radius"
+            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent no-border-radius"
             flat>
             <v-card
               :max-height="expanded && '100%' || 'auto'"
-              :class="expanded && 'overflow-x-hidden overflow-y-auto' || 'overflow-x-hidden'"
+              :class="expanded && 'overflow-x-hidden overflow-y-auto card-border-radius' || 'overflow-x-hidden no-border-radius'"
               :tile="!expanded"
               class="d-flex flex-column flex-grow-1 flex-shrink-1"
-              flat>
+              flat
+              @scroll="scrollActivated">
               <user-notifications
                 ref="notifications"
                 id="notificationsList"
@@ -209,6 +210,9 @@ export default {
     openSettings() {
       document.dispatchEvent(new CustomEvent('showNotificationSettings'));
       this.close();
+    },
+    scrollActivated() {
+      document.dispatchEvent(new CustomEvent('notifications-list-scroll-activated'));
     },
     markAllAsRead() {
       this.markingAllAsRead = true;
