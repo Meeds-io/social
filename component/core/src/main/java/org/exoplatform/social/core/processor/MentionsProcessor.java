@@ -52,7 +52,7 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
 
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
-      String portalOwner = userPortalConfigService.getMetaPortal();
+      String portalOwner = userPortalConfigService.getDefaultPortal();
       activity.setTitle(MentionUtils.substituteUsernames(identityManager, portalOwner, activity.getTitle()));
       activity.setBody(MentionUtils.substituteUsernames(identityManager, portalOwner, activity.getBody()));
       Map<String, String> templateParams = activity.getTemplateParams();

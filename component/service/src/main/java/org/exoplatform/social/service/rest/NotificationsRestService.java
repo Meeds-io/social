@@ -155,8 +155,8 @@ public class NotificationsRestService implements ResourceContainer {
                                             @PathParam("receiverId") String receiverId) throws Exception {
     checkAuthenticatedUserPermission(receiverId);
 
-    Identity sender = getIdentityManager().getOrCreateUserIdentity(senderId);
-    Identity receiver = getIdentityManager().getOrCreateUserIdentity(receiverId);
+    Identity sender = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, senderId, true);
+    Identity receiver = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, receiverId, true);
     if (sender == null || receiver == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -165,7 +165,7 @@ public class NotificationsRestService implements ResourceContainer {
     }
 
     //redirect to the requesters list and display a feedback message
-    String targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("people/receivedInvitations/" + receiver.getRemoteId() + "?feedbackMessage=ConnectionRequestRefuse&userName=" + sender.getRemoteId());
+    String targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("connexions/receivedInvitations/" + receiver.getRemoteId() + "?feedbackMessage=ConnectionRequestRefuse&userName=" + sender.getRemoteId());
 
     // redirect to target page
     return Response.seeOther(URI.create(targetURL)).build();
@@ -228,11 +228,11 @@ public class NotificationsRestService implements ResourceContainer {
     String targetURL = Util.getBaseUrl();
     if (Arrays.asList(space.getInvitedUsers()).contains(userId)) {
       if (getSpaceService().isMember(space, userId)) {
-        targetURL = targetURL + LinkProvider.getRedirectUri("spaces?feedbackMessage=SpaceInvitationAlreadyMember&spaceId=" + spaceId);
+        targetURL = targetURL + LinkProvider.getRedirectUri("all-spaces?feedbackMessage=SpaceInvitationAlreadyMember&spaceId=" + spaceId);
       } else {
         getSpaceService().removeInvitedUser(space, userId);
         //redirect to all spaces and display a feedback message
-        targetURL = targetURL + LinkProvider.getRedirectUri("spaces?feedbackMessage=SpaceInvitationRefuse&spaceId=" + spaceId);
+        targetURL = targetURL + LinkProvider.getRedirectUri("all-spaces?feedbackMessage=SpaceInvitationRefuse&spaceId=" + spaceId);
       }
     }
     
@@ -322,7 +322,7 @@ public class NotificationsRestService implements ResourceContainer {
     
     String baseUrl = Util.getBaseUrl();
     String spaceHomeUrl = LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", ""));
-    StringBuilder targetURL = new StringBuilder().append(baseUrl).append(spaceHomeUrl).append("/members?feedbackMessage=");
+    StringBuilder targetURL = new StringBuilder().append(baseUrl).append(spaceHomeUrl).append("/settings/members?feedbackMessage=");
     if (getSpaceService().isMember(space, userId)) {
       targetURL.append("SpaceRequestAlreadyMember&spaceId=").append(spaceId).append("&userName=").append(userId);
     } else {
@@ -425,20 +425,20 @@ public class NotificationsRestService implements ResourceContainer {
           break;
         }
         case all_space: {
-          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("spaces");
+          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("all-spaces");
           break;
         }
         case connections: {
-          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("people");
+          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("connexions");
           break;
         }
         case connections_request: {
           userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, objectId, true);
-          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("people/receivedInvitations/" + userIdentity.getRemoteId());
+          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("connexions/receivedInvitations/" + userIdentity.getRemoteId());
           break;
         }
         case space_invitation: {
-          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("spaces/receivedInvitations");
+          targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("invitationSpace");
           break;
         }
         case notification_settings: {

@@ -31,13 +31,14 @@
     <v-list-item-title class="font-weight-normal text-font-size text-color">
       {{ navigation.label }}
     </v-list-item-title>
-    <v-list-item-action
-      v-if="enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
-      class="my-auto">
+    <v-list-item-action v-if="enableChangeHome && !isNodeGroup && (isHomeLink || showAction)" class="my-auto">
       <v-btn
+        v-bind="attrs"
+        v-on="on"
         icon
         @click="selectHome($event)">
         <v-icon
+          class="me-0 pa-2"
           :class="isHomeLink && 'primary--text' || 'icon-default-color'"
           small>
           fa-house-user

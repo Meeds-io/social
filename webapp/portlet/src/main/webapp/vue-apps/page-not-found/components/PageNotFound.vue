@@ -49,7 +49,7 @@
 export default {
   computed: {
     defaultLink() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}`;
     },
   },
   mounted() {

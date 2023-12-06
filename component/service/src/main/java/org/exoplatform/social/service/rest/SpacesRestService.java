@@ -116,7 +116,7 @@ public class SpacesRestService implements ResourceContainer {
    */
   private static final QualifiedName REQUEST_SITE_NAME = QualifiedName.create("gtn", "sitename");
   
-  private static final String ALL_SPACES = "spaces";
+  private static final String ALL_SPACES = "all-spaces";
   
   private static final String JSON = "json";
 

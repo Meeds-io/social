@@ -30,7 +30,6 @@
         id="previewIframe" 
         :title="$t('generalSettings.preview.title')"
         :src="pageHomeLink" 
-        name="pageHomeLink"
         width="167%"
         height="220%"
         style="transform: scale(0.6); transform-origin: 0 0;"
@@ -43,7 +42,7 @@
 <script>
 export default {
   data: ()=> ({
-    pageHomeLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/stream?sticky=false`,
+    pageHomeLink: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/stream?sticky=false`,
   }),
   mounted() {
     this.$root.$on('refresh-style-property', this.setStyleProperty);

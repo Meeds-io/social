@@ -22,18 +22,17 @@
       flat
       class="full-height">
       <row
+        class="px-4"
         v-if="!displaySequentially"
-        class="px-4 pt-3 position-absolute z-index-one">
-        <v-btn
-          class="white"
-          elevation="2"
-          icon
-          small
-          @click="$emit('close')">
-          <v-icon small>
-            {{ $root.ltr && 'fa-arrow-left' || 'fa-arrow-right' }}
-          </v-icon>
-        </v-btn>
+        @click="$emit('close')">
+        <v-icon
+          v-if="$root.ltr"
+          class="fas fa-arrow-left mt-4"
+          small />
+        <v-icon
+          v-else
+          class="fas fa-arrow-right mt-4"
+          small />
       </row>
       <v-img
         :src="site?.bannerUrl"

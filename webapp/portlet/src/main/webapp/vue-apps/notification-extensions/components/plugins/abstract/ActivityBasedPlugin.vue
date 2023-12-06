@@ -124,12 +124,12 @@ export default {
       return this.activity?.type;
     },
     activityUrl() {
-      return (this.commentId && this.activityId && `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.activityId}#comment-${this.commentId}`)
-        || (this.activityId && `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.activityId}`)
+      return (this.commentId && this.activityId && `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/activity?id=${this.activityId}#comment-${this.commentId}`)
+        || (this.activityId && `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/activity?id=${this.activityId}`)
         || '#';
     },
     replyUrl() {
-      return this.activity && `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.activityId}#comment-reply${(this.parentCommentId || this.commentId) && '-' || ''}${this.parentCommentId || this.commentId || ''}`
+      return this.activity && `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/activity?id=${this.activityId}#comment-reply${(this.parentCommentId || this.commentId) && '-' || ''}${this.parentCommentId || this.commentId || ''}`
         || '#';
     },
     space() {

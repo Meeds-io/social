@@ -239,7 +239,7 @@ public final class Util {
    */
   @Deprecated
   public static final IdentityManager getIdentityManager() {
-    return (IdentityManager) getPortalContainer().getComponentInstanceOfType(IdentityManager.class);
+    return (IdentityManager) getDefaultPortalContainer().getComponentInstanceOfType(IdentityManager.class);
   }
 
   /**
@@ -265,7 +265,7 @@ public final class Util {
    */
   @Deprecated
   public static final SpaceService getSpaceService() {
-    return (SpaceService) getPortalContainer().getComponentInstanceOfType(SpaceService.class);
+    return (SpaceService) getDefaultPortalContainer().getComponentInstanceOfType(SpaceService.class);
   }
 
   /**
@@ -290,7 +290,7 @@ public final class Util {
    */
   @Deprecated
   public static final ActivityManager getActivityManager() {
-    return (ActivityManager) getPortalContainer().getComponentInstanceOfType(ActivityManager.class);
+    return (ActivityManager) getDefaultPortalContainer().getComponentInstanceOfType(ActivityManager.class);
   }
 
   /**
@@ -315,7 +315,7 @@ public final class Util {
    */
   @Deprecated
   public static final RelationshipManager getRelationshipManager() {
-    return (RelationshipManager) getPortalContainer().getComponentInstanceOfType(RelationshipManager.class);
+    return (RelationshipManager) getDefaultPortalContainer().getComponentInstanceOfType(RelationshipManager.class);
   }
 
 
@@ -449,7 +449,7 @@ public final class Util {
    *
    * @return the portal container
    */
-  private static PortalContainer getPortalContainer() {
+  private static PortalContainer getDefaultPortalContainer() {
     return PortalContainer.getInstance();
   }
   

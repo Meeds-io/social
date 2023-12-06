@@ -55,7 +55,7 @@ export default {
       return this.profile?.username;
     },
     profileUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.username}`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.username}`;
     },
     space() {
       return this.notification?.space;
