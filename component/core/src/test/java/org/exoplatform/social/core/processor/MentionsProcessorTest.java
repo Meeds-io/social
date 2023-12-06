@@ -69,8 +69,8 @@ public class MentionsProcessorTest extends AbstractCoreTest {
 
     String root = "root", john = "john";
 
-    String rootLink = LinkProvider.getProfileLink(root, userPortalConfigService.getDefaultPortal());
-    String johnLink = LinkProvider.getProfileLink(john, userPortalConfigService.getDefaultPortal());
+    String rootLink = LinkProvider.getProfileLink(root, userPortalConfigService.getMetaPortal());
+    String johnLink = LinkProvider.getProfileLink(john, userPortalConfigService.getMetaPortal());
 
     activity.setTitle("single @root substitution");
     processor.processActivity(activity);
@@ -108,10 +108,10 @@ public class MentionsProcessorTest extends AbstractCoreTest {
     processor.processActivity(activity);
     
     templateParams = activity.getTemplateParams();
-    assertEquals(LinkProvider.getProfileLink("root", userPortalConfigService.getDefaultPortal()) + " and " +
-                 LinkProvider.getProfileLink("john", userPortalConfigService.getDefaultPortal()),
+    assertEquals(LinkProvider.getProfileLink("root", userPortalConfigService.getMetaPortal()) + " and " +
+                 LinkProvider.getProfileLink("john", userPortalConfigService.getMetaPortal()),
                  templateParams.get("a"));
-    assertEquals(LinkProvider.getProfileLink("john", userPortalConfigService.getDefaultPortal()),
+    assertEquals(LinkProvider.getProfileLink("john", userPortalConfigService.getMetaPortal()),
                  templateParams.get("b"));    
     assertEquals("@mary", templateParams.get("d"));  
   }
