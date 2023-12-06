@@ -35,9 +35,13 @@
           </v-icon>
         </v-btn>
       </row>
-      <v-img
+      <img
         :src="site?.bannerUrl"
-        class="mx-1 pt-1" />
+        :alt="site?.displayName"
+        width="100%"
+        height="auto"
+        class="mx-1 pt-1"
+        eager />
       <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
       </v-card-title>
