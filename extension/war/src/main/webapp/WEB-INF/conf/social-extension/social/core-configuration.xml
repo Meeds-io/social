@@ -341,6 +341,10 @@
     <component>
         <type>org.exoplatform.social.core.identity.provider.SpaceIdentityProvider</type>
     </component>
+
+    <component>
+        <type>org.exoplatform.social.core.identity.provider.GroupIdentityProvider</type>
+    </component>
     
     <component>
         <key>org.exoplatform.social.core.manager.IdentityManager</key>
@@ -357,6 +361,17 @@
                         <value>org.exoplatform.social.core.identity.provider.SpaceIdentityProvider</value>
                     </values-param>
                 </init-params>
+            </component-plugin>
+            <component-plugin>
+              <name>GroupIdentityProvider plugin</name>
+              <set-method>registerIdentityProviders</set-method>
+              <type>org.exoplatform.social.core.identity.IdentityProviderPlugin</type>
+              <init-params>
+                <values-param>
+                  <name>providers</name>
+                  <value>org.exoplatform.social.core.identity.provider.GroupIdentityProvider</value>
+                </values-param>
+              </init-params>
             </component-plugin>
         </component-plugins>
         <init-params>

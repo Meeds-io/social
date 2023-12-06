@@ -32,10 +32,12 @@ if (extensionRegistry) {
 Vue.use(Vuetify);
 const appId = 'breadcrumb';
 
-
-export function init() {
+export function init(noThreeDots) {
   Vue.createApp({
-    template: `<breadcrumb-app id="${appId}"/>`,
+    data: {
+      noThreeDots,
+    },
+    template: `<breadcrumb-app id="${appId}" />`,
     vuetify: Vue.prototype.vuetifyOptions,
     i18n: exoi18n.i18n
   },
