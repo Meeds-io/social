@@ -41,7 +41,7 @@
         width="100%"
         height="auto"
         class="mx-1 pt-1"
-        eager />
+        eager>
       <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
       </v-card-title>
