@@ -25,34 +25,36 @@
         min-height="calc(100vh - 160px)"
         class="px-6 card-border-radius overflow-hidden"
         flat>
-        <v-list-item dense class="px-0 mb-4">
-          <v-list-item-action v-if="$root.selectedTab" class="my-auto me-0 ms-n2">
-            <v-btn
-              :title="$t('generalSettings.access.backToMain')"
-              size="24"
-              icon
-              @click="close">
-              <v-icon size="18" class="icon-default-color">
-                {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
-              </v-icon>
-            </v-btn>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title class="d-flex">
-              <v-card
-                :title="$root.selectedTab && $t('generalSettings.access.backToMain')"
-                class="flex-grow-0 py-1"
-                flat
-                v-on="$root.selectedTab && {
-                  click: () => close(),
-                }">
-                <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
-              </v-card>
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-
         <template v-if="intialized">
+          <v-expand-transition>
+            <v-list-item
+              v-if="$root.selectedTab"
+              dense
+              class="px-0 mb-4">
+              <v-list-item-action class="my-auto me-0 ms-n2">
+                <v-btn
+                  :title="$t('generalSettings.access.backToMain')"
+                  size="24"
+                  icon
+                  @click="close">
+                  <v-icon size="18" class="icon-default-color">
+                    {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
+                  </v-icon>
+                </v-btn>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title class="d-flex">
+                  <v-card
+                    :title="$t('generalSettings.access.backToMain')"
+                    class="flex-grow-0 py-1"
+                    flat
+                    @click="close()">
+                    <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
+                  </v-card>
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-expand-transition>
           <v-expand-transition>
             <portal-general-settings-branding-site-window
               v-if="$root.selectedTab === 'branding'"
