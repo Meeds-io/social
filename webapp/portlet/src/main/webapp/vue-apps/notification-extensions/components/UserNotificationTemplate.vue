@@ -45,18 +45,21 @@
         </v-card>
       </div>
       <div
-        v-if="hover"
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
         class="position-absolute t-0 pt-2px me-2 d-none z-index-two d-sm-block"
         @click.stop="0">
         <user-notification-menu
+          ref="menu"
+          :hover="hover"
           :notification="notification"
           :unread="unread"
           :can-mute="canMute"
+          :url="url"
           class="white"
           @remove="hideNotification"
-          @mute="muteSpace"
-          @read="markAsRead" />
+          @mute="muteSpace()"
+          @read="markAsRead()"
+          @read-differ="markAsRead(false, true)" />
       </div>
       <v-slide-x-transition>
         <v-list-item
@@ -76,7 +79,9 @@
             end: moveEnd,
             move: moveSwipe,
           }"
-          @mousedown="markAsRead">
+          @mousedown="markAsReadMouseDown"
+          @mouseup="markAsReadMouseUp"
+          @contextmenu="showContextMenu">
           <v-list-item-avatar
             :rounded="spaceAvatar"
             :tile="!!$slots.avatar"
@@ -174,6 +179,9 @@ export default {
     moving: false,
     markedAsRead: false,
     markedAsReadMuted: false,
+    showMenu: false,
+    x: 0,
+    y: 0,
   }),
   computed: {
     gapSize() {
@@ -233,12 +241,43 @@ export default {
           document.dispatchEvent(new CustomEvent('refresh-notifications'));
         });
     },
-    markAsRead() {
-      if (this.unread) {
-        this.markedAsRead = true;
-        return this.$notificationService.markRead(this.notificationId)
-          .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')));
+    markAsRead(avoidRefresh, differ) {
+      if (!this.unread) {
+        return;
       }
+      if (!avoidRefresh) {
+        this.markedAsRead = true;
+      }
+
+      new Promise(resolve => {
+        if (differ) {
+          window.setTimeout(resolve, 100);
+        } else {
+          resolve();
+        }
+      })
+        .then(() => this.$notificationService.markRead(this.notificationId))
+        .then(() => {
+          if (!avoidRefresh) {
+            document.dispatchEvent(new CustomEvent('refresh-notifications'));
+          }
+        });
+    },
+    showContextMenu(event) {
+      event.preventDefault();
+      this.$refs.menu.showMenu(event.clientX, event.clientY);
+    },
+    markAsReadMouseDown(event) {
+      if (event.button === 0 && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+        this.markAsRead(true);
+      }
+      return true;
+    },
+    markAsReadMouseUp(event) {
+      if (event.button === 1 || (event.button === 0 && (event.ctrlKey || event.altKey  || event.shiftKey))) {
+        this.markAsRead(false, true);
+      }
+      return true;
     },
     muteSpace() {
       this.markedAsReadMuted = true;
