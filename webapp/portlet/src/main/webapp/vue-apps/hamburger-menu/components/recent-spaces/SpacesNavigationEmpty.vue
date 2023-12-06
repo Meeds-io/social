@@ -52,7 +52,7 @@ export default {
     },
   },
   data: () => ({
-    spacesLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`,
+    spacesLink: `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/spaces`,
   }),
 };
 </script>

@@ -21,6 +21,7 @@
       <vertical-menu-button />
       <vertical-menu-drawer />
     </template>
+    <drawers-overlay />
   </v-app>
 </template>
 <script>

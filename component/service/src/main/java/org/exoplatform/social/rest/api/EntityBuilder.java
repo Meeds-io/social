@@ -1833,7 +1833,7 @@ public class EntityBuilder {
     try {
       HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
       UserPortalConfig userPortalConfig =
-                                        getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getMetaPortal()
+                                        getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getDefaultPortal()
                                                                                                                      : site.getName(),
                                                                                          currentUser,
                                                                                          userPortalContext);
@@ -1964,7 +1964,7 @@ public class EntityBuilder {
   }
 
   private static boolean isMetaSite(String siteName) {
-    return getUserPortalConfigService().getMetaPortal().equals(siteName);
+    return getUserPortalConfigService().getDefaultPortal().equals(siteName);
   }
   public static String getTranslatedLabel(String fieldName, long siteId, Locale locale) {
     return getTranslationService().getTranslationLabel(SITE_OBJECT_TYPE,

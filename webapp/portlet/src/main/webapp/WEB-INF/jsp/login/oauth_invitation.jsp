@@ -40,7 +40,7 @@
 
     UserPortalConfigService userPortalConfigService = portalContainer.getComponentInstanceOfType(UserPortalConfigService.class);
     SkinService skinService = portalContainer.getComponentInstanceOfType(SkinService.class);
-    String skinName = userPortalConfigService.getMetaPortalSkinName();
+    String skinName = userPortalConfigService.getDefaultPortalSkinName();
     Collection<SkinConfig> skins = skinService.getPortalSkins(skinName);
     String loginCssPath = skinService.getSkin("portal/login", skinName).getCSSPath();
 

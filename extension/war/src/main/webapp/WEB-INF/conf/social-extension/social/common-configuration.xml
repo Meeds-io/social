@@ -70,6 +70,14 @@
                     <value><string>/profile/{streamOwnerId}</string></value>
                   </entry>
                   <entry>
+                    <key><string>connections.network.extended.show</string></key>
+                    <value><string><![CDATA[/connections/{relationshipStatus}/{streamOwnerId}/{<.*>path}]]></string></value>
+                  </entry>
+                  <entry>
+                    <key><string>connections.network.show</string></key>
+                    <value><string>/connections/{relationshipStatus}/{streamOwnerId}</string></value>
+                  </entry>
+                  <entry>
                     <key><string>space.access</string></key>
                     <value><string>{spacePrettyName}</string></value>
                   </entry>

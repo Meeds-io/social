@@ -294,7 +294,7 @@ export default {
     },
     profileUrl() {
       if (this.url && !this.clickable && this.username) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.username}`;
+        return `${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/profile/${this.username}`;
       } else {
         return null;
       }

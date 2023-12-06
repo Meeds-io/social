@@ -19,14 +19,12 @@
 
 -->
 <template>
-  <v-list-item :href="navigationUri" dense>
-    <v-list-item-icon class="my-auto d-flex">
-      <v-icon class="icon-default-color icon-default-size ma-auto">
-        {{ navigationIcon }}
-      </v-icon>
+  <v-list-item :href="navigationUri">
+    <v-list-item-icon class="me-3 py-3 my-0 d-flex">
+      <i aria-hidden="true" :class="navigationIcon"></i>
     </v-list-item-icon>
-    <v-list-item-content class="d-flex">
-      <div class="d-flex align-center justify-space-between my-auto">
+    <v-list-item-content class="my-n1">
+      <div class="d-flex align-center justify-space-between">
         <span>{{ navigationLabel }}</span>
         <v-chip
           v-if="unreadBadge"
@@ -54,7 +52,7 @@ export default {
   },
   computed: {
     navigationIcon() {
-      return this.navigation.icon || 'fas fa-folder';
+      return `${this.navigation.icon || 'fas fa-folder'} icon-default-color icon-default-size`;
     },
     navigationLabel() {
       return this.navigation?.label;
