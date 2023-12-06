@@ -774,6 +774,7 @@
   <portlet>
     <name>SpaceSettingPortlet</name>
     <module>
+      <load-group>SpaceSettingExtensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/spaceSettings.bundle.js</path>
