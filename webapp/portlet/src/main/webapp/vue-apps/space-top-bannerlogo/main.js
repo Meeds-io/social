@@ -38,7 +38,6 @@ export function init(params) {
       template: `<exo-space-logo-banner
                     id="SpaceTopBannerLogo"
                     :space-id="spaceId"
-                    :is-favorite="isFavorite"
                     :muted="muted"
                     :is-member="isMember"
                     :logo-path="logoPath" 
