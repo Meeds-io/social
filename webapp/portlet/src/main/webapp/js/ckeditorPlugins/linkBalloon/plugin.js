@@ -50,21 +50,21 @@
         initBalloonToolbar(editor);
         destroyInputTextPanel(editor);
         // Attach the balloon toolbar on selected text
-        editor.document.on( 'mouseup', function(evt) {
+        editor.document.on( 'mouseup', function() {
           setupMouseObserver(editor);
         });
         // Attach the balloon toolbar when the clicked text is a link
-        editor.document.on( 'click', function( evt ) {
+        editor.document.on( 'click', function() {
           setupClickObserver(editor, selectedText);
         });
 
         editor.on('contentDom', function () {
           const editable = editor.editable();
-          editable.attachListener(editable, 'mouseup', function (evt) {
-            setupMouseObserver(evt, editor, balloonToolbar);
+          editable.attachListener(editable, 'mouseup', function () {
+            setupMouseObserver(editor);
           });
-          editable.attachListener(editable, 'click', function (evt) {
-            setupClickObserver(evt, editor, balloonToolbar, selectedText);
+          editable.attachListener(editable, 'click', function () {
+            setupClickObserver(editor, balloonToolbar, selectedText);
           });
         }); 
       });
@@ -78,7 +78,7 @@
       link = getSelectedLink(editor);
     if (!balloonToolbar.getItem('unlink')) {
       if (link) {
-        addUnlinkItem(editor, balloonToolbar);
+        addUnlinkItem(balloonToolbar);
       } 
     } else {
       if (!link) {
