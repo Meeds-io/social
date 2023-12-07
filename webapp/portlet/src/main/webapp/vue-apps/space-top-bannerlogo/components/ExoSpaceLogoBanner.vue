@@ -196,10 +196,6 @@ export default {
       type: String,
       default: ''
     },
-    isFavorite: {
-      type: Boolean,
-      default: false
-    },
     muted: {
       type: Boolean,
       default: false
@@ -216,12 +212,21 @@ export default {
     mangersToDisplay() {
       return this.managers;
     },
+    isFavorite() {
+      return this.$root.isFavorite;
+    },
     params() {
       return {
         identityType: 'space',
         identityId: eXo.env.portal.spaceId
       };
     },
+  },
+  created() {
+    document.addEventListener('metadata.favorite.updated', this.favoriteUpdated);
+  },
+  destroyed() {
+    document.removeEventListener('metadata.favorite.updated', this.favoriteUpdated);
   },
   methods: {
     popoverActionEvent(clickedItem) {
@@ -230,7 +235,15 @@ export default {
     openDetails() {
       this.$root.$emit('displaySpaceHosts', this.mangersToDisplay);
       this.popoverActionEvent('displaySpaceHosts');
-    }
+    },
+    favoriteUpdated(event) {
+      const metadata = event && event.detail;
+      if (metadata && metadata.objectType === 'space'
+          && metadata.objectId === this.spaceId
+          && metadata.favorite !== this.isFavorite) {
+        this.$root.isFavorite = `${metadata.favorite}`;
+      }
+    },
   }
 };
 </script>
