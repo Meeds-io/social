@@ -64,7 +64,7 @@
             setupMouseObserver(editor);
           });
           editable.attachListener(editable, 'click', function () {
-            setupClickObserver(editor, balloonToolbar, selectedText);
+            setupClickObserver(editor, selectedText);
           });
         }); 
       });
@@ -92,7 +92,7 @@
     }
   }
 
-  function setupClickObserver( editor, data) {
+  function setupClickObserver(editor, data) {
     const link = getSelectedLink(editor);
     if (isInputTextToolbar) {
       const linkText = link && getSelectedText(editor) || data;
@@ -104,7 +104,7 @@
         if (!link) {
           insertLinksIntoSelection(editor, linkElem);   
         } else {
-          editLinkInSelection(editor, link, linkElem)
+          editLinkInSelection(editor, link, linkElem);
         } 
       }
       balloonToolbar.destroy();
