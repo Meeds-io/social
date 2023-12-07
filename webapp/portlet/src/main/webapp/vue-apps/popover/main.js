@@ -11,17 +11,13 @@ const urls = [
 Vue.directive('identity-popover', (el, binding) => {
   const identity = binding?.value;
   const isUser = identity?.username;
-  if (!isUser) {
-    document.addEventListener('space-favorite-added', event => {
-      const spaceId = event?.detail;
-      if (spaceId === identity.id) {
-        identity.isFavorite = 'true';
-      }
-    });
-    document.addEventListener('space-favorite-removed', event => {
-      const spaceId = event?.detail;
-      if (spaceId === identity.id) {
-        identity.isFavorite = 'false';
+  if (identity && !isUser) {
+    document.addEventListener('metadata.favorite.updated', event => {
+      const metadata = event?.detail;
+      if (metadata?.objectType === 'space'
+        && metadata.objectId === identity.id
+        && metadata.favorite !== (identity.isFavorite === 'true')) {
+        identity.isFavorite = `${metadata.favorite}`;
       }
     });
   }
