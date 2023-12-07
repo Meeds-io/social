@@ -34,18 +34,6 @@
     init: function( editor ) { 
       editor.addCommand( 'addLink', new CKEDITOR.addLinkCommand() );
       editor.addCommand( 'removeLink', new CKEDITOR.removeLinkCommand() );
-      if ( editor.ui.addButton ) {
-        editor.ui.addButton( 'addLink', {
-          label: editor.lang.link.toolbar,
-          command: 'addLink',
-          toolbar: 'addLink'
-        } );
-        editor.ui.addButton( 'removeLink', {
-          label: editor.lang.link.unlink,
-          command: 'removeLink',
-          toolbar: 'removeLink'
-        } );
-      }
       editor.on('instanceReady', function( ) {
         initBalloonToolbar(editor);
         destroyInputTextPanel(editor);
@@ -78,7 +66,7 @@
       link = getSelectedLink(editor);
     if (!balloonToolbar.getItem('unlink')) {
       if (link) {
-        addUnlinkItem(balloonToolbar);
+        addUnlinkItem(editor);
       } 
     } else {
       if (!link) {
@@ -155,7 +143,7 @@
     if (link) {
       urlInputValue.value = link.data( 'cke-saved-href' );
       url = urlInputValue.value;
-    } 
+    }
     
     urlInputValue.onkeyup = function(event){
       url = urlInputValue.value;
@@ -167,7 +155,7 @@
         if (!link) {
           insertLinksIntoSelection(editor, linkElem);   
         } else {
-          editLinkInSelection(editor, link, linkElem)
+          editLinkInSelection(editor, link, linkElem);
         } 
         balloonToolbar.destroy();
         isInputTextToolbar = true;
@@ -200,7 +188,7 @@
       }),
       link: new CKEDITOR.ui.button({
         command: 'addLink',
-        toolbar: 'test',
+        toolbar: 'addLink',
         label: editor.lang.linkBalloon.link
       }),
     });
@@ -234,6 +222,7 @@
     rangesToSelect.push( range );
     selectionElem.selectRanges( rangesToSelect );
     selectedText = ''; 
+    url = '';
   }
 
   // Edit existing link to selected text
@@ -253,12 +242,16 @@
       ranges.push( range );
       selectionElem.selectRanges( ranges );
     }
+    selectedText = ''; 
+    url = '';
   }
 
-  function getLinkAttributes( editor, data ) {
-    const set = {};
-    set[ 'data-cke-saved-href' ] = ( data && CKEDITOR.tools.trim( data.url ) ) || '';
-    set.target = '_blank';
+  function getLinkAttributes( data ) {
+    const set = {},
+      protocol = (data && data.url && data.url.indexOf('://') === -1) ? 'http://' : '',
+      portalBaseURL = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}`;
+    set[ 'data-cke-saved-href' ] = protocol.length > 0 ? protocol + url : url;
+    set.target = url.includes(portalBaseURL) ? '_self' : '_blank';
     if ( set[ 'data-cke-saved-href' ] ) {
       set.href = set[ 'data-cke-saved-href' ];
     }
