@@ -451,21 +451,6 @@ public interface IdentityManager {
   }
 
   /**
-   * Adds or modifies properties of a profile. The profile parameter is lightweight
-   * that contains only the property you want to add or modify. NOTE: The
-   * method will not delete properties from the old profile when the param profile
-   * has not those keys.
-   *
-   * @param profile The identity profile containing information which is added or modified.
-   * @throws Exception
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  default void addOrModifyProfileProperties(Profile profile) throws Exception {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Gets connections of an identity.
    *
    * @param ownerIdentity The identity.

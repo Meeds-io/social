@@ -241,19 +241,6 @@ public interface IdentityStorage {
   }
 
   /**
-   * Add or modify properties of profile and persist it. Profile parameter is a lightweight that
-   * contains only the property that you want to add or modify. NOTE: The method will
-   * not delete the properties on old profile when the param profile have not those keys.
-   *
-   * @param profile
-   * @throws IdentityStorageException
-   */
-  @Deprecated(forRemoval = true, since = "1.5.0")
-  default void addOrModifyProfileProperties(final Profile profile) throws IdentityStorageException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * get Space's member Identity and filter it by Profile Filter
    * @param space
    * @param profileFilter

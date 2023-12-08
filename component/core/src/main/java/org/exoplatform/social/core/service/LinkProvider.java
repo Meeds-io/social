@@ -189,10 +189,7 @@ public class LinkProvider {
                .append(identity.getProfile().getFullName().replace("'", "\\\\'"))
                .append("',")
                .append("avatar: '")
-               .append(identity.getProfile().getAvatarUrl() == null ?
-                                                                    buildAvatarURL(identity.getProviderId(),
-                                                                                   identity.getRemoteId()) :
-                                                                    identity.getProfile().getAvatarUrl())
+               .append(identity.getProfile().getAvatarUrl())
                .append("',")
                .append("position: '")
                .append(identity.getProfile().getPosition() == null ? "" : identity.getProfile().getPosition().replace("'", "\\\\'"))
