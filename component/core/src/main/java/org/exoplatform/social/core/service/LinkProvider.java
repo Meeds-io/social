@@ -160,7 +160,7 @@ public class LinkProvider {
    * @LevelAPI Platform
    */
   public static String getProfileLink(String username, String portalOwner) {
-    Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
+    Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
     Validate.notNull(identity, "Identity must not be null.");
     String lang = getCurrentUserLanguage(username);
     //
@@ -189,7 +189,10 @@ public class LinkProvider {
                .append(identity.getProfile().getFullName().replace("'", "\\\\'"))
                .append("',")
                .append("avatar: '")
-               .append(identity.getProfile().getAvatarUrl())
+               .append(identity.getProfile().getAvatarUrl() == null ?
+                                                                    buildAvatarURL(identity.getProviderId(),
+                                                                                   identity.getRemoteId()) :
+                                                                    identity.getProfile().getAvatarUrl())
                .append("',")
                .append("position: '")
                .append(identity.getProfile().getPosition() == null ? "" : identity.getProfile().getPosition().replace("'", "\\\\'"))

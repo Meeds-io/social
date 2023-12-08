@@ -33,6 +33,10 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     addResource(IdentityRestResourcesV1.class, null);
+    createIdentity("root");
+    createIdentity("john");
+    createIdentity("mary");
+    createIdentity("demo");
   }
 
   public void tearDown() throws Exception {

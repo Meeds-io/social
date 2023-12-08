@@ -530,7 +530,7 @@ public interface IdentityManager {
    * @param identityRemoteIds
    * @param sortField
    * @return
-   * @deprecated use {@link #sortIdentities(List, String, char, String, String)}
+   * @deprecated use {@link #sortIdentities(List, String, String, boolean)}
    */
   @Deprecated
   default List<String> sortIdentities(List<String> identityRemoteIds, String sortField) {

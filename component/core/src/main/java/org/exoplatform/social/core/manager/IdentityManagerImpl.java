@@ -360,12 +360,7 @@ public class IdentityManagerImpl implements IdentityManager {
 
   @Override
   public Identity getIdentity(String identityId, boolean forceLoadOrReloadProfile) {
-    Identity returnIdentity = identityStorage.findIdentityById(identityId);
-    if (returnIdentity != null) {
-      Profile profile = identityStorage.loadProfile(returnIdentity.getProfile());
-      returnIdentity.setProfile(profile);
-    }
-    return returnIdentity;
+    return identityStorage.findIdentityById(identityId);
   }
 
   @Override
@@ -380,18 +375,23 @@ public class IdentityManagerImpl implements IdentityManager {
 
   @Override
   public Identity getOrCreateIdentity(String providerId, String remoteId, boolean forceLoadOrReloadProfile) {
-    IdentityProvider<?> identityProvider = this.getIdentityProvider(providerId);
     Identity result = identityStorage.findIdentity(providerId, remoteId);
-    if (result == null) {
+    if (result == null || result.isDeleted()) {
+      IdentityProvider<?> identityProvider = this.getIdentityProvider(providerId);
       Identity identityFoundByRemoteProvider = identityProvider.getIdentityByRemoteId(remoteId);
       if (identityFoundByRemoteProvider != null) {
         // identity is valid for provider, but no yet
         // referenced in activityStorage
-        identityStorage.saveIdentity(identityFoundByRemoteProvider);
-        identityStorage.saveProfile(identityFoundByRemoteProvider.getProfile());
-        result = identityFoundByRemoteProvider;
+        if (result == null) {
+          identityStorage.saveIdentity(identityFoundByRemoteProvider);
+          identityStorage.saveProfile(identityFoundByRemoteProvider.getProfile());
+          identityProvider.onSaveIdentity(identityFoundByRemoteProvider);
+        } else {
+          result.setDeleted(false);
+          identityStorage.updateIdentity(result);
+        }
+        result = identityStorage.findIdentity(providerId, remoteId);
 
-        identityProvider.onSaveIdentity(identityFoundByRemoteProvider);
         // case of create new space or user, an event will be called only in
         // case of create user
         if (result.isUser()) {
@@ -401,10 +401,6 @@ public class IdentityManagerImpl implements IdentityManager {
         // Not found in provider, so return null
         return result;
       }
-    } else {
-      Profile profile = identityStorage.loadProfile(result.getProfile());
-      profile.setIdentity(result);
-      result.setProfile(profile);
     }
     return result;
   }

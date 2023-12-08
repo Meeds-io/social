@@ -35,7 +35,6 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
 import org.exoplatform.social.core.profile.ProfileFilter;
-import org.exoplatform.social.core.profile.ProfileLoader;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.IdentityStorageException;
@@ -135,13 +134,8 @@ public class CachedIdentityStorage implements IdentityStorage {
     Identity identity = identityCache.get(() -> new IdentityData(storage.findIdentityById(identityId)), new IdentityKey(identityId))
                                      .build();
     if (identity != null) {
-      ProfileLoader loader = new ProfileLoader() {
-        public Profile load() throws IdentityStorageException {
-          Profile profile = new Profile(identity);
-          return loadProfile(profile);
-        }
-      };
-      identity.setProfileLoader(loader);
+      identity.setProfile(null);
+      identity.setProfileLoader(() -> loadProfile(new Profile(identity)));
     }
     return identity;
   }
@@ -178,10 +172,12 @@ public class CachedIdentityStorage implements IdentityStorage {
     }, new IdentityKey(identity.getId()));
 
     if (profileData == null || profileData.getProfileId() == null) {
+      identity.setProfile(null);
       return profile;
     } else {
       Profile loadedProfile = profileData.build();
       loadedProfile.setIdentity(identity);
+      identity.setProfile(loadedProfile);
       return loadedProfile;
     }
   }

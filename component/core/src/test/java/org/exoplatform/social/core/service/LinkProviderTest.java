@@ -21,33 +21,20 @@ import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
-public class LinkProviderTest extends AbstractCoreTest {
-  private IdentityManager identityManager;
+public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
 
-  public void setUp() throws Exception {
-    super.setUp();
-    identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-
-    assertNotNull(identityManager);
-  }
-
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
-
-  /**
-   *
-   * @throws Exception
-   */
-  public void testGetProfileLink() throws Exception {
+  public void testGetProfileLink() {
     final String portalOwner = "classic";
 
-    Identity rootIdentity = identityManager.getOrCreateUserIdentity("root");
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    assertNotNull(rootIdentity);
+    assertNotNull(rootIdentity.getProfile());
     String rootFullName = rootIdentity.getProfile().getFullName();
     assertNotNull("rootFullName must not be null.", rootFullName);
+
     // but when we have the identity we generate a link
     String actualLink = LinkProvider.getProfileLink(rootIdentity.getRemoteId(), portalOwner);
     Object external = rootIdentity.getProfile().getProperty(Profile.EXTERNAL);
@@ -61,7 +48,5 @@ public class LinkProviderTest extends AbstractCoreTest {
         + (external == null ? "false" : external)
         + "',}\">" + rootFullName + "</a>";
     assertEquals(expected, actualLink);
-
-    identityManager.deleteIdentity(rootIdentity);
   }
 }

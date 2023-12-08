@@ -212,10 +212,6 @@ public class RDBMSRelationshipStorageImpl implements RelationshipStorage {
     } else {
       identity = identityStorage.findIdentityById(item.getSender().getStringId());
     }
-    if (identity == null) return null;
-    //load profile
-    Profile profile = identityStorage.loadProfile(identity.getProfile());
-    identity.setProfile(profile);
     return identity;
   }
 

@@ -94,13 +94,13 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private LocaleConfigService          localeConfigService;
 
-  private Identity            rootIdentity;
+  private Identity                     rootIdentity;
 
-  private Identity            johnIdentity;
+  private Identity                     johnIdentity;
 
-  private Identity            maryIdentity;
+  private Identity                     maryIdentity;
 
-  private Identity            demoIdentity;
+  private Identity                     demoIdentity;
 
   private List<ProfilePropertySetting>     tearDownProfilePropertyList = new ArrayList<>();
 
@@ -125,10 +125,10 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     passwordRecoveryService = getContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
-    rootIdentity = identityManager.getOrCreateUserIdentity("root");
-    johnIdentity = identityManager.getOrCreateUserIdentity("john");
-    maryIdentity = identityManager.getOrCreateUserIdentity("mary");
-    demoIdentity = identityManager.getOrCreateUserIdentity("demo");
+    rootIdentity = createIdentity("root");
+    johnIdentity = createIdentity("john");
+    maryIdentity = createIdentity("mary");
+    demoIdentity = createIdentity("demo");
 
     assertNotNull(rootIdentity);
     assertNotNull(johnIdentity);
