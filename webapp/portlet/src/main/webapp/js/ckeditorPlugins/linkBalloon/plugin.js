@@ -56,6 +56,14 @@
           });
         }); 
       });
+
+      editor.setKeystroke( CKEDITOR.CTRL + 75 /*K*/, 'addLink' );   
+      document.onkeydown = function(evt) {
+        evt = evt || window.event;
+        if ( evt.key === 'Escape' && isInputTextToolbar) { 
+          hideInputTextPanel(editor);
+        } 
+      };
     },
   });
 
@@ -73,31 +81,15 @@
         balloonToolbar.deleteItem('unlink');
       } 
     }
-    if ( selection && selection.getSelectedText().length > 0) {
+    if ( selection && selection.getSelectedText().trim().length > 0) {
       balloonToolbar.attach( selection );
     } else {
       balloonToolbar.hide();
     }
   }
 
-  function setupClickObserver(editor, data) {
+  function setupClickObserver(editor) {
     const link = getSelectedLink(editor);
-    if (isInputTextToolbar) {
-      const linkText = link && getSelectedText(editor) || data;
-      const linkElem = {
-        url: url,
-        linkText: linkText
-      };
-      if (data.length && url && url.length) {
-        if (!link) {
-          insertLinksIntoSelection(editor, linkElem);   
-        } else {
-          editLinkInSelection(editor, link, linkElem);
-        } 
-      }
-      balloonToolbar.destroy();
-      isInputTextToolbar = false;
-    }
     if (link) {
       balloonToolbar.destroy();
       initBalloonToolbar(editor);
@@ -165,13 +157,16 @@
 
   function destroyInputTextPanel(editor) {
     document.addEventListener('ballonPanelHidden', () => {
-      balloonToolbar.destroy();
-      isInputTextToolbar = false;
-      initBalloonToolbar(editor);
-      balloonToolbar.attach( editor.getSelection() );
+      hideInputTextPanel(editor);
     });
   }
 
+  function hideInputTextPanel(editor) {
+    balloonToolbar.destroy();
+    isInputTextToolbar = false;
+    initBalloonToolbar(editor);
+    balloonToolbar.attach( editor.getSelection() );
+  }
 
   function initBalloonToolbar(editor) {
     balloonToolbar = new CKEDITOR.ui.balloonToolbar(editor);
@@ -197,7 +192,7 @@
   // Insert new link to selected text
 
   function insertLinksIntoSelection( editor, data ) {
-    const attributes = getLinkAttributes( editor, data);
+    const attributes = getLinkAttributes(data);
     const range = selectionElem.getRanges()[0],
       style = new CKEDITOR.style( {
         element: 'a',
@@ -228,7 +223,7 @@
   // Edit existing link to selected text
 
   function editLinkInSelection( editor, selectedElement, data ) {
-    const attributes = getLinkAttributes( editor, data ),
+    const attributes = getLinkAttributes(data),
       ranges = [],
       range = editor.createRange(),
       href = selectedElement.data( 'cke-saved-href' );
@@ -273,19 +268,21 @@
   }
 
   function getSelectedText(editor) {
-    return editor.getSelection().getSelectedText();
+    return editor.getSelection().getSelectedText().trim();
   }
 
   // eslint-disable-next-line no-empty-function
   CKEDITOR.addLinkCommand = function() {};
   CKEDITOR.addLinkCommand.prototype = {
     exec: function( editor ) {
-      balloonToolbar.destroy();
-      initInputTextToolbar(editor, getSelectedText(editor));
-      balloonToolbar.parts.title.remove();
-      balloonToolbar.parts.panel.addClass( 'cke_balloontoolbar' );
-      balloonToolbar.parts.panel.addClass( 'cke_inputTextBalloon' );
-      balloonToolbar.attach( editor.getSelection() );
+      if (getSelectedLink(editor) || getSelectedText(editor).length > 0) {
+        balloonToolbar.destroy();
+        initInputTextToolbar(editor, getSelectedText(editor));
+        balloonToolbar.parts.title.remove();
+        balloonToolbar.parts.panel.addClass( 'cke_balloontoolbar' );
+        balloonToolbar.parts.panel.addClass( 'cke_inputTextBalloon' );
+        balloonToolbar.attach( editor.getSelection() );
+      }
     }
   };
 
@@ -301,5 +298,4 @@
       editor.removeStyle( style );
     }
   };
-    
 })();
