@@ -32,11 +32,6 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
 
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
-    identityManager.saveIdentity(new Identity(OrganizationIdentityProvider.NAME, "root"));
-    identityManager.saveIdentity(new Identity(OrganizationIdentityProvider.NAME, "john"));
-    identityManager.saveIdentity(new Identity(OrganizationIdentityProvider.NAME, "mary"));
-    identityManager.saveIdentity(new Identity(OrganizationIdentityProvider.NAME, "demo"));
-
     addResource(IdentityRestResourcesV1.class, null);
   }
 

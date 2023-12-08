@@ -40,16 +40,15 @@ public class RelationshipsRestResourcesTest extends AbstractResourceTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
 
-    rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
-    johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
-    maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
-    demoIdentity = new Identity(OrganizationIdentityProvider.NAME, "demo");
+    rootIdentity = identityManager.getOrCreateUserIdentity("root");
+    johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    maryIdentity = identityManager.getOrCreateUserIdentity("mary");
+    demoIdentity = identityManager.getOrCreateUserIdentity("demo");
 
-    identityManager.saveIdentity(rootIdentity);
-    identityManager.saveIdentity(johnIdentity);
-    identityManager.saveIdentity(maryIdentity);
-    identityManager.saveIdentity(demoIdentity);
-
+    assertNotNull(rootIdentity);
+    assertNotNull(johnIdentity);
+    assertNotNull(maryIdentity);
+    assertNotNull(demoIdentity);
     addResource(RelationshipsRestResources.class, null);
   }
 

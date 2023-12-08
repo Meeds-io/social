@@ -19,12 +19,11 @@ package org.exoplatform.social.core.storage.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
-import org.exoplatform.social.core.identity.model.ActiveIdentityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -41,8 +40,6 @@ import org.exoplatform.social.core.storage.IdentityStorageException;
 public interface IdentityStorage {
 
   public static final Sorting DEFAULT_SORTING = new Sorting(Sorting.SortBy.FULLNAME, Sorting.OrderBy.ASC);
-
-  public static final char    EMPTY_CHARACTER = '\u0000';
 
   /** Default avatar and banner upload limits. */
   public static final int     DEFAULT_UPLOAD_IMAGE_LIMIT = 2;
@@ -116,6 +113,19 @@ public interface IdentityStorage {
    * @throws IdentityStorageException
    */
   public Identity findIdentity(final String providerId, final String remoteId) throws IdentityStorageException;
+
+  /**
+   * Gets the identity id by remote id.
+   *
+   * @param providerId the identity provider
+   * @param remoteId   the id
+   * @return the identity id
+   * @throws IdentityStorageException
+   */
+  default String findIdentityId(final String providerId, final String remoteId) throws IdentityStorageException {
+    Identity identity = findIdentity(providerId, remoteId);
+    return identity == null ? null : identity.getId();
+  }
 
   /**
    * Saves profile.
@@ -217,35 +227,6 @@ public interface IdentityStorage {
       throws IdentityStorageException;
 
   /**
-   * Counts the number of identities that match the first character of name.
-   *
-   * @param providerId
-   * @param profileFilter Profile filter object.
-   * @return Number of identities that start with the first character of name.
-   * @throws IdentityStorageException
-   * @since 1.2.0-GA
-   */
-  public int getIdentitiesByFirstCharacterOfNameCount(final String providerId, final ProfileFilter profileFilter)
-      throws IdentityStorageException;
-
-  /**
-   * Gets the identities that match the first character of name.
-   *
-   * @param providerId Id of provider.
-   * @param profileFilter Profile filter object.
-   * @param offset   Start index of list to be get.
-   * @param limit    End index of list to be get.
-   * @param forceLoadOrReloadProfile Load profile or not.
-   * @return Identities that have name start with the first character.
-   * @throws IdentityStorageException
-   * @deprecated use method getIdentities or getIdentitiesForUnifiedSearch instead
-   * @since 1.2.0-GA
-   */
-  @Deprecated
-  public List<Identity> getIdentitiesByFirstCharacterOfName(final String providerId, final ProfileFilter profileFilter,
-      long offset, long limit, boolean forceLoadOrReloadProfile) throws IdentityStorageException;
-
-  /**
    * Gets the type.
    *
    * @param nodetype the nodetype
@@ -254,7 +235,7 @@ public interface IdentityStorage {
    * @throws IdentityStorageException
    * @deprecated JCR implementation doesn't exist anymore, so nodetype does not exist
    */
-  @Deprecated
+  @Deprecated(forRemoval = true, since = "1.4.0")
   default String getType(final String nodetype, final String property) {
     throw new UnsupportedOperationException();
   }
@@ -267,8 +248,11 @@ public interface IdentityStorage {
    * @param profile
    * @throws IdentityStorageException
    */
-  public void addOrModifyProfileProperties(final Profile profile) throws IdentityStorageException;
-  
+  @Deprecated(forRemoval = true, since = "1.5.0")
+  default void addOrModifyProfileProperties(final Profile profile) throws IdentityStorageException {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * get Space's member Identity and filter it by Profile Filter
    * @param space
@@ -303,18 +287,7 @@ public interface IdentityStorage {
    * @since 4.0.0.Alpha1
    */
   public String getProfileActivityId(Profile profile, AttachedActivityType type);
-  
-  /**
-   * Gets the active user list base on the given ActiveIdentityFilter.
-   * 1. N days who last login less than N days.
-   * 2. UserGroup who belongs to this group.
-   * 
-   * @param filter
-   * @return 
-   * @since 4.1.0
-   */
-  public Set<String> getActiveUsers(ActiveIdentityFilter filter);
-  
+
   /**
    * Process enable/disable Identity
    * 
@@ -330,25 +303,22 @@ public interface IdentityStorage {
    * @param identityId user viewer identity id.
    * @param offset   Start index of list to be get.
    * @param limit    End index of list to be get.
-   * @return Identities that have name start with the first character.
+   * @return Identities
    * @since 4.4.0
    */
   List<IdentityWithRelationship> getIdentitiesWithRelationships(String identityId, int offset, int limit);
 
   /**
    * Gets all identities from the store with the relationship that they have with current user identity.
-   * The firstChar parameter will be used to filter on identities fullname|lastname|firstname first character.
    * 
    * @param identityId
-   * @param firstCharFieldName
-   * @param firstChar
    * @param sortFieldName 
    * @param sortDirection 
    * @param offset
    * @param limit
    * @return
    */
-  default List<IdentityWithRelationship> getIdentitiesWithRelationships(String identityId, String firstCharFieldName, char firstChar, String sortFieldName, String sortDirection, int offset, int limit) {
+  default List<IdentityWithRelationship> getIdentitiesWithRelationships(String identityId, String sortFieldName, String sortDirection, int offset, int limit) {
     throw new UnsupportedOperationException("This operation is not supported using current implementation of service IdentityStorage");
   }
 
@@ -396,17 +366,14 @@ public interface IdentityStorage {
    * @param limit
    * @return
    */
-  default public List<Identity> getIdentities(String providerId, long offset, long limit) {
+  default List<Identity> getIdentities(String providerId, long offset, long limit) {
     throw new UnsupportedOperationException("This operation is not supported using current implementation of service IdentityStorage");
   }
 
   /**
    * Get list of identities by providerId
-   * The firstChar parameter will be used to filter on identities fullname/firstname/lastname first character.
    * 
    * @param providerId
-   * @param firstCharacterFieldName
-   * @param firstCharacter
    * @param sortField
    * @param sortDirection
    * @param isEnabled
@@ -417,7 +384,26 @@ public interface IdentityStorage {
    * @param limit
    * @return
    */
-  public List<Identity> getIdentities(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit);
+  public List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit);
+
+  /**
+   * Get list of identities by providerId
+   * 
+   * @param providerId
+   * @param sortField
+   * @param sortDirection
+   * @param isEnabled
+   * @param userType
+   * @param isConnected
+   * @param enrollmentStatus
+   * @param offset
+   * @param limit
+   * @return {@link List} of identity ids
+   */
+  default List<String> getIdentityIds(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit) { // NOSONAR parameters count
+    List<Identity> identities = getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
+    return identities == null ? Collections.emptyList() : identities.stream().map(String::valueOf).toList();
+  }
 
   /**
    * Sorts a list of user identities using a field
@@ -429,22 +415,18 @@ public interface IdentityStorage {
    */
   @Deprecated
   default List<String> sortIdentities(List<String> identityRemoteIds, String sortField) {
-    return sortIdentities(identityRemoteIds, null, EMPTY_CHARACTER, sortField, DEFAULT_SORTING.orderBy.name());
+    return sortIdentities(identityRemoteIds, sortField, DEFAULT_SORTING.orderBy.name());
   }
 
   /**
    * Sorts a list of user identities using a field
    *
    * @param identityRemoteIds
-   * @param firstCharacterFieldName
-   * @param firstCharacter
    * @param sortField
    * @param sortDirection
    * @return
    */
   default List<String> sortIdentities(List<String> identityRemoteIds,
-                                      String firstCharacterFieldName,
-                                      char firstCharacter,
                                       String sortField,
                                       String sortDirection) {
     // No default sorting to apply
@@ -456,16 +438,12 @@ public interface IdentityStorage {
    * filterDisabled is equal to true, only enabled users will be returned
    * 
    * @param identityRemoteIds
-   * @param firstCharacterFieldName
-   * @param firstCharacter
    * @param sortField
    * @param sortDirection
    * @param filterDisabled
    * @return
    */
   default List<String> sortIdentities(List<String> identityRemoteIds,
-                                      String firstCharacterFieldName,
-                                      char firstCharacter,
                                       String sortField,
                                       String sortDirection,
                                       boolean filterDisabled) {

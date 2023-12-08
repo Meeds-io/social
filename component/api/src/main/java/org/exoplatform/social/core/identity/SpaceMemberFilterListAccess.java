@@ -106,11 +106,7 @@ public class SpaceMemberFilterListAccess implements ListAccess<Identity> {
     if (profileFilter.isSortingEmpty()) {
       profileFilter.setSorting(manager.getDefaultSorting());
     }
-    if (StringUtils.isBlank(profileFilter.getFirstCharFieldName())) {
-      profileFilter.setFirstCharFieldName(manager.getFirstCharacterFiltering());
-    }
-    List<Identity> identities;
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type, offset, limit);    
+    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type, offset, limit);    
     return identities.toArray(new Identity[identities.size()]);
   }
 

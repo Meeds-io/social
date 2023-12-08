@@ -48,10 +48,6 @@ public interface IdentityManager {
 
   public static final Sorting DEFAULT_SORTING              = new Sorting(SortBy.FULLNAME, OrderBy.ASC);
 
-  public static final String  DEFAULT_FIRST_CHAR_FILTERING = SortBy.LASTNAME.getFieldName();
-
-  public static final char    EMPTY_CHARACTER              = '\u0000';
-
   /**
    * Gets the last identities that have been created.
    *
@@ -433,10 +429,13 @@ public interface IdentityManager {
    *
    * @param identity The identity to be saved.
    * @LevelAPI Provisional
-   * @deprecated Use {@link #getOrCreateIdentity(String, String, boolean)} instead.
+   * @deprecated Use {@link #updateIdentity(Identity)} instead.
    *             Will be removed by 4.0.x.
    */
-  void saveIdentity(Identity identity);
+  @Deprecated(forRemoval = true, since = "1.4.0")
+  default void saveIdentity(Identity identity) {
+    updateIdentity(identity);
+  }
 
   /**
    * Saves a profile.
@@ -446,7 +445,10 @@ public interface IdentityManager {
    * @deprecated Use {@link #updateProfile(org.exoplatform.social.core.identity.model.Profile)}  instead.
    *             Will be removed by 4.0.x.
    */
-  void saveProfile(Profile profile);
+  @Deprecated(forRemoval = true, since = "1.4.0")
+  default void saveProfile(Profile profile) {
+    updateProfile(profile);
+  }
 
   /**
    * Adds or modifies properties of a profile. The profile parameter is lightweight
@@ -459,80 +461,9 @@ public interface IdentityManager {
    * @LevelAPI Provisional
    * @deprecated Will be removed by 4.0.x.
    */
-  void addOrModifyProfileProperties(Profile profile) throws Exception;
-
-  /**
-   * Updates an avatar.
-   *
-   * @param p The profile containing its avatar which is updated.
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  void updateAvatar(Profile p);
-
-  /**
-   * Updates the basic information.
-   *
-   * @param p The profile containing its basic information which is updated.
-   * @throws Exception
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  void updateBasicInfo(Profile p) throws Exception;
-
-  /**
-   * Updates the contact section of a profile.
-   *
-   * @param p The profile containing its contact section which is updated.
-   * @throws Exception
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  void updateContactSection(Profile p) throws Exception;
-
-  /**
-   * Updates the experience section of a profile.
-   *
-   * @param p The profile containing the experience section which is updated.
-   * @throws Exception
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  void updateExperienceSection(Profile p) throws Exception;
-
-  /**
-   * Updates the header section of profile.
-   *
-   * @param p The profile containing the header section which is updated.
-   * @throws Exception
-   * @LevelAPI Provisional
-   * @deprecated Will be removed by 4.0.x.
-   */
-  void updateHeaderSection(Profile p) throws Exception;
-
-  /**
-   * Gets identities.
-   *
-   * @param providerId Id of the provider.
-   * @return The identities.
-   * @throws Exception the exception
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getIdentities(String, boolean)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  List<Identity> getIdentities(String providerId) throws Exception;
-
-  /**
-   * Gets all identities from a provider Id.
-   *
-   * @param providerId Id of the provider.
-   * @param loadProfile The load profile.
-   * @return The identities.
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getIdentities(String, boolean)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  List<Identity> getIdentities(String providerId, boolean loadProfile) throws Exception;
+  default void addOrModifyProfileProperties(Profile profile) throws Exception {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Gets connections of an identity.
@@ -604,10 +535,7 @@ public interface IdentityManager {
   @Deprecated
   default List<String> sortIdentities(List<String> identityRemoteIds, String sortField) {
     Sorting defaultSorting = getDefaultSorting();
-    String firstCharacterFieldName = getFirstCharacterFiltering();
     return sortIdentities(identityRemoteIds,
-                          firstCharacterFieldName,
-                          EMPTY_CHARACTER,
                           defaultSorting.sortBy.getFieldName(),
                           defaultSorting.orderBy.name());
   }
@@ -616,17 +544,13 @@ public interface IdentityManager {
    * Sorts a list of user identities using a field
    *
    * @param identityRemoteIds
-   * @param firstCharacterFieldName
-   * @param firstCharacter
    * @param sortField
    * @param sortDirection
    * @return {@link List} of userNames sorted by sortField
    */
   default List<String> sortIdentities(List<String> identityRemoteIds,
-                                             String firstCharacterFieldName,
-                                             char firstCharacter,
-                                             String sortField,
-                                             String sortDirection) {
+                                      String sortField,
+                                      String sortDirection) {
     // No sorting to apply
     return identityRemoteIds;
   }
@@ -636,16 +560,12 @@ public interface IdentityManager {
    * filterDisabled is equal to true, only enabled users will be returned
    * 
    * @param identityRemoteIds
-   * @param firstCharacterFieldName
-   * @param firstCharacter
    * @param sortField
    * @param sortDirection
    * @param filterDisabled
    * @return
    */
   default List<String> sortIdentities(List<String> identityRemoteIds,
-                                      String firstCharacterFieldName,
-                                      char firstCharacter,
                                       String sortField,
                                       String sortDirection,
                                       boolean filterDisabled) {
@@ -658,13 +578,6 @@ public interface IdentityManager {
    */
   default Sorting getDefaultSorting() {
     return DEFAULT_SORTING;
-  }
-
-  /**
-   * @return field name to use to filter on first character when listing identities
-   */
-  default String getFirstCharacterFiltering() {
-    return DEFAULT_FIRST_CHAR_FILTERING;
   }
 
   /**

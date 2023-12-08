@@ -129,7 +129,7 @@ public class SocialUserEventListenerImpl extends UserEventListener {
 
   @Override
   @ExoTransactional
-  public void preDelete(final User user) throws Exception {
+  public void postDelete(final User user) throws Exception {
     IdentityStorage storage = container.getComponentInstanceOfType(IdentityStorage.class);
     Identity identity = storage.findIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
     try {

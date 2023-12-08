@@ -230,7 +230,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     profile.setProperty(Profile.FIRST_NAME, username);
     profile.setProperty(Profile.LAST_NAME, username);
     identity.setProfile(profile);
-    identityManager.saveProfile(profile);
+    identityManager.updateProfile(profile);
     if(identity.isDeleted() || !identity.isEnable()) {
       identity.setDeleted(false);
       identity.setEnable(true);

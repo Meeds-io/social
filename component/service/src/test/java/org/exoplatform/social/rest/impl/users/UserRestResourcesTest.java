@@ -125,16 +125,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     passwordRecoveryService = getContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
-    rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
-    johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
-    maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
-    demoIdentity = new Identity(OrganizationIdentityProvider.NAME, "demo");
+    rootIdentity = identityManager.getOrCreateUserIdentity("root");
+    johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    maryIdentity = identityManager.getOrCreateUserIdentity("mary");
+    demoIdentity = identityManager.getOrCreateUserIdentity("demo");
 
-    identityManager.saveIdentity(rootIdentity);
-    identityManager.saveIdentity(johnIdentity);
-    identityManager.saveIdentity(maryIdentity);
-    identityManager.saveIdentity(demoIdentity);
-
+    assertNotNull(rootIdentity);
+    assertNotNull(johnIdentity);
+    assertNotNull(maryIdentity);
+    assertNotNull(demoIdentity);
     UserRestResourcesV1 userRestResourcesV1 = new UserRestResourcesV1(
                                                                       new ActivityRestResourcesV1(activityManager,
                                                                                                   identityManager,
@@ -325,8 +324,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     //when
     maryIdentity.setEnable(false);
     johnIdentity.setEnable(false);
-    identityManager.saveIdentity(maryIdentity);
-    identityManager.saveIdentity(johnIdentity);
+    identityManager.updateIdentity(maryIdentity);
+    identityManager.updateIdentity(johnIdentity);
     response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
     //then
     assertNotNull(response);
@@ -337,8 +336,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     //when
     maryIdentity.setEnable(true);
     johnIdentity.setEnable(true);
-    identityManager.saveIdentity(maryIdentity);
-    identityManager.saveIdentity(johnIdentity);
+    identityManager.updateIdentity(maryIdentity);
+    identityManager.updateIdentity(johnIdentity);
     response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
     //then
     assertNotNull(response);
@@ -351,7 +350,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("root");
     Profile profile = maryIdentity.getProfile();
     profile.setProperty(Profile.EXTERNAL, "true");
-    identityManager.saveProfile(profile);
+    identityManager.updateProfile(profile);
 
     // when 
     ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0"), "", null, null);

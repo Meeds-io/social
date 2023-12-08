@@ -181,7 +181,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
   }
   
   private void clearIdentityCaching() {
-    IdentityStorage storage = (IdentityStorage) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityStorage.class);
+    IdentityStorage storage = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityStorage.class);
     
     //clear caching for identity
     storage.updateIdentityMembership(null);

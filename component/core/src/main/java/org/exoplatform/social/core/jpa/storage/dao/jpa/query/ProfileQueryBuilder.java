@@ -163,13 +163,6 @@ public class ProfileQueryBuilder {
 
         predicates.add(cb.or(p));
       }
-
-      char c = filter.getFirstCharacterOfName();
-      if (c != '\u0000') {
-        String val = Character.toLowerCase(c) + "%";
-        MapJoin<IdentityEntity, String, String> properties = identity.join(IdentityEntity_.properties, JoinType.LEFT);
-        predicates.add(cb.and(cb.equal(properties.key(), Profile.LAST_NAME), cb.like(cb.lower(properties.value()), val)));
-      }
     }
 
     Predicate[] pds = predicates.toArray(new Predicate[predicates.size()]);

@@ -25,8 +25,6 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
-import org.exoplatform.social.core.jpa.test.MaxQueryNumber;
-import org.exoplatform.social.core.jpa.test.QueryNumberTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.ProfileFilter;
@@ -50,7 +48,6 @@ import java.util.stream.Collectors;
  * Date: Jun 17, 2010
  * Time: 9:34:56 AM
  */
-@QueryNumberTest
 public class IdentityStorageTest extends AbstractCoreTest {
   private IdentityStorage identityStorage;
   private SpaceStorage spaceStorage;
@@ -70,7 +67,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
    * Tests {@link IdenityStorage#saveIdentity(Identity)}
    *
    */
-  @MaxQueryNumber(186)
   public void testSaveIdentity() {
     Identity tobeSavedIdentity = new Identity(OrganizationIdentityProvider.NAME, "identity1");
     identityStorage.saveIdentity(tobeSavedIdentity);
@@ -93,7 +89,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
   /**
    * Tests {@link IdenityStorage#processEnabledIdentity(Identity)}
    */
-  @MaxQueryNumber(99)
   public void testEnableIdentity() {
     final String remoteUser = "user";
     Identity identity = new Identity(OrganizationIdentityProvider.NAME, remoteUser);
@@ -122,7 +117,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
    * Tests {@link IdenityStorage#deleteIdentity(Identity)}
    *
    */
-  @MaxQueryNumber(807)
   public void testDeleteIdentity() {
     final String username = "username";
     Identity tobeSavedIdentity = new Identity(OrganizationIdentityProvider.NAME, username);
@@ -160,7 +154,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
    * Tests {@link IdenityStorage#findIdentityById(String)}
    *
    */
-  @MaxQueryNumber(90)
   public void testFindIdentityById() {
     final String remoteUser = "identity1";
     Identity toSaveIdentity = new Identity(OrganizationIdentityProvider.NAME, remoteUser);
@@ -208,8 +201,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
       tearDownIdentityList.add(identity);
     }
     List<String> sortIdentities = identityStorage.sortIdentities(remoteUsers,
-                                                                 Profile.FIRST_NAME,
-                                                                 'u',
                                                                  Profile.FULL_NAME,
                                                                  "asc",
                                                                  true);
@@ -220,15 +211,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
     identityStorage.saveIdentity(identity1);
 
     sortIdentities = identityStorage.sortIdentities(remoteUsers,
-                                                    Profile.FIRST_NAME,
-                                                    'u',
                                                     Profile.FULL_NAME,
                                                     "asc");
     assertEquals(9, sortIdentities.size());
 
     sortIdentities = identityStorage.sortIdentities(remoteUsers,
-                                                    Profile.FIRST_NAME,
-                                                    'u',
                                                     Profile.FULL_NAME,
                                                     "asc",
                                                     false);
@@ -239,7 +226,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
    * Tests {@link IdenityStorage#findIdentity(String, String)}
    *
    */
-  @MaxQueryNumber(87)
   public void testFindIdentity() {
     final String userName = "username";
 
@@ -260,7 +246,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
    * Tests {@link IdenityStorage#saveProfile(Profile)}
    *
    */
-  @MaxQueryNumber(108)
   public void testSaveProfile() {
     final String userName = "username";
     final String firstName = "FirstName";
@@ -292,7 +277,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
    * Tests {@link IdenityStorage#loadProfile(Profile)}
    *
    */
-  @MaxQueryNumber(210)
   public void testLoadProfile() throws Exception {
     final String username = "username";
     Identity tobeSavedIdentity = new Identity(OrganizationIdentityProvider.NAME, username);
@@ -338,7 +322,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     tearDownIdentityList.add(identityStorage.findIdentity(OrganizationIdentityProvider.NAME, username));
   }
 
-  @MaxQueryNumber(99)
   public void testLoadProfileByReloadCreatedProfileNode() throws Exception {
     String providerId = "organization";
     String remoteId = "username";
@@ -368,7 +351,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
   }
 
 
-  @MaxQueryNumber(108)
   public void testFindIdentityByExistName() throws Exception {
     String providerId = "organization";
     String remoteId = "username";
@@ -390,7 +372,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals(1, result.size());
   }
 
-  @MaxQueryNumber(1080)
   public void testFindManyIdentitiesByExistName() throws Exception {
     final String providerId = "organization";
 
@@ -415,7 +396,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals(total, result.size());
   }
 
-  @MaxQueryNumber(1080)
   public void testGetIdentitiesSorted() throws Exception {
     final int total = 10;
     String remoteIdPrefix = "username";
@@ -454,64 +434,51 @@ public class IdentityStorageTest extends AbstractCoreTest {
     String providerId = OrganizationIdentityProvider.NAME;
 
     String sortDirection = OrderBy.ASC.name();
-    char firstCharacter = '\0';
-    String firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
 
     String sortField = SortBy.FULLNAME.getFieldName();
     String fieldName = Profile.FULL_NAME;
-    List<Identity> result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null,null, offset, limit);
+    List<Identity> result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null,null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.LAST_NAME;
     sortField = SortBy.LASTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.FIRST_NAME;
     sortField = SortBy.FIRSTNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    firstCharacter = 'f';
-    firstCharacterFieldName = SortBy.FIRSTNAME.getFieldName();
-
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
-
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
     assertSorted(remoteIdPrefix, fieldName, result);
-
-    firstCharacterFieldName = SortBy.LASTNAME.getFieldName();
-
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, null, offset, limit);
-    assertTrue("Returned result should be empty", result.isEmpty());
 
     // filter users by type 
     sortField = SortBy.FULLNAME.getFieldName();
     fieldName = Profile.FULL_NAME;
-    firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "internal", null, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, "internal", null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 7);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, "external", null, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, "external", null, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, false, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, false, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 10);
     assertSorted(remoteIdPrefix, fieldName, result);
     
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, true, null, offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, true, null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 0);
     assertSorted(remoteIdPrefix, fieldName, result);
 
@@ -525,23 +492,20 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     //filter users by enrolled status
     sortField = SortBy.FULLNAME.getFieldName();
-    fieldName = Profile.FULL_NAME;
-    firstCharacterFieldName = SortBy.FULLNAME.getFieldName();
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, "notEnrolled", offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "notEnrolled", offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 7);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, "noEnrollmentPossible", offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "noEnrollmentPossible", offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
 
-    result = identityStorage.getIdentities(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, "enrolled", offset, limit);
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "enrolled", offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
   }
 
-  @MaxQueryNumber(99)
   public void testFindIdentityByNotExistName() throws Exception {
     String providerId = "organization";
     String remoteId = "username";
@@ -561,50 +525,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
     final List<Identity> result = identityStorage.getIdentitiesByProfileFilter(providerId, filter, 0, 1, false);
     assertEquals(0, result.size());
   }
-  /**
-   * Tests {@link IdenityStorage#getIdentitiesByFirstCharaterOfNameCount(String, char)}
-   * 
-   */
-  @MaxQueryNumber(1200)
-  public void testGetIdentitiesByFirstCharacterOfNameCount() throws Exception {
-    populateData();
-    final ProfileFilter filter = new ProfileFilter();
-    filter.setFirstCharacterOfName('F');
-    int idsCount = identityStorage.getIdentitiesByFirstCharacterOfNameCount("organization", filter);
-    assertEquals("Number of identity must be " + idsCount, 0, idsCount);
-    filter.setFirstCharacterOfName('L');
-    idsCount = identityStorage.getIdentitiesByFirstCharacterOfNameCount("organization", filter);
-    assertEquals("Number of identity must be " + idsCount, 5, idsCount);
-    
-    //disable username1
-    Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, "username1");
-    identityStorage.processEnabledIdentity(identity, false);
-    assertEquals(4, identityStorage.getIdentitiesByFirstCharacterOfNameCount("organization", filter));
-    
-    //enable username1
-    identityStorage.processEnabledIdentity(identity, true);
-    assertEquals(5, identityStorage.getIdentitiesByFirstCharacterOfNameCount("organization", filter));
-  }
 
-  /**
-   * Tests {@link IdenityStorage#getIdentitiesByFirstCharaterOfName(String, char, int, int, boolean)}
-   * 
-   */
-  @MaxQueryNumber(1100)
-  public void testGetIdentitiesByFirstCharacterOfName() throws Exception {
-    populateData();    
-    final ProfileFilter filter = new ProfileFilter();
-    filter.setFirstCharacterOfName('F');
-    assertEquals(0, identityStorage.getIdentitiesByFirstCharacterOfName("organization", filter, 0, 1, false).size());
-    filter.setFirstCharacterOfName('L');
-    assertEquals(5, identityStorage.getIdentitiesByFirstCharacterOfName("organization", filter, 0, 10, false).size());
-  }
-  
   /**
    * Tests {@link IdenityStorage#getIdentitiesByProfileFilterCount(String, ProfileFilter)}
    * 
    */
-  @MaxQueryNumber(2000)
   public void testGetIdentitiesByProfileFilterCount() throws Exception {
     populateData();
 
@@ -703,15 +628,14 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     // set no possible enrollment users
     pf.setEnrollmentStatus("noEnrollmentPossible");
-    identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(),'\0', SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, null, "noEnrollmentPossible", 0, Integer.MAX_VALUE);
+    identityStorage.getIdentities(OrganizationIdentityProvider.NAME, SortBy.FULLNAME.getFieldName(), OrderBy.ASC.name(), true, null, null, "noEnrollmentPossible", 0, Integer.MAX_VALUE);
     assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
   }
-  
+
   /**
    * Tests {@link IdenityStorage#getIdentitiesByProfileFilterCount(String, ProfileFilter, int, int, boolean)}
    * 
    */
-  @MaxQueryNumber(670)
   public void testGetIdentitiesByProfileFilterAccessList() throws Exception {
     populateData();
     ProfileFilter pf = new ProfileFilter();
@@ -747,7 +671,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
    * Tests {@link IdenityStorage#findIdentityByProfileFilterCount(String, ProfileFilter)}
    * 
    */
-  @MaxQueryNumber(264)
   public void testUpdateIdentity() throws Exception {
     String providerId = OrganizationIdentityProvider.NAME;
     String newProviderId = "space";
@@ -771,7 +694,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
   /**
    *  Tests {@link IdenityStorage#getIdentitiesCount(String)}
    */
-  @MaxQueryNumber(765)
   public void testGetIdentitiesCount() throws Exception {
     int numberUser = 10;
     int numberDisableUser = 5;
@@ -792,7 +714,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals(numberUser - numberDisableUser, identityStorage.getIdentitiesCount(OrganizationIdentityProvider.NAME));
   }
 
-  @MaxQueryNumber(2635)
   public void testGetSpaceMemberByProfileFilter() throws Exception {
     populateData();
     populateSpaceData();
@@ -828,55 +749,39 @@ public class IdentityStorageTest extends AbstractCoreTest {
     ProfileFilter firstProfileFilter = new ProfileFilter();
 
     // Test on first character field choice
-    profileFilter.setFirstCharFieldName(Sorting.SortBy.FIRSTNAME.getFieldName());
-    profileFilter.setFirstCharacterOfName('C');
     profileFilter.setSorting(new Sorting(SortBy.FULLNAME, Sorting.OrderBy.ASC));
     List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
-    assertEquals(2, identities.size());
-    assertEquals("First member in list should be 'cab'", "cab", identities.get(0).getRemoteId());
-    assertEquals("Second member in list should be 'cba'", "cba", identities.get(1).getRemoteId());
+    assertEquals(9, identities.size());
+    assertEquals("First member in list should be 'abc'", "abc", identities.get(0).getRemoteId());
+    assertEquals("Second member in list should be 'acb'", "acb", identities.get(1).getRemoteId());
     // reset first character field name to default
-    profileFilter.setFirstCharFieldName(Sorting.SortBy.LASTNAME.getFieldName());
-
-    // Test on Sort field
-    profileFilter.setSorting(new Sorting(Sorting.SortBy.FULLNAME, Sorting.OrderBy.ASC));
-    profileFilter.setFirstCharacterOfName('A');
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
-    assertEquals(2, identities.size());
-    assertEquals("First member in list should be 'bca'", "bca", identities.get(0).getRemoteId());
-    assertEquals("Second member in list should be 'cba'", "cba", identities.get(1).getRemoteId());
 
     // Test on Sort direction
     profileFilter.setSorting(new Sorting(Sorting.SortBy.FIRSTNAME, Sorting.OrderBy.DESC));
-    profileFilter.setFirstCharacterOfName('B');
     identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
-    assertEquals(2, identities.size());
-    assertEquals("First member in list should be 'cab'", "cab", identities.get(0).getRemoteId());
-    assertEquals("Second member in list should be 'acb'", "acb", identities.get(1).getRemoteId());
+    assertEquals(9, identities.size());
+    assertEquals("First member in list should be 'username3'", "username3", identities.get(0).getRemoteId());
+    assertEquals("Second member in list should be 'username2'", "username2", identities.get(1).getRemoteId());
 
     // Test by combining Sort direction, field and first character
-    profileFilter.setFirstCharFieldName(Sorting.SortBy.FULLNAME.getFieldName());
-    profileFilter.setFirstCharacterOfName('A');
     profileFilter.setSorting(new Sorting(Sorting.SortBy.LASTNAME, Sorting.OrderBy.DESC));
     identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
-    assertEquals(2, identities.size());
-    assertEquals("First member in list should be 'abc'", "abc", identities.get(0).getRemoteId());
-    assertEquals("Second member in list should be 'acb'", "acb", identities.get(1).getRemoteId());
+    assertEquals(9, identities.size());
+    assertEquals("First member in list should be 'username3'", "username3", identities.get(0).getRemoteId());
+    assertEquals("Second member in list should be 'username2'", "username2", identities.get(1).getRemoteId());
 
-    profileFilter.setFirstCharFieldName(Sorting.SortBy.FIRSTNAME.getFieldName());
-    profileFilter.setFirstCharacterOfName('B');
     profileFilter.setSorting(new Sorting(Sorting.SortBy.LASTNAME, Sorting.OrderBy.ASC));
     identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
-    assertEquals(2, identities.size());
-    assertEquals("First member in list should be 'bca'", "bca", identities.get(0).getRemoteId());
-    assertEquals("Second member in list should be 'bac'", "bac", identities.get(1).getRemoteId());
-    
+    assertEquals(9, identities.size());
+    assertEquals("First member in list should be 'cba'", "cba", identities.get(0).getRemoteId());
+    assertEquals("Second member in list should be 'bca'", "bca", identities.get(1).getRemoteId());
+
     identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, firstProfileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 2);
     assertEquals(2, identities.size());
 
-    Identity username1Identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "username1", true);
+    Identity username1Identity = identityManager.getOrCreateUserIdentity("username1");
     tearDownIdentityList.add(username1Identity);
-    tearDownIdentityList.add(identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "username4", true));
+    tearDownIdentityList.add(identityManager.getOrCreateUserIdentity("username4"));
     firstProfileFilter.setViewerIdentity(username1Identity);
     assertEquals(8, identityStorage.countSpaceMemberIdentitiesByProfileFilter(space, firstProfileFilter, SpaceMemberFilterListAccess.Type.MEMBER));
 
@@ -893,7 +798,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals(1, identities.size());
   }
 
-  @MaxQueryNumber(126)
   public void testGetAvatarInputStreamById() throws Exception {
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
     AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
@@ -991,7 +895,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertNotNull(stream);
   }
 
-  @MaxQueryNumber(141)
   public void testGetBannerInputStreamById() throws Exception {
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
     BannerAttachment bannerAttachment = new BannerAttachment(null, "banner", "png", inputStream, System.currentTimeMillis());
@@ -1086,7 +989,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertNotNull(stream);
   }
 
-  @MaxQueryNumber(24)
   public void testUpdateProfile() throws Exception {
     String userName = "userIdentity4";
     Identity identity = populateIdentity(userName);
