@@ -471,9 +471,6 @@ public class RelationshipManagerImpl implements RelationshipManager {
     if (profileFilter.isSortingEmpty()) {
       profileFilter.setSorting(identityManager.getDefaultSorting());
     }
-    if (StringUtils.isBlank(profileFilter.getFirstCharFieldName())) {
-      profileFilter.setFirstCharFieldName(identityManager.getFirstCharacterFiltering());
-    }
     return profileFilter;
   }
 

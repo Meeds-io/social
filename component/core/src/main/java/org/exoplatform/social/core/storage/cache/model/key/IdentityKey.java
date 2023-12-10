@@ -17,6 +17,8 @@
 
 package org.exoplatform.social.core.storage.cache.model.key;
 
+import java.util.Objects;
+
 import org.exoplatform.social.core.identity.model.Identity;
 
 /**
@@ -36,6 +38,10 @@ public class IdentityKey implements CacheKey {
     } else {
       this.id = identity.getId();
     }
+  }
+
+  public IdentityKey(String id) {
+    this.id = id;
   }
 
   public String getId() {
@@ -62,8 +68,7 @@ public class IdentityKey implements CacheKey {
 
   @Override
   public int hashCode() {
-    int result = (id != null ? id.hashCode() : 0);
-    return result;
+    return Objects.hashCode(id);
   }
 
 }
