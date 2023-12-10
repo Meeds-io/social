@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
@@ -69,7 +70,7 @@ public abstract class AbstractLifeCycle<T extends LifeCycleListener<E>, E extend
    */
   protected void broadcast(final E event) {
     for (final T listener : listeners) {
-      if (completionService.isAsync()) {
+      if (completionService.isAsync() || listener.getClass().isAnnotationPresent(Asynchronous.class)) {
         completionService.addTask(new Callable<E>() {
           public E call() throws Exception {
             begin();

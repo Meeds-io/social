@@ -31,8 +31,6 @@ import lombok.AllArgsConstructor;
  */
 @AllArgsConstructor
 public class SpaceFilter implements Cloneable {
-  /** The first character of the space name. */
-  private char firstCharacterOfSpaceName;
   
   /** The space name search condition. */
   private String spaceNameSearchCondition;
@@ -60,17 +58,6 @@ public class SpaceFilter implements Cloneable {
    * The constructor.
    */
   public SpaceFilter() {
-    this.firstCharacterOfSpaceName = CHAR_DEFAULT_VALUE;
-    this.spaceNameSearchCondition = null;
-  }
-  
-  /**
-   * The constructor.
-   * 
-   * @param firstCharacterOfSpaceName
-   */
-  public SpaceFilter(char firstCharacterOfSpaceName) {
-    this.firstCharacterOfSpaceName = firstCharacterOfSpaceName;
     this.spaceNameSearchCondition = null;
   }
   
@@ -80,19 +67,7 @@ public class SpaceFilter implements Cloneable {
    * @param spaceNameSearchCondition
    */
   public SpaceFilter(String spaceNameSearchCondition) {
-    this.firstCharacterOfSpaceName = CHAR_DEFAULT_VALUE;
     this.spaceNameSearchCondition = Utils.processUnifiedSearchCondition(spaceNameSearchCondition);
-  }
-  
-  /**
-   * The constructor.
-   * 
-   * @param firstCharacterOfSpaceName
-   * @param spaceNameSearchCondition
-   */
-  public SpaceFilter(char firstCharacterOfSpaceName, String spaceNameSearchCondition) {
-    this.firstCharacterOfSpaceName = firstCharacterOfSpaceName;
-    this.spaceNameSearchCondition = Utils.removeSpecialCharacterInSpaceFilter(spaceNameSearchCondition);
   }
   
   /**
@@ -178,24 +153,6 @@ public class SpaceFilter implements Cloneable {
   }
 
   /**
-   * Gets the first character of space name.
-   * 
-   * @return the first character of space name
-   */
-  public char getFirstCharacterOfSpaceName() {
-    return firstCharacterOfSpaceName;
-  }
-
-  /**
-   * Sets the first character of space name.
-   * 
-   * @param firstCharacterOfSpaceName
-   */
-  public void setFirstCharacterOfSpaceName(char firstCharacterOfSpaceName) {
-    this.firstCharacterOfSpaceName = firstCharacterOfSpaceName;
-  }
-
-  /**
    * Gets the space name search condition.
    * 
    * @return the space name search condition
@@ -245,7 +202,6 @@ public class SpaceFilter implements Cloneable {
     return Objects.hash(appId,
                         exclusions,
                         favorite,
-                        firstCharacterOfSpaceName,
                         includeSpaces,
                         remoteId,
                         sorting,
@@ -263,15 +219,13 @@ public class SpaceFilter implements Cloneable {
       return false;
     SpaceFilter other = (SpaceFilter) obj;
     return Objects.equals(appId, other.appId) && Objects.equals(exclusions, other.exclusions) && favorite == other.favorite
-        && firstCharacterOfSpaceName == other.firstCharacterOfSpaceName && Objects.equals(includeSpaces, other.includeSpaces)
         && Objects.equals(remoteId, other.remoteId) && Objects.equals(sorting, other.sorting)
         && Objects.equals(spaceNameSearchCondition, other.spaceNameSearchCondition) && Objects.equals(template, other.template);
   }
 
   @Override
   public SpaceFilter clone() { // NOSNAR
-    return new SpaceFilter(firstCharacterOfSpaceName,
-                           spaceNameSearchCondition,
+    return new SpaceFilter(spaceNameSearchCondition,
                            includeSpaces,
                            exclusions,
                            remoteId,

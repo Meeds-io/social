@@ -90,8 +90,6 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
  */
 public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
-  private static final char NULL_CHARACTER = '\u0000';
-
   private static final Log LOG = ExoLogger.getLogger(RDBMSIdentityStorageImpl.class);
 
   private static final int     BATCH_SIZE = 100;
@@ -369,7 +367,6 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
     EntityConverterUtils.mapToEntity(identity, entity);
     entity = getIdentityDAO().update(entity);
-
     return EntityConverterUtils.convertToIdentity(entity, true);
   }
 
@@ -497,6 +494,12 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
       throw new IdentityStorageException(IdentityStorageException.Type.FAIL_TO_FIND_IDENTITY, "Can not load identity", ex);
     }
+  }
+
+  @Override
+  public String findIdentityId(String providerId, String remoteId) throws IdentityStorageException {
+    Long identityId = getIdentityDAO().findIdByProviderAndRemoteId(providerId, remoteId);
+    return identityId == null ? null : String.valueOf(identityId);
   }
 
   /**
@@ -659,15 +662,6 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   @Override
-  public List<Identity> getIdentitiesByFirstCharacterOfName(String providerId,
-                                                            ProfileFilter profileFilter,
-                                                            long offset,
-                                                            long limit,
-                                                            boolean forceLoadOrReloadProfile) throws IdentityStorageException {
-    return getIdentitiesByProfileFilter(providerId, profileFilter, offset, limit, forceLoadOrReloadProfile);
-  }
-
-  @Override
   public List<Identity> getIdentitiesForMentions(String providerId,
                                                  ProfileFilter profileFilter,
                                                  Type type,
@@ -679,7 +673,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       identity = profileFilter.getViewerIdentity();
     }
     if (OrganizationIdentityProvider.NAME.equals(providerId)) {
-      return getProfileSearchConnector().search(identity, profileFilter, type, offset, limit);
+      return getProfileSearchConnector().search(identity, profileFilter, type, offset, limit)
+                                        .stream()
+                                        .map(getRDBMSCachedIdentityStorage()::findIdentityById)
+                                        .toList();
     } else {
       throw new IllegalStateException("Can't search identities with provider id = " + providerId);
     }
@@ -703,23 +700,13 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled(), profileFilter.getEnrollmentStatus());
   }
 
-  @Override
-  public int getIdentitiesByFirstCharacterOfNameCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    ExtendProfileFilter xFilter = new ExtendProfileFilter(profileFilter);
-    xFilter.setProviderId(providerId);
-
-    ListAccess<IdentityEntity> list = getIdentityDAO().findIdentities(xFilter);
-    try {
-      return list.getSize();
-    } catch (Exception ex) {
-      return 0;
-    }
-  }
-
   public List<Identity> getIdentitiesForUnifiedSearch(final String providerId,
                                                       final ProfileFilter profileFilter,
                                                       long offset, long limit) throws IdentityStorageException {
-    return getProfileSearchConnector().search(null, profileFilter, null, offset, limit);
+    return getProfileSearchConnector().search(null, profileFilter, null, offset, limit)
+                                      .stream()
+                                      .map(getRDBMSCachedIdentityStorage()::findIdentityById)
+                                      .toList();
   }
 
   public List<Identity> getSpaceMemberIdentitiesByProfileFilter(final Space space,
@@ -730,8 +717,6 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       throw new IllegalArgumentException("Space shouldn't be null");
     }
 
-    String firstCharFieldName = profileFilter.getFirstCharFieldName();
-    char firstCharacter = profileFilter.getFirstCharacterOfName();
     Sorting sorting = profileFilter.getSorting();
     String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
     String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
@@ -780,7 +765,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       // Retrive space members from DB
 
       List<Identity> identities = new ArrayList<>();
-      spaceMembers = sortIdentities(spaceMembers, firstCharFieldName, firstCharacter, sortFieldName, sortDirection, false);
+      spaceMembers = sortIdentities(spaceMembers, sortFieldName, sortDirection, false);
 
       int i = (int) offset;
       long indexLimit = offset + limit;
@@ -801,7 +786,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         LOG.warn("Error while cloning profile filter", e);
       }
       profileFilter.setRemoteIds(spaceMembers);
-      return getProfileSearchConnector().search(null, profileFilter, null, offset, limit);
+      return getProfileSearchConnector().search(null, profileFilter, null, offset, limit)
+          .stream()
+          .map(getRDBMSCachedIdentityStorage()::findIdentityById)
+          .toList();
     }
   }
 
@@ -883,7 +871,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   public List<Identity> getIdentitiesByProfileFilter(final String providerId,
-                                                     final ProfileFilter profileFilter, long offset, long limit,
+                                                     final ProfileFilter profileFilter,
+                                                     long offset,
+                                                     long limit,
                                                      boolean forceLoadOrReloadProfile)  throws IdentityStorageException {
     ExtendProfileFilter xFilter = new ExtendProfileFilter(profileFilter);
     xFilter.setProviderId(providerId);
@@ -896,8 +886,6 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public List<Identity> getIdentities(String providerId,
-                                      String firstCharacterFieldName,
-                                      char firstCharacter,
                                       String sortField,
                                       String sortDirection,
                                       boolean isEnabled,
@@ -906,7 +894,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       String enrollmentStatus,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {
@@ -919,24 +907,48 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     return identities;
   }
 
+  @Override
+  public List<String> getIdentityIds(String providerId,
+                                     String sortField,
+                                     String sortDirection,
+                                     boolean isEnabled,
+                                     String userType,
+                                     Boolean isConnected,
+                                     String enrollmentStatus,
+                                     long offset,
+                                     long limit) {
+    return getIdentityDAO().getIdentityIdsByProviderSorted(providerId,
+                                                           sortField,
+                                                           sortDirection,
+                                                           isEnabled,
+                                                           userType,
+                                                           isConnected,
+                                                           enrollmentStatus,
+                                                           offset,
+                                                           limit)
+                           .stream()
+                           .map(String::valueOf)
+                           .toList();
+  }
+
   public List<Identity> getIdentities(final String providerId, long offset, long limit) throws IdentityStorageException {
-    return this.getIdentities(providerId, null, NULL_CHARACTER, null, null, true, null, null, null, offset, limit);
+    return this.getIdentities(providerId, null, null, true, null, null, null, offset, limit);
   }
 
   @Override
   public List<IdentityWithRelationship> getIdentitiesWithRelationships(final String identityId, int offset, int limit)  throws IdentityStorageException {
-    return getIdentitiesWithRelationships(identityId, null, NULL_CHARACTER, null, null, offset, limit);
+    return getIdentitiesWithRelationships(identityId, null, null, offset, limit);
   }
 
   @Override
-  public List<IdentityWithRelationship> getIdentitiesWithRelationships(String identityId, String firstCharFieldName, char firstChar, String sortFieldName, String sortDirection, int offset, int limit) {
-    ListAccess<Entry<IdentityEntity, ConnectionEntity>> list = getIdentityDAO().findAllIdentitiesWithConnections(Long.valueOf(identityId), firstCharFieldName, firstChar, sortFieldName, sortDirection);
+  public List<IdentityWithRelationship> getIdentitiesWithRelationships(String identityId, String sortFieldName, String sortDirection, int offset, int limit) {
+    ListAccess<Entry<IdentityEntity, ConnectionEntity>> list = getIdentityDAO().findAllIdentitiesWithConnections(Long.valueOf(identityId), sortFieldName, sortDirection);
     return EntityConverterUtils.convertToIdentitiesWithRelationship(list, offset, limit);
   }
 
   @Override
   public int countIdentitiesWithRelationships(String identityId) throws Exception {
-    ListAccess<Entry<IdentityEntity, ConnectionEntity>> list = getIdentityDAO().findAllIdentitiesWithConnections(Long.valueOf(identityId), null, NULL_CHARACTER, null, null);
+    ListAccess<Entry<IdentityEntity, ConnectionEntity>> list = getIdentityDAO().findAllIdentitiesWithConnections(Long.valueOf(identityId), null, null);
     return list.getSize();
   }
 
@@ -1127,23 +1139,17 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public List<String> sortIdentities(List<String> identityRemoteIds,
-                                     String firstCharacterFieldName,
-                                     char firstCharacter,
                                      String sortField,
                                      String sortDirection) {
-    return sortIdentities(identityRemoteIds, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true);
+    return sortIdentities(identityRemoteIds, sortField, sortDirection, true);
   }
 
   @Override
   public List<String> sortIdentities(List<String> identityRemoteIds,
-                                     String firstCharacterFieldName,
-                                     char firstCharacter,
                                      String sortField,
                                      String sortDirection,
                                      boolean filterDisabled) {
     return spaceMemberDAO.sortSpaceMembers(identityRemoteIds,
-                                           firstCharacterFieldName,
-                                           firstCharacter,
                                            sortField,
                                            sortDirection,
                                            filterDisabled);

@@ -18,6 +18,7 @@ package org.exoplatform.social.core.jpa.search;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,17 +31,14 @@ import org.json.simple.parser.ParseException;
 
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.search.Sorting;
-import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 /**
@@ -60,12 +58,12 @@ public class ProfileSearchConnector {
     this.client = client;
   }
 
-  public List<Identity> search(Identity identity,
-                                     ProfileFilter filter,
-                                     Type type,
-                                     long offset,
-                                     long limit) {
-    if(identity == null && filter.getViewerIdentity() != null) {
+  public List<String> search(Identity identity,
+                             ProfileFilter filter,
+                             Type type,
+                             long offset,
+                             long limit) {
+    if (identity == null && filter.getViewerIdentity() != null) {
       identity = filter.getViewerIdentity();
     }
     String esQuery = buildQueryStatement(identity, filter, type, offset, limit);
@@ -82,8 +80,8 @@ public class ProfileSearchConnector {
    * @return number of identities
    */
   public int count(Identity identity,
-                               ProfileFilter filter,
-                               Type type) {
+                   ProfileFilter filter,
+                   Type type) {
     String esQuery = buildQueryStatement(identity, filter, type, 0, 1);
     String jsonResponse = this.client.sendRequest(esQuery, this.index);
     return getCount(jsonResponse);
@@ -108,10 +106,9 @@ public class ProfileSearchConnector {
     return totalSize == null ? 0 : Integer.parseInt(totalSize.toString());
   }
   
-  private List<Identity> buildResult(String jsonResponse) {
+  private List<String> buildResult(String jsonResponse) {
 
     LOG.debug("Search Query response from ES : {} ", jsonResponse);
-    List<Identity> results = new ArrayList<>();
     JSONParser parser = new JSONParser();
 
     Map<?, ?> json = null;
@@ -122,23 +119,17 @@ public class ProfileSearchConnector {
     }
 
     JSONObject jsonResult = (JSONObject) json.get("hits");
-    if (jsonResult == null) return results;
-
-    //
-    JSONArray jsonHits = (JSONArray) jsonResult.get("hits");
-    for(Object jsonHit : jsonHits) {
-      String identityId = (String) ((JSONObject) jsonHit).get("_id");
-      Identity identity = getIdentity(identityId);
-      if (identity != null) {
-        results.add(identity);
+    if (jsonResult == null) {
+      return Collections.emptyList();
+    } else {
+      JSONArray jsonHits = (JSONArray) jsonResult.get("hits");
+      List<String> results = new ArrayList<>();
+      for(Object jsonHit : jsonHits) {
+        String identityId = (String) ((JSONObject) jsonHit).get("_id");
+        results.add(identityId);
       }
+      return results;
     }
-    return results;
-  }
-
-  private Identity getIdentity(String identityId) {
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    return identityManager.getIdentity(identityId);
   }
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
@@ -396,13 +387,11 @@ public class ProfileSearchConnector {
     }
 
     esQuery.append(",\"_source\": false\n");
-    esQuery.append(",\"fields\": [\"userName\"]\n");
+    esQuery.append(",\"fields\": [\"_id\"]\n");
     esQuery.append("}\n");
-    LOG.debug("Search Query request to ES : {} ", esQuery);
-
     return esQuery.toString();
   }
-  
+
   /**
    * 
    * @param filter
@@ -457,32 +446,6 @@ public class ProfileSearchConnector {
 
   private String buildExpression(ProfileFilter filter) {
     StringBuilder esExp = new StringBuilder();
-    char firstChar = filter.getFirstCharacterOfName();
-    //
-    if (firstChar != '\u0000') {
-      String filterField = "name";
-      if (filter.getFirstCharFieldName() != null) {
-        switch (SortBy.valueOf(filter.getFirstCharFieldName().toUpperCase())) {
-        case FIRSTNAME:
-          filterField = "firstName";
-          break;
-        case LASTNAME:
-          filterField = "lastName";
-          break;
-        default:
-          // Filter by first character on full name
-          filterField = "name";
-          break;
-        }
-      }
-
-      esExp.append(filterField)
-           .append(".whitespace:")
-           .append(firstChar)
-           .append(StorageUtils.ASTERISK_STR);
-      return esExp.toString();
-    }
-
     //
     String inputName = StringUtils.isBlank(filter.getName()) ? null : filter.getName().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
     if (StringUtils.isNotBlank(inputName)) {

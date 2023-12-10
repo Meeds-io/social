@@ -261,7 +261,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     if (!CollectionUtils.isEmpty(spaces)) {
       for (Space space : spaces) {
         Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-        ids.add(String.valueOf(spaceIdentity.getId()));
+        if (spaceIdentity != null) {
+          ids.add(String.valueOf(spaceIdentity.getId()));
+        }
       }
     }
     return ids;

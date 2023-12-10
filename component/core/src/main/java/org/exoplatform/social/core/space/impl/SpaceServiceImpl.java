@@ -33,7 +33,6 @@ import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
@@ -94,7 +93,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   private IdentityManager                      identityManager;
 
-  private OrganizationService                  orgService               = null;
+  private OrganizationService                  organizationService      = null;
 
   private UserACL                              userACL                  = null;
 
@@ -173,17 +172,6 @@ public class SpaceServiceImpl implements SpaceService {
    */
   public Space getSpaceByPrettyName(String spacePrettyName) {
     return spaceStorage.getSpaceByPrettyName(spacePrettyName);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getSpacesByFirstCharacterOfName(String firstCharacterOfName) throws SpaceException {
-    try {
-      return Arrays.asList(this.getAllSpacesByFilter(new SpaceFilter(firstCharacterOfName.charAt(0))).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
   }
 
   /**
@@ -356,9 +344,8 @@ public class SpaceServiceImpl implements SpaceService {
     List<Identity> invitedIdentities = new ArrayList<Identity>();
     if (invitedGroupId != null) { // Invites users in group to join the new created space
       // Gets identities of users in group and then invites them to join into space.
-      OrganizationService org = getOrgService();
       try {
-        ListAccess<User> groupMembersAccess = org.getUserHandler().findUsersByGroupId(invitedGroupId);
+        ListAccess<User> groupMembersAccess = getOrgService().getUserHandler().findUsersByGroupId(invitedGroupId);
         User [] users = groupMembersAccess.load(0, groupMembersAccess.getSize());
         for (User user : users) {
           String userId = user.getUserName();
@@ -571,9 +558,8 @@ public class SpaceServiceImpl implements SpaceService {
         }
 
         if (deleteGroup) {
-          OrganizationService orgService = getOrgService();
           UserACL acl = getUserACL();
-          GroupHandler groupHandler = orgService.getGroupHandler();
+          GroupHandler groupHandler = getOrgService().getGroupHandler();
           Group deletedGroup = groupHandler.findGroupById(space.getGroupId());
           List<String> mandatories = acl.getMandatoryGroups();
           if (deletedGroup != null) {
@@ -1229,11 +1215,10 @@ public class SpaceServiceImpl implements SpaceService {
    * @return organizationService
    */
   private OrganizationService getOrgService() {
-    if (orgService == null) {
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      orgService = (OrganizationService) container.getComponentInstanceOfType(OrganizationService.class);
+    if (organizationService == null) {
+      organizationService = ExoContainerContext.getService(OrganizationService.class);
     }
-    return orgService;
+    return organizationService;
   }
 
   /**
