@@ -244,7 +244,7 @@
 
   function getLinkAttributes( data ) {
     const set = {},
-      protocol = (data && data.url && data.url.indexOf('://') === -1) ? 'https://' : '';
+      protocol = (data && data.url && data.url.indexOf('://') === -1 && !data.url.includes(eXo.env.portal.context)) ? 'https://' : '';
     set[ 'data-cke-saved-href' ] = protocol.length > 0 ? protocol + url : url;
     set.target = url.includes(eXo.env.portal.context) ? '_self' : '_blank';
     if ( set[ 'data-cke-saved-href' ] ) {
