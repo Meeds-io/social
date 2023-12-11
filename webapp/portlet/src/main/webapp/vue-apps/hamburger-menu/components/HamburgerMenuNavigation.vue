@@ -108,6 +108,7 @@
 <script>
 export default {
   data: () => ({
+    oldAdministrationMenuEnabled: eXo.env.portal.oldAdministrationMenu,
     firstLevelDrawer: false,
     secondLevelDrawer: false,
     thirdLevelDrawer: false,
@@ -329,8 +330,12 @@ export default {
         .then(data => this.sites = data || []);
     },
     retrieveAdministrationNavigations() {
-      return this.$navigationService.getNavigations(null, 'group', null, this.visibility)
-        .then(data => this.administrationNavigations = data || []);
+      if (this.oldAdministrationMenuEnabled) {
+        return this.$navigationService.getNavigations(null, 'group', null, this.visibility)
+          .then(data => this.administrationNavigations = data || []);
+      } else {
+        return Promise.resolve();
+      }
     },
     retrieveRecentSpaces() {
       return this.$spaceService.getSpaces('', this.offset, this.limit, 'lastVisited', 'member,managers,favorite,unread,muted')
