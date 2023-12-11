@@ -995,7 +995,6 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     relationshipManager.inviteToConnect(testuser3, testuser1);
 
     ProfileFilter profileFilter = new ProfileFilter();
-    profileFilter.setFirstCharacterOfName('T');
     ListAccess<Identity> identities = relationshipManager.getIncomingByFilter(testuser1, profileFilter);
 
     assertNotNull("Relationships must not be null", identities);
@@ -1032,7 +1031,6 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     relationshipManager.confirm(testuser3, testuser1);
 
     ProfileFilter profileFilter = new ProfileFilter();
-    profileFilter.setFirstCharacterOfName('T');
     ListAccess<Identity> identities = relationshipManager.getConnectionsByFilter(testuser1, profileFilter);
 
     assertNotNull("Relationships must not be null", identities);
@@ -1065,7 +1063,6 @@ public class RDBMSRelationshipManagerTest extends AbstractCoreTest {
     relationshipManager.inviteToConnect(testuser1, testuser3);
 
     ProfileFilter profileFilter = new ProfileFilter();
-    profileFilter.setFirstCharacterOfName('T');
     ListAccess<Identity> identities = relationshipManager.getOutgoingByFilter(testuser1, profileFilter);
 
     assertNotNull("Relationships must not be null", identities);

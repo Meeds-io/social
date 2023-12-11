@@ -390,11 +390,6 @@
                 <description>Identities sort direction</description>
                 <value>${exo.social.identity.sort.direction:asc}</value>
             </value-param>
-            <value-param>
-                <name>firstChar.field.name</name>
-                <description>Identities first char filtering field name</description>
-                <value>${exo.social.identity.firstChar.field:lastname}</value>
-            </value-param>
         </init-params>
     </component>
 

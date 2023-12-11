@@ -225,19 +225,18 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   }
 
   protected Identity createIdentity(String username) {
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
     Profile profile = new Profile(identity);
     profile.setProperty(Profile.FIRST_NAME, username);
     profile.setProperty(Profile.LAST_NAME, username);
     identity.setProfile(profile);
-    identityManager.saveProfile(profile);
+    identityManager.updateProfile(profile);
     if(identity.isDeleted() || !identity.isEnable()) {
       identity.setDeleted(false);
       identity.setEnable(true);
-      identity = identityManager.updateIdentity(identity);
+      identityManager.updateIdentity(identity);
     }
-
-    return identity;
+    return identityManager.getOrCreateUserIdentity(username);
   }
 
   protected Identity createIdentity(String username, String email) {

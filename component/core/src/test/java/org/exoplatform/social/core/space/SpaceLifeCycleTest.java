@@ -169,7 +169,12 @@ public class SpaceLifeCycleTest extends AbstractCoreTest {
 
   class MockFailingListener extends MockListener {
     protected void recordEvent(SpaceLifeCycleEvent event) {
-      throw new RuntimeException("fake runtime exception thrown on purpose");
+      throw new RuntimeException("fake runtime exception thrown on purpose") {
+        @Override
+        public StackTraceElement[] getStackTrace() {
+          return new StackTraceElement[0];
+        }
+      };
     }
   }
 

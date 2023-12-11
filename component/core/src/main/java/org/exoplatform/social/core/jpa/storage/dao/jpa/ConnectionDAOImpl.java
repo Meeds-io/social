@@ -76,10 +76,10 @@ public class ConnectionDAOImpl extends GenericDAOJPAImpl<ConnectionEntity, Long>
 
   @Override
   @SuppressWarnings("unchecked")
-  public List<ConnectionEntity> getConnections(Identity identity, Type status, String firstCharacterField, char firstCharacter, long offset, long limit, Sorting sorting) {
+  public List<ConnectionEntity> getConnections(Identity identity, Type status, long offset, long limit, Sorting sorting) {
     String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
     String sortDirection = sorting == null || sorting.orderBy == null ? Sorting.OrderBy.ASC.name() : sorting.orderBy.name();
-    Query query = getConnectionsQuery(identity.getId(), status, firstCharacterField, firstCharacter, sortFieldName, sortDirection);
+    Query query = getConnectionsQuery(identity.getId(), status, sortFieldName, sortDirection);
     if (offset > 0) {
       query.setFirstResult((int) offset);
     }
@@ -318,15 +318,8 @@ public class ConnectionDAOImpl extends GenericDAOJPAImpl<ConnectionEntity, Long>
     return result == null ? 0 : result.intValue();
   }
 
-  private Query getConnectionsQuery(String identityId, Type status, String firstCharacterField, char firstCharacter, String sortField, String sortDirection) {
+  private Query getConnectionsQuery(String identityId, Type status, String sortField, String sortDirection) {
     StringBuilder queryStringBuilder = new StringBuilder("SELECT c.* FROM SOC_CONNECTIONS c \n");
-    if (firstCharacter > 0) {
-      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_first_char \n");
-      queryStringBuilder.append("   ON identity_prop_first_char.identity_id <> ").append(identityId).append(" \n");
-      queryStringBuilder.append("       AND (identity_prop_first_char.identity_id = c.sender_id OR identity_prop_first_char.identity_id = c.receiver_id) \n");
-      queryStringBuilder.append("       AND identity_prop_first_char.name = '").append(firstCharacterField).append("' \n");
-      queryStringBuilder.append("       AND (lower(identity_prop_first_char.value) like '" + Character.toLowerCase(firstCharacter) + "%')\n");
-    }
     if (StringUtils.isNotBlank(sortField)) {
       queryStringBuilder.append(" LEFT JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
       queryStringBuilder.append("   ON identity_prop.identity_id <> ").append(identityId).append(" \n");

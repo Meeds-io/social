@@ -48,11 +48,7 @@ import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 public class SocialMembershipListenerImpl extends MembershipEventListener {
   
   private static final String PLATFORM_EXTERNALS_GROUP  = "/platform/externals";
-  
-  public SocialMembershipListenerImpl() {
-    
-  }
-  
+
   @Override
   public void postDelete(Membership m) throws Exception {
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)) {
@@ -181,7 +177,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
   }
   
   private void clearIdentityCaching() {
-    IdentityStorage storage = (IdentityStorage) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityStorage.class);
+    IdentityStorage storage = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityStorage.class);
     
     //clear caching for identity
     storage.updateIdentityMembership(null);

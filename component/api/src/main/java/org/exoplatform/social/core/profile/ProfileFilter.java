@@ -61,9 +61,6 @@ public class ProfileFilter implements Cloneable {
   /** Current viewer identity */
   private Identity viewerIdentity;
 
-  /** Filter by first character of name. */
-  private char firstCharacterOfName;
-
   /** Filter by user type {internal, external}. */
   private String userType;
 
@@ -77,8 +74,6 @@ public class ProfileFilter implements Cloneable {
 
   private Sorting sorting;
 
-  private String firstCharFieldName = null;
-
   private Map<String, String> profileSettings;
   
   private boolean isEnabled = true;
@@ -88,7 +83,6 @@ public class ProfileFilter implements Cloneable {
     this.position = "";
     this.company = "";
     this.skills = "";
-    this.firstCharacterOfName = '\u0000';
     this.excludedIdentityList = new ArrayList<Identity>();
     this.onlineRemoteIds = new ArrayList<String>();
     this.all = "";
@@ -214,24 +208,6 @@ public class ProfileFilter implements Cloneable {
     return this.onlineRemoteIds;
   }
 
-  /**
-   * Gets the first character of name.
-   *
-   * @return the first character of name
-   * @since 1.2.0-GA
-   */
-  public char getFirstCharacterOfName() { return firstCharacterOfName; }
-
-  /**
-   * Sets the first character of name.
-   *
-   * @param firstCharacterOfName the first character of name
-   * @since 1.2.0-GA
-   */
-  public void setFirstCharacterOfName(char firstCharacterOfName) {
-    this.firstCharacterOfName = firstCharacterOfName;
-  }
-
   public String getAll() {
     return all;
   }
@@ -303,14 +279,6 @@ public class ProfileFilter implements Cloneable {
 
   public List<String> getRemoteIds() {
     return remoteIds;
-  }
-
-  public String getFirstCharFieldName() {
-    return firstCharFieldName;
-  }
-
-  public void setFirstCharFieldName(String firstCharField) {
-    this.firstCharFieldName = firstCharField;
   }
 
   /**

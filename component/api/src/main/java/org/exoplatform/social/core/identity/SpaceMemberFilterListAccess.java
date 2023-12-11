@@ -18,7 +18,6 @@ package org.exoplatform.social.core.identity;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.social.common.ListAccessValidator;
@@ -106,11 +105,7 @@ public class SpaceMemberFilterListAccess implements ListAccess<Identity> {
     if (profileFilter.isSortingEmpty()) {
       profileFilter.setSorting(manager.getDefaultSorting());
     }
-    if (StringUtils.isBlank(profileFilter.getFirstCharFieldName())) {
-      profileFilter.setFirstCharFieldName(manager.getFirstCharacterFiltering());
-    }
-    List<Identity> identities;
-    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type, offset, limit);    
+    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type, offset, limit);    
     return identities.toArray(new Identity[identities.size()]);
   }
 

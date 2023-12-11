@@ -17,14 +17,13 @@
         {{ $t('peopleList.label.aboutMe') }}
       </p>
     </div>
-    <div class="aboutMeText align-center py-0 px-1 flex-grow-1">
-      <ellipsis
+    <v-card-text class="aboutMeText align-center py-0 flex-grow-1">
+      <div
         v-if="user.aboutMe"
+        v-sanitized-html="user.aboutMe"
         :title="user.aboutMe"
-        :data="user.aboutMe"
-        :line-clamp="5"
-        end-char="..." />
-    </div>
+        class="text-truncate-3"></div>
+    </v-card-text>
 
     <div class="d-flex pa-2 align-end flex-row">
       <div class="d-flex flex-column flex-grow-0 ms-2">

@@ -99,7 +99,7 @@ public class FavoriteRestTest extends AbstractResourceTest {
   public void tearDown() throws Exception {
     end();
     begin();
-    identityManager.deleteIdentity(johnIdentity);
+    identityManager.hardDeleteIdentity(johnIdentity);
     metadataDAO.deleteAll();
 
     super.tearDown();
