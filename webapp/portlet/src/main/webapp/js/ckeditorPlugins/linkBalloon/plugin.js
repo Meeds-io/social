@@ -243,10 +243,9 @@
 
   function getLinkAttributes( data ) {
     const set = {},
-      protocol = (data && data.url && data.url.indexOf('://') === -1) ? 'http://' : '',
-      portalBaseURL = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}`;
+      protocol = (data && data.url && data.url.indexOf('://') === -1) ? 'http://' : '';
     set[ 'data-cke-saved-href' ] = protocol.length > 0 ? protocol + url : url;
-    set.target = url.includes(portalBaseURL) ? '_self' : '_blank';
+    set.target = url.includes(eXo.env.portal.context) ? '_self' : '_blank';
     if ( set[ 'data-cke-saved-href' ] ) {
       set.href = set[ 'data-cke-saved-href' ];
     }
