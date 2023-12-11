@@ -149,6 +149,7 @@
         } else {
           editLinkInSelection(editor, link, linkElem);
         } 
+        editor.fire('change');
         balloonToolbar.destroy();
         isInputTextToolbar = true;
       }
@@ -243,7 +244,7 @@
 
   function getLinkAttributes( data ) {
     const set = {},
-      protocol = (data && data.url && data.url.indexOf('://') === -1) ? 'http://' : '';
+      protocol = (data && data.url && data.url.indexOf('://') === -1) ? 'https://' : '';
     set[ 'data-cke-saved-href' ] = protocol.length > 0 ? protocol + url : url;
     set.target = url.includes(eXo.env.portal.context) ? '_self' : '_blank';
     if ( set[ 'data-cke-saved-href' ] ) {
@@ -281,6 +282,7 @@
         balloonToolbar.parts.panel.addClass( 'cke_balloontoolbar' );
         balloonToolbar.parts.panel.addClass( 'cke_inputTextBalloon' );
         balloonToolbar.attach( editor.getSelection() );
+        document.getElementById('inputURL').focus();
       }
     }
   };
