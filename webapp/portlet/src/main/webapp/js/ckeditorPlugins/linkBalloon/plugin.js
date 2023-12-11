@@ -43,7 +43,7 @@
         });
         // Attach the balloon toolbar when the clicked text is a link
         editor.document.on( 'click', function() {
-          setupClickObserver(editor, selectedText);
+          setupClickObserver(editor);
         });
 
         editor.on('contentDom', function () {
@@ -52,7 +52,7 @@
             setupMouseObserver(editor);
           });
           editable.attachListener(editable, 'click', function () {
-            setupClickObserver(editor, selectedText);
+            setupClickObserver(editor);
           });
         }); 
       });
@@ -244,7 +244,7 @@
 
   function getLinkAttributes( data ) {
     const set = {},
-      protocol = (data && data.url && data.url.indexOf('://') === -1) ? 'https://' : '';
+      protocol = (data && data.url && data.url.indexOf('://') === -1 && !data.url.includes(eXo.env.portal.context)) ? 'https://' : '';
     set[ 'data-cke-saved-href' ] = protocol.length > 0 ? protocol + url : url;
     set.target = url.includes(eXo.env.portal.context) ? '_self' : '_blank';
     if ( set[ 'data-cke-saved-href' ] ) {
