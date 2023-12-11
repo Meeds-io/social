@@ -149,6 +149,7 @@
         } else {
           editLinkInSelection(editor, link, linkElem);
         } 
+        editor.fire('change');
         balloonToolbar.destroy();
         isInputTextToolbar = true;
       }
@@ -281,6 +282,7 @@
         balloonToolbar.parts.panel.addClass( 'cke_balloontoolbar' );
         balloonToolbar.parts.panel.addClass( 'cke_inputTextBalloon' );
         balloonToolbar.attach( editor.getSelection() );
+        document.getElementById('inputURL').focus();
       }
     }
   };
