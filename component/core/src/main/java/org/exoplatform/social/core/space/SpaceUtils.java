@@ -991,7 +991,7 @@ public class SpaceUtils {
         found = membershipHandler.findMembershipByUserGroupAndType(remoteId, groupId, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
       }
       if (found != null) {
-        LOG.info("user: " + remoteId + " was already added to group: " + groupId + " with membership * or : " + membership);
+        LOG.debug("user: {} was already added to group: {} with membership * or : {}", remoteId, groupId, membership);
         return;
       }
       User user = organizationService.getUserHandler().findUserByName(remoteId);

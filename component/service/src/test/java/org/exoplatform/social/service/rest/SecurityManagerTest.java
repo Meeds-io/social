@@ -74,16 +74,15 @@ public class SecurityManagerTest extends AbstractServiceTest {
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
 
-    rootIdentity = new Identity(OrganizationIdentityProvider.NAME, "root");
-    johnIdentity = new Identity(OrganizationIdentityProvider.NAME, "john");
-    maryIdentity = new Identity(OrganizationIdentityProvider.NAME, "mary");
-    demoIdentity = new Identity(OrganizationIdentityProvider.NAME, "demo");
+    rootIdentity = identityManager.getOrCreateUserIdentity("root");
+    johnIdentity = identityManager.getOrCreateUserIdentity("john");
+    maryIdentity = identityManager.getOrCreateUserIdentity("mary");
+    demoIdentity = identityManager.getOrCreateUserIdentity("demo");
 
-    identityManager.saveIdentity(rootIdentity);
-    identityManager.saveIdentity(johnIdentity);
-    identityManager.saveIdentity(maryIdentity);
-    identityManager.saveIdentity(demoIdentity);
-
+    assertNotNull(rootIdentity);
+    assertNotNull(johnIdentity);
+    assertNotNull(maryIdentity);
+    assertNotNull(demoIdentity);
     restartTransaction();
     begin();
     deleteAllRelationships();

@@ -101,7 +101,7 @@ public class AppEntity implements Serializable {
         
         entities.add(entity);
       } else {
-        LOG.warn("Can't parse app string", app);
+        LOG.warn("Bad format for space application {}", app);
       }
     }
     return entities;
