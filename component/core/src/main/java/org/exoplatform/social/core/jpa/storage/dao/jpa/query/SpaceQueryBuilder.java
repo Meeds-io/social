@@ -162,13 +162,7 @@ public final class SpaceQueryBuilder {
       Predicate description = cb.like(cb.lower(root.get(SpaceEntity_.description)), searchCondition);
       predicates.add(cb.or(prettyName, displayName, description));
     }    
-    
-    //first character
-    char first = spaceFilter.getFirstCharacterOfSpaceName();
-    if (!Character.isDigit(first) && first != '\u0000') {
-      predicates.add(cb.like(cb.lower(root.get(SpaceEntity_.prettyName)), buildSearchCondition(String.valueOf(first), false)));
-    }
-    
+
     //not hidden
     boolean notHidden = spaceFilter.isNotHidden();
     if (notHidden) {
