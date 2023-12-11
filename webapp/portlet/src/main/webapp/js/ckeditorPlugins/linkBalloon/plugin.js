@@ -57,13 +57,13 @@
         }); 
       });
 
-      editor.setKeystroke( CKEDITOR.CTRL + 75 /*K*/, 'addLink' );   
-      document.onkeydown = function(evt) {
+      editor.setKeystroke( CKEDITOR.CTRL + 75 /*K*/, 'addLink' );
+      document.addEventListener('keydown', (evt) => {
         evt = evt || window.event;
-        if ( evt.key === 'Escape' && isInputTextToolbar) { 
+        if (evt.key === 'Escape' && isInputTextToolbar) {
           hideInputTextPanel(editor);
-        } 
-      };
+        }
+      });
     },
   });
 
