@@ -31,6 +31,8 @@
         :href="`${baseSiteUri}${navigation.uri}`"
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
+        :aria-label="$t('topBar.navigation.menu.openMenu')"
+        role="tab"
         @click.stop="checkLink(navigation, $event)"
         @change="updateNavigationState(navigation.uri)">
         <span

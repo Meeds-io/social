@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <div v-if="breadcrumbToDisplay.length" class="white px-2 py-2 card-border-radius d-flex">
+    <div
+      v-if="breadcrumbToDisplay.length"
+      id="breadcrumbParent"
+      class="white px-2 py-2 card-border-radius d-flex">
       <div
         v-for="(breadcrumb, index) in breadcrumbToDisplay"
         :key="index"
@@ -77,13 +80,16 @@ export default {
         userNodeBreadcrumbItemListToDisplay[1] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[1], {
           label: this.ellipsis,
         });
-      } else {
+        return userNodeBreadcrumbItemListToDisplay;
+      } else if (!this.$root.noThreeDots) {
         userNodeBreadcrumbItemListToDisplay = [this.userNodeBreadcrumbItemList[0], this.userNodeBreadcrumbItemList[length - 1]];
         userNodeBreadcrumbItemListToDisplay[0] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[0], {
           label: this.ellipsis,
         });
+        return userNodeBreadcrumbItemListToDisplay;
+      } else {
+        return this.userNodeBreadcrumbItemList.slice(length - 1);
       }
-      return userNodeBreadcrumbItemListToDisplay;
     },
     isMobile() {
       return this.$vuetify.breakpoint.width < 980;
@@ -91,6 +97,9 @@ export default {
   },
   created() {
     this.getCurrentNavigations();
+  },
+  mounted() {
+    window.setTimeout(() => document.dispatchEvent(new CustomEvent('breadcrumb-app-mounted')), 50);
   },
   methods: {
     getCurrentNavigations() {
