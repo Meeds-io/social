@@ -25,7 +25,8 @@
     url,
     selectedText,
     selectionElem,
-    isInputTextToolbar = false;
+    isInputTextToolbar = false,
+    balloonToolbarDisplayed = false;
 
   CKEDITOR.plugins.add( 'linkBalloon', {
     requires: 'balloontoolbar',
@@ -55,6 +56,11 @@
             setupClickObserver(editor, selectedText);
           });
         }); 
+        editor.on('key', function () {
+          if (getSelectedText(editor).length <= 0 && balloonToolbarDisplayed) {
+            balloonToolbar.destroy();
+          }
+        });
       });
 
       editor.setKeystroke( CKEDITOR.CTRL + 75 /*K*/, 'addLink' );
@@ -115,6 +121,7 @@
 
   function initInputTextToolbar(editor, data) {
     isInputTextToolbar = true;
+    balloonToolbarDisplayed = false;
     const link = getSelectedLink(editor);
     selectedText = getSelectedText(editor);
     selectionElem = editor.getSelection();
@@ -152,6 +159,22 @@
         editor.fire('change');
         balloonToolbar.destroy();
         isInputTextToolbar = true;
+        balloonToolbarDisplayed = false;
+        
+        editor.focus();
+        // Obtain the current selection & range
+        const currentRange = editor.getSelection().getRanges()[0];
+
+        // Create a new range from the editor object
+        const newRange = editor.createRange();
+
+        // assign the newRange to move to the end of the current selection
+        const moveToEnd = true;
+        newRange.moveToElementEditablePosition(currentRange.endContainer, moveToEnd);
+
+        // change selection
+        const newRanges = [newRange];
+        editor.getSelection().selectRanges(newRanges);
       }
     };
   }
@@ -188,6 +211,7 @@
         label: editor.lang.linkBalloon.link
       }),
     });
+    balloonToolbarDisplayed = true;
   }
 
   // Insert new link to selected text
