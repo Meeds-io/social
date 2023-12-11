@@ -91,11 +91,11 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
       for (Space space : allSpaces) {
         try {
           spaceService.deleteSpace(space);
-          end();
-          begin();
-          LOG.warn("The space " + space.getDisplayName() + " wasn't cleaned up properly");
         } catch (Throwable e) {
           // The space is already deleted
+          LOG.warn("The space {} wasn't cleaned up properly. This may be due to bad cache management", space.getDisplayName());
+        } finally {
+          restartTransaction();
         }
       }
     }

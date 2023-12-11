@@ -23,8 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.ConnectionFilterListAccess;
 import org.exoplatform.social.core.identity.ConnectionListAccess;
@@ -470,9 +468,6 @@ public class RelationshipManagerImpl implements RelationshipManager {
     }
     if (profileFilter.isSortingEmpty()) {
       profileFilter.setSorting(identityManager.getDefaultSorting());
-    }
-    if (StringUtils.isBlank(profileFilter.getFirstCharFieldName())) {
-      profileFilter.setFirstCharFieldName(identityManager.getFirstCharacterFiltering());
     }
     return profileFilter;
   }
