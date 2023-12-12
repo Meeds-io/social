@@ -1410,9 +1410,9 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
                                           Mockito.nullable(Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
-           .thenReturn(Arrays.asList(paulIdentity))
-           .thenReturn(Arrays.asList(paulIdentity))
-           .thenReturn(Arrays.asList(paulIdentity, jameIdentity, raulIdentity, ghostIdentity, demoIdentity));
+           .thenReturn(Arrays.asList(paulIdentity.getId()))
+           .thenReturn(Arrays.asList(paulIdentity.getId()))
+           .thenReturn(Arrays.asList(paulIdentity.getId(), jameIdentity.getId(), raulIdentity.getId(), ghostIdentity.getId(), demoIdentity.getId()));
     List<Identity> lastIds = identityManager.getLastIdentities(1);
     assertEquals(1, lastIds.size());
     Identity id1 = lastIds.get(0);
@@ -1432,8 +1432,8 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
                                           Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
-           .thenReturn(Arrays.asList(newId1))
-           .thenReturn(Arrays.asList(paulIdentity));
+           .thenReturn(Arrays.asList(newId1.getId()))
+           .thenReturn(Arrays.asList(paulIdentity.getId()));
 
     lastIds = identityManager.getLastIdentities(1);
     assertEquals(1, lastIds.size());
@@ -1452,8 +1452,8 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
                                           Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
-           .thenReturn(Arrays.asList(newId2, paulIdentity, jameIdentity, raulIdentity, ghostIdentity))
-           .thenReturn(Arrays.asList(paulIdentity, jameIdentity, raulIdentity, ghostIdentity, demoIdentity));
+           .thenReturn(Arrays.asList(newId2.getId(), paulIdentity.getId(), jameIdentity.getId(), raulIdentity.getId(), ghostIdentity.getId()))
+           .thenReturn(Arrays.asList(paulIdentity.getId(), jameIdentity.getId(), raulIdentity.getId(), ghostIdentity.getId(), demoIdentity.getId()));
 
     lastIds = identityManager.getLastIdentities(5);
     assertEquals(5, lastIds.size());
@@ -1472,11 +1472,11 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
                                           Mockito.nullable(Relationship.Type.class),
                                           Mockito.anyLong(),
                                           Mockito.anyLong()))
-           .thenReturn(Arrays.asList(newId2))
-           .thenReturn(Arrays.asList(newId2, newId1))
-           .thenReturn(Arrays.asList(newId2))
-           .thenReturn(Arrays.asList(newId2, paulIdentity))
-           .thenReturn(Arrays.asList(paulIdentity));
+           .thenReturn(Arrays.asList(newId2.getId()))
+           .thenReturn(Arrays.asList(newId2.getId(), newId1.getId()))
+           .thenReturn(Arrays.asList(newId2.getId()))
+           .thenReturn(Arrays.asList(newId2.getId(), paulIdentity.getId()))
+           .thenReturn(Arrays.asList(paulIdentity.getId()));
 
     lastIds = identityManager.getLastIdentities(1);
     assertEquals(1, lastIds.size());

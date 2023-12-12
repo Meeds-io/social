@@ -88,17 +88,6 @@
                         <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.IdentitiesCache.cacheMode:replication}</string></field>
                     </object>
                 </object-param>
-                <object-param>
-                    <name>social.ActiveIdentitiesCache</name>
-                    <description></description>
-                    <object type="org.exoplatform.services.cache.impl.infinispan.generic.GenericExoCacheConfig">
-                        <field name="name"><string>social.ActiveIdentitiesCache</string></field>
-                        <field name="strategy" profiles="cluster"><string>${exo.cache.social.ActiveIdentitiesCache.strategy:LIRS}</string></field>
-                        <field name="maxSize"><int>${exo.cache.social.ActiveIdentitiesCache.MaxNodes:4000}</int></field>
-                        <field name="liveTime"><long>${exo.cache.social.ActiveIdentitiesCache.TimeToLive:86400}</long></field>
-                        <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.ActiveIdentitiesCache.cacheMode:replication}</string></field>
-                    </object>
-                </object-param>
 
                 <!-- Relationships -->
                 <object-param>

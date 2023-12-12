@@ -44,8 +44,6 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
 
   @Override
   public List<String> sortSpaceMembers(List<String> userNames,
-                                       String firstCharacterFieldName,
-                                       char firstCharacter,
                                        String sortField,
                                        String sortDirection,
                                        boolean filterDisabled) {
@@ -69,13 +67,6 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
       queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id \n");
     }
     queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
-    if (StringUtils.isNotBlank(firstCharacterFieldName) && firstCharacter > 0) {
-      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_first_char \n");
-      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_first_char.identity_id \n");
-      queryStringBuilder.append("       AND identity_prop_first_char.name = '").append(firstCharacterFieldName).append("' \n");
-      queryStringBuilder.append("       AND (lower(identity_prop_first_char.value) like '" + Character.toLowerCase(firstCharacter)
-          + "%')\n");
-    }
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" LEFT JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
       queryStringBuilder.append("   ON identity_1.identity_id = identity_prop.identity_id \n");

@@ -651,18 +651,6 @@ public interface SpaceService {
   public Space getSpaceByName(String spaceName) throws SpaceException;
 
   /**
-   * Gets all spaces which have the name starting with the input character.
-   *
-   * @return All spaces in which their first characters match with the input string.
-   * @throws SpaceException with code SpaceException.Code.ERROR_DATASTORE
-   * @LevelAPI Provisional
-   * @deprecated Use {@link #getAllSpacesByFilter(org.exoplatform.social.core.space.SpaceFilter)} instead.
-   *             Will be removed by 4.0.x.
-   */
-  @Deprecated
-  List<Space> getSpacesByFirstCharacterOfName(String firstCharacterOfName) throws SpaceException;
-
-  /**
    * Gets all spaces that their names or descriptions match with the input condition.
    *
    * @param condition The input condition.

@@ -15,31 +15,38 @@
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>
       </template>
-      <p
-        v-autolinker="aboutMe"
-        v-if="aboutMe || !owner"
+      <div
+        v-if="hasAboutMe || !owner"
+        v-sanitized-html="aboutMe"
         id="aboutMeParagraph"
-        class="paragraph text-color"></p>
-      <p
+        class="text-color"></div>
+      <div
         v-else
         id="aboutMeParagraph"
-        class="paragraph text-color"
-        v-text="$t('profileAboutMe.emptyOwner')"></p>
+        class="text-color">
+        {{ $t('profileAboutMe.emptyOwner') }}
+      </div>
     </widget-wrapper> 
     <exo-drawer
-      v-if="owner"
+      v-if="owner && initialized"
       ref="aboutMeDrawer"
+      v-model="drawer"
       class="aboutMeDrawer"
+      allow-expand
       right>
       <template slot="title">
         {{ title }}
       </template>
-      <template slot="content">
+      <template v-if="drawer" slot="content">
         <v-card flat>
           <v-card-text>
-            <extended-textarea
+            <rich-editor
+              id="aboutMeRichEditor"
               v-model="modifyingAboutMe"
-              :max-length="aboutMeTextLength" />
+              :placeholder="$t('profileAboutMe.placeholder')"
+              :max-length="maxLength"
+              :tag-enabled="false"
+              ck-editor-type="abountMe" />
           </v-card-text>
           <v-card-actions class="px-4">
             <v-spacer />
@@ -63,18 +70,25 @@ export default {
     aboutMe: null,
     saving: null,
     modifyingAboutMe: null,
-    aboutMeTextLength: 2000,
+    maxLength: 1300,
     initialized: false,
+    drawer: false,
   }),
   computed: {
     valid() {
-      return !this.modifyingAboutMe || this.modifyingAboutMe.length <= this.aboutMeTextLength;
+      return !this.modifyingAboutMe || this.modifyingAboutMe.length <= this.maxLength;
     },
     title() {
       return this.owner && this.$t('profileAboutYouself.title') || this.$t('profileAboutMe.title');
     },
+    aboutMeText() {
+      return this.$utils.htmlToText(this.aboutMe);
+    },
+    hasAboutMe() {
+      return this.aboutMeText?.trim?.()?.length;
+    },
     displayApp() {
-      return this.owner || !this.initialized || this.aboutMe?.trim().length;
+      return this.owner || !this.initialized || this.hasAboutMe;
     },
   },
   watch: {

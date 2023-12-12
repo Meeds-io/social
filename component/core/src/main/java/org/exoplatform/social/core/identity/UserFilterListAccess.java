@@ -55,11 +55,9 @@ public class UserFilterListAccess implements ListAccess<User> {
     List<? extends Identity> identities = null;
     //
     if (profileFilter.isEmpty()) {
-        identities = identityStorage.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
-                                                                  profileFilter,
-                                                                  offset,
-                                                                  limit,
-                                                                  false);
+      identities = identityStorage.getIdentities(OrganizationIdentityProvider.NAME,
+                                                 offset,
+                                                 limit);
     } else {
       identities = identityStorage.getIdentitiesForMentions(OrganizationIdentityProvider.NAME,
                                                             profileFilter,

@@ -88,16 +88,12 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
    * Sort user identity remote ids
    * 
    * @param userNames
-   * @param firstCharacterFieldName
-   * @param firstCharacter
    * @param sortField
    * @param sortDirection
    * @param filterDisabled
    * @return {@link List} of userNames sorted by sortField
    */
   List<String> sortSpaceMembers(List<String> userNames,
-                                String firstCharacterFieldName,
-                                char firstCharacter,
                                 String sortField,
                                 String sortDirection,
                                 boolean filterDisabled);
