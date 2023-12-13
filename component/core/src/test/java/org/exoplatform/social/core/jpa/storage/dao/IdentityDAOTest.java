@@ -119,7 +119,7 @@ public class IdentityDAOTest extends BaseCoreTest {
     IdentityEntity space1 = identityDAO.create(createIdentity(SpaceIdentityProvider.NAME, "spaceABC"));
     deleteIdentities.add(space1);
 
-    ListAccess<Entry<IdentityEntity, ConnectionEntity>> identities = identityDAO.findAllIdentitiesWithConnections(identityUser0.getId(), null, '\u0000', null, null);
+    ListAccess<Entry<IdentityEntity, ConnectionEntity>> identities = identityDAO.findAllIdentitiesWithConnections(identityUser0.getId(), null, null);
     try {
       assertTrue("The identities count is incoherent", identities.getSize() >= 20L);
     } catch (Exception e) {
@@ -177,8 +177,6 @@ public class IdentityDAOTest extends BaseCoreTest {
 
     List<String> identitiesList = identityDAO.getAllIdsByProviderSorted(OrganizationIdentityProvider.NAME,
                                                                         null,
-                                                                        '\0',
-                                                                        null,
                                                                         null,
                                                                         true,
                                                                         null,
@@ -214,8 +212,6 @@ public class IdentityDAOTest extends BaseCoreTest {
 
     ListAccess<Entry<IdentityEntity, ConnectionEntity>> identitiesListAccess =
                                                                              identityDAO.findAllIdentitiesWithConnections(identityUser0.getId(),
-                                                                                                                          null,
-                                                                                                                          '\u0000',
                                                                                                                           null,
                                                                                                                           null);
     Entry<IdentityEntity, ConnectionEntity>[] identitiesEntries = identitiesListAccess.load(0, Integer.MAX_VALUE);

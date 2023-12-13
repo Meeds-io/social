@@ -11,7 +11,7 @@
     if (space == null) {
       PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
       PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
-      responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/PORTAL?siteName=" + rcontext.getPortalOwner() + "&scope=children&visibility=displayed&visibility=temporal&exclude=global&expand=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
+      responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/PORTAL?siteName=" + rcontext.getPortalOwner() + "&scope=children&visibility=displayed&visibility=temporal&exclude=global>; rel=preload; as=fetch; crossorigin=use-credentials", false);
     %>
     <script type="text/javascript">
       const topBarMenuHtml = sessionStorage.getItem('topBarMenu');

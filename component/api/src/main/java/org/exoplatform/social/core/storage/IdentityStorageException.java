@@ -34,8 +34,6 @@ public class IdentityStorageException extends ExoSocialException {
     FAIL_TO_DELETE_PROFILE("Failed_To_Delete_Profile"),
     FAIL_TO_FIND_IDENTITY_BY_NODE_ID("Failed_To_Find_Identity_By_Node_Id"),
     FAIL_TO_FIND_IDENTITY("Failed_To_Find_Identity"),
-    FAIL_TO_GET_IDENTITY_BY_FIRSTCHAR_COUNT("Failed_To_Get_Identity_By_FirstChar_Count"),
-    FAIL_TO_GET_IDENTITY_BY_FIRSTCHAR("Failed_To_Get_Identity_By_FirstChar"),
     FAIL_TO_GET_IDENTITY_BY_PROFILE_FILTER_COUNT("Failed_To_Get_Identity_By_Profile_Filter_Count"),
     FAIL_TO_GET_IDENTITY_BY_PROFILE_FILTER("Failed_To_Get_Identity_By_Profile_Filter"),
     FAIL_TO_SAVE_PROFILE("Failed_To_Save_Profile"),

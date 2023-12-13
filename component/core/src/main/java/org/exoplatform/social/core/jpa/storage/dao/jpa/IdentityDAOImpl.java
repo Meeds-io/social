@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.persistence.EntityExistsException;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -51,8 +50,12 @@ import org.exoplatform.social.core.relationship.model.Relationship.Type;
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> implements IdentityDAO {
-  
+
   private static final Log LOG = ExoLogger.getLogger(IdentityDAOImpl.class);
+
+  private static final String REMOTE_ID_PARAM         = "remoteId";
+
+  private static final String PROVIDER_ID_PARAM       = "providerId";
 
   private static final int MAX_ITEMS_PER_IN_CLAUSE = 1000;
 
@@ -74,13 +77,25 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     }
     return super.create(entity);
   }
-
+  
   @Override
   public IdentityEntity findByProviderAndRemoteId(String providerId, String remoteId) {
     TypedQuery<IdentityEntity> query = getEntityManager().createNamedQuery("SocIdentity.findByProviderAndRemoteId", IdentityEntity.class);
-    query.setParameter("providerId", providerId);
-    query.setParameter("remoteId", remoteId);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
+    query.setParameter(REMOTE_ID_PARAM, remoteId);
+    
+    try {
+      return query.getSingleResult();
+    } catch (NoResultException ex) {
+      return null;
+    }
+  }
 
+  @Override
+  public Long findIdByProviderAndRemoteId(String providerId, String remoteId) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.findIdByProviderAndRemoteId", Long.class);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
+    query.setParameter(REMOTE_ID_PARAM, remoteId);
     try {
       return query.getSingleResult();
     } catch (NoResultException ex) {
@@ -91,7 +106,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   @Override
   public long countIdentityByProvider(String providerId) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.countIdentityByProvider", Long.class);
-    query.setParameter("providerId", providerId);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
     return query.getSingleResult();
   }
 
@@ -108,7 +123,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   @Override
   public List<Long> getAllIdsByProvider(String providerId, int offset, int limit) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SocIdentity.getAllIdsByProvider", Long.class);
-    query.setParameter("providerId", providerId);
+    query.setParameter(PROVIDER_ID_PARAM, providerId);
     if (limit > 0) {
       query.setFirstResult(offset);
       query.setMaxResults(limit);
@@ -117,13 +132,13 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection) {
-    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, firstCharacterFieldName, firstCharacter, sortField, sortDirection, true, null, null, null);
+  public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String sortField, String sortDirection) {
+    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, sortField, sortDirection, true, null, null, null);
 
     TypedQuery<ConnectionEntity> connectionsQuery = getEntityManager().createNamedQuery("SocConnection.findConnectionsByIdentityIds", ConnectionEntity.class);
 
     TypedQuery<Long> countQuery = getEntityManager().createNamedQuery("SocIdentity.countIdentitiesByProviderWithExcludedIdentity", Long.class);
-    countQuery.setParameter("providerId", OrganizationIdentityProvider.NAME);
+    countQuery.setParameter(PROVIDER_ID_PARAM, OrganizationIdentityProvider.NAME);
 
     return new IdentityWithRelationshipListAccess(identityId, listQuery, connectionsQuery, countQuery);
   }
@@ -152,9 +167,15 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, firstCharacterFieldName, firstCharacter, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus);
+  public List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus);
     return getResultsFromQuery(query, 0, offset, limit, String.class);
+  }
+
+  @Override
+  public List<Long> getIdentityIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus);
+    return getResultsFromQuery(query, 1, offset, limit, Long.class);
   }
 
   @Override
@@ -474,8 +495,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
 
 
   private Query getIdentitiesQuerySortedByField(String providerId,
-                                                String firstCharacterFieldName,
-                                                char firstCharacter,
                                                 String sortField,
                                                 String sortDirection,
                                                 boolean isEnabled,
@@ -577,13 +596,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       }
       queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     }
-    if (StringUtils.isNotBlank(firstCharacterFieldName) && firstCharacter > 0) {
-      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_first_char \n");
-      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_first_char.identity_id \n");
-      queryStringBuilder.append("       AND identity_prop_first_char.name = '").append(firstCharacterFieldName).append("' \n");
-      queryStringBuilder.append("       AND (lower(identity_prop_first_char.value) like '" + Character.toLowerCase(firstCharacter)
-          + "%')\n");
-    }
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" LEFT JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
       queryStringBuilder.append("   ON identity_1.identity_id = identity_prop.identity_id \n");
@@ -610,13 +622,6 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
       queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
 
-      if (StringUtils.isNotBlank(firstCharacterFieldName) && firstCharacter > 0) {
-        queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_first_char \n");
-        queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_first_char.identity_id \n");
-        queryStringBuilder.append("       AND identity_prop_first_char.name = '").append(firstCharacterFieldName).append("' \n");
-        queryStringBuilder.append("       AND (lower(identity_prop_first_char.value) like '" + Character.toLowerCase(firstCharacter)
-                + "%')\n");
-      }
       if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
         queryStringBuilder.append(" LEFT JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
         queryStringBuilder.append("   ON identity_1.identity_id = identity_prop.identity_id \n");
@@ -636,6 +641,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     return getEntityManager().createNativeQuery(queryStringBuilder.toString());
   }
 
+  @SuppressWarnings("unchecked")
   private <T> List<T> getResultsFromQuery(Query query, int fieldIndex, long offset, long limit, Class<T> clazz) {
     if (limit > 0) {
       query.setMaxResults((int) limit);
@@ -644,15 +650,20 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       query.setFirstResult((int) offset);
     }
 
+    boolean isLong = clazz.isAssignableFrom(Long.class);
     List<?> resultList = query.getResultList();
-    List<T> result = new ArrayList<T>();
+    List<T> result = new ArrayList<>();
     for (Object object : resultList) {
       Object[] resultEntry = (Object[]) object;
       Object resultObject = resultEntry[fieldIndex];
       if (resultObject == null) {
         continue;
       }
-      result.add((T) resultObject);
+      if (resultObject instanceof BigInteger bi && isLong) {
+        result.add((T) ((Long) bi.longValue()));
+      } else {
+        result.add((T) resultObject);
+      }
     }
     return result;
   }

@@ -248,21 +248,13 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("foundSpaces must not be null", foundSpaces);
     assertEquals("foundSpaces.size() must return: " + totalSpaces, totalSpaces, foundSpaces.size());
 
-    foundSpaces = spaceStorage.getSpacesByFilter(new SpaceFilter("hell gate"), 0, 10);
+    foundSpaces = spaceStorage.getSpacesByFilter(new SpaceFilter("hello"), 0, 10);
     assertNotNull("foundSpaces must not be null", foundSpaces);
     assertEquals("foundSpaces.size() must return: " + 0, 0, foundSpaces.size());
 
-    foundSpaces = spaceStorage.getSpacesByFilter(new SpaceFilter('m'), 0, 10);
+    foundSpaces = spaceStorage.getSpacesByFilter(new SpaceFilter(), 0, 10);
     assertNotNull("foundSpaces must not be null", foundSpaces);
     assertEquals("foundSpaces.size() must return: " + totalSpaces, totalSpaces, foundSpaces.size());
-
-    foundSpaces = spaceStorage.getSpacesByFilter(new SpaceFilter('M'), 0, 10);
-    assertNotNull("foundSpaces must not be null", foundSpaces);
-    assertEquals("foundSpaces.size() must return: " + totalSpaces, totalSpaces, foundSpaces.size());
-
-    foundSpaces = spaceStorage.getSpacesByFilter(new SpaceFilter('k'), 0, 10);
-    assertNotNull("foundSpaces must not be null", foundSpaces);
-    assertEquals("foundSpaces.size() must return: " + 0, 0, foundSpaces.size());
   }
 
   /**
@@ -289,17 +281,14 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter("my space test"));
     assertEquals("count must be: " + totalSpaces, totalSpaces, count);
 
-    count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter("hell gate"));
+    count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter("hello"));
     assertEquals("count must be: " + 0, 0, count);
 
-    count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter('m'));
+    count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter());
     assertEquals("count must be: " + totalSpaces, totalSpaces, count);
 
-    count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter('M'));
+    count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter());
     assertEquals("count must be: " + totalSpaces, totalSpaces, count);
-
-    count = spaceStorage.getAllSpacesByFilterCount(new SpaceFilter('k'));
-    assertEquals("count must be: " + 0, 0, count);
   }
 
   /**
@@ -355,17 +344,13 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("accessibleSpacesByFilter must not be null", accessibleSpacesByFilter);
     assertEquals("accessibleSpacesByFilter.size() must return: ", 10, accessibleSpacesByFilter.size());
 
-    accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("demo", new SpaceFilter('m'), 0, 10);
+    accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("demo", new SpaceFilter(), 0, 10);
     assertNotNull("accessibleSpacesByFilter must not be null", accessibleSpacesByFilter);
     assertEquals("accessibleSpacesByFilter.size() must return: ", 10, accessibleSpacesByFilter.size());
 
-    accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("demo", new SpaceFilter('M'), 0, 10);
+    accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("demo", new SpaceFilter(), 0, 10);
     assertNotNull("accessibleSpacesByFilter must not be null", accessibleSpacesByFilter);
     assertEquals("accessibleSpacesByFilter.size() must return: ", 10, accessibleSpacesByFilter.size());
-
-    accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("demo", new SpaceFilter('K'), 0, 10);
-    assertNotNull("accessibleSpacesByFilter must not be null", accessibleSpacesByFilter);
-    assertEquals("accessibleSpacesByFilter.size() must return: ", 0, accessibleSpacesByFilter.size());
 
     accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("newperson", new SpaceFilter("my space test"), 0, 10);
     assertNotNull("accessibleSpacesByFilter must not be null", accessibleSpacesByFilter);
@@ -407,14 +392,11 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     accessibleSpacesByFilterCount = spaceStorage.getAccessibleSpacesByFilterCount("tom", new SpaceFilter("my space test"));
     assertEquals("accessibleSpacesByFilterCount must be: ", countSpace, accessibleSpacesByFilterCount);
 
-    accessibleSpacesByFilterCount = spaceStorage.getAccessibleSpacesByFilterCount("tom", new SpaceFilter('m'));
+    accessibleSpacesByFilterCount = spaceStorage.getAccessibleSpacesByFilterCount("tom", new SpaceFilter());
     assertEquals("accessibleSpacesByFilterCount must be: ", countSpace, accessibleSpacesByFilterCount);
 
-    accessibleSpacesByFilterCount = spaceStorage.getAccessibleSpacesByFilterCount("tom", new SpaceFilter('M'));
+    accessibleSpacesByFilterCount = spaceStorage.getAccessibleSpacesByFilterCount("tom", new SpaceFilter());
     assertEquals("accessibleSpacesByFilterCount must be: ", countSpace, accessibleSpacesByFilterCount);
-
-    accessibleSpacesByFilterCount = spaceStorage.getAccessibleSpacesByFilterCount("tom", new SpaceFilter('k'));
-    assertEquals("accessibleSpacesByFilterCount must be: ", 0, accessibleSpacesByFilterCount);
 
     accessibleSpacesByFilterCount = spaceStorage.getAccessibleSpacesByFilterCount("ghost", new SpaceFilter("my space test"));
     assertEquals("accessibleSpacesByFilterCount must be: ", countSpace, accessibleSpacesByFilterCount);
@@ -530,17 +512,13 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("editableSpaces must not be  null", editableSpaces);
     assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
 
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter('m'), 0, 10);
+    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter(), 0, 10);
     assertNotNull("editableSpaces must not be  null", editableSpaces);
     assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
 
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter('M'), 0, 10);
+    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter(), 0, 10);
     assertNotNull("editableSpaces must not be  null", editableSpaces);
     assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter('K'), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
 
     editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter("add new"), 0, 10);
     assertNotNull("editableSpaces must not be  null", editableSpaces);
@@ -551,18 +529,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
 
     editableSpaces = spaceStorage.getEditableSpacesByFilter("dragon", new SpaceFilter("m"), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("dragon", new SpaceFilter('m'), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("dragon", new SpaceFilter('M'), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("dragon", new SpaceFilter('k'), 0, 10);
     assertNotNull("editableSpaces must not be  null", editableSpaces);
     assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
   }
@@ -592,15 +558,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("demo", new SpaceFilter("M"));
     assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
 
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("demo", new SpaceFilter('m'));
-    assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("demo", new SpaceFilter('M'));
-    assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("demo", new SpaceFilter('K'));
-    assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
-
     editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("tom", new SpaceFilter("add new"));
     assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
 
@@ -608,15 +565,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
 
     editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("dragon", new SpaceFilter("m"));
-    assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("dragon", new SpaceFilter('m'));
-    assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("dragon", new SpaceFilter('M'));
-    assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("dragon", new SpaceFilter('k'));
     assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
   }
 
@@ -702,17 +650,9 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("invitedSpaces must not be  null", invitedSpaces);
     assertEquals("invitedSpaces.size() must return: " + countSpace, countSpace, invitedSpaces.size());
 
-    invitedSpaces = spaceStorage.getInvitedSpacesByFilter("register1", new SpaceFilter('m'), 0, 10);
+    invitedSpaces = spaceStorage.getInvitedSpacesByFilter("register1", new SpaceFilter("m"), 0, 10);
     assertNotNull("invitedSpaces must not be  null", invitedSpaces);
     assertEquals("invitedSpaces.size() must return: " + countSpace, countSpace, invitedSpaces.size());
-
-    invitedSpaces = spaceStorage.getInvitedSpacesByFilter("register1", new SpaceFilter('M'), 0, 10);
-    assertNotNull("invitedSpaces must not be  null", invitedSpaces);
-    assertEquals("invitedSpaces.size() must return: " + countSpace, countSpace, invitedSpaces.size());
-
-    invitedSpaces = spaceStorage.getInvitedSpacesByFilter("register1", new SpaceFilter('k'), 0, 10);
-    assertNotNull("invitedSpaces must not be  null", invitedSpaces);
-    assertEquals("invitedSpaces.size() must return: " + 0, 0, invitedSpaces.size());
 
     invitedSpaces = spaceStorage.getInvitedSpacesByFilter("register", new SpaceFilter("my space test "), 0, 10);
     assertNotNull("invitedSpaces must not be  null", invitedSpaces);
@@ -746,14 +686,8 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     int invitedSpacesCount = spaceStorage.getInvitedSpacesByFilterCount("register1", new SpaceFilter("add new"));
     assertEquals("invitedSpacesCount must be: " + countSpace, countSpace, invitedSpacesCount);
 
-    invitedSpacesCount = spaceStorage.getInvitedSpacesByFilterCount("register1", new SpaceFilter('m'));
+    invitedSpacesCount = spaceStorage.getInvitedSpacesByFilterCount("register1", new SpaceFilter("m"));
     assertEquals("invitedSpacesCount must be: " + countSpace, countSpace, invitedSpacesCount);
-
-    invitedSpacesCount = spaceStorage.getInvitedSpacesByFilterCount("register1", new SpaceFilter('M'));
-    assertEquals("invitedSpacesCount must be: " + countSpace, countSpace, invitedSpacesCount);
-
-    invitedSpacesCount = spaceStorage.getInvitedSpacesByFilterCount("register1", new SpaceFilter('k'));
-    assertEquals("invitedSpacesCount must be: " + 0, 0, invitedSpacesCount);
 
     invitedSpacesCount = spaceStorage.getInvitedSpacesByFilterCount("register", new SpaceFilter("my space test "));
     assertEquals("invitedSpacesCount must be: " + 0, 0, invitedSpacesCount);
@@ -881,31 +815,11 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("pendingSpaces must not be  null", pendingSpaces);
     assertEquals("pendingSpaces.size() must return: " + countSpace, countSpace, pendingSpaces.size());
 
-    pendingSpaces = spaceStorage.getPendingSpacesByFilter("hacker", new SpaceFilter('m'), 0, 10);
+    pendingSpaces = spaceStorage.getPendingSpacesByFilter("hacker", new SpaceFilter("m"), 0, 10);
     assertNotNull("pendingSpaces must not be  null", pendingSpaces);
     assertEquals("pendingSpaces.size() must return: " + countSpace, countSpace, pendingSpaces.size());
-
-    pendingSpaces = spaceStorage.getPendingSpacesByFilter("hacker", new SpaceFilter('M'), 0, 10);
-    assertNotNull("pendingSpaces must not be  null", pendingSpaces);
-    assertEquals("pendingSpaces.size() must return: " + countSpace, countSpace, pendingSpaces.size());
-
-    pendingSpaces = spaceStorage.getPendingSpacesByFilter("hacker", new SpaceFilter('k'), 0, 10);
-    assertNotNull("pendingSpaces must not be  null", pendingSpaces);
-    assertEquals("pendingSpaces.size() must return: " + 0, 0, pendingSpaces.size());
 
     pendingSpaces = spaceStorage.getPendingSpacesByFilter("hack", new SpaceFilter("my space test"), 0, 10);
-    assertNotNull("pendingSpaces must not be  null", pendingSpaces);
-    assertEquals("pendingSpaces.size() must return: " + 0, 0, pendingSpaces.size());
-
-    pendingSpaces = spaceStorage.getPendingSpacesByFilter("hack", new SpaceFilter('m'), 0, 10);
-    assertNotNull("pendingSpaces must not be  null", pendingSpaces);
-    assertEquals("pendingSpaces.size() must return: " + 0, 0, pendingSpaces.size());
-
-    pendingSpaces = spaceStorage.getPendingSpacesByFilter("hack", new SpaceFilter('M'), 0, 10);
-    assertNotNull("pendingSpaces must not be  null", pendingSpaces);
-    assertEquals("pendingSpaces.size() must return: " + 0, 0, pendingSpaces.size());
-
-    pendingSpaces = spaceStorage.getPendingSpacesByFilter("hack", new SpaceFilter('K'), 0, 10);
     assertNotNull("pendingSpaces must not be  null", pendingSpaces);
     assertEquals("pendingSpaces.size() must return: " + 0, 0, pendingSpaces.size());
 
@@ -941,25 +855,10 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     int pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hacker", new SpaceFilter("add new"));
     assertEquals("pendingSpacesCount must be: " + countSpace, countSpace, pendingSpacesCount);
 
-    pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hacker", new SpaceFilter('m'));
+    pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hacker", new SpaceFilter("m"));
     assertEquals("pendingSpacesCount must be: " + countSpace, countSpace, pendingSpacesCount);
-
-    pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hacker", new SpaceFilter('M'));
-    assertEquals("pendingSpacesCount must be: " + countSpace, countSpace, pendingSpacesCount);
-
-    pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hacker", new SpaceFilter('k'));
-    assertEquals("pendingSpacesCount must be: " + 0, 0, pendingSpacesCount);
 
     pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hack", new SpaceFilter("my space test"));
-    assertEquals("pendingSpacesCount must be: " + 0, 0, pendingSpacesCount);
-
-    pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hack", new SpaceFilter('m'));
-    assertEquals("pendingSpacesCount must be: " + 0, 0, pendingSpacesCount);
-
-    pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hack", new SpaceFilter('M'));
-    assertEquals("pendingSpacesCount must be: " + 0, 0, pendingSpacesCount);
-
-    pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("hack", new SpaceFilter('K'));
     assertEquals("pendingSpacesCount must be: " + 0, 0, pendingSpacesCount);
 
     pendingSpacesCount = spaceStorage.getPendingSpacesByFilterCount("paul", new SpaceFilter("add"));
@@ -1083,11 +982,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("publicSpaces must not be  null", publicSpaces);
     assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
 
-    publicSpaces = spaceStorage.getPublicSpacesByFilter(maryIdentity.getRemoteId(), new SpaceFilter('m'), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter(maryIdentity.getRemoteId(), new SpaceFilter('M'), 0, 10);
+    publicSpaces = spaceStorage.getPublicSpacesByFilter(maryIdentity.getRemoteId(), new SpaceFilter("m"), 0, 10);
     assertNotNull("publicSpaces must not be  null", publicSpaces);
     assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
 
@@ -1095,11 +990,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("publicSpaces must not be  null", publicSpaces);
     assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
 
-    publicSpaces = spaceStorage.getPublicSpacesByFilter("newStranger", new SpaceFilter('m'), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 10, 10, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter("newStranger", new SpaceFilter('M'), 0, 10);
+    publicSpaces = spaceStorage.getPublicSpacesByFilter("newStranger", new SpaceFilter("m"), 0, 10);
     assertNotNull("publicSpaces must not be  null", publicSpaces);
     assertEquals("publicSpaces.size() must return: " + 10, 10, publicSpaces.size());
 
@@ -1134,19 +1025,13 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter("my space test"));
     assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
 
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter('m'));
-    assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter('M'));
+    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter("m"));
     assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
 
     publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter("my space test"));
     assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
 
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("newstranger", new SpaceFilter('m'));
-    assertEquals("publicSpacesByFilterCount must be: " + 10, 10, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("newstranger", new SpaceFilter('M'));
+    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("newstranger", new SpaceFilter("m"));
     assertEquals("publicSpacesByFilterCount must be: " + 10, 10, publicSpacesByFilterCount);
 
     publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("newstranger", new SpaceFilter("add new "));
@@ -1184,7 +1069,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("publicSpaces must not be  null", publicSpaces);
     assertEquals("publicSpaces.size() must return: " + 5, 5, publicSpaces.size());
 
-    publicSpaces = spaceStorage.getPublicSpaces("hellgate", 0, countSpace);
+    publicSpaces = spaceStorage.getPublicSpaces("hello", 0, countSpace);
     assertNotNull("publicSpaces must not be  null", publicSpaces);
     assertEquals("publicSpaces.size() must return: " + countSpace, countSpace, publicSpaces.size());
   }
@@ -1285,17 +1170,9 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertNotNull("memberSpaces must not be  null", memberSpaces);
     assertEquals("memberSpaces.size() must return: " + countSpace, countSpace, memberSpaces.size());
 
-    memberSpaces = spaceStorage.getMemberSpacesByFilter("ghost", new SpaceFilter('m'), 0, 10);
+    memberSpaces = spaceStorage.getMemberSpacesByFilter("ghost", new SpaceFilter("m"), 0, 10);
     assertNotNull("memberSpaces must not be  null", memberSpaces);
     assertEquals("memberSpaces.size() must return: " + countSpace, countSpace, memberSpaces.size());
-
-    memberSpaces = spaceStorage.getMemberSpacesByFilter("ghost", new SpaceFilter('M'), 0, 10);
-    assertNotNull("memberSpaces must not be  null", memberSpaces);
-    assertEquals("memberSpaces.size() must return: " + countSpace, countSpace, memberSpaces.size());
-
-    memberSpaces = spaceStorage.getMemberSpacesByFilter("ghost", new SpaceFilter('K'), 0, 10);
-    assertNotNull("memberSpaces must not be  null", memberSpaces);
-    assertEquals("memberSpaces.size() must return: " + 0, 0, memberSpaces.size());
 
     memberSpaces = spaceStorage.getMemberSpacesByFilter("dragon", new SpaceFilter("add"), 0, 10);
     assertNotNull("memberSpaces must not be  null", memberSpaces);
@@ -1372,14 +1249,8 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     memberSpacesCount = spaceStorage.getMemberSpacesByFilterCount("ghost", new SpaceFilter("new"));
     assertEquals("memberSpacesCount must be: " + countSpace, countSpace, memberSpacesCount);
 
-    memberSpacesCount = spaceStorage.getMemberSpacesByFilterCount("ghost", new SpaceFilter('m'));
+    memberSpacesCount = spaceStorage.getMemberSpacesByFilterCount("ghost", new SpaceFilter("m"));
     assertEquals("memberSpacesCount must be: " + countSpace, countSpace, memberSpacesCount);
-
-    memberSpacesCount = spaceStorage.getMemberSpacesByFilterCount("ghost", new SpaceFilter('M'));
-    assertEquals("memberSpacesCount must be: " + countSpace, countSpace, memberSpacesCount);
-
-    memberSpacesCount = spaceStorage.getMemberSpacesByFilterCount("ghost", new SpaceFilter('K'));
-    assertEquals("memberSpacesCount must be: " + 0, 0, memberSpacesCount);
 
     memberSpacesCount = spaceStorage.getMemberSpacesByFilterCount("dragon", new SpaceFilter("add"));
     assertEquals("memberSpacesCount must be: " + countSpace, countSpace, memberSpacesCount);
@@ -1732,48 +1603,12 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
       assertEquals("visibleSpaces() must return: " + countSpace1, countSpace1, visibleAllSpaces.size());
     }
 
-    // visible with remoteId = 'demo' return 10 spaces with SpaceFilter
-    // configured firstCharacter 'M'
-    {
-      int countSpace2 = 10;
-      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter('M'));
-      assertNotNull("visibleSpaces must not be  null", visibleAllSpaces);
-      assertEquals("visibleSpaces() must return: " + countSpace2, countSpace2, visibleAllSpaces.size());
-    }
-
-    // visible with remoteId = 'demo' return 0 spaces with SpaceFilter
-    // configured firstCharacter 'A'
-    {
-      int countSpace3 = 0;
-      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter('A'));
-      assertNotNull("visibleSpaces must not be  null", visibleAllSpaces);
-      assertEquals("visibleSpaces() must return: " + countSpace3, countSpace3, visibleAllSpaces.size());
-    }
-
     // visible with remoteId = 'mary' return 6 spaces with SpaceFilter = null
     {
       int privateSpace1 = 6;
       List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", null);
       assertNotNull("visibleSpaces must not be  null", privateSpaces);
       assertEquals("visibleSpaces() must return: " + privateSpace1, privateSpace1, privateSpaces.size());
-    }
-
-    // visible with remoteId = 'mary' return 6 spaces with SpaceFilter
-    // configured firstCharacter 'M'
-    {
-      int privateSpace2 = 6;
-      List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter('M'));
-      assertNotNull("visibleSpaces must not be  null", privateSpaces);
-      assertEquals("visibleSpaces() must return: " + privateSpace2, privateSpace2, privateSpaces.size());
-    }
-
-    // visible with remoteId = 'mary' return 0 spaces with SpaceFilter
-    // configured firstCharacter 'A'
-    {
-      int privateSpace3 = 0;
-      List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter('A'));
-      assertNotNull("visibleSpaces must not be  null", privateSpaces);
-      assertEquals("visibleSpaces() must return: " + privateSpace3, privateSpace3, privateSpaces.size());
     }
   }
 
@@ -1812,21 +1647,11 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
 
     // visible with remoteId = 'demo' return 10 spaces with SpaceFilter
-    // configured firstCharacter 'M'
     {
       int countSpace2 = 10;
-      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter('M'));
+      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter("M"));
       assertNotNull("visibleSpaces must not be  null", visibleAllSpaces);
       assertEquals("visibleSpaces() must return: " + countSpace2, countSpace2, visibleAllSpaces.size());
-    }
-
-    // visible with remoteId = 'demo' return 0 spaces with SpaceFilter
-    // configured firstCharacter 'A'
-    {
-      int countSpace3 = 0;
-      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter('A'));
-      assertNotNull("visibleSpaces must not be  null", visibleAllSpaces);
-      assertEquals("visibleSpaces() must return: " + countSpace3, countSpace3, visibleAllSpaces.size());
     }
 
     // visible with remoteId = 'mary' return 6 spaces with SpaceFilter = null
@@ -1835,24 +1660,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
       List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", null);
       assertNotNull("visibleSpaces must not be  null", privateSpaces);
       assertEquals("visibleSpaces() must return: " + privateSpace1, privateSpace1, privateSpaces.size());
-    }
-
-    // visible with remoteId = 'mary' return 6 spaces with SpaceFilter
-    // configured firstCharacter 'M'
-    {
-      int privateSpace2 = 6;
-      List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter('M'));
-      assertNotNull("visibleSpaces must not be  null", privateSpaces);
-      assertEquals("visibleSpaces() must return: " + privateSpace2, privateSpace2, privateSpaces.size());
-    }
-
-    // visible with remoteId = 'mary' return 0 spaces with SpaceFilter
-    // configured firstCharacter 'A'
-    {
-      int privateSpace3 = 0;
-      List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter('A'));
-      assertNotNull("visibleSpaces must not be  null", privateSpaces);
-      assertEquals("visibleSpaces() must return: " + privateSpace3, privateSpace3, privateSpaces.size());
     }
   }
 
@@ -1891,7 +1698,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
 
     // visible with remoteId = 'demo' return 10 spaces with SpaceFilter
-    // configured firstCharacter 'M'
     {
       int countSpace2 = 10;
       List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter("my space test"));
@@ -1900,7 +1706,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
 
     // visible with remoteId = 'demo' return 0 spaces with SpaceFilter
-    // configured firstCharacter 'A'
     {
       int countSpace3 = 0;
       List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter("your space"));
@@ -1917,7 +1722,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
 
     // visible with remoteId = 'mary' return 6 spaces with SpaceFilter
-    // configured firstCharacter 'M'
     {
       int privateSpace2 = 6;
       List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter("my space test"));
@@ -1926,7 +1730,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
 
     // visible with remoteId = 'mary' return 0 spaces with SpaceFilter
-    // configured firstCharacter 'A'
     {
       int privateSpace3 = 0;
       List<Space> privateSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter("your space"));
@@ -2007,22 +1810,11 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
 
     // visible with remoteId = 'demo' return 10 spaces with SpaceFilter
-    // configured firstCharacter 'M'
     {
       int countSpace1 = 10;
-      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter('M'));
+      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter("M"));
       assertNotNull("visibleSpaces must not be  null", visibleAllSpaces);
       assertEquals("visibleSpaces() must return: " + countSpace1, countSpace1, visibleAllSpaces.size());
-    }
-
-    // visible with remoteId = 'demo' return 10 spaces with SpaceFilter
-    // configured firstCharacter 'M'
-    {
-
-      int countSpace2 = 0;
-      List<Space> visibleAllSpaces = spaceStorage.getVisibleSpaces("demo", new SpaceFilter('A'));
-      assertNotNull("visibleSpaces must not be  null", visibleAllSpaces);
-      assertEquals("visibleSpaces() must return: " + countSpace2, countSpace2, visibleAllSpaces.size());
     }
 
     // visible with remoteId = 'demo' return 10 spaces with SpaceFilter
@@ -2065,10 +1857,9 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
 
     // visible with remoteId = 'mary' return 6 spaces: see although with
-    // SpaceFilter configured firstCharacter 'M'
     {
       int registrationCloseSpaceCount1 = 6;
-      List<Space> registrationCloseSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter('M'));
+      List<Space> registrationCloseSpaces = spaceStorage.getVisibleSpaces("mary", new SpaceFilter("M"));
       assertNotNull("registrationCloseSpaces must not be  null", registrationCloseSpaces);
       assertEquals("registrationCloseSpaces must return: " + registrationCloseSpaceCount1,
                    registrationCloseSpaceCount1,
@@ -2079,7 +1870,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     // at SpaceServiceImpl
     {
       int registrationCloseSpaceCount2 = 10;
-      List<Space> registrationCloseSpaces1 = spaceStorage.getSpacesByFilter(new SpaceFilter('M'), 0, 200);
+      List<Space> registrationCloseSpaces1 = spaceStorage.getSpacesByFilter(new SpaceFilter("M"), 0, 200);
       assertNotNull("registrationCloseSpaces must not be  null", registrationCloseSpaces1);
       assertEquals("registrationCloseSpaces must return: " + registrationCloseSpaceCount2,
                    registrationCloseSpaceCount2,
