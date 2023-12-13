@@ -165,4 +165,18 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   public boolean hasChildProperties(ProfilePropertySetting propertySetting) {
     return profileSettingStorage.hasChildProperties(propertySetting.getId());
   }
+
+  @Override
+  public boolean isDefaultProperties(ProfilePropertySetting propertySetting) {
+    for (ProfilePropertyDatabaseInitializer plugin : profielPropertyPlugins) {
+      if (plugin.getConfig().getProfileProperties() != null && !plugin.getConfig().getProfileProperties().isEmpty()
+          && plugin.getConfig()
+                   .getProfileProperties()
+                   .stream()
+                   .anyMatch(profileProperty -> profileProperty.getPropertyName().equals(propertySetting.getPropertyName()))) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
