@@ -159,7 +159,6 @@
                           ref="linksHeader"
                           id="linksHeader"
                           v-model="settings.header"
-                          :default-language="$root.defaultLanguage"
                           :rules="rules.header"
                           :placeholder="$t('links.label.headerPlaceHolder')"
                           :maxlength="maxHeaderLength"
