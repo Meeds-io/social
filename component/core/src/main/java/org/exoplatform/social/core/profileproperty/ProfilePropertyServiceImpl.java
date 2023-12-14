@@ -108,6 +108,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }
+    if (isDefaultProperties(profilePropertySetting)) {
+      ProfilePropertySetting createdProfilePropertySetting =
+                                                           profileSettingStorage.getProfileSettingById(profilePropertySetting.getId());
+      profilePropertySetting.setMultiValued(createdProfilePropertySetting.isMultiValued());
+    }
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
   }
 
