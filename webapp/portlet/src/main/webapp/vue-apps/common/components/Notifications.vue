@@ -28,8 +28,7 @@
     class="z-index-snackbar"
     color="transparent ma-0"
     elevation="0"
-    app
-    @input="dispatchDismissed">
+    app>
     <confeti-animation
       v-if="confeti"
       class="overflow-hidden" />
@@ -93,7 +92,7 @@
       <template v-if="!isMobile" #close="{toggle}">
         <v-btn
           icon
-          @click="dispatchDismissed(!toggle)">
+          @click="toggle">
           <v-icon size="16" class="icon-default-color">fa-times</v-icon>
         </v-btn>
       </template>
@@ -123,6 +122,7 @@ export default {
     left: 0,
     startEvent: null,
     moving: false,
+    isHandleAlertClicked: false,
   }),
   computed: {
     isMobile() {
@@ -153,6 +153,10 @@ export default {
           this.interval = 0;
         }
       }
+      if (!this.snackbar && !this.isHandleAlertClicked){
+        this.dispatchDismissed();
+      }
+      this.isHandleAlertClicked = false;
     },
   },
   created() {
@@ -224,10 +228,8 @@ export default {
     });
   },
   methods: {
-    dispatchDismissed(opened) {
-      if (!opened) {
-        document.dispatchEvent(new CustomEvent('alert-message-dismissed'));
-      }
+    dispatchDismissed() {
+      document.dispatchEvent(new CustomEvent('alert-message-dismissed'));
     },
     openAlert(params) {
       this.reset();
@@ -259,6 +261,7 @@ export default {
       this.snackbar = false;
     },
     linkCallback() {
+      this.isHandleAlertClicked = true;
       if (this.alertLinkCallback) {
         this.alertLinkCallback();
       }
