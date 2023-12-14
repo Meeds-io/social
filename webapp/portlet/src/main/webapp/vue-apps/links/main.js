@@ -41,7 +41,7 @@ export function init(appId, name, canEdit) {
           canEdit,
           settings: null,
           language: lang,
-          defaultLanguage: 'en',
+          defaultLanguage: eXo.env.portal.defaultLanguage,
           initialized: false,
         },
         computed: {
