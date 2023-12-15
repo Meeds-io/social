@@ -1486,6 +1486,7 @@
   <portlet>
     <name>SpacesAdministration</name>
     <module>
+      <load-group>ManageSpaceGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/spacesAdministration.bundle.js</path>
