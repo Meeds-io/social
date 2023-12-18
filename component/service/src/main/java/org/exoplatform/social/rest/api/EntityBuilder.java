@@ -1917,6 +1917,10 @@ public class EntityBuilder {
         String[] permissionParts = permission.split(":");
         String sitePermissionGroupId;
         if (permissionParts.length == 1) {
+          if (permission.equals("Everyone")){
+            sitePermission.put("membershipType", permission);
+            return sitePermission;
+          }
           sitePermissionGroupId = permission;
         } else if (permissionParts.length == 2) {
           sitePermission.put("membershipType", permissionParts[0]);
