@@ -111,7 +111,7 @@ export default {
       return this.application && this.application.id && this.application.removable && String(this.application.removable) === 'true';
     },
     applicationId() {
-      return this.application && this.application.id;
+      return this.application && `${this.application.id}App`;
     },
     applicationName() {
       return this.application && this.$t(`SpaceSettings.application.${/\s/.test(this.application.displayName) ? this.application.displayName.replace(/ /g,'.').toLowerCase() : this.application.displayName.toLowerCase()}.title`);
