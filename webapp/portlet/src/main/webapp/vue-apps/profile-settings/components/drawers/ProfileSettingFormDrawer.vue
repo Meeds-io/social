@@ -139,11 +139,14 @@
                 {{ $t('profileSettings.label.multiValued') }}
               </div>
             </v-list-item-title>
+            <v-list-item-subtitle v-if="setting.default" class="mt-n3">
+              <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
             <v-switch
               v-model="setting.multiValued"
-              :disabled="saving"
+              :disabled="saving || setting.default"
               :ripple="false"
               color="primary"
               class="requiredSwitcher my-auto" />
@@ -305,7 +308,7 @@ export default {
       this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
       this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
       this.parents = Object.assign([], this.settings);
-      this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId);
+      this.parents = this.parents.filter(setting => (setting.id !== this.setting.id && !setting.parentId) && (setting.children?.length || setting.multiValued));
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = true;
       this.changes= false;
@@ -316,7 +319,7 @@ export default {
       this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
       this.setting = { ...setting};
       this.parents = Object.assign([], this.settings);
-      this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId) || [];
+      this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => (setting.id !== this.setting.id && !setting.parentId) &&  (setting.children?.length || setting.multiValued)) || [];
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;
