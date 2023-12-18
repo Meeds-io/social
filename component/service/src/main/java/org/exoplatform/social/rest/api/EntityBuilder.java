@@ -1652,6 +1652,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
                                                                                                 String.valueOf(profilePropertySetting.getId())));
+    profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
     return profilePropertySettingEntity;
   }
 
