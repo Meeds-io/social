@@ -64,6 +64,8 @@ public class ProfilePropertySettingEntity {
 
   private List<ProfilePropertySettingEntity> children;
 
+  private boolean                            isDefault;
+
   public List<ProfilePropertySettingEntity> getChildren() {
     if (children!=null){
       return children;
