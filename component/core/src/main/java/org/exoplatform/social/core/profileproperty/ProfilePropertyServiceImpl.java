@@ -108,6 +108,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }
+    if (isDefaultProperties(profilePropertySetting)) {
+      ProfilePropertySetting createdProfilePropertySetting =
+                                                           profileSettingStorage.getProfileSettingById(profilePropertySetting.getId());
+      profilePropertySetting.setMultiValued(createdProfilePropertySetting.isMultiValued());
+    }
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
   }
 
@@ -164,5 +169,19 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   @Override
   public boolean hasChildProperties(ProfilePropertySetting propertySetting) {
     return profileSettingStorage.hasChildProperties(propertySetting.getId());
+  }
+
+  @Override
+  public boolean isDefaultProperties(ProfilePropertySetting propertySetting) {
+    for (ProfilePropertyDatabaseInitializer plugin : profielPropertyPlugins) {
+      if (plugin.getConfig().getProfileProperties() != null && !plugin.getConfig().getProfileProperties().isEmpty()
+          && plugin.getConfig()
+                   .getProfileProperties()
+                   .stream()
+                   .anyMatch(profileProperty -> profileProperty.getPropertyName().equals(propertySetting.getPropertyName()))) {
+        return true;
+      }
+    }
+    return false;
   }
 }
