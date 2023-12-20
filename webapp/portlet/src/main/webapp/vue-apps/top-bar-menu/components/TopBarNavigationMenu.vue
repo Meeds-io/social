@@ -138,11 +138,11 @@ export default {
     },
     getNavigations() {
       const siteName = eXo.env.portal.portalName;
-      return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility, this.exclude)
+      return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility, this.exclude, null, null, true)
         .then(navs => {
           if (navs.length) {
             const homeNavigation = navs[0];
-            return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id)
+            return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id, null, true)
               .then(navigations => {
                 this.navigations = navigations || [];
                 this.constructNavigations();
