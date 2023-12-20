@@ -991,7 +991,7 @@ public class SpaceUtils {
         found = membershipHandler.findMembershipByUserGroupAndType(remoteId, groupId, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
       }
       if (found != null) {
-        LOG.info("user: " + remoteId + " was already added to group: " + groupId + " with membership * or : " + membership);
+        LOG.debug("user: {} was already added to group: {} with membership * or : {}", remoteId, groupId, membership);
         return;
       }
       User user = organizationService.getUserHandler().findUserByName(remoteId);
@@ -999,6 +999,10 @@ public class SpaceUtils {
       GroupHandler groupHandler = organizationService.getGroupHandler();
       Group existingGroup = groupHandler.findGroupById(groupId);
       membershipHandler.linkMembership(user, existingGroup, membershipType, true);
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to add user: " + remoteId + " to group: " + groupId + " with membership: " + membership,
+                                      e);
+    } finally {
       clearIdentityCaching(OrganizationIdentityProvider.NAME, remoteId);
       if (groupId.startsWith(SpaceUtils.SPACE_GROUP)) {
         Space space = getSpaceService().getSpaceByGroupId(groupId);
@@ -1007,9 +1011,6 @@ public class SpaceUtils {
           clearSpaceCache(space.getId());
         }
       }
-    } catch (Exception e) {
-      throw new RuntimeException("Unable to add user: " + remoteId + " to group: " + groupId + " with membership: " + membership,
-                                 e);
     }
   }
 
@@ -1294,7 +1295,7 @@ public class SpaceUtils {
     } else {
       remoteId = conversationState.getIdentity().getUserId();
     }
-    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getDefaultPortal(),
+    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getMetaPortal(),
                                                    remoteId,
                                                    NULL_CONTEXT);
   }

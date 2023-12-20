@@ -51,6 +51,10 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
                 query = "SELECT id FROM SocIdentityEntity id WHERE id.providerId = :providerId AND id.remoteId = :remoteId"
         ),
         @NamedQuery(
+                name = "SocIdentity.findIdByProviderAndRemoteId",
+                query = "SELECT identity.id FROM SocIdentityEntity identity WHERE identity.providerId = :providerId AND identity.remoteId = :remoteId"
+        ),
+        @NamedQuery(
                 name = "SocIdentity.countIdentityByProvider",
                 query = "SELECT count(id) FROM SocIdentityEntity id WHERE id.deleted = FALSE AND id.enabled = TRUE AND id.providerId = :providerId"
         ),

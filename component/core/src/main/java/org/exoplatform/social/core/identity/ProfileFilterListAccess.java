@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.identity;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,7 +23,6 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
-import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 
 /**
@@ -35,9 +33,10 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
  * @since 1.2.0-GA
  */
 public class ProfileFilterListAccess implements ListAccess<Identity> {
-  private static final char EMPTY_CHARACTER = '\u0000';
-  private IdentityStorage identityStorage; 
-  private ProfileFilter profileFilter;
+
+  private IdentityStorage identityStorage;
+
+  private ProfileFilter   profileFilter;
   
   /**
    * The id of provider.
@@ -127,16 +126,10 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
       // of viewer if retrieved
       usedLimit++;
     }
-    List<? extends Identity> identities = new ArrayList<>();
+    List<? extends Identity> identities;
     //
-    if (type != null) {
-      switch(type) {
-      case UNIFIED_SEARCH:
-        identities = identityStorage.getIdentitiesForUnifiedSearch(providerId, profileFilter, offset, usedLimit);
-        break;
-      default: 
-          break;
-      }
+    if (type != null && type == Type.UNIFIED_SEARCH) {
+      identities = identityStorage.getIdentitiesForUnifiedSearch(providerId, profileFilter, offset, usedLimit);
     } else if (profileFilter == null || profileFilter.isEmpty()) {
       if (profileFilter == null || profileFilter.getViewerIdentity() == null) {
         if (profileFilter == null) {
@@ -144,8 +137,6 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      offset,
                                                      usedLimit);
         } else {
-          String firstCharFieldName = profileFilter.getFirstCharFieldName();
-          char firstCharacter = profileFilter.getFirstCharacterOfName();
           Sorting sorting = profileFilter.getSorting();
           boolean isEnabled = profileFilter.isEnabled();
           String userType = profileFilter.getUserType();
@@ -155,8 +146,6 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
           identities = identityStorage.getIdentities(providerId,
-                                                     firstCharFieldName,
-                                                     firstCharacter,
                                                      sortFieldName,
                                                      sortDirection,
                                                      isEnabled,
@@ -167,27 +156,22 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
                                                      usedLimit);
         }
       } else {
-        String firstCharFieldName = profileFilter.getFirstCharFieldName();
-        char firstCharacter = profileFilter.getFirstCharacterOfName();
         Sorting sorting = profileFilter.getSorting();
         String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
         String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
         identities = identityStorage.getIdentitiesWithRelationships(profileFilter.getViewerIdentity().getId(),
-                                                                    firstCharFieldName,
-                                                                    firstCharacter,
                                                                     sortFieldName,
                                                                     sortDirection,
                                                                     offset,
                                                                     usedLimit);
       }
     } else {
-      identities = identityStorage.getIdentitiesForMentions(providerId, profileFilter, null, offset,
-                                                            usedLimit, forceLoadProfile);
+      identities = identityStorage.getIdentitiesForMentions(providerId, profileFilter, null, offset, usedLimit, forceLoadProfile);
     }
     if (profileFilter != null && profileFilter.getViewerIdentity() != null) {
       Iterator<? extends Identity> iterator = identities.iterator();
       while (iterator.hasNext()) {
-        Identity identity = (Identity) iterator.next();
+        Identity identity = iterator.next();
         if (identity.equals(profileFilter.getViewerIdentity())) {
           iterator.remove();
         }
@@ -206,9 +190,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
    */
   public int getSize() throws Exception {
     int size = 0; 
-    if (profileFilter.getFirstCharacterOfName() != EMPTY_CHARACTER) {
-      size = identityStorage.getIdentitiesByFirstCharacterOfNameCount(providerId, profileFilter);
-    } else if (profileFilter.isEmpty()) {
+    if (profileFilter.isEmpty()) {
       if (profileFilter.getViewerIdentity() == null) {
         size = identityStorage.getIdentitiesByProfileFilterCount(providerId, profileFilter);
       } else {

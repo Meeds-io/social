@@ -122,6 +122,7 @@ export default {
     left: 0,
     startEvent: null,
     moving: false,
+    isHandleAlertClicked: false,
   }),
   computed: {
     isMobile() {
@@ -152,6 +153,10 @@ export default {
           this.interval = 0;
         }
       }
+      if (!this.snackbar && !this.isHandleAlertClicked){
+        this.dispatchDismissed();
+      }
+      this.isHandleAlertClicked = false;
     },
   },
   created() {
@@ -223,6 +228,9 @@ export default {
     });
   },
   methods: {
+    dispatchDismissed() {
+      document.dispatchEvent(new CustomEvent('alert-message-dismissed'));
+    },
     openAlert(params) {
       this.reset();
       this.closeAlert();
@@ -253,6 +261,7 @@ export default {
       this.snackbar = false;
     },
     linkCallback() {
+      this.isHandleAlertClicked = true;
       if (this.alertLinkCallback) {
         this.alertLinkCallback();
       }

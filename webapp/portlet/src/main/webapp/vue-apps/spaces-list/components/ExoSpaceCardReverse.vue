@@ -18,19 +18,12 @@
           {{ $t('spacesList.label.description') }}
         </p>
       </div>
-      <v-card-text class="align-center pa-0 flex-grow-1">
-        <template v-if="space.description">
-          <ellipsis
-            v-if="space.description.length > 80"
-            v-show="space.description"
-            :title="space.description"
-            :data="space.description"
-            :line-clamp="3"
-            end-char="..." />
-          <template v-else>
-            {{ space.description }}
-          </template>
-        </template>
+      <v-card-text class="align-center py-0 flex-grow-1">
+        <div
+          v-if="space.description"
+          v-sanitized-html="space.description"
+          :title="space.description"
+          class="text-truncate-3"></div>
       </v-card-text>
 
       <template v-if="space && space.managers && space.managers.length">

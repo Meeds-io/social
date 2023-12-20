@@ -104,4 +104,11 @@ public interface ProfilePropertyService {
    * @return Boolean : true if the current property has child properties
    */
   boolean hasChildProperties(ProfilePropertySetting propertySetting);
+
+  /**
+   * Checks if the current property is a default propertie
+   * @param propertySetting
+   * @return Boolean : true if the current property is a default propertie
+   */
+  boolean isDefaultProperties(ProfilePropertySetting propertySetting);
 }

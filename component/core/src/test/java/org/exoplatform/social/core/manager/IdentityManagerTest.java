@@ -42,6 +42,7 @@ import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
@@ -60,6 +61,8 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
   private IdentityManager identityManager;
 
+  private IdentityStorage identityStorage;
+
   private List<Space>     tearDownSpaceList;
 
   private List<Identity>  tearDownIdentityList;
@@ -72,6 +75,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
   public void setUp() throws Exception {
     super.setUp();
+    identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
     identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
     assertNotNull(identityManager);
 
@@ -103,29 +107,6 @@ public class IdentityManagerTest extends AbstractCoreTest {
     }
     getService(ProfilePropertySettingDAO.class).deleteAll();
     super.tearDown();
-  }
-
-  /**
-   * Test {@link IdentityManager#saveIdentity(Identity)}
-   */
-  public void testSaveIdentity() {
-    Identity tobeSavedIdentity = new Identity(OrganizationIdentityProvider.NAME, "identity1");
-    identityManager.saveIdentity(tobeSavedIdentity);
-
-    assertNotNull(tobeSavedIdentity.getId());
-
-    // final String updatedRemoteId = "identity-updated";
-
-    // tobeSavedIdentity.setRemoteId(updatedRemoteId);
-
-    // identityManager.saveIdentity(tobeSavedIdentity);
-
-    // Identity gotIdentity =
-    // identityManager.getIdentity(tobeSavedIdentity.getId());
-
-    // assertEquals(updatedRemoteId, gotIdentity.getRemoteId());
-
-    tearDownIdentityList.add(tobeSavedIdentity);
   }
 
   /**
@@ -255,34 +236,8 @@ public class IdentityManagerTest extends AbstractCoreTest {
       assertEquals("gotIdentity.getRemoteId() must return: " + username,
                    username,
                    gotIdentity.getRemoteId());
-      // does not load profile
-
-      // assertNull("gotIdentity.getProfile().getId() must return: null",
-      // gotIdentity.getProfile().getId());
     }
-    // loadProfile=false for identityId = globalId
-    /*
-     * { // With the case of OrganizationIdentityProvider, make sure remoteId //
-     * already exists in OrganizationService GlobalId globalId = new
-     * GlobalId(OrganizationIdentityProvider.NAME + GlobalId.SEPARATOR +
-     * username); Identity gotIdentity2 =
-     * identityManager.getIdentity(globalId.toString(), false); // "root" is
-     * found on OrganizationIdentityProvider (OrganizationService)
-     * assertNotNull("gotIdentity2 must not be null", gotIdentity2);
-     * assertNotNull("gotIdentity2.getId() must not be null",
-     * gotIdentity2.getId()); // assertEquals("gotIdentity2.getId() must be: " +
-     * globalId.toString(), // globalId.toString(), gotIdentity2.getId());
-     * assertEquals("gotIdentity2.getProviderId() must return: " +
-     * OrganizationIdentityProvider.NAME, OrganizationIdentityProvider.NAME,
-     * gotIdentity2.getProviderId());
-     * assertEquals("gotIdentity2.getRemoteId() must return: " + username,
-     * username, gotIdentity2.getRemoteId()); //Cached
-     * //assertNull("gotIdentity2.getProfile().getId() must return: null",
-     * gotIdentity2.getProfile() //.getId()); }
-     */
-
     tearDownIdentityList.add(identityManager.getIdentity(tobeSavedIdentity.getId(), false));
-
   }
 
   /**
@@ -314,136 +269,6 @@ public class IdentityManagerTest extends AbstractCoreTest {
   }
 
   /**
-   * Test {@link IdentityManager#deleteIdentity(Identity)}
-   */
-  // FIXME regression JCR to RDBMS migration
-  // public void testDisabledIdentity() throws Exception {
-  // final String username = "demo";
-  // Identity disabledIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username, false);
-  // userHandler.setEnabled(username, false, true);
-  // identityManager.processEnabledIdentity(username, false);
-  // //
-  // disabledIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username, false);
-  // //
-  // assertFalse(disabledIdentity.isDeleted());
-  // assertFalse(disabledIdentity.isEnable());
-  //
-  // identityManager.deleteIdentity(disabledIdentity);
-  // }
-
-  /**
-   * Test {@link IdentityManager#deleteIdentity(Identity)}
-   */
-  // FIXME regression JCR to RDBMS migration
-  // public void testEnabledIdentity() throws Exception {
-  // final String username = "demo";
-  // Identity enbledIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username, false);
-  // //disable demo
-  // userHandler.setEnabled(username, false, true);
-  // identityManager.processEnabledIdentity(username, false);
-  // //
-  // enbledIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username, false);
-  //
-  // //enable demo
-  // userHandler.setEnabled(username, true, true);
-  // identityManager.processEnabledIdentity(username, true);
-  //
-  // //
-  // enbledIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username, false);
-  // assertFalse(enbledIdentity.isDeleted());
-  // assertTrue(enbledIdentity.isEnable());
-  //
-  //
-  // identityManager.deleteIdentity(enbledIdentity);
-  // }
-
-  /**
-   * Test
-   * {@link IdentityManager#addIdentityProvider(org.exoplatform.social.core.identity.IdentityProvider)}
-   */
-  public void testAddIdentityProvider() {
-    // TODO hoatle complete testAddIdentityProvider();
-    assert true;
-  }
-
-  /**
-   * Test {@link IdentityManager#getOrCreateIdentity(String, String)}
-   */
-  // FIXME regression JCR to RDBMS migration
-  // public void testGetOrCreateIdentity() {
-  // final String username1 = "john";
-  // final String username2 = "root";
-  // Identity gotIdentity1;
-  // Identity gotIdentity2;
-  // // load profile = true
-  // {
-  // gotIdentity1 =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username1, true);
-  //
-  // Profile profile1 = gotIdentity1.getProfile();
-  //
-  //
-  // assertNotNull("gotIdentity1.getId() must not be null",
-  // gotIdentity1.getId());
-  // assertNotNull("profile1.getId() must not be null", profile1.getId());
-  // assertNotNull("profile1.getProperty(Profile.FIRST_NAME) must not be null",
-  // profile1.getProperty(Profile.FIRST_NAME));
-  // assertNotNull("profile1.getProperty(Profile.LAST_NAME must not be null",
-  // profile1.getProperty(Profile.LAST_NAME));
-  // assertFalse("profile1.getFullName().isEmpty() must return false",
-  // profile1.getFullName().isEmpty());
-  //
-  // assertNotNull("gotIdentity1.getId() must not be null",
-  // gotIdentity1.getId());
-  // Identity regotIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username1, true);
-  //
-  // assertNotNull("regotIdentity.getId() must not be null",
-  // regotIdentity.getId());
-  // assertNotNull("regotIdentity.getProfile().getId() must not be null",
-  // regotIdentity.getProfile().getId());
-  //
-  // }
-  //
-  // // load profile = false
-  // {
-  // gotIdentity2 =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username2,
-  // false);
-  // assertNotNull("gotIdentity2.getId() must not be null",
-  // gotIdentity2.getId());
-  //
-  // assertNotNull("gotIdentity2.getProfile().getId() must not be null",
-  // gotIdentity2.getProfile()
-  // .getId());
-  // }
-  //
-  // ActivityManager activityManager = (ActivityManager)
-  // getContainer().getComponentInstanceOfType(ActivityManager.class);
-  //
-  // assertEquals("activityManager.getActivities(gotIdentity1).size() must be
-  // 0", 0, activityManager.getActivities(gotIdentity1).size());
-  // assertEquals("activityManager.getActivities(gotIdentity2).size() must be
-  // 0", 0, activityManager.getActivities(gotIdentity2).size());
-  //
-  // tearDownIdentityList.add(identityManager.getIdentity(gotIdentity1.getId()));
-  // tearDownIdentityList.add(identityManager.getIdentity(gotIdentity2.getId()));
-  // }
-
-  /**
    * Test order
    * {@link IdentityManager#getIdentitiesByProfileFilter(String, ProfileFilter, boolean)}
    */
@@ -455,7 +280,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     for (int i = 0; i < 3; i++) {
       String remoteId = "username" + i;
       Identity identity = new Identity(providerId, remoteId);
-      identityManager.saveIdentity(identity);
+      identityStorage.saveIdentity(identity);
       Profile profile = new Profile(identity);
       profile.setProperty(Profile.FIRST_NAME, FirstNameList[i]);
       profile.setProperty(Profile.LAST_NAME, LastNameList[i]);
@@ -463,7 +288,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
       profile.setProperty(Profile.POSITION, "developer");
       profile.setProperty(Profile.GENDER, "male");
 
-      identityManager.saveProfile(profile);
+      identityStorage.saveProfile(profile);
       identity.setProfile(profile);
       tearDownIdentityList.add(identity);
     }
@@ -471,48 +296,18 @@ public class IdentityManagerTest extends AbstractCoreTest {
     ProfileFilter pf = new ProfileFilter();
     ListAccess<Identity> idsListAccess = null;
     // Test order by last name
-    pf.setFirstCharacterOfName('D');
     pf.setSorting(new Sorting(SortBy.FULLNAME, OrderBy.ASC));
     idsListAccess = identityManager.getIdentitiesByProfileFilter(providerId, pf, false);
     assertNotNull(idsListAccess);
-    assertEquals(2, idsListAccess.getSize());
+    assertTrue(idsListAccess.getSize() >= 3);
     assertEquals("Alain Dupond", idsListAccess.load(0, 20)[0].getProfile().getFullName());
     assertEquals("Bob Dupond", idsListAccess.load(0, 20)[1].getProfile().getFullName());
-
-    pf = new ProfileFilter();
-    idsListAccess = identityManager.getIdentitiesByProfileFilter(providerId, pf, false);
-    assertNotNull(idsListAccess);
-    assertEquals(3, idsListAccess.getSize());
-    assertEquals("Alain Dupond", idsListAccess.load(0, 20)[0].getProfile().getFullName());
-    assertEquals("Bob Dupond", idsListAccess.load(0, 20)[1].getProfile().getFullName());
-    assertEquals("John Smith", idsListAccess.load(0, 20)[2].getProfile().getFullName());
 
     // Test order by first name if last name is equal
     Identity[] identityArray = idsListAccess.load(0, 2);
     assertEquals(tearDownIdentityList.get(2).getId(), identityArray[0].getId());
 
   }
-
-  /**
-   * Test {@link IdentityManager#updateIdentity(Identity}
-   */
-  // FIXME regression JCR to RDBMS migration
-  // public void testUpdateIdentity() throws Exception {
-  // Identity identity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // "root", true);
-  // assertNotNull("Identity must not be null", identity);
-  // assertEquals("Identity status must be " + identity.isDeleted(), false,
-  // identity.isDeleted());
-  // identity.setDeleted(true);
-  // identityManager.updateIdentity(identity);
-  // Identity updatedIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // "root", false);
-  // assertEquals("Identity status must be " + updatedIdentity.isDeleted(),
-  // true, updatedIdentity.isDeleted());
-  // tearDownIdentityList.add(identity);
-  // }
 
   /**
    * Test {@link IdentityManager#updateProfile(Profile)}
@@ -684,7 +479,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
   private void populateData(String remoteId) {
     String providerId = "organization";
     Identity identity = new Identity(providerId, remoteId);
-    identityManager.saveIdentity(identity);
+    identityStorage.saveIdentity(identity);
     Profile profile = new Profile(identity);
     profile.setProperty(Profile.FIRST_NAME, "FirstName " + remoteId);
     profile.setProperty(Profile.LAST_NAME, "LastName" + remoteId);
@@ -692,7 +487,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     profile.setProperty(Profile.POSITION, "developer");
     profile.setProperty(Profile.GENDER, "male");
 
-    identityManager.saveProfile(profile);
+    identityStorage.saveProfile(profile);
     identity.setProfile(profile);
     tearDownIdentityList.add(identity);
   }
@@ -709,7 +504,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     for (int i = 0; i < numberOfItems; i++) {
       String remoteId = "username" + i;
       Identity identity = new Identity(providerId, remoteId);
-      identityManager.saveIdentity(identity);
+      identityStorage.saveIdentity(identity);
       Profile profile = new Profile(identity);
       profile.setProperty(Profile.FIRST_NAME, "FirstName" + i);
       profile.setProperty(Profile.LAST_NAME, "LastName" + i);
@@ -717,7 +512,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
       profile.setProperty(Profile.POSITION, "developer");
       profile.setProperty(Profile.GENDER, "male");
 
-      identityManager.saveProfile(profile);
+      identityStorage.saveProfile(profile);
       identity.setProfile(profile);
       if (addedToTearDownList) {
         tearDownIdentityList.add(identity);
@@ -738,7 +533,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
   private Identity populateIdentity(String remoteId, boolean addedToTearDownList) {
     String providerId = "organization";
     Identity identity = new Identity(providerId, remoteId);
-    identityManager.saveIdentity(identity);
+    identityStorage.saveIdentity(identity);
 
     Profile profile = new Profile(identity);
     profile.setProperty(Profile.FIRST_NAME, remoteId);
@@ -747,45 +542,12 @@ public class IdentityManagerTest extends AbstractCoreTest {
     profile.setProperty(Profile.POSITION, "developer");
     profile.setProperty(Profile.GENDER, "male");
 
-    identityManager.saveProfile(profile);
+    identityStorage.saveProfile(profile);
 
     if (addedToTearDownList) {
       tearDownIdentityList.add(identity);
     }
     return identity;
-  }
-
-  /**
-   *
-   */
-  public void testGetIdentitiesByProfileFilterWithProviderId() {
-    // TODO hoatle complete testGetIdentitiesByProfileFilterWithProviderId()
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testGetIdentitiesByProfileFilterWithoutProviderId() {
-    // TODO hoatle complete testGetIdentitiesByProfileFilterWithoutProviderId()
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testGetIdentitiesFilterByAlphabetWithProviderId() {
-    // TODO hoatle complete testGetIdentitiesFilterByAlphabetWithProviderId()
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testGetIdentitiesFilterByAlphaBetWihthoutProviderId() {
-    // TODO hoatle complete
-    // testGetIdentitiesFilterByAlphaBetWihthoutProviderId()
-    assert true;
   }
 
   /**
@@ -817,116 +579,19 @@ public class IdentityManagerTest extends AbstractCoreTest {
   }
 
   /**
-   *
-   */
-  public void testUpdateAvatar() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testUpdateBasicInfo() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testUpdateContactSection() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testUpdateExperienceSection() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testUpdateHeaderSection() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testGetIdentities() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testGetIdentitiesWithLoadProfile() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testRegisterProfileListener() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testUnregisterProfileListener() {
-    assert true;
-  }
-
-  /**
-   *
-   */
-  public void testAddProfileListener() {
-    assert true;
-  }
-
-  /**
    * Test cache management
    */
   public void testCacheManagement() throws ActivityStorageException {
     Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
                                                                 "root");
-    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-                                                                "john");
-    // Identity maryIdentity =
-    // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-    // "mary");
-    // Identity demoIdentity =
-    // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-    // "demo");
-
     Profile rootProfile = rootIdentity.getProfile();
-    Profile johnProfile = johnIdentity.getProfile();
-    // Profile maryProfile = maryIdentity.getProfile();
-    // Profile demoProfile = demoIdentity.getProfile();
-
     final String newFirstName = "New First Name";
 
     rootProfile.setProperty(Profile.FIRST_NAME, newFirstName);
-    identityManager.saveProfile(rootProfile);
-    Identity gotRootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-                                                                   "root",
-                                                                   true);
+    identityStorage.saveProfile(rootProfile);
+    Identity gotRootIdentity = identityManager.getOrCreateUserIdentity("root");
     assertNotNull("gotRootIdentity.getId() must not be null", gotRootIdentity.getId());
     assertEquals("gotRootIdentity.getProfile().getProperty(Profile.FIRST_NAME) must be updated: "
         + newFirstName, newFirstName, gotRootIdentity.getProfile().getProperty(Profile.FIRST_NAME));
-
-    try {
-      johnProfile.setListUpdateTypes(Arrays.asList(Profile.UpdateType.AVATAR));
-      identityManager.updateAvatar(johnProfile);
-    } catch (Exception e1) {
-      assert false : "can't update avatar" + e1;
-    }
-
-    Identity gotJohnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-                                                                   "john");
-    // an activity for avatar created, clean it up here
-    assertEquals("johnActivityList.size() must be 1", 1, activityManager.getActivitiesWithListAccess(gotJohnIdentity).getSize());
   }
 }

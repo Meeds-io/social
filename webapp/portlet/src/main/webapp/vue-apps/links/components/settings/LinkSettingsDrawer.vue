@@ -159,7 +159,6 @@
                           ref="linksHeader"
                           id="linksHeader"
                           v-model="settings.header"
-                          :default-language="$root.defaultLanguage"
                           :rules="rules.header"
                           :placeholder="$t('links.label.headerPlaceHolder')"
                           :maxlength="maxHeaderLength"
@@ -404,7 +403,7 @@ export default {
         .then(settings => {
           this.settings = settings;
           this.links = settings?.links || [];
-          this.showHeader = !!this.settings?.header?.en?.length;
+          this.showHeader = !!this.settings?.header?.[this.$root.defaultLanguage]?.length;
           this.seeMore = !!this.settings?.seeMore?.length;
           if (!this.showHeader) {
             this.settings.header = null;

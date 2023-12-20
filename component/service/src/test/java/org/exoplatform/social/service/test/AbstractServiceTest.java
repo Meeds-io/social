@@ -31,6 +31,7 @@ import org.exoplatform.services.rest.impl.*;
 import org.exoplatform.services.security.*;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.*;
@@ -54,6 +55,9 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
   protected ProviderBinder providerBinder;
   protected ResourceBinder resourceBinder;
   protected RequestHandlerImpl requestHandler;
+
+  protected IdentityManager     identityManager;
+
   /** . */
   public static KernelBootstrap socialBootstrap = null;
 
@@ -61,6 +65,7 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
   protected void setUp() throws Exception {
     resourceBinder = getContainer().getComponentInstanceOfType(ResourceBinder.class);
     requestHandler = getContainer().getComponentInstanceOfType(RequestHandlerImpl.class);
+    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     // Reset providers to be sure it is clean
     ProviderBinder.setInstance(new ProviderBinder());
     providerBinder = ProviderBinder.getInstance();
@@ -218,7 +223,7 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
               RealtimeListAccess<ExoSocialActivity> identityActivities = activityManager.getActivitiesWithListAccess(identity);
               Arrays.stream(identityActivities.load(0, identityActivities.getSize()))
                       .forEach(activity -> activityManager.deleteActivity(activity));
-              identityManager.deleteIdentity(identity);
+              identityManager.hardDeleteIdentity(identity);
             });
 
     ListAccess<org.exoplatform.social.core.identity.model.Identity> spaceIdentities = identityManager.getIdentitiesByProfileFilter(SpaceIdentityProvider.NAME, new ProfileFilter(), true);
@@ -227,7 +232,7 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
               RealtimeListAccess<ExoSocialActivity> identityActivities = activityManager.getActivitiesOfSpaceWithListAccess(identity);
               Arrays.stream(identityActivities.load(0, identityActivities.getSize()))
                       .forEach(activity -> activityManager.deleteActivity(activity));
-              identityManager.deleteIdentity(identity);
+              identityManager.hardDeleteIdentity(identity);
             });
   }
 
@@ -247,4 +252,20 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
               .forEach(relationship -> relationshipManager.deny(identity, relationship));
     }
   }
+
+  protected org.exoplatform.social.core.identity.model.Identity createIdentity(String username) {
+    org.exoplatform.social.core.identity.model.Identity identity = identityManager.getOrCreateUserIdentity(username);
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.FIRST_NAME, username);
+    profile.setProperty(Profile.LAST_NAME, username);
+    identity.setProfile(profile);
+    identityManager.updateProfile(profile);
+    if(identity.isDeleted() || !identity.isEnable()) {
+      identity.setDeleted(false);
+      identity.setEnable(true);
+      identityManager.updateIdentity(identity);
+    }
+    return identityManager.getOrCreateUserIdentity(username);
+  }
+
 }

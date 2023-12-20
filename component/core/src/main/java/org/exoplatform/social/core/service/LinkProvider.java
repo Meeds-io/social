@@ -160,7 +160,7 @@ public class LinkProvider {
    * @LevelAPI Platform
    */
   public static String getProfileLink(String username, String portalOwner) {
-    Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username, true);
+    Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
     Validate.notNull(identity, "Identity must not be null.");
     String lang = getCurrentUserLanguage(username);
     //
@@ -232,27 +232,6 @@ public class LinkProvider {
     return getActivityUri(OrganizationIdentityProvider.NAME,remoteId);
   }
 
-  /**
-   * Gets URI to connections of a user and all people.
-   * 
-   * @param remoteId Name of the user (remoteId), for example root.
-   * @return The URI.
-   * @LevelAPI Platform
-   */
-  public static String getUserConnectionsUri(final String remoteId) {
-    return getBaseUri(null, null) + "/connections/all-people" + ROUTE_DELIMITER + remoteId;
-  }
-  
-  /**
-   * Gets URI to connections of a user.
-   * 
-   * @param remoteId The name of user (remoteId), for example root.
-   * @return The link to network of provided user who has connection with the current user. 
-   */
-  public static String getUserConnectionsYoursUri(final String remoteId) {
-    return getBaseUri(null, null) + "/connections/network" + ROUTE_DELIMITER + remoteId;
-  }
-  
   /**
    * Gets URI to a user profile.
    *

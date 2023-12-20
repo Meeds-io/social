@@ -25,14 +25,18 @@ import org.exoplatform.social.core.jpa.search.ExtendProfileFilter;
 import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
+
   IdentityEntity findByProviderAndRemoteId(String providerId, String remoteId);
+
   long countIdentityByProvider(String providerId);
 
   ListAccess<IdentityEntity> findIdentities(ExtendProfileFilter filter);
@@ -42,8 +46,6 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
   List<Long> getAllIdsByProvider(String providerId, int offset, int limit);
 
   ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId,
-                                                                                           String firstCharacterFieldName,
-                                                                                           char firstCharacter,
                                                                                            String sortField,
                                                                                            String sortDirection);
 
@@ -63,8 +65,6 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * Get all identities by providerId sorted by sortField
    * 
    * @param providerId
-   * @param firstCharacterFieldName
-   * @param firstCharacter
    * @param sortField
    * @param sortDirection
    * @param enabled
@@ -75,7 +75,38 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @param limit
    * @return
    */
-  List<String> getAllIdsByProviderSorted(String providerId, String firstCharacterFieldName, char firstCharacter, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit);
+  List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit);
+
+  /**
+   * Get identity ids by providerId sorted by sortField
+   * 
+   * @param providerId
+   * @param sortField
+   * @param sortDirection
+   * @param isEnabled
+   * @param userType
+   * @param isConnected
+   * @param enrollmentStatus
+   * @param offset
+   * @param limit
+   * @return
+   */
+  default List<Long> getIdentityIdsByProviderSorted(String providerId,
+                                                    String sortField,
+                                                    String sortDirection,
+                                                    boolean isEnabled,
+                                                    String userType,
+                                                    Boolean isConnected,
+                                                    String enrollmentStatus,
+                                                    long offset,
+                                                    long limit) {
+    List<String> remoteIds = getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
+    return remoteIds == null ? Collections.emptyList() :
+                             remoteIds.stream()
+                                      .map(remoteId -> findIdByProviderAndRemoteId(providerId, remoteId))
+                                      .filter(Objects::nonNull)
+                                      .toList();
+  }
 
   /**
    * Count identities by providerId
@@ -87,5 +118,10 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @return
    */
   int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus);
+
+  default Long findIdByProviderAndRemoteId(String providerId, String remoteId) {
+    IdentityEntity identity = findByProviderAndRemoteId(providerId, remoteId);
+    return identity == null ? null : identity.getId();
+  }
 
 }

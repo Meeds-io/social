@@ -179,26 +179,6 @@ public class ExtendProfileFilter extends ProfileFilter {
   }
 
   @Override
-  public char getFirstCharacterOfName() {
-    return delegate.getFirstCharacterOfName();
-  }
-
-  @Override
-  public void setFirstCharacterOfName(char firstCharacterOfName) {
-    delegate.setFirstCharacterOfName(firstCharacterOfName);
-  }
-
-  @Override
-  public String getFirstCharFieldName() {
-    return delegate.getFirstCharFieldName();
-  }
-
-  @Override
-  public void setFirstCharFieldName(String firstCharField) {
-    delegate.setFirstCharFieldName(firstCharField);
-  }
-
-  @Override
   public String getAll() {
     return delegate.getAll();
   }

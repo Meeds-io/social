@@ -35,7 +35,6 @@ import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -45,9 +44,7 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 
 public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
-  
-  private IdentityStorage identityStorage;
-  
+
   private StreamItemDAO streamItemDAO;
   
   private List<ExoSocialActivity> tearDownActivityList;
@@ -61,10 +58,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    identityStorage = getService(IdentityStorage.class);
     streamItemDAO = getService(StreamItemDAO.class);
 
-    assertNotNull(identityStorage);
     assertNotNull(activityStorage);
 
     rootIdentity = createIdentity("root");

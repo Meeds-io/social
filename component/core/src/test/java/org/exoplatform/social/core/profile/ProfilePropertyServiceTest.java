@@ -94,6 +94,20 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     profilePropertyService.updatePropertySetting(profilePropertySetting);
     profilePropertySetting = profilePropertyService.getProfileSettingByName(profilePropertySetting.getPropertyName());
     assertFalse(profilePropertySetting.isActive());
+    profilePropertySetting = profilePropertyService.createPropertySetting(createProfileSettingInstance("fullName"));
+    assertFalse(profilePropertySetting.isMultiValued());
+    profilePropertySetting.setMultiValued(true);
+    profilePropertyService.updatePropertySetting(profilePropertySetting);
+    profilePropertySetting = profilePropertyService.getProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertFalse(profilePropertySetting.isMultiValued());
+    profilePropertySetting = createProfileSettingInstance("urls");
+    profilePropertySetting.setMultiValued(true);
+    profilePropertySetting = profilePropertyService.createPropertySetting(profilePropertySetting);
+    assertTrue(profilePropertySetting.isMultiValued());
+    profilePropertySetting.setMultiValued(false);
+    profilePropertyService.updatePropertySetting(profilePropertySetting);
+    profilePropertySetting = profilePropertyService.getProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertTrue(profilePropertySetting.isMultiValued());
   }
 
   public void testGetProfilePropertySettings() throws Exception {

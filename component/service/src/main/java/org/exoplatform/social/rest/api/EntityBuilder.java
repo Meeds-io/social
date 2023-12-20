@@ -1652,6 +1652,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
                                                                                                 String.valueOf(profilePropertySetting.getId())));
+    profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
     return profilePropertySettingEntity;
   }
 
@@ -1833,7 +1834,7 @@ public class EntityBuilder {
     try {
       HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
       UserPortalConfig userPortalConfig =
-                                        getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getDefaultPortal()
+                                        getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getMetaPortal()
                                                                                                                      : site.getName(),
                                                                                          currentUser,
                                                                                          userPortalContext);
@@ -1916,6 +1917,10 @@ public class EntityBuilder {
         String[] permissionParts = permission.split(":");
         String sitePermissionGroupId;
         if (permissionParts.length == 1) {
+          if (permission.equals("Everyone")){
+            sitePermission.put("membershipType", permission);
+            return sitePermission;
+          }
           sitePermissionGroupId = permission;
         } else if (permissionParts.length == 2) {
           sitePermission.put("membershipType", permissionParts[0]);
@@ -1964,7 +1969,7 @@ public class EntityBuilder {
   }
 
   private static boolean isMetaSite(String siteName) {
-    return getUserPortalConfigService().getDefaultPortal().equals(siteName);
+    return getUserPortalConfigService().getMetaPortal().equals(siteName);
   }
   public static String getTranslatedLabel(String fieldName, long siteId, Locale locale) {
     return getTranslationService().getTranslationLabel(SITE_OBJECT_TYPE,

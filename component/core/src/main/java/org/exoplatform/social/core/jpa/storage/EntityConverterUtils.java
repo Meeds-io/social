@@ -63,7 +63,7 @@ public class EntityConverterUtils {
   public static void mapToIdentity(IdentityEntity entity, Identity identity) {
     identity.setProviderId(entity.getProviderId());
     identity.setRemoteId(entity.getRemoteId());
-    identity.setProfile(convertToProfile(entity, identity));
+    identity.setProfileLoader(() -> convertToProfile(entity, identity));
     identity.setEnable(entity.isEnabled());
     identity.setDeleted(entity.isDeleted());
   }

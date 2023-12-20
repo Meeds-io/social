@@ -25,11 +25,13 @@
 .VerticalMenu {
   overflow-x: hidden;
   overflow-y: auto;
-  min-height: 100vh;
-  max-height: 100vh;
-  max-width:350px !important;
-  min-width:350px !important;
+  height: 100%;
+  min-height: var(--100vh, 100vh);
+  max-height: var(--100vh, 100vh);
+  max-width:310px !important;
+  min-width:310px !important;
   left: 0 !important;
   top: 0 !important;
   position: fixed !important;
+  .specific-scrollbar()
 }

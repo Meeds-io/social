@@ -72,9 +72,9 @@ public class TagRestTest extends AbstractResourceTest {
   @Override
   public void tearDown() throws Exception {
     restartTransaction();
-    identityManager.deleteIdentity(rootIdentity);
-    identityManager.deleteIdentity(johnIdentity);
-    identityManager.deleteIdentity(maryIdentity);
+    identityManager.hardDeleteIdentity(rootIdentity);
+    identityManager.hardDeleteIdentity(johnIdentity);
+    identityManager.hardDeleteIdentity(maryIdentity);
     metadataDAO.deleteAll();
 
     for (Space space : tearDownSpaceList) {

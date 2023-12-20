@@ -22,21 +22,26 @@
       flat
       class="full-height">
       <row
-        class="px-4"
         v-if="!displaySequentially"
-        @click="$emit('close')">
-        <v-icon
-          v-if="$root.ltr"
-          class="fas fa-arrow-left mt-4"
-          small />
-        <v-icon
-          v-else
-          class="fas fa-arrow-right mt-4"
-          small />
+        class="px-4 pt-3 position-absolute z-index-one">
+        <v-btn
+          class="white"
+          elevation="2"
+          icon
+          small
+          @click="$emit('close')">
+          <v-icon small>
+            {{ $root.ltr && 'fa-arrow-left' || 'fa-arrow-right' }}
+          </v-icon>
+        </v-btn>
       </row>
-      <v-img
+      <img
         :src="site?.bannerUrl"
-        class="mx-1 pt-1" />
+        :alt="site?.displayName"
+        width="100%"
+        height="auto"
+        class="mx-1 pt-1"
+        eager>
       <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
       </v-card-title>

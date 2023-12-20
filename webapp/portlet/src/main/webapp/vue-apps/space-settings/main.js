@@ -21,8 +21,7 @@ const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale
 const appId = 'SpaceSettings';
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-
+  exoi18n.loadLanguageAsync(lang, url).then(i18n => 
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
@@ -30,6 +29,6 @@ export function init() {
       template: '<space-settings />',
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, `#${appId}`, 'Space Settings');
-  });
+    }, `#${appId}`, 'Space Settings')
+  ).finally(() => Vue.prototype.$utils.includeExtensions('SpaceSettingExtension'));
 }

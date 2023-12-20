@@ -16,14 +16,14 @@
           v-on="on"
           v-bind="attrs"
           class="d-inline-flex">
-          <a :href="portalPath">
+          <a :href="portalPath" :aria-label="$t('space.avatar.href.title',{0:logoTitle})">
             <v-list-item-avatar 
               v-if="logoPath"
               id="UserHomePortalLink"
               size="30"
               class="tile my-0 spaceAvatar ms-0 me-3"
               tile>
-              <v-img :src="logoPath" :alt="logoTitle" />
+              <v-img :src="logoPath" :alt="$t('space.avatar.img.alt',{0:logoTitle})" />
             </v-list-item-avatar>
           </a>
           <a
@@ -43,6 +43,7 @@
               width="60"
               height="60">
               <v-img
+                :alt="$t('space.avatar.img.alt',{0:logoTitle})"
                 class="object-fit-cover"
                 :src="`${logoPath}&size=60x60`" />
             </v-list-item-avatar>
@@ -196,10 +197,6 @@ export default {
       type: String,
       default: ''
     },
-    isFavorite: {
-      type: Boolean,
-      default: false
-    },
     muted: {
       type: Boolean,
       default: false
@@ -216,12 +213,21 @@ export default {
     mangersToDisplay() {
       return this.managers;
     },
+    isFavorite() {
+      return this.$root.isFavorite;
+    },
     params() {
       return {
         identityType: 'space',
         identityId: eXo.env.portal.spaceId
       };
     },
+  },
+  created() {
+    document.addEventListener('metadata.favorite.updated', this.favoriteUpdated);
+  },
+  destroyed() {
+    document.removeEventListener('metadata.favorite.updated', this.favoriteUpdated);
   },
   methods: {
     popoverActionEvent(clickedItem) {
@@ -230,7 +236,15 @@ export default {
     openDetails() {
       this.$root.$emit('displaySpaceHosts', this.mangersToDisplay);
       this.popoverActionEvent('displaySpaceHosts');
-    }
+    },
+    favoriteUpdated(event) {
+      const metadata = event && event.detail;
+      if (metadata && metadata.objectType === 'space'
+          && metadata.objectId === this.spaceId
+          && metadata.favorite !== this.isFavorite) {
+        this.$root.isFavorite = `${metadata.favorite}`;
+      }
+    },
   }
 };
 </script>

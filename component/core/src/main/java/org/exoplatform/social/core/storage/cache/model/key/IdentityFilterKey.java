@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.codec.binary.StringUtils;
-
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
@@ -44,8 +42,6 @@ public class IdentityFilterKey implements CacheKey {
   private String position;
   private String company;
   private String skills;
-  private String firstCharFieldName;
-  private char firstChar;
   private List<IdentityKey> excluded;
   private List<String> onlineRemoteIds;
   private String all;
@@ -69,14 +65,12 @@ public class IdentityFilterKey implements CacheKey {
       this.position = filter.getPosition();
       this.company = filter.getCompany();
       this.skills = filter.getSkills();
-      this.firstChar = filter.getFirstCharacterOfName();
-      this.firstCharFieldName = filter.getFirstCharFieldName();
       this.userType = filter.getUserType();
       this.isConnected = filter.isConnected();
       this.isEnabled = filter.isEnabled();
       this.enrollmentStatus = filter.getEnrollmentStatus();
 
-      List<IdentityKey> keys = new ArrayList<IdentityKey>();
+      List<IdentityKey> keys = new ArrayList<>();
       for (Identity i : filter.getExcludedIdentityList()) {
         keys.add(new IdentityKey(i));
       }
@@ -113,10 +107,6 @@ public class IdentityFilterKey implements CacheKey {
     return skills;
   }
 
-  public char getFirstChar() {
-    return firstChar;
-  }
-
   public List<IdentityKey> getExcluded() {
     return excluded;
   }
@@ -128,8 +118,6 @@ public class IdentityFilterKey implements CacheKey {
 
     IdentityFilterKey that = (IdentityFilterKey) o;
 
-    if (firstChar != that.firstChar) return false;
-    if (!StringUtils.equals(firstCharFieldName, that.firstCharFieldName)) return false;
     if (all != null ? !all.equals(that.all) : that.all != null) return false;
     if (company != null ? !company.equals(that.company) : that.company != null) return false;
     if (excluded != null ? !excluded.equals(that.excluded) : that.excluded != null) return false;
@@ -156,8 +144,6 @@ public class IdentityFilterKey implements CacheKey {
     result = 31 * result + (position != null ? position.hashCode() : 0);
     result = 31 * result + (company != null ? company.hashCode() : 0);
     result = 31 * result + (skills != null ? skills.hashCode() : 0);
-    result = 31 * result + (firstCharFieldName != null ? firstCharFieldName.hashCode() : 0);
-    result = 31 * result + (int) firstChar;
     result = 31 * result + (excluded != null ? excluded.hashCode() : 0);
     result = 31 * result + (onlineRemoteIds != null ? onlineRemoteIds.hashCode() : 0);
     result = 31 * result + (all != null ? all.hashCode() : 0);
