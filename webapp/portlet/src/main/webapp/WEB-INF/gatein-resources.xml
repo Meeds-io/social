@@ -1512,6 +1512,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>ManageSpacesExtension</module>
+      </depends>
     </module>
   </portlet>
 
