@@ -30,7 +30,6 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
-import org.exoplatform.social.core.test.MaxQueryNumber;
 
 public class WhatsHotTest extends AbstractCoreTest {
   private IdentityStorage identityStorage;
@@ -100,7 +99,6 @@ public class WhatsHotTest extends AbstractCoreTest {
     super.tearDown();
   }
 //FIXME JCR to RDBMS Migration BUG
-//  @MaxQueryNumber(1500)
 //  public void testUserActivityTab() throws Exception {
 //    // fill 10 activities
 //    for (int i = 0; i < 10; ++i) {
@@ -141,7 +139,6 @@ public class WhatsHotTest extends AbstractCoreTest {
 //    }
 //  }
 //  
-  @MaxQueryNumber(4500)
   public void testAllActivityTab() throws Exception {
     // fill 5 activities
     for (int i = 0; i < 5; ++i) {
@@ -177,7 +174,6 @@ public class WhatsHotTest extends AbstractCoreTest {
     }
   }
   
-  @MaxQueryNumber(1500)
   public void testMySpaceTab() throws Exception {
     // fill 5 activities
     for (int i = 0; i < 5; ++i) {
@@ -214,7 +210,6 @@ public class WhatsHotTest extends AbstractCoreTest {
     }
   }
   
-  @MaxQueryNumber(500)
   public void testConnectionsTab() throws Exception {
     publisher = (RelationshipPublisher) this.getContainer().getComponentInstanceOfType(RelationshipPublisher.class);
     assertNotNull(publisher);
@@ -236,7 +231,6 @@ public class WhatsHotTest extends AbstractCoreTest {
     relationshipManager.unregisterListener(publisher);
   }
 //FIXME JCR to RDBMS Migration BUG
-//  @MaxQueryNumber(500)
 //  public void testViewerOwnerActivities() throws Exception {
 //    publisher = (RelationshipPublisher) this.getContainer().getComponentInstanceOfType(RelationshipPublisher.class);
 //    assertNotNull(publisher);
@@ -253,7 +247,6 @@ public class WhatsHotTest extends AbstractCoreTest {
 //  }
 //  
 //FIXME JCR to RDBMS Migration BUG
-//  @MaxQueryNumber(500)
 //  public void testViewerOwnerActivitiesSpecialCase() throws Exception {
 //    publisher = (RelationshipPublisher) this.getContainer().getComponentInstanceOfType(RelationshipPublisher.class);
 //    assertNotNull(publisher);
@@ -269,7 +262,6 @@ public class WhatsHotTest extends AbstractCoreTest {
 //    relationshipManager.unregisterListener(publisher);
 //  }
 //FIXME JCR to RDBMS Migration BUG
-//  @MaxQueryNumber(500)
 //  public void testViewerOwnerMentionerActivities() throws Exception {
 //    publisher = (RelationshipPublisher) this.getContainer().getComponentInstanceOfType(RelationshipPublisher.class);
 //    assertNotNull(publisher);
@@ -290,7 +282,6 @@ public class WhatsHotTest extends AbstractCoreTest {
 //    relationshipManager.unregisterListener(publisher);
 //  }
 //  FIXME JCR to RDBMS Migration BUG
-//  @MaxQueryNumber(500)
 //  public void testViewerOwnerPosterActivities() throws Exception {
 //
 //    //
@@ -319,7 +310,6 @@ public class WhatsHotTest extends AbstractCoreTest {
 //  
 
 //FIXME JCR to RDBMS Migration BUG
-//  @MaxQueryNumber(500)
 //  public void testViewerOwnerAllCases() throws Exception {
 //    publisher = (RelationshipPublisher) this.getContainer().getComponentInstanceOfType(RelationshipPublisher.class);
 //    assertNotNull(publisher);

@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
@@ -63,6 +62,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Path(VersionResources.VERSION_ONE + "/social/sites")
 @Tag(name = VersionResources.VERSION_ONE + "/social/sites", description = "Manage sites")
@@ -103,9 +103,11 @@ public class SiteRest implements ResourceContainer {
   @Operation(summary = "Gets sites", description = "Gets sites", method = "GET")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
-  public Response getSites(@Context
-  HttpServletRequest httpServletRequest, @Context
-  Request request,
+  public Response getSites(
+                           @Context
+                           HttpServletRequest httpServletRequest,
+                           @Context
+                           Request request,
                            @Parameter(description = "Portal site types, possible values: PORTAL, GROUP or USER", required = true)
                            @QueryParam("siteType")
                            String siteType,

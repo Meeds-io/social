@@ -26,7 +26,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.service.test.AbstractServiceTest;
 import org.exoplatform.social.service.test.SocialMockHttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.util.TimeZone;
