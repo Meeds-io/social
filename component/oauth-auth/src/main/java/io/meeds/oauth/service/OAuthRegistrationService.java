@@ -15,7 +15,7 @@
  */
 package io.meeds.oauth.service;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserProfile;

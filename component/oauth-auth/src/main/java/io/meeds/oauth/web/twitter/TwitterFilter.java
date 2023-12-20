@@ -15,8 +15,8 @@
  */
 package io.meeds.oauth.web.twitter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import io.meeds.oauth.common.OAuthConstants;
 import io.meeds.oauth.exception.OAuthException;

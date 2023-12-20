@@ -24,6 +24,7 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageImpl;
@@ -312,7 +313,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
    */
   public void renameSpace(String remoteId, Space space, String newDisplayName) throws SpaceStorageException {
     String oldDisplayName = space.getDisplayName();
-    String oldUrl = SpaceUtils.cleanString(oldDisplayName);
+    String oldUrl = Utils.cleanString(oldDisplayName);
     String oldPrettyName = space.getPrettyName();
     
     //

@@ -29,6 +29,7 @@ import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -563,7 +564,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
     space.setDisplayName(newDisplayName);
     space.setPrettyName(newDisplayName);
-    space.setUrl(SpaceUtils.cleanString(newDisplayName));
+    space.setUrl(Utils.cleanString(newDisplayName));
 
     entity = spaceDAO.find(Long.parseLong(space.getId()));
     // Retrieve identity before saving
