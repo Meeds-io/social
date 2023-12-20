@@ -40,7 +40,7 @@
         :alt="site?.displayName"
         width="100%"
         height="auto"
-        class="mx-1 pt-1"
+        class="mx-1 mt-1 card-border-radius"
         eager>
       <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
