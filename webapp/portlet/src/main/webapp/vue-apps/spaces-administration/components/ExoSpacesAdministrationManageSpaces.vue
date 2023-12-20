@@ -88,6 +88,7 @@
             type="manage-space-actions"
             :params="{ disabled: !space.canEditNavigations,
                        iconColor: 'primary',
+                       canManageSiteNavigation: true,
                        siteName: space.groupId,
                        siteType: 'GROUP'}" />
         </td>
