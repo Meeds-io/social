@@ -36,5 +36,5 @@ export function init(applicationsByCategory) {
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Spaces Administration');
-  });
+  }).finally(() => Vue.prototype.$utils.includeExtensions('ManageSpaceActions'));
 }
