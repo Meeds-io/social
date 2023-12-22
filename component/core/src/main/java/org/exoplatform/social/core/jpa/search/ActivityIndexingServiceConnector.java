@@ -18,8 +18,8 @@ package org.exoplatform.social.core.jpa.search;
 
 import java.util.*;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
@@ -177,7 +177,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
 
     // Ensure to index text only without html tags
     if (StringUtils.isNotBlank(body)) {
-      body = StringEscapeUtils.unescapeHtml(body);
+      body = StringEscapeUtils.unescapeHtml4(body);
       try {
         body = HTMLSanitizer.sanitize(body);
       } catch (Exception e) {

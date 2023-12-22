@@ -19,7 +19,7 @@ package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.util.Date;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
