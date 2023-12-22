@@ -91,4 +91,9 @@
     </createIndex>
   </changeSet>
 
+  <changeSet author="links" id="1.0.0-4" dbms="hsqldb">
+    <createSequence sequenceName="SEQ_SOC_LINK_ID" startValue="1" incrementBy="1" />
+    <createSequence sequenceName="SEQ_SOC_LINK_SETTINGS_ID" startValue="1" incrementBy="1" />
+  </changeSet>
+
 </databaseChangeLog>

@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -190,7 +190,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.updateActivity(activity);
     //
     activity = activityStorage.getActivity(activity.getId());
-    assertEquals(processedTitle, StringEscapeUtils.unescapeHtml(activity.getTitle())); // NOSONAR
+    assertEquals(processedTitle, StringEscapeUtils.unescapeHtml4(activity.getTitle())); // NOSONAR
     assertEquals(2, activity.getMentionedIds().length);
     List<ExoSocialActivity> list = activityStorage.getActivities(rootIdentity,rootIdentity, 0, 10);
     assertEquals(1, list.size());

@@ -340,7 +340,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setEnabled(!isDisabled);
       if (target != null && excludeCurrentUser) {
-        filter.setExcludedIdentityList(Collections.singletonList(target));
+        filter.setViewerIdentity(target);
       }
       if (!isDisabled) {
         filter.setUserType(userType);

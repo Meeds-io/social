@@ -18,16 +18,11 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAO;
 import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
-import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity_;
+
+import jakarta.persistence.TypedQuery;
 
 /**
  * Created by The eXo Platform SAS
@@ -40,18 +35,8 @@ public class StreamItemDAOImpl extends GenericDAOJPAImpl<StreamItemEntity, Long>
   //Add customize methods here
   
   public List<StreamItemEntity> findStreamItemByActivityId(Long activityId) {
-    try {
-      EntityManager em = getEntityManager();
-      CriteriaBuilder cb = em.getCriteriaBuilder();
-      CriteriaQuery<StreamItemEntity> criteria = cb.createQuery(StreamItemEntity.class);
-      Root<StreamItemEntity> root = criteria.from(StreamItemEntity.class);
-      CriteriaQuery<StreamItemEntity> select = criteria.select(root);
-      select.where(cb.equal(root.get(StreamItemEntity_.activity), activityId));
-      //
-      TypedQuery<StreamItemEntity> typedQuery = em.createQuery(select);
-      return typedQuery.getResultList();
-    } catch (RuntimeException e) {
-      return null;
-    }
+    TypedQuery<StreamItemEntity> query = getEntityManager().createNamedQuery("SocStreamItem.getStreamByActivityId", StreamItemEntity.class);
+    query.setParameter("activityId", activityId);
+    return query.getResultList();      
   }
 }
