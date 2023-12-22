@@ -2,7 +2,7 @@ package org.exoplatform.social.core.space.impl;
 
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.*;

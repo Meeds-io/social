@@ -19,7 +19,7 @@ package org.exoplatform.social.core.test;
 import java.lang.reflect.*;
 import java.util.*;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.commons.testing.BaseExoTestCase;
 import org.exoplatform.commons.utils.*;

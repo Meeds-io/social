@@ -22,8 +22,8 @@ package io.meeds.social.link.dao;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 import org.apache.commons.collections.CollectionUtils;
 

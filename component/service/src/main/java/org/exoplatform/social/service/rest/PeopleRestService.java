@@ -16,8 +16,8 @@
  */
 package org.exoplatform.social.service.rest;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
@@ -821,7 +821,7 @@ public class PeopleRestService implements ResourceContainer{
     if (identity != null) {
       // public information
       peopleInfo.setFullName(identity.getProfile().getFullName());
-      peopleInfo.setPosition(StringEscapeUtils.unescapeHtml(identity.getProfile().getPosition()));
+      peopleInfo.setPosition(StringEscapeUtils.unescapeHtml4(identity.getProfile().getPosition()));
       peopleInfo.setDeleted(identity.isDeleted());
       peopleInfo.setEnable(identity.isEnable());
       Profile userProfile = identity.getProfile();
@@ -880,7 +880,7 @@ public class PeopleRestService implements ResourceContainer{
           // exposed if relationship type is confirmed (has connection with current logged in user)
           String activityTitle = getLatestActivityTitle(identity, currentIdentity);
           if (activityTitle != null) {
-            peopleInfo.setActivityTitle(StringEscapeUtils.unescapeHtml(activityTitle));
+            peopleInfo.setActivityTitle(StringEscapeUtils.unescapeHtml4(activityTitle));
           }
         }
       }
@@ -952,7 +952,7 @@ public class PeopleRestService implements ResourceContainer{
     public ConnectionInfoRestOut(Identity identity) {
       this.setDisplayName(identity.getProfile().getFullName());
       this.setAvatarUrl(Util.buildAbsoluteAvatarURL(identity));
-      this.setPosition(StringEscapeUtils.unescapeHtml(identity.getProfile().getPosition()));
+      this.setPosition(StringEscapeUtils.unescapeHtml4(identity.getProfile().getPosition()));
     }
     
     public ConnectionInfoRestOut(Identity identity, ExoSocialActivity lastestActivity, String lang){
@@ -968,7 +968,7 @@ public class PeopleRestService implements ResourceContainer{
       this.setPrettyPostedTime(TimeConvertUtils.convertXTimeAgo(calendar.getTime(), "EEE,MMM dd,yyyy", new Locale(lang),
                                                                 TimeConvertUtils.MONTH));
       
-      this.setPosition(StringEscapeUtils.unescapeHtml(identity.getProfile().getPosition()));
+      this.setPosition(StringEscapeUtils.unescapeHtml4(identity.getProfile().getPosition()));
       this.setActivityId(lastestActivity.getId());
     }
     

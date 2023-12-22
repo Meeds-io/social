@@ -17,7 +17,7 @@
 
 package org.exoplatform.social.core.storage.cache.selector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.services.cache.ObjectCacheInfo;
 import org.exoplatform.social.core.storage.cache.model.key.*;

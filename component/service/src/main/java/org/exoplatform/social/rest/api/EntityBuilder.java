@@ -54,8 +54,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.notification.model.UserSetting;
@@ -744,7 +744,7 @@ public class EntityBuilder {
     spaceEntity.setTemplate(space.getTemplate());
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setGroupId(space.getGroupId());
-    spaceEntity.setDescription(StringEscapeUtils.unescapeHtml(space.getDescription()));
+    spaceEntity.setDescription(StringEscapeUtils.unescapeHtml4(space.getDescription()));
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setBannerUrl(space.getBannerUrl());

@@ -21,7 +21,7 @@ import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
 
-import javax.persistence.TypedQuery;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class GroupSpaceBindingDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingEntity, Long> implements GroupSpaceBindingDAO {

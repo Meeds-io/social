@@ -1,4 +1,4 @@
-<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.exoplatform.commons.api.notification.model.UserSetting"%>
 <%@page import="org.exoplatform.commons.api.notification.service.setting.UserSettingService"%>
 <%@ page import="org.exoplatform.social.core.space.model.Space"%>
