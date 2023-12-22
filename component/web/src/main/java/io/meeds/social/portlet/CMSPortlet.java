@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.Application;
 import org.exoplatform.portal.config.model.ApplicationState;
 import org.exoplatform.portal.config.model.ApplicationType;
@@ -46,6 +47,8 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.webui.Utils;
 
 import io.meeds.social.cms.service.CMSService;
@@ -93,6 +96,9 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
   protected void saveSettingName(String name, String pageReference, long spaceId) {
     String identityId = Utils.getViewerIdentityId();
     try {
+      if (identityId == null) {
+        identityId = getSuperUserIdentityId();
+      }
       getCmsService().saveSettingName(contentType,
                                       name,
                                       pageReference,
@@ -183,6 +189,13 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
       cmsService = ExoContainerContext.getService(CMSService.class);
     }
     return cmsService;
+  }
+
+  private String getSuperUserIdentityId() {
+    UserACL userAcl = ExoContainerContext.getService(UserACL.class);
+    IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
+    String superUser = userAcl.getSuperUser();
+    return identityManager.getOrCreateUserIdentity(superUser).getId();
   }
 
   private Identity getCurrentAclIdentity() {
