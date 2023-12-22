@@ -189,9 +189,8 @@ public class ExoRouter implements Startable {
                   }
                   queryString.append("&");
                 } catch (UnsupportedEncodingException ex) {
-                  LOG.debug("Unsupported encoding error: " + ex);
+                  LOG.warn("Unsupported encoding error", ex);
                 }
-
               }
             }
             String qs = queryString.toString();

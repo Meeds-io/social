@@ -28,7 +28,7 @@ import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 
-import javax.persistence.EntityExistsException;
+import jakarta.persistence.EntityExistsException;
 
 import java.util.*;
 import java.util.Map.Entry;

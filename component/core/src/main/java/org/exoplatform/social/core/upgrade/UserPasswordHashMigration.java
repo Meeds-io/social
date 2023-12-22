@@ -32,8 +32,8 @@ import org.exoplatform.web.security.hash.Argon2IdPasswordEncoder;
 import org.exoplatform.web.security.security.SecureRandomService;
 import org.picketlink.idm.api.User;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
 

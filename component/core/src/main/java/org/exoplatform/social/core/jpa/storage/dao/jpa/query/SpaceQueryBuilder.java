@@ -18,8 +18,8 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa.query;
 
 import java.util.*;
 
-import javax.persistence.*;
-import javax.persistence.criteria.*;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.*;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
@@ -90,12 +90,10 @@ public final class SpaceQueryBuilder {
     CriteriaQuery<Long> criteria = cb.createQuery(Long.class);
     Root<SpaceEntity> spaceEntity = criteria.from(SpaceEntity.class);
     CriteriaQuery<Long> select = criteria.select(cb.countDistinct(spaceEntity.get(SpaceEntity_.id)));
-    //
     Predicate predicateFilter = buildPredicateFilter(spaceEntity, criteria, cb, spaceEntity);
-    if (predicateFilter.getExpressions().size() > 0) {
+    if (!predicateFilter.getExpressions().isEmpty()) {
       select.where(predicateFilter);
     }
-    //
     return em.createQuery(select);
   }
   

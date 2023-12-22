@@ -125,9 +125,8 @@ public class SocialServiceExecutorImpl implements SocialServiceExecutor {
       return future.get();
     } catch (InterruptedException e) {
       processContext.setException(e);
-    } catch (ExecutionException e) {
-      processContext.setException(e);
-    } catch (TimeoutException e) {
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException | TimeoutException e) {
       processContext.setException(e);
     }
     return processContext;
@@ -157,9 +156,8 @@ public class SocialServiceExecutorImpl implements SocialServiceExecutor {
       return future.get();
     } catch (InterruptedException e) {
       processContext.setException(e);
-    } catch (ExecutionException e) {
-      processContext.setException(e);
-    } catch (TimeoutException e) {
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException | TimeoutException e) {
       processContext.setException(e);
     }
     
