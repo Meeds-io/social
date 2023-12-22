@@ -20,11 +20,15 @@ package org.exoplatform.social.core.space;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * Definition of space template model.
  */
+@NoArgsConstructor
+@AllArgsConstructor
 public class SpaceTemplate implements Cloneable {
   private String name;
   private String resolvedLabel;
@@ -203,7 +207,7 @@ public class SpaceTemplate implements Cloneable {
    */
   public void addToSpaceApplicationList(SpaceApplication spaceApplication) {
     if (applications == null) {
-      applications = new ArrayList<SpaceApplication>();
+      applications = new ArrayList<>();
     }
     applications.removeIf(o -> (o.getPortletApp().equals(spaceApplication.getPortletApp())
         && o.getPortletName().equals(spaceApplication.getPortletName())));
@@ -225,7 +229,7 @@ public class SpaceTemplate implements Cloneable {
    * @return
    */
   public List<SpaceApplication> getSpaceApplicationList() {
-    return applications == null ? null : applications.stream().sorted(Comparator.comparing(SpaceApplication::getOrder)).collect(Collectors.toList());
+    return applications == null ? null : applications.stream().sorted(Comparator.comparing(SpaceApplication::getOrder)).toList();
   }
 
   /**
@@ -248,12 +252,17 @@ public class SpaceTemplate implements Cloneable {
 
   @Override
   public SpaceTemplate clone() {
-    try {
-      SpaceTemplate spaceTemplate = (SpaceTemplate) super.clone();
-      spaceTemplate.homePageApplication = homePageApplication.clone();
-      return spaceTemplate;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
+    return new SpaceTemplate(name,
+                             resolvedLabel,
+                             resolvedDescription,
+                             visibility,
+                             registration,
+                             bannerPath,
+                             permissions,
+                             permissionsLabels,
+                             invitees,
+                             homePageApplication == null ? null : homePageApplication.clone(),
+                             applications == null ? null :
+                                                  new ArrayList<>(applications.stream().map(SpaceApplication::clone).toList()));
   }
 }

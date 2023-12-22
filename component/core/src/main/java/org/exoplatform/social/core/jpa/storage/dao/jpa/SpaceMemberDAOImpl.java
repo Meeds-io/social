@@ -19,7 +19,7 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.util.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.apache.commons.lang3.StringUtils;
 

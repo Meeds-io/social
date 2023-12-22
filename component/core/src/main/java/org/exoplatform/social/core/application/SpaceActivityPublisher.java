@@ -16,7 +16,7 @@
  */
 package org.exoplatform.social.core.application;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
@@ -271,7 +271,7 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
    */
   @Override
   public void spaceDescriptionEdited(SpaceLifeCycleEvent event) {
-    String spaceDescription = StringEscapeUtils.unescapeHtml(event.getSpace().getDescription());
+    String spaceDescription = StringEscapeUtils.unescapeHtml4(event.getSpace().getDescription());
     final String activityMessage = "Description has been updated to: "+ spaceDescription;
     Map<String, String> templateParams = new LinkedHashMap<String, String>();
     templateParams.put(SPACE_DESCRIPTION_PARAM, spaceDescription);

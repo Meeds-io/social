@@ -16,8 +16,8 @@
  */
 package org.exoplatform.social.core.application;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
@@ -130,7 +130,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     comment.setTitleId(titleId);
     Map<String, String> templateParams = new LinkedHashMap<String, String>();
     if (POSITION_TITLE_ID.equals(titleId)) {
-      templateParams.put(USER_POSITION_PARAM, StringEscapeUtils.unescapeHtml(position));
+      templateParams.put(USER_POSITION_PARAM, StringEscapeUtils.unescapeHtml4(position));
       templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, USER_POSITION_PARAM);
     }
     comment.setTemplateParams(templateParams);

@@ -18,7 +18,7 @@ package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.util.List;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.identity.model.Identity;

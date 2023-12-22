@@ -20,15 +20,14 @@
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.lang.reflect.Array;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.persistence.EntityExistsException;
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -659,7 +658,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       if (resultObject == null) {
         continue;
       }
-      if (resultObject instanceof BigInteger bi && isLong) {
+      if (resultObject instanceof Number bi && isLong) {
         result.add((T) ((Long) bi.longValue()));
       } else {
         result.add((T) resultObject);

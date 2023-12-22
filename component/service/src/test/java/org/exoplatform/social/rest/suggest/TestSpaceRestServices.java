@@ -1,6 +1,6 @@
 package org.exoplatform.social.rest.suggest;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.EnvironmentContext;
 import org.exoplatform.services.test.mock.MockHttpServletRequest;

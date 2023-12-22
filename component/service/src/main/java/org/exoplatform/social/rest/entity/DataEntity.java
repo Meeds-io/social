@@ -19,7 +19,7 @@ package org.exoplatform.social.rest.entity;
 
 import java.util.LinkedHashMap;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 public class DataEntity extends LinkedHashMap<String, Object> {

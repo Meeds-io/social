@@ -35,8 +35,8 @@ import org.picketlink.idm.api.PersistenceManager;
 import org.picketlink.idm.api.User;
 import org.picketlink.idm.impl.api.model.SimpleUser;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 import java.util.ArrayList;
 import java.util.List;
