@@ -84,8 +84,8 @@
             <i class="uiIconDeleteUser uiIconLightGray"></i>
           </a>
           <extension-registry-components
-            name="buttonManageSpaceActions"
-            type="button-manage-space-actions"
+            name="manageSpaceActions"
+            type="manage-space-actions"
             :params="{ disabled: !space.canEditNavigations,
                        iconColor: 'primary',
                        siteName: space.groupId,
@@ -191,8 +191,8 @@
       </div>
     </exo-spaces-administration-modal>
     <extension-registry-components
-      name="drawersManageSpaceActions"
-      type="drawers-manage-space-actions" />
+      name="manageSpaceDrawers"
+      type="manage-space-drawers" />
   </div>
 </template>
 <script>
