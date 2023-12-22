@@ -21,7 +21,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 
 import java.util.Date;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Created by bdechateauvieux on 3/26/15.
@@ -29,10 +29,8 @@ import javax.persistence.*;
 @Entity(name = "SocStreamItem")
 @ExoEntity
 @Table(name = "SOC_STREAM_ITEMS")
-@NamedQueries({
-        @NamedQuery(name = "SocStreamItem.migrateOwner", query = "UPDATE SocStreamItem s SET s.ownerId = :newId WHERE s.ownerId = :oldId"),
-        @NamedQuery(name = "getStreamByActivityId", query = "select s from SocStreamItem s join s.activity A where A.id = :activityId")
-})
+@NamedQuery(name = "SocStreamItem.migrateOwner", query = "UPDATE SocStreamItem s SET s.ownerId = :newId WHERE s.ownerId = :oldId")
+@NamedQuery(name = "SocStreamItem.getStreamByActivityId", query = "SELECT s FROM SocStreamItem s WHERE s.activity.id = :activityId")
 public class StreamItemEntity {
 
   @Id

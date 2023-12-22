@@ -19,7 +19,7 @@ package org.exoplatform.social.core.search.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.portal.config.UserACL;
 import org.picocontainer.Startable;

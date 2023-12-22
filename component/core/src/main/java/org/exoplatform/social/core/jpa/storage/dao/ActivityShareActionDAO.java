@@ -2,7 +2,7 @@ package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.util.List;
 
-import javax.persistence.TypedQuery;
+import jakarta.persistence.TypedQuery;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityShareActionEntity;

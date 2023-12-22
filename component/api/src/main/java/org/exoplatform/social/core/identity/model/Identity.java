@@ -297,11 +297,7 @@ public class Identity implements CacheEntry, Cloneable {
 
   @Override
   public Identity clone() {
-    try {
-      return (Identity) super.clone();
-    } catch (CloneNotSupportedException e) {
-      return new Identity(id, remoteId, providerId, isDeleted, isEnable, profile, profileLoader, globalId);
-    }
+    return new Identity(id, remoteId, providerId, isDeleted, isEnable, profile, profileLoader, globalId);
   }
 
 }

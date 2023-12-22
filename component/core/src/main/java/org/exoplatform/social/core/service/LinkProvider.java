@@ -20,9 +20,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
@@ -199,7 +199,7 @@ public class LinkProvider {
                .append("',")
                .append("}\"")
                .append(">")
-               .append(StringEscapeUtils.escapeHtml(identity.getProfile().getFullName()));
+               .append(StringEscapeUtils.escapeHtml4(identity.getProfile().getFullName()));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
       profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(new Locale(lang), "external.label.tag")).append(")").append("</span>");
     }

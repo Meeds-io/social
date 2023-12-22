@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -2291,7 +2291,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 //    Space space1 = new Space();
 //    space1.setDisplayName("広いニーズ");
 //    space1.setPrettyName("広いニーズ");
-//    space1.setDescription(StringEscapeUtils.escapeHtml("広いニーズに応えます。"));
+//    space1.setDescription(StringEscapeUtils.escapeHtml4("広いニーズに応えます。"));
 //    space1.setManagers(new String[] { "root" });
 //    space1.setMembers(new String[] { "root", "mary" });
 //    space1.setType(DefaultSpaceApplicationHandler.NAME);

@@ -1,7 +1,7 @@
 <%
   import org.gatein.portal.controller.resource.ResourceRequestHandler;
   import org.exoplatform.social.webui.Utils;
-  import org.apache.commons.lang.StringUtils;
+  import org.apache.commons.lang3.StringUtils;
   import org.exoplatform.portal.application.PortalRequestContext;
   import org.exoplatform.social.core.search.SearchService;
   import org.exoplatform.portal.resource.SkinService;
