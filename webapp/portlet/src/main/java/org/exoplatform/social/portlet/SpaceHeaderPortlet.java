@@ -6,7 +6,7 @@ import java.util.*;
 import javax.portlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.PageType;

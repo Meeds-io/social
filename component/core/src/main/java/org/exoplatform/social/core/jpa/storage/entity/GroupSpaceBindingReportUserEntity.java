@@ -20,7 +20,7 @@ package org.exoplatform.social.core.jpa.storage.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 

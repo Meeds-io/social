@@ -20,8 +20,11 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import java.util.concurrent.TimeUnit;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 
+@AllArgsConstructor
 public class LogWatch implements Cloneable {
 
   private static final long NANOS_IN_A_MILLI = 1000000L;
@@ -99,11 +102,7 @@ public class LogWatch implements Cloneable {
   }
 
   public LogWatch clone() {
-    try {
-      return (LogWatch) super.clone();
-    } catch (CloneNotSupportedException cnse) {
-      throw new Error("Unexpected CloneNotSupportedException");
-    }
+    return new LogWatch(startTime, nanoStartTime, elapsedTime, process, message);
   }
   
   public String toString(long value, TimeUnit timeUnit) {
