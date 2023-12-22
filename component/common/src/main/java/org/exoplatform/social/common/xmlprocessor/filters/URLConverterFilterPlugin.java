@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -142,7 +142,7 @@ public class URLConverterFilterPlugin extends BaseXMLFilterPlugin {
   }
 
   private int convertNode(Node currentNode){
-    String content = StringEscapeUtils.unescapeHtml(currentNode.getContent());
+    String content = StringEscapeUtils.unescapeHtml4(currentNode.getContent());
     int insertedCount = 0; // if found for delete the original after parsing
 
     if(!currentNode.isRootNode()){
@@ -167,7 +167,7 @@ public class URLConverterFilterPlugin extends BaseXMLFilterPlugin {
           // case when string like this: "abc http://xyz" so we must create text node abc
           if(m.start() > lastMatch){
             Node textNode = new Node();
-            textNode.setContent(StringEscapeUtils.escapeHtml(content.substring(lastMatch, m.start())));
+            textNode.setContent(StringEscapeUtils.escapeHtml4(content.substring(lastMatch, m.start())));
 
             parrentNode.insertAfter(currentProccessNode, textNode);
             currentProccessNode = textNode;
@@ -187,7 +187,7 @@ public class URLConverterFilterPlugin extends BaseXMLFilterPlugin {
 
           // Create text node for <a>, text node inside <a> and position is 0
           Node aHrefContentNode = new Node();
-          aHrefContentNode.setContent(StringEscapeUtils.escapeHtml(shortenURL(textLink)));
+          aHrefContentNode.setContent(StringEscapeUtils.escapeHtml4(shortenURL(textLink)));
           aHrefContentNode.setParentNode(aHrefNode);
           aHrefNode.addChildNode(aHrefContentNode);
 
@@ -201,7 +201,7 @@ public class URLConverterFilterPlugin extends BaseXMLFilterPlugin {
       }
       if((lastMatch + 1) < content.length()){
         Node textNode = new Node();
-        textNode.setContent(StringEscapeUtils.escapeHtml(content.substring(lastMatch, content.length())));
+        textNode.setContent(StringEscapeUtils.escapeHtml4(content.substring(lastMatch, content.length())));
 
         parrentNode.insertAfter(currentProccessNode, textNode);
         currentProccessNode = textNode;

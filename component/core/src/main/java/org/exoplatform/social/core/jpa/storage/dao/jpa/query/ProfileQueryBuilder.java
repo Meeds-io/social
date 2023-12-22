@@ -23,15 +23,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 
 import org.exoplatform.social.core.jpa.search.ExtendProfileFilter;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity_;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity_;
+
+import org.apache.commons.collections4.CollectionUtils;
+
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 
@@ -61,48 +64,60 @@ public class ProfileQueryBuilder {
    * @return the JPA TypedQuery
    */
   public TypedQuery[] build(EntityManager em) {
-    CriteriaBuilder cb = em.getCriteriaBuilder();
-    CriteriaQuery query = cb.createQuery(IdentityEntity.class);
+    TypedQuery<IdentityEntity> select = buildListQuery(em);
+    TypedQuery<Long> count = buildCountquery(em);
+    return new TypedQuery[]{select, count};
+  }
 
-    Root<IdentityEntity> identity = query.from(IdentityEntity.class);
+  private TypedQuery<Long> buildCountquery(EntityManager em) {
+    CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+    CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+    Root<IdentityEntity> identityCountQuery = countQuery.from(IdentityEntity.class);
+    countQuery.select(criteriaBuilder.countDistinct(identityCountQuery)).where(buildPredicates(criteriaBuilder, identityCountQuery));
+    return em.createQuery(countQuery);
+  }
 
+  private TypedQuery<IdentityEntity> buildListQuery(EntityManager em) {
+    CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+    CriteriaQuery<IdentityEntity> listQuery = criteriaBuilder.createQuery(IdentityEntity.class);
+    Root<IdentityEntity> identityListQuery = listQuery.from(IdentityEntity.class);
+    listQuery.select(identityListQuery).distinct(true).where(buildPredicates(criteriaBuilder, identityListQuery));
+    return em.createQuery(listQuery);
+  }
+
+  private Predicate[] buildPredicates(CriteriaBuilder cb, Root<IdentityEntity> identityListQuery) {
     List<Predicate> predicates = new ArrayList<>();
 
     if (filter != null) {
-      if (filter.isForceLoadProfile()) {
-        //TODO: profile is now always EAGER load
-//        Fetch<IdentityEntity,ProfileEntity> fetch = identity.fetch(IdentityEntity_.profile, JoinType.INNER);
-      }
-
       if (filter.isExcludeDeleted()) {
-        predicates.add(cb.isFalse(identity.get(IdentityEntity_.deleted)));
+        predicates.add(cb.isFalse(identityListQuery.get(IdentityEntity_.deleted)));
       }
 
       if (filter.isExcludeDisabled()) {
-        predicates.add(cb.isTrue(identity.get(IdentityEntity_.enabled)));
+        predicates.add(cb.isTrue(identityListQuery.get(IdentityEntity_.enabled)));
       }
 
-      if (filter.getIdentityIds() != null && filter.getIdentityIds().size() > 0) {
-        predicates.add(identity.get(IdentityEntity_.id).in(filter.getIdentityIds()));
+      if (CollectionUtils.isNotEmpty(filter.getIdentityIds())) {
+        predicates.add(identityListQuery.get(IdentityEntity_.id).in(filter.getIdentityIds()));
       }
 
-      if (filter.getRemoteIds() != null && filter.getRemoteIds().size() > 0) {
-        predicates.add(identity.get(IdentityEntity_.remoteId).in(filter.getRemoteIds()));
+      if (CollectionUtils.isNotEmpty(filter.getRemoteIds())) {
+        predicates.add(identityListQuery.get(IdentityEntity_.remoteId).in(filter.getRemoteIds()));
       }
 
       if (filter.getProviderId() != null && !filter.getProviderId().isEmpty()) {
-        predicates.add(cb.equal(identity.get(IdentityEntity_.providerId), filter.getProviderId()));
+        predicates.add(cb.equal(identityListQuery.get(IdentityEntity_.providerId), filter.getProviderId()));
       }
 
       SetJoin<IdentityEntity, ProfileExperienceEntity> experience = null;
 
       List<Identity> excludes = filter.getExcludedIdentityList();
-      if (excludes != null && excludes.size() > 0) {
+      if (CollectionUtils.isNotEmpty(excludes)) {
         List<Long> ids = new ArrayList<>(excludes.size());
         for (Identity id : excludes) {
           ids.add(Long.parseLong(id.getId()));
         }
-        predicates.add(cb.not(identity.get(IdentityEntity_.id).in(ids)));
+        predicates.add(cb.not(identityListQuery.get(IdentityEntity_.id).in(ids)));
       }
 
       String all = filter.getAll();
@@ -110,7 +125,7 @@ public class ProfileQueryBuilder {
         String name = filter.getName();
         if (name != null && !name.isEmpty()) {
           name = processLikeString(name);
-          MapJoin<IdentityEntity, String, String> properties = identity.join(IdentityEntity_.properties, JoinType.LEFT);
+          MapJoin<IdentityEntity, String, String> properties = identityListQuery.join(IdentityEntity_.properties, JoinType.LEFT);
           predicates.add(cb.and(cb.like(cb.lower(properties.value()), name), properties.key().in(Arrays.asList(Profile.FIRST_NAME, Profile.LAST_NAME, Profile.FULL_NAME))));
         }
 
@@ -118,10 +133,10 @@ public class ProfileQueryBuilder {
         if (val != null && !val.isEmpty()) {
           val = processLikeString(val);
           Predicate[] p = new Predicate[2];
-          MapJoin<IdentityEntity, String, String> properties = identity.join(IdentityEntity_.properties, JoinType.LEFT);
+          MapJoin<IdentityEntity, String, String> properties = identityListQuery.join(IdentityEntity_.properties, JoinType.LEFT);
           p[1] = cb.and(cb.like(cb.lower(properties.value()), val), cb.equal(properties.key(), Profile.POSITION));
           if(experience == null) {
-            experience = identity.join(IdentityEntity_.experiences, JoinType.LEFT);
+            experience = identityListQuery.join(IdentityEntity_.experiences, JoinType.LEFT);
           }
           p[0] = cb.like(cb.lower(experience.get(ProfileExperienceEntity_.position)), val);
 
@@ -132,7 +147,7 @@ public class ProfileQueryBuilder {
         if (val != null && !val.isEmpty()) {
           val = processLikeString(val);
           if(experience == null) {
-            experience = identity.join(IdentityEntity_.experiences, JoinType.LEFT);
+            experience = identityListQuery.join(IdentityEntity_.experiences, JoinType.LEFT);
           }
           predicates.add(cb.like(cb.lower(experience.get(ProfileExperienceEntity_.skills)), val));
         }
@@ -141,7 +156,7 @@ public class ProfileQueryBuilder {
         if (val != null && !val.isEmpty()) {
           val = processLikeString(val);
           if(experience == null) {
-            experience = identity.join(IdentityEntity_.experiences, JoinType.LEFT);
+            experience = identityListQuery.join(IdentityEntity_.experiences, JoinType.LEFT);
           }
           predicates.add(cb.like(cb.lower(experience.get(ProfileExperienceEntity_.company)), val));
         }
@@ -150,11 +165,11 @@ public class ProfileQueryBuilder {
         String name = filter.getName();
         all = processLikeString(all).toLowerCase();
         Predicate[] p = new Predicate[5];
-        MapJoin<IdentityEntity, String, String> properties = identity.join(IdentityEntity_.properties, JoinType.LEFT);
+        MapJoin<IdentityEntity, String, String> properties = identityListQuery.join(IdentityEntity_.properties, JoinType.LEFT);
         p[0] = cb.and(cb.like(cb.lower(properties.value()), name), properties.key().in(Arrays.asList(Profile.FIRST_NAME, Profile.LAST_NAME, Profile.FULL_NAME)));
 
         if(experience == null) {
-          experience = identity.join(IdentityEntity_.experiences, JoinType.LEFT);
+          experience = identityListQuery.join(IdentityEntity_.experiences, JoinType.LEFT);
         }
         p[1] = cb.like(cb.lower(experience.get(ProfileExperienceEntity_.position)), all);
         p[2] = cb.like(cb.lower(experience.get(ProfileExperienceEntity_.skills)), all);
@@ -166,15 +181,7 @@ public class ProfileQueryBuilder {
     }
 
     Predicate[] pds = predicates.toArray(new Predicate[predicates.size()]);
-
-    query.select(cb.countDistinct(identity)).where(pds);
-    TypedQuery<Long> count = em.createQuery(query);
-
-    query.select(identity).distinct(true).where(pds);
-    TypedQuery<IdentityEntity> select = em.createQuery(query);
-
-
-    return new TypedQuery[]{select, count};
+    return pds;
   }
 
   private String processLikeString(String s) {
