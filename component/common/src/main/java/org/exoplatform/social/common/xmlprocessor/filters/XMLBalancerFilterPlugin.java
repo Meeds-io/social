@@ -19,7 +19,7 @@ package org.exoplatform.social.common.xmlprocessor.filters;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.exoplatform.social.common.xmlprocessor.BaseXMLFilterPlugin;
 import org.exoplatform.social.common.xmlprocessor.DOMParser;
 import org.exoplatform.social.common.xmlprocessor.Tokenizer;

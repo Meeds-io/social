@@ -20,7 +20,7 @@ package org.exoplatform.social.core.storage.cache;
 import java.util.*;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.services.cache.ExoCache;

@@ -514,11 +514,11 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       app = getApplication(space, appId);
     } catch (Exception e) {
       if (StringUtils.isBlank(spaceApplication.getPortletApp())) {
-        throw new IllegalStateException("An error occurred while getting application '{}' from registry."
+        throw new IllegalStateException("An error occurred while getting application " + appId + " from registry."
             + " In fact, the application isn't configured with its application name (WAR webapp name)."
             + " This may be the cause of the problem", e);
       } else {
-        throw new IllegalStateException("An error occurred while getting application '{}' from registry.", e);
+        throw new IllegalStateException("An error occurred while getting application " + appId + " from registry.", e);
       }
     }
     String contentId = app.getContentId();

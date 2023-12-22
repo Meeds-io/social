@@ -15,7 +15,6 @@
  */
 package org.exoplatform.social.core.metadata.storage;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Tuple;
+import jakarta.persistence.Tuple;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -148,7 +147,7 @@ public class MetadataStorage {
                                                                                                    spaceId);
     Map<String, Long> metadataItemsMap = new HashMap<>();
     for (Tuple tuple : metadataItemsTuple) {
-      metadataItemsMap.put((String) tuple.get(0), ((BigInteger) tuple.get(1)).longValue());
+      metadataItemsMap.put((String) tuple.get(0), ((Number) tuple.get(1)).longValue());
     }
     return metadataItemsMap;
   }
