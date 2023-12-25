@@ -22,7 +22,7 @@
       content-class="identitySuggesterContent"
       width="100%"
       max-width="100%"
-      item-text="profile.fullName"
+      :item-text="itemText"
       item-value="id"
       return-object
       persistent-hint
@@ -66,7 +66,10 @@
             <v-img :src="item.profile.avatarUrl" role="presentation" />
           </v-avatar>
           <span class="text-truncate">
-            {{ item.profile.external ? item.profile.fullName.concat(' (').concat($t('userAvatar.external.label')).concat(')') : item.profile.fullName }}
+            {{ item.profile.external
+              ? (itemText ? item[itemText] : item.profile.fullName).concat(' (').concat($t('userAvatar.external.label')).concat(')')
+              : (itemText) ? item[itemText] : item.profile.fullName
+            }}          
           </span>
         </v-chip>
       </template>
@@ -80,7 +83,7 @@
         <v-list-item-title
           :style="menuItemStyle"
           class="text-truncate identitySuggestionMenuItemText"
-          v-text="data.item.profile.fullName" />
+          v-text="itemText ? data.item[itemText] : data.item.profile.fullName" />
       </template>
     </v-autocomplete>
   </v-flex>
@@ -101,6 +104,12 @@ export default {
       type: Array,
       default: function() {
         return [];
+      },
+    },
+    itemText: {
+      type: String,
+      default: function() {
+        return null;
       },
     },
     labels: {
