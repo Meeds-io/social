@@ -43,27 +43,21 @@
         offset-x>
         <template #activator="{ attrs, on }">
           <v-list-item-title
-            v-if="hasPage"
             v-on="on"
             v-bind="attrs"
             class="pt-5 pb-5 text-caption"
-            v-text="navigation.label"
-            @mouseleave="showMenu = false"
-            @mouseover="showMenu = true" />
-          <v-list-item-title
-            v-else
-            class="pt-5 pb-5 text-caption not-clickable"
+            :class="hasPage && ' ' || ' not-clickable '"
             v-text="navigation.label"
             @mouseleave="showMenu = false"
             @mouseover="showMenu = true" />
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
-            class="ms-0 me-n2 ma-auto full-height">
+            class="ms-0 me-n2 ma-auto full-height"
+            @mouseover="showMenu = true">
             <v-btn
               v-on="on"
               icon
-              @click.stop.prevent="showMenu = !showMenu"
-              @mouseover="showMenu = true">
+              @click.stop.prevent="showMenu = !showMenu">
               <v-icon
                 size="18">
                 {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
@@ -111,7 +105,7 @@ export default {
     showMenu() {
       this.isOpenedOnHover = !this.showMenu;
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
-      this.positionY = this.$el.getBoundingClientRect().top + 10;
+      this.positionY = this.$el.getBoundingClientRect().top;
       this.$root.$emit('close-sibling-drop-menus-children', this);
     }
   },
