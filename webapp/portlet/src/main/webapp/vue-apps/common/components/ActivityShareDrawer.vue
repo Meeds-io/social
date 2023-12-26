@@ -1,6 +1,7 @@
 <template>
   <exo-drawer
     ref="activityShareDrawer"
+    id="activityShareDrawer"
     right
     @opened="opened = true"
     @closed="opened = false">
@@ -19,6 +20,7 @@
           </div>
           <div class="d-flex flex-row flex-grow-1 activitySpaceSuggester">
             <exo-identity-suggester
+              id="selectDestinationSpaceToShare"
               ref="activitySpaceSuggester"
               v-model="spaces"
               :labels="spaceSuggesterLabels"
@@ -33,6 +35,7 @@
           </div>
           <div class="d-flex flex-row">
             <rich-editor
+              id="shareMessageInput"
               ref="activityShareMessage"
               v-model="description"
               :template-params="templateParams"
@@ -54,12 +57,14 @@
     <template slot="footer">
       <div class="d-flex justify-end">
         <v-btn
+          id="cancelShareActivityButton"
           class="btn me-2"
           :aria-label="$t('Confirmation.label.Cancel')"
           @click="close">
           {{ $t('Confirmation.label.Cancel') }}
         </v-btn>
         <v-btn
+          id="shareActivityButton"
           :loading="sharing"
           :disabled="buttonDisabled"
           :aria-label="$t('UIActivity.share')"
