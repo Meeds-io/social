@@ -735,6 +735,9 @@ public class EntityBuilder {
       spaceEntity.setIsPublisher(spaceService.isPublisher(space, userId));
     }
 
+    PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(GROUP, space.getGroupId()));
+    spaceEntity.setSiteId((portalConfig.getStorageId().split("_"))[1]);
+
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setLastUpdatedTime(space.getLastUpdatedTime());
     spaceEntity.setCreatedTime(String.valueOf(space.getCreatedTime()));

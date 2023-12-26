@@ -88,8 +88,8 @@
             type="manage-space-actions"
             :params="{ disabled: !space.canEditNavigations,
                        iconColor: 'primary',
-                       canManageSiteNavigation: true,
                        siteName: space.groupId,
+                       siteId: space.siteId,
                        siteType: 'GROUP'}" />
         </td>
       </tr>
@@ -190,6 +190,9 @@
         <div class="btn" @click="closeRemoveBindingModal">{{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}</div>
       </div>
     </exo-spaces-administration-modal>
+    <extension-registry-components
+      name="manageSpaceDrawers"
+      type="manage-space-drawers" />
   </div>
 </template>
 <script>
