@@ -224,6 +224,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("canEditNavigations");
   }
 
+  public SpaceEntity setSiteId(String siteId) {
+    setProperty("siteId", siteId);
+    return this;
+  }
+
+  public String getSiteId() {
+    return (String) getProperty("siteId");
+  }
+
   public SpaceEntity setManagers(LinkEntity managers) {
     setProperty("managers", managers.getData());
     return this;
