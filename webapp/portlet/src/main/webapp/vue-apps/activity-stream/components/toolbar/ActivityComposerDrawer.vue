@@ -191,8 +191,8 @@ export default {
       attachments: null,
       activityToolbarAction: false,
       postToNetwork: eXo.env.portal.postToNetworkEnabled,
-      audienceChoice: 'yourNetwork',
-      audience: '',
+      audienceChoice: eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces',
+      audience: eXo.env.portal.spaceId,
       username: eXo.env.portal.userName
     };
   },
@@ -438,7 +438,7 @@ export default {
       }
     },
     resetAudienceChoice() {
-      this.audienceChoice = 'yourNetwork';
+      this.audienceChoice =  eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces';
       this.audience = '';
     },
     removeAudience() {
