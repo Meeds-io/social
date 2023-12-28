@@ -260,7 +260,8 @@ export default {
     },
     closeDisplayedDrawer() {
       const isLastOpenedDrawer = eXo.openedDrawers.indexOf(this) === eXo.openedDrawers.length - 1;
-      if (this.drawer && isLastOpenedDrawer) {
+      const inputTextDisplayed = !!document.getElementById('inputURL');
+      if (this.drawer && isLastOpenedDrawer && !inputTextDisplayed) {
         this.close();
       }
     },
