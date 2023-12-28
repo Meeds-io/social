@@ -21,6 +21,7 @@
     v-model="drawer"
     v-draggable="enabled"
     disable-pull-to-refresh
+    allow-expand
     right
     fixed>
     <template #title>
