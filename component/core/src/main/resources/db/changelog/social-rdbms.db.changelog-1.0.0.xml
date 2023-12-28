@@ -354,12 +354,13 @@
   </changeSet>
   
   <changeSet author="social" id="1.0.0-33">
+    <validCheckSum>ANY</validCheckSum>
     <addUniqueConstraint columnNames="SPACE_ID, APP_ID"
                          constraintName="UK_SPACE_APP_01"
                          tableName="SOC_APPS"/>
 
     <!--
-     I have to add sql here because liquibase does not support to set the COLLATE
+     Add sql here because liquibase does not support to set the COLLATE
      And seem the problem is happened on MySQL only
     -->
     <sql dbms="mysql">
@@ -515,7 +516,7 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-58">
-    <validCheckSum>7:6d73301b5f63132385b561dd059a75c5</validCheckSum>
+    <validCheckSum>ANY</validCheckSum>
     <!-- Make sure the CREATED_DATE column has a non zero default value before altering the table, since it is not
      allowed by default in MySQL since version 5.7.8 (default strict mode value has changed).
      Tried to use <addDefaultValue> liquibase tag but faced the bug https://liquibase.jira.com/browse/CORE-3010-->
@@ -542,6 +543,7 @@
     </addColumn>
   </changeSet>
   <changeSet author="social" id="1.0.0-60" failOnError="true" dbms="oracle,postgresql">
+    <validCheckSum>ANY</validCheckSum>
     <createSequence sequenceName="SEQ_SOC_EXPERIENCE_ID" startValue="1"/>
     <addColumn tableName="SOC_IDENTITY_EXPERIENCES">
       <column name="EXPERIENCE_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
