@@ -65,8 +65,9 @@
 
       editor.setKeystroke( CKEDITOR.CTRL + 75 /*K*/, 'addLink' );
       document.addEventListener('keydown', (evt) => {
+        const selection = editor.getSelection();
         evt = evt || window.event;
-        if (evt.key === 'Escape' && isInputTextToolbar) {
+        if (evt.key === 'Escape' && isInputTextToolbar && selection && selection.getSelectedText().trim().length >= 0) {
           hideInputTextPanel(editor);
         }
       });
