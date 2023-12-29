@@ -67,8 +67,8 @@
           </v-avatar>
           <span class="text-truncate">
             {{ item.profile.external
-              ? (itemText ? item[itemText] : item.profile.fullName).concat(' (').concat($t('userAvatar.external.label')).concat(')')
-              : (itemText) ? item[itemText] : item.profile.fullName
+              ? (itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName).concat(' (').concat($t('userAvatar.external.label')).concat(')')
+              : itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName
             }}          
           </span>
         </v-chip>
@@ -83,7 +83,7 @@
         <v-list-item-title
           :style="menuItemStyle"
           class="text-truncate identitySuggestionMenuItemText"
-          v-text="itemText ? data.item[itemText] : data.item.profile.fullName" />
+          v-text="itemText !== 'profile.fullName' ? data.item[itemText] : data.item.profile.fullName" />
       </template>
     </v-autocomplete>
   </v-flex>
@@ -109,7 +109,7 @@ export default {
     itemText: {
       type: String,
       default: function() {
-        return null;
+        return 'profile.fullName';
       },
     },
     labels: {
