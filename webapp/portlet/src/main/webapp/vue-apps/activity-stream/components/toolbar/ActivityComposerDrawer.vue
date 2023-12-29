@@ -438,7 +438,7 @@ export default {
       }
     },
     resetAudienceChoice() {
-      this.audienceChoice =  eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces';
+      this.audienceChoice = eXo.env.portal.postToNetworkEnabled && 'yourNetwork' || 'oneOfYourSpaces';
       this.audience = '';
     },
     removeAudience() {
