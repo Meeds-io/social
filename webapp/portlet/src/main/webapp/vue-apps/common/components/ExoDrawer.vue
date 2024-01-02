@@ -238,12 +238,14 @@ export default {
     document.addEventListener('modalClosed', this.setModalClosed);
     document.addEventListener('closeAllDrawers', this.close);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+    document.addEventListener('close-editor-container', this.closeDisplayedDrawer);
   },
   beforeDestroy() {
     document.removeEventListener('modalOpened', this.setModalOpened);
     document.removeEventListener('modalClosed', this.setModalClosed);
     document.removeEventListener('closeAllDrawers', this.close);
     document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+    document.removeEventListener('close-editor-container', this.closeDisplayedDrawer);
     if (this.drawer) {
       this.drawer = false;
     }
