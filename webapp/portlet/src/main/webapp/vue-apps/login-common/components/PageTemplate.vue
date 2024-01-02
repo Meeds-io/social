@@ -108,6 +108,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hideSuccessMessage: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     companyName() {
@@ -152,7 +156,7 @@ export default {
     successMessage: {
       immediate: true,
       handler: function() {
-        if (this.successMessage?.trim()?.length) {
+        if (this.successMessage?.trim()?.length && !this.hideSuccessMessage) {
           this.displayAlert(this.successMessage, 'success');
         }
       },

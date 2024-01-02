@@ -21,6 +21,7 @@
 <template>
   <portal-login-template
     :params="params"
+    hide-success-message
     branding-image
     center>
     <portal-register-main :params="params" />
