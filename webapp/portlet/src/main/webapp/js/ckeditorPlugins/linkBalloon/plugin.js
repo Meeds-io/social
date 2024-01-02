@@ -56,9 +56,12 @@
             setupClickObserver(editor);
           });
         }); 
-        editor.on('key', function () {
-          if (getSelectedText(editor).length <= 0 && balloonToolbarDisplayed) {
+        editor.on('key', function (e) {
+          if (getSelectedText(editor).length >= 0 && balloonToolbarDisplayed) {
             balloonToolbar.destroy();
+            balloonToolbarDisplayed = false;
+          } else if (e.data.keyCode === 27) {
+            document.dispatchEvent(new CustomEvent('close-editor-container'));
           }
         });
       });
