@@ -22,6 +22,7 @@
   <portal-login-template
     :params="params"
     branding-image
+    hide-success-message
     center>
     <portal-external-onboarding-main :params="params" />
   </portal-login-template>
