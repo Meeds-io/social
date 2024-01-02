@@ -89,7 +89,7 @@
           </v-expand-x-transition>
           <v-card
             :max-height="expanded && '100%' || 'auto'"
-            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent no-border-radius"
+            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent no-border-radius overflow-hidden"
             flat>
             <v-card
               :max-height="expanded && '100%' || 'auto'"
