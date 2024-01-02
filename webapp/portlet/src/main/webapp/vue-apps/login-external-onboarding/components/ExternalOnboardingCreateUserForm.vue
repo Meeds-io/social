@@ -19,7 +19,27 @@
 
 -->
 <template>
-  <v-card flat>
+  <v-card
+    v-if="confirmed"
+    width="600px"
+    max-width="100%"
+    class="mx-auto px-4"
+    flat>
+    <div class="d-flex flex-column align-center justify-center pt-10 pb-5">
+      <v-icon size="80" color="primary">
+        fa-envelope
+      </v-icon>
+      <span class="subtitle-1 mt-8 text-color">
+        {{ $t('UILoginForm.label.confirmationEmailSentPart1') }}
+      </span>
+      <span class="subtitle-1 mt-3 text-color">
+        {{ $t('UILoginForm.label.confirmationEmailSentPart2') }}
+      </span>
+    </div>
+  </v-card>
+  <v-card
+    v-else
+    flat>
     <v-card-title class="primary--text text-break title px-0">
       {{ $t('onboarding.summary1') }}
     </v-card-title>
@@ -221,6 +241,9 @@ export default {
         || !this.password?.length
         || !this.confirmPassword?.length
         || !this.captcha?.length;
+    },
+    confirmed() {
+      return !!this.params?.success?.length;
     },
   },
   mounted() {
