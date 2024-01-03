@@ -90,6 +90,9 @@ CKEDITOR.editorConfig = function(config) {
   // remove the white mask on dialog
   config.dialog_backgroundCoverColor = 'transparent';
   config.dialog_backgroundCoverOpacity = 1;
+  
+  // Disable the version check by default
+  config.versionCheck = false;
 
   // Here is configure for suggester
   var peopleSearchCached = {};
