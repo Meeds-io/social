@@ -440,7 +440,7 @@ export default {
     },
     resetAudienceChoice() {
       this.audienceChoice = eXo.env.portal.postToNetworkEnabled && 'yourNetwork' || 'oneOfYourSpaces';
-      this.audience = '';
+      this.audience = eXo.env.portal.spaceId;
     },
     removeAudience() {
       this.audience = '';
