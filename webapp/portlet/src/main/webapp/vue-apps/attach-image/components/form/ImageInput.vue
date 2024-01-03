@@ -121,7 +121,7 @@ export default {
     },
     save() {
       const uploadedFiles = this.images
-        .filter((file) => file.progress === 100)
+        .filter((file) => file.progress >= 100)
         .map((file) => ({
           uploadId: file.uploadId,
           altText: file?.altText || ''

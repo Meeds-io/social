@@ -27,7 +27,8 @@
     </div>
     <div v-if="containInvalidUsers" class="mt-4 text-sub-title">{{ $t('activity.composer.invalidUsers.message') }}</div>
     <attachments-image-input
-      v-if="displayAttachmentEditor"
+      v-if="attachmentEnabled"
+      v-show="displayAttachmentEditor"
       ref="attachmentsInput"
       :max-file-size="maxFileSize"
       :object-type="objectType"
