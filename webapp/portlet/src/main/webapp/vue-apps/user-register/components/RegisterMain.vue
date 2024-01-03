@@ -21,7 +21,7 @@
 <template>
   <v-card
     v-if="registerEnabled"
-    width="350px"
+    :width="confirmed && 600 || 350"
     max-width="100%"
     class="mx-auto"
     flat>
@@ -42,6 +42,9 @@ export default {
     },
     registerEnabled() {
       return this.params?.registerEnabled;
+    },
+    confirmed() {
+      return !!this.params?.success?.length;
     },
   },
 };
