@@ -19,7 +19,26 @@
 
 -->
 <template>
+  <v-card
+    v-if="confirmed"
+    width="600px"
+    max-width="100%"
+    class="mx-auto px-4"
+    flat>
+    <div class="d-flex flex-column align-center justify-center pt-10 pb-5">
+      <v-icon size="80" color="primary">
+        fa-envelope
+      </v-icon>
+      <span class="subtitle-1 mt-8 text-color">
+        {{ $t('UILoginForm.label.confirmationEmailSentPart1') }}
+      </span>
+      <span class="subtitle-1 mt-3 text-color">
+        {{ $t('UILoginForm.label.confirmationEmailSentPart2') }}
+      </span>
+    </div>
+  </v-card>
   <extension-registry-components
+    v-else
     :params="{params}"
     name="Register"
     type="register-extension"
@@ -36,6 +55,11 @@ export default {
     params: {
       type: Object,
       default: null,
+    },
+  },
+  computed: {
+    confirmed() {
+      return !!this.params?.success?.length;
     },
   },
 };
