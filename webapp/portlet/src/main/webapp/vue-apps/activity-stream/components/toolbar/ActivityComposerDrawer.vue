@@ -191,8 +191,8 @@ export default {
       attachments: null,
       activityToolbarAction: false,
       postToNetwork: eXo.env.portal.postToNetworkEnabled,
-      audienceChoice: 'yourNetwork',
-      audience: '',
+      audienceChoice: eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces',
+      audience: eXo.env.portal.spaceId,
       username: eXo.env.portal.userName
     };
   },
@@ -312,6 +312,7 @@ export default {
         this.activityType = params.activityType;
         this.attachments = this.templateParams?.metadatas?.attachments;
         this.activityToolbarAction = params.activityToolbarAction;
+        this.audience = params.spaceId;
       } else {
         this.activityId = null;
         this.spaceId = null;
@@ -438,8 +439,8 @@ export default {
       }
     },
     resetAudienceChoice() {
-      this.audienceChoice = 'yourNetwork';
-      this.audience = '';
+      this.audienceChoice = eXo.env.portal.postToNetworkEnabled && 'yourNetwork' || 'oneOfYourSpaces';
+      this.audience = eXo.env.portal.spaceId;
     },
     removeAudience() {
       this.audience = '';
