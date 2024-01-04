@@ -313,6 +313,7 @@ export default {
         this.activityType = params.activityType;
         this.attachments = this.templateParams?.metadatas?.attachments;
         this.activityToolbarAction = params.activityToolbarAction;
+        this.audience = params.spaceId;
       } else {
         this.activityId = null;
         this.spaceId = null;
