@@ -11,7 +11,7 @@ if (userAgent != null && userAgent.indexOf('exo/') == 0 && userAgent.indexOf('(a
 CKEDITOR.editorConfig = function(config) {
 
   // The configuration options below are needed when running CKEditor from source files.
-  config.plugins = 'dialogui,dialog,about,a11yhelp,basicstyles,blockquote,panel,floatpanel,button,toolbar,enterkey,entities,popup,filebrowser,floatingspace,listblock,richcombo,format,horizontalrule,htmlwriter,wysiwygarea,indent,indentlist,fakeobjects,list,maximize,removeformat,showborders,sourcearea,specialchar,scayt,stylescombo,tab,table,notification,notificationaggregator,filetools,undo,wsc,panelbutton,colorbutton,autogrow,confighelper,uploadwidget,imageresize,autoembed,embedsemantic';
+  config.plugins = 'dialogui,dialog,about,a11yhelp,basicstyles,blockquote,panel,floatpanel,button,toolbar,enterkey,entities,popup,filebrowser,floatingspace,listblock,richcombo,format,horizontalrule,htmlwriter,wysiwygarea,indent,indentlist,fakeobjects,list,maximize,removeformat,showborders,sourcearea,specialchar,scayt,stylescombo,tab,table,notification,notificationaggregator,filetools,undo,panelbutton,colorbutton,autogrow,confighelper,uploadwidget,imageresize,autoembed,embedsemantic';
 
   CKEDITOR.plugins.addExternal('simpleLink', '/commons-extension/eXoPlugins/simpleLink/', 'plugin.js');
   CKEDITOR.plugins.addExternal('simpleImage', '/commons-extension/eXoPlugins/simpleImage/', 'plugin.js');
@@ -21,7 +21,8 @@ CKEDITOR.editorConfig = function(config) {
   CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
   CKEDITOR.plugins.addExternal('tagSuggester', '/commons-extension/eXoPlugins/tagSuggester/', 'plugin.js');
   CKEDITOR.plugins.addExternal('formatOption', '/commons-extension/eXoPlugins/formatOption/', 'plugin.js');
-  CKEDITOR.plugins.addExternal('googleDocPastePlugin', '/commons-extension/eXoPlugins/googleDocPastePlugin/', 'plugin.js')
+  CKEDITOR.plugins.addExternal('googleDocPastePlugin', '/commons-extension/eXoPlugins/googleDocPastePlugin/', 'plugin.js');
+  CKEDITOR.plugins.addExternal('linkBalloon', '/social-portlet/js/ckeditorPlugins/linkBalloon/', 'plugin.js');
 
   const embedBaseApiEndpoint = '@JVMProp{io.meeds.iframely.url://ckeditor.iframe.ly/api/oembed?omit_script=1}';
   CKEDITOR.config.embed_provider = embedBaseApiEndpoint + (embedBaseApiEndpoint.includes('?') ? '&' : '?') + 'url={url}&callback={callback}';
@@ -89,6 +90,9 @@ CKEDITOR.editorConfig = function(config) {
   // remove the white mask on dialog
   config.dialog_backgroundCoverColor = 'transparent';
   config.dialog_backgroundCoverOpacity = 1;
+  
+  // Disable the version check by default
+  config.versionCheck = false;
 
   // Here is configure for suggester
   var peopleSearchCached = {};

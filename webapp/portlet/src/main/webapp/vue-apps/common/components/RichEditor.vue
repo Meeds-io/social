@@ -293,7 +293,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption';
+      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption,linkBalloon';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
@@ -378,6 +378,10 @@ export default {
             if (this.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
+            const firstScrollableParent = self.getScrollParent(document.querySelector('.richEditor'));
+            firstScrollableParent.addEventListener('scroll', () => {
+              document.dispatchEvent(new CustomEvent ('parent-element-scrolled'));
+            }, false);
           },
           embedHandleResponse: function (embedResponse) {
             self.installOembed(embedResponse);
@@ -702,6 +706,24 @@ export default {
     getSpaceId() {
       return this.$spaceService.getSpaceByPrettyName(this.suggesterSpaceURL)
         .then(space => this.spaceId = space.id);
+    },
+    getScrollParent(element, includeHidden) {
+      let style = getComputedStyle(element);
+      const excludeStaticParent = style.position === 'absolute';
+      const overflowRegex = includeHidden ? /(auto|scroll|hidden)/ : /(auto|scroll)/;
+      if (style.position === 'fixed') {
+        return document.body;
+      }
+      for (let parent = element; (parent = parent.parentElement);) {
+        style = getComputedStyle(parent);
+        if (excludeStaticParent && style.position === 'static') {
+          continue;
+        }
+        if (overflowRegex.test(style.overflow + style.overflowY + style.overflowX)) {
+          return parent;
+        }
+      }
+      return document.body;
     }
   }
 };

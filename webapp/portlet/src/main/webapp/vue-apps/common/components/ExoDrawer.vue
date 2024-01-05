@@ -238,12 +238,14 @@ export default {
     document.addEventListener('modalClosed', this.setModalClosed);
     document.addEventListener('closeAllDrawers', this.close);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+    document.addEventListener('close-editor-container', this.closeDisplayedDrawer);
   },
   beforeDestroy() {
     document.removeEventListener('modalOpened', this.setModalOpened);
     document.removeEventListener('modalClosed', this.setModalClosed);
     document.removeEventListener('closeAllDrawers', this.close);
     document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+    document.removeEventListener('close-editor-container', this.closeDisplayedDrawer);
     if (this.drawer) {
       this.drawer = false;
     }
@@ -260,7 +262,8 @@ export default {
     },
     closeDisplayedDrawer() {
       const isLastOpenedDrawer = eXo.openedDrawers.indexOf(this) === eXo.openedDrawers.length - 1;
-      if (this.drawer && isLastOpenedDrawer) {
+      const inputTextDisplayed = !!document.getElementById('inputURL');
+      if (this.drawer && isLastOpenedDrawer && !inputTextDisplayed) {
         this.close();
       }
     },
