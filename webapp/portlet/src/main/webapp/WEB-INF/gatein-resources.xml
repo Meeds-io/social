@@ -1298,6 +1298,9 @@
         <path>/js/profileContactInformation.bundle.js</path>
       </script>
       <depends>
+        <module>peopleListComponents</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
