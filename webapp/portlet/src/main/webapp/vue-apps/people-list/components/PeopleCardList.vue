@@ -20,8 +20,7 @@
               class="pa-0">
               <people-card
                 :user="user"
-                :profile-action-extensions="profileActionExtensions"
-                @refresh="searchPeople" />
+                :profile-action-extensions="profileActionExtensions" />
             </v-col>
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">

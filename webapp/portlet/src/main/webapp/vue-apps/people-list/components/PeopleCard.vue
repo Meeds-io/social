@@ -4,9 +4,9 @@
       <people-card-front
         :user="user"
         :profile-action-extensions="profileActionExtensions"
+        :compact-display="compactDisplay"
         front
-        @flip="flipCard = true"
-        @refresh="$emit('refresh')" />
+        @flip="flipCard = true" />
     </div>
     <div class="peopleCardBack">
       <people-card-reverse
@@ -26,6 +26,10 @@ export default {
     profileActionExtensions: {
       type: Array,
       default: () => [],
+    },
+    compactDisplay: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

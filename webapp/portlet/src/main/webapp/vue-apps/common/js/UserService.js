@@ -180,7 +180,7 @@ export function connect(userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships?expand=sender`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -205,7 +205,7 @@ export function confirm(userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships?expand=sender`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
@@ -231,7 +231,7 @@ export function ignore(receiver) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
   const sender = eXo.env.portal.userName;
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships?expand=sender`, {
     method: 'PUT',
     headers: {
       Accept: 'application/json',
