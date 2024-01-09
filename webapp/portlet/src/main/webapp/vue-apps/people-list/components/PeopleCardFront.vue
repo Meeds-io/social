@@ -1,7 +1,7 @@
 <template>
   <v-card
     :id="userMenuParentId"
-    :outlined="!isMobile"
+    :outlined="!isCompactDisplay"
     class="peopleCardItem d-block d-sm-flex mx-2"
     flat
     hover>
@@ -12,7 +12,6 @@
       height="80px"
       class="white--text align-start d-block peopleBannerImg"
       eager />
-
     <div class="peopleToolbarIcons px-2">
       <v-btn
         :title="$t('peopleList.label.openUserInfo')"
@@ -64,64 +63,23 @@
       </v-btn>
       <v-spacer />
       <div v-if="isMobile && !isSameUser">
-        <v-icon 
-          size="14" 
-          class="my-1" 
+        <v-icon
+          size="14"
+          class="my-1"
           @click="openBottomMenu">
           fas fa-ellipsis-v
         </v-icon>
         <v-bottom-sheet v-model="bottomMenu" class="pa-0">
           <v-sheet class="text-center">
             <v-list dense>
-              <v-list-item 
-                v-if="confirmedUser"
-                @click="disconnect">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">fas fa-minus-circle</v-icon>
-                  <span class="mx-2">
-                    {{ $t('peopleList.button.disconnect') }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item 
-                v-else-if="incomingUser">
-                <v-list-item-title class="align-center d-flex">
-                  <div @click="acceptToConnect">
-                    <v-icon class="mx-4" size="16">mdi-check</v-icon>
-                    <span class="mx-2">
-                      {{ $t('peopleList.button.acceptToConnect') }}
-                    </span>
-                  </div>
-                  <v-divider
-                    vertical />
-                  <div @click="refuseToConnect">
-                    <v-icon class="mx-4" size="16">mdi-close</v-icon>
-                    <span class="mx-2">
-                      {{ $t('peopleList.button.refuseToConnect') }}
-                    </span>
-                  </div>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item 
-                v-else-if="outgoingUser"
-                @click="cancelRequest">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">mdi-close</v-icon>
-                  <span class="mx-2">
-                    {{ $t('peopleList.button.cancelRequest') }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item 
-                v-else
-                @click="connect">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">fas fa-plus-circle</v-icon>
-                  <span class="mx-2">
-                    {{ $t('peopleList.button.connect') }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
+              <people-connection-option-item
+                :relationship-status="relationshipStatus"
+                :is-updating-status="sendingAction"
+                @connect="connect"
+                @disconnect="disconnect"
+                @accept-to-connect="acceptToConnect"
+                @refuse-to-connect="refuseToConnect"
+                @cancel-request="cancelRequest" />
               <v-list-item
                 v-for="(extension, i) in enabledProfileActionExtensions"
                 :key="i"
@@ -137,23 +95,40 @@
           </v-sheet>
         </v-bottom-sheet>
       </div>
-      <template v-if="canUseActionsMenu">
-        <v-btn
-          :title="$t('peopleList.label.openUserMenu')"
-          icon
-          text
-          class="peopleMenuIcon d-block"
-          @click="displayActionMenu = true">
-          <v-icon size="21">mdi-dots-vertical</v-icon>
-        </v-btn>
+      <template v-else-if="canUseActionsMenu && !isSameUser">
         <v-menu
           ref="actionMenu"
           v-model="displayActionMenu"
           :attach="`#${userMenuParentId}`"
           transition="slide-x-reverse-transition"
-          content-class="peopleActionMenu"
+          content-class="peopleActionMenu mt-n6 me-4"
           offset-y>
-          <v-list class="pa-0" dense>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              :title="$t('peopleList.label.openUserMenu')"
+              icon
+              text
+              :class="!isCompactDisplay && 'peopleMenuIcon'"
+              class="d-block"
+              @click="displayActionMenu = true">
+              <v-icon size="21">
+                mdi-dots-vertical
+              </v-icon>
+            </v-btn>
+          </template>
+          <v-list class="pa-0 white" dense>
+            <people-connection-option-item
+              v-if="compactDisplay"
+              :relationship-status="relationshipStatus"
+              :compact-display="compactDisplay"
+              :is-updating-status="sendingAction"
+              @connect="connect"
+              @disconnect="disconnect"
+              @accept-to-connect="acceptToConnect"
+              @refuse-to-connect="refuseToConnect"
+              @cancel-request="cancelRequest" />
             <v-list-item
               v-for="(extension, i) in enabledProfileActionExtensions"
               :key="i"
@@ -199,7 +174,7 @@
         v-sanitized-html="userPosition" />
     </v-card-text>
 
-    <v-card-actions v-if="!isSameUser && !isMobile" class="peopleCardActions">
+    <v-card-actions v-if="!isSameUser && !isCompactDisplay" class="peopleCardActions">
       <exo-confirm-dialog
         ref="confirmDialog"
         :title="confirmTitle"
@@ -320,6 +295,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    compactDisplay: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     displayActionMenu: false,
@@ -330,7 +309,9 @@ export default {
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    bottomMenu: false
+    bottomMenu: false,
+    userObject: null,
+    relationshipStatus: null,
   }),
   watch: {
     displayActionMenu(newVal) {
@@ -340,6 +321,9 @@ export default {
         document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
       }
     },
+    relationshipStatus() {
+      this.$root.$emit('relationship-status-updated', this.user, this.relationshipStatus);
+    }
   },
   computed: {
     isSameUser() {
@@ -386,29 +370,33 @@ export default {
         return '#';
       }
     },
+    isCompactDisplay() {
+      return this.compactDisplay || this.isMobile;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.smAndDown;
     },
     usernameClass() {
-      return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color'} ${this.isMobile && 'text-truncate-2 mt-0' || 'text-truncate pt-1 d-block'}`;
+      return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color'} ${this.isCompactDisplay && 'text-truncate-2 mt-0' || 'text-truncate pt-1 d-block'}`;
     },
     confirmedUser() {
-      return this.user?.relationshipStatus === 'CONFIRMED';
+      return this.relationshipStatus === 'CONFIRMED';
     },
     incomingUser() {
-      return this.user?.relationshipStatus === 'INCOMING';
+      return this.relationshipStatus === 'INCOMING';
     },
     outgoingUser() {
-      return this.user?.relationshipStatus === 'OUTGOING';
+      return this.relationshipStatus === 'OUTGOING';
     },
     userPosition() {
-      return this.user?.position || (this.isMobile ? '--' : '&nbsp;'); 
+      return this.user?.position || (this.isCompactDisplay ? '--' : '&nbsp;');
     },
     externalUser() {
       return this.user.external === 'true';
     },
   },
   created() {
+    this.relationshipStatus = this.user?.relationshipStatus;
     $(document).on('mousedown', () => {
       if (this.displayActionMenu) {
         window.setTimeout(() => {
@@ -419,10 +407,23 @@ export default {
     });
   },
   methods: {
+    getRelationshipStatus(relationship) {
+      if (relationship.status === 'PENDING'
+                && relationship?.sender?.username === eXo?.env?.portal?.userName) {
+        return 'OUTGOING';
+      } else if (relationship.status === 'PENDING') {
+        return 'INCOMING';
+      } else {
+        return relationship.status;
+      }
+    },
     connect() {
       this.sendingAction = true;
       this.$userService.connect(this.user.username)
-        .then(() => this.$emit('refresh'))
+        .then((relationship) => {
+          this.relationshipStatus = this.getRelationshipStatus(relationship);
+
+        })
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -434,7 +435,9 @@ export default {
     disconnect() {
       this.sendingAction = true;
       this.$userService.deleteRelationship(this.user.username)
-        .then(() => this.$emit('refresh'))
+        .then(() => {
+          this.relationshipStatus = null;
+        })
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -452,7 +455,9 @@ export default {
     acceptToConnect() {
       this.sendingAction = true;
       this.$userService.confirm(this.user.username)
-        .then(() => this.$emit('refresh'))
+        .then((relationship) => {
+          this.relationshipStatus = this.getRelationshipStatus(relationship);
+        })
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -464,7 +469,9 @@ export default {
     refuseToConnect() {
       this.sendingSecondAction = true;
       this.$userService.deleteRelationship(this.user.username)
-        .then(() => this.$emit('refresh'))
+        .then(() => {
+          this.relationshipStatus = null;
+        })
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -476,7 +483,9 @@ export default {
     cancelRequest() {
       this.sendingAction = true;
       this.$userService.deleteRelationship(this.user.username)
-        .then(() => this.$emit('refresh'))
+        .then(() => {
+          this.relationshipStatus = null;
+        })
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
