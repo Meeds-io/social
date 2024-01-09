@@ -262,7 +262,10 @@ export default {
     },
     companyName() {
       this.$root.$emit('refresh-company-name', this.companyName);
-    }
+    },
+    branding() {
+      this.init();
+    },
   },
   mounted() {
     this.init();
