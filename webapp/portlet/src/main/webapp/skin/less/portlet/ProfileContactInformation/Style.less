@@ -23,7 +23,20 @@
 
 @import (css) "/platform-ui/skin/css/component/ImageCropper/cropper.min.css";
 
+@peopleCardParentMargin: 22px;
+@peopleCardMaxHeight: 227px;
+@peopleCardParentMaxHeight: @peopleCardParentMargin + @peopleCardMaxHeight;
+
 #ProfileContactInformation {
+
+  .quickSearchResultExpanded {
+    @import "../../common/PeopleList/Style.less";
+  }
+
+  .quickSearchResultCollapsed {
+    @import "../../common/ProfileCard/Style-mobile.less";
+  }
+
   .fullnameFields, .fullnameLabels {
     > div {
       max-width: 50%;

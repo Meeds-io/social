@@ -1,7 +1,7 @@
 <!--
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2024 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,34 +27,25 @@
     </div>
     <div
       class="align-end flex-grow-1 text-truncate text-end">
-      <div
-        v-for="(childProperty, i) in property.children"
-        :key="i"
-        :title="childProperty.value"
-        class="text-no-wrap text-truncate">
-        <template
-          v-if="canShowChild(childProperty)">
-          <span
-            v-if="childProperty.propertyName"
-            class="pe-1 text-capitalize">
-            {{ getResolvedName(childProperty) }}:
-          </span>
-          <v-btn
-            v-if="searchable"
-            v-autolinker="childProperty.value"
-            class="primary--text pa-0 ma-auto"
-            text
-            @click="quickSearch(childProperty)" />
-          <span
-            v-else
-            v-autolinker="childProperty.value"></span>
-        </template>
-      </div>
+      <v-btn
+        v-if="searchable"
+        v-autolinker="property.value"
+        class="primary--text pa-0"
+        text
+        @click="quickSearch">
+        {{ property.value }}
+      </v-btn>
+      <span
+        v-else
+        v-autolinker="property.value">
+        {{ property.value }}
+      </span>
     </div>
   </v-flex>
 </template>
 
 <script>
+
 export default {
   props: {
     property: {
@@ -67,21 +58,17 @@ export default {
     },
   },
   methods: {
-    quickSearch(childProperty) {
-      this.$emit('quick-search', this.property, childProperty);
+    quickSearch() {
+      this.$emit('quick-search', this.property);
     },
     getResolvedName(item) {
-      const lang = eXo && eXo.env.portal.language || 'en';
+      const lang = eXo?.env?.portal?.language || 'en';
       const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
       if (resolvedLabel){
         return resolvedLabel.label;
       }
       return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
-    },
-    canShowChild(childProperty) {
-      return (childProperty.value && childProperty.visible && childProperty.active)
-               || (this.property.multiValued && this.property.active && this.property.visible && childProperty.value);
     }
-  },
+  }
 };
 </script>
