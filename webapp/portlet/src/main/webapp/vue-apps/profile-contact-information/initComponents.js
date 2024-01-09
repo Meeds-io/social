@@ -3,6 +3,8 @@ import ProfileContactInformationDrawer from './components/ProfileContactInformat
 import ProfileMultiValuedProperty from './components/ProfileMultiValuedProperty.vue';
 import ProfileContactEditMultiField from './components/ProfileContactEditMultiField.vue';
 import ProfileContactEditMultiFieldSelect from './components/ProfileContactEditMultiFieldSelect.vue';
+import ProfileSingleValuedProperty from './components/ProfileSingleValuedProperty.vue';
+import QuickSearchUsersListDrawer from './components/QuickSearchUsersListDrawer.vue';
 
 const components = {
   'profile-contact-information': ProfileContactInformation,
@@ -10,6 +12,8 @@ const components = {
   'profile-contact-information-drawer': ProfileContactInformationDrawer,
   'profile-contact-edit-multi-field': ProfileContactEditMultiField,
   'profile-contact-edit-multi-field-select': ProfileContactEditMultiFieldSelect,
+  'profile-single-valued-property': ProfileSingleValuedProperty,
+  'quick-search-users-list-drawer': QuickSearchUsersListDrawer
 };
 
 for (const key in components) {
