@@ -47,7 +47,6 @@ import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAOTest;
 import org.exoplatform.social.core.listeners.ActivityMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ActivityTagMetadataListenerTest;
-import org.exoplatform.social.core.listeners.SocialUserProfileEventListenerImplTest;
 import org.exoplatform.social.core.manager.ActivityManagerTest;
 import org.exoplatform.social.core.manager.IdentityManagerTest;
 import org.exoplatform.social.core.manager.RelationshipManagerTest;
@@ -107,7 +106,6 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   SpaceUtilsTest.class,
   SpaceActivityPublisherTest.class,
   SpaceLifeCycleTest.class,
-  SocialUserProfileEventListenerImplTest.class,
   OSHtmlSanitizerProcessorTest.class,
   TemplateParamsProcessorTest.class,
   LinkProviderTest.class,
