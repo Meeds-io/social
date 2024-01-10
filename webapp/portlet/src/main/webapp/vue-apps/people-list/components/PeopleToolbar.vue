@@ -1,59 +1,50 @@
+<!--
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2024 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ -->
+
 <template>
-  <v-toolbar id="peopleListToolbar" flat>
-    <div>
+  <application-toolbar
+    id="peopleListApplication"
+    :right-text-filter="{
+      minCharacters: 3,
+      placeholder: $t('peopleList.label.filterPeople'),
+      tooltip: $t('peopleList.label.filterPeople')
+    }"
+    :right-filter-button="{
+      text: $t('pepole.advanced.filter.button.title'),
+    }"
+    :right-select-box="{
+      hide: isMobile,
+      selected:'all',
+      items: peopleFilters,
+    }"
+    :filters-count="advancedFilterCount"
+    @filter-text-input-end-typing="keyword = $event"
+    @filter-button-click="openPeopleAdvancedFilterDrawer"
+    @filter-select-change="filterValue = $event"
+    @toggle-select="updateFilter($event)">
+    <template #left>
       <div class="showingPeopleText text-sub-title ms-3 d-none d-sm-flex">
         {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
       </div>
-      <span v-show="mobileFilter" class="hidden-sm-and-up">
-        <v-icon
-          left
-          size="20"
-          @click="showMobileFilter">fa-arrow-left</v-icon>
-      </span>
-    </div>
-    <div class="d-flex align-center flex-grow-1">
-      <v-col>
-        <v-text-field
-          v-show="isMobile && mobileFilter || !isMobile"
-          v-model="keyword"
-          :placeholder="$t('peopleList.label.filterPeople')"
-          prepend-inner-icon="fa-filter"
-          class="inputPeopleFilter pa-0 mb-n2 my-auto ms-auto" />
-      </v-col>
-      <v-scale-transition>
-        <select
-          v-model="filter"
-          class="selectPeopleFilter my-auto me-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
-          <option
-            v-for="peopleFilter in peopleFilters"
-            :key="peopleFilter.value"
-            :value="peopleFilter.value">
-            {{ peopleFilter.text }}
-          </option>
-        </select>
-      </v-scale-transition>
-      <v-scale-transition>
-        <v-btn
-          v-show="isMobile && mobileFilter || !isMobile"
-          class="btn px-2 btn-primary"
-          :min-width="iconWidth"
-          outlined
-          @click="openPeopleAdvancedFilterDrawer()">
-          <v-icon small class="primary--text me-lg-1">fa-sliders-h</v-icon>
-          <span class="d-none font-weight-regular caption d-lg-inline me-1">
-            {{ $t('pepole.advanced.filter.button.title') }} </span>
-          <span class="font-weight-regular caption ms-1"> {{ advancedFilterCountDisplay }} </span>
-        </v-btn>
-      </v-scale-transition>
-      <v-icon
-        size="24"
-        class="text-sub-title pa-1 my-auto mt-2 ms-auto"
-        v-show="isMobile && !mobileFilter"
-        @click="showMobileFilter()">
-        mdi-filter-outline
-      </v-icon>
-    </div>
-  </v-toolbar>
+    </template>
+  </application-toolbar>
 </template>
 
 <script>
@@ -70,18 +61,12 @@ export default {
     },
   },
   data: () => ({
-    filterToChange: null,
-    bottomMenu: false,
-    startSearchAfterInMilliseconds: 600,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
-    typing: false,
     advancedFilterCount: 0,
-    mobileFilter: false,
-    iconWidth: '24px',
     keyword: null,
+    filterValue: null
   }),
   created() {
+    this.filterValue = this.filter;
     this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount);
     this.$root.$on('reset-advanced-filter-count', () => {
       this.advancedFilterCount = 0;
@@ -97,50 +82,28 @@ export default {
         value: 'connections',
       }];
     },
-    advancedFilterCountDisplay() {
-      return this.advancedFilterCount > 0 ? `(${this.advancedFilterCount})`:'';
-    },
     isMobile() {
       return this.$vuetify.breakpoint.width < 768;
     }
   },
   watch: {
     keyword() {
-      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
-      if (!this.typing) {
-        this.typing = true;
-        this.waitForEndTyping();
-      }
+      this.$emit('keyword-changed', this.keyword);
     },
     filter() {
-      this.$emit('filter-changed', this.filter);
+      this.filterValue = this.filter;
     },
+    filterValue() {
+      this.updateFilter();
+    }
   },
   methods: {
-    openBottomMenu() {
-      this.filterToChange = this.filter;
-      this.bottomMenu = true;
-    },
-    changeFilterSelection() {
-      this.bottomMenu = false;
-      this.filter = this.filterToChange;
+    updateFilter() {
+      this.$emit('filter-changed', this.filterValue);
     },
     openPeopleAdvancedFilterDrawer() {
       this.$root.$emit('open-people-advanced-filter-drawer');
     },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() > this.startTypingKeywordTimeout) {
-          this.typing = false;
-          this.$emit('keyword-changed', this.keyword);
-        } else {
-          this.waitForEndTyping();
-        }
-      }, this.endTypingKeywordTimeout);
-    },
-    showMobileFilter() {
-      this.mobileFilter = !this.mobileFilter;
-    }
   }
 };
 </script>
