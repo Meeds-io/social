@@ -31,6 +31,7 @@ import org.exoplatform.portal.localization.LocaleContextInfoUtils;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.LocaleContextInfo;
 import org.exoplatform.services.resources.LocalePolicy;
 import org.exoplatform.services.resources.ResourceBundleService;
@@ -79,7 +80,7 @@ public class LinkProvider {
 
   public static final String  DEFAULT_IMAGE_REMOTE_ID     = "default-image";
 
-  private static Log             LOG = ExoLogger.getLogger(LinkProvider.class);
+  private static final Log    LOG                         = ExoLogger.getLogger(LinkProvider.class);
 
   private static final  String BASE_URL_SOCIAL_REST_API = "/v1/social";
 
@@ -93,7 +94,7 @@ public class LinkProvider {
 
   public static final String  ATTACHMENT_BANNER_TYPE      = "banner";
 
-  public LinkProvider() {
+  private LinkProvider() {
   }
 
   /**
@@ -164,15 +165,15 @@ public class LinkProvider {
     Validate.notNull(identity, "Identity must not be null.");
     String lang = getCurrentUserLanguage(username);
     //
-    String configured_domain_url = null;
+    String configuredDomainUrl;
     try {
-      configured_domain_url = CommonsUtils.getCurrentDomain();
+      configuredDomainUrl = CommonsUtils.getCurrentDomain();
     } catch (NullPointerException e) {
-      configured_domain_url = null;
+      configuredDomainUrl = null;
     }
 
     StringBuilder profileLink = new StringBuilder("<a class=\"user-suggester\" href=\"");
-    profileLink.append((configured_domain_url != null) ? configured_domain_url
+    profileLink.append((configuredDomainUrl != null) ? configuredDomainUrl
                                                        : "")
                .append(buildProfileUri(identity.getRemoteId(),
                                        null,
@@ -204,6 +205,36 @@ public class LinkProvider {
       profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(new Locale(lang), "external.label.tag")).append(")").append("</span>");
     }
     return profileLink.append("</a>").toString();
+  }
+
+  public static String getGroupRoleLink(String role, String identityId, Locale locale) {
+    Identity identity = getIdentityManager().getIdentity(identityId);
+
+    StringBuilder profileLink = new StringBuilder("<a class=\"user-suggester group-role-mention\" ");
+    return profileLink.append("href=\"")
+                      .append(getGroupUrl(identity, role))
+                      .append("\" data-identity-id=\"")
+                      .append(identityId)
+                      .append("\"")
+                      .append(" data-role=\"")
+                      .append(role)
+                      .append("\">")
+                      .append("<i aria-hidden=\"true\" class=\"v-icon fa ")
+                      .append(getRoleIcon(role))
+                      .append("\" style=\"font-size: 14px;\"></i> ")
+                      .append(getGroupRoleLabel(role, locale))
+                      .append("</a>")
+                      .toString();
+  }
+
+  public static String getGroupRoleLabel(String role, Locale locale) {
+    if (locale == null) {
+      locale = getDefaultLocale();
+    }
+    return new StringBuilder().append("<span class=\"group-role-label\">")
+                              .append(getResourceBundleLabel(locale, role + "s"))
+                              .append("</span>")
+                              .toString();
   }
 
   /**
@@ -350,7 +381,11 @@ public class LinkProvider {
   public static IdentityManager getIdentityManager() {
     return CommonsUtils.getService(IdentityManager.class);
   }
-  
+
+  public static SpaceService getSpaceService() {
+    return ExoContainerContext.getService(SpaceService.class);
+  }
+
   /**
    * Builds the avatar URL for a given profile
    * 
@@ -592,6 +627,11 @@ public class LinkProvider {
     return resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), locale).getString(label);
   }
 
+  public static Locale getDefaultLocale() {
+    LocaleConfigService localeConfigService =  ExoContainerContext.getService(LocaleConfigService.class);
+    return localeConfigService.getDefaultLocaleConfig().getLocale();
+  }
+
   public static String getBaseURLSiteRest() {
     return "/" + PortalContainer.getCurrentPortalContainerName() + "/" + PortalContainer.getCurrentRestContextName()
         + BASE_URL_SITE_REST_API;
@@ -613,4 +653,47 @@ public class LinkProvider {
                                                   .toString();
 
   }
+
+  private static String getGroupUrl(Identity identity, String role) {
+    if (!identity.isSpace()) {
+      return "#";
+    }
+    Space space = getSpaceService().getSpaceByPrettyName(identity.getRemoteId());
+    String configuredDomainUrl;
+    try {
+      configuredDomainUrl = CommonsUtils.getCurrentDomain();
+    } catch (Exception e) {
+      configuredDomainUrl = null;
+    }
+    return new StringBuilder().append((configuredDomainUrl != null) ? configuredDomainUrl : "")
+                              .append("/")
+                              .append(getPortalName(null))
+                              .append("/g/")
+                              .append(space.getGroupId().replace("/", ":"))
+                              .append("/")
+                              .append(space.getPrettyName())
+                              .append("/members#")
+                              .append(role)
+                              .toString();
+  }
+
+  private static String getRoleIcon(String role) {
+    return switch (role) {
+    case "member": {
+      yield "fa-users";
+    }
+    case "manager": {
+      yield "fa-user-cog";
+    }
+    case "redactor": {
+      yield "fa-user-edit";
+    }
+    case "publisher": {
+      yield "fa-paper-plane";
+    }
+    default:
+      yield "";
+    };
+  }
+
 }

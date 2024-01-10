@@ -52,6 +52,7 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
 import org.exoplatform.social.core.storage.api.*;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
+import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
@@ -60,8 +61,6 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   private static final Log                       LOG                         =
                                                      ExoLogger.getLogger(RDBMSActivityStorageImpl.class);
-
-  public static final Pattern                    MENTION_PATTERN             = Pattern.compile("@([^\\s<]+)|@([^\\s<]+)$");
 
   public static final String                     COMMENT_PREFIX              = "comment";
 
@@ -244,8 +243,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activityEntity.setPinned(activity.isPinned());
     activityEntity.setPinDate(StorageUtils.parseRFC3339Date(activity.getPinDate()));
     activityEntity.setPinAuthorId(activity.getPinAuthorId());
-    activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentions(activity.getTitle(),
-                                                                                     activity.getTemplateParams()))));
+    activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentionsByIdentityId(ownerId,
+                                                                                                 activity.getTitle(),
+                                                                                                 activity.getTemplateParams()))));
     //
     return activityEntity;
   }
@@ -364,7 +364,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     commentEntity.setHidden(comment.isHidden());
     //
     processDates(commentEntity);
-    commentEntity.setMentionerIds(new HashSet<>(Arrays.asList(processMentions(comment.getTitle(), comment.getTemplateParams()))));
+    commentEntity.setMentionerIds(new HashSet<>(Arrays.asList(processMentionsByIdentityId(activityEntity.getOwnerId(),
+                                                                                          comment.getTitle(),
+                                                                                          comment.getTemplateParams()))));
     //
     return commentEntity;
   }
@@ -383,13 +385,18 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     Set<String> commentMentions = new HashSet<>();
     if (activityEntity.getComments() != null) {
       activityEntity.getComments().forEach(comment -> {
-        String[] mentions = processMentions(comment.getTitle(), comment.getTemplateParams());
+        String[] mentions = processMentionsByIdentityId(activityEntity.getOwnerId(),
+                                                        comment.getTitle(),
+                                                        comment.getTemplateParams());
         commentMentions.addAll(Arrays.asList(mentions));
       });
     }
-    Set<String> mentionsToRemove = new HashSet<>(Arrays.asList(processMentions(activityEntity.getTitle(),
-                                                                               activityEntity.getTemplateParams())));
-    Set<String> mentionToAdd = new HashSet<>(Arrays.asList(processMentions(activity.getTitle(), activity.getTemplateParams())));
+    Set<String> mentionsToRemove = new HashSet<>(Arrays.asList(processMentionsByIdentityId(activityEntity.getOwnerId(),
+                                                                                           activityEntity.getTitle(),
+                                                                                           activityEntity.getTemplateParams())));
+    Set<String> mentionToAdd = new HashSet<>(Arrays.asList(processMentionsByIdentityId(activityEntity.getOwnerId(),
+                                                                                       activity.getTitle(),
+                                                                                       activity.getTemplateParams())));
 
     mentionsToRemove.forEach(mentionedId -> {
       if (!commentMentions.contains(mentionedId) && !mentionToAdd.contains(mentionedId)) {
@@ -735,31 +742,31 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   @Override
   @ExoTransactional
-  public void saveComment(ExoSocialActivity activity, ExoSocialActivity eXoComment) {
+  public void saveComment(ExoSocialActivity activity, ExoSocialActivity comment) {
     ActivityEntity activityEntity = activityDAO.find(Long.valueOf(activity.getId()));
     EntityManagerHolder.get().lock(activityEntity, LockModeType.PESSIMISTIC_WRITE);
     try {
-      if (CollectionUtils.isNotEmpty(eXoComment.getFiles())) {
+      if (CollectionUtils.isNotEmpty(comment.getFiles())) {
         String ownerIdentityId = activityEntity.getOwnerId();
         try {
           Identity owner = identityStorage.findIdentityById(ownerIdentityId);
-          storeFile(owner, eXoComment);
+          storeFile(owner, comment);
         } catch (Exception e) {
-          throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + eXoComment.getId(), e);
+          throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + comment.getId(), e);
         }
       }
 
-      ActivityEntity commentEntity = convertCommentToCommentEntity(activityEntity, eXoComment);
+      ActivityEntity commentEntity = convertCommentToCommentEntity(activityEntity, comment);
       commentEntity = activityDAO.create(commentEntity);
 
-      eXoComment.setId(getExoCommentID(commentEntity.getId()));
-      eXoComment.setPosterId(commentEntity.getPosterId());
-      eXoComment.setParentId(String.valueOf(activity.getId()));
-      eXoComment.isComment(true);
+      comment.setId(getExoCommentID(commentEntity.getId()));
+      comment.setPosterId(commentEntity.getPosterId());
+      comment.setParentId(String.valueOf(activity.getId()));
+      comment.isComment(true);
 
       Set<String> mentioned = commentEntity.getMentionerIds();
       if (mentioned != null && !mentioned.isEmpty()) {
-        eXoComment.setMentionedIds(mentioned.toArray(new String[mentioned.size()]));
+        comment.setMentionedIds(mentioned.toArray(new String[mentioned.size()]));
       }
 
       //
@@ -767,7 +774,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       saveStreamItemForCommenter(commenter, activityEntity);
 
       //
-      String[] mentioners = processMentions(eXoComment.getTitle(), eXoComment.getTemplateParams());
+      String[] mentioners = processMentionsByIdentityId(activityEntity.getOwnerId(),
+                                                        comment.getTitle(),
+                                                        comment.getTemplateParams());
       if (mentioners != null && mentioners.length > 0) {
         mention(activityEntity, mentioners);
         activityEntity.setMentionerIds(processMentionOfComment(activityEntity,
@@ -832,13 +841,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   private boolean isAllowedToRemove(ActivityEntity activity, ActivityEntity comment, String mentioner) {
-    if (ArrayUtils.contains(processMentions(activity.getTitle(), activity.getTemplateParams()), mentioner)) {
+    if (ArrayUtils.contains(processMentions((Space) null, activity.getTitle(), activity.getTemplateParams()), mentioner)) {
       return false;
     }
     List<ActivityEntity> comments = activity.getComments();
     comments.remove(comment);
     for (ActivityEntity cmt : comments) {
-      if (ArrayUtils.contains(processMentions(cmt.getTitle(), cmt.getTemplateParams()), mentioner)) {
+      if (ArrayUtils.contains(processMentions((Space) null, cmt.getTitle(), cmt.getTemplateParams()), mentioner)) {
         return false;
       }
     }
@@ -929,18 +938,21 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     createStreamItem(StreamType.SPACE, activity, Long.parseLong(activity.getPosterId()));
   }
 
-  private void saveStreamItem(Identity owner, ActivityEntity activity) {
+  private void saveStreamItem(Identity owner, ActivityEntity activityEntity) {
     // create StreamItem
     if (OrganizationIdentityProvider.NAME.equals(owner.getProviderId())) {
       // poster
-      poster(owner, activity);
+      poster(owner, activityEntity);
 
     } else {
       // for SPACE
-      spaceMembers(owner, activity);
+      spaceMembers(owner, activityEntity);
     }
     // mention
-    mention(activity, processMentions(activity.getTitle(), activity.getTemplateParams()));
+    mention(activityEntity,
+            processMentionsByIdentityId(activityEntity.getOwnerId(),
+                                        activityEntity.getTitle(),
+                                        activityEntity.getTemplateParams()));
   }
 
   /**
@@ -993,34 +1005,56 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   /**
    * Processes Mentioners who has been mentioned via the Activity.
    * 
+   * @param spaceId
    * @param title
+   * @param templateParams
    */
-  private String[] processMentions(String title, Map<String, String> templateParams) {
-    Set<String> mentions = new HashSet<>();
-    mentions.addAll(parseMention(title));
-
-    getTemplateParamToProcess(templateParams).forEach(
-                                                      param -> mentions.addAll(parseMention(param)));
-
-    return mentions.toArray(new String[mentions.size()]);
+  private String[] processMentionsByIdentityId(String identityId, String title, Map<String, String> templateParams) {
+    Identity identity = StringUtils.isBlank(identityId) ? null : identityStorage.findIdentityById(identityId);
+    if (identity != null && identity.isSpace()) {
+      Space space = spaceStorage.getSpaceByPrettyName(identity.getRemoteId());
+      return processMentions(space, title, templateParams);
+    } else {
+      return processMentions(null, title, templateParams);
+    }
   }
 
-  private Set<String> parseMention(String str) {
-    if (str == null || str.length() == 0) {
-      return Collections.emptySet();
+  /**
+   * Processes Mentioners who has been mentioned via the Activity.
+   * 
+   * @param space
+   * @param title
+   * @param templateParams
+   */
+  private String[] processMentions(Space space, String title, Map<String, String> templateParams) {
+    Set<String> mentions = new HashSet<>();
+    mentions.addAll(MentionUtils.getMentionedUsernames(title));
+    getTemplateParamToProcess(templateParams).forEach(value -> mentions.addAll(MentionUtils.getMentionedUsernames(value)));
+
+    if (space != null) {
+      String spaceIdentityId = identityStorage.findIdentityId(SpaceIdentityProvider.NAME, space.getPrettyName());
+      Set<String> mentionedRoles = MentionUtils.getMentionedRoles(title, spaceIdentityId);
+      mentionedRoles.forEach(role -> {
+        if (StringUtils.equals("member", role) && space.getMembers() != null) {
+          mentions.addAll(Arrays.asList(space.getMembers()));
+        } else if (StringUtils.equals("manager", role) && space.getManagers() != null) {
+          mentions.addAll(Arrays.asList(space.getManagers()));
+        } else if (StringUtils.equals("redactor", role) && space.getRedactors() != null) {
+          mentions.addAll(Arrays.asList(space.getRedactors()));
+        } else if (StringUtils.equals("publisher", role) && space.getPublishers() != null) {
+          mentions.addAll(Arrays.asList(space.getPublishers()));
+        }
+      });
     }
 
-    Set<String> mentions = new HashSet<>();
-    Matcher matcher = MENTION_PATTERN.matcher(str);
-    while (matcher.find()) {
-      String remoteId = matcher.group().substring(1);
-      Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, remoteId);
-      // if not the right mention then ignore
-      if (identity != null && !mentions.contains(identity.getId())) {
-        mentions.add(identity.getId());
-      }
-    }
-    return mentions;
+    return mentions.stream()
+                   .map(remoteId -> {
+                     Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, remoteId);
+                     return identity == null ? null : identity.getId();
+                   })
+                   .filter(Objects::nonNull)
+                   .collect(Collectors.toSet())
+                   .toArray(new String[mentions.size()]);
   }
 
   private List<String> getTemplateParamToProcess(Map<String, String> templateParams) {
@@ -1101,7 +1135,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                      comment,
                                                      activity.getMentionerIds()
                                                              .toArray(new String[activity.getMentionerIds().size()]),
-                                                     processMentions(comment.getTitle(), comment.getTemplateParams()),
+                                                     processMentionsByIdentityId(activity.getOwnerId(),
+                                                                                 comment.getTitle(),
+                                                                                 comment.getTemplateParams()),
                                                      false));
     //
     if (!hasOtherComment(activity, comment.getPosterId())) {

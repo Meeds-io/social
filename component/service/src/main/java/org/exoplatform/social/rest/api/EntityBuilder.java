@@ -110,6 +110,7 @@ import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
@@ -639,6 +640,7 @@ public class EntityBuilder {
           identity = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
         }
         spaceEntity.setIdentity(identity);
+        spaceEntity.setIdentityId(spaceIdentity.getId());
         spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
         spaceEntity.setApplications(getSpaceApplications(space));
 
@@ -830,6 +832,8 @@ public class EntityBuilder {
       commentEntity.setActivityStream(as);
       return commentEntity;
     }
+    Locale userLocale = LocalizationFilter.getCurrentLocale();
+    MentionUtils.substituteRoleWithLocale(activity, userLocale);
     List<String> expandFields;
     if (StringUtils.isBlank(expand)) {
       expandFields = Collections.emptyList();
@@ -838,7 +842,6 @@ public class EntityBuilder {
     }
 
     if (activity.getTitleId() != null) {
-      Locale userLocale = LocalizationFilter.getCurrentLocale();
       I18NActivityProcessor i18NActivityProcessor = ExoContainerContext.getService(I18NActivityProcessor.class);
       activity = i18NActivityProcessor.process(activity, userLocale);
     }
@@ -1033,9 +1036,9 @@ public class EntityBuilder {
                                                      String expand,
                                                      boolean isBuildList) {
     Identity poster = getIdentityManager().getIdentity(comment.getPosterId());
-
+    Locale userLocale = LocalizationFilter.getCurrentLocale();
+    MentionUtils.substituteRoleWithLocale(comment, userLocale);
     if (comment.getTitleId() != null) {
-      Locale userLocale = LocalizationFilter.getCurrentLocale();
       I18NActivityProcessor i18NActivityProcessor = ExoContainerContext.getService(I18NActivityProcessor.class);
       comment = i18NActivityProcessor.process(comment, userLocale);
     }

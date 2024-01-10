@@ -97,10 +97,89 @@ CKEDITOR.editorConfig = function(config) {
   // Here is configure for suggester
   var peopleSearchCached = {};
   var lastNoResultQuery = false;
+
+  const retrievePeople = async function(url, query) {
+    const usersFetch = !query?.length && Promise.resolve([]) || fetch(url, {credentials: 'include'})
+      .then(resp => resp?.ok && resp.json())
+    return usersFetch.then(users => {
+        users.forEach(user => {
+          peopleSearchCached[query].push({
+            uid: user.id.substr(1),
+            name: user.name,
+            avatar: user.avatar,
+          });
+        });
+        if (peopleSearchCached[query].length == 0) {
+          lastNoResultQuery = query;
+        } else {
+          lastNoResultQuery = false;
+        }
+      });
+  };
+
+  let space = null;
+  const membersLabel = eXo.i18n.I18NMessage.getMessage('members');
+  const managersLabel = eXo.i18n.I18NMessage.getMessage('managers');
+  const publishersLabel = eXo.i18n.I18NMessage.getMessage('publishers');
+  const redactorsLabel = eXo.i18n.I18NMessage.getMessage('redactors');
+
+  const getSpace = async function(spaceURL, spacePrettyName, spaceId) {
+    if (!spacePrettyName && !spaceId) {
+      return Promise.resolve();
+    }
+    return space && Promise.resolve(space)
+      || (spacePrettyName && fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byPrettyName/${spacePrettyName}`, {credentials: 'include'}).then(resp => resp?.ok && resp.json()))
+      || (spaceURL && fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byGroupSuffix/${spaceURL}`, {credentials: 'include'}).then(resp => resp?.ok && resp.json()))
+      || fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}`, {credentials: 'include'}).then(resp => resp?.ok && resp.json());
+  }
+
+  const retrieveSpaceRoles = async function(query) {
+    if (!space) {
+      return;
+    }
+    if (space.membersCount && (!query?.length || membersLabel.toLowerCase().includes(query.toLowerCase()))) {
+      peopleSearchCached[query].push({
+        uid: `member:${space.identityId}`,
+        name: membersLabel,
+        icon: 'fa-users',
+      });
+    }
+    if (space.managersCount && (!query?.length || managersLabel.toLowerCase().includes(query.toLowerCase()))) {
+      peopleSearchCached[query].push({
+        uid: `manager:${space.identityId}`,
+        name: managersLabel,
+        icon: 'fa-user-cog',
+      });
+    }
+    if (space.redactorsCount && (!query?.length || publishersLabel.toLowerCase().includes(query.toLowerCase()))) {
+      peopleSearchCached[query].push({
+        uid: `redactor:${space.identityId}`,
+        name: publishersLabel,
+        icon: 'fa-user-edit',
+      });
+    }
+    if (space.publishersCount && (!query?.length || redactorsLabel.toLowerCase().includes(query.toLowerCase()))) {
+      peopleSearchCached[query].push({
+        uid: `publisher:${space.identityId}`,
+        name: redactorsLabel,
+        icon: 'fa-paper-plane',
+      });
+    }
+  };
   config.suggester = {
     suffix: '\u00A0',
-    renderMenuItem: '<li data-value="${uid}"><div class="avatarSmall" style="display: inline-block;"><img src="${avatar}"></div>${name} (${uid})</li>',
-    renderItem: '<span class="exo-mention">${name}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>',
+    minLen: 0,
+    renderMenuItem(item, parent) {
+      parent.data('value', item.uid);
+      if (item.icon) {
+        return `<i aria-hidden="true" class="v-icon fa ${item.icon}" style="font-size: 14px;"></i>&nbsp;${item.name}`;
+      } else {
+        return `<div class="avatarSmall" style="display: inline-block;"><img src="${item.avatar}"></div>${item.name}`;
+      }
+    },
+    renderItem(item) {
+      return `<span class="exo-mention"><i aria-hidden="true" class="v-icon fa ${item.icon}" style="font-size: 14px;"></i>&nbsp;${item.name}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>`;
+    },
     sourceProviders: ['exo:people'],
     providers: {
       'exo:people': function(query, callback) {
@@ -113,36 +192,27 @@ CKEDITOR.editorConfig = function(config) {
         if (peopleSearchCached[query]) {
           callback.call(this, peopleSearchCached[query]);
         } else {
-          require(['SHARED/jquery'], function($) {
-            var userName = eXo.env.portal.userName;
-            var activityId = CKEDITOR.currentInstance.config.activityId;
-            var typeOfRelation = CKEDITOR.currentInstance.config.typeOfRelation;
-            var spaceURL = CKEDITOR.currentInstance.config.spaceURL;
-            var url = window.location.protocol + '//' + window.location.host + eXo.env.portal.context + '/' + eXo.env.portal.rest + '/social/people/suggest.json?nameToSearch=' + query + '&currentUser=' + userName + '&typeOfRelation=' + typeOfRelation + '&spaceURL=' + spaceURL;
-            if (CKEDITOR.currentInstance.config.activityId) {
-              url += '&activityId=' + activityId;
-            }
-            $.getJSON(url, function(responseData) {
-              var result = [];
-              for (var i = 0; i < responseData.length; i++) {
-                var d = responseData[i];
-                var item = {
-                  uid: d.id.substr(1),
-                  name: d.name,
-                  avatar: d.avatar
-                };
-                result.push(item);
+          var spaceURL = window.CKEDITOR.currentInstance.config.spaceURL;
+          var spacePrettyName = window.CKEDITOR.currentInstance.config.spacePrettyName;
+          var spaceId = window.CKEDITOR.currentInstance.config.spaceId;
+          peopleSearchCached[query] = [];
+          getSpace(spaceURL, spacePrettyName, spaceId)
+            .then(data => {
+              space = data;
+              var userName = eXo.env.portal.userName;
+              var activityId = window.CKEDITOR.currentInstance.config.activityId;
+              var typeOfRelation = window.CKEDITOR.currentInstance.config.typeOfRelation;
+              var url = eXo.env.portal.context + '/' + eXo.env.portal.rest + '/social/people/suggest.json?nameToSearch=' + query + '&currentUser=' + userName + '&typeOfRelation=' + typeOfRelation;
+              if (space) {
+                url += '&spaceURL=' + space.prettyName;
               }
-
-              peopleSearchCached[query] = result;
-              if (peopleSearchCached[query].length == 0) {
-                lastNoResultQuery = query;
-              } else {
-                lastNoResultQuery = false;
+              if (window.CKEDITOR.currentInstance.config.activityId) {
+                url += '&activityId=' + activityId;
               }
-              callback.call(this, peopleSearchCached[query]);
-            });
-          });
+              retrieveSpaceRoles(query);
+              return retrievePeople(url, query);
+            })
+            .finally(() => callback.call(this, peopleSearchCached[query]))
         }
       }
     }

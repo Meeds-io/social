@@ -17,15 +17,11 @@
 package org.exoplatform.social.core.processor;
 
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections.MapUtils;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.utils.MentionUtils;
 
 /**
@@ -40,34 +36,17 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
 
   private UserPortalConfigService userPortalConfigService;
 
-  private IdentityManager         identityManager;
-
   public MentionsProcessor(UserPortalConfigService userPortalConfigService,
-                           IdentityManager identityManager,
                            InitParams params) {
     super(params);
     this.userPortalConfigService = userPortalConfigService;
-    this.identityManager = identityManager;
   }
 
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
       String portalOwner = userPortalConfigService.getMetaPortal();
-      activity.setTitle(MentionUtils.substituteUsernames(identityManager, portalOwner, activity.getTitle()));
-      activity.setBody(MentionUtils.substituteUsernames(identityManager, portalOwner, activity.getBody()));
-      Map<String, String> templateParams = activity.getTemplateParams();
-      if (MapUtils.isNotEmpty(templateParams)) {
-        List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
-        for (String key : templateParamKeys) {
-          templateParams.put(key, MentionUtils.substituteUsernames(identityManager, portalOwner, templateParams.get(key)));
-        }
-        if (templateParams.containsKey("comment")) {
-          templateParams.put("comment", MentionUtils.substituteUsernames(identityManager, portalOwner, templateParams.get("comment")));
-        }
-        if (templateParams.containsKey("default_title")) {
-          templateParams.put("default_title", MentionUtils.substituteUsernames(identityManager, portalOwner, templateParams.get("default_title")));
-        }
-      }
+      List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
+      MentionUtils.substituteUsernames(activity, templateParamKeys, portalOwner);
     }
   }
 
