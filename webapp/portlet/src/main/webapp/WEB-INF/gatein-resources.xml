@@ -1336,6 +1336,9 @@
         <module>peopleListComponents</module>
       </depends>
       <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
         <module>vue</module>
       </depends>
       <depends>
