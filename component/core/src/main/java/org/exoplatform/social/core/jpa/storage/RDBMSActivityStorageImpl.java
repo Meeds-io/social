@@ -1120,7 +1120,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activityEntity.setPinDate(null);
     activityEntity.setPinAuthorId(null);
     activityEntity = activityDAO.update(activityEntity);
-    return convertActivityEntityToActivity(activityEntity);  }
+    return convertActivityEntityToActivity(activityEntity);
+  }
 
   @Override
   @ExoTransactional

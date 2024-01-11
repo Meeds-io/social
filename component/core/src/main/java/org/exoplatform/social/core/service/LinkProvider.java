@@ -19,6 +19,7 @@ package org.exoplatform.social.core.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Locale;
+import java.util.MissingResourceException;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -624,7 +625,11 @@ public class LinkProvider {
    */
   public static String getResourceBundleLabel(Locale locale, String label) {
     ResourceBundleService resourceBundleService =  ExoContainerContext.getService(ResourceBundleService.class);
-    return resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), locale).getString(label);
+    try {
+      return resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(), locale).getString(label);
+    } catch (MissingResourceException e) {
+      return label;
+    }
   }
 
   public static Locale getDefaultLocale() {
