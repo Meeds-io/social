@@ -535,10 +535,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     response = service("GET", getURLResource("users/" + user + "/avatar"), "", null, null);
     assertNotNull(response);
     assertEquals(404, response.getStatus());
-
-    response = service("GET", getURLResource("users/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/avatar"), "", null, null);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
   }
 
   public void testGetUserAvatarForAuthentiticatedUser() throws Exception {
@@ -556,10 +552,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     response = service("GET", getURLResource("users/" + user + "/avatar"), "", null, null);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-
-    response = service("GET", getURLResource("users/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/avatar"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
   }

@@ -60,4 +60,16 @@ public class ImageUtilsTest extends TestCase {
     assertEquals(27, image.getHeight());
   }
 
+  public void testCreateDefaultAvatar() throws IOException {
+    int width = 350;
+    int height = 350;
+    String letters = "AB";
+    AvatarAttachment avatar = ImageUtils.createDefaultAvatar("50",letters);
+    assertNotNull(avatar);
+    assertNotNull(avatar.getImageBytes());
+    BufferedImage image = ImageIO.read(new ByteArrayInputStream(avatar.getImageBytes()));
+    assertEquals(350, image.getWidth());
+    assertEquals(350, image.getHeight());
+  }
+
 }

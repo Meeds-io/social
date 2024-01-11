@@ -17,26 +17,33 @@
  */
 package org.exoplatform.social.core.image;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.model.AvatarAttachment;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author tuan_nguyenxuan Oct 29, 2010
  */
 public class ImageUtils {
   public static final String KEY_SEPARATOR           = "_";
+
   public static final String KEY_DIMENSION_SEPARATOR = "x";
 
   public static final String GIF_EXTENDSION          = "gif";
+
+  private static final int   DEFAULT_AVATAR_WIDTH    = 350;
+
+  private static final int   DEFAULT_AVATAR_HEIGHT   = 350;
   private static final Log LOG = ExoLogger.getLogger(ImageUtils.class);
 
   /**
@@ -128,23 +135,71 @@ public class ImageUtils {
       }
 
       // Create temp file to store resized image to put to avatar attachment
-      File tmp = File.createTempFile("RESIZED", null);
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       image = resizeImage(image, targetWidth, targetHeight);
 
-      ImageIO.write(image, extension, tmp);
+      ImageIO.write(image, extension, outputStream);
       
       // Create new avatar attachment
       AvatarAttachment newAvatarAttachment = new AvatarAttachment(avatarId,
                                                                   avatarFileName,
                                                                   avatarMimeType,
-                                                                  new FileInputStream(tmp),
+                                                                  new ByteArrayInputStream(outputStream.toByteArray()),
                                                                   System.currentTimeMillis());
 
-      // Delete temp file
-      tmp.delete();
       return newAvatarAttachment;
     } catch (Exception e) {
       LOG.error("Fail to resize image to avatar attachment: " + e);
+      return null;
+    }
+  }
+
+  public static AvatarAttachment createDefaultAvatar( String identityId, String fullNameAbbreviation) {
+    AvatarAttachment newAvatarAttachment = null;
+
+    java.util.List<Color> colorList = List.of(new Color(239, 83, 80),
+                                              new Color(25, 118, 210),
+                                              new Color(171, 71, 188),
+                                              new Color(0, 137, 123),
+                                              new Color(158, 157, 36),
+                                              new Color(251, 192, 45),
+                                              new Color(0, 191, 165),
+                                              new Color(117, 117, 117),
+                                              new Color(244, 67, 54),
+                                              new Color(33, 150, 243),
+                                              new Color(124, 179, 66),
+                                              new Color(48, 63, 159),
+                                              new Color(69, 39, 160),
+                                              new Color(141, 110, 99),
+                                              new Color(255, 111, 0));
+      BufferedImage image = new BufferedImage(DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT, BufferedImage.TYPE_INT_RGB);
+
+      Graphics2D graphics = image.createGraphics();
+      graphics.setColor(colorList.get(Integer.parseInt(identityId) % colorList.size()));
+      graphics.fillRect(0, 0, DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT);
+      graphics.setColor(Color.WHITE);
+
+      graphics.setFont(new Font("Arial", Font.BOLD, 85));
+      FontMetrics fm = graphics.getFontMetrics();
+
+      int x = (DEFAULT_AVATAR_WIDTH - fm.stringWidth(fullNameAbbreviation)) / 2;
+      int y = (fm.getAscent() + (DEFAULT_AVATAR_HEIGHT - (fm.getAscent() + fm.getDescent())) / 2);
+
+      graphics.drawString(fullNameAbbreviation, x, y);
+      graphics.drawImage(image, 0, 0, DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT, null);
+      graphics.dispose();
+
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try {
+      ImageIO.write(image, "png", outputStream);
+      newAvatarAttachment = new AvatarAttachment(null,
+                                                 "defaultAvatar",
+                                                 "image/png",
+                                                 new ByteArrayInputStream(outputStream.toByteArray()),
+                                                 System.currentTimeMillis());
+      return newAvatarAttachment;
+    } catch (IOException e) {
+      LOG.error("Fail to create file avatar : " + e);
       return null;
     }
   }

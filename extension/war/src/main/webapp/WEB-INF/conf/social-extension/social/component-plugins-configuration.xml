@@ -59,6 +59,16 @@
     </component-plugin>
   </external-component-plugins>
 
+  <!--<external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.IdentityManager</target-component>
+    <component-plugin>
+      <name>ProfileUpdatesListener</name>
+      <set-method>addProfileListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ProfileUpdatesListener</type>
+      <description>Social Profile listener for profile properties</description>
+    </component-plugin>
+  </external-component-plugins>-->
+
   <external-component-plugins>
     <target-component>org.exoplatform.social.core.manager.IdentityManager</target-component>
     <component-plugin>

@@ -24,6 +24,7 @@ import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.image.ImageUtils;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
@@ -799,8 +800,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
   }
 
   public void testGetAvatarInputStreamById() throws Exception {
-    InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
+    AvatarAttachment avatar = ImageUtils.createDefaultAvatar("50","AB");
     
     /*
       test on identity with @OrganizationIdentityProvider.NAME as providerId.
@@ -813,11 +813,12 @@ public class IdentityStorageTest extends AbstractCoreTest {
     // within this instruction the profile is created implicitly and it does not have an avatar
     String identityId = identity.getId();
     assertNotNull(identityId);
+
     InputStream stream = identityStorage.getAvatarInputStreamById(identity);
-    assertNull(stream);
+    assertNotNull(stream);
     
     Profile profile = new Profile(identity);
-    profile.setProperty(Profile.AVATAR, avatarAttachment);
+    profile.setProperty(Profile.AVATAR, avatar);
     identityStorage.updateIdentity(identity);
     identityStorage.saveProfile(profile);
     profile = identityStorage.loadProfile(profile);
@@ -830,7 +831,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     sleep(10);
 
     // we re-attach the the avatar to the profile to be sure that @Profile.avatarLastUpdated value is updated
-    profile.setProperty(Profile.AVATAR, avatarAttachment);
+    profile.setProperty(Profile.AVATAR, avatar);
     identityStorage.updateProfile(profile);
     restartTransaction();
     sleep(10);
@@ -856,18 +857,18 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     assertNotNull(identity.getId());
     assertNotNull(identity.getRemoteId());
+
     stream = identityStorage.getAvatarInputStreamById(identity);
-    // the space does not have an avatar
-    assertNull(stream);
+    assertNotNull(stream);
     // we set the avatar to the space
-    space.setAvatarAttachment(avatarAttachment);
+    space.setAvatarAttachment(avatar);
     spaceStorage.saveSpace(space, false);
     space = spaceStorage.getSpaceByPrettyName(remoteId);
     
     identity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
     profile = new Profile(identity);
     // we set the avatar to the corresponding space profile
-    profile.setProperty(Profile.AVATAR, avatarAttachment);
+    profile.setProperty(Profile.AVATAR, avatar);
     identityStorage.saveIdentity(identity);
     identityStorage.saveProfile(profile);
     restartTransaction();
@@ -881,7 +882,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     //Wait a bit before updating the avatar to make sure the avatarLastUpdated is changed
     sleep(10);
 
-    profile.setProperty(Profile.AVATAR, avatarAttachment);
+    profile.setProperty(Profile.AVATAR, avatar);
     identityStorage.updateProfile(profile);
     profile = identityStorage.loadProfile(profile);
     avatarLastUpdated1 = profile.getAvatarLastUpdated();

@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.commons.file.services.FileStorageException;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -67,16 +69,22 @@ public class CachedIdentityStorage implements IdentityStorage {
   private final FutureExoCache<IdentityKey, ProfileData, ServiceContext<ProfileData>> profileCache;
   private final FutureExoCache<IdentityFilterKey, IntegerData, ServiceContext<IntegerData>> identitiesCountCache;
   private final FutureExoCache<ListIdentitiesKey, ListIdentitiesData, ServiceContext<ListIdentitiesData>> identitiesCache;
+  private final FutureExoCache<IdentityKey, Long, ServiceContext<Long>> profileAvatarCache;
 
   private final IdentityStorage storage;
   private final SocialStorageCacheService cacheService;
-  private CachedRelationshipStorage cachedRelationshipStorage;
 
-  public CachedIdentityStorage(final RDBMSIdentityStorageImpl storage, final SocialStorageCacheService cacheService) {
+  private final FileService               fileService;
+  private       CachedRelationshipStorage cachedRelationshipStorage;
+
+  public CachedIdentityStorage(final RDBMSIdentityStorageImpl storage,
+                               final SocialStorageCacheService cacheService,
+                               final FileService fileService) {
 
     //
     this.storage = storage;
     this.cacheService = cacheService;
+    this.fileService = fileService;
 
     //
     this.identityCache = CacheType.IDENTITY.createFutureCache(cacheService.getIdentityCache());
@@ -84,6 +92,7 @@ public class CachedIdentityStorage implements IdentityStorage {
     this.profileCache = CacheType.PROFILE.createFutureCache(cacheService.getProfileCache());
     this.identitiesCountCache = CacheType.IDENTITIES_COUNT.createFutureCache(cacheService.getCountIdentitiesCache());
     this.identitiesCache = CacheType.IDENTITIES.createFutureCache(cacheService.getIdentitiesCache());
+    this.profileAvatarCache = CacheType.PROFILE_AVATAR.createFutureCache(cacheService.getProfileAvatarCache());
   }
 
   @Override
@@ -320,7 +329,21 @@ public class CachedIdentityStorage implements IdentityStorage {
 
   @Override
   public FileItem getAvatarFile(Identity identity) {
-    return storage.getAvatarFile(identity);
+    Long avatarId = profileAvatarCache.get(() -> {
+      FileItem avatarFile = null;
+      avatarFile = storage.getAvatarFile(identity);
+      if (avatarFile == null) {
+        return null;
+      } else {
+        return avatarFile.getFileInfo().getId();
+      }
+    }, new IdentityKey(identity.getId()));
+    try {
+      return avatarId == null ? null : fileService.getFile(avatarId);
+    } catch (FileStorageException e) {
+      LOG.error("Error reading file with id " + avatarId, e);
+      return null;
+    }
   }
 
   @Override
@@ -450,6 +473,7 @@ public class CachedIdentityStorage implements IdentityStorage {
     identityCache.remove(key);
     identityIndexCache.remove(new IdentityCompositeKey(identity.getProviderId(), oldRemoteId));
     profileCache.remove(key);
+    profileAvatarCache.remove(key);
     clearUserIdentitiesCache();
   }
 
@@ -469,11 +493,13 @@ public class CachedIdentityStorage implements IdentityStorage {
         identityIndexCache.remove(compositeKey);
         identityCache.remove(identityKey);
         profileCache.remove(identityKey);
+        profileAvatarCache.remove(identityKey);
       }
     } else {
       IdentityKey key = new IdentityKey(identity.getId());
       identityCache.remove(key);
       profileCache.remove(key);
+      profileAvatarCache.remove(key);
       identityIndexCache.remove(new IdentityCompositeKey(identity.getProviderId(), identity.getRemoteId()));
     }
     if (clearList) {
@@ -485,6 +511,7 @@ public class CachedIdentityStorage implements IdentityStorage {
     IdentityKey key = new IdentityKey(identity.getId());
     identityCache.remove(key);
     profileCache.remove(key);
+    profileAvatarCache.remove(key);
     if (removeCachedId) {
       identityIndexCache.remove(new IdentityCompositeKey(identity.getProviderId(), identity.getRemoteId()));
     }
