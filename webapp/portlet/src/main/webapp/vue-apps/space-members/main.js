@@ -22,6 +22,9 @@ const appId = 'spaceMembersApplication';
 
 export function init(filter, isManager, isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+    if (!filter?.length && window.location.hash.replace('#', '').length) {
+      filter = window.location.hash.replace('#', '');
+    }
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
