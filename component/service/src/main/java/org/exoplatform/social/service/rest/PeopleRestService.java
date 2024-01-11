@@ -627,6 +627,9 @@ public class PeopleRestService implements ResourceContainer{
                                    Space space, String typeOfRelation, int order, Locale locale) throws SpaceException {
     SpaceService spaceSrv = getSpaceService(); 
     for (Identity identity : identities) {
+      if (identity == null || identity.isDeleted() || !identity.isEnable()) {
+        continue;
+      }
       String fullName = identity.getProfile().getFullName();
       if(Util.isExternal(identity.getId())){
         fullName += " " + "(" + Util.getResourceBundleLabel(locale, "external.label.tag") +")";

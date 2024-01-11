@@ -28,17 +28,17 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.text.StringEscapeUtils;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
-import org.exoplatform.commons.api.notification.NotificationMessageUtils;
 import org.exoplatform.commons.api.notification.model.ArgumentLiteral;
 import org.exoplatform.commons.api.notification.model.MessageInfo;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.plugin.AbstractNotificationChildPlugin;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
+import org.exoplatform.commons.api.notification.plugin.NotificationPluginUtils;
 import org.exoplatform.commons.api.notification.service.setting.PluginContainer;
 import org.exoplatform.commons.api.notification.service.storage.WebNotificationStorage;
 import org.exoplatform.commons.api.notification.service.template.TemplateContext;
@@ -55,6 +55,7 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.notification.LinkProviderUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.child.DefaultActivityChildPlugin;
@@ -401,7 +402,10 @@ public class SocialNotificationUtils {
     if (child == null || (child instanceof AbstractNotificationChildPlugin) == false) {
       child = pluginContainer.getPlugin(new PluginKey(DefaultActivityChildPlugin.ID));
     }
-    context.put("ACTIVITY", ((AbstractNotificationChildPlugin) child).makeContent(ctx));
+    String content = ((AbstractNotificationChildPlugin) child).makeContent(ctx);
+    String language = NotificationPluginUtils.getLanguage(ctx.getNotificationInfo().getTo());
+    content = MentionUtils.substituteRoleWithLocale(content, Locale.forLanguageTag(language));
+    context.put("ACTIVITY", content);
 
     String body = TemplateUtils.processGroovy(context);
     body = processImageTitle(body, getImagePlaceHolder(context.getLanguage()));
