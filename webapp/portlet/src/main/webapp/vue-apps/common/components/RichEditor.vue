@@ -235,15 +235,17 @@ export default {
       },
     },
     suggesterSpaceURL() {
-      if (this.editorReady) {
-        if (this.suggesterSpaceId) {
-          this.spaceId = this.suggesterSpaceId;
-        } else if (this.suggesterSpaceURL || this.spacePrettyName) {
-          this.getSpaceId().then(() => this.initCKEditor(true, this.backUpMessage));
-        } else {
-          this.spaceId = null;
-          this.initCKEditor(true, this.backUpMessage);
-        }
+      this.updateSpaceId();
+    },
+    suggesterSpaceId() {
+      this.updateSpaceId();
+    },
+    suggesterSpacePrettyName() {
+      this.updateSpaceId();
+    },
+    spaceId() {
+      if (this.editor) {
+        this.editor.config.spaceId = this.spaceId;
       }
     },
     displayAttachmentEditor(newVal, oldVal) {
@@ -738,6 +740,18 @@ export default {
           message = message.replace(pattern, value ? `@${value}` : '');
         });
       return message;
+    },
+    updateSpaceId() {
+      if (this.editorReady) {
+        if (this.suggesterSpaceId) {
+          this.spaceId = this.suggesterSpaceId;
+        } else if (this.suggesterSpaceURL || this.spacePrettyName) {
+          this.getSpaceId().then(() => this.initCKEditor(true, this.backUpMessage));
+        } else {
+          this.spaceId = null;
+          this.initCKEditor(true, this.backUpMessage);
+        }
+      }
     },
     getSpaceId() {
       if (this.suggesterSpacePrettyName) {
