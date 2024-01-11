@@ -113,8 +113,8 @@ public class MailTemplateProvider extends TemplateProvider {
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
       String subCommentTitle = SocialNotificationUtils.processImageTitle(getActivityTitle(commentActivity, language), imagePlaceHolder);
       String commentTitle = SocialNotificationUtils.processImageTitle(getActivityTitle(parentCommentActivity, language), imagePlaceHolder);
-      templateContext.put("COMMENT_REPLY", NotificationUtils.processLinkTitle(subCommentTitle));
-      templateContext.put("COMMENT", NotificationUtils.processLinkTitle(commentTitle));
+      templateContext.put("COMMENT_REPLY", processBody(subCommentTitle, language));
+      templateContext.put("COMMENT", processBody(commentTitle, language));
       templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(activity));
       templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity_highlight_comment_reply", activity.getId() + "-" + parentCommentActivity.getId() + "-" + commentActivity.getId()));
       templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity_highlight_comment_reply", activity.getId() + "-" + parentCommentActivity.getId() + "-" + commentActivity.getId()));
@@ -211,7 +211,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
       String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
       String title = SocialNotificationUtils.processImageTitle(getActivityTitle(comment, language), imagePlaceHolder);
-      templateContext.put("COMMENT", NotificationUtils.processLinkTitle(title));
+      templateContext.put("COMMENT", processBody(title, language));
       templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(comment));
       templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity_highlight_comment", activity.getId() + "-" + comment.getId()));
       templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity_highlight_comment", activity.getId() + "-" + comment.getId()));
@@ -332,7 +332,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
         String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
         String title = SocialNotificationUtils.processImageTitle(getActivityTitle(comment, language), imagePlaceHolder);
-        templateContext.put("COMMENT", NotificationUtils.processLinkTitle(title));
+        templateContext.put("COMMENT", processBody(title, language));
         templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(comment));
         templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity_highlight_comment", activity.getId() + "-" + comment.getId()));
         templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity_highlight_comment", activity.getId() + "-" + comment.getId()));
@@ -442,7 +442,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
             String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
             String title = SocialNotificationUtils.processImageTitle(getActivityTitle(activity, language), imagePlaceHolder);
-            templateContext.put("COMMENT", NotificationUtils.processLinkTitle(title));
+            templateContext.put("COMMENT", processBody(title, language));
             templateContext.put("OPEN_URL", LinkProviderUtils.getOpenLink(activity));
             templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activityId));
             templateContext.put("VIEW_FULL_DISCUSSION_ACTION_URL", LinkProviderUtils.getRedirectUrl("view_full_activity", activityId));
@@ -531,7 +531,7 @@ public class MailTemplateProvider extends TemplateProvider {
         String title = getActivityTitle(i18nActivity, language);
         String imagePlaceHolder = SocialNotificationUtils.getImagePlaceHolder(language);
         title = SocialNotificationUtils.processImageTitle(title, imagePlaceHolder);
-        templateContext.put("ACTIVITY", NotificationUtils.processLinkTitle(title));
+        templateContext.put("ACTIVITY", processBody(title, language));
         body = TemplateUtils.processGroovy(templateContext);
       } else {
         templateContext.put("REPLY_ACTION_URL", LinkProviderUtils.getRedirectUrl("reply_activity", activityId));
@@ -716,7 +716,7 @@ public class MailTemplateProvider extends TemplateProvider {
       ExoSocialActivity i18nComment = getI18N(activity, new Locale(language));
       String commentTitle = getActivityTitle(i18nComment, language);
       commentTitle = SocialNotificationUtils.processImageTitle(commentTitle, imagePlaceHolder);
-      templateContext.put("ACTIVITY", NotificationUtils.processLinkTitle(commentTitle));
+      templateContext.put("ACTIVITY", processBody(commentTitle, language));
       String body = TemplateUtils.processGroovy(templateContext);
 
       //binding the exception throws by processing template
@@ -1304,9 +1304,13 @@ public class MailTemplateProvider extends TemplateProvider {
   }
 
   private String getActivityTitle(ExoSocialActivity activity, String language) {
-    String activityTitle = Utils.getActivityManager().getActivityTitle(activity);
-    activityTitle = MentionUtils.substituteRoleWithLocale(activityTitle, Locale.forLanguageTag(language));
-    return activityTitle;
+    return MentionUtils.substituteRoleWithLocale(Utils.getActivityManager().getActivityTitle(activity),
+                                                 Locale.forLanguageTag(language));
+  }
+
+  private String processBody(String message, String language) {
+    message = MentionUtils.substituteRoleWithLocale(message, Locale.forLanguageTag(language));
+    return NotificationUtils.processLinkTitle(message);
   }
 
 }

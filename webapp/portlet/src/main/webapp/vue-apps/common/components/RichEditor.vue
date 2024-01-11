@@ -742,7 +742,7 @@ export default {
     getSpaceId() {
       if (this.suggesterSpacePrettyName) {
         return this.$spaceService.getSpaceByPrettyName(this.suggesterSpacePrettyName)
-         .then(space => this.spaceId = space.id);
+          .then(space => this.spaceId = space.id);
       } else if (this.suggesterSpaceURL) {
         return this.$spaceService.getSpaceByGroupSuffix(this.suggesterSpaceURL)
           .then(space => this.spaceId = space.id);
