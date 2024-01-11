@@ -19,7 +19,7 @@ package org.exoplatform.social.core.profile;
 import java.util.*;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.social.core.identity.model.Profile;

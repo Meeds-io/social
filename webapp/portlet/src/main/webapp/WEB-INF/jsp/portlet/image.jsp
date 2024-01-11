@@ -19,7 +19,7 @@
  */
 %>
 <%@page import="org.exoplatform.social.attachment.model.ObjectAttachmentDetail"%>
-<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="java.util.List"%>
 <%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>

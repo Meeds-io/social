@@ -22,14 +22,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaBuilder.In;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
 import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
@@ -282,11 +282,8 @@ public final class RelationshipQueryBuilder {
     CriteriaBuilder cb = em.getCriteriaBuilder();
     CriteriaQuery<Long> criteria = cb.createQuery(Long.class);
     Root<ConnectionEntity> relationship = criteria.from(ConnectionEntity.class);
-//    Join<Connection, Profile> receiver = relationship.join(ConnectionEntity_.receiver);
     CriteriaQuery<Long> select = criteria.select(cb.countDistinct(relationship));
-    //
     select.where(buildPredicateFilter(cb, relationship));
-    //
     return em.createQuery(select);
   }
   

@@ -19,7 +19,7 @@ package org.exoplatform.social.core.jpa.storage.entity;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Created by bdechateauvieux on 7/7/15.

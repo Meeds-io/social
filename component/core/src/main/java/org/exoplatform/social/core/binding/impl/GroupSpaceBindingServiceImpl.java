@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;

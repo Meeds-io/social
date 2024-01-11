@@ -22,7 +22,7 @@ package org.exoplatform.social.core.profilelabel;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.model.ProfileLabel;

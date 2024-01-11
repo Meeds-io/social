@@ -17,12 +17,18 @@
 
 package org.exoplatform.social.core.space;
 
+import java.util.HashMap;
 /**
  * Definition of space application model.
  *
  */
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class SpaceApplication implements Cloneable {
   private String portletApp;
   private String portletName;
@@ -178,11 +184,13 @@ public class SpaceApplication implements Cloneable {
 
   @Override
   public SpaceApplication clone() {
-    try {
-      SpaceApplication spaceApplication = (SpaceApplication) super.clone();
-      return spaceApplication;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
+    return new SpaceApplication(portletApp,
+                                portletName,
+                                appTitle,
+                                removable,
+                                order,
+                                uri,
+                                icon,
+                                preferences == null ? null : new HashMap<>(preferences));
   }
 }

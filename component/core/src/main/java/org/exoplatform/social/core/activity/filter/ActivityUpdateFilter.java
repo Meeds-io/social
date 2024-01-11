@@ -16,7 +16,7 @@
  */
 package org.exoplatform.social.core.activity.filter;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class ActivityUpdateFilter {
 

@@ -38,8 +38,8 @@ import javax.portlet.RenderRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;

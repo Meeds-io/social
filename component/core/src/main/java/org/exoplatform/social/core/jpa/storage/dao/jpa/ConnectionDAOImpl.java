@@ -16,11 +16,10 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import java.math.BigInteger;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.persistence.*;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,6 +33,12 @@ import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.search.Sorting;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
 
 /**
  * Created by The eXo Platform SAS
@@ -314,7 +319,7 @@ public class ConnectionDAOImpl extends GenericDAOJPAImpl<ConnectionEntity, Long>
     queryStringBuilder.append(" ) AS COMMON_CONNECTIONS \n");
 
     Query query = getEntityManager().createNativeQuery(queryStringBuilder.toString());
-    BigInteger result = (BigInteger) query.getSingleResult();
+    Number result = (Number) query.getSingleResult();
     return result == null ? 0 : result.intValue();
   }
 

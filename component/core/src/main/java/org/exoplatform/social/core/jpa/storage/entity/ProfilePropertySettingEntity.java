@@ -22,7 +22,7 @@ package org.exoplatform.social.core.jpa.storage.entity;
 
 import org.exoplatform.commons.api.persistence.ExoEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity(name = "SocProfileSettingEntity")
