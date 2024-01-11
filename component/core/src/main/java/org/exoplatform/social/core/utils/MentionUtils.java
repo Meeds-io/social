@@ -1,5 +1,8 @@
 package org.exoplatform.social.core.utils;
 
+import static org.exoplatform.social.core.BaseActivityProcessorPlugin.*;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +20,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.service.LinkProvider;
 
@@ -30,7 +34,8 @@ public class MentionUtils {
 
   private static final Pattern   USER_MENTION_PATTERN         = Pattern.compile("@((?![\\s<>/%'\"=])[\\p{ASCII}])+([<\\s]|$)");
 
-  private static final Pattern   ROLE_MENTION_PATTERN         = Pattern.compile("@((?![\\s<>/%'\"=])[\\p{ASCII}])+:(\\d+)([<\\s]|$)");
+  private static final Pattern   ROLE_MENTION_PATTERN         =
+                                                      Pattern.compile("@((?![\\s<>/%'\"=])[\\p{ASCII}])+:(\\d+)([<\\s]|$)");
 
   private static IdentityManager identityManager;
 
@@ -96,6 +101,10 @@ public class MentionUtils {
 
   public static String substituteUsernames(String portalOwner, String message, Locale locale) {
     return substituteUsernames(getIdentityManager(), portalOwner, message, locale);
+  }
+
+  public static void substituteUsernames(ExoSocialActivity activity, String portalOwner) {
+    substituteUsernames(activity, getTemplateParamKeysToFilter(activity), portalOwner);
   }
 
   public static void substituteUsernames(ExoSocialActivity activity, List<String> templateParamKeys, String portalOwner) {
@@ -167,14 +176,18 @@ public class MentionUtils {
   }
 
   public static void substituteRoleWithLocale(ExoSocialActivity activity, Locale locale) {
-    String spaceId = activity.getSpaceId();
-    if (StringUtils.isNotBlank(spaceId)) {
-      activity.setTitle(substituteRoleWithLocale(activity.getTitle(), locale));
-      activity.setBody(substituteRoleWithLocale(activity.getBody(), locale));
-      Map<String, String> templateParams = activity.getTemplateParams();
+    activity.setTitle(substituteRoleWithLocale(activity.getTitle(), locale));
+    activity.setBody(substituteRoleWithLocale(activity.getBody(), locale));
+    Map<String, String> templateParams = activity.getTemplateParams();
+    if (MapUtils.isNotEmpty(templateParams)) {
+      templateParams.computeIfPresent(COMMENT_TEMPLATE_PARAM, (key, value) -> substituteRoleWithLocale(value, locale));
+      templateParams.computeIfPresent(DEFAULT_TITLE_TEMPLATE_PARAM, (key, value) -> substituteRoleWithLocale(value, locale));
+
+      List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
       if (MapUtils.isNotEmpty(templateParams)) {
-        templateParams.computeIfPresent(COMMENT_TEMPLATE_PARAM, (key, value) -> substituteRoleWithLocale(value, locale));
-        templateParams.computeIfPresent(DEFAULT_TITLE_TEMPLATE_PARAM, (key, value) -> substituteRoleWithLocale(value, locale));
+        for (String key : templateParamKeys) {
+          templateParams.computeIfPresent(key, (mapKey, value) -> substituteRoleWithLocale(value, locale));
+        }
       }
     }
   }
@@ -241,6 +254,24 @@ public class MentionUtils {
 
   private static boolean isIdentityEnabled(Identity identity) {
     return identity != null && !identity.isDeleted() && identity.isEnable();
+  }
+
+  private static List<String> getTemplateParamKeysToFilter(ExoSocialActivity activity) {
+    Map<String, String> templateParams = activity.getTemplateParams();
+    ArrayList<String> keys = new ArrayList<>();
+
+    if (templateParams != null && templateParams.containsKey(TEMPLATE_PARAM_TO_PROCESS)) {
+      String[] templateParamKeys = activity.getTemplateParams().get(TEMPLATE_PARAM_TO_PROCESS).split(TEMPLATE_PARAM_LIST_DELIM);
+      for (String key : templateParamKeys) {
+        if (key.endsWith("\\")) {
+          key = key.replace("\\", "");
+        }
+        if (templateParams.containsKey(key.replace("\\", ""))) {
+          keys.add(key);
+        }
+      }
+    }
+    return keys;
   }
 
   private static IdentityManager getIdentityManager() {

@@ -1037,11 +1037,11 @@ public class EntityBuilder {
                                                      boolean isBuildList) {
     Identity poster = getIdentityManager().getIdentity(comment.getPosterId());
     Locale userLocale = LocalizationFilter.getCurrentLocale();
-    MentionUtils.substituteRoleWithLocale(comment, userLocale);
     if (comment.getTitleId() != null) {
       I18NActivityProcessor i18NActivityProcessor = ExoContainerContext.getService(I18NActivityProcessor.class);
       comment = i18NActivityProcessor.process(comment, userLocale);
     }
+    MentionUtils.substituteRoleWithLocale(comment, userLocale);
 
     CommentEntity commentEntity = new CommentEntity(comment);
     commentEntity.setHref(RestUtils.getRestUrl(ACTIVITIES_TYPE, comment.getId(), restPath));

@@ -16,8 +16,6 @@
  */
 package org.exoplatform.social.core.processor;
 
-import java.util.List;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
@@ -45,8 +43,7 @@ public class MentionsProcessor extends BaseActivityProcessorPlugin {
   public void processActivity(ExoSocialActivity activity) {
     if (activity != null) {
       String portalOwner = userPortalConfigService.getMetaPortal();
-      List<String> templateParamKeys = getTemplateParamKeysToFilter(activity);
-      MentionUtils.substituteUsernames(activity, templateParamKeys, portalOwner);
+      MentionUtils.substituteUsernames(activity, portalOwner);
     }
   }
 
