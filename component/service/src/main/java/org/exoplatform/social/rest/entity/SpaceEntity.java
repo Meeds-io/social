@@ -37,11 +37,16 @@ public class SpaceEntity extends BaseEntity {
     return this;
   }
 
+  public SpaceEntity setIdentityId(String identityId) {
+    setProperty("identityId", identityId);
+    return this;
+  }
+
   public SpaceEntity setDisplayName(String displayName) {
     setProperty("displayName", displayName);
     return this;
   }
-  
+
   public String getDisplayName() {
     return getString("displayName");
   }
@@ -99,13 +104,12 @@ public class SpaceEntity extends BaseEntity {
   public String getPrettyName() {
     return getString("prettyName");
   }
-  
+
   public SpaceEntity setHasBindings(boolean hasBindings) {
     setProperty("hasBindings", hasBindings);
     return this;
   }
-  
-  
+
   public SpaceEntity setTotalBoundUsers(Long totalBoundUsers) {
     setProperty("totalBoundUsers", totalBoundUsers);
     return this;
@@ -114,8 +118,7 @@ public class SpaceEntity extends BaseEntity {
   public Long getTotalBoundUsers() {
     return (Long) getProperty("totalBoundUsers");
   }
-  
-  
+
   public String hasBindings() {
     return getString("hasBindings");
   }
@@ -187,7 +190,7 @@ public class SpaceEntity extends BaseEntity {
   public Boolean getIsRedactor() {
     return (Boolean) getProperty("isRedactor");
   }
-  
+
   public SpaceEntity setIsPublisher(boolean isPublisher) {
     setProperty("isPublisher", isPublisher);
     return this;
@@ -250,7 +253,7 @@ public class SpaceEntity extends BaseEntity {
   public Integer getManagersCount() {
     return (Integer) getProperty("managersCount");
   }
-  
+
   public SpaceEntity setRedactors(LinkEntity redactors) {
     setProperty("redactors", redactors.getData());
     return this;
@@ -268,7 +271,7 @@ public class SpaceEntity extends BaseEntity {
   public Integer getRedactorsCount() {
     return (Integer) getProperty("redactorsCount");
   }
-  
+
   public SpaceEntity setPublishers(LinkEntity publishers) {
     setProperty("publishers", publishers.getData());
     return this;
@@ -277,7 +280,7 @@ public class SpaceEntity extends BaseEntity {
   public String getPublishers() {
     return getString("publishers");
   }
-  
+
   public SpaceEntity setPublishersCount(int publishersCount) {
     setProperty("publishersCount", publishersCount);
     return this;
@@ -318,7 +321,7 @@ public class SpaceEntity extends BaseEntity {
     setProperty("membersCount", membersCount);
     return this;
   }
-  
+
   public Integer getMembersCount() {
     return (Integer) getProperty("membersCount");
   }
@@ -363,6 +366,7 @@ public class SpaceEntity extends BaseEntity {
     setProperty("externalInvitedUsers", externalInvitedUsers);
     return this;
   }
+
   public List<String> getExternalInvitedUsers() {
     return (List<String>) getProperty("externalInvitedUsers");
   }
@@ -384,7 +388,7 @@ public class SpaceEntity extends BaseEntity {
     setProperty("isMuted", isMuted);
     return this;
   }
-  
+
   public Map<String, Long> getUnreadItems() {
     return (Map<String, Long>) getProperty("unread");
   }

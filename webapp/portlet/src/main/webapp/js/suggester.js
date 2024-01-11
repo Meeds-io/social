@@ -366,7 +366,7 @@
           var args = arguments;
           if (phase === "onDisplay" && listItemRender) {
             var $li = $('<li class="option">');
-            $li.html(listItemRender.call(app, item));
+            $li.html(listItemRender.call(app, item, $li));
             return $li;
           } else if (phase == "onInsert" && insertRender){
             return insertRender.call(app, item);
