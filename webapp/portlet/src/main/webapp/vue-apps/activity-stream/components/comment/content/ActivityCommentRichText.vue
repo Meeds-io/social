@@ -20,6 +20,7 @@
           :template-params="templateParams"
           :object-id="metadataObjectId"
           :object-type="metadataObjectType"
+          :suggestor-space-id="spaceId"
           context-name="activityComment"
           suggestor-type-of-relation="mention_comment"
           use-extra-plugins
