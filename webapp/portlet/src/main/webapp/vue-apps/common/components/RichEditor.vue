@@ -69,6 +69,14 @@ export default {
       type: String,
       default: eXo.env.portal.spaceUrl
     },
+    suggesterSpacePrettyName: {
+      type: String,
+      default: eXo.env.portal.spaceName
+    },
+    suggesterSpaceId: {
+      type: String,
+      default: eXo.env.portal.spaceId
+    },
     activityId: {
       type: String,
       default: null,
@@ -227,13 +235,17 @@ export default {
       },
     },
     suggesterSpaceURL() {
-      if (this.editorReady) {
-        if (this.suggesterSpaceURL) {
-          this.getSpaceId().then(() => this.initCKEditor(true, this.backUpMessage));
-        } else {
-          this.spaceId = null;
-          this.initCKEditor(true, this.backUpMessage);
-        }
+      this.updateSpaceId();
+    },
+    suggesterSpaceId() {
+      this.updateSpaceId();
+    },
+    suggesterSpacePrettyName() {
+      this.updateSpaceId();
+    },
+    spaceId() {
+      if (this.editor) {
+        this.editor.config.spaceId = this.spaceId;
       }
     },
     displayAttachmentEditor(newVal, oldVal) {
@@ -242,15 +254,22 @@ export default {
       }
     },
     editor() {
-      const mentionedUsers =  this.backUpMessage?.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
-      if (mentionedUsers?.length && this.editor) {
-        this.replaceSuggestedUsers(this.backUpMessage, mentionedUsers, this.spaceId);
+      if (this.editor) {
+        let message = this.backUpMessage || this.inputVal;
+        if (message?.length) {
+          message = message.replace(/@([A-Za-z0-9_'.+-]+:[0-9]+)/g, '');
+          const mentionedUsers =  message.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
+          if (mentionedUsers?.length) {
+            this.replaceSuggestedUsers(message, mentionedUsers, this.spaceId);
+          }
+        }
       }
     }
   },
   created() {
     // Load CKEditor only when needed
     window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester']);
+    this.updateSpaceId();
   },
   mounted() {
     if (!this.value?.length && this.useDraftManagement) {
@@ -353,6 +372,8 @@ export default {
         enterMode: 3, // div
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
+        spacePrettyName: this.suggesterSpacePrettyName,
+        spaceId: this.spaceId || this.suggesterSpaceId,
         activityId: this.activityId,
         startupFocus: this.autofocus && this.focusPosition,
         pasteFilter: 'p; a[!href]; strong; i', 
@@ -392,9 +413,6 @@ export default {
           change: function (evt) {
             const newData = evt.editor.getData();
             self.inputVal = newData;
-            if (!self.activityId && self.useDraftManagement && self.contextName) {
-              localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
-            }
           },
           paste: function (evt) {
             if (!self.disableImageAttachmentPaste && self.$refs?.attachmentsInput && evt.data.dataTransfer.getFilesCount() > 0) {
@@ -408,12 +426,6 @@ export default {
           destroy: function () {
             if (!self) {
               return;
-            }
-            const data = self?.inputVal;
-            if (data) {
-              self.inputVal = data;
-            } else {
-              self.inputVal = '';
             }
             self.editor = null;
           }
@@ -485,7 +497,8 @@ export default {
       if (!content) {
         return '';
       }
-      const mentionedUsers =  content.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
+      content = content.replace(/@([A-Za-z0-9_'.+-]+:[0-9]+)/g, '');
+      const mentionedUsers =  content.match(/@([A-Za-z0-9_'.+-]+(:[0-9]+)?)/g)?.map(a => a.replace('@', '')) || null;
       if (mentionedUsers?.length) {
         this.replaceSuggestedUsers(content, mentionedUsers, this.spaceId);
       }
@@ -581,6 +594,9 @@ export default {
       if (this.editorReady) {
         const message = this.getContentToSave(content);
         this.inputVal = message;
+        if (!this.activityId && this.useDraftManagement && this.contextName) {
+          localStorage.setItem(`activity-message-${this.contextName}`,  JSON.stringify({'url': this.baseUrl, 'text': this.inputVal}));
+        }
         this.$emit('input', message);
       }
     },
@@ -621,9 +637,33 @@ export default {
           $(this).replaceWith(function() {
             return $('<span/>', {
               class: 'atwho-inserted',
-              html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-            }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
-              .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+              html: `<span class="exo-mention" contenteditable="false">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+            }).attr('data-atwho-at-query', '@')
+              .attr('data-atwho-at-value', $(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+              .attr('contenteditable', 'false');
+          });
+        });
+      tempdiv.find('a.group-role-mention')
+        .each(function() {
+          const role = $(this).data('role');
+          const identityId = $(this).data('identity-id');
+          let icon;
+          if (role === 'member') {
+            icon = 'fa-users';
+          } else if (role === 'manager') {
+            icon = 'fa-user-cog';
+          } else if (role === 'redactor') {
+            icon = 'fa-user-edit';
+          } else if (role === 'publisher') {
+            icon = 'fa-paper-plane';
+          }
+
+          $(this).replaceWith(function() {
+            return $('<span/>', {
+              class: 'atwho-inserted',
+              html: `<span class="exo-mention"><i aria-hidden="true" class="v-icon fa ${icon}" style="font-size: 14px;"></i>${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+            }).attr('data-atwho-at-query', '@')
+              .attr('data-atwho-at-value',`${role}:${identityId}`)
               .attr('contenteditable','false');
           });
         });
@@ -675,21 +715,24 @@ export default {
                 profile.isMember = true;
                 return profile;
               }
-            });
+            })
+            .catch(() => null);
         }))
         .then(userProfiles => userProfiles.filter(p => p))
         .then(userProfiles => {
           const containsExoMentionClass = message.search('exo-mention') >= 0;
           this.containInvalidUsers = !!userProfiles.find(profile => profile.isMember !== true);
+          let hasInvalidUsers = false;
           userProfiles.forEach(profile => {
             const pattern = containsExoMentionClass ? `<span [^>]* data-atwho-at-query="@${profile.username}" class="atwho-inserted">(.*?)</span> </span>` : `@${profile.username}`;
             if (profile.isMember) {
               message = this.replaceValidSuggestedUser(message, profile, pattern);
             } else {
+              hasInvalidUsers = true;
               message = this.replaceInvalidSuggestedUser(message, profile, pattern);
             }
           });
-          this.backUpMessage = message;
+          this.backUpMessage = hasInvalidUsers && message || null;
           this.editor?.setData(message);
         });
     },
@@ -703,9 +746,36 @@ export default {
         });
       return message;
     },
+    updateSpaceId() {
+      if (this.suggesterSpaceId) {
+        if (!this.spaceId) {
+          this.spaceId = this.suggesterSpaceId;
+        }
+        if (this.editorReady) {
+          this.initCKEditor(true, this.backUpMessage || this.inputVal);
+        }
+      } else if (this.suggesterSpaceURL || this.suggesterSpacePrettyName) {
+        this.getSpaceId()
+          .then(() => {
+            if (this.editorReady) {
+              this.initCKEditor(true, this.backUpMessage || this.inputVal);
+            }
+          });
+      } else {
+        this.spaceId = null;
+        if (this.editorReady) {
+          this.initCKEditor(true, this.backUpMessage || this.inputVal);
+        }
+      }
+    },
     getSpaceId() {
-      return this.$spaceService.getSpaceByPrettyName(this.suggesterSpaceURL)
-        .then(space => this.spaceId = space.id);
+      if (this.suggesterSpacePrettyName) {
+        return this.$spaceService.getSpaceByPrettyName(this.suggesterSpacePrettyName)
+          .then(space => this.spaceId = space.id);
+      } else if (this.suggesterSpaceURL) {
+        return this.$spaceService.getSpaceByGroupSuffix(this.suggesterSpaceURL)
+          .then(space => this.spaceId = space.id);
+      }
     },
     getScrollParent(element, includeHidden) {
       let style = getComputedStyle(element);

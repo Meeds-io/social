@@ -77,7 +77,11 @@
           "${months.dec}"
 	  ],
 	  Save : "${Save}",
-	  Cancel : "${Cancel}"
+    Cancel : "${Cancel}",
+	  members : "${members}",
+    managers : "${managers}",
+    publishers : "${publishers}",
+    redactors : "${redactors}"
 	};
 	
 	return eXo.i18n.I18NMessage;

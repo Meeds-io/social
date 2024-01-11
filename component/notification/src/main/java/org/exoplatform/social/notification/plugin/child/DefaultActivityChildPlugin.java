@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.notification.plugin.child;
 
+import java.util.Locale;
+
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.AbstractNotificationChildPlugin;
@@ -24,6 +26,7 @@ import org.exoplatform.commons.notification.NotificationUtils;
 import org.exoplatform.commons.notification.template.TemplateUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtils;
 
@@ -34,21 +37,7 @@ public class DefaultActivityChildPlugin extends AbstractNotificationChildPlugin 
   public DefaultActivityChildPlugin(InitParams initParams) {
     super(initParams);
   }
-/*
-  DEFAULT_ACTIVITY
-  USER_PROFILE_ACTIVITY
-  USER_ACTIVITIES_FOR_RELATIONSHIP
-  SPACE_ACTIVITY
-  LINK_ACTIVITY
-  DOC_ACTIVITY
-  files:spaces
-  contents:spaces
-  cs-calendar:spaces
-  ks-forum:spaces
-  ks-answer:spaces
-  ks-poll:spaces
-  ks-wiki:spaces
-*/
+
   @Override
   public String makeContent(NotificationContext ctx) {
     NotificationInfo notification = ctx.getNotificationInfo();
@@ -62,10 +51,10 @@ public class DefaultActivityChildPlugin extends AbstractNotificationChildPlugin 
       //we need to build the content of activity by type, so if it's a comment, we will get the parent activity
       activity = Utils.getActivityManager().getParentActivity(activity);
     }
-    templateContext.put("ACTIVITY", NotificationUtils.processLinkTitle(activity.getTitle()));
+    templateContext.put("ACTIVITY", processBody(Utils.getActivityManager().getActivityTitle(activity),
+                                                language));
     //
-    String content = TemplateUtils.processGroovy(templateContext);
-    return content;
+    return TemplateUtils.processGroovy(templateContext);
   }
 
   @Override
@@ -77,4 +66,10 @@ public class DefaultActivityChildPlugin extends AbstractNotificationChildPlugin 
   public boolean isValid(NotificationContext ctx) {
     return false;
   }
+
+  private String processBody(String message, String language) {
+    message = MentionUtils.substituteRoleWithLocale(message, Locale.forLanguageTag(language));
+    return NotificationUtils.processLinkTitle(message);
+  }
+
 }
