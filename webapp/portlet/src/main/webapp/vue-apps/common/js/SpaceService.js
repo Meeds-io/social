@@ -132,14 +132,20 @@ export function getSpaceByDisplayName(displayName, expand) {
     return space;
   });
 }
+
 export function getSpaceByGroupId(groupId, expand) {
   expand = expand || '';
-  groupId = groupId.replace('/spaces/', '');
-  const key = `group-${groupId}-${expand}`;
+  const groupSuffix = groupId.replace('/spaces/', '');
+  return getSpaceByGroupSuffix(groupSuffix, expand);
+}
+
+export function getSpaceByGroupSuffix(groupSuffix, expand) {
+  expand = expand || '';
+  const key = `group-${groupSuffix}-${expand}`;
   if (spaces[key]) {
     return Promise.resolve(spaces[key]);
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byGroupSuffix/${groupId}?expand=${expand}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byGroupSuffix/${groupSuffix}?expand=${expand}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

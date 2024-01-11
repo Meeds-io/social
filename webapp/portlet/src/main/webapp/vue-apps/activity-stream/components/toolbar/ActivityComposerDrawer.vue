@@ -124,7 +124,8 @@
             :object-type="metadataObjectType"
             :object-id="metadataObjectId"
             :max-file-size="$root.maxFileSize"
-            :suggester-space-u-r-l="spaceURL"
+            :suggester-space-pretty-name="spacePrettyName"
+            :suggester-space-id="spaceId"
             :activity-id="activityId"
             class="activityRichEditor"
             ck-editor-type="activityContent"
@@ -178,7 +179,7 @@ export default {
       MESSAGE_TIMEOUT: 5000,
       activityId: null,
       spaceId: null,
-      spaceURL: eXo.env.portal.spaceUrl,
+      spacePrettyName: eXo.env.portal.spaceName,
       message: '',
       files: null,
       templateParams: {},
@@ -279,8 +280,10 @@ export default {
       }
     },
     audience() {
-      this.spaceId = this.audience?.spaceId || '';
-      this.spaceURL = this.audience?.remoteId || '';
+      if (!this.activityId) {
+        this.spaceId = this.audience?.spaceId || '';
+        this.spacePrettyName = this.audience?.remoteId || '';
+      }
     },
     audienceChoice(newVal) {
       if (newVal === 'yourNetwork') {
