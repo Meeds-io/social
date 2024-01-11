@@ -1005,7 +1005,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   /**
    * Processes Mentioners who has been mentioned via the Activity.
    * 
-   * @param spaceId
+   * @param identityId
    * @param title
    * @param templateParams
    */
