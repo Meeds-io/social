@@ -99,22 +99,8 @@ CKEDITOR.editorConfig = function(config) {
   var lastNoResultQuery = false;
 
   const retrievePeople = async function(url, query) {
-    const usersFetch = !query?.length && Promise.resolve([]) || fetch(url, {credentials: 'include'})
+    return !query?.length && Promise.resolve([]) || fetch(url, {credentials: 'include'})
       .then(resp => resp?.ok && resp.json())
-    return usersFetch.then(users => {
-        users.forEach(user => {
-          peopleSearchCached[query].push({
-            uid: user.id.substr(1),
-            name: user.name,
-            avatar: user.avatar,
-          });
-        });
-        if (peopleSearchCached[query].length == 0) {
-          lastNoResultQuery = query;
-        } else {
-          lastNoResultQuery = false;
-        }
-      });
   };
 
   let space = null;
@@ -124,7 +110,7 @@ CKEDITOR.editorConfig = function(config) {
   const redactorsLabel = eXo.i18n.I18NMessage.getMessage('redactors');
 
   const getSpace = async function(spaceURL, spacePrettyName, spaceId) {
-    if (!spacePrettyName && !spaceId) {
+    if (!spacePrettyName && !spaceId && !spaceURL) {
       return Promise.resolve();
     }
     return space && Promise.resolve(space)
@@ -133,38 +119,39 @@ CKEDITOR.editorConfig = function(config) {
       || fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}`, {credentials: 'include'}).then(resp => resp?.ok && resp.json());
   }
 
-  const retrieveSpaceRoles = async function(query) {
-    if (!space) {
-      return;
+  const retrieveSpaceRoles = function(query, space) {
+    const result = [];
+    if (space) {
+      if (space.membersCount && (!query?.length || membersLabel.toLowerCase().includes(query.toLowerCase()))) {
+        result.push({
+          uid: `member:${space.identityId}`,
+          name: membersLabel,
+          icon: 'fa-users',
+        });
+      }
+      if (space.managersCount && (!query?.length || managersLabel.toLowerCase().includes(query.toLowerCase()))) {
+        result.push({
+          uid: `manager:${space.identityId}`,
+          name: managersLabel,
+          icon: 'fa-user-cog',
+        });
+      }
+      if (space.redactorsCount && (!query?.length || redactorsLabel.toLowerCase().includes(query.toLowerCase()))) {
+        result.push({
+          uid: `redactor:${space.identityId}`,
+          name: redactorsLabel,
+          icon: 'fa-user-edit',
+        });
+      }
+      if (space.publishersCount && (!query?.length || publishersLabel.toLowerCase().includes(query.toLowerCase()))) {
+        result.push({
+          uid: `publisher:${space.identityId}`,
+          name: publishersLabel,
+          icon: 'fa-paper-plane',
+        });
+      }
     }
-    if (space.membersCount && (!query?.length || membersLabel.toLowerCase().includes(query.toLowerCase()))) {
-      peopleSearchCached[query].push({
-        uid: `member:${space.identityId}`,
-        name: membersLabel,
-        icon: 'fa-users',
-      });
-    }
-    if (space.managersCount && (!query?.length || managersLabel.toLowerCase().includes(query.toLowerCase()))) {
-      peopleSearchCached[query].push({
-        uid: `manager:${space.identityId}`,
-        name: managersLabel,
-        icon: 'fa-user-cog',
-      });
-    }
-    if (space.redactorsCount && (!query?.length || publishersLabel.toLowerCase().includes(query.toLowerCase()))) {
-      peopleSearchCached[query].push({
-        uid: `redactor:${space.identityId}`,
-        name: publishersLabel,
-        icon: 'fa-user-edit',
-      });
-    }
-    if (space.publishersCount && (!query?.length || redactorsLabel.toLowerCase().includes(query.toLowerCase()))) {
-      peopleSearchCached[query].push({
-        uid: `publisher:${space.identityId}`,
-        name: redactorsLabel,
-        icon: 'fa-paper-plane',
-      });
-    }
+    return result;
   };
   config.suggester = {
     suffix: '\u00A0',
@@ -172,13 +159,13 @@ CKEDITOR.editorConfig = function(config) {
     renderMenuItem(item, parent) {
       parent.data('value', item.uid);
       if (item.icon) {
-        return `<i aria-hidden="true" class="v-icon fa ${item.icon}" style="font-size: 14px;"></i>&nbsp;${item.name}`;
+        return `<div style="display: inline-flex;width:26px;height:26px;"><i aria-hidden="true" class="v-icon fa ${item.icon}" style="font-size: 14px;margin:auto;"></i></div> ${item.name}`;
       } else {
         return `<div class="avatarSmall" style="display: inline-block;"><img src="${item.avatar}"></div>${item.name}`;
       }
     },
     renderItem(item) {
-      return `<span class="exo-mention"><i aria-hidden="true" class="v-icon fa ${item.icon}" style="font-size: 14px;"></i>&nbsp;${item.name}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>`;
+      return `<span class="exo-mention"><i aria-hidden="true" class="v-icon fa ${item.icon}" style="font-size: 14px;"></i> ${item.name}<a href="#" class="remove"><i class="uiIconClose uiIconLightGray"></i></a></span>`;
     },
     sourceProviders: ['exo:people'],
     providers: {
@@ -189,13 +176,14 @@ CKEDITOR.editorConfig = function(config) {
             return;
           }
         }
-        if (peopleSearchCached[query]) {
-          callback.call(this, peopleSearchCached[query]);
+        var spaceURL = window.CKEDITOR.currentInstance.config.spaceURL;
+        var spacePrettyName = window.CKEDITOR.currentInstance.config.spacePrettyName;
+        var spaceId = window.CKEDITOR.currentInstance.config.spaceId;
+        const key = `${query}#${spaceURL}#${spacePrettyName}#${spaceId}`;
+        if (peopleSearchCached[key]) {
+          callback.call(this, peopleSearchCached[key]);
         } else {
-          var spaceURL = window.CKEDITOR.currentInstance.config.spaceURL;
-          var spacePrettyName = window.CKEDITOR.currentInstance.config.spacePrettyName;
-          var spaceId = window.CKEDITOR.currentInstance.config.spaceId;
-          peopleSearchCached[query] = [];
+          peopleSearchCached[key] = [];
           getSpace(spaceURL, spacePrettyName, spaceId)
             .then(data => {
               space = data;
@@ -209,10 +197,29 @@ CKEDITOR.editorConfig = function(config) {
               if (window.CKEDITOR.currentInstance.config.activityId) {
                 url += '&activityId=' + activityId;
               }
-              retrieveSpaceRoles(query);
-              return retrievePeople(url, query);
+              peopleSearchCached[key] = retrieveSpaceRoles(query, space);
+              return retrievePeople(url, query)
+                .then(users => {
+                  if (users?.length) {
+                    users.forEach(user => {
+                      peopleSearchCached[key].push({
+                        uid: user.id.substr(1),
+                        name: user.name,
+                        avatar: user.avatar,
+                      });
+                    });
+                  }
+                  return peopleSearchCached[key];
+                });
             })
-            .finally(() => callback.call(this, peopleSearchCached[query]))
+            .finally(() => {
+              if (peopleSearchCached[key].length == 0) {
+                lastNoResultQuery = query;
+              } else {
+                lastNoResultQuery = false;
+              }
+              callback.call(this, peopleSearchCached[key]);
+            })
         }
       }
     }

@@ -254,9 +254,15 @@ export default {
       }
     },
     editor() {
-      const mentionedUsers =  this.backUpMessage?.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
-      if (mentionedUsers?.length && this.editor) {
-        this.replaceSuggestedUsers(this.backUpMessage, mentionedUsers, this.spaceId);
+      if (this.editor) {
+        let message = this.backUpMessage || this.inputVal;
+        if (message?.length) {
+          message = message.replace(/@([A-Za-z0-9_'.+-]+:[0-9]+)/g, '');
+          const mentionedUsers =  message.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
+          if (mentionedUsers?.length) {
+            this.replaceSuggestedUsers(message, mentionedUsers, this.spaceId);
+          }
+        }
       }
     }
   },
@@ -406,9 +412,6 @@ export default {
           change: function (evt) {
             const newData = evt.editor.getData();
             self.inputVal = newData;
-            if (!self.activityId && self.useDraftManagement && self.contextName) {
-              localStorage.setItem(`activity-message-${self.contextName}`,  JSON.stringify({'url': self.baseUrl, 'text': newData}));
-            }
           },
           paste: function (evt) {
             if (!self.disableImageAttachmentPaste && self.$refs?.attachmentsInput && evt.data.dataTransfer.getFilesCount() > 0) {
@@ -422,12 +425,6 @@ export default {
           destroy: function () {
             if (!self) {
               return;
-            }
-            const data = self?.inputVal;
-            if (data) {
-              self.inputVal = data;
-            } else {
-              self.inputVal = '';
             }
             self.editor = null;
           }
@@ -499,7 +496,8 @@ export default {
       if (!content) {
         return '';
       }
-      const mentionedUsers =  content.match(/@([A-Za-z0-9_'.+-]+)/g)?.map(a => a.replace('@', '')) || null;
+      content = content.replace(/@([A-Za-z0-9_'.+-]+:[0-9]+)/g, '');
+      const mentionedUsers =  content.match(/@([A-Za-z0-9_'.+-]+(:[0-9]+)?)/g)?.map(a => a.replace('@', '')) || null;
       if (mentionedUsers?.length) {
         this.replaceSuggestedUsers(content, mentionedUsers, this.spaceId);
       }
@@ -595,6 +593,9 @@ export default {
       if (this.editorReady) {
         const message = this.getContentToSave(content);
         this.inputVal = message;
+        if (!this.activityId && this.useDraftManagement && this.contextName) {
+          localStorage.setItem(`activity-message-${this.contextName}`,  JSON.stringify({'url': this.baseUrl, 'text': this.inputVal}));
+        }
         this.$emit('input', message);
       }
     },
@@ -635,10 +636,10 @@ export default {
           $(this).replaceWith(function() {
             return $('<span/>', {
               class: 'atwho-inserted',
-              html: `<span class="exo-mention">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
-            }).attr('data-atwho-at-query',`@${$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1)}`)
-              .attr('data-atwho-at-value',$(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
-              .attr('contenteditable','false');
+              html: `<span class="exo-mention" contenteditable="false">${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+            }).attr('data-atwho-at-query', '@')
+              .attr('data-atwho-at-value', $(this).attr('href').substring($(this).attr('href').lastIndexOf('/')+1))
+              .attr('contenteditable', 'false');
           });
         });
       tempdiv.find('a.group-role-mention')
@@ -713,21 +714,24 @@ export default {
                 profile.isMember = true;
                 return profile;
               }
-            });
+            })
+            .catch(() => null);
         }))
         .then(userProfiles => userProfiles.filter(p => p))
         .then(userProfiles => {
           const containsExoMentionClass = message.search('exo-mention') >= 0;
           this.containInvalidUsers = !!userProfiles.find(profile => profile.isMember !== true);
+          let hasInvalidUsers = false;
           userProfiles.forEach(profile => {
             const pattern = containsExoMentionClass ? `<span [^>]* data-atwho-at-query="@${profile.username}" class="atwho-inserted">(.*?)</span> </span>` : `@${profile.username}`;
             if (profile.isMember) {
               message = this.replaceValidSuggestedUser(message, profile, pattern);
             } else {
+              hasInvalidUsers = true;
               message = this.replaceInvalidSuggestedUser(message, profile, pattern);
             }
           });
-          this.backUpMessage = message;
+          this.backUpMessage = hasInvalidUsers && message || null;
           this.editor?.setData(message);
         });
     },
@@ -744,12 +748,15 @@ export default {
     updateSpaceId() {
       if (this.editorReady) {
         if (this.suggesterSpaceId) {
-          this.spaceId = this.suggesterSpaceId;
+          if (!this.spaceId) {
+            this.spaceId = this.suggesterSpaceId;
+          }
+          this.initCKEditor(true, this.backUpMessage || this.inputVal);
         } else if (this.suggesterSpaceURL || this.spacePrettyName) {
-          this.getSpaceId().then(() => this.initCKEditor(true, this.backUpMessage));
+          this.getSpaceId().then(() => this.initCKEditor(true, this.backUpMessage || this.inputVal));
         } else {
           this.spaceId = null;
-          this.initCKEditor(true, this.backUpMessage);
+          this.initCKEditor(true, this.backUpMessage || this.inputVal);
         }
       }
     },

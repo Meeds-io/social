@@ -52,7 +52,7 @@
               <exo-identity-suggester
                 v-if="spaceSuggesterDisplay"
                 ref="audienceComposerSuggester"
-                v-model="audience"
+                v-model="spaceIdentity"
                 :labels="spaceSuggesterLabels"
                 :include-users="false"
                 :width="220"
@@ -124,7 +124,6 @@
             :object-type="metadataObjectType"
             :object-id="metadataObjectId"
             :max-file-size="$root.maxFileSize"
-            :suggester-space-pretty-name="spacePrettyName"
             :suggester-space-id="spaceId"
             :activity-id="activityId"
             class="activityRichEditor"
@@ -178,8 +177,6 @@ export default {
       MESSAGE_MAX_LENGTH: 1300,
       MESSAGE_TIMEOUT: 5000,
       activityId: null,
-      spaceId: null,
-      spacePrettyName: eXo.env.portal.spaceName,
       message: '',
       files: null,
       templateParams: {},
@@ -194,7 +191,8 @@ export default {
       activityToolbarAction: false,
       postToNetwork: eXo.env.portal.postToNetworkEnabled,
       audienceChoice: eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces',
-      audience: eXo.env.portal.spaceId,
+      spaceIdentity: null,
+      spaceId: eXo.env.portal.spaceId,
       username: eXo.env.portal.userName
     };
   },
@@ -226,7 +224,7 @@ export default {
       return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.audience) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.audience && !this.messageEdited);
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.spaceId) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -253,13 +251,13 @@ export default {
       return this.audienceChoice === 'yourNetwork';
     },
     spaceSuggesterDisplay() {
-      return (this.postToNetwork && this.postInYourSpacesChoice && !this.audience) || !this.postToNetwork ;
+      return (this.postToNetwork && this.postInYourSpacesChoice && !this.spaceId) || !this.postToNetwork ;
     },
     audienceAvatarDisplay() {
-      return this.audience && this.postInYourSpacesChoice;
+      return this.spaceId && this.postInYourSpacesChoice;
     },
     postVisibility() {
-      return  this.postInYourNetwork || (this.postInYourSpacesChoice && !this.audience);
+      return  this.postInYourNetwork || (this.postInYourSpacesChoice && !this.spaceId);
     }
   },
   watch: {
@@ -279,10 +277,9 @@ export default {
         document.dispatchEvent(new CustomEvent('activity-composer-closed'));
       }
     },
-    audience() {
+    spaceIdentity() {
       if (!this.activityId) {
-        this.spaceId = this.audience?.spaceId || '';
-        this.spacePrettyName = this.audience?.remoteId || '';
+        this.spaceId = this.spaceIdentity?.spaceId || eXo.env.portal.spaceId;
       }
     },
     audienceChoice(newVal) {
@@ -316,10 +313,8 @@ export default {
         this.activityType = params.activityType;
         this.attachments = this.templateParams?.metadatas?.attachments;
         this.activityToolbarAction = params.activityToolbarAction;
-        this.audience = params.spaceId;
       } else {
         this.activityId = null;
-        this.spaceId = null;
         this.message = '';
         this.templateParams = {};
         this.files = [];
@@ -444,10 +439,10 @@ export default {
     },
     resetAudienceChoice() {
       this.audienceChoice = eXo.env.portal.postToNetworkEnabled && 'yourNetwork' || 'oneOfYourSpaces';
-      this.audience = eXo.env.portal.spaceId;
+      this.spaceIdentity = null;
     },
     removeAudience() {
-      this.audience = '';
+      this.spaceIdentity = null;
     }
   },
 };
