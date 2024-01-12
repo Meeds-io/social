@@ -195,7 +195,6 @@ CKEDITOR.editorConfig = function(config) {
           var spaceURL = window.CKEDITOR.currentInstance.config.spaceURL;
           var spacePrettyName = window.CKEDITOR.currentInstance.config.spacePrettyName;
           var spaceId = window.CKEDITOR.currentInstance.config.spaceId;
-          console.warn('providers exo:people', spaceURL, spacePrettyName, spaceId);
           peopleSearchCached[query] = [];
           getSpace(spaceURL, spacePrettyName, spaceId)
             .then(data => {
