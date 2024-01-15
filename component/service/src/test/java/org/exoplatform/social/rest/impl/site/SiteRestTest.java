@@ -22,6 +22,7 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.exoplatform.portal.mop.SiteType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -99,7 +100,7 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
   @Test
   public void testGetSiteBanner() throws Exception {
     String originPath = getBaseUrl();
-    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().get(0);
+    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().stream().filter(siteEntity -> siteEntity.getSiteType() == SiteType.PORTAL).findFirst().get();
     site.setBannerFileId(1);
     siteDAO.update(site);
     String path = originPath + "notValidSiteName/banner" + "?bannerId=1";
@@ -122,7 +123,7 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
     ms.add(new MembershipEntry("/platform/users"));
     startSessionAs("john", ms);
 
-    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().get(0);
+    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().stream().filter(siteEntity -> siteEntity.getSiteType() == SiteType.PORTAL).findFirst().get();
     String path = getBaseUrl() + "8594";
     ContainerResponse resp = getResponse("GET", path, "");
     assertEquals(404, resp.getStatus());
