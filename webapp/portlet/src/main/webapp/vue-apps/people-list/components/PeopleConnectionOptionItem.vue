@@ -109,6 +109,10 @@ export default {
       type: Boolean,
       default: false
     },
+    isMobile: {
+      type: Boolean,
+      default: false
+    },
     isUpdatingStatus: {
       type: Boolean,
       default: false
@@ -116,7 +120,7 @@ export default {
   },
   computed: {
     iconClass() {
-      return this.compactDisplay && 'primary--text' || 'mx-4';
+      return !this.compactDisplay && this.isMobile && 'mx-4';
     },
     confirmedUser() {
       return this.relationshipStatus === 'CONFIRMED';
