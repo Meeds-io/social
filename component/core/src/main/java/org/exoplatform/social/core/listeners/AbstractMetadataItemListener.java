@@ -108,7 +108,7 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
   }
 
   protected void handleMetadataModification(String objectType, String objectId) {
-    if (clearActivityCache(objectType, objectId)) {
+    if (clearActivityCache(objectType, objectId) && isActivityEvent(objectType)) {
       // Ensure to re-execute MetadataActivityProcessor to compute & cache
       // metadatas of the activity again
       reindexActivity(objectId);
