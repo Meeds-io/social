@@ -17,8 +17,7 @@
           :src="defaultAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation"
-          :alt="$t('space.avatar.img.alt',{0:spacePrettyName})">
+          alt="">
       </v-avatar>
       <div
         v-if="fullname || !isMobile"
@@ -48,8 +47,7 @@
           :class="avatarClass"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation"
-          :alt="$t('space.avatar.img.alt',{0:prettyName})">
+          alt="">
       </v-avatar>
     </a>
     <a
@@ -93,8 +91,7 @@
           :class="avatarClass"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          role="presentation"
-          :alt="$t('space.avatar.img.alt',{0:prettyName})">
+          alt="">
       </v-avatar>
       <div
         v-if="displayName || $slots.subTitle"
