@@ -43,7 +43,7 @@
       </div>
       <div
         v-if="expanded"
-        class="pt-2 quickSearchResultExpanded">
+        class="pa-2 quickSearchResultExpanded">
         <v-container class="pa-0">
           <v-row>
             <v-col
@@ -51,6 +51,7 @@
               :key="user.id"
               :id="`peopleCardItem${user.id}`"
               cols="12"
+              sm="3"
               md="4"
               lg="3"
               xl="3"
