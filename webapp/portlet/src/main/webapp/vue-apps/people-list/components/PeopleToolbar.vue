@@ -27,19 +27,23 @@
       tooltip: $t('peopleList.label.filterPeople')
     }"
     :right-filter-button="{
+      hide: hideRightFilterButton,
       text: $t('pepole.advanced.filter.button.title'),
     }"
     :right-select-box="{
-      hide: isMobile,
+      hide: isMobile || hideFilter,
       selected:'all',
       items: peopleFilters,
     }"
+    :compact="compact"
     :filters-count="advancedFilterCount"
     @filter-text-input-end-typing="keyword = $event"
     @filter-button-click="openPeopleAdvancedFilterDrawer"
     @filter-select-change="filterValue = $event"
     @toggle-select="updateFilter($event)">
-    <template #left>
+    <template
+      v-if="peopleCount"
+      #left>
       <div class="showingPeopleText text-sub-title ms-3 d-none d-sm-flex">
         {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
       </div>
@@ -59,6 +63,18 @@ export default {
       type: String,
       default: null,
     },
+    hideFilter: {
+      type: Boolean,
+      default: false
+    },
+    hideRightFilterButton: {
+      type: Boolean,
+      default: false
+    },
+    compact: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     advancedFilterCount: 0,

@@ -30,6 +30,12 @@
       </span>
     </template>
     <template slot="content">
+      <people-toolbar
+        filter="all"
+        :hide-filter="true"
+        :hide-right-filter-button="true"
+        :compact="!expanded"
+        @keyword-changed="keyword = $event" />
       <div
         v-if="!isSearching && !listUsers.length"
         class="mt-auto mb-auto pt-5 align-center">
@@ -58,7 +64,7 @@
       </div>
       <div
         v-else
-        class="pt-2 quickSearchResultExpanded quickSearchResultCollapsed">
+        class="pt-2 mt-n5 quickSearchResultExpanded quickSearchResultCollapsed">
         <people-card
           v-for="user in listUsers"
           :key="user.id"
@@ -101,6 +107,7 @@ export default {
       expanded: false,
       propertyValue: null,
       isSearching: false,
+      keyword: null
     };
   },
   computed: {
@@ -116,6 +123,9 @@ export default {
         this.$refs.quickSearchUsersListDrawer.endLoading();
       }
     },
+    keyword() {
+      this.search(this.keyword);
+    }
   },
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
@@ -136,7 +146,13 @@ export default {
       this.search();
       this.$refs.quickSearchUsersListDrawer.open();
     },
-    search() {
+    search(keyword) {
+      if (keyword) {
+        this.profileSetting['fullName'] = keyword;
+        this.users = [];
+      } else {
+        delete this.profileSetting['fullName'];
+      }
       this.isSearching = true;
       if (this.abortController) {
         this.abortController.abort();
