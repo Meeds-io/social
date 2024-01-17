@@ -1041,7 +1041,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         } catch (FileStorageException e) {
           return null;
         }
-      } else {
+      } else if (identity.isUser() || identity.isSpace()) {
         String fullNameAbbreviation = getNameAbbreviation(identity.getProfile().getFullName());
         AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(), fullNameAbbreviation);
         if (avatar != null) {
