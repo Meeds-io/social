@@ -17,11 +17,9 @@
  */
 package org.exoplatform.social.core.image;
 
-import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.model.AvatarAttachment;
 
 import javax.imageio.ImageIO;
@@ -29,7 +27,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author tuan_nguyenxuan Oct 29, 2010
@@ -135,18 +132,20 @@ public class ImageUtils {
       }
 
       // Create temp file to store resized image to put to avatar attachment
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      File tmp = File.createTempFile("RESIZED", null);
       image = resizeImage(image, targetWidth, targetHeight);
 
-      ImageIO.write(image, extension, outputStream);
+      ImageIO.write(image, extension, tmp);
       
       // Create new avatar attachment
       AvatarAttachment newAvatarAttachment = new AvatarAttachment(avatarId,
                                                                   avatarFileName,
                                                                   avatarMimeType,
-                                                                  new ByteArrayInputStream(outputStream.toByteArray()),
+                                                                  new FileInputStream(tmp),
                                                                   System.currentTimeMillis());
 
+      // Delete temp file
+      tmp.delete();
       return newAvatarAttachment;
     } catch (Exception e) {
       LOG.error("Fail to resize image to avatar attachment: " + e);

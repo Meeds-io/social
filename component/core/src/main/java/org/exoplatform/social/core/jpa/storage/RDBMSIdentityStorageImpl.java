@@ -290,7 +290,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
       } else if (!Profile.EXPERIENCES_SKILLS.equals(profileProperty.getKey())) {
         Object val = profileProperty.getValue();
-        if ((Profile.FIRST_NAME.equalsIgnoreCase(profileProperty.getKey()) || Profile.LAST_NAME.equalsIgnoreCase(profileProperty.getKey()))
+        if ((Profile.FIRST_NAME.equalsIgnoreCase(profileProperty.getKey())
+            || Profile.LAST_NAME.equalsIgnoreCase(profileProperty.getKey()))
             && !profileProperty.getValue().equals(entityProperties.get(profileProperty.getKey()))) {
           FileItem file = getRDBMSCachedIdentityStorage().getAvatarFile(profile.getIdentity());
           if (file != null && file.getFileInfo().getName().equals(DEFAULT_AVATAR)) {
@@ -1142,10 +1143,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     return activityStorage;
   }
 
-  private static String getNameAbbreviation(String name)  {
+  private static String getNameAbbreviation(String name) {
     String result = name.replaceAll("\\B.|\\P{L}", "").toUpperCase();
-    if (result.length()> 2) {
-      return result.substring(0,2);
+    if (result.length() > 2) {
+      return result.substring(0, 2);
     } else {
       return result;
     }

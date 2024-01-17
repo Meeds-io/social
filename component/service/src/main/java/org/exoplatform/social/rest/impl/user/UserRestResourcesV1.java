@@ -655,55 +655,65 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                         description = "A mandatory valid token that is used to authorize anonymous request"
                                     ) @QueryParam("r") String token) throws IOException {
 
+    boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     Identity identity = null;
     Long lastUpdated = null;
 
     Response.ResponseBuilder builder = null;
-    identity = byId ? identityManager.getIdentity(id) : identityManager.getOrCreateUserIdentity(id);
-    if (identity == null || !identity.isUser()) {
-      LOG.debug("Identity of user {} is not found, thus no avatar will be returned", id);
-      return Response.status(Status.NOT_FOUND).build();
+    if (isDefault) {
+      lastUpdated = DEFAULT_IMAGES_LAST_MODIFED.getTime();
     } else {
-      Profile profile = identity.getProfile();
-      if (profile != null) {
-        lastUpdated = profile.getAvatarLastUpdated();
+      identity = byId ? identityManager.getIdentity(id)
+                      : identityManager.getOrCreateUserIdentity(id);
+      if (identity == null || !identity.isUser()) {
+        LOG.debug("Identity of user {} is not found, thus no avatar will be returned", id);
+        return Response.status(Status.NOT_FOUND).build();
+      } else {
+        Profile profile = identity.getProfile();
+        if (profile != null) {
+          lastUpdated = profile.getAvatarLastUpdated();
+        }
       }
     }
 
     EntityTag eTag = null;
-    if (lastUpdated != null) {
-      eTag = new EntityTag(lastUpdated + "-" + size);
+    if (isDefault) {
+      eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
+    } else if (lastUpdated != null) {
+      eTag = new EntityTag(lastUpdated+"-"+size);
     }
 
     builder = eTag == null ? null : request.evaluatePreconditions(eTag);
     if (builder == null) {
-      if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
-                                                                          OrganizationIdentityProvider.NAME,
-                                                                          id,
-                                                                          AvatarAttachment.TYPE,
-                                                                          lastModified)) {
-        LOG.warn("An anonymous user attempts to access avatar of user {} without a valid access token", id);
-        return Response.status(Status.NOT_FOUND).build();
-      }
-
-      if (identity.isEnable() && !identity.isDeleted()) {
-        int[] dimension = Utils.parseDimension(size);
-        byte[] avatarContent = null;
-        try {
-          if (identityManager.getAvatarFile(identity) != null) {
-            avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                                                                       identity,
-                                                                       dimension[0],
-                                                                       dimension[1])
-                                                 .getAsByte();
-          }
-        } catch (Exception e) {
-          LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned",
-                    identity.getId(),
-                    e);
+      if (isDefault || lastUpdated == null) {
+        builder = getDefaultAvatarBuilder();
+      } else {
+        if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
+                                                                            OrganizationIdentityProvider.NAME,
+                                                                            id,
+                                                                            AvatarAttachment.TYPE,
+                                                                            lastModified)) {
+          LOG.warn("An anonymous user attempts to access avatar of user {} without a valid access token", id);
+          return Response.status(Status.NOT_FOUND).build();
         }
-        if (avatarContent != null) {
-          builder = Response.ok(avatarContent, "image/png");
+
+        if (identity.isEnable() && !identity.isDeleted()) {
+          int[] dimension = Utils.parseDimension(size);
+          byte[] avatarContent = null;
+          try {
+            if(identityManager.getAvatarFile(identity) != null) {
+              avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+                              identity,
+                              dimension[0],
+                              dimension[1])
+                      .getAsByte();
+            }
+          } catch (Exception e) {
+            LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned", identity.getId(), e);
+          }
+          if (avatarContent != null) {
+            builder = Response.ok(avatarContent, "image/png");
+          }
         }
       }
     }

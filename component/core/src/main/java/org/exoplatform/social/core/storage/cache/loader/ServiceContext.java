@@ -17,7 +17,6 @@
 
 package org.exoplatform.social.core.storage.cache.loader;
 
-
 /**
  * Kind of closure.
  *

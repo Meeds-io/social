@@ -64,7 +64,7 @@ public class ImageUtilsTest extends TestCase {
     int width = 350;
     int height = 350;
     String letters = "AB";
-    AvatarAttachment avatar = ImageUtils.createDefaultAvatar("50",letters);
+    AvatarAttachment avatar = ImageUtils.createDefaultAvatar("50", letters);
     assertNotNull(avatar);
     assertNotNull(avatar.getImageBytes());
     BufferedImage image = ImageIO.read(new ByteArrayInputStream(avatar.getImageBytes()));

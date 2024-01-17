@@ -62,20 +62,28 @@ import org.exoplatform.social.core.storage.cache.selector.IdentityCacheSelector;
  */
 public class CachedIdentityStorage implements IdentityStorage {
 
-  private static final Log LOG = ExoLogger.getLogger(CachedIdentityStorage.class);
+  private static final Log                                                                                LOG =
+                                                                                                              ExoLogger.getLogger(CachedIdentityStorage.class);
 
-  private final FutureExoCache<IdentityKey, IdentityData, ServiceContext<IdentityData>> identityCache;
-  private final FutureExoCache<IdentityCompositeKey, IdentityKey, ServiceContext<IdentityKey>> identityIndexCache;
-  private final FutureExoCache<IdentityKey, ProfileData, ServiceContext<ProfileData>> profileCache;
-  private final FutureExoCache<IdentityFilterKey, IntegerData, ServiceContext<IntegerData>> identitiesCountCache;
+  private final FutureExoCache<IdentityKey, IdentityData, ServiceContext<IdentityData>>                   identityCache;
+
+  private final FutureExoCache<IdentityCompositeKey, IdentityKey, ServiceContext<IdentityKey>>            identityIndexCache;
+
+  private final FutureExoCache<IdentityKey, ProfileData, ServiceContext<ProfileData>>                     profileCache;
+
+  private final FutureExoCache<IdentityFilterKey, IntegerData, ServiceContext<IntegerData>>               identitiesCountCache;
+
   private final FutureExoCache<ListIdentitiesKey, ListIdentitiesData, ServiceContext<ListIdentitiesData>> identitiesCache;
-  private final FutureExoCache<IdentityKey, Long, ServiceContext<Long>> profileAvatarCache;
 
-  private final IdentityStorage storage;
-  private final SocialStorageCacheService cacheService;
+  private final FutureExoCache<IdentityKey, Long, ServiceContext<Long>>                                   profileAvatarCache;
 
-  private final FileService               fileService;
-  private       CachedRelationshipStorage cachedRelationshipStorage;
+  private final IdentityStorage                                                                           storage;
+
+  private final SocialStorageCacheService                                                                 cacheService;
+
+  private final FileService                                                                               fileService;
+
+  private CachedRelationshipStorage                                                                       cachedRelationshipStorage;
 
   public CachedIdentityStorage(final RDBMSIdentityStorageImpl storage,
                                final SocialStorageCacheService cacheService,
@@ -330,8 +338,7 @@ public class CachedIdentityStorage implements IdentityStorage {
   @Override
   public FileItem getAvatarFile(Identity identity) {
     Long avatarId = profileAvatarCache.get(() -> {
-      FileItem avatarFile = null;
-      avatarFile = storage.getAvatarFile(identity);
+      FileItem avatarFile = storage.getAvatarFile(identity);
       if (avatarFile == null) {
         return null;
       } else {
