@@ -206,7 +206,46 @@ public class PeopleRestServiceTest extends AbstractResourceTest {
 
     // Then
     assertEquals(200, response.getStatus());
-    assertTrue(((ArrayList) response.getEntity()).size() == 2);
+    assertEquals(2, ((ArrayList<?>) response.getEntity()).size());
+
+    response =
+             service("GET",
+                     "/social/people/suggest.json?nameToSearch=m&currentUser=root&typeOfRelation=mention_comment&activityId=" +
+                         demoActivity.getId() + "&spacePrettyName=" + space.getPrettyName(),
+                     "",
+                     h4,
+                     null,
+                     writer);
+
+    // Then
+    assertEquals(200, response.getStatus());
+    assertEquals(2, ((ArrayList<?>) response.getEntity()).size());
+
+    response =
+             service("GET",
+                     "/social/people/suggest.json?nameToSearch=m&currentUser=root&typeOfRelation=mention_comment&activityId=" +
+                         demoActivity.getId() + "&spaceURL=NOT_EXISTING_SPACE",
+                     "",
+                     h4,
+                     null,
+                     writer);
+
+    // Then
+    assertEquals(200, response.getStatus());
+    assertEquals(0, ((ArrayList<?>) response.getEntity()).size());
+
+    response =
+             service("GET",
+                     "/social/people/suggest.json?nameToSearch=m&currentUser=root&typeOfRelation=mention_comment&activityId=" +
+                         demoActivity.getId(),
+                     "",
+                     h4,
+                     null,
+                     writer);
+
+    // Then
+    assertEquals(200, response.getStatus());
+    assertFalse(((ArrayList<?>) response.getEntity()).isEmpty());
 
     spaceService.deleteSpace(space);
     relationshipManager.delete(relationship);
