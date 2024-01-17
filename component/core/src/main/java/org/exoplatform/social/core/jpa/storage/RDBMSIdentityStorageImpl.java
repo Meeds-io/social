@@ -1058,6 +1058,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                 new ByteArrayInputStream(bytes));
             file = fileService.writeFile(file);
             entity.setAvatarFileId(file.getFileInfo().getId());
+            identityDAO.update(entity);
           } catch (Exception e) {
             LOG.error("Error white retrieving file for identity " + identity.getId(), e);
             return null;

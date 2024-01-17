@@ -86,6 +86,10 @@ public class EntityConverterUtils {
     Long avatarLastUpdated = null;
     if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
       avatarLastUpdated = getFileLastUpdated(entity.getAvatarFileId());
+    } else if (identity.isUser() || identity.isSpace()) {
+      // Allow to generate new default avatar file
+      // for user or space
+      avatarLastUpdated = System.currentTimeMillis();
     }
     Long bannerLastUpdated = null;
     if (entity.getBannerFileId() != null && entity.getBannerFileId() > 0) {
