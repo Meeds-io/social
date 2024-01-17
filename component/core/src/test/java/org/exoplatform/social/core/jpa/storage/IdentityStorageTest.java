@@ -17,6 +17,7 @@
 
 package org.exoplatform.social.core.jpa.storage;
 
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.services.organization.*;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -816,6 +817,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     InputStream stream = identityStorage.getAvatarInputStreamById(identity);
     assertNotNull(stream);
+
+    FileItem file = identityStorage.getAvatarFile(identity);
+
+    assertNotNull(file.getFileInfo().getId());
+    assertEquals(file.getFileInfo().getName(), "DEFAULT_AVATAR");
     
     Profile profile = new Profile(identity);
     profile.setProperty(Profile.AVATAR, avatar);

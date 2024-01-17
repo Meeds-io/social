@@ -135,6 +135,7 @@ public class SocialStorageCacheService {
   public ExoCache<IdentityKey, Long> getProfileAvatarCache() {
     return profileAvatarCache;
   }
+
   public ExoCache<RelationshipKey, RelationshipData> getRelationshipCache() {
     return relationshipCache;
   }

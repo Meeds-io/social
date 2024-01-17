@@ -189,18 +189,18 @@ public class ImageUtils {
       graphics.dispose();
 
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    try {
-      ImageIO.write(image, "png", outputStream);
-      newAvatarAttachment = new AvatarAttachment(null,
-                                                 "defaultAvatar",
-                                                 "image/png",
-                                                 new ByteArrayInputStream(outputStream.toByteArray()),
-                                                 System.currentTimeMillis());
-      return newAvatarAttachment;
-    } catch (IOException e) {
-      LOG.error("Fail to create file avatar : " + e);
-      return null;
-    }
+      try {
+        ImageIO.write(image, "png", outputStream);
+        newAvatarAttachment = new AvatarAttachment(null,
+                                                   "defaultAvatar",
+                                                   "image/png",
+                                                   new ByteArrayInputStream(outputStream.toByteArray()),
+                                                   System.currentTimeMillis());
+        return newAvatarAttachment;
+      } catch (IOException e) {
+        LOG.error("Fail to create file avatar : " + e);
+        return null;
+      }
   }
 
   private static BufferedImage resizeImage(BufferedImage image, int width, int height) {
