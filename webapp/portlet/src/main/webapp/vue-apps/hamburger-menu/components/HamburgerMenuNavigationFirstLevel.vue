@@ -61,8 +61,12 @@
         <administration-hamburger-navigation
           v-if="hasAdministrationNavigations && oldAdministrationMenuEnabled"
           :opened-menu="secondLevel === 'administration'" />
-        <user-hamburger-navigation />
       </v-card>
+      <v-bottom-navigation
+        height="50px"
+        grow>
+        <user-hamburger-navigation />
+      </v-bottom-navigation>
     </v-card>
   </component>
 </template>
