@@ -152,7 +152,8 @@ public class PeopleRestService implements ResourceContainer{
                     @QueryParam("currentUser") String currentUser,
                     @QueryParam("typeOfRelation") String typeOfRelation,
                     @QueryParam("activityId") String activityId,
-                    @QueryParam("spaceURL") String spaceURL,
+                    @QueryParam("spaceURL") String spaceUrl,
+                    @QueryParam("spacePrettyName") String spacePrettyName,
                     @PathParam("format") String format) throws Exception {
     String[] mediaTypes = new String[] { "json", "xml" };
     MediaType mediaType = Util.getMediaType(format, mediaTypes);
@@ -163,13 +164,25 @@ public class PeopleRestService implements ResourceContainer{
     identityFilter.setCompany("");
     identityFilter.setPosition("");
     identityFilter.setSkills("");
-    Space currentSpace = getSpaceService().getSpaceByUrl(spaceURL);
+
+    Space currentSpace = getSpaceService().getSpaceByUrl(spaceUrl);
+    if (currentSpace == null && StringUtils.isNotBlank(spacePrettyName)) {
+      currentSpace = getSpaceService().getSpaceByPrettyName(spacePrettyName);
+      if (currentSpace != null) {
+        spaceUrl = currentSpace.getUrl();
+      }
+    }
+
+    IdentityNameList nameList = new IdentityNameList();
+    if (currentSpace == null
+        && (StringUtils.isNotBlank(spacePrettyName) || StringUtils.isNotBlank(spaceUrl))) {
+      return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
+    }
 
     List<Identity> excludedIdentityList = identityFilter.getExcludedIdentityList();
     if (excludedIdentityList == null) {
       excludedIdentityList = new ArrayList<Identity>();
     }
-    IdentityNameList nameList = new IdentityNameList();
     Identity currentIdentity = Util.getViewerIdentity(currentUser);
     identityFilter.setViewerIdentity(currentIdentity);
 
@@ -190,11 +203,8 @@ public class PeopleRestService implements ResourceContainer{
       nameList.addToNameList(request.getLocale(), result);
     } else if (SPACE_MEMBER.equals(typeOfRelation)) {  // Use in search space member
       List<Identity> identities = Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false).load(0, (int)SUGGEST_LIMIT));
-      Space space = getSpaceService().getSpaceByUrl(spaceURL);
-      addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 0, request.getLocale());
+      addSpaceOrUserToList(identities, nameList, currentSpace, typeOfRelation, 0, request.getLocale());
     } else if (USER_TO_INVITE.equals(typeOfRelation)) {
-      Space space = getSpaceService().getSpaceByUrl(spaceURL);
-
       // This is for pre-loading data
       if (name != null && name.contains(",")) {
         String[] items = name.split(",");
@@ -239,7 +249,7 @@ public class PeopleRestService implements ResourceContainer{
         int size = connections.getSize();
         Identity[] identities = connections.load(0, size < SUGGEST_LIMIT ? size : (int)SUGGEST_LIMIT);
         for (Identity id : identities) {
-          addSpaceOrUserToList(Arrays.asList(id), nameList, space, typeOfRelation, 1, request.getLocale());
+          addSpaceOrUserToList(Arrays.asList(id), nameList, currentSpace, typeOfRelation, 1, request.getLocale());
           excludedIdentityList.add(id);
         }
       }
@@ -251,7 +261,7 @@ public class PeopleRestService implements ResourceContainer{
         identityFilter.setExcludedIdentityList(excludedIdentityList);
         ListAccess<Identity> listAccess = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false);
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
-        addSpaceOrUserToList(identities, nameList, space, typeOfRelation, 2, request.getLocale());
+        addSpaceOrUserToList(identities, nameList, currentSpace, typeOfRelation, 2, request.getLocale());
       }
 
       remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
@@ -262,7 +272,7 @@ public class PeopleRestService implements ResourceContainer{
         Space[] spaces = list.load(0, (int) remain);
         for (Space s : spaces) {
           //do not add current space
-          if (s.equals(space)) {
+          if (s.equals(currentSpace)) {
             exclusions.add(s);
             continue;
           }
@@ -415,7 +425,7 @@ public class PeopleRestService implements ResourceContainer{
 
       // first add space members in the suggestion list when mentioning in a space Activity Stream
       if (currentSpace != null) {
-        userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser, request.getLocale());
+        userInfos = addSpaceMembers(spaceUrl, identityFilter, userInfos, currentUser, request.getLocale());
       }
       else {
         // then add connections in the suggestions
@@ -466,8 +476,8 @@ public class PeopleRestService implements ResourceContainer{
       if (currentSpace != null || getActivityManager().getActivity(activityId).getActivityStream().getType().equals(Type.SPACE)) {
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          spaceURL = currentSpace == null ? getActivityManager().getActivity(activityId).getStreamOwner() : spaceURL;
-          userInfos = addSpaceMembers(spaceURL, identityFilter, userInfos, currentUser, request.getLocale());
+          spaceUrl = currentSpace == null ? getActivityManager().getActivity(activityId).getStreamOwner() : spaceUrl;
+          userInfos = addSpaceMembers(spaceUrl, identityFilter, userInfos, currentUser, request.getLocale());
         }
       }
       else {
