@@ -23,6 +23,27 @@
     id="UserHamburgerNavigation"
     class="white full-width">
     <div class="d-flex flex-row">
+      <v-tooltip top>
+      <template #activator="{ on, attrs }">
+        <v-btn
+          :href="productLink"
+          target="_blank"
+          ripple="false"
+          class="px-0"
+          text
+          link
+          small
+          v-bind="attrs"
+          v-on="on">
+          <span class="body-2 text-sub-title">
+            {{ productName }}
+          </span>
+        </v-btn>
+      </template>
+      <span>
+        {{ $t('menu.productName.seeProduct') }}
+      </span>
+    </v-tooltip>
       <v-spacer />
       <div class="settingsTitle">
         <v-list-item :href="settingsUrl" class="settingsTitleWrapper px-0">
@@ -42,6 +63,8 @@ export default {
   data: () => ({
     settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
     logoutUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/?portal:action=Logout&portal:componentId=UIPortal`,
+    productName: eXo.env.portal.productName,
+    productLink: eXo.env.portal.productLink,
   }),
 };
 </script>

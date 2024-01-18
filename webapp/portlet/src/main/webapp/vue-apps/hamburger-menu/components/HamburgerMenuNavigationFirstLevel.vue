@@ -63,8 +63,7 @@
           :opened-menu="secondLevel === 'administration'" />
       </v-card>
       <v-bottom-navigation
-        height="50px"
-        grow>
+        height="50px">
         <user-hamburger-navigation />
       </v-bottom-navigation>
     </v-card>
