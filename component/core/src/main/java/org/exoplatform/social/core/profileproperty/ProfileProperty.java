@@ -42,4 +42,6 @@ public class ProfileProperty {
 
   private boolean multiValued;
 
+  private boolean hiddenable;
+
 }
