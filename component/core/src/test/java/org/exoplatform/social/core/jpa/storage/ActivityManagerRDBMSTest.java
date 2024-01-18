@@ -86,6 +86,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   @Override
   public void setUp() throws Exception {
     super.setUp();
+    restartTransaction();
 
     CachedIdentityStorage identityStorage = (CachedIdentityStorage) getService(IdentityStorage.class);
     ((RDBMSIdentityStorageImpl) identityStorage.getStorage()).setProfileSearchConnector(mockProfileSearch);
@@ -1538,6 +1539,55 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertEquals(0, demoActivityFeed.load(0, 10).length);
   }
 
+  public void testSpaceRoleMention() throws Exception {
+    Space space = this.getSpaceInstance(spaceService, 0);
+    Identity spaceIdentity = this.identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    restartTransaction();
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("hello @member:" + spaceIdentity.getId());
+    activity.setUserId(rootIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+    ExoSocialActivity got = activityManager.getActivity(activity.getId());
+    assertEquals(space.getMembers().length, got.getMentionedIds().length);
+    assertTrue(StringUtils.containsIgnoreCase(got.getTitle(), "member"));
+    assertFalse(StringUtils.containsIgnoreCase(got.getTitle(), "@member"));
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("hello @manager:" + spaceIdentity.getId());
+    activity.setUserId(rootIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+    got = activityManager.getActivity(activity.getId());
+    assertEquals(space.getManagers().length, got.getMentionedIds().length);
+    assertTrue(StringUtils.containsIgnoreCase(got.getTitle(), "manager"));
+    assertFalse(StringUtils.containsIgnoreCase(got.getTitle(), "@manager"));
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("hello @publisher:" + spaceIdentity.getId());
+    activity.setUserId(maryIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+    got = activityManager.getActivity(activity.getId());
+    assertEquals(space.getPublishers().length, got.getMentionedIds().length);
+    assertEquals(demoIdentity.getId(), got.getMentionedIds()[0]);
+    assertTrue(StringUtils.containsIgnoreCase(got.getTitle(), "publisher"));
+    assertFalse(StringUtils.containsIgnoreCase(got.getTitle(), "@publisher"));
+
+    spaceService.addRedactor(space, "john");
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("hello @redactor:" + spaceIdentity.getId());
+    activity.setUserId(rootIdentity.getId());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+    got = activityManager.getActivity(activity.getId());
+    assertEquals(space.getRedactors().length, got.getMentionedIds().length);
+    assertEquals(johnIdentity.getId(), got.getMentionedIds()[0]);
+    assertTrue(StringUtils.containsIgnoreCase(got.getTitle(), "redactor"));
+    assertFalse(StringUtils.containsIgnoreCase(got.getTitle(), "@redactor"));
+  }
+
   public void testLikeCommentActivity() throws Exception {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("hello");
@@ -1689,12 +1739,16 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] { "demo", "john" };
     String[] members = new String[] { "raul", "ghost", "demo", "john" };
+    String[] publishers = new String[] { "demo" };
+    String[] redactors = new String[] { "john" };
     String[] invitedUsers = new String[] { "mary", "paul" };
     String[] pendingUsers = new String[] { "jame" };
     space.setInvitedUsers(invitedUsers);
     space.setPendingUsers(pendingUsers);
     space.setManagers(managers);
     space.setMembers(members);
+    space.setRedactors(redactors);
+    space.setPublishers(publishers);
     spaceService.saveSpace(space, true);
     return space;
   }
