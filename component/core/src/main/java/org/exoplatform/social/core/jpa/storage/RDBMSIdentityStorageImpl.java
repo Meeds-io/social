@@ -292,6 +292,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         Object val = profileProperty.getValue();
         if ((Profile.FIRST_NAME.equalsIgnoreCase(profileProperty.getKey())
             || Profile.LAST_NAME.equalsIgnoreCase(profileProperty.getKey()))
+            && profileProperty.getValue() != null
             && !profileProperty.getValue().equals(entityProperties.get(profileProperty.getKey()))
             && identityEntity.getAvatarFileId() != null) {
           FileItem file = getRDBMSCachedIdentityStorage().getAvatarFile(profile.getIdentity());
