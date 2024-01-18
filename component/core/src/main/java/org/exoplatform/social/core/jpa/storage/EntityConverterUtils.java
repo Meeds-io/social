@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.file.model.FileItem;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,6 +87,8 @@ public class EntityConverterUtils {
     Long avatarLastUpdated = null;
     if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
       avatarLastUpdated = getFileLastUpdated(entity.getAvatarFileId());
+      p.setDefaultAvatar(isDefaultAvatar(entity.getAvatarFileId()));
+
     } else if (identity.isUser() || identity.isSpace()) {
       // Allow to generate new default avatar file
       // for user or space
@@ -323,6 +326,20 @@ public class EntityConverterUtils {
       FileInfo fileInfo = fileService.getFileInfo(fileId);
       if (fileInfo != null && fileInfo.getUpdatedDate() != null) {
         return fileInfo.getUpdatedDate().getTime();
+      }
+      return null;
+    } else {
+      LOG.warn("File service is null");
+      return null;
+    }
+  }
+
+  private static Boolean isDefaultAvatar(Long fileId) {
+    FileService fileService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(FileService.class);
+    if (fileService != null) {
+      FileInfo fileInfo = fileService.getFileInfo(fileId);
+      if (fileInfo != null) {
+        return fileInfo.getName().equals("DEFAULT_AVATAR");
       }
       return null;
     } else {

@@ -471,6 +471,7 @@ public class LinkProvider {
     }
 
     if (lastModifiedDate == null || lastModifiedDate <= 0 || lastModifiedDate == DEFAULT_IMAGES_LAST_MODIFED) {
+      id = DEFAULT_IMAGE_REMOTE_ID;
       lastModifiedDate = DEFAULT_IMAGES_LAST_MODIFED;
     }
 

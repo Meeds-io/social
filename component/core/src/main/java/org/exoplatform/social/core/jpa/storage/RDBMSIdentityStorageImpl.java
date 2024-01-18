@@ -480,6 +480,16 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       return null;
     } else {
       profile.setId(String.valueOf(entity.getId()));
+      if(entity.getAvatarFileId() != null  && entity.getAvatarFileId() > 0) {
+        try {
+          FileItem fileItem = fileService.getFile(entity.getAvatarFileId());
+          if (fileItem != null) {
+            profile.setDefaultAvatar(fileItem.getFileInfo().getName().equals(DEFAULT_AVATAR));
+          }
+        } catch (FileStorageException e) {
+          throw new RuntimeException(e);
+        }
+      }
       EntityConverterUtils.mapToProfile(entity, profile);
       profile.clearHasChanged();
       return profile;
@@ -1038,9 +1048,11 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     FileItem file = null;
     IdentityEntity entity = identityDAO.findByProviderAndRemoteId(identity.getProviderId(), identity.getRemoteId());
     if (entity != null) {
+      Profile profile = new Profile(identity);
       if (entity.getAvatarFileId() != null) {
         try {
           file = fileService.getFile(entity.getAvatarFileId());
+          profile.setDefaultAvatar(file.getFileInfo().getName().equals(DEFAULT_AVATAR));
         } catch (FileStorageException e) {
           return null;
         }
@@ -1061,6 +1073,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                 new ByteArrayInputStream(bytes));
             file = fileService.writeFile(file);
             entity.setAvatarFileId(file.getFileInfo().getId());
+            profile.setDefaultAvatar(true);
             identityDAO.update(entity);
           } catch (Exception e) {
             LOG.error("Error white retrieving file for identity " + identity.getId(), e);
@@ -1145,15 +1158,6 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     return activityStorage;
   }
 
-  private String getNameAbbreviation(String name) {
-    String result = name.replaceAll("\\B.|\\P{L}", "").toUpperCase();
-    if (result.length() > 2) {
-      return result.substring(0, 2);
-    } else {
-      return result;
-    }
-  }
-
   /**
    * Get the identity from cache implementation of IdentityStorage instead of DB
    * The solution is not ideal since we refer to the cached version directly in the
@@ -1205,5 +1209,14 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   @Override
   public void setImageUploadLimit(int imageUploadLimit) {
     this.imageUploadLimit = imageUploadLimit;
+  }
+
+  private String getNameAbbreviation(String name) {
+    String result = name.replaceAll("\\B.|\\P{L}", "").toUpperCase();
+    if (result.length() > 2) {
+      return result.substring(0, 2);
+    } else {
+      return result;
+    }
   }
 }

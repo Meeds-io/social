@@ -36,9 +36,11 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String TIME_ZONE_DST    = "timeZoneDSTSavings";
 
-  public static final String BANNER           = "banner";
+  public static final String BANNER            = "banner";
 
-  public static final String AVATAR           = "avatar";
+  public static final String AVATAR            = "avatar";
+
+  public static final String DEFAULT_AVATAR    = "isdefaultAvatar";
 
   public static final String POSITION         = "position";
 
@@ -326,6 +328,15 @@ public class ProfileEntity extends BaseEntity {
 
   public ProfileEntity setAvatar(String avatar) {
     setProperty(AVATAR, avatar);
+    return this;
+  }
+
+  public String getDefaultAvatar() {
+    return getString(DEFAULT_AVATAR);
+  }
+
+  public ProfileEntity setDefaultAvatar(Boolean defaultAvatar) {
+    setProperty(DEFAULT_AVATAR, defaultAvatar);
     return this;
   }
 

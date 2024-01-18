@@ -41,7 +41,8 @@ public class ImageUtils {
   private static final int   DEFAULT_AVATAR_WIDTH    = 350;
 
   private static final int   DEFAULT_AVATAR_HEIGHT   = 350;
-  private static final Log LOG = ExoLogger.getLogger(ImageUtils.class);
+
+  private static final Log   LOG                     = ExoLogger.getLogger(ImageUtils.class);
 
   /**
    * @param str Make string params not null
@@ -192,7 +193,7 @@ public class ImageUtils {
       try {
         ImageIO.write(image, "png", outputStream);
         newAvatarAttachment = new AvatarAttachment(null,
-                                                   "defaultAvatar",
+                                                   "DEFAULT_AVATAR",
                                                    "image/png",
                                                    new ByteArrayInputStream(outputStream.toByteArray()),
                                                    System.currentTimeMillis());
