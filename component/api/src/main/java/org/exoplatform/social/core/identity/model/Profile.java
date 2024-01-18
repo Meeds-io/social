@@ -752,7 +752,7 @@ public class Profile {
   }
 
   /**
-   * Sets the value of the property <code>isDefaultAvatar<code>.
+   * Sets the value of the property isDefaultAvatar.
    *
    * @param defaultAvatar the new defaultAvatar
    */
