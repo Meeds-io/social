@@ -334,17 +334,17 @@ public class EntityConverterUtils {
     }
   }
 
-  private static Boolean isDefaultAvatar(Long fileId) {
+  private static boolean isDefaultAvatar(Long fileId) {
     FileService fileService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(FileService.class);
     if (fileService != null) {
       FileInfo fileInfo = fileService.getFileInfo(fileId);
       if (fileInfo != null) {
         return fileInfo.getName().equals("DEFAULT_AVATAR");
       }
-      return null;
+      return false;
     } else {
       LOG.warn("File service is null");
-      return null;
+      return false;
     }
   }
 
