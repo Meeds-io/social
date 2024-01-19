@@ -38,6 +38,8 @@ public enum CacheType {
   PROFILE("social.ProfileCache"),
   IDENTITIES_COUNT("social.IdentitiesCountCache"),
   IDENTITIES("social.IdentitiesCache"),
+  PROFILE_AVATAR("social.ProfileAvatar"),
+
 
   //
   RELATIONSHIP("social.RelationshipCache"),

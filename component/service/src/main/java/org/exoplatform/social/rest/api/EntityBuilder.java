@@ -317,6 +317,7 @@ public class EntityBuilder {
     userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
+    userEntity.setDefaultAvatar(profile.isDefaultAvatar());
     if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
       userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
