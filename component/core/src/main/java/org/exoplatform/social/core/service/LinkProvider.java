@@ -199,6 +199,9 @@ public class LinkProvider {
                .append("external: '")
                .append(identity.getProfile().getProperty(Profile.EXTERNAL) != null && StringUtils.equals("true", String.valueOf(identity.getProfile().getProperty(Profile.EXTERNAL))))
                .append("',")
+               .append("enabled: '")
+               .append(identity.isEnable() && !identity.isDeleted())
+               .append("',")
                .append("}\"")
                .append(">")
                .append(StringEscapeUtils.escapeHtml4(identity.getProfile().getFullName()));

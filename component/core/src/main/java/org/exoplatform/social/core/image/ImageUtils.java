@@ -179,7 +179,7 @@ public class ImageUtils {
     graphics.fillRect(0, 0, DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT);
     graphics.setColor(Color.WHITE);
 
-    graphics.setFont(new Font("Arial", Font.BOLD, 85));
+    graphics.setFont(new Font("Arial", Font.BOLD, 100));
     FontMetrics fm = graphics.getFontMetrics();
 
     int x = (DEFAULT_AVATAR_WIDTH - fm.stringWidth(fullNameAbbreviation)) / 2;

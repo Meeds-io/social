@@ -180,11 +180,13 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
         + "v-identity-popover=\"{id: '" + rootIdentity.getId() + "',username: '" + rootIdentity.getRemoteId() + "',fullName: '"
         + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl() + "',position: '"
         + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '" + (rootExternal == null ? "false" : rootExternal)
+        + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
         + "',}\" rel=\"nofollow\" target=\"_self\">Root Root</a> " +
         "<a class=\"user-suggester\" href=\"" + currentDomain + "/portal/classic/profile/john\" "
         + "v-identity-popover=\"{id: '" + johnIdentity.getId() + "',username: '" + johnIdentity.getRemoteId() + "',fullName: '"
         + johnIdentity.getProfile().getFullName() + "',avatar: '" + johnIdentity.getProfile().getAvatarUrl() + "',position: '"
         + StringUtils.trimToEmpty(johnIdentity.getProfile().getPosition()) + "',external: '" + (johnExternal == null ? "false" : johnExternal)
+        + "',enabled: '" + (johnIdentity.isEnable() && !johnIdentity.isDeleted())
         + "',}\" rel=\"nofollow\" target=\"_self\">John Anthony</a>";
     activity.setTitle("test @root @john");
     activityStorage.updateActivity(activity);
