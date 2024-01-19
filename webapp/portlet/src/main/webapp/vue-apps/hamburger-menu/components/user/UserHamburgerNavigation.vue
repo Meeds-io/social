@@ -24,36 +24,60 @@
     class="white full-width">
     <div class="d-flex flex-row">
       <v-tooltip top>
-      <template #activator="{ on, attrs }">
-        <v-btn
-          :href="productLink"
-          target="_blank"
-          ripple="false"
-          class="px-0"
-          text
-          link
-          small
-          v-bind="attrs"
-          v-on="on">
-          <span class="body-2 text-sub-title">
+        <template #activator="{ on, attrs }">
+          <a
+            :href="productLink"
+            target="_blank"
+            class="body-2 text-sub-title my-auto ms-3"
+            v-bind="attrs"
+            v-on="on">
             {{ productName }}
-          </span>
-        </v-btn>
-      </template>
-      <span>
-        {{ $t('menu.productName.seeProduct') }}
-      </span>
-    </v-tooltip>
+          </a>
+        </template>
+        <span>
+          {{ $t('menu.productName.seeProduct') }}
+        </span>
+      </v-tooltip>
       <v-spacer />
       <div class="settingsTitle">
-        <v-list-item :href="settingsUrl" class="settingsTitleWrapper px-0">
-          <v-list-item-icon class="my-auto"><i class="uiIcon uiIconToolbarNavItem settingsIcon"></i></v-list-item-icon>
-        </v-list-item>
+        <v-tooltip top>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              :href="settingsUrl"
+              height="50px"
+              min-width="40px"
+              class="px-0"
+              v-bind="attrs"
+              v-on="on">
+              <v-icon size="22">
+                fa-sliders-h
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>
+            {{ $t('menu.settings') }}
+          </span>
+        </v-tooltip>
       </div>
       <div class="logoutLinks">
-        <v-list-item :href="logoutUrl" class="px-0">
-          <v-list-item-icon class="my-auto"><i class="uiIcon uiIconToolbarNavItem logoutIcon"></i></v-list-item-icon>
-        </v-list-item>
+        <v-tooltip top>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              :href="logoutUrl"
+              height="50px"
+              min-width="40px"
+              class="pe-1 ps-0"
+              v-bind="attrs"
+              v-on="on">
+              <v-icon size="22">
+                fa-power-off
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>
+            {{ $t('menu.logout') }}
+          </span>
+        </v-tooltip>
       </div>
     </div>
   </div>
