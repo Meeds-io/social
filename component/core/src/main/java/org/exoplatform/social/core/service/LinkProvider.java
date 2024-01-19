@@ -200,7 +200,7 @@ public class LinkProvider {
                .append(identity.getProfile().getProperty(Profile.EXTERNAL) != null && StringUtils.equals("true", String.valueOf(identity.getProfile().getProperty(Profile.EXTERNAL))))
                .append("',")
                .append("enabled: '")
-               .append(identity.isEnable() && !identity.isDeleted() && StringUtils.equals("true", String.valueOf(identity.isEnable())))
+               .append(identity.isEnable() && !identity.isDeleted())
                .append("',")
                .append("}\"")
                .append(">")
