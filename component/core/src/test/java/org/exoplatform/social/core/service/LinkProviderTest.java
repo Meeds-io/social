@@ -46,6 +46,7 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
         + rootIdentity.getProfile().getFullName() + "',avatar: '" + rootIdentity.getProfile().getAvatarUrl() + "',position: '"
         + StringUtils.trimToEmpty(rootIdentity.getProfile().getPosition()) + "',external: '"
         + (external == null ? "false" : external)
+        + "',enabled: '" + (rootIdentity.isEnable() && !rootIdentity.isDeleted())
         + "',}\">" + rootFullName + "</a>";
     assertEquals(expected, actualLink);
   }
