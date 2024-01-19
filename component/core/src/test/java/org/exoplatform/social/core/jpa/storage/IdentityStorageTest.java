@@ -812,43 +812,19 @@ public class IdentityStorageTest extends AbstractCoreTest {
     identityStorage.saveIdentity(identity);
     tearDownIdentityList.add(identity);
 
-    // within this instruction the profile is created implicitly and it does not have an avatar
+    // within this instruction the profile is created implicitly and it does have a default avatar
     String identityId = identity.getId();
     assertNotNull(identityId);
-
-    AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(), "AB");
-
     InputStream stream = identityStorage.getAvatarInputStreamById(identity);
     assertNotNull(stream);
 
     FileItem avatarFile = identityStorage.getAvatarFile(identity);
+    assertNotNull(avatarFile);
+
+    assertNotNull(avatarFile.getFileInfo().getId());
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
 
     Profile profile = new Profile(identity);
-    profile.setProperty(Profile.AVATAR, avatar);
-    identityStorage.saveIdentity(identity);
-    identityStorage.saveProfile(profile);
-
-    Long avatarFileId = avatarFile.getFileInfo().getId();
-
-    assertNotNull(avatarFile.getFileInfo().getId());
-    assertEquals(avatarFile.getFileInfo().getName(), "DEFAULT_AVATAR");
-    assertNotNull(identity.getProfile().getAvatarLastUpdated());
-    assertTrue(identity.getProfile().isDefaultAvatar());
-
-    profile.setProperty(Profile.FIRST_NAME, "alice");
-    identityStorage.saveIdentity(identity);
-    identityStorage.saveProfile(profile);
-    restartTransaction();
-    sleep(10);
-
-    profile = identityStorage.loadProfile(profile);
-
-    avatarFile = identityStorage.getAvatarFile(identity);
-    Long avatarFileId1 = avatarFile.getFileInfo().getId();
-    assertNotNull(avatarFile.getFileInfo().getId());
-    assertNotSame(avatarFileId, avatarFileId1);
-
-    profile = new Profile(identity);
     profile.setProperty(Profile.AVATAR, avatarAttachment);
     identityStorage.updateIdentity(identity);
     identityStorage.saveProfile(profile);
@@ -856,7 +832,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     // we load the profile to check if the avatar is well attached to it, as well as @Profile.avatarLastUpdated value
     Long avatarLastUpdated = profile.getAvatarLastUpdated();
     assertNotNull(avatarLastUpdated);
-    assertFalse(identity.getProfile().isDefaultAvatar());
+    assertFalse(profile.isDefaultAvatar());
 
     restartTransaction();
     //Wait a bit before updating the avatar to make sure the avatarLastUpdated is changed
@@ -926,6 +902,59 @@ public class IdentityStorageTest extends AbstractCoreTest {
     tearDownIdentityList.add(identity);
     stream = identityStorage.getAvatarInputStreamById(identity);
     assertNotNull(stream);
+  }
+
+  public void testIdentityDefaultAvatar() throws Exception {
+    String userName = "userIdentity2";
+    Identity identity = populateIdentity(userName);
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
+
+    String identityId = identity.getId();
+    assertNotNull(identityId);
+
+    InputStream stream = identityStorage.getAvatarInputStreamById(identity);
+    assertNotNull(stream);
+
+    FileItem avatarFile = identityStorage.getAvatarFile(identity);
+    assertNotNull(avatarFile);
+    assertNotNull(avatarFile.getFileInfo().getId());
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+    assertTrue(identity.getProfile().isDefaultAvatar());
+  }
+
+  public void testIdentityDefaultAvatarWhenRenameUserFirstName() throws Exception {
+
+    String userName = "userIdentity2";
+    Identity identity = populateIdentity(userName);
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
+
+    String identityId = identity.getId();
+    assertNotNull(identityId);
+
+    InputStream stream = identityStorage.getAvatarInputStreamById(identity);
+    assertNotNull(stream);
+
+    FileItem avatarFile = identityStorage.getAvatarFile(identity);
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+    assertTrue(identity.getProfile().isDefaultAvatar());
+
+    Long avatarFileId = avatarFile.getFileInfo().getId();
+    assertNotNull(avatarFileId);
+
+    Profile profile = identity.getProfile();
+    profile.setProperty(Profile.FIRST_NAME, "alice");
+    identityStorage.saveProfile(profile);
+    restartTransaction();
+
+    avatarFile = identityStorage.getAvatarFile(identity);
+    assertNotNull(avatarFile);
+
+    Long avatarFileId1 = avatarFile.getFileInfo().getId();
+    assertNotNull(avatarFileId1);
+
+    assertNotSame(avatarFileId, avatarFileId1);
   }
 
   public void testGetBannerInputStreamById() throws Exception {

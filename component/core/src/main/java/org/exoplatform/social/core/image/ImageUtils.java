@@ -154,54 +154,54 @@ public class ImageUtils {
     }
   }
 
-  public static AvatarAttachment createDefaultAvatar( String identityId, String fullNameAbbreviation) {
+  public static AvatarAttachment createDefaultAvatar(String identityId, String fullNameAbbreviation) {
     AvatarAttachment newAvatarAttachment = null;
 
-    java.util.List<Color> colorList = List.of(new Color(239, 83, 80),
-                                              new Color(25, 118, 210),
-                                              new Color(171, 71, 188),
-                                              new Color(0, 137, 123),
-                                              new Color(158, 157, 36),
-                                              new Color(251, 192, 45),
-                                              new Color(0, 191, 165),
-                                              new Color(117, 117, 117),
-                                              new Color(244, 67, 54),
-                                              new Color(33, 150, 243),
-                                              new Color(124, 179, 66),
-                                              new Color(48, 63, 159),
-                                              new Color(69, 39, 160),
-                                              new Color(141, 110, 99),
-                                              new Color(255, 111, 0));
-      BufferedImage image = new BufferedImage(DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT, BufferedImage.TYPE_INT_RGB);
+    List<Color> colorList = List.of(new Color(239, 83, 80),
+                                    new Color(25, 118, 210),
+                                    new Color(171, 71, 188),
+                                    new Color(0, 137, 123),
+                                    new Color(158, 157, 36),
+                                    new Color(251, 192, 45),
+                                    new Color(0, 191, 165),
+                                    new Color(117, 117, 117),
+                                    new Color(244, 67, 54),
+                                    new Color(33, 150, 243),
+                                    new Color(124, 179, 66),
+                                    new Color(48, 63, 159),
+                                    new Color(69, 39, 160),
+                                    new Color(141, 110, 99),
+                                    new Color(255, 111, 0));
+    BufferedImage image = new BufferedImage(DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT, BufferedImage.TYPE_INT_RGB);
 
-      Graphics2D graphics = image.createGraphics();
-      graphics.setColor(colorList.get(Integer.parseInt(identityId) % colorList.size()));
-      graphics.fillRect(0, 0, DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT);
-      graphics.setColor(Color.WHITE);
+    Graphics2D graphics = image.createGraphics();
+    graphics.setColor(colorList.get(Integer.parseInt(identityId) % colorList.size()));
+    graphics.fillRect(0, 0, DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT);
+    graphics.setColor(Color.WHITE);
 
-      graphics.setFont(new Font("Arial", Font.BOLD, 85));
-      FontMetrics fm = graphics.getFontMetrics();
+    graphics.setFont(new Font("Arial", Font.BOLD, 85));
+    FontMetrics fm = graphics.getFontMetrics();
 
-      int x = (DEFAULT_AVATAR_WIDTH - fm.stringWidth(fullNameAbbreviation)) / 2;
-      int y = (fm.getAscent() + (DEFAULT_AVATAR_HEIGHT - (fm.getAscent() + fm.getDescent())) / 2);
+    int x = (DEFAULT_AVATAR_WIDTH - fm.stringWidth(fullNameAbbreviation)) / 2;
+    int y = (fm.getAscent() + (DEFAULT_AVATAR_HEIGHT - (fm.getAscent() + fm.getDescent())) / 2);
 
-      graphics.drawString(fullNameAbbreviation, x, y);
-      graphics.drawImage(image, 0, 0, DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT, null);
-      graphics.dispose();
+    graphics.drawString(fullNameAbbreviation, x, y);
+    graphics.drawImage(image, 0, 0, DEFAULT_AVATAR_WIDTH, DEFAULT_AVATAR_HEIGHT, null);
+    graphics.dispose();
 
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      try {
-        ImageIO.write(image, "png", outputStream);
-        newAvatarAttachment = new AvatarAttachment(null,
-                                                   "DEFAULT_AVATAR",
-                                                   "image/png",
-                                                   new ByteArrayInputStream(outputStream.toByteArray()),
-                                                   System.currentTimeMillis());
-        return newAvatarAttachment;
-      } catch (IOException e) {
-        LOG.error("Fail to create file avatar : " + e);
-        return null;
-      }
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try {
+      ImageIO.write(image, "png", outputStream);
+      newAvatarAttachment = new AvatarAttachment(null,
+                                                 "DEFAULT_AVATAR",
+                                                 "image/png",
+                                                 new ByteArrayInputStream(outputStream.toByteArray()),
+                                                 System.currentTimeMillis());
+      return newAvatarAttachment;
+    } catch (IOException e) {
+      LOG.error("Fail to create file avatar : " + e);
+      return null;
+    }
   }
 
   private static BufferedImage resizeImage(BufferedImage image, int width, int height) {

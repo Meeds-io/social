@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.image.ImageUtils;
 import org.json.JSONArray;
@@ -95,7 +96,6 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   private static final int                 BATCH_SIZE            = 100;
 
-  private static final String              DEFAULT_AVATAR        = "DEFAULT_AVATAR";
   private static final long                MEGABYTE              = 1024L * 1024L;
 
   private static final String              socialNameSpace       = "social";
@@ -296,7 +296,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
             && !profileProperty.getValue().equals(entityProperties.get(profileProperty.getKey()))
             && identityEntity.getAvatarFileId() != null) {
           FileItem file = getRDBMSCachedIdentityStorage().getAvatarFile(profile.getIdentity());
-          if (file != null && file.getFileInfo().getName().equals(DEFAULT_AVATAR)) {
+          if (file != null && EntityConverterUtils.DEFAULT_AVATAR.equals(file.getFileInfo().getName())) {
             fileService.deleteFile(file.getFileInfo().getId());
             identityEntity.setAvatarFileId(null);
           }
@@ -484,7 +484,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         try {
           FileItem fileItem = fileService.getFile(entity.getAvatarFileId());
           if (fileItem != null) {
-            profile.setDefaultAvatar(fileItem.getFileInfo().getName().equals(DEFAULT_AVATAR));
+            profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(fileItem.getFileInfo().getName()));
           }
         } catch (FileStorageException e) {
           throw new RuntimeException(e);
@@ -1044,18 +1044,15 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   @Override
+  @SneakyThrows
   public FileItem getAvatarFile(Identity identity) {
     FileItem file = null;
     IdentityEntity entity = identityDAO.findByProviderAndRemoteId(identity.getProviderId(), identity.getRemoteId());
     if (entity != null) {
-      Profile profile = new Profile(identity);
+      Profile profile = identity.getProfile();
       if (entity.getAvatarFileId() != null) {
-        try {
-          file = fileService.getFile(entity.getAvatarFileId());
-          profile.setDefaultAvatar(file.getFileInfo().getName().equals(DEFAULT_AVATAR));
-        } catch (FileStorageException e) {
-          return null;
-        }
+        file = fileService.getFile(entity.getAvatarFileId());
+        profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(file.getFileInfo().getName()));
       } else if (identity.isUser() || identity.isSpace()) {
         String fullNameAbbreviation = getNameAbbreviation(identity.getProfile().getFullName());
         AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(), fullNameAbbreviation);
@@ -1063,7 +1060,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
           byte[] bytes = avatar.getImageBytes();
           try {
             file = new FileItem(null,
-                                DEFAULT_AVATAR,
+                                EntityConverterUtils.DEFAULT_AVATAR,
                                 avatar.getMimeType(),
                                 socialNameSpace,
                                 bytes.length,

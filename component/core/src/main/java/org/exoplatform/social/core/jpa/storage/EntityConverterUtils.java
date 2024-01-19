@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.file.model.FileItem;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,9 +43,11 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
 public class EntityConverterUtils {
-  
-  private static final Log LOG = ExoLogger.getLogger(EntityConverterUtils.class);
-  
+
+  public static final String DEFAULT_AVATAR = "DEFAULT_AVATAR";
+
+  private static final Log    LOG            = ExoLogger.getLogger(EntityConverterUtils.class);
+
   public static Identity convertToIdentity(IdentityEntity entity) {
     return convertToIdentity(entity, true);
   }
@@ -338,13 +339,9 @@ public class EntityConverterUtils {
     FileService fileService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(FileService.class);
     if (fileService != null) {
       FileInfo fileInfo = fileService.getFileInfo(fileId);
-      if (fileInfo != null) {
-        return fileInfo.getName().equals("DEFAULT_AVATAR");
-      }
-      return false;
+      return fileInfo != null && DEFAULT_AVATAR.equals(fileInfo.getName());
     } else {
-      LOG.warn("File service is null");
-      return false;
+      throw new NullPointerException();
     }
   }
 
