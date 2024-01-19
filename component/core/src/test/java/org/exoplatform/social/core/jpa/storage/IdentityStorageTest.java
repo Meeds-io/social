@@ -801,45 +801,66 @@ public class IdentityStorageTest extends AbstractCoreTest {
   }
 
   public void testGetAvatarInputStreamById() throws Exception {
+    InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
+    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
+
     /*
       test on identity with @OrganizationIdentityProvider.NAME as providerId.
      */
     String userName = "userIdentity2";
     Identity identity = populateIdentity(userName);
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
 
     // within this instruction the profile is created implicitly and it does not have an avatar
     String identityId = identity.getId();
     assertNotNull(identityId);
 
-    AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(),"AB");
+    AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(), "AB");
 
     InputStream stream = identityStorage.getAvatarInputStreamById(identity);
     assertNotNull(stream);
 
-
-    FileItem file = identityStorage.getAvatarFile(identity);
-
-    assertNotNull(file.getFileInfo().getId());
-    assertEquals(file.getFileInfo().getName(), "DEFAULT_AVATAR");
+    FileItem avatarFile = identityStorage.getAvatarFile(identity);
 
     Profile profile = new Profile(identity);
     profile.setProperty(Profile.AVATAR, avatar);
-    identityStorage.saveProfile(profile);
-    identity.setProfile(profile);
     identityStorage.saveIdentity(identity);
-    tearDownIdentityList.add(identity);
+    identityStorage.saveProfile(profile);
 
-    // we load the profile to check if the avatar is well attached to it, as well as @Profile.avatarLastUpdated value
-    Long avatarLastUpdated = identity.getProfile().getAvatarLastUpdated();
-    assertNotNull(avatarLastUpdated);
+    Long avatarFileId = avatarFile.getFileInfo().getId();
+
+    assertNotNull(avatarFile.getFileInfo().getId());
+    assertEquals(avatarFile.getFileInfo().getName(), "DEFAULT_AVATAR");
+    assertNotNull(identity.getProfile().getAvatarLastUpdated());
     assertTrue(identity.getProfile().isDefaultAvatar());
+
+    profile.setProperty(Profile.FIRST_NAME, "alice");
+    identityStorage.saveIdentity(identity);
+    identityStorage.saveProfile(profile);
+    restartTransaction();
+    sleep(10);
+
+    profile = identityStorage.loadProfile(profile);
+
+    avatarFile = identityStorage.getAvatarFile(identity);
+    Long avatarFileId1 = avatarFile.getFileInfo().getId();
+    assertNotNull(avatarFile.getFileInfo().getId());
+    assertNotSame(avatarFileId, avatarFileId1);
+
+    profile = new Profile(identity);
+    profile.setProperty(Profile.AVATAR, avatarAttachment);
+    identityStorage.updateIdentity(identity);
+    identityStorage.saveProfile(profile);
+    profile = identityStorage.loadProfile(profile);
+    // we load the profile to check if the avatar is well attached to it, as well as @Profile.avatarLastUpdated value
+    Long avatarLastUpdated = profile.getAvatarLastUpdated();
+    assertNotNull(avatarLastUpdated);
+    assertFalse(identity.getProfile().isDefaultAvatar());
 
     restartTransaction();
     //Wait a bit before updating the avatar to make sure the avatarLastUpdated is changed
     sleep(10);
-
-    InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
-    AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
 
     // we re-attach the the avatar to the profile to be sure that @Profile.avatarLastUpdated value is updated
     profile.setProperty(Profile.AVATAR, avatarAttachment);
@@ -850,7 +871,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
     profile = identityStorage.loadProfile(profile);
     Long avatarLastUpdated1 = profile.getAvatarLastUpdated();
     assertNotNull(avatarLastUpdated1);
-    assertFalse(profile.isDefaultAvatar());
     assertTrue(avatarLastUpdated1 > avatarLastUpdated);
 
     stream = identityStorage.getAvatarInputStreamById(identity);
@@ -869,18 +889,18 @@ public class IdentityStorageTest extends AbstractCoreTest {
 
     assertNotNull(identity.getId());
     assertNotNull(identity.getRemoteId());
-
     stream = identityStorage.getAvatarInputStreamById(identity);
+    // the space does not have an avatar
     assertNotNull(stream);
     // we set the avatar to the space
-    space.setAvatarAttachment(avatar);
+    space.setAvatarAttachment(avatarAttachment);
     spaceStorage.saveSpace(space, false);
     space = spaceStorage.getSpaceByPrettyName(remoteId);
     
     identity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
     profile = new Profile(identity);
     // we set the avatar to the corresponding space profile
-    profile.setProperty(Profile.AVATAR, avatar);
+    profile.setProperty(Profile.AVATAR, avatarAttachment);
     identityStorage.saveIdentity(identity);
     identityStorage.saveProfile(profile);
     restartTransaction();
@@ -894,7 +914,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     //Wait a bit before updating the avatar to make sure the avatarLastUpdated is changed
     sleep(10);
 
-    profile.setProperty(Profile.AVATAR, avatar);
+    profile.setProperty(Profile.AVATAR, avatarAttachment);
     identityStorage.updateProfile(profile);
     profile = identityStorage.loadProfile(profile);
     avatarLastUpdated1 = profile.getAvatarLastUpdated();
