@@ -284,6 +284,8 @@ public class Profile {
   /** The last updated time of avatar ( in millisecond) */
   private Long                 bannerLastUpdated;
 
+  private boolean              isDefaultAvatar;
+
   public Profile() {
   }
 
@@ -738,6 +740,24 @@ public class Profile {
    */
   public void setAvatarLastUpdated(Long avatarLastUpdated) {
     this.avatarLastUpdated = avatarLastUpdated;
+  }
+
+  /**
+   * Indicates wif the profile avatar is default or not.
+   *
+   * @return <code>true</code> if it is default, <code>false</code> otherwise.
+   */
+  public boolean isDefaultAvatar() {
+    return isDefaultAvatar;
+  }
+
+  /**
+   * Sets the value of the property isDefaultAvatar.
+   *
+   * @param defaultAvatar the new defaultAvatar
+   */
+  public void setDefaultAvatar(boolean defaultAvatar) {
+    this.isDefaultAvatar = defaultAvatar;
   }
 
   public Long getBannerLastUpdated() {
