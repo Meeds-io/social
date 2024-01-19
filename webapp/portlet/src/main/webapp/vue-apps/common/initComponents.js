@@ -26,6 +26,9 @@ import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
 import AttachmentsDraggableZone from './components/AttachmentsDraggableZone.vue';
 import WidgetWrapper from './components/Widget.vue';
+import HelpDrawer from './components/HelpDrawer.vue';
+import HelpLabel from './components/HelpLabel.vue';
+import HelpTooltip from './components/HelpTooltip.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -62,6 +65,9 @@ const components = {
   'ripple-hover-button': RippleHoverButton,
   'attachments-draggable-zone': AttachmentsDraggableZone,
   'widget-wrapper': WidgetWrapper,
+  'help-drawer': HelpDrawer,
+  'help-label': HelpLabel,
+  'help-tooltip': HelpTooltip,
 };
 
 for (const key in components) {
