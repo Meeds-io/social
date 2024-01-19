@@ -17,6 +17,7 @@
 
 package org.exoplatform.social.core.storage.cache;
 
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.social.core.storage.cache.model.data.ActivityData;
@@ -59,6 +60,7 @@ public class SocialStorageCacheService {
   private final ExoCache<IdentityKey, ProfileData> profileCache;
   private final ExoCache<IdentityFilterKey, IntegerData> countIdentitiesCache;
   private final ExoCache<ListIdentitiesKey, ListIdentitiesData> identitiesCache;
+  private final ExoCache<IdentityKey, Long>  profileAvatarCache;
 
   // RelationshipStorage
   private final ExoCache<RelationshipKey, RelationshipData> relationshipCache;
@@ -89,6 +91,7 @@ public class SocialStorageCacheService {
     this.profileCache = CacheType.PROFILE.getFromService(cacheService);
     this.countIdentitiesCache = CacheType.IDENTITIES_COUNT.getFromService(cacheService);
     this.identitiesCache = CacheType.IDENTITIES.getFromService(cacheService);
+    this.profileAvatarCache = CacheType.PROFILE_AVATAR.getFromService(cacheService);
 
     this.relationshipCache = CacheType.RELATIONSHIP.getFromService(cacheService);
     this.relationshipCacheByIdentity = CacheType.RELATIONSHIP_FROM_IDENTITY.getFromService(cacheService);
@@ -128,6 +131,9 @@ public class SocialStorageCacheService {
 
   public ExoCache<ListIdentitiesKey, ListIdentitiesData> getIdentitiesCache() {
     return identitiesCache;
+  }
+  public ExoCache<IdentityKey, Long> getProfileAvatarCache() {
+    return profileAvatarCache;
   }
 
   public ExoCache<RelationshipKey, RelationshipData> getRelationshipCache() {
