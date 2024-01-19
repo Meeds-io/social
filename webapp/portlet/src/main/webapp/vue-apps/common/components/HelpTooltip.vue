@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@
 -->
 <template>
   <v-tooltip
-    :value="show"
+    :value="true"
     :position-x="positionX"
     :position-y="positionY"
     bottom>
@@ -31,19 +31,15 @@
         dark>
         fa-question-circle
       </v-icon>
-      {{ title }}
+      {{ text }}
     </div>
   </v-tooltip>
 </template>
 <script>
 export default {
   props: {
-    value: {
+    label: {
       type: String,
-      default: null,
-    },
-    show: {
-      type: Boolean,
       default: null,
     },
     attach: {
@@ -52,8 +48,8 @@ export default {
     },
   },
   computed: {
-    title() {
-      return this.$t(`generalSettings.access.${this.value}`);
+    text() {
+      return this.$t(this.label);
     },
     position() {
       return this.attach?.getBoundingClientRect();
