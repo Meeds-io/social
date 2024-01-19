@@ -43,9 +43,11 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
 public class EntityConverterUtils {
-  
-  private static final Log LOG = ExoLogger.getLogger(EntityConverterUtils.class);
-  
+
+  public static final String DEFAULT_AVATAR = "DEFAULT_AVATAR";
+
+  private static final Log    LOG            = ExoLogger.getLogger(EntityConverterUtils.class);
+
   public static Identity convertToIdentity(IdentityEntity entity) {
     return convertToIdentity(entity, true);
   }
@@ -86,6 +88,12 @@ public class EntityConverterUtils {
     Long avatarLastUpdated = null;
     if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
       avatarLastUpdated = getFileLastUpdated(entity.getAvatarFileId());
+      p.setDefaultAvatar(isDefaultAvatar(entity.getAvatarFileId()));
+
+    } else if (identity.isUser() || identity.isSpace()) {
+      // Allow to generate new default avatar file
+      // for user or space
+      avatarLastUpdated = System.currentTimeMillis();
     }
     Long bannerLastUpdated = null;
     if (entity.getBannerFileId() != null && entity.getBannerFileId() > 0) {
@@ -325,6 +333,12 @@ public class EntityConverterUtils {
       LOG.warn("File service is null");
       return null;
     }
+  }
+
+  private static boolean isDefaultAvatar(Long fileId) {
+    FileService fileService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(FileService.class);
+    FileInfo fileInfo = fileService.getFileInfo(fileId);
+    return fileInfo != null && DEFAULT_AVATAR.equals(fileInfo.getName());
   }
 
   private static String[] getPendingMembersId(SpaceEntity spaceEntity) {
