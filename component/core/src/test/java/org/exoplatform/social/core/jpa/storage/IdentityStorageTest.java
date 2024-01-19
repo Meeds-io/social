@@ -17,6 +17,8 @@
 
 package org.exoplatform.social.core.jpa.storage;
 
+import static org.junit.Assert.assertNotEquals;
+
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.services.organization.*;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
@@ -25,7 +27,6 @@ import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.image.ImageUtils;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
@@ -913,18 +914,17 @@ public class IdentityStorageTest extends AbstractCoreTest {
     String identityId = identity.getId();
     assertNotNull(identityId);
 
-    InputStream stream = identityStorage.getAvatarInputStreamById(identity);
-    assertNotNull(stream);
-
     FileItem avatarFile = identityStorage.getAvatarFile(identity);
+
+    Profile profile = new Profile(identity);
+    profile = identityStorage.loadProfile(profile);
     assertNotNull(avatarFile);
     assertNotNull(avatarFile.getFileInfo().getId());
     assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
-    assertTrue(identity.getProfile().isDefaultAvatar());
+    assertTrue(profile.isDefaultAvatar());
   }
 
   public void testIdentityDefaultAvatarWhenRenameUserFirstName() throws Exception {
-
     String userName = "userIdentity2";
     Identity identity = populateIdentity(userName);
     identityStorage.saveIdentity(identity);
@@ -933,17 +933,15 @@ public class IdentityStorageTest extends AbstractCoreTest {
     String identityId = identity.getId();
     assertNotNull(identityId);
 
-    InputStream stream = identityStorage.getAvatarInputStreamById(identity);
-    assertNotNull(stream);
-
     FileItem avatarFile = identityStorage.getAvatarFile(identity);
+    Profile profile = new Profile(identity);
+    profile = identityStorage.loadProfile(profile);
     assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
-    assertTrue(identity.getProfile().isDefaultAvatar());
+    assertTrue(profile.isDefaultAvatar());
 
     Long avatarFileId = avatarFile.getFileInfo().getId();
     assertNotNull(avatarFileId);
 
-    Profile profile = identity.getProfile();
     profile.setProperty(Profile.FIRST_NAME, "alice");
     identityStorage.saveProfile(profile);
     restartTransaction();
@@ -951,10 +949,10 @@ public class IdentityStorageTest extends AbstractCoreTest {
     avatarFile = identityStorage.getAvatarFile(identity);
     assertNotNull(avatarFile);
 
-    Long avatarFileId1 = avatarFile.getFileInfo().getId();
-    assertNotNull(avatarFileId1);
+    Long updatedAvatarFileId = avatarFile.getFileInfo().getId();
+    assertNotNull(updatedAvatarFileId);
 
-    assertNotSame(avatarFileId, avatarFileId1);
+    assertNotEquals(avatarFileId, updatedAvatarFileId);
   }
 
   public void testGetBannerInputStreamById() throws Exception {

@@ -331,8 +331,8 @@ public class ProfileEntity extends BaseEntity {
     return this;
   }
 
-  public String getDefaultAvatar() {
-    return getString(DEFAULT_AVATAR);
+  public boolean isDefaultAvatar() {
+    return StringUtils.equals("true", getString(DEFAULT_AVATAR));
   }
 
   public ProfileEntity setDefaultAvatar(Boolean defaultAvatar) {

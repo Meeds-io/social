@@ -472,23 +472,17 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
    * @throws IdentityStorageException if has any error
    */
   @ExoTransactional
+  @SneakyThrows
   public Profile loadProfile(Profile profile) throws IdentityStorageException {
     long identityId = EntityConverterUtils.parseId(profile.getIdentity().getId());    
     IdentityEntity entity = identityDAO.find(identityId);
-
     if (entity == null) {
       return null;
     } else {
       profile.setId(String.valueOf(entity.getId()));
-      if(entity.getAvatarFileId() != null  && entity.getAvatarFileId() > 0) {
-        try {
-          FileItem fileItem = fileService.getFile(entity.getAvatarFileId());
-          if (fileItem != null) {
-            profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(fileItem.getFileInfo().getName()));
-          }
-        } catch (FileStorageException e) {
-          throw new RuntimeException(e);
-        }
+      if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
+        FileItem fileItem = fileService.getFile(entity.getAvatarFileId());
+        profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(fileItem.getFileInfo().getName()));
       }
       EntityConverterUtils.mapToProfile(entity, profile);
       profile.clearHasChanged();
@@ -1049,33 +1043,25 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     FileItem file = null;
     IdentityEntity entity = identityDAO.findByProviderAndRemoteId(identity.getProviderId(), identity.getRemoteId());
     if (entity != null) {
-      Profile profile = identity.getProfile();
       if (entity.getAvatarFileId() != null) {
         file = fileService.getFile(entity.getAvatarFileId());
-        profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(file.getFileInfo().getName()));
       } else if (identity.isUser() || identity.isSpace()) {
         String fullNameAbbreviation = getNameAbbreviation(identity.getProfile().getFullName());
         AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(), fullNameAbbreviation);
         if (avatar != null) {
           byte[] bytes = avatar.getImageBytes();
-          try {
-            file = new FileItem(null,
-                                EntityConverterUtils.DEFAULT_AVATAR,
-                                avatar.getMimeType(),
-                                socialNameSpace,
-                                bytes.length,
-                                new Date(),
-                                identity.getRemoteId(),
-                                false,
-                                new ByteArrayInputStream(bytes));
-            file = fileService.writeFile(file);
-            entity.setAvatarFileId(file.getFileInfo().getId());
-            profile.setDefaultAvatar(true);
-            identityDAO.update(entity);
-          } catch (Exception e) {
-            LOG.error("Error white retrieving file for identity " + identity.getId(), e);
-            return null;
-          }
+          file = new FileItem(null,
+                              EntityConverterUtils.DEFAULT_AVATAR,
+                              avatar.getMimeType(),
+                              socialNameSpace,
+                              bytes.length,
+                              new Date(),
+                              identity.getRemoteId(),
+                              false,
+                              new ByteArrayInputStream(bytes));
+          file = fileService.writeFile(file);
+          entity.setAvatarFileId(file.getFileInfo().getId());
+          identityDAO.update(entity);
         }
       }
     }
