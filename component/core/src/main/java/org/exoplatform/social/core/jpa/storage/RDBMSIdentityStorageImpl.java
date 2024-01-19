@@ -35,7 +35,9 @@ import java.util.StringTokenizer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.core.image.ImageUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -90,30 +92,31 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
  */
 public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
-  private static final Log LOG = ExoLogger.getLogger(RDBMSIdentityStorageImpl.class);
+  private static final Log                 LOG                   = ExoLogger.getLogger(RDBMSIdentityStorageImpl.class);
 
-  private static final int     BATCH_SIZE = 100;
+  private static final int                 BATCH_SIZE            = 100;
 
-  private static final long    MEGABYTE   = 1024L * 1024L;
+  private static final long                MEGABYTE              = 1024L * 1024L;
 
-  private static final String socialNameSpace = "social";
+  private static final String              socialNameSpace       = "social";
 
-  private final IdentityDAO identityDAO;
-  private final SpaceMemberDAO spaceMemberDAO;
+  private final IdentityDAO                identityDAO;
 
-  private final FileService fileService;
+  private final SpaceMemberDAO             spaceMemberDAO;
 
-  private final OrganizationService orgService;
+  private final FileService                fileService;
 
-  private ProfileSearchConnector profileSearchConnector;
+  private final OrganizationService        orgService;
 
-  private IdentityStorage cachedIdentityStorage;
+  private ProfileSearchConnector           profileSearchConnector;
 
-  private ActivityStorage activityStorage;
+  private IdentityStorage                  cachedIdentityStorage;
 
-  private Map<String, IdentityProvider<?>> identityProviders = null;
+  private ActivityStorage                  activityStorage;
 
-  private int                              imageUploadLimit  = DEFAULT_UPLOAD_IMAGE_LIMIT;
+  private Map<String, IdentityProvider<?>> identityProviders     = null;
+
+  private int                              imageUploadLimit      = DEFAULT_UPLOAD_IMAGE_LIMIT;
 
   public RDBMSIdentityStorageImpl(IdentityDAO identityDAO,
                                   SpaceMemberDAO spaceMemberDAO,
@@ -287,6 +290,17 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
       } else if (!Profile.EXPERIENCES_SKILLS.equals(profileProperty.getKey())) {
         Object val = profileProperty.getValue();
+        if ((Profile.FIRST_NAME.equalsIgnoreCase(profileProperty.getKey())
+            || Profile.LAST_NAME.equalsIgnoreCase(profileProperty.getKey()))
+            && profileProperty.getValue() != null
+            && !profileProperty.getValue().equals(entityProperties.get(profileProperty.getKey()))
+            && identityEntity.getAvatarFileId() != null) {
+          FileItem file = getRDBMSCachedIdentityStorage().getAvatarFile(profile.getIdentity());
+          if (file != null && EntityConverterUtils.DEFAULT_AVATAR.equals(file.getFileInfo().getName())) {
+            fileService.deleteFile(file.getFileInfo().getId());
+            identityEntity.setAvatarFileId(null);
+          }
+        }
         entityProperties.put(profileProperty.getKey(), val != null ? String.valueOf(val) : null);
       }
     }
@@ -458,14 +472,18 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
    * @throws IdentityStorageException if has any error
    */
   @ExoTransactional
+  @SneakyThrows
   public Profile loadProfile(Profile profile) throws IdentityStorageException {
     long identityId = EntityConverterUtils.parseId(profile.getIdentity().getId());    
     IdentityEntity entity = identityDAO.find(identityId);
-
     if (entity == null) {
       return null;
     } else {
       profile.setId(String.valueOf(entity.getId()));
+      if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
+        FileItem fileItem = fileService.getFile(entity.getAvatarFileId());
+        profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(fileItem.getFileInfo().getName()));
+      }
       EntityConverterUtils.mapToProfile(entity, profile);
       profile.clearHasChanged();
       return profile;
@@ -1020,15 +1038,31 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   }
 
   @Override
+  @SneakyThrows
   public FileItem getAvatarFile(Identity identity) {
     FileItem file = null;
-    IdentityEntity entity = identityDAO.findByProviderAndRemoteId(identity.getProviderId(),
-                                                                  identity.getRemoteId());
-    if (entity != null && entity.getAvatarFileId() != null) {
-      try {
+    IdentityEntity entity = identityDAO.findByProviderAndRemoteId(identity.getProviderId(), identity.getRemoteId());
+    if (entity != null) {
+      if (entity.getAvatarFileId() != null) {
         file = fileService.getFile(entity.getAvatarFileId());
-      } catch (FileStorageException e) {
-        return null;
+      } else if (identity.isUser() || identity.isSpace()) {
+        String fullNameAbbreviation = getNameAbbreviation(identity.getProfile().getFullName());
+        AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(), fullNameAbbreviation);
+        if (avatar != null) {
+          byte[] bytes = avatar.getImageBytes();
+          file = new FileItem(null,
+                              EntityConverterUtils.DEFAULT_AVATAR,
+                              avatar.getMimeType(),
+                              socialNameSpace,
+                              bytes.length,
+                              new Date(),
+                              identity.getRemoteId(),
+                              false,
+                              new ByteArrayInputStream(bytes));
+          file = fileService.writeFile(file);
+          entity.setAvatarFileId(file.getFileInfo().getId());
+          identityDAO.update(entity);
+        }
       }
     }
     return file;
@@ -1158,5 +1192,14 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   @Override
   public void setImageUploadLimit(int imageUploadLimit) {
     this.imageUploadLimit = imageUploadLimit;
+  }
+
+  private String getNameAbbreviation(String name) {
+    String result = name.replaceAll("\\B.|\\P{L}", "").toUpperCase();
+    if (result.length() > 2) {
+      return result.substring(0, 2);
+    } else {
+      return result;
+    }
   }
 }
