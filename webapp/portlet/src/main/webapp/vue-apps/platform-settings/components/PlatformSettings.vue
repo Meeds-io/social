@@ -4,6 +4,7 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :href="$root.url"
+          :aria-label="$t('platformSettings.label.openAdministration')"
           target="_blank"
           class="mx-2 d-none d-sm-block"
           icon
