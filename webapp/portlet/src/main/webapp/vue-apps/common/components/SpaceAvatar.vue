@@ -35,7 +35,7 @@
       v-on="on"
       :id="id"
       :href="url"
-      :arial-label="$t('space.avatar.href.title',{0:prettyName})"
+      :aria-label="$t('space.avatar.href.title',{0:displayName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
@@ -79,7 +79,7 @@
       v-on="on"
       :id="id"
       :href="url"
-      :aria-label="$t('space.avatar.href.title',{0:prettyName})"
+      :aria-label="$t('space.avatar.href.title',{0:displayName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
