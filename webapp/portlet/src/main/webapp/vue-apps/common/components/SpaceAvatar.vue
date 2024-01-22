@@ -181,7 +181,6 @@ export default {
   },
   computed: {
     displayName() {
-      console.log('compute displayName', this.space);
       return this.space && this.space.displayName;
     },
     prettyName() {
