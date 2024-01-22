@@ -199,7 +199,7 @@ public class ImageUtils {
                                                  System.currentTimeMillis());
       return newAvatarAttachment;
     } catch (IOException e) {
-      LOG.error("Fail to create file avatar : " + e);
+      LOG.warn("Fail to create default avatar for identity {}. Use default static avatar instead.", identityId, e);
       return null;
     }
   }
