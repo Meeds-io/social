@@ -49,7 +49,8 @@
         max-width="100%"
         class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
         flat
-        tile>
+        tile
+        @scroll="onScroll">
         <sites-hamburger
           :sites="sites"
           :opened-site="openedSite" />
@@ -63,7 +64,7 @@
           :opened-menu="secondLevel === 'administration'" />
       </v-card>
       <v-bottom-navigation
-        class="no-box-shadow"
+        :class="bottomNavStyle"
         height="50px">
         <user-hamburger-navigation />
       </v-bottom-navigation>
@@ -125,6 +126,8 @@ export default {
   data(){
     return {
       oldAdministrationMenuEnabled: eXo.env.portal.oldAdministrationMenu,
+      bottomNavStyle: 'no-box-shadow',
+      isScrolledToBottom: false
     };
   },
   computed: {
@@ -138,5 +141,14 @@ export default {
       return this.stickyPreference && this.stickyAllowed;
     },
   },
+  mounted() {
+    window.addEventListener('scroll', this.onScroll);
+  },
+  methods: {
+    onScroll(event) {
+      this.isScrolledToBottom = event.target.scrollTop + event.target.clientHeight === event.target.scrollHeight;
+      this.bottomNavStyle = this.isScrolledToBottom ? 'no-box-shadow' : 'elevation-4';
+    }
+  }
 };
 </script>
