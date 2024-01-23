@@ -26,6 +26,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -44,7 +46,6 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -77,13 +78,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   private FavoriteService            favoriteService;
 
+  private FileService                fileService;
+
   public RDBMSSpaceStorageImpl(SpaceDAO spaceDAO,
                                SpaceMemberDAO spaceMemberDAO,
                                IdentityStorage identityStorage,
                                IdentityDAO identityDAO,
                                ActivityDAO activityDAO,
                                SpaceExternalInvitationDAO spaceExternalInvitationDAO,
-                               FavoriteService favoriteService) {
+                               FavoriteService favoriteService,
+                               FileService fileService) {
     this.spaceDAO = spaceDAO;
     this.identityStorage = identityStorage;
     this.spaceMemberDAO = spaceMemberDAO;
@@ -91,6 +95,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     this.activityDAO = activityDAO;
     this.spaceExternalInvitationDAO = spaceExternalInvitationDAO;
     this.favoriteService = favoriteService;
+    this.fileService = fileService;
   }
 
   @Override
@@ -569,6 +574,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     entity = spaceDAO.find(Long.parseLong(space.getId()));
     // Retrieve identity before saving
     Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, oldPrettyName);
+
+    FileItem spaceAvatar = identityStorage.getAvatarFile(identitySpace);
+    if (spaceAvatar != null && EntityConverterUtils.DEFAULT_AVATAR.equals(spaceAvatar.getFileInfo().getName())) {
+      fileService.deleteFile(spaceAvatar.getFileInfo().getId());
+    }
 
     EntityConverterUtils.buildFrom(space, entity);
     entity.setUpdatedDate(new Date());

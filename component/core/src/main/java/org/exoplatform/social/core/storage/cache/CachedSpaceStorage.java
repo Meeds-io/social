@@ -20,6 +20,7 @@ package org.exoplatform.social.core.storage.cache;
 import java.util.*;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
+import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
@@ -193,8 +194,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
                             ActivityDAO activityDAO,
                             SpaceExternalInvitationDAO spaceExternalInvitationDAO,
                             SocialStorageCacheService cacheService,
-                            FavoriteService favoriteService) {
-    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO,favoriteService);
+                            FavoriteService favoriteService,
+                            FileService fileService) {
+    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO,favoriteService, fileService);
     this.cacheService = cacheService;
 
     this.exoSpaceCache = cacheService.getSpaceCache();
