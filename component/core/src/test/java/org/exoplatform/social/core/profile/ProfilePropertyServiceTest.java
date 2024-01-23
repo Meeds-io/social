@@ -108,6 +108,35 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     profilePropertyService.updatePropertySetting(profilePropertySetting);
     profilePropertySetting = profilePropertyService.getProfileSettingByName(profilePropertySetting.getPropertyName());
     assertTrue(profilePropertySetting.isMultiValued());
+    
+    profilePropertySetting.setHiddenbale(true);
+    profilePropertyService.updatePropertySetting(profilePropertySetting);
+    profilePropertySetting = profilePropertyService.getProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertTrue(profilePropertySetting.isHiddenbale());
+
+    ProfilePropertySetting unHiddenableprofilePropertySetting = createProfileSettingInstance("fullName");
+    unHiddenableprofilePropertySetting.setHiddenbale(true);
+    assertThrows(IllegalArgumentException.class,
+                 () -> profilePropertyService.updatePropertySetting(unHiddenableprofilePropertySetting));
+  }
+
+  public void testGetUnhiddenablePropertySettings() {
+    assertNotNull(profilePropertyService.getUnhiddenablePropertySettings());
+    assertFalse(profilePropertyService.getUnhiddenablePropertySettings().isEmpty());
+  }
+
+  public void testIsPropertySettingHiddenable() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting unHiddenableprofilePropertySetting = createProfileSettingInstance("fullName");
+    ProfilePropertySetting hiddenableprofilePropertySetting = createProfileSettingInstance("prop");
+    hiddenableprofilePropertySetting.setHiddenbale(true);
+    ProfilePropertySetting propertySetting = profilePropertyService.createPropertySetting(hiddenableprofilePropertySetting);
+    ProfilePropertySetting childProp = createProfileSettingInstance("childProp");
+    assertFalse(profilePropertyService.isPropertySettingHiddenable(unHiddenableprofilePropertySetting));
+    assertTrue(profilePropertyService.isPropertySettingHiddenable(hiddenableprofilePropertySetting));
+    ProfilePropertySetting chilePropertySetting = profilePropertyService.createPropertySetting(childProp);
+    chilePropertySetting.setParentId(propertySetting.getId());
+    profilePropertyService.updatePropertySetting(chilePropertySetting);
+    assertFalse(profilePropertyService.isPropertySettingHiddenable(propertySetting));
   }
 
   public void testGetProfilePropertySettings() throws Exception {
