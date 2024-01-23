@@ -142,7 +142,7 @@ export default {
     },
   },
   mounted() {
-    window.addEventListener('scroll', this.onScroll);
+    window.addEventListener('scroll', this.onScroll, false);
   },
   methods: {
     onScroll(event) {
