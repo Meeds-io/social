@@ -111,4 +111,19 @@ public interface ProfilePropertyService {
    * @return Boolean : true if the current property is a default propertie
    */
   boolean isDefaultProperties(ProfilePropertySetting propertySetting);
+
+  /**
+   * Gets unhiddenable properties
+   *
+   * @return {@link List} of {@link String}
+   */
+  List<String> getUnhiddenablePropertySettings();
+
+  /**
+   * Checks if property is hiddenable
+   *
+   * @param propertySetting profile property setting
+   * @return true if property is hiddenbale and false otherwise
+   */
+  boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting);
 }

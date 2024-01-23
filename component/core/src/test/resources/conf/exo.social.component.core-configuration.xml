@@ -430,6 +430,16 @@
   <component>
     <key>org.exoplatform.social.core.profileproperty.ProfilePropertyService</key>
     <type>org.exoplatform.social.core.profileproperty.ProfilePropertyServiceImpl</type>
+    <init-params>
+      <value-param>
+        <name>synchronizationDisabledProperties</name>
+        <value>fullName,firstName,lastName,email,phones,phones.work,phones.home,phones.other,ims,ims.facebook,ims.msn,ims.jitsi,ims.skype,ims.other</value>
+      </value-param>
+      <value-param>
+        <name>unHiddenableProperties</name>
+        <value>${social.profile.unHiddenable.properties:fullName,firstName,lastName}</value>
+      </value-param>
+    </init-params>
   </component>
 
   <!--
