@@ -42,17 +42,24 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   private final ProfileSettingStorage                profileSettingStorage;
 
-  private static final String SYNCHRONIZED_DISABLED_PROPERTIES= "synchronizationDisabledProperties";
+  private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES    = "synchronizationDisabledProperties";
+
+  private static final String                        UNHIDDENABLE_PROPERTIES_PARAM       = "unHiddenableProperties";
 
   protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins              = new ArrayList<>();
 
-  private  List<String>                         synchronizedGroupDisabledProperties = new ArrayList<>();
+  private List<String>                               synchronizedGroupDisabledProperties = new ArrayList<>();
+
+  private static List<String>                        nonHiddenableProps                  = new ArrayList<>();
 
   public ProfilePropertyServiceImpl(InitParams params, ProfileSettingStorage profileSettingStorage) {
     this.profileSettingStorage = profileSettingStorage;
     if (params != null) {
       try {
-        synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES).getValue().split(","));
+        synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES)
+                                                                  .getValue()
+                                                                  .split(","));
+        nonHiddenableProps = Arrays.asList(params.getValueParam(UNHIDDENABLE_PROPERTIES_PARAM).getValue().split(","));
       } catch (Exception e) {
         LOG.warn("List of disabled properties for synchronization not provided, all properties can be synchronized! ");
       }
@@ -77,6 +84,19 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   @Override
   public ProfilePropertySetting getProfileSettingById(Long id) {
     return profileSettingStorage.getProfileSettingById(id);
+  }
+
+  @Override
+  public List<String> getUnhiddenablePropertySettings() {
+    return nonHiddenableProps;
+  }
+
+  @Override
+  public boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting) {
+    if (nonHiddenableProps.contains(propertySetting.getPropertyName()) || hasChildProperties(propertySetting)) {
+      return false;
+    }
+    return propertySetting.isHiddenbale();
   }
 
   @Override
@@ -105,6 +125,10 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   @Override
   public void updatePropertySetting(ProfilePropertySetting profilePropertySetting) {
+    if (profilePropertySetting.isHiddenbale()
+        && getUnhiddenablePropertySettings().contains(profilePropertySetting.getPropertyName())) {
+      throw new IllegalArgumentException(String.format("%s cannot be hidden", profilePropertySetting.getPropertyName()));
+    }
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }

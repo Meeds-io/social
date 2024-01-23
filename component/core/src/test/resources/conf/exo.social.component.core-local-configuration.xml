@@ -323,6 +323,9 @@
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>false</boolean>
+                    </field>
                     <field  name="order">
                       <int>1</int>
                     </field>
@@ -349,6 +352,9 @@
                       <boolean>false</boolean>
                     </field>
                     <field  name="groupSynchronized">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
                       <boolean>false</boolean>
                     </field>
                     <field  name="order">
@@ -379,6 +385,9 @@
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>false</boolean>
+                    </field>
                     <field  name="order">
                       <int>3</int>
                     </field>
@@ -406,6 +415,9 @@
                     </field>
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>4</int>
@@ -435,6 +447,9 @@
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>5</int>
                     </field>
@@ -462,6 +477,9 @@
                     </field>
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>6</int>
@@ -491,6 +509,9 @@
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>7</int>
                     </field>
@@ -518,6 +539,9 @@
                     </field>
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>8</int>
@@ -547,6 +571,9 @@
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>9</int>
                     </field>
@@ -574,6 +601,9 @@
                     </field>
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>10</int>
@@ -603,6 +633,9 @@
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>11</int>
                     </field>
@@ -631,6 +664,9 @@
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>12</int>
                     </field>
@@ -657,6 +693,9 @@
                       <boolean>false</boolean>
                     </field>
                     <field  name="groupSynchronized">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
                       <boolean>false</boolean>
                     </field>
                     <field  name="order">
@@ -690,6 +729,9 @@
                     <field  name="parentName">
                       <string>phones</string>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>14</int>
                     </field>
@@ -720,6 +762,9 @@
                     </field>
                     <field  name="parentName">
                       <string>phones</string>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>15</int>
@@ -752,6 +797,9 @@
                     <field  name="parentName">
                       <string>phones</string>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>16</int>
                     </field>
@@ -779,6 +827,9 @@
                       <boolean>false</boolean>
                     </field>
                     <field  name="groupSynchronized">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
                       <boolean>false</boolean>
                     </field>
                     <field  name="order">
@@ -812,6 +863,9 @@
                     <field  name="parentName">
                       <string>ims</string>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>18</int>
                     </field>
@@ -842,6 +896,9 @@
                     </field>
                     <field  name="parentName">
                       <string>ims</string>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>19</int>
@@ -874,6 +931,9 @@
                     <field  name="parentName">
                       <string>ims</string>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>20</int>
                     </field>
@@ -904,6 +964,9 @@
                     </field>
                     <field  name="parentName">
                       <string>ims</string>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>21</int>
@@ -936,6 +999,9 @@
                     <field  name="parentName">
                       <string>ims</string>
                     </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
                     <field  name="order">
                       <int>22</int>
                     </field>
@@ -963,6 +1029,9 @@
                     </field>
                     <field  name="groupSynchronized">
                       <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
                     </field>
                     <field  name="order">
                       <int>23</int>
