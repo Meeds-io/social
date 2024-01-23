@@ -914,4 +914,11 @@
         </sql>
     </changeSet>
 
+    <changeSet author="social" id="1.0.0-93">
+        <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+            <column name="IS_HIDDENABLE" type="BOOLEAN" defaultValue="true">
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
