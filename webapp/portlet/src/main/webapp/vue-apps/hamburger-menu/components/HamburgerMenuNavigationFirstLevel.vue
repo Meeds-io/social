@@ -43,14 +43,14 @@
         :sticky-allowed="stickyAllowed"
         class="flex-grow-0 flex-shrink-0"
         @input="$emit('stickyPreference', $event)" />
-      <v-card
+      <v-sheet
         id="StickyHamburgerMenu"
+        max-height="calc(100vh - 115px)"
         :aria-label="$t('menu.role.navigation.first.level')"
         max-width="100%"
         class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
         flat
-        tile
-        @scroll="onScroll">
+        tile>
         <sites-hamburger
           :sites="sites"
           :opened-site="openedSite" />
@@ -62,12 +62,16 @@
         <administration-hamburger-navigation
           v-if="hasAdministrationNavigations && oldAdministrationMenuEnabled"
           :opened-menu="secondLevel === 'administration'" />
-      </v-card>
-      <v-bottom-navigation
-        :class="bottomNavStyle"
-        height="50px">
+      </v-sheet>
+      <v-app-bar
+        color="white"
+        scroll-target="#StickyHamburgerMenu"
+        height="50px"
+        absolute
+        elevate-on-scroll
+        bottom>
         <user-hamburger-navigation />
-      </v-bottom-navigation>
+      </v-app-bar>
     </v-card>
   </component>
 </template>
@@ -126,8 +130,6 @@ export default {
   data(){
     return {
       oldAdministrationMenuEnabled: eXo.env.portal.oldAdministrationMenu,
-      bottomNavStyle: 'no-box-shadow',
-      isScrolledToBottom: false
     };
   },
   computed: {
@@ -140,15 +142,6 @@ export default {
     stickyDisplay() {
       return this.stickyPreference && this.stickyAllowed;
     },
-  },
-  mounted() {
-    window.addEventListener('scroll', this.onScroll, false);
-  },
-  methods: {
-    onScroll(event) {
-      this.isScrolledToBottom = event.target.scrollTop + event.target.clientHeight === event.target.scrollHeight;
-      this.bottomNavStyle = this.isScrolledToBottom ? 'no-box-shadow' : 'elevation-4';
-    }
   }
 };
 </script>
