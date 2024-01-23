@@ -44,6 +44,8 @@ public class ProfilePropertySetting {
 
   private boolean isGroupSynchronized;
 
+  private boolean isHiddenbale;
+
   private boolean isRequired;
 
   private boolean isMultiValued;
