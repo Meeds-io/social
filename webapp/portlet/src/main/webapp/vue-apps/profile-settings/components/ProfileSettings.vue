@@ -27,7 +27,10 @@
         flat>
         <profile-settings-header :filter="filter" />
         <profile-settings-table :settings="filteredSettings" />
-        <profile-setting-form-drawer :settings="settings" :languages="languages" />
+        <profile-setting-form-drawer
+          :settings="settings"
+          :languages="languages"
+          :un-hiddenable-properties="unHiddenableProperties"/>
       </v-card>
     </v-main>
   </v-app>
@@ -44,6 +47,7 @@ export default {
 
   data: () => ({
     settings: [],
+    unHiddenableProperties: [],
     filter: 'Active'
   }),
   created() {
@@ -82,8 +86,9 @@ export default {
     getSettings() {
       return this.$profileSettingsService.getSettings()
         .then(settings => {
-          this.settings = settings || [];}
-        );
+          this.settings = settings?.settings || [];
+          this.unHiddenableProperties = settings?.unHiddenableProperties;
+        });
     },
     editSetting(setting,refresh) {
       this.$profileSettingsService.updateSetting(setting).then(() => {

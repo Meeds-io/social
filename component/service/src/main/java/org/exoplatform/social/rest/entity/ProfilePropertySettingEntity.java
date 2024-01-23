@@ -60,6 +60,8 @@ public class ProfilePropertySettingEntity {
 
   private boolean isGroupSynchronizationEnabled;
 
+  private boolean isHiddenable;
+
   private List<ProfileLabel> labels;
 
   private List<ProfilePropertySettingEntity> children;
