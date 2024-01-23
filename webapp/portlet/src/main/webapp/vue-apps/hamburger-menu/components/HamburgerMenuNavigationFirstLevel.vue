@@ -43,8 +43,9 @@
         :sticky-allowed="stickyAllowed"
         class="flex-grow-0 flex-shrink-0"
         @input="$emit('stickyPreference', $event)" />
-      <v-card
+      <v-sheet
         id="StickyHamburgerMenu"
+        max-height="calc(100vh - 115px)"
         :aria-label="$t('menu.role.navigation.first.level')"
         max-width="100%"
         class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
@@ -61,12 +62,16 @@
         <administration-hamburger-navigation
           v-if="hasAdministrationNavigations && oldAdministrationMenuEnabled"
           :opened-menu="secondLevel === 'administration'" />
-      </v-card>
-      <v-bottom-navigation
-        class="no-box-shadow"
-        height="50px">
+      </v-sheet>
+      <v-app-bar
+        color="white"
+        scroll-target="#StickyHamburgerMenu"
+        height="50px"
+        absolute
+        elevate-on-scroll
+        bottom>
         <user-hamburger-navigation />
-      </v-bottom-navigation>
+      </v-app-bar>
     </v-card>
   </component>
 </template>
@@ -137,6 +142,6 @@ export default {
     stickyDisplay() {
       return this.stickyPreference && this.stickyAllowed;
     },
-  },
+  }
 };
 </script>
