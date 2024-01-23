@@ -28,7 +28,7 @@
           <a
             :href="productLink"
             target="_blank"
-            class="body-2 text-sub-title my-auto ms-3"
+            class="body-2 text-sub-title my-auto"
             v-bind="attrs"
             v-on="on">
             {{ productName }}
@@ -48,7 +48,8 @@
               min-width="40px"
               class="px-0"
               v-bind="attrs"
-              v-on="on">
+              v-on="on"
+              icon>
               <v-icon size="22">
                 fa-sliders-h
               </v-icon>
@@ -59,7 +60,7 @@
           </span>
         </v-tooltip>
       </div>
-      <div class="logoutLinks">
+      <div class="logoutLinks me-n3">
         <v-tooltip top>
           <template #activator="{ on, attrs }">
             <v-btn
@@ -68,7 +69,8 @@
               min-width="40px"
               class="pe-1 ps-0"
               v-bind="attrs"
-              v-on="on">
+              v-on="on"
+              icon>
               <v-icon size="22">
                 fa-power-off
               </v-icon>
