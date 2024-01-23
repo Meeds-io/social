@@ -188,6 +188,39 @@
               class="activeSwitcher my-auto" />
           </v-list-item-action>
         </v-list-item>
+        <v-list-item>
+          <v-list-item-content
+            transition="fade-transition"
+            class="d-flex activeLabel py-0">
+            <v-list-item-title
+              class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.maskable') }}
+              </div>
+            </v-list-item-title>
+            <v-list-item-subtitle
+              class="mt-n3">
+              <span
+                v-if="setting.hiddenable"
+                class="caption">
+                {{ $t('profileSettings.label.maskable.enabled') }}
+              </span>
+              <span
+                v-else
+                class="caption">
+                {{ $t('profileSettings.label.maskable.disabled') }}
+              </span>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-switch
+              v-model="setting.hiddenable"
+              :disabled="saving || unHiddenableSetting"
+              :ripple="false"
+              color="primary"
+              class="activeSwitcher my-auto" />
+          </v-list-item-action>
+        </v-list-item>
       </v-form>
     </template>
     <template slot="footer">
@@ -218,6 +251,10 @@ export default {
       type: Object,
       default: null
     },
+    unHiddenableProperties: {
+      type: Array,
+      default: () => []
+    },
     languages: {
       type: Object,
       default: null
@@ -236,9 +273,12 @@ export default {
     labelsObjectType: 'profileProperty',
     initialSetting: {},
     initialLabels: [],
-    areLabelsChanged: false
+    areLabelsChanged: false,
   }),
   computed: {
+    unHiddenableSetting() {
+      return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
+    },
     title() {
       if (this.newSetting) {
         return this.$t('profileSettings.drawer.title.addSetting');
@@ -399,7 +439,7 @@ export default {
       } 
     },
     areSettingsEqual(initialSetting, setting) {
-      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable'
+      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable', 'hiddenable'
       ];
       for (const field of fields) {
         if (field === 'parentId' && setting[field] === '') {

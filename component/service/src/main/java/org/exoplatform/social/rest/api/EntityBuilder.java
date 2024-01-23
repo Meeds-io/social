@@ -1659,6 +1659,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
+    profilePropertySettingEntity.setHiddenable(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting));
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
                                                                                                 String.valueOf(profilePropertySetting.getId())));
     profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
@@ -1701,9 +1702,11 @@ public class EntityBuilder {
    * @param profilePropertySettingEntity the ProfilePropertySettingEntity object
    * @return the ProfilePropertySetting object
    */
-  public static ProfilePropertySetting buildProfilePropertySettingFromEntity(ProfilePropertySettingEntity profilePropertySettingEntity) {
+  public static ProfilePropertySetting buildProfilePropertySettingFromEntity(ProfilePropertySettingEntity profilePropertySettingEntity,
+                                                                             ProfilePropertyService profilePropertyService) {
     if (profilePropertySettingEntity == null)
       return null;
+
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
     profilePropertySetting.setId(profilePropertySettingEntity.getId());
     profilePropertySetting.setActive(profilePropertySettingEntity.isActive());
@@ -1719,6 +1722,7 @@ public class EntityBuilder {
     profilePropertySetting.setRequired(profilePropertySettingEntity.isRequired());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
+    profilePropertySetting.setHiddenbale(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting));
     return profilePropertySetting;
   }
 
