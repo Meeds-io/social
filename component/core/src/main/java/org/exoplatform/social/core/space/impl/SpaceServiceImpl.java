@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -51,6 +53,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
@@ -79,41 +82,41 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
  */
 public class SpaceServiceImpl implements SpaceService {
 
-  private static final Log                     LOG                   = ExoLogger.getLogger(SpaceServiceImpl.class.getName());
+  private static final Log            LOG                        = ExoLogger.getLogger(SpaceServiceImpl.class.getName());
 
-  public static final String                   MEMBER                   = "member";
+  public static final String          MEMBER                     = "member";
 
-  public static final String                   MANAGER                  = "manager";
+  public static final String          MANAGER                    = "manager";
 
-  public static final String                   DEFAULT_APP_CATEGORY     = "spacesApplications";
+  public static final String          DEFAULT_APP_CATEGORY       = "spacesApplications";
 
-  private IdentityRegistry                     identityRegistry;
+  private IdentityRegistry            identityRegistry;
 
-  private SpaceStorage                         spaceStorage;
+  private SpaceStorage                spaceStorage;
 
-  private IdentityManager                      identityManager;
+  private IdentityManager             identityManager;
 
-  private OrganizationService                  organizationService      = null;
+  private OrganizationService         organizationService        = null;
 
-  private UserACL                              userACL                  = null;
+  private UserACL                     userACL                    = null;
 
-  private SpaceLifecycle                       spaceLifeCycle           = new SpaceLifecycle();
+  private SpaceLifecycle              spaceLifeCycle             = new SpaceLifecycle();
 
-  List<String>                                 portletPrefsRequired = null;
+  List<String>                        portletPrefsRequired       = null;
 
   /** The offset for list access loading. */
-  private static final int                   OFFSET = 0;
+  private static final int            OFFSET                     = 0;
 
   /** The limit for list access loading. */
-  private static final int                   LIMIT = 200;
+  private static final int            LIMIT                      = 200;
 
   private SpacesAdministrationService spacesAdministrationService;
 
-  private SpaceTemplateService spaceTemplateService;
+  private SpaceTemplateService        spaceTemplateService;
 
-  private ApplicationRegistryService applicationRegistryService;
+  private ApplicationRegistryService  applicationRegistryService;
 
-  private String spacesApplicationsCategory = DEFAULT_APP_CATEGORY;
+  private String                      spacesApplicationsCategory = DEFAULT_APP_CATEGORY;
 
   public SpaceServiceImpl(SpaceStorage spaceStorage,
                           IdentityManager identityManager,
@@ -514,19 +517,29 @@ public class SpaceServiceImpl implements SpaceService {
    * {@inheritDoc}
    */
   public void renameSpace(String remoteId, Space space, String newDisplayName) {
-
     if (remoteId != null &&
         isSuperManager(remoteId) &&
         isMember(space, remoteId) == false) {
-
       spaceStorage.renameSpace(remoteId, space, newDisplayName);
-
     } else {
-
       spaceStorage.renameSpace(space, newDisplayName);
+      Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+      FileItem spaceAvatar = identityManager.getAvatarFile(spaceIdentity);
+      FileService fileService = CommonsUtils.getService(FileService.class);
+      if (spaceAvatar != null && spaceAvatar.getFileInfo().getId() != null
+          && EntityConverterUtils.DEFAULT_AVATAR.equals(spaceAvatar.getFileInfo().getName())) {
+        Profile profile = spaceIdentity.getProfile();
+        fileService.deleteFile(spaceAvatar.getFileInfo().getId());
+        profile.removeProperty(Profile.AVATAR);
+        profile.setAvatarUrl(null);
+        profile.setAvatarLastUpdated(null);
+        space.setAvatarAttachment(null);
+        identityManager.updateProfile(profile);
+        space.setAvatarLastUpdated(System.currentTimeMillis());
+        spaceStorage.saveSpace(space, false);
+      }
     }
 
-    //
     spaceLifeCycle.spaceRenamed(space, space.getEditor());
   }
 
