@@ -924,6 +924,22 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertTrue(profile.isDefaultAvatar());
   }
 
+  public void testGroupIdentityDefaultAvatar() throws Exception {
+    // We check that any identities other than user or space identity shouldn't have
+    // a generated default avatar
+    Identity groupIdentity = new Identity("group", "testGroup");
+    identityStorage.saveIdentity(groupIdentity);
+    Profile groupProfile = new Profile(groupIdentity);
+    identityStorage.saveProfile(groupProfile);
+    groupIdentity.setProfile(groupProfile);
+    tearDownIdentityList.add(groupIdentity);
+    String groupIdentityId = groupIdentity.getId();
+    assertNotNull(groupIdentityId);
+
+    FileItem groupAvatarFile = identityStorage.getAvatarFile(groupIdentity);
+    assertNull(groupAvatarFile);
+  }
+
   public void testIdentityDefaultAvatarWhenRenameUserFirstName() throws Exception {
     String userName = "userIdentity2";
     Identity identity = populateIdentity(userName);
