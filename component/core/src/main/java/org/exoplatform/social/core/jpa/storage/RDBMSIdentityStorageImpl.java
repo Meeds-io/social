@@ -482,7 +482,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       profile.setId(String.valueOf(entity.getId()));
       if (entity.getAvatarFileId() != null && entity.getAvatarFileId() > 0) {
         FileItem fileItem = fileService.getFile(entity.getAvatarFileId());
-        profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(fileItem.getFileInfo().getName()));
+        if (fileItem != null) {
+          profile.setDefaultAvatar(EntityConverterUtils.DEFAULT_AVATAR.equals(fileItem.getFileInfo().getName()));
+        }
       }
       EntityConverterUtils.mapToProfile(entity, profile);
       profile.clearHasChanged();
