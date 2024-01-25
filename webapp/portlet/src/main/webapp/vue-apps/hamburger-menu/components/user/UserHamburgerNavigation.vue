@@ -46,7 +46,6 @@
               :href="settingsUrl"
               height="50px"
               min-width="40px"
-              class="px-0"
               v-bind="attrs"
               v-on="on"
               icon>
@@ -67,7 +66,6 @@
               :href="logoutUrl"
               height="50px"
               min-width="40px"
-              class="pe-1 ps-0"
               v-bind="attrs"
               v-on="on"
               icon>
