@@ -40,22 +40,30 @@
           <template
             v-for="property in filteredProperties">
             <v-list-item
+              v-if="canShowProperty(property)"
               class="text-color not-clickable"
+              :class="property.hidden && 'opacity-5'"
               :key="property.id"
               :ripple="false">
-              <profile-multi-valued-property
-                v-if="property.children?.length"
-                :property="property"
-                :searchable="isSearchable(property)"
-                @quick-search="quickSearch" />
-              <profile-single-valued-property
-                v-else
-                :property="property"
-                :searchable="isSearchable(property)"
-                @quick-search="quickSearch" />
+              <v-hover v-slot="{ hover }">
+                <profile-multi-valued-property
+                  v-if="property.children?.length"
+                  :hover="hover"
+                  :owner="owner"
+                  :is-admin="isAdmin"
+                  :property="property"
+                  :searchable="isSearchable(property)"
+                  @quick-search="quickSearch" />
+                <profile-single-valued-property
+                  v-else
+                  :hover="hover"
+                  :property="property"
+                  :searchable="isSearchable(property)"
+                  @quick-search="quickSearch" />
+              </v-hover>
             </v-list-item>
             <v-divider
-              v-if="property?.visible && property?.value"
+              v-if="canShowProperty(property)"
               :key="property.id" />
           </template>
         </v-list-item-group>
@@ -85,6 +93,9 @@ export default {
     excludedSearchProps: ['fullName', 'firstName', 'email', 'phones', 'ims', 'urls']
   }),
   computed: {
+    isAdmin() {
+      return this.user?.isAdmin;
+    },
     filteredProperties() {
       return this.properties.filter(property => property.visible &&
                (property.value || (property.children.length && property.children.some(e => e.value))));
@@ -106,6 +117,14 @@ export default {
     }
   },
   methods: {
+    canShowProperty(property) {
+      return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
+    },
+    isPropertyHidden(property) {
+      return property.hidden || (property?.children?.length
+                             && property.children.filter(child => child.value)
+                               .every(child => child.hidden));
+    },
     isSearchable(property) {
       return !this.excludedSearchProps.includes(property.propertyName);
     },

@@ -24,6 +24,9 @@
     <div
       class="align-start text-no-wrap font-weight-bold me-3 ma-auto">
       {{ getResolvedName(property) }}
+      <profile-hidden-property-info
+        :property="property"
+        :hover="hover" />
     </div>
     <div
       class="align-end flex-grow-1 text-truncate text-end">
@@ -54,6 +57,10 @@ export default {
       default: () => null,
     },
     searchable: {
+      type: Boolean,
+      default: false,
+    },
+    hover: {
       type: Boolean,
       default: false,
     },
