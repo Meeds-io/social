@@ -45,6 +45,7 @@
       :style="absolute && {
         left: `${left}px`,
       }"
+      :role="alertType"
       v-touch="{
         start: moveStart,
         end: moveEnd,
