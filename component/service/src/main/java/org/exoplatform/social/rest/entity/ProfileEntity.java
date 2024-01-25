@@ -89,6 +89,8 @@ public class ProfileEntity extends BaseEntity {
   public static final String SYNCHRONIZED_DATE   = "synchronizedDate";
 
   public static final String CREATED_DATE   = "createdDate";
+  
+  public static final String IS_ADMIN          = "isAdmin";
 
   public ProfileEntity() {
   }
@@ -519,6 +521,15 @@ public class ProfileEntity extends BaseEntity {
     return this;
   }
 
+  public String getIsAdmin() {
+    return getString(IS_ADMIN);
+  }
+
+  public ProfileEntity setIsAdmin(boolean isAdmin) {
+    setProperty(IS_ADMIN, isAdmin);
+    return this;
+  }
+  
   public String getSynchronizedDate() { 
     return getString(SYNCHRONIZED_DATE); 
   }
