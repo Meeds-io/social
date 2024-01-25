@@ -82,7 +82,11 @@ public class ProfileSettingsRest implements ResourceContainer {
       List<ProfilePropertySetting> properties = profilePropertyService.getPropertySettings();
       List<String> unHiddenbaleProperties = profilePropertyService.getUnhiddenablePropertySettings();
 
-      List<ProfilePropertySettingEntity> propertySettingEntities = EntityBuilder.buildEntityProfilePropertySettingList(properties, profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE);
+      List<ProfilePropertySettingEntity> propertySettingEntities =
+                                                                 EntityBuilder.buildEntityProfilePropertySettingList(properties,
+                                                                                                                     profilePropertyService,
+                                                                                                                     ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                                                     currentIdentityId);
       Map<String, List<?>> settings = new HashMap<>();
       settings.put("settings", propertySettingEntities);
       settings.put("unHiddenableProperties", unHiddenbaleProperties);
@@ -180,5 +184,4 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();
     }
   }
-
 }
