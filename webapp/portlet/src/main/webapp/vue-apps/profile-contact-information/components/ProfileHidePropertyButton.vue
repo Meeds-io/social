@@ -49,14 +49,17 @@
         </v-btn>
       </div>
     </template>
-    <span v-if="!isHiddenable">
+    <span v-if="!isHiddenable && !isNew">
       {{ $t('profileContactInformation.hiddenable.disabled') }}
     </span>
-    <span v-else-if="!isHidden">
+    <span v-else-if="!isHidden && !isNew">
       {{ $t('profileContactInformation.hide.property.label') }}
     </span>
-    <span v-else>
+    <span v-else-if="!isNew">
       {{ $t('profileContactInformation.show.property.label') }}
+    </span>
+    <span v-else>
+      {{ $t('profileContactInformation.property.not.saved.label') }}
     </span>
   </v-tooltip>
 </template>
@@ -75,6 +78,9 @@ export default {
     },
     isHidden() {
       return this.property?.hidden;
+    },
+    isNew() {
+      return this.property?.isNew;
     }
   },
   methods: {

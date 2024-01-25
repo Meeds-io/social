@@ -213,12 +213,30 @@
             </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-switch
-              v-model="setting.hiddenable"
-              :disabled="saving || unHiddenableSetting"
-              :ripple="false"
-              color="primary"
-              class="activeSwitcher my-auto" />
+            <v-tooltip
+              bottom
+              :disabled="!unHiddenableSetting">
+              <template #activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  v-on="on">
+                  <v-switch
+                    v-model="setting.hiddenable"
+                    :disabled="saving || unHiddenableSetting"
+                    :alt="setting.hiddenable && $t('profileContactInformation.show.property.alt')
+                      || $t('profileContactInformation.hide.property.alt')"
+                    :ripple="false"
+                    color="primary"
+                    class="activeSwitcher my-auto" />
+                </div>
+              </template>
+              <span v-if="setting?.children?.length">
+                {{ $t('profileContactInformation.hiddenable.parentProperty.disabled') }}
+              </span>
+              <span v-else>
+                {{ $t('profileContactInformation.unHiddenable.property.tooltip') }}
+              </span>
+            </v-tooltip>
           </v-list-item-action>
         </v-list-item>
       </v-form>
