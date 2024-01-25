@@ -224,6 +224,8 @@ public class EntityBuilder {
   private static LayoutService            layoutService;
 
   private static UserACL                  userACL;
+  
+  private static ProfilePropertyService   profilePropertyService;
 
   static {
     NO_CACHE_CC.setNoCache(true);
@@ -318,6 +320,7 @@ public class EntityBuilder {
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
     userEntity.setDefaultAvatar(profile.isDefaultAvatar());
+    userEntity.setIsAdmin(getUserACL().isSuperUser() || getUserACL().isUserInGroup(getUserACL().getAdminGroups()));
     if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
       userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
@@ -411,12 +414,20 @@ public class EntityBuilder {
         }
       }
     }
-      if (expandAttributes.contains("settings")) {
-        ProfilePropertyService profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
-        List<Long> hiddenProfileProperties = profilePropertyService.getHiddenProfilePropertyIds(RestUtils.getCurrentUserIdentityId());
-        userEntity.setProperties(EntityBuilder.buildProperties(profile, hiddenProfileProperties));
-      }
+    if (expandAttributes.contains("settings")) {
+      List<Long> hiddenProfileProperties =
+                                         getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(profile.getIdentity()
+                                                                                                                       .getId()));
+      userEntity.setProperties(EntityBuilder.buildProperties(profile, hiddenProfileProperties));
+    }
     return userEntity;
+  }
+  
+  private static ProfilePropertyService getProfilePropertyService() {
+    if (profilePropertyService == null) {
+      profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
+    }
+    return profilePropertyService;
   }
 
   public static List<ProfilePropertySettingEntity> buildProperties(Profile profile, List<Long> hiddenProfileProperties) {
@@ -1679,17 +1690,17 @@ public class EntityBuilder {
    * objects list
    *
    * @param profilePropertySettingList the ProfilePropertySetting objects list
-   * @param currentIdentityId
+   * @param userIdentityId user identity id
    * @return the ProfilePropertySettingEntity rest objects list
    */
   public static List<ProfilePropertySettingEntity> buildEntityProfilePropertySettingList(List<ProfilePropertySetting> profilePropertySettingList,
                                                                                          ProfilePropertyService profilePropertyService,
                                                                                          String objectType,
-                                                                                         long currentIdentityId) {
+                                                                                         long userIdentityId) {
     if (profilePropertySettingList.isEmpty())
       return new ArrayList<>();
     
-    List<Long> hiddenPropertyIds = profilePropertyService.getHiddenProfilePropertyIds(currentIdentityId);
+    List<Long> hiddenPropertyIds = profilePropertyService.getHiddenProfilePropertyIds(userIdentityId);
     List<ProfilePropertySettingEntity> profilePropertySettingsList = new ArrayList<>();
     for (ProfilePropertySetting propertySetting : profilePropertySettingList) {
       ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,
