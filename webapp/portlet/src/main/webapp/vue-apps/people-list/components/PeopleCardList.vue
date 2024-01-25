@@ -108,7 +108,7 @@ export default {
   computed: {
     profileActionExtensions() {
       const profileActionExtensions = [...this.profileExtensions, ...this.spaceMemberExtensions];
-      profileActionExtensions.sort((a, b) => (a.sort || 100) - (b.sort || 100));
+      profileActionExtensions.sort((a, b) => (a.order || 100) - (b.order || 100));
       return profileActionExtensions;
     },
     canShowMore() {
