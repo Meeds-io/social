@@ -30,7 +30,7 @@
         <profile-setting-form-drawer
           :settings="settings"
           :languages="languages"
-          :un-hiddenable-properties="unHiddenableProperties"/>
+          :un-hiddenable-properties="unHiddenableProperties" />
       </v-card>
     </v-main>
   </v-app>
