@@ -16,11 +16,6 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
-import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentities;
-import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentitiesOfSpace;
-import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -149,6 +144,9 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import static org.exoplatform.social.rest.api.RestUtils.*;
+
 /**
  * 
  * Provides REST Services for manipulating jobs related to users.
@@ -582,7 +580,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     String expandedSettings = expand;
     if (expand != null && expand.contains("settings")) {
-      expandedSettings = String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE)));
+      expandedSettings = String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE, getCurrentUserIdentityId())));
     }
 
     long cacheTime = identity.getCacheTime();
@@ -1096,7 +1094,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
-          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false);
+          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
+          updateProfilePropertyVisibility(profileProperty);
+          if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME) || profileProperty.getPropertyName().equals(Profile.LAST_NAME) ) {
+            profile = getUserIdentity(username).getProfile();
+          }
         } else {
           List<Map<String, String>> maps = new ArrayList<>();
           profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
@@ -1109,7 +1111,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               maps.add(childrenMap);
             }
           });
-          updateProfileField(profile, profileProperty.getPropertyName(), maps, false);
+          updateProfileField(profile, profileProperty.getPropertyName(), maps, true);
+          updateProfilePropertyVisibility(profileProperty);
         }
       } catch (IllegalAccessException e) {
         LOG.error("User {} is not allowed to update attributes", currentUser);
@@ -1583,6 +1586,14 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       importUsersAsync(fileLocation, userImportResultEntity, locale, url, ConversationState.getCurrent());
     }
     return null;
+  }
+  
+  private void updateProfilePropertyVisibility(ProfilePropertySettingEntity profileProperty) {
+    if (profileProperty.isToHide()) {
+      profilePropertyService.hidePropertySetting(getCurrentUserIdentityId(), profileProperty.getId());
+    } else if (profileProperty.isToShow()) {
+      profilePropertyService.showPropertySetting(getCurrentUserIdentityId(), profileProperty.getId());
+    }
   }
 
   private void importUsersAsync(String fileLocation,
