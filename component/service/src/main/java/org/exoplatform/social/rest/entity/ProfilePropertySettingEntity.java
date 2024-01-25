@@ -32,44 +32,50 @@ import java.util.List;
 @AllArgsConstructor
 public class ProfilePropertySettingEntity {
 
-  private Long id;
+  private Long                               id;
 
-  private String propertyName;
+  private String                             propertyName;
 
-  private String value;
+  private String                             value;
 
-  private String resolvedLabel;
+  private String                             resolvedLabel;
 
-  private boolean isVisible;
+  private boolean                            isVisible;
 
-  private boolean isEditable;
+  private boolean                            isEditable;
 
-  private Long parentId;
+  private Long                               parentId;
 
-  private Long order;
+  private Long                               order;
 
-  private boolean isActive;
+  private boolean                            isActive;
 
-  private boolean isGroupSynchronized;
+  private boolean                            isGroupSynchronized;
 
-  private boolean isRequired;
+  private boolean                            isRequired;
 
-  private boolean isMultiValued;
+  private boolean                            isMultiValued;
 
-  private boolean isInternal;
+  private boolean                            isInternal;
 
-  private boolean isGroupSynchronizationEnabled;
+  private boolean                            isGroupSynchronizationEnabled;
 
-  private boolean isHiddenable;
+  private boolean                            toHide;
 
-  private List<ProfileLabel> labels;
+  private boolean                            toShow;
+
+  private boolean                            isHidden;
+
+  private boolean                            isHiddenable;
+
+  private List<ProfileLabel>                 labels;
 
   private List<ProfilePropertySettingEntity> children;
 
   private boolean                            isDefault;
 
   public List<ProfilePropertySettingEntity> getChildren() {
-    if (children!=null){
+    if (children != null) {
       return children;
     }
     return new ArrayList<>();

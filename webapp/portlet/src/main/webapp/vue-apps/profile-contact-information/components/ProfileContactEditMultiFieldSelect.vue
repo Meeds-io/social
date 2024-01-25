@@ -24,10 +24,15 @@
       @input="$emit('propertyUpdated')">
     <v-icon
       small
-      class="removeMultiFieldValue error--text"
+      class="removeMultiFieldValue  error--text"
+      :class="hasParent && 'hasParent' ||'noParent'"
       @click="$emit('remove')">
       fa-minus
     </v-icon>
+    <div v-if="!multiValued">
+      <profile-hide-property-button
+        :property="property" />
+    </div>
   </div>
 </template>
 
@@ -53,6 +58,9 @@ export default {
     this.$root.$on('reset-custom-validity', this.resetCustomValidity);
   },
   computed: {
+    hasParent() {
+      return this.properties?.length && !this.multiValued;
+    },
     filtredProperties(){
       return this.properties.filter((obj, index, self) =>
         obj.isNew && !obj.value || (index === self.findIndex((t) => (

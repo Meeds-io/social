@@ -139,6 +139,36 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     assertFalse(profilePropertyService.isPropertySettingHiddenable(propertySetting));
   }
 
+  public void testHidePropertySetting() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting propertySetting = createProfileSettingInstance("testProp");
+    propertySetting.setHiddenbale(true);
+    propertySetting = profilePropertyService.createPropertySetting(propertySetting);
+    profilePropertyService.hidePropertySetting(1L, propertySetting.getId());
+    List<Long> Ids = profilePropertyService.getHiddenProfilePropertyIds(1L);
+    assertTrue(Ids.contains(propertySetting.getId()));
+  }
+
+  public void testShowPropertySetting() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting propertySetting = createProfileSettingInstance("testProp1");
+    propertySetting.setHiddenbale(true);
+    propertySetting = profilePropertyService.createPropertySetting(propertySetting);
+    profilePropertyService.hidePropertySetting(1L, propertySetting.getId());
+    List<Long> Ids = profilePropertyService.getHiddenProfilePropertyIds(1L);
+    assertTrue(Ids.contains(propertySetting.getId()));
+    profilePropertyService.showPropertySetting(1L, propertySetting.getId());
+    Ids = profilePropertyService.getHiddenProfilePropertyIds(1L);
+    assertFalse(Ids.contains(propertySetting.getId()));
+  }
+
+  public void testGetHiddenProfilePropertyIds() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting propertySetting = createProfileSettingInstance("testProp2");
+    propertySetting.setHiddenbale(true);
+    propertySetting = profilePropertyService.createPropertySetting(propertySetting);
+    profilePropertyService.hidePropertySetting(1L, propertySetting.getId());
+    List<Long> Ids = profilePropertyService.getHiddenProfilePropertyIds(1L);
+    assertFalse(Ids.isEmpty());
+  }
+
   public void testGetProfilePropertySettings() throws Exception {
 
     assertEquals(0, profilePropertyService.getPropertySettings().size());
