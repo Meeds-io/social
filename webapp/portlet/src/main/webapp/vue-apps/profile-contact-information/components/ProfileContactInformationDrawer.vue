@@ -19,7 +19,8 @@
             @propertyUpdated="propertyUpdated" />
           <div v-else-if="property.editable">
             <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              {{ getResolvedName(property) }}<span v-if="property.required">*</span>
+              {{ getResolvedName(property) }}
+              <span v-if="property.required">*</span>
             </v-card-text>
             <v-card-text class="d-flex py-0">
               <v-card-text :title="disabledField(property) ? $t('profileContactInformation.synchronizedUser.tooltip') :$t('profileContactInformation.'+property.propertyName)" class="d-flex pa-0">
@@ -34,6 +35,8 @@
                   @change="propertyUpdated(property)"
                   @input="propertyUpdated(property)">
               </v-card-text>
+              <profile-hide-property-button
+                :property="property" />
             </v-card-text>
           </div>
         </div>
@@ -71,9 +74,20 @@ export default {
   }),
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
+    this.$root.$on('hide-profile-property', this.hideProperty);
+    this.$root.$on('show-profile-property', this.showProperty);
   },
   methods: {
-    
+    hideProperty(property) {
+      property.hidden = true;
+      property.toHide = true;
+      this.propertyUpdated(property);
+    },
+    showProperty(property) {
+      property.hidden = false;
+      property.toShow = true;
+      this.propertyUpdated(property);
+    },
     resetCustomValidity() {
       if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity('');}
       if (this.$refs.firstNameInput) { this.$refs.firstNameInput[0].setCustomValidity('');}
