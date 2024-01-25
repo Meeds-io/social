@@ -5,6 +5,7 @@ import ProfileContactEditMultiField from './components/ProfileContactEditMultiFi
 import ProfileContactEditMultiFieldSelect from './components/ProfileContactEditMultiFieldSelect.vue';
 import ProfileSingleValuedProperty from './components/ProfileSingleValuedProperty.vue';
 import QuickSearchUsersListDrawer from './components/QuickSearchUsersListDrawer.vue';
+import ProfileHidePropertyButton from './components/ProfileHidePropertyButton.vue';
 
 const components = {
   'profile-contact-information': ProfileContactInformation,
@@ -13,7 +14,8 @@ const components = {
   'profile-contact-edit-multi-field': ProfileContactEditMultiField,
   'profile-contact-edit-multi-field-select': ProfileContactEditMultiFieldSelect,
   'profile-single-valued-property': ProfileSingleValuedProperty,
-  'quick-search-users-list-drawer': QuickSearchUsersListDrawer
+  'quick-search-users-list-drawer': QuickSearchUsersListDrawer,
+  'profile-hide-property-button': ProfileHidePropertyButton
 };
 
 for (const key in components) {
