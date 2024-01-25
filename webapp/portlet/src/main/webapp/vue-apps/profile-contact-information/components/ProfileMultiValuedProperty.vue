@@ -24,6 +24,9 @@
     <div
       class="align-start text-no-wrap font-weight-bold me-3 ma-auto">
       {{ getResolvedName(property) }}
+      <profile-hidden-property-info
+        :property="property"
+        :hover="hover" />
     </div>
     <div
       class="align-end flex-grow-1 text-truncate text-end">
@@ -32,23 +35,39 @@
         :key="i"
         :title="childProperty.value"
         class="text-no-wrap text-truncate">
-        <template
-          v-if="canShowChild(childProperty)">
-          <span
-            v-if="childProperty.propertyName"
-            class="pe-1 font-weight-regular text-subtitle-2 text-capitalize">
-            {{ getResolvedName(childProperty) }}:
-          </span>
-          <v-btn
-            v-if="searchable"
-            v-autolinker="childProperty.value"
-            class="primary--text font-weight-regular text-subtitle-2 pa-0 ma-auto"
-            text
-            @click="quickSearch(childProperty)" />
-          <span
-            v-else
-            v-autolinker="childProperty.value"></span>
-        </template>
+        <v-hover v-slot="{hover}">
+          <div
+            v-if="canShowChild(childProperty)"
+            :class="childProperty.hidden && 'opacity-5'">
+            <div
+              v-if="childProperty.hidden"
+              class="d-inline-block">
+              <span
+                v-if="hover"
+                class="me-2 text-caption">
+                {{ $t('profileContactInformation.property.hidden.label') }}
+              </span>
+              <v-icon
+                class="icon-default-color me-2 text-subtitle-2">
+                fas fa-eye-slash
+              </v-icon>
+            </div>
+            <span
+              v-if="childProperty.propertyName"
+              class="pe-1 font-weight-regular text-subtitle-2 text-capitalize">
+              {{ getResolvedName(childProperty) }}:
+            </span>
+            <v-btn
+              v-if="searchable"
+              v-autolinker="childProperty.value"
+              class="primary--text font-weight-regular text-subtitle-2 pa-0 ma-auto"
+              text
+              @click="quickSearch(childProperty)" />
+            <span
+              v-else
+              v-autolinker="childProperty.value"></span>
+          </div>
+        </v-hover>
       </div>
     </div>
   </v-flex>
@@ -65,6 +84,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    hover: {
+      type: Boolean,
+      default: false,
+    },
+    owner: {
+      type: Boolean,
+      default: false,
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   methods: {
     quickSearch(childProperty) {
@@ -78,8 +109,11 @@ export default {
       }
       return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
     },
+    canShowHiddenChildProperty(property) {
+      return !property.hidden || (property.hidden && (this.isAdmin || this.owner));
+    },
     canShowChild(childProperty) {
-      return (childProperty.value && childProperty.visible && childProperty.active)
+      return (childProperty.value && childProperty.visible && childProperty.active && this.canShowHiddenChildProperty(childProperty))
                || (this.property.multiValued && this.property.active && this.property.visible && childProperty.value);
     }
   },

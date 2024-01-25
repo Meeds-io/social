@@ -576,7 +576,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     String expandedSettings = expand;
     if (expand != null && expand.contains("settings")) {
-      expandedSettings = String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE, getCurrentUserIdentityId())));
+      expandedSettings =
+                       String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),
+                                                                                                       profilePropertyService,
+                                                                                                       ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                                       Long.parseLong(identity.getId()))));
     }
 
     long cacheTime = identity.getCacheTime();
