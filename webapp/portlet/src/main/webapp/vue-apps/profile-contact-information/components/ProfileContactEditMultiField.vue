@@ -7,6 +7,9 @@
         </span>
       </div>
       <div class="align-end flex-grow-1 text-no-wrap text-end">
+        <profile-hide-property-button
+          v-if="property.multiValued"
+          :property="property" />
         <v-btn
           color="primary"
           class="px-0"
