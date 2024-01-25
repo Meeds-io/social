@@ -126,4 +126,30 @@ public interface ProfilePropertyService {
    * @return true if property is hiddenbale and false otherwise
    */
   boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting);
+
+  /**
+   * Hide profile property setting
+   *
+   * @param userIdentityId user identity id
+   * @param profilePropertyId profile property id
+   */
+  void hidePropertySetting(long userIdentityId, long profilePropertyId);
+
+
+  /**
+   * Show profile property setting
+   *
+   * @param userIdentityId user identity id
+   * @param profilePropertyId profile property id
+   */
+  void showPropertySetting(long userIdentityId, long profilePropertyId);
+
+  /**
+   * Get hidden profile property Ids
+   *
+   * @param userIdentityId user identity ide
+   * @return {@link List} of {@link Long}
+   */
+  List<Long> getHiddenProfilePropertyIds(long userIdentityId);
+
 }
