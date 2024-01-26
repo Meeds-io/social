@@ -23,18 +23,30 @@ Vue.directive('identity-popover', (el, binding) => {
   }
 
   el.addEventListener('mouseover', () => {
-    const rect = el.getBoundingClientRect();
-    document.dispatchEvent(new CustomEvent('popover-identity-display', {
-      detail: Object.assign({
-        offsetX: rect.left + window.scrollX,
-        offsetY: rect.top > 150 + rect.height ? rect.top : rect.bottom + window.scrollY,
-        top: rect.top > 150 + rect.height ? true : false, 
-        identityType: isUser ? 'User' : 'Space',
-        element: el,
-      }, identity || {})
-    }));
+    showPopover(el, identity, isUser);
+  });
+  el.addEventListener('keyup', (event) => {
+    if (event.key === 'Tab') {
+      showPopover(el, identity, isUser);
+    }
+  });
+  el.addEventListener('focusout', () => {
+    document.dispatchEvent(new CustomEvent('popover-identity-hide'));
   });
 });
+
+export function showPopover(el, identity, isUser) {
+  const rect = el.getBoundingClientRect();
+  document.dispatchEvent(new CustomEvent('popover-identity-display', {
+    detail: Object.assign({
+      offsetX: rect.left + window.scrollX,
+      offsetY: rect.top > 150 + rect.height ? rect.top : rect.bottom + window.scrollY,
+      top: rect.top > 150 + rect.height ? true : false,
+      identityType: isUser ? 'User' : 'Space',
+      element: el,
+    }, identity || {})
+  }));
+}
 
 const appId = 'Popovers';
 
