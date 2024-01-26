@@ -53,8 +53,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   private static final String     SPACES_GROUP_PREFIX = SpaceUtils.SPACE_GROUP + "/";
 
-  private static final String     LAST_PORTAL_NAME    = "prc.lastPortalName";
-
   public static final String      PAGE_URI       = "space-access";
 
   private IdentityManager         identityManager;
@@ -198,10 +196,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
   }
 
   private String getURI(ControllerContext controllerContext, String uri) {
-    String portalName = (String) controllerContext.getRequest().getSession().getAttribute(LAST_PORTAL_NAME);
-    if (StringUtils.isBlank(portalName)) {
-      portalName = userPortalConfigService.getMetaPortal();
-    }
+    String portalName = userPortalConfigService.getMetaPortal();
 
     SiteKey siteKey = SiteKey.portal(portalName);
     NavigationResource resource = new NavigationResource(siteKey.getType(), siteKey.getName(), uri);
