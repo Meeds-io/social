@@ -30,6 +30,7 @@
           v-if="!isHidden"
           :disabled="!isHiddenable"
           icon
+          :aria-label="$t('profileContactInformation.hide.property.label')"
           @click="hideProperty">
           <v-icon
             size="18"
@@ -40,6 +41,7 @@
         <v-btn
           v-else
           icon
+          :aria-label="$t('profileContactInformation.show.property.label')"
           @click="showProperty">
           <v-icon
             size="18"
