@@ -35,6 +35,7 @@
         </v-btn>
       </template>
       <v-list
+        :flat="isMobile"
         class="list-no-selection">
         <v-list-item-group>
           <template
@@ -52,12 +53,14 @@
                   :owner="owner"
                   :is-admin="isAdmin"
                   :property="property"
+                  :is-mobile="isMobile"
                   :searchable="isSearchable(property)"
                   @quick-search="quickSearch" />
                 <profile-single-valued-property
                   v-else
                   :hover="hover"
                   :property="property"
+                  :is-mobile="isMobile"
                   :searchable="isSearchable(property)"
                   @quick-search="quickSearch" />
               </v-hover>
@@ -93,6 +96,9 @@ export default {
     excludedSearchProps: ['fullName', 'firstName', 'email', 'phones', 'ims', 'urls']
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify?.breakpoint?.smAndDown;
+    },
     isAdmin() {
       return this.user?.isAdmin;
     },

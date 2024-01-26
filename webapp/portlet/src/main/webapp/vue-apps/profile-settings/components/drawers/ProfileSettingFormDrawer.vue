@@ -195,7 +195,7 @@
             <v-list-item-title
               class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
               <div>
-                {{ $t('profileSettings.label.maskable') }}
+                {{ $t('profileSettings.label.hiddenable') }}
               </div>
             </v-list-item-title>
             <v-list-item-subtitle
@@ -203,12 +203,12 @@
               <span
                 v-if="setting.hiddenable"
                 class="caption">
-                {{ $t('profileSettings.label.maskable.enabled') }}
+                {{ $t('profileSettings.label.hiddenable.enabled') }}
               </span>
               <span
                 v-else
                 class="caption">
-                {{ $t('profileSettings.label.maskable.disabled') }}
+                {{ $t('profileSettings.label.hiddenable.disabled') }}
               </span>
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -223,18 +223,19 @@
                   <v-switch
                     v-model="setting.hiddenable"
                     :disabled="saving || unHiddenableSetting"
-                    :alt="setting.hiddenable && $t('profileContactInformation.show.property.alt')
-                      || $t('profileContactInformation.hide.property.alt')"
+                    :alt="setting.hiddenable && $t('profileSettings.show.property.alt')
+                      || $t('profileSettings.hide.property.alt')"
                     :ripple="false"
                     color="primary"
+                    :aria-labelledBy="$t('profileSettings.label.hiddenable')"
                     class="activeSwitcher my-auto" />
                 </div>
               </template>
               <span v-if="setting?.children?.length">
-                {{ $t('profileContactInformation.hiddenable.parentProperty.disabled') }}
+                {{ $t('profileSettings.hiddenable.parentProperty.disabled') }}
               </span>
               <span v-else>
-                {{ $t('profileContactInformation.unHiddenable.property.tooltip') }}
+                {{ $t('profileSettings.unHiddenable.property.tooltip') }}
               </span>
             </v-tooltip>
           </v-list-item-action>
