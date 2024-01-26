@@ -23,11 +23,11 @@
     v-if="isHidden"
     class="d-inline-block">
     <v-icon
-      class="icon-default-color ms-2 text-subtitle-2">
+      class="text-color ms-2 text-subtitle-2">
       fas fa-eye-slash
     </v-icon>
     <span
-      v-if="hover"
+      v-if="hover && !isMobile"
       class="ms-1 text-caption">
       {{ $t('profileContactInformation.property.hidden.label') }}
     </span>
@@ -42,6 +42,10 @@ export default {
       default: null
     },
     hover: {
+      type: Boolean,
+      default: false
+    },
+    isMobile: {
       type: Boolean,
       default: false
     }
