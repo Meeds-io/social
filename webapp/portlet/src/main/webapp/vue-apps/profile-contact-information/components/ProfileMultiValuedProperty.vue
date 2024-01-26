@@ -43,7 +43,7 @@
               v-if="childProperty.hidden"
               class="d-inline-block">
               <span
-                v-if="hover"
+                v-if="hover && !isMobile"
                 class="me-2 text-caption">
                 {{ $t('profileContactInformation.property.hidden.label') }}
               </span>
@@ -93,6 +93,10 @@ export default {
       default: false,
     },
     isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    isMobile: {
       type: Boolean,
       default: false,
     },
