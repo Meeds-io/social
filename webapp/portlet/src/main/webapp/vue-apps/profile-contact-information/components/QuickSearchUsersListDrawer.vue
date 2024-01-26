@@ -130,6 +130,7 @@ export default {
   },
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+    this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
     this.$root.$on('open-quick-search-users-drawer', this.open);
     this.$root.$on('relationship-status-updated', this.updateRelationshipStatus);
   },
