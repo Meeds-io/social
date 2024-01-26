@@ -1,8 +1,11 @@
 <template>
-  <div v-if="property.value || property.isNew" class="d-flex flex-no-wrap pb-2 multiField">
+  <div
+    v-if="property.value || property.isNew"
+    class="d-flex flex-no-wrap pb-2 multiField">
     <select
-      v-if="properties && properties.length && !multiValued"
+      v-if="properties?.length && !multiValued"
       v-model="property.propertyName"
+      :disabled="!property.editable"
       class="ignore-vuetify-classes align-start flex-grow-0 half-width text-capitalize"
       @change="$emit('propertyUpdated')">
       <option
@@ -16,6 +19,7 @@
     <input
       v-model="property.value"
       :title="property.value"
+      :disabled="multiValued && !parentProperty.editable || !property.editable"
       type="text"
       class="ignore-vuetify-classes align-end flex-grow-1"
       maxlength="2000"
@@ -40,6 +44,10 @@
 export default {
   props: {
     property: {
+      type: Object,
+      default: () => null,
+    },
+    parentProperty: {
       type: Object,
       default: () => null,
     },
