@@ -46,15 +46,6 @@
         <v-bottom-sheet v-model="bottomMenu" class="pa-0">
           <v-sheet class="text-center">
             <v-list dense>
-              <people-connection-option-item
-                :relationship-status="relationshipStatus"
-                :is-mobile="isMobile"
-                :is-updating-status="isUpdatingStatus"
-                @connect="connect"
-                @disconnect="disconnect"
-                @accept-to-connect="acceptToConnect"
-                @refuse-to-connect="refuseToConnect"
-                @cancel-request="cancelRequest" />
               <v-list-item
                 v-for="(extension, i) in enabledProfileActionExtensions"
                 :key="i"
@@ -93,16 +84,6 @@
             </v-btn>
           </template>
           <v-list class="pa-0 white" dense>
-            <people-connection-option-item
-              :relationship-status="relationshipStatus"
-              :is-updating-status="isUpdatingStatus"
-              :compact-display="true"
-              :is-mobile="isMobile"
-              @connect="connect"
-              @disconnect="disconnect"
-              @accept-to-connect="acceptToConnect"
-              @refuse-to-connect="refuseToConnect"
-              @cancel-request="cancelRequest" />
             <v-list-item
               v-for="(extension, i) in enabledProfileActionExtensions"
               :key="i"
