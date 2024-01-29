@@ -23,6 +23,7 @@
     v-if="menu"
     v-model="menu"
     rounded="rounded"
+    role="tooltip"
     :close-on-content-click="false"
     :position-x="offsetX"
     :position-y="offsetY"
@@ -119,6 +120,12 @@ export default {
     document.addEventListener('drawerClosed', () => this.closePopover(true));
     document.addEventListener('modalOpened', () => this.closePopover(true));
     document.addEventListener('modalClosed', () => this.closePopover(true));
+    document.addEventListener('popover-identity-hide', () => this.closePopover(true));
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        this.closePopover(true);
+      }
+    });
     this.$root.$on('popover-hovered', this.setPopoverHovered);
     this.$root.$on('popover-not-hovered', this.setPopoverNotHovered);
   },
