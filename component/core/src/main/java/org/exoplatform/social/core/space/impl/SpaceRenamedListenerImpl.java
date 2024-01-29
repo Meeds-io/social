@@ -75,6 +75,7 @@ public class SpaceRenamedListenerImpl extends SpaceListenerPlugin {
     Space space = event.getSpace();
     SpaceUtils.renamePageNode(space);
     SpaceUtils.renameGroupLabel(space);
+    SpaceUtils.updateDefaultSpaceAvatar(space);
   }
 
   @Override
