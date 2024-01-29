@@ -40,6 +40,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.file.services.FileService;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;
@@ -449,6 +453,29 @@ public class SpaceUtils {
       LOG.error(e.getMessage(), e);
     } finally {
       RequestLifeCycle.end();
+    }
+  }
+
+  /**
+   * update space default avatar when renaming the space
+   * 
+   * @param space
+   */
+  public static void updateDefaultSpaceAvatar(Space space) {
+    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    FileItem spaceAvatar = identityManager.getAvatarFile(spaceIdentity);
+    FileService fileService = CommonsUtils.getService(FileService.class);
+    if (spaceAvatar != null && spaceAvatar.getFileInfo().getId() != null
+        && EntityConverterUtils.DEFAULT_AVATAR.equals(spaceAvatar.getFileInfo().getName())) {
+      Profile profile = spaceIdentity.getProfile();
+      fileService.deleteFile(spaceAvatar.getFileInfo().getId());
+      profile.removeProperty(Profile.AVATAR);
+      profile.setAvatarUrl(null);
+      profile.setAvatarLastUpdated(null);
+      space.setAvatarAttachment(null);
+      identityManager.updateProfile(profile);
+      space.setAvatarLastUpdated(System.currentTimeMillis());
     }
   }
 
