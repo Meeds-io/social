@@ -25,10 +25,8 @@ Vue.directive('identity-popover', (el, binding) => {
   el.addEventListener('mouseover', () => {
     showPopover(el, identity, isUser);
   });
-  el.addEventListener('keyup', (event) => {
-    if (event.key === 'Tab') {
-      showPopover(el, identity, isUser);
-    }
+  el.addEventListener('focusin', () => {
+    showPopover(el, identity, isUser);
   });
   el.addEventListener('focusout', () => {
     document.dispatchEvent(new CustomEvent('popover-identity-hide'));
