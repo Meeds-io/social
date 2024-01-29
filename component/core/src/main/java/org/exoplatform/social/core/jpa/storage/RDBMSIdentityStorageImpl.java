@@ -38,6 +38,7 @@ import jakarta.persistence.Query;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.image.ImageUtils;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -113,6 +114,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
   private IdentityStorage                  cachedIdentityStorage;
 
   private ActivityStorage                  activityStorage;
+
+  private SpaceStorage                     spaceStorage;
 
   private Map<String, IdentityProvider<?>> identityProviders     = null;
 
@@ -1048,7 +1051,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       if (entity.getAvatarFileId() != null) {
         file = fileService.getFile(entity.getAvatarFileId());
       } else if (identity.isUser() || identity.isSpace()) {
-        String fullNameAbbreviation = getNameAbbreviation(identity.getProfile().getFullName());
+        String fullNameAbbreviation = getNameAbbreviation(identity);
         AvatarAttachment avatar = ImageUtils.createDefaultAvatar(identity.getId(), fullNameAbbreviation);
         if (avatar != null) {
           byte[] bytes = avatar.getImageBytes();
@@ -1143,6 +1146,13 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     return activityStorage;
   }
 
+  public SpaceStorage getSpaceStorage() {
+    if (spaceStorage == null) {
+      spaceStorage = CommonsUtils.getService(SpaceStorage.class);
+    }
+    return spaceStorage;
+  }
+
   /**
    * Get the identity from cache implementation of IdentityStorage instead of DB
    * The solution is not ideal since we refer to the cached version directly in the
@@ -1196,7 +1206,16 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     this.imageUploadLimit = imageUploadLimit;
   }
 
-  private String getNameAbbreviation(String name) {
+  private String getNameAbbreviation(Identity identity) {
+    String name = "";
+    if (identity.isUser()) {
+      name = identity.getProfile().getFullName();
+    } else if (identity.isSpace()) {
+      Space space = getSpaceStorage().getSpaceByPrettyName(identity.getRemoteId());
+      if (space != null) {
+        name = space.getDisplayName();
+      }
+    }
     String result = name.replaceAll("\\B.|\\P{L}", "").toUpperCase();
     if (result.length() > 2) {
       return result.substring(0, 2);
