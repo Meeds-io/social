@@ -101,7 +101,7 @@
         <div
           v-for="action in enabledProfileHeaderActionComponents"
           :key="action.key"
-          :class="`${action.appClass} ${action.typeClass}`"
+          :class="actionClass(action)"
           :ref="action.key">
           <div v-if="action.component">
             <component
@@ -273,7 +273,10 @@ export default {
           }
         });
       }
-    }
+    },
+    actionClass(action) {
+      return (this.isMobile && action.key === 'userProfileCallButton') ? `${action.appClass} ${action.typeClass} call-button-mini` : `${action.appClass} ${action.typeClass}`;
+    },
   },
 };
 </script>
