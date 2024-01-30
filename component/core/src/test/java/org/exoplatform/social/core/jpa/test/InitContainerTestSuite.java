@@ -68,6 +68,7 @@ import org.exoplatform.social.core.space.spi.SpaceTemplateServiceTest;
 import org.exoplatform.social.metadata.MetadataServiceTest;
 import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
+import org.exoplatform.social.core.jpa.search.ProfileSearchConnectorTest;
 
 import io.meeds.social.cms.service.CMSServiceTest;
 import io.meeds.social.core.richeditor.RichEditorConfigurationServiceTest;
@@ -132,6 +133,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   AttachmentActivityProcessorTest.class,
   AttachmentServiceTest.class,
   MentionUtilsTest.class,
+  ProfileSearchConnectorTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
