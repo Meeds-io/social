@@ -35,6 +35,7 @@
         v-if="searchable"
         v-autolinker="property.value"
         class="primary--text text-subtitle-2 pa-0 font-weight-regular"
+        min-width="auto"
         text
         @click="quickSearch">
         {{ property.value }}
