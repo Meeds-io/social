@@ -61,6 +61,7 @@
               v-if="searchable"
               v-autolinker="childProperty.value"
               class="primary--text font-weight-regular text-subtitle-2 pa-0 ma-auto"
+              min-width="auto"
               text
               @click="quickSearch(childProperty)" />
             <span
