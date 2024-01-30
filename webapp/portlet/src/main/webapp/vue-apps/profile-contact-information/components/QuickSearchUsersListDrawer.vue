@@ -34,7 +34,7 @@
         filter="all"
         :hide-filter="true"
         :hide-right-filter-button="true"
-        :compact="!expanded"
+        :compact="true"
         @keyword-changed="keyword = $event" />
       <div
         v-if="!isSearching && !listUsers.length"
