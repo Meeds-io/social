@@ -464,22 +464,17 @@ public class SpaceUtils {
   public static void updateDefaultSpaceAvatar(Space space) {
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-    Profile profile = spaceIdentity.getProfile();
-    if (profile != null && profile.getProperty(Profile.FULL_NAME) != null && !profile.getProperty(Profile.FULL_NAME)
-                                                                                     .equals(space.getDisplayName())) {
-      FileItem spaceAvatar = identityManager.getAvatarFile(spaceIdentity);
-      if (spaceAvatar != null && spaceAvatar.getFileInfo().getId() != null
-          && EntityConverterUtils.DEFAULT_AVATAR.equals(spaceAvatar.getFileInfo().getName())) {
-        profile.setProperty(Profile.FULL_NAME, space.getDisplayName());
-        profile.removeProperty(Profile.AVATAR);
-        profile.setAvatarUrl(null);
-        profile.setAvatarLastUpdated(null);
-        space.setAvatarLastUpdated(System.currentTimeMillis());
-        identityManager.updateProfile(profile);
-
-        FileService fileService = CommonsUtils.getService(FileService.class);
-        fileService.deleteFile(spaceAvatar.getFileInfo().getId());
-      }
+    FileItem spaceAvatar = identityManager.getAvatarFile(spaceIdentity);
+    if (spaceAvatar != null && spaceAvatar.getFileInfo().getId() != null
+        && EntityConverterUtils.DEFAULT_AVATAR.equals(spaceAvatar.getFileInfo().getName())) {
+      Profile profile = spaceIdentity.getProfile();
+      profile.removeProperty(Profile.AVATAR);
+      profile.setAvatarUrl(null);
+      profile.setAvatarLastUpdated(null);
+      space.setAvatarAttachment(null);
+      identityManager.updateProfile(profile);
+      FileService fileService = CommonsUtils.getService(FileService.class);
+      fileService.deleteFile(spaceAvatar.getFileInfo().getId());
     }
   }
 
