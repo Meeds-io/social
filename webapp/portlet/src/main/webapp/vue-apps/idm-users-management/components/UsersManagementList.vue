@@ -407,7 +407,7 @@ export default {
       if (this.selectedFiler != null && (this.selectedFiler === 'internal' || this.selectedFiler === 'external'))  {this.userType = this.selectedFiler;}
       if (this.selectedFiler != null && (this.selectedFiler === 'connected' || this.selectedFiler === 'neverConnected'))  {this.isConnected = this.selectedFiler;}
       if (this.selectedFiler != null && (this.selectedFiler === 'enrolled' || this.selectedFiler === 'notEnrolled' || this.selectedFiler === 'noEnrollmentPossible'))  {this.enrollmentStatus = this.selectedFiler;}
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}${(this.enrollmentStatus != null ? `&enrollmentStatus=${(this.enrollmentStatus)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&searchEmail=true&searchUserName=true&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}${(this.enrollmentStatus != null ? `&enrollmentStatus=${(this.enrollmentStatus)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {

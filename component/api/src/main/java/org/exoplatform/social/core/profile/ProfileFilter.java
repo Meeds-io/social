@@ -49,6 +49,11 @@ public class ProfileFilter implements Cloneable {
    */
   private boolean searchEmail;
 
+  /**
+   * Whether search on userName field or not
+   */
+  private boolean searchUserName;
+
   /** Used for unified search */
   private String all;
 
@@ -104,6 +109,23 @@ public class ProfileFilter implements Cloneable {
    */
   public boolean isSearchEmail() {
     return searchEmail;
+  }
+
+  /**
+   * Enable userName searching
+   *
+   * @param searchUserName
+   */
+  public void setSearchUserName(boolean searchUserName) {
+    this.searchUserName = searchUserName;
+  }
+
+  /**
+   * Whether enable userName in search or not
+   * @return
+   */
+  public boolean isSearchUserName() {
+    return searchUserName;
   }
 
   /**
