@@ -275,7 +275,7 @@ export default {
       }
     },
     actionClass(action) {
-      return (this.isMobile && action.key === 'userProfileCallButton') ? `${action.appClass} ${action.typeClass} call-button-mini` : `${action.appClass} ${action.typeClass}`;
+      return this.isMobile && action.mobileClass ? `${action.appClass} ${action.typeClass} ${action.mobileClass}` : `${action.appClass} ${action.typeClass}`;
     },
   },
 };
