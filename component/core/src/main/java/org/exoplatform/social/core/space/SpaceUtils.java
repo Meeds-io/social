@@ -471,7 +471,9 @@ public class SpaceUtils {
       profile.removeProperty(Profile.AVATAR);
       profile.setAvatarUrl(null);
       profile.setAvatarLastUpdated(null);
+      profile.setProperty(Profile.FULL_NAME, space.getDisplayName());
       space.setAvatarAttachment(null);
+      space.setAvatarLastUpdated(System.currentTimeMillis());
       identityManager.updateProfile(profile);
       FileService fileService = CommonsUtils.getService(FileService.class);
       fileService.deleteFile(spaceAvatar.getFileInfo().getId());
