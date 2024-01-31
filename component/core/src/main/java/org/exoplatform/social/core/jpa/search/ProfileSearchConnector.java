@@ -452,26 +452,37 @@ public class ProfileSearchConnector {
      //
       String newInputName = null;
       String[] keys = new String[0];
-      if (inputName.startsWith("\"") && inputName.endsWith("\"")) {
+      newInputName = inputName.trim();
+      if (newInputName.startsWith("\"") && inputName.endsWith("\"")) {
         newInputName = inputName.replace("\"", "");
-      } else {
-        keys = inputName.split(" ");
       }
+      keys = newInputName.split(" ");
       if (keys.length > 1) {
-        // We will not search on username because it doesn't contain a space character
+        // We will not search on userName because it doesn't contain a space character
         esExp.append("(");
         for (int i = 0; i < keys.length; i++) {
           if (i != 0 ) {
-            esExp.append(" AND ") ;
+            esExp.append(") AND (");
           }
           esExp.append(" name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
+          if (filter.isSearchEmail()) {
+            esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
+          }
+          if (filter.isSearchUserName()) {
+            esExp.append(" OR userName:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
+          }
         }
         esExp.append(")");
       } else if (StringUtils.isNotBlank(newInputName)) {
-        esExp.append("name:").append(removeAccents(newInputName));
+        esExp.append("name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
+        if (filter.isSearchEmail()) {
+          esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
+        }
+        if (filter.isSearchUserName()) {
+          esExp.append(" OR userName:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
+        }
       } else {
-        esExp.append("( name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputName)).append(StorageUtils.ASTERISK_STR);
-        esExp.append(")");
+        esExp.append("name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
       }
     }
     return esExp.toString();
@@ -479,8 +490,8 @@ public class ProfileSearchConnector {
 
   private String buildAdvancedFilterExpression(ProfileFilter filter) {
     StringBuilder esExp = new StringBuilder();
-    esExp.append("( ");
     Map<String, String> settings = filter.getProfileSettings();
+    esExp.append("( ");
     int settingsCount = 0 ;
     for (Map.Entry<String, String> entry : settings.entrySet()){
       String inputKey = entry.getKey().replace(" ", "\\\\ ");
@@ -490,7 +501,6 @@ public class ProfileSearchConnector {
       }
       String[] splittedValue = inputValue.split(" ");
       if (splittedValue.length > 1) {
-        esExp.append("(");
         for (int i = 0; i < splittedValue.length; i++) {
           if (i != 0 ) {
             esExp.append(" AND ") ;

@@ -290,6 +290,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getUsers(@Context UriInfo uriInfo,
                            @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
+                           @Parameter(description = "Is search with email") @QueryParam("searchEmail") boolean searchEmail,
+                           @Parameter(description = "Is search with username") @QueryParam("searchUsername") boolean searchUsername,
                            @Parameter(description = "User status to filter online users, ex: online") @QueryParam("status") String status,
                            @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
                            @Parameter(description = "Is connected users") @QueryParam("isConnected") String isConnected,
@@ -338,6 +340,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
+      filter.setSearchEmail(searchEmail);
+      filter.setSearchUserName(searchUsername);
       filter.setEnabled(!isDisabled);
       if (target != null && excludeCurrentUser) {
         filter.setExcludedIdentityList(Collections.singletonList(target));
