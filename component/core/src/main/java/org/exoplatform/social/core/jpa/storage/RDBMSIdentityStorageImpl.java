@@ -1211,9 +1211,16 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     if (identity.isUser()) {
       name = identity.getProfile().getFullName();
     } else if (identity.isSpace()) {
-      Space space = getSpaceStorage().getSpaceByPrettyName(identity.getRemoteId());
-      if (space != null) {
-        name = space.getDisplayName();
+      name = identity.getProfile().getFullName();
+      if (StringUtils.isBlank(name)) {
+        Space space = getSpaceStorage().getSpaceByPrettyName(identity.getRemoteId());
+        if (space != null) {
+          name = space.getDisplayName();
+          // Progressive migration of space display name into
+          // identity FULL_NAME property
+          identity.getProfile().setProperty(Profile.FULL_NAME, name);
+          updateProfile(identity.getProfile());
+        }
       }
     }
     String result = name.replaceAll("\\B.|\\P{L}", "").toUpperCase();
