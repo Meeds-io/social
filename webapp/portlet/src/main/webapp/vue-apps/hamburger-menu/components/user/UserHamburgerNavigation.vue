@@ -44,6 +44,7 @@
           <template #activator="{ on, attrs }">
             <v-btn
               :href="settingsUrl"
+              :aria-label="$t('menu.settings')"
               height="50px"
               min-width="40px"
               v-bind="attrs"
@@ -64,6 +65,7 @@
           <template #activator="{ on, attrs }">
             <v-btn
               :href="logoutUrl"
+              :aria-label="$t('menu.logout')"
               height="50px"
               min-width="40px"
               v-bind="attrs"
