@@ -121,7 +121,7 @@
         </v-menu>
       </template>
     </div>
-    <div class="mt-4 peopleAvatar">
+    <div class="mt-3 peopleAvatar">
       <a :href="url">
         <v-img
           :lazy-src="`${userAvatarUrl}`"
