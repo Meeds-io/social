@@ -5,6 +5,8 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -30,6 +32,7 @@ public class ExternalUsersListenerImpl extends MembershipEventListener {
           LOG.error("Error while saving the external property for user profile {}", m.getUserName(), e);
         }
       }
+      setExternalUserInUserProfile(m.getUserName(), true);
     }
   }
 
@@ -46,6 +49,7 @@ public class ExternalUsersListenerImpl extends MembershipEventListener {
           LOG.error("Error while saving the external property for user profile {}", m.getUserName(), e);
         }
       }
+      setExternalUserInUserProfile(m.getUserName(), false);
     }
   }
 
@@ -54,5 +58,19 @@ public class ExternalUsersListenerImpl extends MembershipEventListener {
       identityManager = CommonsUtils.getService(IdentityManager.class);
     }
     return identityManager;
+  }
+  private void setExternalUserInUserProfile(String userName, boolean external) {
+    try {
+      OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
+      UserProfile userProfile = organizationService.getUserProfileHandler().findUserProfileByName(userName);
+      if (userProfile == null) {
+        userProfile = organizationService.getUserProfileHandler().createUserProfileInstance(userName);
+      }
+      userProfile.setAttribute(UserProfile.OTHER_KEYS[2],String.valueOf(external));
+      organizationService.getUserProfileHandler().saveUserProfile(userProfile, false);
+    }
+    catch (Exception exception) {
+      LOG.error("Error while saving the user.other-info.external property for user profile {}", userName, exception);
+    }
   }
 }
