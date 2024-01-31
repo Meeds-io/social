@@ -19,31 +19,78 @@
 
 -->
 <template>
-  <v-container
+  <div
     id="UserHamburgerNavigation"
-    px-0
-    pb-4
-    pt-0
-    class="white">
-    <v-row class="mx-0 settingsTitle">
-      <v-list-item :href="settingsUrl" class="settingsTitleWrapper">
-        <v-list-item-icon class="my-auto"><i class="uiIcon uiIconToolbarNavItem settingsIcon"></i></v-list-item-icon>
-        <v-list-item-content class="subtitle-2 settingsTitleLabel">{{ this.$t('menu.settings.title') }}</v-list-item-content>
-      </v-list-item>
-    </v-row>
-    <v-row class="mx-0 logoutLinks">
-      <v-list-item :href="logoutUrl">
-        <v-list-item-icon class="my-auto"><i class="uiIcon uiIconToolbarNavItem logoutIcon"></i></v-list-item-icon>
-        <v-list-item-content class="subtitle-2 settingsTitleLabel">{{ this.$t('menu.logout.label') }}</v-list-item-content>
-      </v-list-item>
-    </v-row>
-  </v-container>
+    class="white full-width">
+    <div class="d-flex flex-row">
+      <v-tooltip top>
+        <template #activator="{ on, attrs }">
+          <a
+            :href="productLink"
+            target="_blank"
+            class="body-2 text-sub-title my-auto"
+            v-bind="attrs"
+            v-on="on">
+            {{ productName }}
+          </a>
+        </template>
+        <span>
+          {{ $t('menu.productName.seeProduct') }}
+        </span>
+      </v-tooltip>
+      <v-spacer />
+      <div class="settingsTitle">
+        <v-tooltip top>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              :href="settingsUrl"
+              :aria-label="$t('menu.settings')"
+              height="50px"
+              min-width="40px"
+              v-bind="attrs"
+              v-on="on"
+              icon>
+              <v-icon size="22">
+                fa-sliders-h
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>
+            {{ $t('menu.settings') }}
+          </span>
+        </v-tooltip>
+      </div>
+      <div class="logoutLinks me-n3">
+        <v-tooltip top>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              :href="logoutUrl"
+              :aria-label="$t('menu.logout')"
+              height="50px"
+              min-width="40px"
+              v-bind="attrs"
+              v-on="on"
+              icon>
+              <v-icon size="22">
+                fa-power-off
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>
+            {{ $t('menu.logout') }}
+          </span>
+        </v-tooltip>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
 export default {
   data: () => ({
     settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
     logoutUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/?portal:action=Logout&portal:componentId=UIPortal`,
+    productName: eXo.env.portal.productName,
+    productLink: eXo.env.portal.productLink,
   }),
 };
 </script>
