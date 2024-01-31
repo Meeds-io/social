@@ -30,13 +30,14 @@
       <v-btn
         v-if="searchable"
         v-autolinker="property.value"
-        class="primary--text pa-0"
+        class="primary--text text-subtitle-2 pa-0 font-weight-regular"
         text
         @click="quickSearch">
         {{ property.value }}
       </v-btn>
       <span
         v-else
+        class="font-weight-regular text-subtitle-2"
         v-autolinker="property.value">
         {{ property.value }}
       </span>

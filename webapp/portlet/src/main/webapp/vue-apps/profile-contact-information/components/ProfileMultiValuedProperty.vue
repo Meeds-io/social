@@ -36,13 +36,13 @@
           v-if="canShowChild(childProperty)">
           <span
             v-if="childProperty.propertyName"
-            class="pe-1 text-capitalize">
+            class="pe-1 font-weight-regular text-subtitle-2 text-capitalize">
             {{ getResolvedName(childProperty) }}:
           </span>
           <v-btn
             v-if="searchable"
             v-autolinker="childProperty.value"
-            class="primary--text pa-0 ma-auto"
+            class="primary--text font-weight-regular text-subtitle-2 pa-0 ma-auto"
             text
             @click="quickSearch(childProperty)" />
           <span

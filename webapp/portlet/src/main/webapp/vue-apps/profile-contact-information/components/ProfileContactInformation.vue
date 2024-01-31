@@ -35,11 +35,12 @@
         </v-btn>
       </template>
       <v-list
-        class="text-color">
+        class="list-no-selection">
         <v-list-item-group>
           <template
             v-for="property in filteredProperties">
             <v-list-item
+              class="text-color not-clickable"
               :key="property.id"
               :ripple="false">
               <profile-multi-valued-property
@@ -81,7 +82,7 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     properties: [],
     user: null,
-    excludedSearchProps: ['fullName', 'email', 'phones', 'ims', 'urls']
+    excludedSearchProps: ['fullName', 'firstName', 'email', 'phones', 'ims', 'urls']
   }),
   computed: {
     filteredProperties() {
