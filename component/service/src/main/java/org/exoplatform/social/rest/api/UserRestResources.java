@@ -40,6 +40,8 @@ public interface UserRestResources extends SocialRest {
   @GET
   public abstract Response getUsers(@Context UriInfo uriInfo,
                                     @QueryParam("q") String q,
+                                    @QueryParam("searchEmail") boolean searchEmail,
+                                    @QueryParam("searchUserName") boolean searchUserName,
                                     @QueryParam("status") String status,
                                     @QueryParam("userType") String userType,
                                     @QueryParam("isConnected") String isConnected,
