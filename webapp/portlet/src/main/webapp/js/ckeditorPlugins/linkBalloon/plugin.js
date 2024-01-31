@@ -92,7 +92,11 @@
       } 
     }
     if ( selection && selection.getSelectedText().trim().length > 0) {
-      balloonToolbar.attach( selection );
+      const selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
+      if (!(selectedElement.parentElement.classList.contains("metadata-tag") || (selectedElement.classList && selectedElement.classList.contains("metadata-tag")))
+          && !(selectedElement.parentElement.classList.contains("atwho-query") || (selectedElement.classList && selectedElement.classList.contains("atwho-query")))) {
+        balloonToolbar.attach( selection );
+      }
     } else {
       balloonToolbar.hide();
     }
@@ -109,8 +113,11 @@
   }
 
   function getSelectedLink(editor) {
-    const ranges = editor.getSelection().getRanges();
-    return editor.elementPath( ranges[0].getCommonAncestor() ).contains( 'a', 1 );
+    const ranges = editor.getSelection().getRanges(),
+          selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
+    return editor.elementPath( ranges[0].getCommonAncestor() ).contains( 'a', 1 )
+        && !(selectedElement.parentElement.classList.contains("metadata-tag") || (selectedElement.classList && selectedElement.classList.contains("metadata-tag")))
+        && !(selectedElement.parentElement.classList.contains("atwho-query") || (selectedElement.classList && selectedElement.classList.contains("atwho-query"))) ;
   }
 
   function addUnlinkItem(editor) {
@@ -126,7 +133,8 @@
   function initInputTextToolbar(editor, data) {
     isInputTextToolbar = true;
     balloonToolbarDisplayed = false;
-    const link = getSelectedLink(editor);
+    const link = getSelectedLink(editor),
+          linkHTMLElement = editor.elementPath( editor.getSelection().getRanges()[0].getCommonAncestor()).contains( 'a', 1 );
     selectedText = getSelectedText(editor);
     selectionElem = editor.getSelection();
     balloonToolbar = new CKEDITOR.ui.balloonPanel( editor, {
@@ -144,7 +152,7 @@
     const urlInputValue = document.getElementById('inputURL');
 
     if (link) {
-      urlInputValue.value = link.data( 'cke-saved-href' );
+      urlInputValue.value = linkHTMLElement.data( 'cke-saved-href' );
       url = urlInputValue.value;
     }
     
@@ -158,7 +166,7 @@
         if (!link) {
           insertLinksIntoSelection(editor, linkElem);   
         } else {
-          editLinkInSelection(editor, link, linkElem);
+          editLinkInSelection(editor, linkHTMLElement, linkElem);
         } 
         editor.fire('change');
         balloonToolbar.destroy();
