@@ -30,18 +30,18 @@
           v-if="showLeftButton"
           id="applicationToolbarLeftButton"
           :href="leftButton.href"
-          :class="isMobile && 'px-0'"
+          :class="isCompact && 'px-0'"
           class="btn btn-primary text-truncate"
           @click="$emit('left-button-click', $event)">
           <v-icon
             v-if="leftButton.icon"
-            :class="!isMobile && 'me-2'"
+            :class="!isCompact && 'me-2'"
             size="18"
             dark>
             {{ leftButton.icon }}
           </v-icon>
           <span
-            v-if="leftButton.text && (!isMobile || !leftButton.icon)"
+            v-if="leftButton.text && (!isCompact || !leftButton.icon)"
             class="text-truncate text-none">
             {{ leftButton.text }}
           </span>
@@ -72,7 +72,7 @@
             :key="buttonToggle.value"
             :id="`applicationToolbar-${buttonToggle.value}`"
             :value="buttonToggle.value"
-            :class="isMobile && 'width-auto px-4'"
+            :class="isCompact && 'width-auto px-4'"
             text
             @click="emitToggle(buttonToggle.value)">
             <v-icon
@@ -81,9 +81,9 @@
               small>
               {{ buttonToggle.icon }}
             </v-icon>
-            <span v-if="!isMobile && buttonToggle.icon && buttonToggle.text" class="ms-2"></span>
+            <span v-if="!isCompact && buttonToggle.icon && buttonToggle.text" class="ms-2"></span>
             <span
-              v-if="!isMobile && buttonToggle.text"
+              v-if="!isCompact && buttonToggle.text"
               :class="buttonToggle.value === toggle && 'primary--text' || 'dark-grey-color'"
               class="text-truncate text-none">
               {{ buttonToggle.text }}
@@ -111,7 +111,7 @@
           </v-btn>
           <div
             v-if="$slots.right"
-            :class="isMobile && 'flex-grow-1'"
+            :class="isCompact && 'flex-grow-1'"
             class="d-flex width-auto">
             <slot name="right"></slot>
           </div>
@@ -131,7 +131,7 @@
                   v-model="term"
                   :placeholder="rightTextFilter.placeholder"
                   :autofocus="autofocusTextFilter"
-                  :height="isMobile && 24 || 36"
+                  :height="isCompact && 24 || 36"
                   :prepend-inner-icon="term && 'fa-filter primary--text' || 'fa-filter icon-default-color'"
                   class="flex-grow-1 full-height pa-0 ms-4"
                   clear-icon="fa-times fa-1x primary--text position-absolute absolute-vertical-center"
@@ -160,16 +160,16 @@
             v-if="showFilterButton"
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
-            :small="isMobile"
+            :small="isCompact"
             text
             @click="$emit('filter-button-click', $event)">
             <v-icon
-              :size="isMobile && 24 || 16"
+              :size="isCompact && 24 || 16"
               :class="filtersCount && 'primary--text' || 'icon-default-color'">
               fa-sliders-h
             </v-icon>
             <span
-              v-if="!isMobile"
+              v-if="!isCompact"
               class="ms-2 caption">
               {{ rightFilterButton.text }}
             </span>
@@ -294,6 +294,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    compact: { // Force the compact display
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     expandFilter: false,
@@ -307,6 +311,9 @@ export default {
     maxRightElementsExpand: 2,
   }),
   computed: {
+    isCompact() {
+      return this.isMobile || this.compact;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.mobile;
     },
@@ -320,7 +327,7 @@ export default {
              || this.$slots.left;
     },
     showLeftContent() {
-      return !this.hideLeft && !this.expandFilter && (!this.isMobile || this.hasLeftContent || (this.hasCenterContent && this.hasRightContent));
+      return !this.hideLeft && !this.expandFilter && (!this.isCompact || this.hasLeftContent || (this.hasCenterContent && this.hasRightContent));
     },
     hasCenterButtonToggle() {
       return this.centerButtonToggle
@@ -331,7 +338,7 @@ export default {
       return this.hasCenterButtonToggle || this.$slots.center;
     },
     showCenterContent() {
-      return !this.hideCenter && !this.expandFilter && (!this.isMobile || this.hasCenterContent);
+      return !this.hideCenter && !this.expandFilter && (!this.isCompact || this.hasCenterContent);
     },
     hasTextFilter() {
       return this.rightTextFilter
@@ -354,7 +361,7 @@ export default {
           + (this.$slots.right && 1 || 0);
     },
     hideRightInputs() {
-      return !this.hideConeButton && !this.expandFilter && (this.isMobile || this.rightInputsCount > this.maxRightElementsExpand);
+      return !this.hideConeButton && !this.expandFilter && (this.isCompact || this.rightInputsCount > this.maxRightElementsExpand);
     },
     showConeButton() {
       return this.hasRightContent && this.hideRightInputs;
@@ -374,7 +381,7 @@ export default {
       return this.rightTextFilter?.tooltip && !this.isTermValid;
     },
     autofocusTextFilter() {
-      return this.showTextFilter && (this.isMobile || this.expandFilter);
+      return this.showTextFilter && (this.isCompact || this.expandFilter);
     },
     showSelectBoxFilter() {
       return this.hasSelectBoxFilter && !this.hideRightInputs;
@@ -383,13 +390,13 @@ export default {
       return this.hasButtonFilter && !this.hideRightInputs;
     },
     filterButtonClass() {
-      return `${this.isMobile && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || 'text-color'} ${!this.isMobile && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
+      return `${this.isCompact && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || 'text-color'} ${!this.isCompact && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
     },
     hasRightContent() {
       return this.rightInputsCount > 0;
     },
     showRightContent() {
-      return !this.hideRight && (!this.isMobile || this.hasRightContent);
+      return !this.hideRight && (!this.isCompact || this.hasRightContent);
     },
     leftCols() {
       return this.expandFilter && 'd-none'
