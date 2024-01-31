@@ -465,17 +465,18 @@ public class SpaceUtils {
     IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     FileItem spaceAvatar = identityManager.getAvatarFile(spaceIdentity);
-    FileService fileService = CommonsUtils.getService(FileService.class);
     if (spaceAvatar != null && spaceAvatar.getFileInfo().getId() != null
         && EntityConverterUtils.DEFAULT_AVATAR.equals(spaceAvatar.getFileInfo().getName())) {
       Profile profile = spaceIdentity.getProfile();
-      fileService.deleteFile(spaceAvatar.getFileInfo().getId());
       profile.removeProperty(Profile.AVATAR);
       profile.setAvatarUrl(null);
       profile.setAvatarLastUpdated(null);
+      profile.setProperty(Profile.FULL_NAME, space.getDisplayName());
       space.setAvatarAttachment(null);
-      identityManager.updateProfile(profile);
       space.setAvatarLastUpdated(System.currentTimeMillis());
+      identityManager.updateProfile(profile);
+      FileService fileService = CommonsUtils.getService(FileService.class);
+      fileService.deleteFile(spaceAvatar.getFileInfo().getId());
     }
   }
 
