@@ -717,9 +717,6 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       return null;
     }
     Space space = new Space();
-    if (entity.getAvatarLastUpdated() == null) {
-      entity.setAvatarLastUpdated(new Date(System.currentTimeMillis()));
-    }
     fillSpaceSimpleFromEntity(entity, space);
 
     space.setPendingUsers(getSpaceMembers(entity.getId(), Status.PENDING));
@@ -873,6 +870,12 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     Date lastUpdated = entity.getAvatarLastUpdated();
     if (lastUpdated != null) {
       space.setAvatarLastUpdated(entity.getAvatarLastUpdated().getTime());
+    } else {
+      space.setAvatarLastUpdated(System.currentTimeMillis());
+      Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+      if (spaceIdentity == null) {
+        lastUpdated = new Date(System.currentTimeMillis());
+      }
     }
     space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getId(), true, lastUpdated == null ? null : lastUpdated.getTime()));
     lastUpdated = entity.getBannerLastUpdated();
