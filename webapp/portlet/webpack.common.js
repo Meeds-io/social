@@ -85,6 +85,7 @@ let config = {
     siteDetails: './src/main/webapp/vue-apps/site-details/main.js',
     breadcrumb: './src/main/webapp/vue-apps/breadcrumb/main.js',
     platformSettings: './src/main/webapp/vue-apps/platform-settings/main.js',
+    complementaryFilter: './src/main/webapp/vue-apps/complementary-filter/main.js'
   },
   module: {
     rules: [
