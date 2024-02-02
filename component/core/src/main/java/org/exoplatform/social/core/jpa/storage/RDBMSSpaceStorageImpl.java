@@ -717,6 +717,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       return null;
     }
     Space space = new Space();
+    if (entity.getAvatarLastUpdated() == null) {
+      entity.setAvatarLastUpdated(new Date(System.currentTimeMillis()));
+    }
     fillSpaceSimpleFromEntity(entity, space);
 
     space.setPendingUsers(getSpaceMembers(entity.getId(), Status.PENDING));
