@@ -54,7 +54,8 @@ export default {
     images: [],
     attachments: [],
     attachmentUpdated: true,
-    metadatasObjectId: null
+    metadatasObjectId: null,
+    haveChanges: false,
   }),
   computed: {
     attachedFiles() {
@@ -71,7 +72,10 @@ export default {
   },
   watch: {
     attachedFiles() {
-      this.$emit('changed', this.attachedFiles);
+      this.$emit('changed', this.attachedFiles, this.haveChanges);
+      if (!this.haveChanges) {
+        this.haveChanges = true;
+      }
     },
   },
   created() {

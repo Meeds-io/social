@@ -224,7 +224,13 @@ export default {
       return this.drawer && this.$refs.activityContent || null;
     },
     postDisabled() {
-      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited) || this.messageLength > this.MESSAGE_MAX_LENGTH || this.loading || (!!this.activityId && !this.activityBodyEdited && !this.attachments?.length) || (!this.attachments?.length && !this.messageLength && !this.activityBodyEdited) || (this.postInYourSpacesChoice && !this.spaceId) || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited);
+      return (!this.messageLength && !this.activityBodyEdited && !this.activityAttachmentsEdited)
+          || this.messageLength > this.MESSAGE_MAX_LENGTH
+          || this.loading
+          || (!!this.activityId && !this.activityBodyEdited && !this.activityAttachmentsEdited)
+          || (!this.activityAttachmentsEdited && !this.messageLength && !this.activityBodyEdited)
+          || (this.postInYourSpacesChoice && !this.spaceId)
+          || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -297,9 +303,9 @@ export default {
     isActivityBodyEdited(event) {
       this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
     },
-    attachmentsEdit(attachments) {
+    attachmentsEdit(attachments, changed) {
       this.attachments = attachments;
-      this.activityAttachmentsEdited = true;
+      this.activityAttachmentsEdited = changed;
     },
     open(params) {
       params = params && params.detail;
