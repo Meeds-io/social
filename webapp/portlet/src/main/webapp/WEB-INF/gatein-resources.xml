@@ -1298,6 +1298,9 @@
         <path>/js/profileContactInformation.bundle.js</path>
       </script>
       <depends>
+        <module>complementaryFilter</module>
+      </depends>
+      <depends>
         <module>applicationToolbarComponent</module>
       </depends>
       <depends>
@@ -2687,6 +2690,32 @@
     </depends>
   </module>
 
+  <module>
+    <name>complementaryFilter</name>
+    <script>
+      <path>/js/complementaryFilter.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+  </module>
+  
   <!-- Base Javascripts for anonymous mode -->
   <module>
     <name>I18NMessage</name>

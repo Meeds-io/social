@@ -35,7 +35,18 @@
         :hide-filter="true"
         :hide-right-filter-button="true"
         :compact="true"
+        :filter-message="filterMessage"
+        filter-message-class="subtitle-1 text-color ps-1"
         @keyword-changed="keyword = $event" />
+      <complementary-filter
+        class="mt-n1 mb-5 z-index-two position-relative"
+        :object-ids="objectIds"
+        :attributes="listProperties"
+        :show-message="false"
+        index-alias="profile_alias"
+        @build-suggestions-terminated="buildSuggestionsTerminated"
+        @filter-changed="selectedSuggestions = $event"
+        @filter-suggestion-unselected="unselectSuggestion" />
       <div
         v-if="!isSearching && !listUsers.length"
         class="mt-auto mb-auto pt-5 align-center">
@@ -84,7 +95,7 @@
           class="btn btn-primary width-full"
           flat
           outlined
-          @click="search">
+          @click="search(true)">
           {{ $t('Search.button.loadMore') }}
         </v-btn>
       </div>
@@ -108,12 +119,30 @@ export default {
       expanded: false,
       propertyValue: null,
       isSearching: false,
-      keyword: null
+      keyword: null,
+      hasCombinations: false,
+      selectedSuggestions: []
     };
+  },
+  props: {
+    properties: {
+      type: Array,
+      default: () => []
+    }
   },
   computed: {
     listUsers() {
       return this.users;
+    },
+    objectIds() {
+      return this.listUsers.map(user => user.id);
+    },
+    listProperties() {
+      return this.profileSetting && this.properties?.filter(property => property !== Object.keys(this.profileSetting)[0])
+          || this.properties;
+    },
+    filterMessage() {
+      return this.hasCombinations && this.$t('complementaryFilter.suggestions.message') || ' ';
     }
   },
   watch: {
@@ -126,6 +155,10 @@ export default {
     },
     keyword() {
       this.search();
+    },
+    selectedSuggestions() {
+      this.users = [];
+      this.search();
     }
   },
   created() {
@@ -135,6 +168,12 @@ export default {
     this.$root.$on('relationship-status-updated', this.updateRelationshipStatus);
   },
   methods: {
+    unselectSuggestion(suggestion) {
+      delete this.profileSetting[suggestion.key];
+    },
+    buildSuggestionsTerminated(suggestions) {
+      this.hasCombinations = suggestions?.length;
+    },
     updateRelationshipStatus(user, status) {
       const index = this.users.findIndex(obj => obj.id === user.id);
       if (index !== -1) {
@@ -145,15 +184,20 @@ export default {
       this.profileSetting = profileSetting;
       this.propertyValue = propertyValue;
       this.users = [];
-      this.search();
+      this.search(true);
       this.$refs.quickSearchUsersListDrawer.open();
     },
-    search() {
+    search(updateSuggestions) {
       if (this.keyword) {
         this.profileSetting['fullName'] = this.keyword;
         this.users = [];
       } else {
         delete this.profileSetting['fullName'];
+      }
+      if (this.selectedSuggestions?.length) {
+        this.selectedSuggestions.forEach(suggestion => {
+          this.profileSetting[suggestion.key] = suggestion.value;
+        });
       }
       this.isSearching = true;
       if (this.abortController) {
@@ -168,6 +212,9 @@ export default {
       }).finally(() => {
         this.abortController = null;
         this.isSearching = false;
+        if (updateSuggestions) {
+          this.$root.$emit('update-filter-suggestions');
+        }
       });
     }
   }

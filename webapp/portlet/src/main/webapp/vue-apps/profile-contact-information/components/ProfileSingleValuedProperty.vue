@@ -27,7 +27,7 @@
       <profile-hidden-property-info
         :property="property"
         :hover="hover"
-        :is-mobile="isMobile"/>
+        :is-mobile="isMobile" />
     </div>
     <div
       class="align-end flex-grow-1 text-truncate text-end">
