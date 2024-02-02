@@ -388,6 +388,11 @@
       </properties-param>
     </init-params>
   </component>
+
+  <component>
+    <type>org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnector</type>
+  </component>
+
   <!-- Spaces Groups Binding -->
   <component>
     <key>org.exoplatform.social.core.jpa.storage.dao.UserSpaceBindingDAO</key>

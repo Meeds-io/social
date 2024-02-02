@@ -57,6 +57,15 @@
                   </span>
                 </v-list-item-title>
               </v-list-item>
+              <people-connection-option-item
+                :relationship-status="relationshipStatus"
+                :is-mobile="isMobile"
+                :is-updating-status="isUpdatingStatus"
+                @connect="connect"
+                @disconnect="disconnect"
+                @accept-to-connect="acceptToConnect"
+                @refuse-to-connect="refuseToConnect"
+                @cancel-request="cancelRequest" />
             </v-list>
           </v-sheet>
         </v-bottom-sheet>
@@ -98,6 +107,16 @@
                 </span>
               </v-list-item-title>
             </v-list-item>
+            <people-connection-option-item
+              :relationship-status="relationshipStatus"
+              :is-updating-status="isUpdatingStatus"
+              :compact-display="true"
+              :is-mobile="isMobile"
+              @connect="connect"
+              @disconnect="disconnect"
+              @accept-to-connect="acceptToConnect"
+              @refuse-to-connect="refuseToConnect"
+              @cancel-request="cancelRequest" />
           </v-list>
         </v-menu>
       </template>

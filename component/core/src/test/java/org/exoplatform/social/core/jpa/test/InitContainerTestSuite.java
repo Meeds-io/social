@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.test;
 
+import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnectorTest;
 import org.exoplatform.social.core.upgrade.UserPasswordHashMigrationTest;
 import org.exoplatform.social.core.utils.MentionUtilsTest;
 
@@ -133,8 +134,8 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   AttachmentActivityProcessorTest.class,
   AttachmentServiceTest.class,
   MentionUtilsTest.class,
-  ProfileSearchConnectorTest.class
-})
+  ProfileSearchConnectorTest.class,
+  ComplementaryFilterSearchConnectorTest.class })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
 
