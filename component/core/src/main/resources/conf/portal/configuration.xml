@@ -41,6 +41,10 @@
       </init-params>
    </component>
 
+  <component>
+    <type>org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnector</type>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.commons.file.services.NameSpaceService</target-component>
     <component-plugin>

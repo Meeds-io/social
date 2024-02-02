@@ -42,10 +42,11 @@
     @filter-select-change="filterValue = $event"
     @toggle-select="updateFilter($event)">
     <template
-      v-if="peopleCount"
+      v-if="filterMessage"
       #left>
-      <div class="showingPeopleText text-sub-title ms-3 d-none d-sm-flex">
-        {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
+      <div
+        :class="filterMessageClass">
+        {{ filterMessage }}
       </div>
     </template>
   </application-toolbar>
@@ -56,10 +57,6 @@
 export default {
   props: {
     filter: {
-      type: String,
-      default: null,
-    },
-    peopleCount: {
       type: String,
       default: null,
     },
@@ -74,6 +71,14 @@ export default {
     compact: {
       type: Boolean,
       default: false
+    },
+    filterMessage: {
+      type: String,
+      default: null
+    },
+    filterMessageClass: {
+      type: String,
+      default: ''
     }
   },
   data: () => ({
