@@ -170,6 +170,10 @@ export default {
       this.users = [];
       this.search();
     },
+    selectedSuggestions() {
+      this.users = [];
+      this.search();
+    }
   },
   created() {
     this.refreshExtensions();
@@ -230,10 +234,15 @@ export default {
       this.hasCombinations = false;
       this.selectedSuggestions = [];
       this.users = [];
-      this.search();
+      this.search(true);
       this.$refs.quickSearchUsersListDrawer.open();
     },
     search(loadMore) {
+      if (this.selectedSuggestions?.length) {
+        this.selectedSuggestions.forEach(suggestion => {
+          this.profileSetting[suggestion.key] = suggestion.value;
+        });
+      }
       if (this.selectedSuggestions?.length) {
         this.selectedSuggestions.forEach(suggestion => {
           this.profileSetting[suggestion.key] = suggestion.value;

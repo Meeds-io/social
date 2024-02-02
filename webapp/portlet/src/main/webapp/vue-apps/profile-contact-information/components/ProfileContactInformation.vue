@@ -124,6 +124,7 @@ export default {
   },
   created() {
     this.refreshProperties();
+    this.getProfileSettings();
   },
   mounted() {
     document.addEventListener('userPropertiesModified', () => {
@@ -135,6 +136,12 @@ export default {
     }
   },
   methods: {
+    getProfileSettings() {
+      return this.$profileSettingsService.getSettings()
+        .then(settings => {
+          this.settings = settings?.settings || [];
+        });
+    },
     canShowProperty(property) {
       return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
     },
