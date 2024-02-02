@@ -870,6 +870,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     Date lastUpdated = entity.getAvatarLastUpdated();
     if (lastUpdated != null) {
       space.setAvatarLastUpdated(entity.getAvatarLastUpdated().getTime());
+    } else {
+      space.setAvatarLastUpdated(System.currentTimeMillis());
+      lastUpdated = new Date(System.currentTimeMillis());
     }
     space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getId(), true, lastUpdated == null ? null : lastUpdated.getTime()));
     lastUpdated = entity.getBannerLastUpdated();
