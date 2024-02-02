@@ -71,12 +71,13 @@
           </template>
         </v-list-item-group>
       </v-list>
-    </widget-wrapper> 
+    </widget-wrapper>
     <profile-contact-information-drawer
       v-if="owner"
       ref="contactInformationEdit"
       :upload-limit="uploadLimit" />
-    <quick-search-users-list-drawer />
+    <quick-search-users-list-drawer
+      :properties="quickSearchSettingProperties" />
   </v-app>
 </template>
 
@@ -93,7 +94,8 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     properties: [],
     user: null,
-    excludedSearchProps: ['fullName', 'firstName', 'email', 'phones', 'ims', 'urls']
+    excludedSearchProps: ['fullName', 'firstName', 'email', 'phones', 'ims', 'urls'],
+    settings: []
   }),
   computed: {
     isMobile() {
@@ -109,9 +111,15 @@ export default {
     title() {
       return this.owner && this.$t('profileContactInformation.yourContactInformation') || this.$t('profileContactInformation.contactInformation');
     },
+    quickSearchSettingProperties() {
+      return this.settings.filter(settingProperty => this.isSearchable(settingProperty)).map(settingProperty => {
+        return settingProperty.propertyName;
+      });
+    }
   },
   created() {
     this.refreshProperties();
+    this.getProfileSettings();
   },
   mounted() {
     document.addEventListener('userPropertiesModified', () => {
@@ -123,6 +131,12 @@ export default {
     }
   },
   methods: {
+    getProfileSettings() {
+      return this.$profileSettingsService.getSettings()
+        .then(settings => {
+          this.settings = settings?.settings || [];
+        });
+    },
     canShowProperty(property) {
       return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
     },
@@ -132,7 +146,7 @@ export default {
                                .every(child => child.hidden));
     },
     isSearchable(property) {
-      return !this.excludedSearchProps.includes(property.propertyName);
+      return !this.excludedSearchProps.includes(property.propertyName) && !/^(phones.|ims.)/.exec(property.propertyName) ;
     },
     quickSearch(property, childProperty) {
       if (this.excludedSearchProps.includes(property.propertyName)) {
