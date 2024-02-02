@@ -34,7 +34,7 @@
       :object-type="objectType"
       :object-id="objectId"
       :disable-paste="disableImageAttachmentPaste"
-      @changed="$emit('attachments-edited', $event)" />
+      @changed="emitChanges" />
   </div>
 </template>
 
@@ -702,6 +702,9 @@ export default {
     getSpaceId() {
       return this.$spaceService.getSpaceByPrettyName(this.suggesterSpaceURL)
         .then(space => this.spaceId = space.id);
+    },
+    emitChanges(attachements, changed){
+      this.$emit('attachments-edited', attachements, changed);
     }
   }
 };
