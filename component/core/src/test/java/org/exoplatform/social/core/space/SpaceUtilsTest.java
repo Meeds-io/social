@@ -16,6 +16,11 @@
  */
 package org.exoplatform.social.core.space;
 
+import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.gatein.pc.api.*;
 import org.gatein.pc.api.info.MetaInfo;
 import org.gatein.pc.api.info.PortletInfo;
@@ -39,6 +44,8 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 
 import java.util.*;
 
+import static org.junit.Assert.assertNotEquals;
+
 /**
  * Unit Test for {@link SpaceUtilsTest}
  *
@@ -55,6 +62,8 @@ public class SpaceUtilsTest extends AbstractCoreTest {
   private org.exoplatform.services.security.Identity identity;
   private Identity rootIdentity;
   private IdentityManager identityManager;
+
+  private IdentityStorage identityStorage;
   private PageService pageService;
 
   @Override
@@ -64,6 +73,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     Set<MembershipEntry> memberships = new HashSet<MembershipEntry>();
     identity = new org.exoplatform.services.security.Identity("root", memberships, roles);
     identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
+    identityStorage = (IdentityStorage) getContainer().getComponentInstanceOfType(IdentityStorage.class);
     rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root", false);
     String spaceDisplayName = "Space1";
     Space space1 = new Space();
@@ -190,6 +200,39 @@ public class SpaceUtilsTest extends AbstractCoreTest {
       assertEquals("newspacetitle", AppName);
     }
 
+  }
+
+  public void testUpdateDefaultSpaceAvatar() throws Exception {
+    Space space = tearDown.get(0);
+    Identity identity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    identityStorage.saveIdentity(identity);
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.FULL_NAME, space.getDisplayName());
+    identityStorage.saveProfile(profile);
+    identity.setProfile(profile);
+    String identityId = identity.getId();
+    assertNotNull(identityId);
+    FileItem avatarFile = identityStorage.getAvatarFile(identity);
+    profile = identityStorage.loadProfile(profile);
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+    assertTrue(profile.isDefaultAvatar());
+
+    Long avatarFileId = avatarFile.getFileInfo().getId();
+    assertNotNull(avatarFileId);
+
+    // Rename space
+    String JOHN = "john";
+    String newSpaceName = "newname";
+    spaceService.renameSpace(JOHN, space, newSpaceName);
+    space = spaceService.getSpaceById(space.getId());
+    assertEquals(newSpaceName, space.getDisplayName());
+
+    SpaceUtils.updateDefaultSpaceAvatar(space);
+    identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getDisplayName());
+    avatarFile = identityManager.getAvatarFile(identity);
+    Long updatedAvatarId = avatarFile.getFileInfo().getId();
+    assertNotNull(updatedAvatarId);
+    assertNotEquals(avatarFileId, updatedAvatarId);
   }
 
   public void testIsRedactor() throws Exception {
