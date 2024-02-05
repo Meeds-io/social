@@ -62,7 +62,6 @@ public class SpaceUtilsTest extends AbstractCoreTest {
   private org.exoplatform.services.security.Identity identity;
   private Identity rootIdentity;
   private IdentityManager identityManager;
-
   private IdentityStorage identityStorage;
   private PageService pageService;
 
