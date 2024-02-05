@@ -16,8 +16,10 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +28,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.exoplatform.application.registry.Application;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.model.ApplicationType;
@@ -52,11 +55,14 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.mock.SpaceListenerPluginMock;
+import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -354,6 +360,89 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     foundSpace = spaceService.getSpaceByPrettyName("my_space_5");
     assertNull("foundSpace must be null", foundSpace);
+  }
+
+  public void testDefaultSpaceAvatar() throws Exception {
+    this.getSpaceInstance(0);
+    Space space = spaceService.getSpaceByPrettyName("my_space_0");
+    assertNotNull("space must not be null", space);
+    Identity identity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    identityStorage.saveIdentity(identity);
+    tearDownUserList.add(identity);
+
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.FULL_NAME, space.getDisplayName());
+    identityStorage.saveProfile(profile);
+    identity.setProfile(profile);
+    String identityId = identity.getId();
+    assertNotNull(identityId);
+
+    FileItem avatarFile = identityStorage.getAvatarFile(identity);
+    assertNotNull(avatarFile);
+    Long avatarFileId = avatarFile.getFileInfo().getId();
+    assertNotNull(avatarFileId);
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+    profile = identityStorage.loadProfile(profile);
+    assertTrue(profile.isDefaultAvatar());
+  }
+
+  /**
+   * Test {@link SpaceService#updateSpaceAvatar(Space)}
+   *
+   * @throws Exception
+   */
+  public void testUpdateSpaceAvatar() throws Exception {
+    this.getSpaceInstance(0);
+    Space space = spaceService.getSpaceByPrettyName("my_space_0");
+    assertNotNull("space must not be null", space);
+    Identity identity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    identityStorage.saveIdentity(identity);
+    tearDownUserList.add(identity);
+    FileItem avatarFile = identityStorage.getAvatarFile(identity);
+    assertNotNull(avatarFile);
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+
+    Profile profile = new Profile(identity);
+    identity.setProfile(profile);
+    profile = identityStorage.loadProfile(profile);
+    assertTrue(profile.isDefaultAvatar());
+
+    InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
+    AvatarAttachment avatarAttachment =
+        new AvatarAttachment(null, "space-avatar", "png", inputStream, System.currentTimeMillis());
+    space.setAvatarAttachment(avatarAttachment);
+    spaceService.updateSpaceAvatar(space);
+    profile = new Profile(identity);
+    profile.setProperty(Profile.AVATAR, space.getAvatarAttachment());
+    identityStorage.saveProfile(profile);
+    FileItem newAvatarFile = identityStorage.getAvatarFile(identity);
+    assertNotNull(avatarFile);
+    assertNotEquals(EntityConverterUtils.DEFAULT_AVATAR, newAvatarFile.getFileInfo().getName());
+
+    profile = identityStorage.loadProfile(profile);
+    assertFalse(profile.isDefaultAvatar());
+  }
+
+  public void testRenameSpaceWithDefaultAvatar() throws Exception {
+    Space space = this.getSpaceInstance(0);
+    assertNotNull(space);
+
+    Identity identity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
+    assertNotNull(identity);
+
+    identityStorage.saveIdentity(identity);
+    tearDownUserList.add(identity);
+    String newDisplayName = "new display name";
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      spaceService.renameSpace(root.getRemoteId(), space, newDisplayName);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+    Space got = spaceService.getSpaceById(space.getId());
+    assertEquals(newDisplayName, got.getDisplayName());
+    assertEquals(Type.SPACE_RENAMED, spaceListenerPlugin.getEvents().get(0));
   }
 
   /**
