@@ -464,6 +464,7 @@ export default {
     },
   },
   created() {
+    this.$root.$on('reset-filter', this.reset);
     if (this.showTextFilter) {
       document.addEventListener('keydown', this.clearSearch);
     }
@@ -472,6 +473,10 @@ export default {
     document.removeEventListener('keydown', this.clearSearch);
   },
   methods: {
+    reset() {
+      this.term = null;
+      this.expandFilter = false;
+    },
     clearSearch(event) {
       if (event?.key === 'Escape' && this.$refs?.applicationToolbarFilterInput?.isFocused) {
         this.term = null;
