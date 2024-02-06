@@ -19,7 +19,7 @@
     <input
       v-model="property.value"
       :title="property.value"
-      :disabled="multiValued && !parentProperty.editable || !property.editable"
+      :disabled="parentProperty?.children && !parentProperty?.editable || !property.editable"
       type="text"
       class="ignore-vuetify-classes align-end flex-grow-1"
       maxlength="2000"
