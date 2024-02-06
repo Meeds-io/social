@@ -45,7 +45,7 @@
         :show-message="false"
         index-alias="profile_alias"
         @build-suggestions-terminated="buildSuggestionsTerminated"
-        @filter-changed="selectedSuggestions = $event"
+        @filter-changed="selectedSuggestionsUpdated"
         @filter-suggestion-unselected="unselectSuggestion" />
       <div
         v-if="!isSearching && !listUsers.length"
@@ -156,18 +156,23 @@ export default {
     keyword() {
       this.search();
     },
-    selectedSuggestions() {
-      this.users = [];
-      this.search();
-    }
   },
   created() {
-    this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-    this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+    document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    this.refreshExtensions();
     this.$root.$on('open-quick-search-users-drawer', this.open);
     this.$root.$on('relationship-status-updated', this.updateRelationshipStatus);
   },
   methods: {
+    refreshExtensions() {
+      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+      this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+    },
+    selectedSuggestionsUpdated(suggestions) {
+      this.selectedSuggestions = suggestions;
+      this.users = [];
+      this.search();
+    },
     unselectSuggestion(suggestion) {
       delete this.profileSetting[suggestion.key];
     },
@@ -181,8 +186,11 @@ export default {
       }
     },
     open(profileSetting, propertyValue) {
+      this.$root.$emit('filter-reset-selections');
+      this.$root.$emit('reset-filter');
       this.profileSetting = profileSetting;
       this.propertyValue = propertyValue;
+      this.selectedSuggestions = [];
       this.users = [];
       this.search(true);
       this.$refs.quickSearchUsersListDrawer.open();
@@ -212,7 +220,7 @@ export default {
       }).finally(() => {
         this.abortController = null;
         this.isSearching = false;
-        if (updateSuggestions) {
+        if (updateSuggestions || !this.selectedSuggestions.length) {
           this.$root.$emit('update-filter-suggestions');
         }
       });
