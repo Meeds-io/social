@@ -44,8 +44,9 @@
         :attributes="listProperties"
         :show-message="false"
         index-alias="profile_alias"
+        :loading-call-back="loadingCallBack"
         @build-suggestions-terminated="buildSuggestionsTerminated"
-        @filter-changed="selectedSuggestions = $event"
+        @filter-changed="selectedSuggestionsUpdated"
         @filter-suggestion-unselected="unselectSuggestion" />
       <div
         v-if="!isSearching && !listUsers.length"
@@ -121,7 +122,8 @@ export default {
       isSearching: false,
       keyword: null,
       hasCombinations: false,
-      selectedSuggestions: []
+      selectedSuggestions: [],
+      isLoading: false,
     };
   },
   props: {
@@ -152,18 +154,33 @@ export default {
     keyword() {
       this.search();
     },
-    selectedSuggestions() {
-      this.users = [];
-      this.search();
-    }
   },
   created() {
-    this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-    this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+    this.refreshExtensions();
+    document.addEventListener('profile-extension-updated', this.refreshExtensions);
     this.$root.$on('open-quick-search-users-drawer', this.open);
     this.$root.$on('relationship-status-updated', this.updateRelationshipStatus);
   },
   methods: {
+    loadingCallBack(isLoading) {
+      if (isLoading) {
+        this.$refs.quickSearchUsersListDrawer.startLoading();
+      } else {
+        this.$refs.quickSearchUsersListDrawer.endLoading();
+      }
+    },
+    refreshExtensions() {
+      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+      this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+    },
+    selectedSuggestionsUpdated(suggestions) {
+      if (!suggestions.length && !this.listUsers.length) {
+        return;
+      }
+      this.selectedSuggestions = suggestions;
+      this.users = [];
+      this.search();
+    },
     unselectSuggestion(suggestion) {
       delete this.profileSetting[suggestion.key];
     },
@@ -177,8 +194,12 @@ export default {
       }
     },
     open(profileSetting, propertyValue) {
+      this.$root.$emit('filter-reset-selections');
+      this.$root.$emit('reset-filter');
       this.profileSetting = profileSetting;
       this.propertyValue = propertyValue;
+      this.hasCombinations = false;
+      this.selectedSuggestions = [];
       this.users = [];
       this.search(true);
       this.$refs.quickSearchUsersListDrawer.open();
