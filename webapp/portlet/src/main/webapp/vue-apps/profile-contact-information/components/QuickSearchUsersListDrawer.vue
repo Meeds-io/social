@@ -170,10 +170,6 @@ export default {
       this.users = [];
       this.search();
     },
-    selectedSuggestions() {
-      this.users = [];
-      this.search();
-    }
   },
   created() {
     this.refreshExtensions();
