@@ -1,4 +1,4 @@
-/*
+<!--
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2024 Meeds Association contact@meeds.io
@@ -16,27 +16,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+ -->
 
-import ComplementaryFilter from './components/ComplementaryFilter.vue';
-import ComplementaryFilterItem from './components/ComplementaryFilterItem.vue';
-import ComplementaryFilterItemsDrawer from './components/ComplementaryFilterItemsDrawer.vue';
+<template>
+  <v-chip
+    class="mx-1 mb-1"
+    color="primary"
+    :outlined="!isSelected"
+    @click="selectSuggestion">
+    <span
+      :class="!isSelected && 'primary--text'">
+      {{ suggestion.value }}
+    </span>
+  </v-chip>
+</template>
 
-import * as complementaryFilterService from './js/ComplementaryFilterService.js';
-
-
-const components = {
-  'complementary-filter': ComplementaryFilter,
-  'complementary-filter-item': ComplementaryFilterItem,
-  'complementary-filter-items-drawer': ComplementaryFilterItemsDrawer
+<script>
+export default {
+  props: {
+    suggestion: {
+      type: Object,
+      default: null
+    },
+    isSelected: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    selectSuggestion() {
+      this.$emit('select-suggestion', this.suggestion);
+    }
+  }
 };
-
-for (const key in components) {
-  Vue.component(key, components[key]);
-}
-
-if (!Vue.prototype.$complementaryFilterService) {
-  window.Object.defineProperty(Vue.prototype, '$complementaryFilterService', {
-    value: complementaryFilterService,
-  });
-}
+</script>
