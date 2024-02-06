@@ -19,27 +19,41 @@
  -->
 
 <template>
-  <div
-    v-if="hasValues"
-    class="px-5">
-    <p
-      v-if="showMessage"
-      class="text-color subtitle-1">
-      {{ $t('complementaryFilter.suggestions.message') }}
-    </p>
-    <v-chip
-      v-for="suggestion in listSuggestions"
-      :key="suggestion.value"
-      class="mx-1"
-      color="primary"
-      :outlined="!isSuggestionSelected(suggestion)"
-      @click="selectSuggestion(suggestion)">
-      <span
-        :class="!isSuggestionSelected(suggestion) && 'primary--text'">
-        {{ suggestion.value }}
-      </span>
-    </v-chip>
-  </div>
+  <v-app
+    v-if="hasValues">
+    <div class="px-3">
+      <p
+        v-if="showMessage"
+        class="text-color subtitle-1">
+        {{ $t('complementaryFilter.suggestions.message') }}
+      </p>
+      <complementary-filter-item
+        v-for="suggestion in listSuggestions"
+        :key="suggestion.value"
+        :suggestion="suggestion"
+        :is-selected="isSuggestionSelected(suggestion)"
+        @select-suggestion="selectSuggestion" />
+      <v-btn
+        v-if="suggestions.length > 3"
+        class="ma-auto"
+        :class="otherFilterItemsSelected && 'btn-primary elevation-0'
+          || 'grey darken-1'"
+        :outlined="!otherFilterItemsSelected"
+        x-small
+        fab
+        color="white"
+        @click="openListSuggestionsDrawer">
+        <span class="text-body-2">
+          +{{ suggestions.length - 3 }}
+        </span>
+      </v-btn>
+    </div>
+    <complementary-filter-items-drawer
+      ref="filterItemsDrawer"
+      :suggestions="suggestions"
+      :selections="selections"
+      @select-suggestion="selectSuggestion" />
+  </v-app>
 </template>
 
 <script>
@@ -65,13 +79,18 @@ export default {
     showMessage: {
       type: Boolean,
       default: () => true
+    },
+    loadingCallBack: {
+      type: Function,
+      default: null
     }
   },
   data() {
     return {
       selections: [],
       suggestions: [],
-      tempRemovedSuggestions: []
+      tempRemovedSuggestions: [],
+      otherFilterItemsSelected: false
     };
   },
   computed: {
@@ -79,7 +98,7 @@ export default {
       return this.listSuggestions.length > 0;
     },
     listSuggestions() {
-      return this.suggestions;
+      return this.suggestions.slice(0, 3);
     },
     listObjectIds() {
       return this.objectIds;
@@ -90,15 +109,31 @@ export default {
   },
   watch: {
     selections() {
-      if (this.selections?.length) {
-        this.$emit('filter-changed', this.selections);
-      }
+      this.$emit('filter-changed', this.selections);
     }
   },
   created() {
+    this.$root.$on('filter-reset-selections', this.resetSelections);
     this.$root.$on('update-filter-suggestions', this.updateFilterSuggestions);
   },
   methods: {
+    resetSelections() {
+      this.otherFilterItemsSelected = false;
+      this.selections = [];
+    },
+    openListSuggestionsDrawer() {
+      this.$refs.filterItemsDrawer.open();
+    },
+    checkOnlyInTopThreeSelection() {
+      this.otherFilterItemsSelected = false;
+      this.selections.some(suggestion => {
+        if (this.listSuggestions.findIndex(existObject => existObject.value === suggestion.value &&
+            existObject.key === suggestion.key) === -1) {
+          this.otherFilterItemsSelected = true;
+          return true;
+        }
+      });
+    },
     selectSuggestion(suggestion) {
       const index = this.getSelectionIndex(suggestion);
       if (index === -1) {
@@ -109,6 +144,7 @@ export default {
         this.$emit('filter-suggestion-unselected', suggestion);
         this.restoreExistingAttributeType(suggestion);
       }
+      this.checkOnlyInTopThreeSelection();
     },
     getSelectionIndex(suggestion) {
       return this.selections.findIndex(existObject => existObject.value === suggestion.value &&
@@ -138,11 +174,16 @@ export default {
       this.getComplementaryFilterSuggestions();
     },
     getComplementaryFilterSuggestions() {
+      this.suggestions = [];
+      this.loadingCallBack(true);
       return this.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
         .then(suggestions => {
-          this.suggestions = suggestions.sort((a, b) => b.count - a.count);
+          this.suggestions = suggestions?.sort((a, b) => b.count - a.count);
+        }).catch(() => {
+          this.loadingCallBack(false);
         }).finally(() => {
           this.$emit('build-suggestions-terminated', this.suggestions);
+          this.loadingCallBack(false);
         });
     }
   }
