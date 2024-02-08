@@ -78,25 +78,28 @@
   });
 
   function setupMouseObserver(editor) {
-    balloonToolbar.destroy();
-    initBalloonToolbar(editor);
     const selection = editor.getSelection(),
-      link = getSelectedLink(editor);
-    if (!balloonToolbar.getItem('unlink')) {
-      if (link) {
-        addUnlinkItem(editor);
-      } 
-    } else {
-      if (!link) {
-        balloonToolbar.deleteItem('unlink');
-      } 
-    }
+        link = getSelectedLink(editor);
     if ( selection && selection.getSelectedText().trim().length > 0) {
-      const selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
-      if (!(selectedElement.parentElement.classList.contains("metadata-tag") || (selectedElement.classList && selectedElement.classList.contains("metadata-tag")))
-          && !(selectedElement.parentElement.classList.contains("atwho-query") || (selectedElement.classList && selectedElement.classList.contains("atwho-query")))) {
-        balloonToolbar.attach( selection );
+      const balloonElement = document.querySelector(".cke_balloontoolbar .cke_balloon_content");
+      const isVisible = balloonElement != null && balloonElement.innerHTML.trim() !== '';
+      balloonToolbar.destroy();
+      initBalloonToolbar(editor);
+
+      if (!balloonToolbar.getItem('unlink')) {
+        if (link) {
+          addUnlinkItem(editor);
+        }
+      } else {
+        if (!link) {
+          balloonToolbar.deleteItem('unlink');
+        }
       }
+        const selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
+        if (!(selectedElement.parentElement.classList.contains("metadata-tag") || (selectedElement.classList && selectedElement.classList.contains("metadata-tag")))
+            && !(selectedElement.parentElement.classList.contains("atwho-query") || (selectedElement.classList && selectedElement.classList.contains("atwho-query"))) && !isVisible) {
+          balloonToolbar.attach( selection );
+        }
     } else {
       balloonToolbar.hide();
     }
