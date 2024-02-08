@@ -210,7 +210,7 @@ Vue.directive('draggable', {
       });
       ['dragenter', 'dragstart'].forEach((event) => {
         el.addEventListener(event, (e) => {
-          if (e?.dataTransfer) {
+          if (e?.dataTransfer && e?.dataTransfer?.types?.find?.(f => f === 'Files' || f.includes('image/'))) {
             counter++;
             document.dispatchEvent(new CustomEvent('attachments-show-drop-zone'));
           }
