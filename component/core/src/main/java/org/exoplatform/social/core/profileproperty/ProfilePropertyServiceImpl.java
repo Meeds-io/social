@@ -32,6 +32,8 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 
+import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.picocontainer.Startable;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
@@ -51,7 +53,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   private final SettingService                       settingService;
 
-  private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES    = "synchronizationDisabledProperties";
+  private final IndexingService                      indexingService;
+
+  private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES       = "synchronizationDisabledProperties";
 
   private static final String                        UNHIDDENABLE_PROPERTIES_PARAM       = "unHiddenableProperties";
 
@@ -68,9 +72,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
-                                    SettingService settingService) {
+                                    SettingService settingService,
+                                    IndexingService indexingService) {
     this.profileSettingStorage = profileSettingStorage;
     this.settingService = settingService;
+    this.indexingService = indexingService;
     if (params != null) {
       try {
         synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES)
@@ -193,6 +199,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                        HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE,
                        HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY,
                        SettingValue.create(hiddenProperties.toString()));
+    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(userIdentityId));
   }
 
   /**
@@ -206,6 +213,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                        HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE,
                        HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY,
                        SettingValue.create(hiddenProperties.toString()));
+    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(userIdentityId));
   }
 
 
