@@ -1096,10 +1096,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
-          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
-          if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME) || profileProperty.getPropertyName().equals(Profile.LAST_NAME) ) {
-            profile = getUserIdentity(username).getProfile();
-          }
+          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false);
         } else {
           List<Map<String, String>> maps = new ArrayList<>();
           profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
@@ -1112,7 +1109,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               maps.add(childrenMap);
             }
           });
-          updateProfileField(profile, profileProperty.getPropertyName(), maps, true);
+          updateProfileField(profile, profileProperty.getPropertyName(), maps, false);
         }
       } catch (IllegalAccessException e) {
         LOG.error("User {} is not allowed to update attributes", currentUser);
@@ -1121,8 +1118,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         LOG.error("Error updating user {} attributes", currentUser, e);
         return Response.serverError().build();
       }
-
     }
+    identityManager.updateProfile(profile, getCurrentUser(), true);
     return Response.ok().build();
   }
 
