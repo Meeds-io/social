@@ -100,7 +100,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
       }
     }
 
-    CachedSpaceStorage spaceStorage = (CachedSpaceStorage) CommonsUtils.getService(SpaceStorage.class);
+    CachedSpaceStorage spaceStorage = (CachedSpaceStorage) getService(SpaceStorage.class);
     spaceStorage.clearCaches();
   }
 
