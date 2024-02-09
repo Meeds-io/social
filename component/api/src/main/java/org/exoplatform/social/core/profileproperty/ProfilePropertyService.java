@@ -117,7 +117,14 @@ public interface ProfilePropertyService {
    *
    * @return {@link List} of {@link String}
    */
-  List<String> getUnhiddenablePropertySettings();
+  List<String> getUnhiddenableProfileProperties();
+
+  /**
+   * Gets excluded quick search properties
+   *
+   * @return {@link List} of {@link String}
+   */
+  List<String> getExcludedQuickSearchProperties();
 
   /**
    * Checks if property is hiddenable
