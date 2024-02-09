@@ -44,17 +44,19 @@ import org.exoplatform.social.core.relationship.model.Relationship;
  */
 public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String    TYPE = "profile";
+  public static final String           TYPE         = "profile";
 
-  private static final Log      LOG  = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
+  private static final Log             LOG          = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
 
-  private final IdentityManager identityManager;
+  private final IdentityManager        identityManager;
 
-  private final ConnectionDAO   connectionDAO;
+  private final ConnectionDAO          connectionDAO;
 
-  private final IdentityDAO     identityDAO;
+  private final IdentityDAO            identityDAO;
 
   private final ProfilePropertyService profilePropertyService;
+
+  private static final String          HIDDEN_VALUE = "hidden";
 
   public ProfileIndexingServiceConnector(InitParams initParams,
                                          IdentityManager identityManager,
@@ -251,7 +253,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
         if (profile.getProperty(profilePropertySettingName) != null && profile.getProperty(profilePropertySettingName) instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
             // Avoid having dots in field names in ES, otherwise properties with String values may be converted in Objects in some cases
-            fields.put(profilePropertySettingName.replace(".", "_"), value);
+            addPropertyToDocumentFields(fields, profilePropertySettingName, value, Long.parseLong(id));
           }
         } else {
           List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(profilePropertySettingName);
@@ -261,7 +263,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
                 .map(property -> property.get("value"))
                 .collect(Collectors.joining(",", "", ""));
             if (StringUtils.isNotEmpty(value)) {
-              fields.put(profilePropertySettingName.replace(".", "_"), removeAccents(value));
+              addPropertyToDocumentFields(fields, profilePropertySettingName, removeAccents(value), Long.parseLong(id));
             }
           }
         }
@@ -281,6 +283,22 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
             System.currentTimeMillis() - ts);
 
     return document;
+  }
+
+  private void addPropertyToDocumentFields(Map<String, String> fields, String propertyName, String value, long userIdentityId) {
+    if(isPropertyHidden(propertyName, userIdentityId)) {
+      fields.put(propertyName.replace(".", "_"), HIDDEN_VALUE);
+    } else {
+      fields.put(propertyName.replace(".", "_"), value);
+    }
+  }
+
+  private Boolean isPropertyHidden(String propertyName, long userIdentityId) {
+    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
+    if (propertySetting != null) {
+      return profilePropertyService.getHiddenProfilePropertyIds(userIdentityId).contains(propertySetting.getId());
+    }
+    return false;
   }
 
   private static String removeAccents(String string) {
