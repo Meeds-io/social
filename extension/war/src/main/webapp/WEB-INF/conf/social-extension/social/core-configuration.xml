@@ -751,6 +751,10 @@
                 <name>unHiddenableProperties</name>
                 <value>${social.profile.unHiddenable.properties:fullName,firstName,lastName}</value>
             </value-param>
+            <value-param>
+                <name>excludedQuickSearchProperties</name>
+                <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,phones,ims,urls}</value>
+            </value-param>
         </init-params>
     </component>
 
