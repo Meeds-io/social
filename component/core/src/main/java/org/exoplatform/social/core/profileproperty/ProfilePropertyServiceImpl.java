@@ -44,22 +44,26 @@ import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage
 
 public class ProfilePropertyServiceImpl implements ProfilePropertyService, Startable {
 
-  private static final Log                           LOG                                 =
+  private static final Log                           LOG                                    =
                                                          ExoLogger.getLogger(ProfilePropertyServiceImpl.class);
 
   private final ProfileSettingStorage                profileSettingStorage;
 
   private final SettingService                       settingService;
 
-  private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES    = "synchronizationDisabledProperties";
+  private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES       = "synchronizationDisabledProperties";
 
-  private static final String                        UNHIDDENABLE_PROPERTIES_PARAM       = "unHiddenableProperties";
+  private static final String                        UNHIDDENABLE_PROPERTIES_PARAM          = "unHiddenableProperties";
 
-  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins              = new ArrayList<>();
+  private static final String                        EXCLUDED_QUICK_SEARCH_PROPERTIES_PARAM = "excludedQuickSearchProperties";
 
-  private List<String>                               synchronizedGroupDisabledProperties = new ArrayList<>();
+  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins                 = new ArrayList<>();
 
-  private static List<String>                        nonHiddenableProps                  = new ArrayList<>();
+  private List<String>                               synchronizedGroupDisabledProperties    = new ArrayList<>();
+
+  private static List<String>                        nonHiddenableProps                     = new ArrayList<>();
+
+  private static List<String>                        excludedQuickSearchProps               = new ArrayList<>();
 
   private static final Scope                         HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE =
                                                                                             Scope.APPLICATION.id("ProfilePropertySettings");
@@ -77,6 +81,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                                                                   .getValue()
                                                                   .split(","));
         nonHiddenableProps = Arrays.asList(params.getValueParam(UNHIDDENABLE_PROPERTIES_PARAM).getValue().split(","));
+        excludedQuickSearchProps = Arrays.asList(params.getValueParam(EXCLUDED_QUICK_SEARCH_PROPERTIES_PARAM)
+                                                       .getValue()
+                                                       .split(","));
       } catch (Exception e) {
         LOG.warn("List of disabled properties for synchronization not provided, all properties can be synchronized! ");
       }
@@ -104,8 +111,13 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   }
 
   @Override
-  public List<String> getUnhiddenablePropertySettings() {
+  public List<String> getUnhiddenableProfileProperties() {
     return nonHiddenableProps;
+  }
+
+  @Override
+  public List<String> getExcludedQuickSearchProperties() {
+    return excludedQuickSearchProps;
   }
 
   @Override
@@ -143,7 +155,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   @Override
   public void updatePropertySetting(ProfilePropertySetting profilePropertySetting) {
     if (profilePropertySetting.isHiddenbale()
-        && getUnhiddenablePropertySettings().contains(profilePropertySetting.getPropertyName())) {
+        && getUnhiddenableProfileProperties().contains(profilePropertySetting.getPropertyName())) {
       throw new IllegalArgumentException(String.format("%s cannot be hidden", profilePropertySetting.getPropertyName()));
     }
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {

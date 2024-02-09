@@ -120,9 +120,14 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
                  () -> profilePropertyService.updatePropertySetting(unHiddenableprofilePropertySetting));
   }
 
-  public void testGetUnhiddenablePropertySettings() {
-    assertNotNull(profilePropertyService.getUnhiddenablePropertySettings());
-    assertFalse(profilePropertyService.getUnhiddenablePropertySettings().isEmpty());
+  public void testGetUnhiddenableProperties() {
+    assertNotNull(profilePropertyService.getUnhiddenableProfileProperties());
+    assertFalse(profilePropertyService.getUnhiddenableProfileProperties().isEmpty());
+  }
+
+  public void testGetExcludedSearchProperties() {
+    assertNotNull(profilePropertyService.getExcludedQuickSearchProperties());
+    assertFalse(profilePropertyService.getExcludedQuickSearchProperties().isEmpty());
   }
 
   public void testIsPropertySettingHiddenable() throws ObjectAlreadyExistsException {
