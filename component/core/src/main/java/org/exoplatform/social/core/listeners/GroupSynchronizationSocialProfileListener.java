@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.*;
@@ -46,6 +47,7 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
  * group related to this property (if the group not exist) - Add the profile
  * owner to the group
  */
+@Asynchronous
 public class GroupSynchronizationSocialProfileListener extends ProfileListenerPlugin {
 
   private static final Log             LOG                = ExoLogger.getLogger(GroupSynchronizationSocialProfileListener.class);
