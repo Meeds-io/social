@@ -22,7 +22,8 @@
   <exo-drawer
     ref="complementaryFilterItemsDrawer"
     allow-expand
-    right>
+    right
+    @closed="$emit('closed')">
     <template slot="title">
       <v-flex>
         <v-btn

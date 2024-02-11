@@ -52,7 +52,8 @@
       ref="filterItemsDrawer"
       :suggestions="suggestions"
       :selections="selections"
-      @select-suggestion="selectSuggestion" />
+      @select-suggestion="selectSuggestion"
+      @closed="filterDrawerClosed"/>
   </v-app>
 </template>
 
@@ -117,6 +118,9 @@ export default {
     this.$root.$on('update-filter-suggestions', this.updateFilterSuggestions);
   },
   methods: {
+    filterDrawerClosed() {
+      this.$emit('filter-drawer-closed');
+    },
     resetSelections() {
       this.otherFilterItemsSelected = false;
       this.selections = [];
