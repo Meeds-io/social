@@ -33,7 +33,7 @@
       class="white--text align-start d-block peopleBannerImg"
       eager />
     <div
-      class="peopleToolbarIcons my-auto">
+      class="peopleToolbarIcons mt-1">
       <v-btn
         :title="$t('peopleList.label.openUserInfo')"
         icon

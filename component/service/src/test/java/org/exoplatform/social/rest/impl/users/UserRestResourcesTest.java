@@ -1,6 +1,6 @@
 package org.exoplatform.social.rest.impl.users;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import javax.imageio.ImageIO;
@@ -1385,6 +1386,28 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ContainerResponse response = service("PATCH", getURLResource("users/" + user), "", headers, formData);
     assertNotNull(response);
     assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    endSession();
+  }
+
+  public void testIncludeCurrentUserInAdvancedSearchResult() throws Exception {
+    startSessionAs("root");
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Profile profile = identity.getProfile();
+    profile.setProperty("profession", "Developer");
+    identityManager.updateProfile(profile, true);
+    byte[] jsonData = "{\"profession\":\"Developer\"}".getBytes(StandardCharsets.UTF_8);
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("content-type", "application/json");
+    headers.putSingle("content-length", "" + jsonData.length);
+    ContainerResponse response = service("POST",
+                    getURLResource("users/advancedfilter?offset=0&limit=10&expand=all,spacesCount,relationshipStatus,connectionsCount,binding&filterType=all&returnSize=true"),
+                    "",
+                     headers,
+                     jsonData);
+    assertNotNull(response);
+    Object collections = response.getEntity();
+    List<? extends DataEntity> entities = ((CollectionEntity) collections).getEntities();
+    assertEquals("root",entities.get(0).get("username"));
     endSession();
   }
 }

@@ -447,7 +447,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
                            @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                            @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
-                           @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings) throws Exception {
+                           @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings,
+                           @Parameter(description = "Whether to exclude current user from search result") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
 
     String userId;
     try {
@@ -479,8 +480,10 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         filter.setUserType(userType);
       }
     }
-    if (settings != null) {
+    if (excludeCurrentUser) {
       filter.setExcludedIdentityList(Collections.singletonList(target));
+    }
+    if (settings != null) {
       settings.replaceAll((key, value) -> value.trim());
     }
     filter.setProfileSettings(settings);
