@@ -387,6 +387,13 @@ export default {
         this.stepper = 1;
       }
     },
+    drawer(){
+      if (this.drawer) {
+        this.$el.closest('#stickyBlockDesktop').style.position = 'static';
+      } else {
+        this.$el.closest('#stickyBlockDesktop').style.position = 'sticky';
+      }
+    }
   },
   created() {
     this.$root.$on('links-settings-drawer', this.open);
