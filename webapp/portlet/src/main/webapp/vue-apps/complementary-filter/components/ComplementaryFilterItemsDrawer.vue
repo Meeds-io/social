@@ -22,14 +22,15 @@
   <exo-drawer
     ref="complementaryFilterItemsDrawer"
     allow-expand
-    right>
+    right
+    @closed="closed">
     <template slot="title">
       <v-flex>
         <v-btn
           class="align-start"
           icon
           :aria-label="$t('label.close')"
-          @click="close">
+          @click="hideDrawer">
           <v-icon size="20">
             fas fa-arrow-left
           </v-icon>
@@ -57,6 +58,11 @@
 
 <script>
 export default {
+  data() {
+    return {
+      hide: false
+    };
+  },
   props: {
     suggestions: {
       type: Array,
@@ -73,7 +79,15 @@ export default {
     },
   },
   methods: {
+    hideDrawer() {
+      this.hide = true;
+      this.close();
+    },
+    closed() {
+      this.$emit('closed', !this.hide);
+    },
     open() {
+      this.hide = false;
       this.$refs.complementaryFilterItemsDrawer.open();
     },
     close() {
