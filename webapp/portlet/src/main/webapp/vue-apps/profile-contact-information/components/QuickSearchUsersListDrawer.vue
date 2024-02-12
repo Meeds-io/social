@@ -39,7 +39,7 @@
         filter-message-class="subtitle-1 text-color ps-1"
         @keyword-changed="keyword = $event" />
       <complementary-filter
-        class="mt-n1 mb-5 z-index-two position-relative"
+        class="mt-n1 z-index-two position-relative"
         :object-ids="objectIds"
         :attributes="listProperties"
         :show-message="false"
@@ -78,7 +78,7 @@
       </div>
       <div
         v-else
-        class="pt-2 mt-n5 quickSearchResultExpanded quickSearchResultCollapsed">
+        class="pt-2 mt-n1 quickSearchResultExpanded quickSearchResultCollapsed">
         <people-card
           v-for="user in listUsers"
           :key="user.id"
@@ -97,7 +97,7 @@
           class="btn btn-primary width-full"
           flat
           outlined
-          @click="search(true)">
+          @click="search">
           {{ $t('Search.button.loadMore') }}
         </v-btn>
       </div>
@@ -194,8 +194,8 @@ export default {
         this.users[index].relationshipStatus = status;
       }
     },
-    filterDrawerClosed(closeParent) {
-      if (closeParent) {
+    filterDrawerClosed(close) {
+      if (close) {
         this.close();
       }
     },
@@ -210,10 +210,10 @@ export default {
       this.hasCombinations = false;
       this.selectedSuggestions = [];
       this.users = [];
-      this.search(true);
+      this.search();
       this.$refs.quickSearchUsersListDrawer.open();
     },
-    search(updateSuggestions) {
+    search() {
       if (this.keyword) {
         this.profileSetting['fullName'] = this.keyword;
         this.users = [];
@@ -238,9 +238,7 @@ export default {
       }).finally(() => {
         this.abortController = null;
         this.isSearching = false;
-        if (updateSuggestions) {
-          this.$root.$emit('update-filter-suggestions');
-        }
+        this.$root.$emit('update-filter-suggestions');
       });
     }
   }
