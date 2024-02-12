@@ -204,7 +204,8 @@ export default {
           }
         }, 200);
       }
-    },
+      this.$el.closest('#stickyBlockDesktop').style.position = 'static';
+    }
   },
   created() {
     this.$root.$on('links-form-drawer', this.open);
