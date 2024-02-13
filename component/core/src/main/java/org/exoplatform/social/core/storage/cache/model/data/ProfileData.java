@@ -46,6 +46,8 @@ public class ProfileData implements CacheData<Profile> {
 
   private boolean hasChanged;
 
+  private boolean isDefaultAvatar;
+
   private Map<String, Object> data;
 
   private String url;
@@ -76,6 +78,7 @@ public class ProfileData implements CacheData<Profile> {
       this.avatarLastUpdated = profile.getAvatarLastUpdated();
       this.bannerLastUpdated = profile.getBannerLastUpdated();
       this.createdTime = profile.getCreatedTime();
+      this.isDefaultAvatar = profile.isDefaultAvatar();
     }
   }
 
@@ -112,6 +115,7 @@ public class ProfileData implements CacheData<Profile> {
     profile.setAvatarLastUpdated(avatarLastUpdated);
     profile.setBannerLastUpdated(bannerLastUpdated);
     profile.setCreatedTime(createdTime);
+    profile.setDefaultAvatar(isDefaultAvatar);
     for(String key : data.keySet()) {
       profile.setProperty(key, data.get(key));
     }
@@ -129,22 +133,23 @@ public class ProfileData implements CacheData<Profile> {
     if (o == null || getClass() != o.getClass()) return false;
     ProfileData that = (ProfileData) o;
     return hasChanged == that.hasChanged &&
-            Objects.equals(profileId, that.profileId) &&
-            Objects.equals(identityId, that.identityId) &&
-            Objects.equals(providerId, that.providerId) &&
-            Objects.equals(remoteId, that.remoteId) &&
-            Objects.equals(data, that.data) &&
-            Objects.equals(url, that.url) &&
-            Objects.equals(avatarUrl, that.avatarUrl) &&
-            Objects.equals(bannerUrl, that.bannerUrl) &&
-            Objects.equals(avatarLastUpdated, that.avatarLastUpdated) &&
-            Objects.equals(bannerLastUpdated, that.bannerLastUpdated) &&
-            Objects.equals(createdTime, that.createdTime);
+            isDefaultAvatar == that.isDefaultAvatar
+            && Objects.equals(profileId, that.profileId)
+            && Objects.equals(identityId, that.identityId)
+            && Objects.equals(providerId, that.providerId)
+            && Objects.equals(remoteId, that.remoteId)
+            && Objects.equals(data, that.data)
+            && Objects.equals(url, that.url)
+            && Objects.equals(avatarUrl, that.avatarUrl)
+            && Objects.equals(bannerUrl, that.bannerUrl)
+            && Objects.equals(avatarLastUpdated, that.avatarLastUpdated)
+            && Objects.equals(bannerLastUpdated, that.bannerLastUpdated)
+        && Objects.equals(createdTime, that.createdTime);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(profileId, identityId, providerId, remoteId, hasChanged, data, url,
-            avatarUrl, bannerUrl, avatarLastUpdated, bannerLastUpdated, createdTime);
+            avatarUrl, bannerUrl, avatarLastUpdated, bannerLastUpdated, createdTime, isDefaultAvatar);
   }
 }

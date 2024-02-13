@@ -44,7 +44,6 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -871,6 +870,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     Date lastUpdated = entity.getAvatarLastUpdated();
     if (lastUpdated != null) {
       space.setAvatarLastUpdated(entity.getAvatarLastUpdated().getTime());
+    } else {
+      space.setAvatarLastUpdated(System.currentTimeMillis());
+      lastUpdated = new Date(System.currentTimeMillis());
     }
     space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getId(), true, lastUpdated == null ? null : lastUpdated.getTime()));
     lastUpdated = entity.getBannerLastUpdated();
