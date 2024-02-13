@@ -84,6 +84,7 @@ public class ComplementaryFilterSearchConnector {
                     "common_%s": {
                        "terms": {
                          "field": "%s.keyword",
+                         "exclude": ["hidden"],
                          "min_doc_count":%s,
                          "size": 50,
                          "order": {
