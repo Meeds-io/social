@@ -460,52 +460,57 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
 
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-    if (target == null) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
-      throw new WebApplicationException(Response.Status.FORBIDDEN);
-    }
-
-    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
-    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    Identity[] identities;
-    int totalSize = 0;
-    ProfileFilter filter = new ProfileFilter();
-    if (filterType.equals("all")) {
-      filter.setEnabled(!isDisabled);
-      if (!isDisabled) {
-        filter.setUserType(userType);
+    try {
+      Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
+      if (target == null) {
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
       }
-    }
-    if (excludeCurrentUser) {
-      filter.setExcludedIdentityList(Collections.singletonList(target));
-    }
-    if (settings != null) {
-      settings.replaceAll((key, value) -> value.trim());
-    }
-    filter.setProfileSettings(settings);
-    ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
-    identities = list.load(offset, limit);
-    if (returnSize) {
-      totalSize = list.getSize();
-    }
-    List<DataEntity> profileInfos = new ArrayList<>();
-    for (Identity identity : identities) {
-      if (identity != null) {
-        ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
-        //
-        profileInfos.add(profileInfo.getDataEntity());
-      }
-    }
-    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
-    if (returnSize) {
-      collectionUser.setSize(totalSize);
-    }
 
-    return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
+        throw new WebApplicationException(Response.Status.FORBIDDEN);
+      }
+
+      offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
+      limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+      Identity[] identities;
+      int totalSize = 0;
+      ProfileFilter filter = new ProfileFilter();
+      if (filterType.equals("all")) {
+        filter.setEnabled(!isDisabled);
+        if (!isDisabled) {
+          filter.setUserType(userType);
+        }
+      }
+      if (excludeCurrentUser) {
+        filter.setExcludedIdentityList(Collections.singletonList(target));
+      }
+      if (settings != null) {
+        settings.replaceAll((key, value) -> value.trim());
+      }
+      filter.setProfileSettings(settings);
+      ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
+      identities = list.load(offset, limit);
+      if (returnSize) {
+        totalSize = list.getSize();
+      }
+      List<DataEntity> profileInfos = new ArrayList<>();
+      for (Identity identity : identities) {
+        if (identity != null) {
+          ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+          //
+          profileInfos.add(profileInfo.getDataEntity());
+        }
+      }
+      CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+      if (returnSize) {
+        collectionUser.setSize(totalSize);
+      }
+
+      return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    } catch (Exception e) {
+      LOG.error("Unable to get users or connections with advanced filter", e);
+      return Response.status(HTTPStatus.INTERNAL_ERROR).entity(e.getMessage()).build();
+    }
   }
 
   @POST

@@ -19,8 +19,11 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
+import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
 import org.exoplatform.social.core.model.ProfileLabel;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -1391,8 +1394,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testIncludeCurrentUserInAdvancedSearchResult() throws Exception {
     startSessionAs("root");
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
-    Profile profile = identity.getProfile();
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    Identity maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
+
+    //mock ProfileSearchConnector
+    ProfileSearchConnector profileSearchConnector = mock(ProfileSearchConnector.class);
+    RDBMSIdentityStorageImpl rdbmsIdentityStorage = getContainer().getComponentInstanceOfType(RDBMSIdentityStorageImpl.class);
+    when(profileSearchConnector.search(any(), any(), any(), anyLong(), anyLong())).thenReturn(Arrays.asList(rootIdentity.getId(), johnIdentity.getId(), maryIdentity.getId()));
+    rdbmsIdentityStorage.setProfileSearchConnector(profileSearchConnector);
+
+    Profile profile = rootIdentity.getProfile();
     profile.setProperty("profession", "Developer");
     identityManager.updateProfile(profile, true);
     byte[] jsonData = "{\"profession\":\"Developer\"}".getBytes(StandardCharsets.UTF_8);
@@ -1405,9 +1417,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                      headers,
                      jsonData);
     assertNotNull(response);
+    assertEquals(200, response.getStatus());
     Object collections = response.getEntity();
     List<? extends DataEntity> entities = ((CollectionEntity) collections).getEntities();
-    assertEquals("root",entities.get(0).get("username"));
+    assertEquals(3, entities.size());
+    assertEquals("root", entities.get(0).get("username"));
     endSession();
   }
 }
