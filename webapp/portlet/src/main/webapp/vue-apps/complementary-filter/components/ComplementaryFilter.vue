@@ -19,9 +19,10 @@
  -->
 
 <template>
-  <v-app
-    v-if="hasValues">
-    <div class="px-3">
+  <v-app>
+    <div
+      v-if="hasValues"
+      class="px-3">
       <p
         v-if="showMessage"
         class="text-color subtitle-1">
@@ -118,8 +119,8 @@ export default {
     this.$root.$on('update-filter-suggestions', this.updateFilterSuggestions);
   },
   methods: {
-    filterDrawerClosed(closeParent) {
-      this.$emit('filter-drawer-closed', closeParent);
+    filterDrawerClosed(close) {
+      this.$emit('filter-drawer-closed', close);
     },
     resetSelections() {
       this.otherFilterItemsSelected = false;
@@ -142,34 +143,15 @@ export default {
       const index = this.getSelectionIndex(suggestion);
       if (index === -1) {
         this.selections.push(suggestion);
-        this.removeExistingAttributeType(suggestion);
       } else {
         this.selections.splice(index, 1);
         this.$emit('filter-suggestion-unselected', suggestion);
-        this.restoreExistingAttributeType(suggestion);
       }
       this.checkOnlyInTopThreeSelection();
     },
     getSelectionIndex(suggestion) {
       return this.selections.findIndex(existObject => existObject.value === suggestion.value &&
           existObject.key === suggestion.key);
-    },
-    removeExistingAttributeType(suggestion) {
-      this.suggestions.forEach((existObject, index) => {
-        if (existObject.key === suggestion.key && existObject.value !== suggestion.value) {
-          this.suggestions.splice(index, 1);
-          this.tempRemovedSuggestions.push(existObject);
-        }
-      });
-    },
-    restoreExistingAttributeType(suggestion) {
-      this.tempRemovedSuggestions.forEach((existObject, index) => {
-        if (existObject.key === suggestion.key && existObject.value !== suggestion.value) {
-          this.tempRemovedSuggestions.splice(index, 1);
-          this.suggestions.push(existObject);
-        }
-      });
-      this.suggestions.sort((a, b) => b.count - a.count);
     },
     isSuggestionSelected(suggestion) {
       return this.getSelectionIndex(suggestion) !== -1;

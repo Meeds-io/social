@@ -25,7 +25,7 @@
     right
     @closed="closed">
     <template slot="title">
-      <v-flex>
+      <div>
         <v-btn
           class="align-start"
           icon
@@ -38,7 +38,7 @@
         <span class="text-color ma-auto">
           {{ $t('complementaryFilter.other.suggestions.message') }}
         </span>
-      </v-flex>
+      </div>
     </template>
     <template slot="content">
       <div class="my-2 mx-5">
