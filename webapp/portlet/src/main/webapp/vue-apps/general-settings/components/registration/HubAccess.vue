@@ -82,9 +82,23 @@
         </v-tooltip>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title
-          v-html="$t('generalSettings.access.open.enableExternalUsers', whatIsExternalUserParams)"
-          class="subtitle-1" />
+        <v-list-item-title class="subtitle-1">
+          <help-label
+            label="generalSettings.access.open.enableExternalUsers"
+            tooltip="generalSettings.access.whatIsExternalUser">
+            <template slot="helpContent">
+              <p>
+                {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsExternalUser.paragraph2') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsExternalUser.paragraph3') }}
+              </p>
+            </template>
+          </help-label>
+        </v-list-item-title>
         <v-list-item-subtitle>
           {{ $t('generalSettings.access.open.enableExternalUsers.subtitle') }}
         </v-list-item-subtitle>
@@ -108,8 +122,27 @@
         <v-list-item-title class="subtitle-1">
           {{ $t('generalSettings.access.restricted') }}
         </v-list-item-title>
-        <v-list-item-subtitle
-          v-html="$t('generalSettings.access.restricted.subtitle', whatIsRegisteredUserParams)" />
+        <v-list-item-subtitle>
+          <help-label
+            label="generalSettings.access.restricted.subtitle"
+            label-class="text-sub-title"
+            tooltip="generalSettings.access.whatIsRegisteredUser">
+            <template slot="helpContent">
+              <p>
+                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph1') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph2') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph3') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph4') }}
+              </p>
+            </template>
+          </help-label>
+        </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-list-item
@@ -136,11 +169,41 @@
         </v-tooltip>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title
-          v-html="$t('generalSettings.access.restricted.enableExternalUsers', whatIsExternalUserParams)"
-          class="subtitle-1" />
-        <v-list-item-subtitle
-          v-html="$t('generalSettings.access.restricted.enableExternalUsers.subtitle', whatIsSpaceHostParams)" />
+        <v-list-item-title class="subtitle-1">
+          <help-label
+            label="generalSettings.access.restricted.enableExternalUsers"
+            tooltip="generalSettings.access.whatIsExternalUser">
+            <template slot="helpContent">
+              <p>
+                {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsExternalUser.paragraph2') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsExternalUser.paragraph3') }}
+              </p>
+            </template>
+          </help-label>
+        </v-list-item-title>
+        <v-list-item-subtitle>
+          <help-label
+            label="generalSettings.access.restricted.enableExternalUsers.subtitle"
+            label-class="text-sub-title"
+            tooltip="generalSettings.access.whatIsSpaceHost">
+            <template slot="helpContent">
+              <p>
+                {{ $t('generalSettings.access.whatIsSpaceHost.paragraph1') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsSpaceHost.paragraph2') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsSpaceHost.paragraph3') }}
+              </p>
+            </template>
+          </help-label>
+        </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
 
@@ -191,9 +254,23 @@
     </v-list-item>
     <v-list-item dense class="my-0">
       <v-list-item-content>
-        <v-list-item-title
-          v-html="$t('generalSettings.access.startSettingPlatform.spaces', whatIsDefaultSpaceParams)"
-          class="subtitle-1 text-color" />
+        <v-list-item-title class="subtitle-1">
+          <help-label
+            label="generalSettings.access.startSettingPlatform.spaces"
+            tooltip="generalSettings.access.whatIsDefaultSpace">
+            <template slot="helpContent">
+              <p>
+                {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph1') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph2') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph3') }}
+              </p>
+            </template>
+          </help-label>
+        </v-list-item-title>
         <v-list-item-subtitle v-sanitized-html="defaultSelectedSpacesTitle" />
       </v-list-item-content>
       <v-list-item-action class="d-flex flex-row align-center my-0">
@@ -206,9 +283,23 @@
     </v-list-item>
     <v-list-item dense class="my-0">
       <v-list-item-content>
-        <v-list-item-title
-          v-html="$t('generalSettings.access.startSettingPlatform.mandatorySpaces', whatIsMandatorySpaceParams)"
-          class="subtitle-1 text-color" />
+        <v-list-item-title class="subtitle-1">
+          <help-label
+            label="generalSettings.access.startSettingPlatform.mandatorySpaces"
+            tooltip="generalSettings.access.whatIsMandatorySpace">
+            <template slot="helpContent">
+              <p>
+                {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph1') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph2') }}
+              </p>
+              <p>
+                {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph3') }}
+              </p>
+            </template>
+          </help-label>
+        </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action class="my-0">
         <v-btn
@@ -259,14 +350,6 @@
     <portal-general-settings-default-spaces-drawer
       ref="defaultSpaceDrawer"
       v-model="defaultSpaceIds" />
-    <portal-general-settings-help-drawer
-      ref="helpDrawer"
-      v-model="helpItemId" />
-    <portal-general-settings-help-tooltip
-      v-if="helpTooltip"
-      v-model="helpTooltipItemId"
-      :attach="helpTooltipElement"
-      show />
   </div>
 </template>
 <script>
@@ -284,30 +367,11 @@ export default {
     externalUserOpenRegistration: false,
     externalUserRestrictedRegistration: false,
     defaultSpaceIds: [],
-    helpItemId: null,
-    helpTooltipItemId: null,
-    helpTooltip: false,
-    helpTooltipElement: null,
     initialized: false,
   }),
   computed: {
     validForm() {
       return this.changed;
-    },
-    whatIsExternalUserParams() {
-      return this.getHelpParams('whatIsExternalUser', 'text-color');
-    },
-    whatIsSpaceHostParams() {
-      return this.getHelpParams('whatIsSpaceHost', 'text-sub-title');
-    },
-    whatIsRegisteredUserParams() {
-      return this.getHelpParams('whatIsRegisteredUser', 'text-sub-title');
-    },
-    whatIsDefaultSpaceParams() {
-      return this.getHelpParams('whatIsDefaultSpace', 'text-color');
-    },
-    whatIsMandatorySpaceParams() {
-      return this.getHelpParams('whatIsMandatorySpace', 'text-color');
     },
     defaultSelectedSpacesTitle() {
       const spacesCount = this.defaultSpaceIds?.length || 0;
@@ -361,17 +425,11 @@ export default {
   },
   created() {
     this.init();
-    document.addEventListener('hub-access-help', this.openHelpDrawer);
-    document.addEventListener('hub-access-help-tooltip-open', this.openHelpTooltip);
-    document.addEventListener('hub-access-help-tooltip-close', this.closeHelpTooltip);
   },
   mounted() {
     this.$nextTick().then(() => this.initialized = true);
   },
   beforeDestroy() {
-    document.removeEventListener('hub-access-help', this.openHelpDrawer);
-    document.removeEventListener('hub-access-help-tooltip-open', this.openHelpTooltip);
-    document.removeEventListener('hub-access-help-tooltip-close', this.closeHelpTooltip);
     this.$root.$emit('close-alert-message');
   },
   methods: {
@@ -380,38 +438,6 @@ export default {
       this.externalUserOpenRegistration = this.accessType === 'OPEN' && this.registrationSettings?.externalUser || false;
       this.externalUserRestrictedRegistration = this.accessType === 'RESTRICTED' && this.registrationSettings?.externalUser || false;
       this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
-    },
-    openHelpDrawer(event) {
-      if (event?.detail) {
-        this.helpItemId = event?.detail;
-        this.helpTooltip = false;
-        this.helpTooltipItemId = null;
-        this.$nextTick().then(() => this.$refs.helpDrawer.open());
-      }
-    },
-    openHelpTooltip(event) {
-      if (this.helpTooltipItemId !== event?.detail?.id) {
-        this.helpTooltipItemId = event?.detail?.id;
-        this.helpTooltipElement = event?.detail?.element;
-        this.$nextTick().then(() => this.helpTooltip = true);
-      }
-    },
-    closeHelpTooltip(event) {
-      if (this.helpTooltipItemId === event?.detail?.id) {
-        this.helpTooltipItemId = null;
-        this.helpTooltipElement = null;
-        this.$nextTick().then(() => this.helpTooltip = false);
-      }
-    },
-    getHelpParams(id, elementClass) {
-      return {
-        0: `<a href="javascript:void(0)"
-          class="${elementClass || ''} text-decoration-underline"
-          onmouseover="document.dispatchEvent(new CustomEvent('hub-access-help-tooltip-open', {detail: {id: '${id}', element: event.target}}))"
-          onmouseout="document.dispatchEvent(new CustomEvent('hub-access-help-tooltip-close', {detail: {id: '${id}', element: event.target}}))"
-          onclick="window.event.cancelBubble = true;document.dispatchEvent(new CustomEvent('hub-access-help', {detail: '${id}'}))">`,
-        1: '</a>'
-      };
     },
     save() {
       this.$root.loading = true;
