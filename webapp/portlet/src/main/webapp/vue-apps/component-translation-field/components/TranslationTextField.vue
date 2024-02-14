@@ -47,7 +47,8 @@
       type="text"
       outlined
       readonly
-      dense>
+      dense
+      @blur="$emit('blur')">
       <template v-if="!$slots.title" #append>
         <div class="mt-n2">
           <v-btn
@@ -75,7 +76,8 @@
       class="border-box-sizing width-auto pt-0"
       type="text"
       outlined
-      dense>
+      dense
+      @blur="$emit('blur')">
       <template #append>
         <div v-if="!$slots.title" class="mt-n2">
           <v-btn

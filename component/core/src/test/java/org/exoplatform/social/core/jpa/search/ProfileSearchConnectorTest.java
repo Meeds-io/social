@@ -98,7 +98,8 @@ public class ProfileSearchConnectorTest {
                 "          \"bool\" :{\n" +
                 "    \"filter\": [\n" +
                 "      {          \"query_string\": {\n" +
-                "            \"query\": \"( ( test:*test*) )\"\n" +
+                "            \"query\": \"test OR *test*\",\n" +
+                "            \"default_field\": \"test\"\n" +
                 "          }\n" +
                 "      }\n" +
                 "    ],\n" +
@@ -221,7 +222,8 @@ public class ProfileSearchConnectorTest {
                 "          \"bool\" :{\n" +
                 "    \"filter\": [\n" +
                 "      {          \"query_string\": {\n" +
-                "            \"query\": \"( ( test:*test*) )\"\n" +
+                "            \"query\": \"test OR *test*\",\n" +
+                "            \"default_field\": \"test\"\n" +
                 "          }\n" +
                 "      }\n" +
                 "    ],\n" +
@@ -337,7 +339,8 @@ public class ProfileSearchConnectorTest {
                 "          \"bool\" :{\n" +
                 "    \"filter\": [\n" +
                 "      {          \"query_string\": {\n" +
-                "            \"query\": \"( ( test:*test*) )\"\n" +
+                "            \"query\": \"test OR *test*\",\n" +
+                "            \"default_field\": \"test\"\n" +
                 "          }\n" +
                 "      }\n" +
                 "    ],\n" +

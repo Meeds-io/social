@@ -171,17 +171,11 @@ public class ProfileSearchConnector {
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
     //filter by profile settings
-      if (expEsForAdvancedFilter != null) {
-
-        esSubQuery.append("    \"filter\": [\n");
-        esSubQuery.append("      {");
-        esSubQuery.append("          \"query_string\": {\n");
-        esSubQuery.append("            \"query\": \"" + expEsForAdvancedFilter + "\"\n");
-        esSubQuery.append("          }\n");
-        esSubQuery.append("      }\n");
-        esSubQuery.append("    ],\n");
-
-      }
+    if (expEsForAdvancedFilter != null) {
+      esSubQuery.append("    \"filter\": [\n");
+      esSubQuery.append(expEsForAdvancedFilter);
+      esSubQuery.append("    ],\n");
+    }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
@@ -491,7 +485,6 @@ public class ProfileSearchConnector {
   private String buildAdvancedFilterExpression(ProfileFilter filter) {
     StringBuilder esExp = new StringBuilder();
     Map<String, String> settings = filter.getProfileSettings();
-    esExp.append("( ");
     int settingsCount = 0 ;
     for (Map.Entry<String, String> entry : settings.entrySet()){
       String inputKey = entry.getKey().replace(" ", "\\\\ ");
@@ -499,23 +492,43 @@ public class ProfileSearchConnector {
       if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
         inputValue = inputValue.replace("\"", "");
       }
+      String replaceSpecialCharInputValue;
       String[] splittedValue = inputValue.split(" ");
+      StringBuilder inputSplittedValue = new StringBuilder();
+      String inputWithAsteriskStr;
       if (splittedValue.length > 1) {
+        inputSplittedValue.append("(");
         for (int i = 0; i < splittedValue.length; i++) {
           if (i != 0 ) {
-            esExp.append(" AND ") ;
+            inputSplittedValue.append(" ) AND ( ") ;
           }
-          esExp.append(inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splittedValue[i])).append(StorageUtils.ASTERISK_STR);
+          replaceSpecialCharInputValue = replaceSpecialCharInputValue(removeAccents(splittedValue[i]));
+          inputSplittedValue.append(replaceSpecialCharInputValue);
+          inputWithAsteriskStr = StorageUtils.ASTERISK_STR.concat(replaceSpecialCharInputValue).concat(StorageUtils.ASTERISK_STR);
+          inputSplittedValue.append(" OR ").append(inputWithAsteriskStr);
         }
-        esExp.append(")");
+        inputSplittedValue.append(")");
       } else {
-        esExp.append("( "+inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
-        esExp.append(")");
+        replaceSpecialCharInputValue = replaceSpecialCharInputValue(removeAccents(inputValue));
+        inputSplittedValue.append(replaceSpecialCharInputValue);
+        inputWithAsteriskStr = StorageUtils.ASTERISK_STR.concat(inputSplittedValue.toString()).concat(StorageUtils.ASTERISK_STR);
+        inputSplittedValue.append(" OR ").append(inputWithAsteriskStr);
       }
-      if ( settingsCount != settings.size()- 1 ) esExp.append(" AND ") ;
+      esExp.append("      {");
+      esExp.append("          \"query_string\": {\n");
+      esExp.append("            \"query\": \"" + inputSplittedValue.toString() + "\",\n");
+      esExp.append("            \"default_field\": \"" + inputKey + "\"\n");
+      esExp.append("          }\n");
+      esExp.append("      }");
+
+
+      if ( settingsCount != settings.size()- 1 ) {
+        esExp.append(",\n");
+      } else {
+        esExp.append("\n");
+      }
       settingsCount += 1 ;
     }
-    esExp.append(" )");
     return esExp.toString();
   }
 
@@ -523,5 +536,34 @@ public class ProfileSearchConnector {
     string = Normalizer.normalize(string, Normalizer.Form.NFD);
     string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
     return string;
+  }
+
+  private String replaceSpecialCharInputValue (String inputValue) {
+    StringBuilder result = new StringBuilder();
+    int i = 0;
+    int j = 0;
+    int numberLetterOrDigit = 0;
+    for (char c : inputValue.toCharArray()) {
+      if (!(Character.isLetterOrDigit(c) || !Character.isWhitespace(c))) {
+        if ( j!=0 ) {
+          result.append("\\\\").append(c);
+        } else if ( i==0 ) {
+          result.append(c);
+          j++;
+        } else {
+          result.append(c);
+          j=0;
+        }
+      } else {
+        result.append(c);
+        numberLetterOrDigit++;
+        j=0;
+      }
+      i++;
+    }
+    if (numberLetterOrDigit == 0) {
+      return "*";
+    }
+    return result.toString();
   }
 }
