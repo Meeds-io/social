@@ -54,7 +54,7 @@
       :suggestions="suggestions"
       :selections="selections"
       @select-suggestion="selectSuggestion"
-      @closed="filterDrawerClosed"/>
+      @closed="filterDrawerClosed" />
   </v-app>
 </template>
 
