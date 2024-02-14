@@ -48,7 +48,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.webui.Utils;
 
 import io.meeds.social.cms.service.CMSService;
