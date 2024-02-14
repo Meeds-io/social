@@ -55,6 +55,7 @@
       </v-card>
       <v-main
         id="mainAppArea"
+        role="main"
         class="border-box-sizing fill-height flex-grow-1 flex-shrink-1 pa-0 mb-16 mb-sm-0">
         <v-row class="overflow-x-hidden" no-gutters>
           <v-col v-if="center" class="d-none d-sm-flex" />
