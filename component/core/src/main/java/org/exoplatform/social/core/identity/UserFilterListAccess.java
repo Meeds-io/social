@@ -73,6 +73,9 @@ public class UserFilterListAccess implements ListAccess<User> {
       List<User> users = new ArrayList<User>();
       int i = 0;
       for (Identity identity : identities) {
+        if (identity == null) {
+          continue;
+        }
         String userId = identity.getRemoteId();
         User user = organizationService.getUserHandler().findUserByName(userId);
         if (user == null) {
