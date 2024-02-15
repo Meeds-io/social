@@ -103,3 +103,16 @@ export function hideNotification(id) {
     }
   });
 }
+
+export function getNotification(id) {
+  return fetch(`/portal/rest/notifications/webNotifications/${id}`, {
+    credentials: 'include',
+    method: 'GET',
+  }).then((resp) => {
+    if (resp && resp.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when getting notification');
+    }
+  });
+}
