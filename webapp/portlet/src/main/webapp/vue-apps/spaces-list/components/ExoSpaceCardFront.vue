@@ -363,7 +363,7 @@ export default {
       }
     },
     isMobile() {
-      return this.$vuetify.breakpoint.xs;
+      return this.$vuetify.breakpoint.smAndDown;
     },
     isFavorite() {
       return this.space?.isFavorite === 'true';
