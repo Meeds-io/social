@@ -12,6 +12,9 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.IdentityManagerImpl;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
+import org.exoplatform.ws.frameworks.json.impl.JsonException;
+import org.exoplatform.ws.frameworks.json.impl.JsonGeneratorImpl;
+import org.exoplatform.ws.frameworks.json.value.JsonValue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,5 +71,21 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
                                                profilePropertyService.getProfileSettingByName("profession").getId());
     document = profileIndexingServiceConnector.update(userIdentity.getId());
     assertEquals("hidden",document.getFields().get("profession"));
+  }
+
+  @Test
+  public void testGetMapping() {
+    try {
+      String mapping = profileIndexingServiceConnector.getMapping();
+      assertNotNull(mapping);
+      JsonGeneratorImpl jsonGenerator = new JsonGeneratorImpl();
+      JsonValue jsonValue = jsonGenerator.createJsonObjectFromString(mapping);
+      assertNotNull(jsonValue.getElement("dynamic_templates"));
+      assertNotNull(jsonValue.getElement("properties").getElement("firstName"));
+      assertNull(jsonValue.getElement("properties").getElement("fullName"));
+      assertNotNull(jsonValue.getElement("properties").getElement("name"));
+    } catch (JsonException e) {
+      fail();
+    }
   }
 }
