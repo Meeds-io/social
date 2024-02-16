@@ -162,52 +162,53 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   @Override
   public String getMapping() {
+    StringBuilder profileSettingsFieldsMapping = new StringBuilder();
+    for(ProfilePropertySetting propertySetting : profilePropertyService.getPropertySettings()) {
+      if(!propertySetting.isMultiValued() && propertySetting.getParentId() == null && !profilePropertyService.hasChildProperties(propertySetting) && !"email".equals(propertySetting.getPropertyName())) {
+        profileSettingsFieldsMapping.append("    \"").append(propertySetting.getPropertyName().equals("fullName")? "name" : propertySetting.getPropertyName()).append("\" : {")
+                .append("      \"type\" : \"text\",")
+                .append("      \"index_options\": \"offsets\",")
+                .append("      \"fields\": {")
+                .append("        \"raw\": {")
+                .append("          \"type\": \"keyword\"")
+                .append("        },")
+                .append("        \"whitespace\": {")
+                .append("          \"type\": \"text\",")
+                .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+                .append("        }")
+                .append("      }")
+                .append("    },\n");
+      }
+    }
     StringBuilder mapping = new StringBuilder()
             .append("{")
+            .append("""
+                      "dynamic_templates": [
+                        {
+                        "strings_dynamic_mapping": {
+                            "match_mapping_type": "string",
+                            "mapping": {
+                              "type": "text",
+                              "fields": {
+                                "raw": {
+                                "type": "keyword"
+                              },
+                              "whitespace": {
+                                "type": "text",
+                                "analyzer": "whitespace_lowercase_asciifolding"
+                              }
+                            },
+                            "index_options": "offsets"
+                            }
+                          }
+                        }
+                      ],
+                    """)
             .append("  \"properties\" : {\n")
             .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
-            .append("    \"name\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
-            .append("    \"firstName\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
-            .append("    \"lastName\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
+            .append(profileSettingsFieldsMapping)
             .append("    \"email\" : {\"type\" : \"keyword\"},\n")
             .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
-            .append("    \"position\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
