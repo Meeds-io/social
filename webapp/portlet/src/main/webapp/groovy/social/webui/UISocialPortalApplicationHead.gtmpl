@@ -54,11 +54,11 @@
        theme: { disable: true },
        breakpoint: {
          thresholds: {
-           xs: 768,
-           sm: 980,
-           md: 1024,
-           lg: 1280,
-           xl: 1700,
+           xs: 0,
+           sm: 600,
+           md: 960,
+           lg: 1264,
+           xl: 1904,
          },
        },
      };
