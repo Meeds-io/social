@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.identity;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -179,6 +180,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
       // Remove last element if the used limit to request data from DB
       // is incremented by 1
       if (identities.size() > limit) {
+        identities =  new ArrayList<>(identities);
         identities.remove(identities.size() -1);
       }
     }
