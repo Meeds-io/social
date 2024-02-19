@@ -27,7 +27,7 @@
         :languages="filtredLanguages"
         @delete-label="deleteLabel" />
     </div>
-    <div class="d-flex pt-4">
+    <div class="d-flex pt-2">
       <v-spacer />
       <div @click="addNewLabel" class="addLabelBtn primary--text">
         <v-icon color="primary">
