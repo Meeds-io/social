@@ -326,6 +326,9 @@
                     <field  name="hiddenable">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
                       <int>1</int>
                     </field>
@@ -356,6 +359,9 @@
                     </field>
                     <field  name="hiddenable">
                       <boolean>false</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>text</string>
                     </field>
                     <field  name="order">
                       <int>2</int>
@@ -388,6 +394,9 @@
                     <field  name="hiddenable">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
                       <int>3</int>
                     </field>
@@ -418,6 +427,9 @@
                     </field>
                     <field  name="hiddenable">
                       <boolean>true</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>text</string>
                     </field>
                     <field  name="order">
                       <int>4</int>
@@ -450,6 +462,9 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
                       <int>5</int>
                     </field>
@@ -480,6 +495,9 @@
                     </field>
                     <field  name="hiddenable">
                       <boolean>true</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>text</string>
                     </field>
                     <field  name="order">
                       <int>6</int>
@@ -512,6 +530,9 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
                       <int>7</int>
                     </field>
@@ -542,6 +563,9 @@
                     </field>
                     <field  name="hiddenable">
                       <boolean>true</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>text</string>
                     </field>
                     <field  name="order">
                       <int>8</int>
@@ -574,6 +598,9 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
                       <int>9</int>
                     </field>
@@ -605,8 +632,45 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
                       <int>10</int>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.social.core.profileproperty.ProfileProperty">
+                    <field  name="propertyName">
+                      <string>manager</string>
+                    </field>
+                    <field  name="visible">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="editable">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="active">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="required">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="multiValued">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="groupSynchronized">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>user</string>
+                    </field>
+                    <field  name="order">
+                      <int>11</int>
                     </field>
                   </object>
                 </value>
@@ -636,8 +700,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>11</int>
+                      <int>12</int>
                     </field>
                   </object>
                 </value>
@@ -667,8 +734,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>12</int>
+                      <int>13</int>
                     </field>
                   </object>
                 </value>
@@ -698,8 +768,11 @@
                     <field  name="hiddenable">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>13</int>
+                      <int>14</int>
                     </field>
                   </object>
                 </value>
@@ -732,8 +805,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>14</int>
+                      <int>15</int>
                     </field>
                   </object>
                 </value>
@@ -766,8 +842,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>15</int>
+                      <int>16</int>
                     </field>
                   </object>
                 </value>
@@ -800,8 +879,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>16</int>
+                      <int>17</int>
                     </field>
                   </object>
                 </value>
@@ -832,8 +914,11 @@
                     <field  name="hiddenable">
                       <boolean>false</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>17</int>
+                      <int>18</int>
                     </field>
                   </object>
                 </value>
@@ -866,8 +951,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>18</int>
+                      <int>19</int>
                     </field>
                   </object>
                 </value>
@@ -900,8 +988,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>19</int>
+                      <int>20</int>
                     </field>
                   </object>
                 </value>
@@ -934,8 +1025,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>20</int>
+                      <int>21</int>
                     </field>
                   </object>
                 </value>
@@ -968,8 +1062,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>21</int>
+                      <int>22</int>
                     </field>
                   </object>
                 </value>
@@ -1002,8 +1099,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>22</int>
+                      <int>23</int>
                     </field>
                   </object>
                 </value>
@@ -1033,8 +1133,11 @@
                     <field  name="hiddenable">
                       <boolean>true</boolean>
                     </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
                     <field  name="order">
-                      <int>23</int>
+                      <int>24</int>
                     </field>
                   </object>
                 </value>

@@ -28,6 +28,8 @@ public class ProfileProperty {
 
   private boolean visible;
 
+  private String  propertyType;
+
   private boolean editable;
 
   private String  parentName;
