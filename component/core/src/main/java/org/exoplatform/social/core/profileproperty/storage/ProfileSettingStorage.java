@@ -80,6 +80,7 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setHiddenable(profilePropertySetting.isHiddenbale());
+    profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
     return profilePropertySettingEntity;
   }
 
@@ -99,6 +100,7 @@ public class ProfileSettingStorage {
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
+    profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
     return profilePropertySetting;
   }
 

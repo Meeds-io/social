@@ -20,7 +20,7 @@
 
 
 <template>
-  <v-row class="mx-0 mb-0 mt-4 max-width-fit" no-gutters>
+  <v-row class="mx-0 mb-0 mt-2 max-width-fit" no-gutters>
     <v-col cols="3" class="px-2">
       <div class="flex-grow-1 text-truncate">
         <select
@@ -38,16 +38,17 @@
       </div>
     </v-col>
     <v-col cols="9">
-      <div class="d-flex max-width-fit">
-        <input
+      <div class="d-flex max-width-fit mt-n3">
+        <v-text-field
           v-model="propertylabel.label"
           :placeholder="$t('profileSettings.placeholder.label')"
           type="text"
-          class="ignore-vuetify-classes flex-grow-1 pa-3 ms-1"
+          class="flex-grow-1 pa-3 ms-1"
           maxlength="2000"
-          required>
-
-        <div class="flex-grow-0">
+          outlined
+          dense
+          :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
+        <div class="flex-grow-0 mt-3">
           <v-btn icon @click="deleteLabel">
             <v-icon size="16" class="error-color">fas fa-trash-alt</v-icon>
           </v-btn>
