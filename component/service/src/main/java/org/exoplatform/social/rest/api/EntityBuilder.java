@@ -1777,7 +1777,6 @@ public class EntityBuilder {
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
-    profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdated());
     return profilePropertySetting;
   }
 

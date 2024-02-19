@@ -39,7 +39,6 @@
           :class="property.hidden && 'opacity-5'">
           <exo-user-avatar
             :profile-id="property.value"
-            :show-disabled-user="false"
             :size="28"
             class="my-auto"
             popover-left-position
