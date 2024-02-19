@@ -74,31 +74,20 @@
             <span class="font-weight-bold">
               {{ $t('profileSettings.label.propertyType') }}
             </span>
-            <v-tooltip
-              bottom
-              :disabled="newSetting">
-              <template #activator="{ on, attrs }">
-                <div
-                  v-bind="attrs"
-                  v-on="on">
-                  <v-select
-                    ref="propertyType"
-                    v-model="setting.propertyType"
-                    :items="propertyTypes"
-                    :disabled="!newSetting"
-                    :placeholder="!setting?.propertyType && $t('profileSettings.placeholder.propertyType')"
-                    :rules="[v => !!v || $t('profileSettings.message.field.required')]"
-                    name="propertyType"
-                    class="pt-3"
-                    item-text="label"
-                    item-value="value"
-                    dense
-                    outlined
-                    @blur="$refs.propertyType.blur();" />
-                </div>
-              </template>
-              {{ $t('profileSettings.propertyType.disabled.label') }}
-            </v-tooltip>
+            <v-select
+              ref="propertyType"
+              v-model="setting.propertyType"
+              :items="propertyTypes"
+              :disabled="!newSetting"
+              name="propertyType"
+              class="pt-3"
+              item-text="label"
+              item-value="value"
+              :placeholder="$t('profileSettings.placeholder.propertyType')"
+              dense
+              outlined
+              :rules="[v => !!v || $t('profileSettings.message.field.required')]"
+              @blur="$refs.propertyType.blur();" />
           </label>
           <label
             for="propertyType"

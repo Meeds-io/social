@@ -41,7 +41,6 @@
           <exo-user-avatar
             v-if="canShowChild(property)"
             :profile-id="property.value"
-            :show-disabled-user="false"
             :size="28"
             class="my-auto"
             popover-left-position
