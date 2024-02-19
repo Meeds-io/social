@@ -1342,6 +1342,9 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
+        <module>suggester</module>
+      </depends>
+      <depends>
         <module>vue</module>
       </depends>
       <depends>

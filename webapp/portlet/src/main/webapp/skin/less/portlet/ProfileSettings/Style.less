@@ -32,9 +32,14 @@
            box-shadow: none !important;
            webkit-box-shadow: none !important;
          }
-         .v-text-field--outlined fieldset{
+         .v-text-field--outlined:not(.v-input--has-state, .v-input--is-focused) fieldset{
            border: Solid 1px @borderColor !important;
          }
+
+        .v-text-field--outlined.v-input--has-state fieldset,
+        .v-text-field--outlined.v-input--is-focused fieldset {
+          border: 1px solid !important;
+        }
     }
 
    .settings-table {
