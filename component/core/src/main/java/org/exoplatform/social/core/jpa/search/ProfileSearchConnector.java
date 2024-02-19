@@ -499,19 +499,13 @@ public class ProfileSearchConnector {
       if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
         inputValue = inputValue.replace("\"", "");
       }
-      String[] splittedValue = inputValue.split(" ");
-      if (splittedValue.length > 1) {
-        for (int i = 0; i < splittedValue.length; i++) {
-          if (i != 0 ) {
-            esExp.append(" AND ") ;
-          }
-          esExp.append(inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splittedValue[i])).append(StorageUtils.ASTERISK_STR);
-        }
-        esExp.append(")");
-      } else {
-        esExp.append("( "+inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
-        esExp.append(")");
-      }
+      esExp.append("( ")
+           .append(inputKey)
+           .append(":")
+           .append(StorageUtils.ASTERISK_STR)
+           .append(removeAccents(inputValue))
+           .append(StorageUtils.ASTERISK_STR);
+      esExp.append(")");
       if ( settingsCount != settings.size()- 1 ) esExp.append(" AND ") ;
       settingsCount += 1 ;
     }
