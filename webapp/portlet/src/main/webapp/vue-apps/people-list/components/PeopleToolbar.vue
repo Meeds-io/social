@@ -104,7 +104,7 @@ export default {
       }];
     },
     isMobile() {
-      return this.$vuetify.breakpoint.width < 768;
+      return this.$vuetify.breakpoint.smAndDown;
     }
   },
   watch: {
