@@ -921,4 +921,10 @@
         </addColumn>
     </changeSet>
 
+    <changeSet author="social" id="1.0.0-94">
+        <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+            <column name="PROPERTY_TYPE" type="NVARCHAR(100)" defaultValue="text"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
