@@ -753,7 +753,7 @@
             </value-param>
             <value-param>
                 <name>excludedQuickSearchProperties</name>
-                <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,phones,ims,urls}</value>
+                <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,phones,ims,urls,acceptedTermsAndConditions,github,passwordSalt128,user.other-info.external}</value>
             </value-param>
         </init-params>
     </component>
