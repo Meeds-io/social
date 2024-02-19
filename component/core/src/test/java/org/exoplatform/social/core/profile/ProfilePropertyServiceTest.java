@@ -20,6 +20,7 @@
 
 package org.exoplatform.social.core.profile;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import java.util.List;
@@ -118,6 +119,14 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     unHiddenableprofilePropertySetting.setHiddenbale(true);
     assertThrows(IllegalArgumentException.class,
                  () -> profilePropertyService.updatePropertySetting(unHiddenableprofilePropertySetting));
+
+    ProfilePropertySetting propertySetting = createProfileSettingInstance("testProperty");
+    propertySetting.setPropertyType("user");
+    propertySetting = profilePropertyService.createPropertySetting(propertySetting);
+    assertEquals("user", propertySetting.getPropertyType());
+    propertySetting.setPropertyType("text");
+    profilePropertyService.updatePropertySetting(propertySetting);
+    assertEquals("user", profilePropertyService.getProfileSettingById(propertySetting.getId()).getPropertyType());
   }
 
   public void testGetUnhiddenableProperties() {
@@ -210,6 +219,7 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     profilePropertySetting.setPropertyName(propertyName);
     profilePropertySetting.setGroupSynchronized(false);
     profilePropertySetting.setMultiValued(false);
+    profilePropertySetting.setPropertyType("text");
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
     return profilePropertySetting;

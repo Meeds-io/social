@@ -74,6 +74,8 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "IS_HIDDENABLE")
   private boolean isHiddenable;
 
+  @Column(name = "PROPERTY_TYPE")
+  private String propertyType;
 
   public Long getId() {
     return id;
@@ -163,6 +165,14 @@ public class ProfilePropertySettingEntity implements Serializable {
     isHiddenable = hiddenable;
   }
 
+  public String getPropertyType() {
+    return propertyType;
+  }
+
+  public void setPropertyType(String propertyType) {
+    this.propertyType = propertyType;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder(getId().toString());
@@ -174,6 +184,8 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(isMultiValued());
     builder.append(":").append(isRequired());
     builder.append(":").append(isGroupSynchronized());
+    builder.append(":").append(isHiddenable());
+    builder.append(":").append(getPropertyType());
     builder.append(":").append(getParentId());
     return builder.toString();
   }
