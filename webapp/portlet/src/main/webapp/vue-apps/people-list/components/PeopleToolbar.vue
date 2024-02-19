@@ -101,7 +101,7 @@ export default {
       return this.advancedFilterCount > 0 ? `(${this.advancedFilterCount})`:'';
     },
     isMobile() {
-      return this.$vuetify.breakpoint.width < 768;
+      return this.$vuetify.breakpoint.smAndDown;
     }
   },
   watch: {
