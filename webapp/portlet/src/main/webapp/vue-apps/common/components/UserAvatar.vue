@@ -68,7 +68,7 @@
           loading="lazy"
           alt="">
       </v-avatar>
-      <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
+      <div v-if="userFullname || $slots.subTitle" class="ms-2 my-auto overflow-hidden">
         <p
           v-if="userFullname"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"

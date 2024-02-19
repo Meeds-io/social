@@ -40,6 +40,8 @@ public class ProfilePropertySettingEntity {
 
   private String                             resolvedLabel;
 
+  private String                             propertyType;
+
   private boolean                            isVisible;
 
   private boolean                            isEditable;

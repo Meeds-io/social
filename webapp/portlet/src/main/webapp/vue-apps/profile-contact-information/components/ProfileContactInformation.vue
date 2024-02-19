@@ -144,7 +144,7 @@ export default {
                                .every(child => child.hidden));
     },
     isSearchable(property) {
-      return !this.excludedSearchProps?.includes(property.propertyName)
+      return property.propertyType !=='user' && !this.excludedSearchProps?.includes(property.propertyName)
                          && !new RegExp(`^(${this.excludedSearchProps?.join('.|')}.)`)?.exec(property.propertyName) ;
     },
     quickSearch(property, childProperty) {

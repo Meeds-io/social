@@ -31,215 +31,246 @@
     <template slot="content">
       <v-form
         ref="settingForm"
-        class="form-horizontal pt-0 pb-4"
-        flat>
-        <v-card-text class="d-flex settingNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileSettings.label.name') }}<template v-if="newSetting">*</template>
-        </v-card-text>
-        <v-card-text class="d-flex settingNameField py-0">
-          <input
-            ref="settingNameInput"
-            v-model="setting.propertyName"
-            :disabled="saving || !newSetting"
-            :autofocus="drawer"
-            :placeholder="$t('profileSettings.placeholder.name')"
-            type="text"
-            class="ignore-vuetify-classes flex-grow-1"
-            maxlength="2000"
-            required>
-        </v-card-text>
-
-        <v-card-text class="d-flex settingLabelsLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileSettings.label.labels') }}
-        </v-card-text>
-        <v-card-text class="d-flex settingNameField py-0">
-          <profile-property-labels
-            :propertylabels="labels"
-            :languages="languages"
-            :labels-object-type="labelsObjectType"
-            :id="setting.id" />
-        </v-card-text>
-
-        <v-card-text class="d-flex parentLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-          {{ $t('profileSettings.label.parent') }}
-        </v-card-text>
-        <v-card-text class="d-flex settingParentField py-0 pl-0 pr-7">
-          <v-autocomplete
-            ref="settingParentField"
-            id="settingParentField" 
-            v-model="setting.parentId"
-            :items="parents"
-            :placeholder="$t('profileSettings.placeholder.parent')"
-            class="d-flex pa-4 ignore-vuetify-classes flex-grow-1"
-            outlined
-            dense
-            width="100%"
-            max-width="100%"
-            item-text="resolvedLabel"
-            item-value="id"
-            @blur="blurAutocomplete()" />  
-        </v-card-text>
-        <v-list-item class="pt-4">
-          <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
-            <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              <div>
-                {{ $t('profileSettings.label.visible') }}
-              </div>
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch
-              v-model="setting.visible"
-              :disabled="saving"
-              :ripple="false"
-              color="primary"
-              class="visibleSwitcher my-auto" />
-          </v-list-item-action>
-        </v-list-item>
-
-        <v-list-item>
-          <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
-            <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              <div>
-                {{ $t('profileSettings.label.editable') }}
-              </div>
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch
-              v-model="setting.editable"
-              :disabled="saving"
-              :ripple="false"
-              color="primary"
-              class="editableSwitcher my-auto" />
-          </v-list-item-action>
-        </v-list-item>
-
-        <v-list-item>
-          <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
-            <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              <div>
-                {{ $t('profileSettings.label.required') }}
-              </div>
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch
-              v-model="setting.required"
-              :disabled="saving"
-              :ripple="false"
-              color="primary"
-              class="requiredSwitcher my-auto" />
-          </v-list-item-action>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
-            <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              <div>
-                {{ $t('profileSettings.label.multiValued') }}
-              </div>
-            </v-list-item-title>
-            <v-list-item-subtitle v-if="setting.default" class="mt-n3">
-              <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
-            </v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch
-              v-model="setting.multiValued"
-              :disabled="saving || setting.default"
-              :ripple="false"
-              color="primary"
-              class="requiredSwitcher my-auto" />
-          </v-list-item-action>
-        </v-list-item>
-
-        <v-list-item>
-          <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
-            <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              <div>
-                {{ $t('profileSettings.label.groupSynchronized') }}
-              </div>
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch
-              v-model="setting.groupSynchronized"
-              :disabled="saving || !setting.groupSynchronizationEnabled"
-              :ripple="false"
-              color="primary"
-              class="groupSynchronizedSwitcher my-auto" />
-          </v-list-item-action>
-        </v-list-item>
-
-        <v-list-item>
-          <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
-            <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              <div>
-                {{ $t('profileSettings.label.active') }}
-              </div>
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch
-              v-model="setting.active"
-              :disabled="saving"
-              :ripple="false"
-              color="primary"
-              class="activeSwitcher my-auto" />
-          </v-list-item-action>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content
-            transition="fade-transition"
-            class="d-flex activeLabel py-0">
-            <v-list-item-title
-              class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              <div>
-                {{ $t('profileSettings.label.hiddenable') }}
-              </div>
-            </v-list-item-title>
-            <v-list-item-subtitle
-              class="mt-n3">
-              <span
-                v-if="setting.hiddenable"
-                class="caption">
-                {{ $t('profileSettings.label.hiddenable.enabled') }}
-              </span>
-              <span
-                v-else
-                class="caption">
-                {{ $t('profileSettings.label.hiddenable.disabled') }}
-              </span>
-            </v-list-item-subtitle>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-tooltip
-              bottom
-              :disabled="!unHiddenableSetting">
-              <template #activator="{ on, attrs }">
-                <div
-                  v-bind="attrs"
-                  v-on="on">
-                  <v-switch
-                    v-model="setting.hiddenable"
-                    :disabled="saving || unHiddenableSetting"
-                    :alt="setting.hiddenable && $t('profileSettings.show.property.alt')
-                      || $t('profileSettings.hide.property.alt')"
-                    :ripple="false"
-                    color="primary"
-                    :aria-labelledBy="$t('profileSettings.label.hiddenable')"
-                    class="activeSwitcher my-auto" />
+        v-model="valid"
+        lazy-validation
+        class="form-horizontal pt-0 pb-4">
+        <div class="py-4">
+          <label
+            for="settingNameInput"
+            class="mx-4">
+            <span class="font-weight-bold">
+              {{ $t('profileSettings.label.name') }}
+            </span>
+            <v-text-field
+              ref="settingNameInput"
+              v-model="setting.propertyName"
+              :disabled="saving || !newSetting"
+              :autofocus="drawer"
+              name="settingNameInput"
+              class="pt-3"
+              :placeholder="$t('profileSettings.placeholder.name')"
+              maxlength="2000"
+              outlined
+              dense
+              :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
+          </label>
+          <label
+            for="labelsInput"
+            class="mx-4 mt-2">
+            <span class="font-weight-bold">
+              {{ $t('profileSettings.label.labels') }}
+            </span>
+            <profile-property-labels
+              :propertylabels="labels"
+              :languages="languages"
+              :labels-object-type="labelsObjectType"
+              :id="setting.id"
+              name="labelsInput" />
+          </label>
+          <label
+            for="propertyType"
+            class="mx-4">
+            <span class="font-weight-bold">
+              {{ $t('profileSettings.label.propertyType') }}
+            </span>
+            <v-select
+              ref="propertyType"
+              v-model="setting.propertyType"
+              :items="propertyTypes"
+              :disabled="!newSetting"
+              name="propertyType"
+              class="pt-3"
+              item-text="label"
+              item-value="value"
+              :placeholder="$t('profileSettings.placeholder.propertyType')"
+              dense
+              outlined
+              :rules="[v => !!v || $t('profileSettings.message.field.required')]"
+              @blur="$refs.propertyType.blur();" />
+          </label>
+          <label
+            for="propertyType"
+            class="mx-4 mt-2">
+            <span class="font-weight-bold">
+              {{ $t('profileSettings.label.parent') }}
+            </span>
+            <v-autocomplete
+              ref="settingParentField"
+              id="settingParentField"
+              v-model="setting.parentId"
+              :items="parents"
+              :placeholder="$t('profileSettings.placeholder.parent')"
+              class="py-4"
+              outlined
+              dense
+              width="100%"
+              max-width="100%"
+              item-text="resolvedLabel"
+              item-value="id"
+              @blur="blurAutocomplete()" />
+          </label>
+          <v-list-item class="pt-4">
+            <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
+              <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                <div>
+                  {{ $t('profileSettings.label.visible') }}
                 </div>
-              </template>
-              <span v-if="setting?.children?.length">
-                {{ $t('profileSettings.hiddenable.parentProperty.disabled') }}
-              </span>
-              <span v-else>
-                {{ $t('profileSettings.unHiddenable.property.tooltip') }}
-              </span>
-            </v-tooltip>
-          </v-list-item-action>
-        </v-list-item>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.visible"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="visibleSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
+              <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                <div>
+                  {{ $t('profileSettings.label.editable') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.editable"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="editableSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
+              <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                <div>
+                  {{ $t('profileSettings.label.required') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.required"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="requiredSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
+              <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                <div>
+                  {{ $t('profileSettings.label.multiValued') }}
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle v-if="setting.default" class="mt-n3">
+                <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.multiValued"
+                :disabled="saving || setting.default"
+                :ripple="false"
+                color="primary"
+                class="requiredSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
+              <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                <div>
+                  {{ $t('profileSettings.label.groupSynchronized') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.groupSynchronized"
+                :disabled="saving || !setting.groupSynchronizationEnabled"
+                :ripple="false"
+                color="primary"
+                class="groupSynchronizedSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
+              <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                <div>
+                  {{ $t('profileSettings.label.active') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.active"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="activeSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content
+              transition="fade-transition"
+              class="d-flex activeLabel py-0">
+              <v-list-item-title
+                class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                <div>
+                  {{ $t('profileSettings.label.hiddenable') }}
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle
+                class="mt-n3">
+                <span
+                  v-if="setting.hiddenable"
+                  class="caption">
+                  {{ $t('profileSettings.label.hiddenable.enabled') }}
+                </span>
+                <span
+                  v-else
+                  class="caption">
+                  {{ $t('profileSettings.label.hiddenable.disabled') }}
+                </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-tooltip
+                bottom
+                :disabled="!unHiddenableSetting">
+                <template #activator="{ on, attrs }">
+                  <div
+                    v-bind="attrs"
+                    v-on="on">
+                    <v-switch
+                      v-model="setting.hiddenable"
+                      :disabled="saving || unHiddenableSetting"
+                      :alt="setting.hiddenable && $t('profileSettings.show.property.alt')
+                        || $t('profileSettings.hide.property.alt')"
+                      :ripple="false"
+                      color="primary"
+                      :aria-labelledBy="$t('profileSettings.label.hiddenable')"
+                      class="activeSwitcher my-auto" />
+                  </div>
+                </template>
+                <span v-if="setting?.children?.length">
+                  {{ $t('profileSettings.hiddenable.parentProperty.disabled') }}
+                </span>
+                <span v-else>
+                  {{ $t('profileSettings.unHiddenable.property.tooltip') }}
+                </span>
+              </v-tooltip>
+            </v-list-item-action>
+          </v-list-item>
+        </div>
       </v-form>
     </template>
     <template slot="footer">
@@ -252,7 +283,7 @@
           {{ $t('profileSettings.button.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="isSaveButtonDisabled || saving"
+          :disabled="isSaveButtonDisabled || saving || !valid"
           :loading="saving"
           class="btn btn-primary"
           @click="saveSetting">
@@ -264,6 +295,7 @@
 </template>
 
 <script>
+
 export default {
   props: {
     settings: {
@@ -280,6 +312,7 @@ export default {
     },
   },
   data: () => ({
+    valid: false,
     fieldError: false,
     drawer: false,
     newSetting: false,
@@ -295,6 +328,12 @@ export default {
     areLabelsChanged: false,
   }),
   computed: {
+    propertyTypes () {
+      return this.$t && [
+        {label: this.$t('profileSettings.label.text.propertyType'), value: 'text'},
+        {label: this.$t('profileSettings.label.user.propertyType'), value: 'user'}
+      ];
+    },
     unHiddenableSetting() {
       return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
     },
@@ -360,9 +399,6 @@ export default {
       }
       return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
     },
-    resetCustomValidity() {
-      this.$refs.settingNameInput.setCustomValidity('');
-    },
     addNewSetting() {
       this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
       this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
@@ -394,7 +430,6 @@ export default {
       }
 
       this.fieldError = false;
-      this.resetCustomValidity();
 
       if (!this.$refs.settingForm.validate() // Vuetify rules
           || !this.$refs.settingForm.$el.reportValidity()) { // Standard HTML rules
@@ -455,7 +490,8 @@ export default {
       if (!this.changes){
         this.$root.$emit('cancel-edit-add');
         this.changes= false;
-      } 
+      }
+      this.$refs.settingForm.resetValidation();
     },
     areSettingsEqual(initialSetting, setting) {
       const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable', 'hiddenable'
