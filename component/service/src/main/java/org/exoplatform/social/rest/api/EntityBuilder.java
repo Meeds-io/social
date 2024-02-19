@@ -731,6 +731,9 @@ public class EntityBuilder {
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
       spaceEntity.setIsPublisher(spaceService.isPublisher(space, userId));
+    } else if (space != null && StringUtils.isNotBlank(space.getId())) {
+      Identity currentUserIdentity = RestUtils.getCurrentUserIdentity();
+      spaceEntity.setIsMember(spaceService.isMember(space, currentUserIdentity.getRemoteId()));
     }
 
     PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(GROUP, space.getGroupId()));
