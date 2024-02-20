@@ -467,10 +467,13 @@ export default {
     this.$root.$on('reset-filter', this.reset);
     if (this.showTextFilter) {
       document.addEventListener('keydown', this.clearSearch);
+    } else {
+      document.addEventListener('keydown', this.closeFilter);
     }
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.clearSearch);
+    document.removeEventListener('keydown', this.closeFilter);
   },
   methods: {
     reset() {
@@ -481,6 +484,20 @@ export default {
       if (event?.key === 'Escape' && this.$refs?.applicationToolbarFilterInput?.isFocused) {
         this.term = null;
       }
+    },
+    closeFilter(event) {
+      if (this.expandFilter && event.key === 'Escape' && this.isOverlayVisible()) {
+        this.expandFilter = false;
+      }
+    },
+    isOverlayVisible() {
+      const elementsOverlays = document.querySelectorAll('.v-overlay--active');
+      for (const elementOverlay of elementsOverlays) {
+        if (getComputedStyle(elementOverlay).display !== 'none') {
+          return false;
+        }
+      }
+      return true;
     },
     setTerm(value) {
       this.term = value;
