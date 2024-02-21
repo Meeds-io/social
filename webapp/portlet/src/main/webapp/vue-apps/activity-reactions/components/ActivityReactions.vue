@@ -3,35 +3,28 @@
     <div class="reactionsUsersAvatar position-relative d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
         <exo-user-avatar
-          v-for="liker in likersToDisplay"
+          v-for="(liker, index) in likersToDisplay"
           :key="liker.id"
           :identity="liker"
           :size="30"
+          :class="[index === 0 && 'pl-4']"
           popover
-          avatar 
-          extra-class="me-1" />
+          avatar
+          compact
+          extra-class="me-1 transition-2s"/>
       </div>
     </div>
-    <div class="activityLikersAndKudosDrawer d-none d-lg-inline">
+    <div class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5">
       <div class="seeMoreReactionsContainer">
         <div
           v-if="seeMoreLikerToDisplay"
-          class="seeMoreLikers"
-          @click="openDrawer">
+          :class="displayAnimation && 'mt-n2 transition-2s'"
+          class="seeMoreLikers border-white"
+          @click="openDrawer"
+          @mouseover="showAvatarAnimation = true"
+          @mouseleave="showAvatarAnimation = false">
           <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
         </div>
-        <p
-          v-if="likersNumber && likersNumber <= 1"
-          class="likersNumber my-auto pl-2 align-self-end caption text-no-wrap"
-          @click="openDrawer">
-          {{ likersNumber }} {{ $t('UIActivity.label.single_Reaction_Number') }}
-        </p>
-        <p
-          v-if="likersNumber > 1"
-          class="likersNumber my-auto pl-2 align-self-end caption text-no-wrap"
-          @click="openDrawer">
-          {{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}
-        </p>
       </div>
     </div>
     <activity-reactions-mobile
@@ -73,6 +66,7 @@ export default {
   },
   data: () => ({
     maxLikersToShow: 4,
+    showAvatarAnimation: false
   }),
   computed: {
     seeMoreLikerToDisplay () {
@@ -86,6 +80,9 @@ export default {
     },
     activityPosterId() {
       return this.activity && this.activity.identity && this.activity.identity.profile && this.activity.identity.profile.username;
+    },
+    displayAnimation() {
+      return this.showAvatarAnimation;
     }
   },
   methods: {
