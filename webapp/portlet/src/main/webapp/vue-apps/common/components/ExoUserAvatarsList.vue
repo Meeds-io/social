@@ -104,6 +104,10 @@ export default {
       type: Boolean,
       default: () => false
     },
+    compact: {
+      type: Boolean,
+      default: () => false
+    },
   },
   computed: {
     usersToDisplay() {
