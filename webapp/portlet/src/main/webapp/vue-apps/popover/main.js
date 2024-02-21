@@ -23,12 +23,26 @@ Vue.directive('identity-popover', (el, binding) => {
   }
 
   el.addEventListener('mouseover', () => {
+    if (identity && identity.allowAnimation && isUser) {
+      el.classList.add('z-index-two', 'mt-n1');
+    }
     showPopover(el, identity, isUser);
   });
+  el.addEventListener('mouseleave', () => {
+    if (identity && identity.allowAnimation && isUser) {
+      el.classList.remove('z-index-two', 'mt-n1');
+    }
+  });
   el.addEventListener('focusin', () => {
+    if (identity && identity.allowAnimation && isUser) {
+      el.classList.add('z-index-two', 'mt-n1');
+    }
     showPopover(el, identity, isUser);
   });
   el.addEventListener('focusout', () => {
+    if (identity && identity.allowAnimation && isUser) {
+      el.classList.remove('z-index-two', 'mt-n1');
+    }
     document.dispatchEvent(new CustomEvent('popover-identity-hide'));
   });
 });
