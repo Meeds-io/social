@@ -74,6 +74,7 @@
           <v-card width="350" flat>
             <v-text-field
               id="email"
+              ref="email"
               v-model="email"
               :title="$t('onboarding.emailPlaceholder')"
               :readonly="isEmailReadOnly"
@@ -90,6 +91,7 @@
               dense />
             <v-text-field
               id="firstName"
+              ref="firstName"
               v-model="firstName"
               :title="$t('onboarding.firstName')"
               :placeholder="$t('onboarding.firstName')"
@@ -106,6 +108,7 @@
               dense />
             <v-text-field
               id="lastName"
+              ref="lastName"
               v-model="lastName"
               :title="$t('onboarding.lastName')"
               :placeholder="$t('onboarding.lastName')"
@@ -127,6 +130,7 @@
           <v-card width="350" flat>
             <v-text-field
               id="password"
+              ref="password"
               v-model="password"
               :title="$t('onboarding.NewPassword')"
               :placeholder="$t('onboarding.NewPassword')"
@@ -145,6 +149,7 @@
           <v-card width="350" flat>
             <v-text-field
               id="password2"
+              ref="password2"
               v-model="confirmPassword"
               :title="$t('onboarding.ConfirmNewPassword')"
               :placeholder="$t('onboarding.ConfirmNewPassword')"
@@ -173,6 +178,7 @@
               contain />
             <v-text-field
               id="captcha"
+              ref="captcha"
               v-model="captcha"
               :title="$t('onboarding.captchaPlaceholder')"
               :placeholder="$t('onboarding.captchaPlaceholder')"
@@ -223,6 +229,8 @@ export default {
     showPassword: false,
     showConfirmPassword: false,
     loading: false,
+    error: null,
+    errorField: null,
   }),
   computed: {
     passwordType() {
@@ -246,6 +254,18 @@ export default {
       return !!this.params?.success?.length;
     },
   },
+  watch: {
+    errorField() {
+      if (this.error && this.errorField) {
+        const element = this.$refs[this.errorField].setCustomValidity && this.$refs[this.errorField] || this.$refs[this.errorField].$el.querySelector('input');
+        element.setCustomValidity(this.error);
+        window.setTimeout(() => this.$refs.form.reportValidity(), 200);
+        element.onkeydown = () => {
+          element.setCustomValidity('');
+        };
+      }
+    },
+  },
   mounted() {
     this.username = this.params?.username;
     this.email = this.params?.email;
@@ -254,6 +274,8 @@ export default {
     this.password = this.params?.password;
     this.confirmPassword = this.params?.password2;
     this.initialURI = this.params?.initialURI;
+    this.errorField = this.params?.errorField;
+    this.error = this.params?.error;
   },
   methods: {
     toggleShow() {
