@@ -7,24 +7,36 @@
           :key="liker.id"
           :identity="liker"
           :size="30"
+          :allow-animation="likersToDisplay.length > 1"
           :class="[index === 0 && 'pl-4']"
           popover
           avatar
           compact
-          extra-class="me-1 transition-2s"/>
+          extra-class="me-1 transition-2s" />
       </div>
     </div>
     <div class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5">
-      <div class="seeMoreReactionsContainer">
-        <div
-          v-if="seeMoreLikerToDisplay"
-          :class="displayAnimation && 'mt-n2 transition-2s'"
-          class="seeMoreLikers border-white"
-          @click="openDrawer"
-          @mouseover="showAvatarAnimation = true"
-          @mouseleave="showAvatarAnimation = false">
-          <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
-        </div>
+      <div v-if="seeMoreLikerToDisplay" class="seeMoreReactionsContainer">
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <div
+                v-bind="attrs"
+                v-on="on"
+                :class="displayAnimation && 'mt-n2 transition-2s'"
+                class="seeMoreLikers border-white d-flex align-center justify-center clickable"
+                @click="openDrawer"
+                @mouseover="showAvatarAnimation = true"
+                @mouseleave="showAvatarAnimation = false">
+          <span
+              class="position-absolute subtitle-2 white--text font-weight-bold z-index-one text-center">
+            +{{ showMoreLikersNumber }}
+          </span>
+            </div>
+          </template>
+          <span>
+            {{ $t('activity.reactions.seeMore') }}
+          </span>
+        </v-tooltip>
       </div>
     </div>
     <activity-reactions-mobile
