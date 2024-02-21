@@ -1,4 +1,4 @@
-/*
+<!--
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2023 Meeds Association contact@meeds.io
@@ -16,7 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+ *
+ -->
 
 
 <template>
@@ -73,20 +74,31 @@
             <span class="font-weight-bold">
               {{ $t('profileSettings.label.propertyType') }}
             </span>
-            <v-select
-              ref="propertyType"
-              v-model="setting.propertyType"
-              :items="propertyTypes"
-              :disabled="!newSetting"
-              name="propertyType"
-              class="pt-3"
-              item-text="label"
-              item-value="value"
-              :placeholder="$t('profileSettings.placeholder.propertyType')"
-              dense
-              outlined
-              :rules="[v => !!v || $t('profileSettings.message.field.required')]"
-              @blur="$refs.propertyType.blur();" />
+            <v-tooltip
+              bottom
+              :disabled="newSetting">
+              <template #activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  v-on="on">
+                  <v-select
+                    ref="propertyType"
+                    v-model="setting.propertyType"
+                    :items="propertyTypes"
+                    :disabled="!newSetting"
+                    :placeholder="!setting?.propertyType && $t('profileSettings.placeholder.propertyType')"
+                    :rules="[v => !!v || $t('profileSettings.message.field.required')]"
+                    name="propertyType"
+                    class="pt-3"
+                    item-text="label"
+                    item-value="value"
+                    dense
+                    outlined
+                    @blur="$refs.propertyType.blur();" />
+                </div>
+              </template>
+              {{ $t('profileSettings.propertyType.disabled.label') }}
+            </v-tooltip>
           </label>
           <label
             for="propertyType"
