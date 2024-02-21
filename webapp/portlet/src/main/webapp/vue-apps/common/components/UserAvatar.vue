@@ -262,6 +262,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    allowAnimation: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   data() {
     return {
@@ -340,7 +344,7 @@ export default {
         position: this.position,
         avatar: this.userAvatarUrl,
         external: this.isExternal,
-        allowAnimation: this.compact,
+        allowAnimation: this.compact && this.allowAnimation,
       };
     },
     componentClass() {
