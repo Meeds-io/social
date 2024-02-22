@@ -44,8 +44,8 @@
       </div>
     </div>
     <profile-user-type-property-values
-      :user-type-properties="property?.children || property"
-      :disabled="!property.editable"
+      :user-type-properties="propertyObject?.children || propertyObject"
+      :disabled="!propertyObject.editable"
       @remove-value="removeUser" />
   </div>
 </template>
@@ -71,12 +71,17 @@ export default {
     }
   },
   watch: {
-
+    'property.children': function() {
+      this.clonePropertyObject();
+    }
   },
   created() {
-    this.propertyObject = this.property;
+    this.clonePropertyObject();
   },
   methods: {
+    clonePropertyObject() {
+      this.propertyObject = structuredClone(this.property);
+    },
     removeUser(value) {
       if (this.propertyObject.multiValued) {
         const index = this.propertyObject?.children?.findIndex(property => property.value === value);
@@ -102,10 +107,10 @@ export default {
         this.propertyObject.value = user.remoteId;
       }
       this.ignoredItems.push(user.id);
-      this.$emit('property-updated', this.propertyObject);
       this.$nextTick(() => {
         this.users = null;
       });
+      this.$emit('property-updated', this.propertyObject);
     },
     getResolvedName(property){
       const lang = eXo?.env.portal.language || 'en';
