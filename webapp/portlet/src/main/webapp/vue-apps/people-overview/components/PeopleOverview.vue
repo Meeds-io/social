@@ -18,11 +18,13 @@
               :class="pending === '-' && 'text-sub-title'"
               @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
         </div>
-        <div v-else class="d-flex align-center justify-center">
-          <v-icon size="24" class="tertiary--text me-3">fas fa-user-plus</v-icon>
-          <div class="d-flex flex-column">
-            <span class="subtitle-1 text-color text-left">{{ $t('peopleOverview.label.network') }}</span>
-            <span class="subtitle-1 text-color text-left">{{ $t('peopleOverview.label.connect') }}</span>
+        <div v-else>
+          <div v-if="displayPlaceholder" class="d-flex align-center justify-center">
+            <v-icon size="24" class="tertiary--text me-3">fas fa-user-plus</v-icon>
+            <div class="d-flex flex-column">
+              <span class="subtitle-1 text-color text-left">{{ $t('peopleOverview.label.network') }}</span>
+              <span class="subtitle-1 text-color text-left">{{ $t('peopleOverview.label.connect') }}</span>
+            </div>
           </div>
         </div>
       </v-card>
@@ -36,11 +38,18 @@ export default {
   data: () => ({
     invitations: '-',
     pending: '-',
-    initialized: false
+    initialized: false,
+    loaded: false
   }),
+  computed: {
+    displayPlaceholder() {
+      return this.loaded;
+    },
+  },
   watch: {
     initialized(newVal, oldVal) {
       if (newVal !== oldVal && newVal) {
+        this.loaded = true;
         this.$root.$applicationLoaded();
       }
     },
