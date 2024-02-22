@@ -20,10 +20,7 @@
 
 package org.exoplatform.social.core.listeners;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -125,18 +122,25 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
 
   private void synchronizeProperty(Map.Entry<String, Object> property, Group profileGroup, User user) {
     String propertyName = property.getKey();
-    String propertyValue = (String) property.getValue();
+    List<String> propertyValues = new ArrayList<>();
+    if (property.getValue() instanceof String) {
+      propertyValues.add((String) property.getValue());
+    } else {
+      ((List<HashMap>) property.getValue()).stream().forEach(val -> propertyValues.addAll(val.values()));
+    }
     try {
       Group newPropertyNameGroup = getOrCreateGroup(propertyName, profileGroup);
-      try {
-        Group newPropertyValueGroup = getOrCreateGroup(propertyValue, newPropertyNameGroup);
-        removeUserFromExistingPropertyGroup(newPropertyNameGroup, user);
-        addUserToGroup(newPropertyValueGroup, user);
-      } catch (Exception e) {
-        LOG.error("Error while adding property value group {} under property Group {}",
-                  propertyValue,
-                  newPropertyNameGroup != null ? newPropertyNameGroup.getId() : "/",
-                  e);
+      for (String propValueName : propertyValues) {
+        try {
+          Group newPropertyValueGroup = getOrCreateGroup(propValueName, newPropertyNameGroup);
+          removeUserFromExistingPropertyGroup(newPropertyNameGroup, user);
+          addUserToGroup(newPropertyValueGroup, user);
+        } catch (Exception e) {
+          LOG.error("Error while adding property value group {} under property Group {}",
+                    propValueName,
+                    newPropertyNameGroup != null ? newPropertyNameGroup.getId() : "/",
+                    e);
+        }
       }
     } catch (Exception e) {
       LOG.error("Error while adding property group {} under profile Group {}",
