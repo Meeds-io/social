@@ -234,6 +234,8 @@ export default {
       if (event) {
         this.properties = JSON.parse(JSON.stringify(event));
       }
+      this.propertiesToSave = [];
+      this.disabled = true;
       this.$refs.profileContactInformationDrawer.open();
     },
     propertyUpdated(item){
