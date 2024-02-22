@@ -1,37 +1,50 @@
 <template>
   <v-app>
-    <widget-wrapper>
-      <v-card class="border-box-sizing d-flex flex-row justify-center ma-0" flat>
-        <spaces-overview-card
-          :id="spacesInvitationOverview"
-          :title="$t('spacesOverview.label.invitations')"
-          :count="invitations"
-          :class="invitations === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('invited', $t('spacesOverview.label.invitations'))" />
-        <v-divider class="spacesOverviewVertivalSeparator ma-auto" vertical />
-        <spaces-overview-card
-          :id="spacesRequestsSentOverview"
-          :title="$t('spacesOverview.label.sentRequests')"
-          :count="sentRequests"
-          :class="sentRequests === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('pending', $t('spacesOverview.label.sentPendingRequests'))" />
+    <widget-wrapper :title="$t('spacesOverview.label.title')">
+      <v-card flat>
+        <div v-if="invitations > 0 || sentRequests > 0 || receivedRequests > 0 || managing > 0"
+          class="d-flex flex-column ">
+          <div v-if="invitations > 0 || sentRequests > 0" class="d-flex justify-space-around">
+            <spaces-overview-card
+                :id="spacesInvitationOverview"
+                :title="$t('spacesOverview.label.invitations')"
+                :count="invitations"
+                icon="fas fa-user-plus"
+                :class="invitations === '-' && 'text-sub-title'"
+                @click="$refs.spacesDrawer.open('invited', $t('spacesOverview.label.invitations'))" />
+            <spaces-overview-card
+                :id="spacesRequestsSentOverview"
+                :title="$t('spacesOverview.label.sentRequests')"
+                :count="sentRequests"
+                icon="fas fa-user-clock"
+                :class="sentRequests === '-' && 'text-sub-title'"
+                @click="$refs.spacesDrawer.open('pending', $t('spacesOverview.label.sentPendingRequests'))" />
+          </div>
+          <div v-if="receivedRequests > 0 || managing > 0" class="d-flex justify-space-around">
+            <spaces-overview-card
+                :id="spacesRequestsReceivedOverview"
+                :title="$t('spacesOverview.label.receivedRequests')"
+                :count="receivedRequests"
+                icon="fas fa-user-lock"
+                :class="receivedRequests === '-' && 'text-sub-title'"
+                @click="$refs.spacesDrawer.open('requests', $t('spacesOverview.label.receivedRequests'))" />
+            <spaces-overview-card
+                :id="spacesManagingOverview"
+                :title="$t('spacesOverview.label.managing')"
+                :count="managing"
+                icon="fas fa-user-cog"
+                :class="managing === '-' && 'text-sub-title'"
+                @click="$refs.spacesDrawer.open('manager', $t('spacesOverview.label.managedSpaces'))" />
+          </div>
+        </div>
+        <div v-else class="d-flex align-center justify-center mx-lg-6">
+          <v-icon size="24" class="tertiary--text me-3">fas fa-user-cog</v-icon>
+          <div class="d-flex flex-column">
+            <span class="subtitle-1 text-color text-left">{{ $t('spacesOverview.label.emptyMessage') }}</span>
+          </div>
+        </div>
       </v-card>
-      <v-divider class="spacesOverviewHorizontalSeparator ma-auto" />
-      <v-card class="border-box-sizing d-flex flex-row justify-center ma-0" flat>
-        <spaces-overview-card
-          :id="spacesRequestsReceivedOverview"
-          :title="$t('spacesOverview.label.receivedRequests')"
-          :count="receivedRequests"
-          :class="receivedRequests === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('requests', $t('spacesOverview.label.receivedRequests'))" />
-        <v-divider class="spacesOverviewVertivalSeparator ma-auto" vertical />
-        <spaces-overview-card
-          :id="spacesManagingOverview"
-          :title="$t('spacesOverview.label.managing')"
-          :count="managing"
-          :class="managing === '-' && 'text-sub-title'"
-          @click="$refs.spacesDrawer.open('manager', $t('spacesOverview.label.managedSpaces'))" />
-      </v-card>
+
     </widget-wrapper>
     <spaces-overview-drawer ref="spacesDrawer" @refresh="refresh($event)" />
   </v-app>    
