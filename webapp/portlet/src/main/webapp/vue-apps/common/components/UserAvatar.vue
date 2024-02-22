@@ -1,174 +1,212 @@
 <template>
-  <div
-    v-if="popover"
-    v-identity-popover="popoverIdentity"
-    class="profile-popover user-wrapper text-truncate"
-    :class="parentClass">
-    <component
-      v-if="avatar"
-      :is="clickable && 'v-btn' || 'a'"
-      :id="id"
-      :fab="clickable"
-      :depressed="clickable"
-      :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
-      :class="componentClass"
-      class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
-      @click="clickable && $emit('avatar-click', $event)">
-      <v-avatar
-        :size="size"
-        :class="[avatarClass, compact && 'border-white']"
-        class="ma-0 flex-shrink-0">
-        <img
-          :src="userAvatarUrl"
-          class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
-      </v-avatar>
-    </component>
-    <component
-      v-else-if="fullname"
-      :is="clickable && 'v-btn' || 'a'"
-      :id="id"
-      :fab="clickable"
-      :depressed="clickable"
-      :href="profileUrl"
-      :class="componentClass"
-      class="d-flex align-start text-truncate"
-      @click="clickable && $emit('avatar-click', $event)">
-      <span
-        v-if="userFullname"
-        :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-        class="text-truncate subtitle-2 my-auto">
-        {{ userFullname }}
-        <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-      </span>
-      <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
-        <slot name="subTitle"></slot>
-      </span>
-    </component>
-    <component
-      v-else
-      :is="clickable && 'v-btn' || 'a'"
-      :id="id"
-      :fab="clickable"
-      :depressed="clickable"
-      :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
-      :class="componentClass"
-      class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
-      @click="clickable && $emit('avatar-click', $event)">
-      <v-avatar
-        :size="size"
-        :class="avatarClass"
-        class="ma-0">
-        <img
-          :src="userAvatarUrl"
-          class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
-      </v-avatar>
-      <div v-if="userFullname || $slots.subTitle" class="ms-2 my-auto overflow-hidden">
-        <p
+  <div v-if="show">
+    <div
+      v-if="popover"
+      v-identity-popover="popoverIdentity"
+      class="profile-popover user-wrapper text-truncate"
+      :class="parentClass">
+      <component
+        v-if="avatar"
+        :is="clickable && 'v-btn' || 'a'"
+        :id="id"
+        :fab="clickable"
+        :depressed="clickable"
+        :href="profileUrl"
+        :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+        :class="componentClass"
+        class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
+        @click="clickable && $emit('avatar-click', $event)">
+        <v-avatar
+          :size="size"
+          :class="[avatarClass, compact && 'border-white']"
+          class="ma-0 flex-shrink-0">
+          <img
+            :src="userAvatarUrl"
+            class="object-fit-cover ma-auto"
+            loading="lazy"
+            alt="">
+        </v-avatar>
+      </component>
+      <component
+        v-else-if="fullname"
+        :is="clickable && 'v-btn' || 'a'"
+        :id="id"
+        :fab="clickable"
+        :depressed="clickable"
+        :href="profileUrl"
+        :class="componentClass"
+        class="d-flex align-start text-truncate"
+        @click="clickable && $emit('avatar-click', $event)">
+        <span
           v-if="userFullname"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 text-left mb-0">
+          class="text-truncate subtitle-2 my-auto">
           {{ userFullname }}
+          <span
+            v-if="!enabled"
+            :title="$t('label.disabled')"
+            class="muted font-weight-regular">
+            <v-icon
+              class="primary--text mb-1 subtitle-2">
+              fas fa-user-slash
+            </v-icon>
+          </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-        </p>
-        <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
+        </span>
+        <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
           <slot name="subTitle"></slot>
-        </p>
-      </div>
-      <template v-if="$slots.actions">
-        <slot name="actions"></slot>
-      </template>
-    </component>
-  </div>
-  <div 
-    v-else
-    class="profile-popover user-wrapper text-truncate"
-    :class="parentClass">
-    <component 
-      v-if="avatar"
-      :is="clickable && 'v-btn' || 'a'"
-      :id="id"
-      :fab="clickable"
-      :depressed="clickable"
-      :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
-      :class="componentClass"
-      class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
-      @click="clickable && $emit('avatar-click', $event)">
-      <v-avatar
-        :size="size"
-        :class="avatarClass"
-        class="ma-0 flex-shrink-0">
-        <img
-          :src="userAvatarUrl"
-          class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
-      </v-avatar>
-    </component>
-    <component 
-      v-else-if="fullname"
-      :is="clickable && 'v-btn' || 'a'"
-      :id="id"
-      :fab="clickable"
-      :depressed="clickable"
-      :href="profileUrl"
-      :class="componentClass"
-      class="d-flex align-start text-truncate"
-      @click="clickable && $emit('avatar-click', $event)">
-      <span
-        v-if="userFullname"
-        :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-        class="text-truncate subtitle-2 my-auto">
-        {{ userFullname }}
-        <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-      </span>
-      <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
-        <slot name="subTitle"></slot>
-      </span>
-    </component>
-    <component
+        </span>
+      </component>
+      <component
+        v-else
+        :is="clickable && 'v-btn' || 'a'"
+        :id="id"
+        :fab="clickable"
+        :depressed="clickable"
+        :href="profileUrl"
+        :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+        :class="componentClass"
+        class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
+        @click="clickable && $emit('avatar-click', $event)">
+        <v-avatar
+          :size="size"
+          :class="avatarClass"
+          class="ma-0">
+          <img
+            :src="userAvatarUrl"
+            class="object-fit-cover ma-auto"
+            loading="lazy"
+            alt="">
+        </v-avatar>
+        <div v-if="userFullname || $slots.subTitle" class="ms-2 my-auto overflow-hidden">
+          <p
+            v-if="userFullname"
+            :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
+            class="text-truncate subtitle-2 text-left mb-0">
+            {{ userFullname }}
+            <span
+              v-if="!enabled"
+              :title="$t('label.disabled')"
+              class="muted font-weight-regular">
+              <v-icon
+                class="primary--text mb-1 subtitle-2">
+                fas fa-user-slash
+              </v-icon>
+            </span>
+            <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
+          </p>
+          <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
+            <slot name="subTitle"></slot>
+          </p>
+        </div>
+        <template v-if="$slots.actions">
+          <slot name="actions"></slot>
+        </template>
+      </component>
+    </div>
+    <div
       v-else
-      :is="clickable && 'v-btn' || 'a'"
-      :id="id"
-      :fab="clickable"
-      :depressed="clickable"
-      :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
-      :class="componentClass"
-      class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
-      @click="clickable && $emit('avatar-click', $event)">
-      <v-avatar
-        :size="size"
-        :class="avatarClass"
-        class="ma-0">
-        <img
-          :src="userAvatarUrl"
-          class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
-      </v-avatar>
-      <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
-        <p
+      class="profile-popover user-wrapper text-truncate"
+      :class="parentClass">
+      <component
+        v-if="avatar"
+        :is="clickable && 'v-btn' || 'a'"
+        :id="id"
+        :fab="clickable"
+        :depressed="clickable"
+        :href="profileUrl"
+        :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+        :class="componentClass"
+        class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
+        @click="clickable && $emit('avatar-click', $event)">
+        <v-avatar
+          :size="size"
+          :class="avatarClass"
+          class="ma-0 flex-shrink-0">
+          <img
+            :src="userAvatarUrl"
+            class="object-fit-cover ma-auto"
+            loading="lazy"
+            alt="">
+        </v-avatar>
+      </component>
+      <component
+        v-else-if="fullname"
+        :is="clickable && 'v-btn' || 'a'"
+        :id="id"
+        :fab="clickable"
+        :depressed="clickable"
+        :href="profileUrl"
+        :class="componentClass"
+        class="d-flex align-start text-truncate"
+        @click="clickable && $emit('avatar-click', $event)">
+        <span
           v-if="userFullname"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 text-left mb-0">
+          class="text-truncate subtitle-2 my-auto">
           {{ userFullname }}
+          <span
+            v-if="!enabled"
+            :title="$t('label.disabled')"
+            class="muted font-weight-regular">
+            <v-icon
+              class="primary--text mb-1 subtitle-2">
+              fas fa-user-slash
+            </v-icon>
+          </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
-        </p>
-        <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
+        </span>
+        <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
           <slot name="subTitle"></slot>
-        </p>
-      </div>
-      <template v-if="$slots.actions">
-        <slot name="actions"></slot>
-      </template>
-    </component>
+        </span>
+      </component>
+      <component
+        v-else
+        :is="clickable && 'v-btn' || 'a'"
+        :id="id"
+        :fab="clickable"
+        :depressed="clickable"
+        :href="profileUrl"
+        :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+        :class="componentClass"
+        class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
+        @click="clickable && $emit('avatar-click', $event)">
+        <v-avatar
+          :size="size"
+          :class="avatarClass"
+          class="ma-0">
+          <img
+            :src="userAvatarUrl"
+            class="object-fit-cover ma-auto"
+            loading="lazy"
+            alt="">
+        </v-avatar>
+        <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
+          <p
+            v-if="userFullname"
+            :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
+            class="text-truncate subtitle-2 text-left mb-0">
+            {{ userFullname }}
+            <span
+              v-if="!enabled"
+              :title="$t('label.disabled')"
+              class="muted font-weight-regular">
+              <v-icon
+                class="primary--text mb-1 subtitle-2">
+                fas fa-user-slash
+              </v-icon>
+            </span>
+            <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
+          </p>
+          <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
+            <slot name="subTitle"></slot>
+          </p>
+        </div>
+        <template v-if="$slots.actions">
+          <slot name="actions"></slot>
+        </template>
+      </component>
+    </div>
   </div>
 </template>
 
@@ -266,6 +304,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    showDisabledUser: {
+      type: Boolean,
+      default: () => true
+    }
   },
   data() {
     return {
@@ -276,6 +318,9 @@ export default {
     };
   },
   computed: {
+    show() {
+      return this.showDisabledUser || this.enabled;
+    },
     userIdentity() {
       return this.retrievedIdentity || this.identity;
     },
