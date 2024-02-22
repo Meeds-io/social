@@ -1582,7 +1582,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       List<String> fields = new ArrayList<>(Arrays.stream(headerLine.split(",")).map(String::trim).toList());
       List<String> standardFields = List.of("userName", "password", "groups", "aboutMe", "timeZone", "enabled");
-      List<String> systemParentAndMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
+      List<String> systemParentAndMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls", "manager");
       List<String> unauthorizedFields = new ArrayList<>();
       ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
       RequestLifeCycle.begin(PortalContainer.getInstance());
@@ -1794,7 +1794,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         userProfileProperties.computeIfAbsent(propertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
         @SuppressWarnings("unchecked")
         ArrayList<Map<String, String>> values = (ArrayList<Map<String, String>>) userProfileProperties.get(propertySetting.getPropertyName());
-        values.add(childPropertyMap);
+        for (String val : propertyValue.split(";")) {
+          Map<String, String> childProperty = new HashMap<>();
+          childProperty.put("value", val);
+          values.add(childProperty);
+        }
         userProfileProperties.put(propertySetting.getPropertyName(), values);
       } else if (parentPropertySetting != null){
         childPropertyMap.put("key", propertySetting.getPropertyName());
