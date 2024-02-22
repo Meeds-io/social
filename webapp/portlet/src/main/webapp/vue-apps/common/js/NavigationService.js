@@ -53,16 +53,3 @@ export function getNavigations(siteName, siteType, scope, visibility, exclude, n
     }
   });
 }
-
-export function getNavigationCategories() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/navigations/categories`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error');
-    } else {
-      return resp.json();
-    }
-  });
-}
