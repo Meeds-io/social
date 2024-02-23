@@ -169,7 +169,7 @@ public class OrganizationIdentityProvider extends IdentityProvider<User> {
 
     public UpdateProfileProcess(Profile updatedProfile) {
       this.updatedProfile = updatedProfile;
-      this.userName = (String) updatedProfile.getProperty(Profile.USERNAME);
+      this.userName = updatedProfile.getIdentity().getRemoteId();
     }
 
     /**
