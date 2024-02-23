@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  * 
- * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,9 +23,6 @@ import HamburgerMenuParentSticky from './components/HamburgerMenuParentSticky.vu
 import HamburgerMenuNavigationFirstLevel from './components/HamburgerMenuNavigationFirstLevel.vue';
 import HamburgerMenuNavigationSecondLevel from './components/HamburgerMenuNavigationSecondLevel.vue';
 import HamburgerMenuNavigationThirdLevel from './components/HamburgerMenuNavigationThirdLevel.vue';
-import AdministrationHamburgerNavigation from './components/administration/AdministrationHamburgerNavigation.vue';
-import AdministrationMenuItem from './components/administration/AdministrationMenuItem.vue';
-import AdministrationNavigations from './components/administration/AdministrationNavigations.vue';
 import ProfileHamburgerNavigation from './components/profile/ProfileHamburgerNavigation.vue';
 import RecentSpacesHamburgerNavigation from './components/recent-spaces/RecentSpacesHamburgerNavigation.vue';
 import SpaceNavigationItem from './components/recent-spaces/SpaceNavigationItem.vue';
@@ -47,9 +44,6 @@ const components = {
   'hamburger-menu-navigation-first-level': HamburgerMenuNavigationFirstLevel,
   'hamburger-menu-navigation-second-level': HamburgerMenuNavigationSecondLevel,
   'hamburger-menu-navigation-third-level': HamburgerMenuNavigationThirdLevel,
-  'administration-hamburger-navigation': AdministrationHamburgerNavigation,
-  'administration-menu-item': AdministrationMenuItem,
-  'administration-navigations': AdministrationNavigations,
   'profile-hamburger-navigation': ProfileHamburgerNavigation,
   'spaces-hamburger-navigation': SpacesHamburgerNavigation,
   'recent-spaces-hamburger-navigation': RecentSpacesHamburgerNavigation,

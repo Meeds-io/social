@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -34,11 +34,6 @@
         v-if="secondLevel === 'recentSpaces'"
         :display-sequentially="displaySequentially"
         :opened-space="thirdLevelDrawer && openedSpace"
-        @close="drawer = false" />
-      <administration-navigations
-        v-else-if="hasAdministrationNavigations && secondLevel === 'administration'"
-        :display-sequentially="displaySequentially"
-        :navigations="administrationNavigations"
         @close="drawer = false" />
       <space-panel-hamburger-navigation
         v-else-if="secondLevel === 'spaceMenu'"
@@ -84,14 +79,6 @@ export default {
     },
     secondLevel: {
       type: String,
-      default: null,
-    },
-    hasAdministrationNavigations: {
-      type: Boolean,
-      default: false,
-    },
-    administrationNavigations: {
-      type: Array,
       default: null,
     },
     site: {

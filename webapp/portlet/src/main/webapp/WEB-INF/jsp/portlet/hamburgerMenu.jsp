@@ -1,17 +1,11 @@
-<%@page import="org.exoplatform.portal.config.UserPortalConfigService"%>
 <%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
-<%@page import="org.exoplatform.commons.utils.PropertyManager"%>
 <%@page import="org.exoplatform.commons.api.settings.SettingValue"%>
 <%@page import="org.exoplatform.commons.api.settings.data.Scope"%>
 <%@page import="org.exoplatform.commons.api.settings.data.Context"%>
 <%@page import="org.exoplatform.commons.api.settings.SettingService"%>
 <%@page import="org.exoplatform.social.core.space.SpacesAdministrationService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
-<%@ page import="org.exoplatform.services.security.ConversationState" %>
-<%@ page import="org.exoplatform.commons.api.settings.ExoFeatureService" %>
-<%@ page import="org.exoplatform.commons.utils.CommonsUtils"%>
-<%@ page import="org.exoplatform.services.security.Identity"%>
 <%
   boolean canCreateSpace = ExoContainerContext.getService(SpacesAdministrationService.class).canCreateSpace(request.getRemoteUser());
   SettingValue stickySettingValue = ExoContainerContext.getService(SettingService.class).get(Context.USER.id(request.getRemoteUser()), Scope.APPLICATION.id("HamburgerMenu"), "Sticky");
@@ -23,10 +17,6 @@
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/sites?siteType=PORTAL&excludedSiteName=global&lang=en&excludeEmptyNavigationSites=true&excludeGroupNodesWithoutPageChildNodes=true&temporalCheck=true&excludeSpaceSites=true&expandNavigations=true&visibility=displayed&visibility=temporal&filterByDisplayed=true&sortByDisplayOrder=true&displayed=true&filterByPermissions=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread,muted>; rel=preload; as=fetch; crossorigin=use-credentials", false);
 
-  ExoFeatureService featureService = CommonsUtils.getService(ExoFeatureService.class);
-  Identity currentIdentity = ConversationState.getCurrent().getIdentity();
-  String currentUser = currentIdentity.getUserId();
-  boolean oldAdministrationMenu = featureService.isFeatureActiveForUser("oldAdministrationMenu", currentUser);
 %>
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
@@ -60,7 +50,6 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      eXo.env.portal.oldAdministrationMenu = <%=oldAdministrationMenu%>;
       require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
     </script>
   </div>
