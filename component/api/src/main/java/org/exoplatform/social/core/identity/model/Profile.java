@@ -475,7 +475,7 @@ public class Profile {
    * @param name the name
    */
   public final void removeProperty(final String name) {
-    properties.remove(name);
+    properties.put(name, null);
     setHasChanged(true);
   }
 
