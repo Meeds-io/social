@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -59,9 +59,6 @@
           :recent-spaces-drawer-opened="recentSpacesDrawerOpened"
           :opened-space="openedSpace"
           :third-level="thirdLevelDrawer" />
-        <administration-hamburger-navigation
-          v-if="hasAdministrationNavigations && oldAdministrationMenuEnabled"
-          :opened-menu="secondLevel === 'administration'" />
       </v-sheet>
       <v-app-bar
         color="white"
@@ -110,10 +107,6 @@ export default {
       type: Array,
       default: null,
     },
-    hasAdministrationNavigations: {
-      type: Boolean,
-      default: false,
-    },
     openedSpace: {
       type: Object,
       default: null,
@@ -126,11 +119,6 @@ export default {
       type: Number,
       default: null,
     },
-  },
-  data(){
-    return {
-      oldAdministrationMenuEnabled: eXo.env.portal.oldAdministrationMenu,
-    };
   },
   computed: {
     levelsOpened() {
