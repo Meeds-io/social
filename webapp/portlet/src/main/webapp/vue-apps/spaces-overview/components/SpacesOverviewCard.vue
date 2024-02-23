@@ -38,7 +38,7 @@ export default {
   },
   computed: {
     clickable() {
-      return this.count && this.count > 0  && 'clickable';
+      return this.count && this.count > 0 && 'clickable';
     },
   },
 };
