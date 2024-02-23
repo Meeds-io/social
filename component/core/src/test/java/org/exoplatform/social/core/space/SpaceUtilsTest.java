@@ -219,6 +219,15 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     Long avatarFileId = avatarFile.getFileInfo().getId();
     assertNotNull(avatarFileId);
 
+    profile.setProperty("test", "test");
+    identityStorage.updateProfile(profile);
+
+    profile = identityStorage.loadProfile(profile);
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+    assertTrue(profile.isDefaultAvatar());
+
+    assertEquals("Avatar File shouldn't change if Space not renamed", avatarFileId, avatarFile.getFileInfo().getId());
+
     // Rename space
     String JOHN = "john";
     String newSpaceName = "newname";
@@ -232,6 +241,25 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     Long updatedAvatarId = avatarFile.getFileInfo().getId();
     assertNotNull(updatedAvatarId);
     assertNotEquals(avatarFileId, updatedAvatarId);
+  }
+
+  public void testUpdateDefaultUserAvatar() throws Exception {
+    FileItem avatarFile = identityStorage.getAvatarFile(rootIdentity);
+    Profile profile = identityStorage.loadProfile(rootIdentity.getProfile());
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+    assertTrue(profile.isDefaultAvatar());
+
+    Long avatarFileId = avatarFile.getFileInfo().getId();
+    assertNotNull(avatarFileId);
+
+    profile.setProperty("test", "test");
+    identityStorage.updateProfile(profile);
+
+    profile = identityStorage.loadProfile(profile);
+    assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
+    assertTrue(profile.isDefaultAvatar());
+
+    assertEquals("Avatar File shouldn't change if User not renamed", avatarFileId, avatarFile.getFileInfo().getId());
   }
 
   public void testIsRedactor() throws Exception {
