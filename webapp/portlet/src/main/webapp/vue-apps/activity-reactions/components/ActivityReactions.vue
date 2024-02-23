@@ -20,17 +20,17 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <div
-                v-bind="attrs"
-                v-on="on"
-                :class="displayAnimation && 'mt-n2 transition-2s'"
-                class="seeMoreLikers border-white d-flex align-center justify-center clickable"
-                @click="openDrawer"
-                @mouseover="showAvatarAnimation = true"
-                @mouseleave="showAvatarAnimation = false">
-          <span
-              class="position-absolute subtitle-2 white--text font-weight-bold z-index-one text-center">
-            +{{ showMoreLikersNumber }}
-          </span>
+              v-bind="attrs"
+              v-on="on"
+              :class="displayAnimation && 'mt-n2 transition-2s'"
+              class="seeMoreLikers border-white d-flex align-center justify-center clickable"
+              @click="openDrawer"
+              @mouseover="showAvatarAnimation = true"
+              @mouseleave="showAvatarAnimation = false">
+              <span
+                class="position-absolute subtitle-2 white--text font-weight-bold z-index-one text-center">
+                +{{ showMoreLikersNumber }}
+              </span>
             </div>
           </template>
           <span>
