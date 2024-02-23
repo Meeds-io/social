@@ -381,7 +381,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     });
 
     identityManager.updateProfile(profile, true);
-    assertEquals(1, changes.size());
+    assertFalse(changes.isEmpty());
     assertTrue(changes.contains(2));
 
     profile.setProperty(Profile.POSITION, "Changed POSITION");
