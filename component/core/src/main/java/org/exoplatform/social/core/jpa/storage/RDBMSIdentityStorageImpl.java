@@ -157,6 +157,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     String providerId = profile.getIdentity().getProviderId();
     if (!OrganizationIdentityProvider.NAME.equals(providerId) && !SpaceIdentityProvider.NAME.equals(providerId)) {
       entityProperties.put(Profile.URL, profile.getUrl());
+    } else if (OrganizationIdentityProvider.NAME.equals(providerId)) {
+      profile.setProperty(Profile.FULL_NAME, profile.getFullName());
     }
 
     boolean hasBanner = false;
@@ -166,6 +168,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       if (Profile.AVATAR.equalsIgnoreCase(profileProperty.getKey())) {
         hasAvatar = true;
         AvatarAttachment attachment = (AvatarAttachment) profileProperty.getValue();
+        if (attachment == null) {
+          continue;
+        }
         byte[] bytes = attachment.getImageBytes();
         if (bytes == null || bytes.length == 0) {
           continue;
@@ -213,6 +218,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       } else if (Profile.BANNER.equalsIgnoreCase(profileProperty.getKey())) {
         hasBanner = true;
         BannerAttachment attachment = (BannerAttachment) profileProperty.getValue();
+        if (attachment == null) {
+          continue;
+        }
         byte[] bytes = attachment.getImageBytes();
         if (bytes == null || bytes.length == 0) {
           continue;
@@ -293,8 +301,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
       } else if (!Profile.EXPERIENCES_SKILLS.equals(profileProperty.getKey())) {
         Object val = profileProperty.getValue();
-        if ((Profile.FIRST_NAME.equalsIgnoreCase(profileProperty.getKey())
-            || Profile.LAST_NAME.equalsIgnoreCase(profileProperty.getKey()))
+        if ((profile.getIdentity().isUser() || profile.getIdentity().isSpace())
+            && (Profile.FIRST_NAME.equalsIgnoreCase(profileProperty.getKey())
+            || Profile.LAST_NAME.equalsIgnoreCase(profileProperty.getKey())
+            || Profile.FULL_NAME.equalsIgnoreCase(profileProperty.getKey()))
             && profileProperty.getValue() != null
             && !profileProperty.getValue().equals(entityProperties.get(profileProperty.getKey()))
             && identityEntity.getAvatarFileId() != null) {
@@ -319,7 +329,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       fileService.deleteFile(identityEntity.getAvatarFileId());
       identityEntity.setAvatarFileId(null);
     }
-    
+
+    // Remove deleted properties
+    entityProperties.entrySet().removeIf(p -> profile.getProperty(p.getKey()) == null);
+
     identityEntity.setProperties(entityProperties);
 
     Date created = profile.getCreatedTime() <= 0 ? new Date() : new Date(profile.getCreatedTime());
