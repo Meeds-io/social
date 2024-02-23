@@ -18,6 +18,9 @@ function() {
 
     const parentScrollableSelector = document.querySelector('#UISiteBody .UITopBarContainer') && '#UIPageBody' || '#UISiteBody';
     const siteBody = document.querySelector(parentScrollableSelector) || document.querySelector('#UIPageBody');
+    if (!siteBody) {
+      return;
+    }
     siteBody.classList.add('site-scroll-parent');
     if (!siteBody.getAttribute('scroll-control')) {
       siteBody.classList.add('overflow-y-auto');
