@@ -103,7 +103,7 @@
           <v-btn
             v-if="expandFilter"
             id="applicationToolbarBackButton"
-            class="px-0 me-auto width-auto"
+            class="px-0 me-auto"
             small
             icon
             @click="expandFilter = false">
@@ -180,7 +180,7 @@
           <v-btn
             v-if="showConeButton"
             id="applicationToolbarConeButton"
-            class="px-0 ms-4 width-auto"
+            class="px-0 ms-4"
             small
             icon
             @click="expandFilter = true">
