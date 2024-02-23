@@ -4,19 +4,19 @@
       <v-card flat>
         <div class="d-flex flex-row justify-space-around" v-if="invitations > 0 || pending > 0">
           <people-overview-card
-              id="peopleInvitationsOverview"
-              :title="$t('peopleOverview.label.invitations')"
-              :count="invitations"
-              icon="fas fa-user-plus"
-              :class="invitations === '-' && 'text-sub-title'"
-              @click="$refs.peopleDrawer.open('invitations', $t('peopleOverview.label.invitations'))" />
+            id="peopleInvitationsOverview"
+            :title="$t('peopleOverview.label.invitations')"
+            :count="invitations"
+            icon="fas fa-user-plus"
+            :class="invitations === '-' && 'text-sub-title'"
+            @click="$refs.peopleDrawer.open('invitations', $t('peopleOverview.label.invitations'))" />
           <people-overview-card
-              id="peoplePendingOverview"
-              :title="$t('peopleOverview.label.pending')"
-              :count="pending"
-              icon="fas fa-user-clock"
-              :class="pending === '-' && 'text-sub-title'"
-              @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
+            id="peoplePendingOverview"
+            :title="$t('peopleOverview.label.pending')"
+            :count="pending"
+            icon="fas fa-user-clock"
+            :class="pending === '-' && 'text-sub-title'"
+            @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
         </div>
         <div v-else>
           <div v-if="displayPlaceholder" class="d-flex align-center justify-center">
