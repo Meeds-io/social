@@ -18,7 +18,7 @@
         @click="clickable && $emit('avatar-click', $event)">
         <v-avatar
           :size="size"
-          :class="avatarClass"
+          :class="[avatarClass, compact && 'border-white']"
           class="ma-0 flex-shrink-0">
           <img
             :src="userAvatarUrl"
@@ -295,6 +295,14 @@ export default {
     offsetY: {
       type: Boolean,
       default: () => true,
+    },
+    compact: {
+      type: Boolean,
+      default: () => false,
+    },
+    allowAnimation: {
+      type: Boolean,
+      default: () => false,
     },
     showDisabledUser: {
       type: Boolean,

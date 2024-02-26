@@ -77,25 +77,32 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
         String propertyName = propertySetting.getPropertyName();
         List<String> systemMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
         if (systemMultivaluedFields.contains(propertyName)) {
+          List<Map<String, String>> maps;
           // child list is empty
           if (!proprtiesMap.containsKey(propertyName)) {
-            List<Map<String, String>> maps = new ArrayList<>();
-            Map<String, String> childProperty = new HashMap<>();
-            childProperty.put("key", name);
-            childProperty.put("value", value);
-            maps.add(childProperty);
-            proprtiesMap.put(propertyName, maps);
-            // child list isn't empty
+            maps = new ArrayList<>();
           } else {
-            List<Map<String, String>> existingmaps = (List<Map<String, String>>) proprtiesMap.get(propertyName);
-            Map<String, String> childProperty = new HashMap<>();
-            childProperty.put("key", name);
-            childProperty.put("value", value);
-            existingmaps.add(childProperty);
-            proprtiesMap.put(propertyName, existingmaps);
+            maps = (List<Map<String, String>>) proprtiesMap.get(propertyName);
           }
+          Map<String, String> childProperty = new HashMap<>();
+          childProperty.put("key", name);
+          childProperty.put("value", value);
+          maps.add(childProperty);
+          proprtiesMap.put(propertyName, maps);
         } else {
-          proprtiesMap.put(name, value);
+          // check if the property is multivalued and its value matches the patern "["value one", "value two", "value three", etc ...]"
+          if(propertySetting.isMultiValued() && value.matches("^\\[(.*)\\]$")) {
+            List<Map<String, String>> multivaluedPropsList = new ArrayList<>();
+            String [] valuesArray = value.substring(1, value.length() - 1).split(",");
+            for(String valueString : valuesArray) {
+              Map<String, String> map = new HashMap<>();
+              map.put("value", valueString);
+              multivaluedPropsList.add(map);
+            }
+            proprtiesMap.put(name, multivaluedPropsList);
+          } else {
+            proprtiesMap.put(name, value);
+          }
         }
       }
     }
