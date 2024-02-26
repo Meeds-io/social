@@ -83,7 +83,7 @@ public class ComplementaryFilterSearchConnector {
                 query.append(""" 
                     "common_%s": {
                        "terms": {
-                         "field": "%s.keyword",
+                         "field": "%s.raw",
                          "exclude": ["hidden"],
                          "min_doc_count":%s,
                          "size": 50,
