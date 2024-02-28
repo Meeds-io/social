@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -47,8 +47,6 @@
           :opened-space="space"
           :home-link="homeLink"
           :drawer-width="drawerWidth"
-          :has-administration-navigations="hasAdministrationNavigations"
-          :administration-navigations="administrationNavigations"
           :site="site" />
         <hamburger-menu-navigation-first-level
           :sticky-preference="stickyPreference"
@@ -56,7 +54,6 @@
           :second-level-drawer="secondLevelDrawer"
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
-          :has-administration-navigations="hasAdministrationNavigations"
           :sites="sites"
           :opened-site="site"
           :recent-spaces="recentSpaces"
@@ -73,7 +70,6 @@
           :second-level-drawer="secondLevelDrawer"
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
-          :has-administration-navigations="hasAdministrationNavigations"
           :sites="sites"
           :opened-site="site"
           :recent-spaces="recentSpaces"
@@ -91,8 +87,6 @@
           :opened-space="space"
           :home-link="homeLink"
           :drawer-width="drawerWidth"
-          :has-administration-navigations="hasAdministrationNavigations"
-          :administration-navigations="administrationNavigations"
           :site="site" />
         <hamburger-menu-navigation-third-level
           v-if="allowDisplayLevels"
@@ -108,7 +102,6 @@
 <script>
 export default {
   data: () => ({
-    oldAdministrationMenuEnabled: eXo.env.portal.oldAdministrationMenu,
     firstLevelDrawer: false,
     secondLevelDrawer: false,
     thirdLevelDrawer: false,
@@ -117,7 +110,6 @@ export default {
     drawerWidth: 310,
     space: null,
     site: null,
-    administrationNavigations: null,
     sites: [],
     initStep: 0,
     recentSpaces: null,
@@ -139,9 +131,6 @@ export default {
     },
     showOverlay() {
       return this.stickyDisplay && this.levelsOpened;
-    },
-    hasAdministrationNavigations() {
-      return this.administrationNavigations?.length;
     },
     displaySequentially() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
@@ -221,7 +210,6 @@ export default {
     this.stickyPreference = eXo.env.portal.stickyMenu;
     this.$root.$on('change-space-menu', this.changeSpaceMenu);
     this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
-    this.$root.$on('change-administration-menu', this.changeAdministrationMenu);
     this.$root.$on('change-site-menu', this.changeSiteMenu);
     this.$root.$on('dialog-opened', () => this.allowClosing = false);
     this.$root.$on('dialog-closed', () => this.allowClosing = true);
@@ -235,7 +223,6 @@ export default {
     init() {
       return Promise.all([
         this.retrieveSites(),
-        this.retrieveAdministrationNavigations(),
         this.retrieveRecentSpaces(),
       ]).finally(() => this.initStep++);
     },
@@ -282,19 +269,6 @@ export default {
         }
       }
     },
-    changeAdministrationMenu() {
-      this.thirdLevelDrawer = false;
-      this.space = null;
-      this.site = null;
-
-      if (this.secondLevel === 'administration') {
-        this.secondLevel = null;
-        this.secondLevelDrawer = false;
-      } else {
-        this.secondLevel = 'administration';
-        this.secondLevelDrawer = true;
-      }
-    },
     changeSiteMenu(site) {
       this.space = null;
       if (this.site?.name === site.name) {
@@ -328,14 +302,6 @@ export default {
     retrieveSites(){
       return this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal'])
         .then(data => this.sites = data || []);
-    },
-    retrieveAdministrationNavigations() {
-      if (this.oldAdministrationMenuEnabled) {
-        return this.$navigationService.getNavigations(null, 'group', null, this.visibility)
-          .then(data => this.administrationNavigations = data || []);
-      } else {
-        return Promise.resolve();
-      }
     },
     retrieveRecentSpaces() {
       return this.$spaceService.getSpaces('', this.offset, this.limit, 'lastVisited', 'member,managers,favorite,unread,muted')
