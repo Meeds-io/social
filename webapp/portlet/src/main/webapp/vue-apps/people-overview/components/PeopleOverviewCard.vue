@@ -5,10 +5,11 @@
     @click="count && $emit('click')">
     <div class="ma-auto">
       <div
-        class="peopleOverviewCount text-center pb-1">
-        {{ count }}
+        class="peopleOverviewCount d-flex align-center justify-center">
+        <v-icon size="22" class="tertiary--text me-2">{{ icon }}</v-icon>
+        <span class="text-h5 font-weight-bold text-color">{{ count }}</span>
       </div>
-      <div class="peopleOverviewTitle text-center text-truncate pt-1">
+      <div class="peopleOverviewTitle text-center text-truncate subtitle-1 pt-3 text-color d-none d-md-block">
         {{ title }}
       </div>
     </div>
@@ -30,6 +31,10 @@ export default {
       type: Number,
       default: () => 0,
     },
+    icon: {
+      type: String,
+      default: () => ''
+    }
   },
   computed: {
     clickable() {

@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex ms-lg-4">
+  <div class="d-inline-flex ms-xl-4 ms-lg-3">
     <!-- Added for mobile -->
     <v-tooltip :disabled="isMobile" bottom>
       <template #activator="{ on, attrs }">
@@ -21,7 +21,7 @@
               :size="isMobile && '20' || '14'">
               fa-share
             </v-icon>
-            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-2">
+            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-1">
               {{ $t('UIActivity.share') }}
             </span>
           </div>

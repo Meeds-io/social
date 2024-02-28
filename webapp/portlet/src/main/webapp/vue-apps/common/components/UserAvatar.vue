@@ -17,7 +17,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
-        :class="avatarClass"
+        :class="[avatarClass, compact && 'border-white']"
         class="ma-0 flex-shrink-0">
         <img
           :src="userAvatarUrl"
@@ -258,6 +258,14 @@ export default {
       type: Boolean,
       default: () => true,
     },
+    compact: {
+      type: Boolean,
+      default: () => false,
+    },
+    allowAnimation: {
+      type: Boolean,
+      default: () => false,
+    },
   },
   data() {
     return {
@@ -312,7 +320,7 @@ export default {
       return `${this.alignTop && 'align-start' || 'align-center'}`;
     },
     parentClass() {
-      return this.avatar && `${this.extraClass} flex-shrink-0` || this.extraClass || '';
+      return `${this.avatar && `${this.extraClass} flex-shrink-0` || this.extraClass || ''} ${this.compact && 'ml-n5'}`;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
@@ -336,6 +344,7 @@ export default {
         position: this.position,
         avatar: this.userAvatarUrl,
         external: this.isExternal,
+        allowAnimation: this.compact && this.allowAnimation,
       };
     },
     componentClass() {
