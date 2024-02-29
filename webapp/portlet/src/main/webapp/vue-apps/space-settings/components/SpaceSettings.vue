@@ -8,7 +8,8 @@
     <space-setting-applications :space-id="spaceId" class="mb-5" />
     <template>
       <extension-registry-components
-        :params="spaceSettingParam"
+        :key="spaceApplications"
+        :params="extensionParams"
         name="SpaceSettings"
         type="space-settings-components"
         parent-element="div"
@@ -23,7 +24,21 @@
 export default {
   data: () => ({
     spaceId: eXo.env.portal.spaceId,
+    spaceApplications: null,
     displayed: true,
-  })
+  }),
+  created() {
+    this.$spaceService.getSpaceApplications(this.spaceId).then(applications => {
+      this.spaceApplications=applications;
+    });
+  },
+  computed: {
+    extensionParams() {
+      return {
+        spaceId: this.spaceId,
+        spaceApplications: this.spaceApplications
+      };
+    },
+  },
 };
 </script>
