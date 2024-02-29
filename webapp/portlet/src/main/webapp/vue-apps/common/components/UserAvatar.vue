@@ -296,7 +296,6 @@ export default {
       type: Boolean,
       default: () => true,
     },
-<<<<<<< HEAD
     compact: {
       type: Boolean,
       default: () => false,
@@ -305,12 +304,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
-=======
     showDisabledUser: {
       type: Boolean,
       default: () => true
     }
->>>>>>> 28cf45bd8e (feat: Add a disabled indication icon for disabled users in common useravatar component - EXO-69207 - Meeds-io/MIPs#112 (#3537))
   },
   data() {
     return {
