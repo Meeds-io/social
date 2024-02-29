@@ -21,6 +21,7 @@ package org.exoplatform.social.core.listeners;
 
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
@@ -75,7 +76,7 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
                                                      .contains(".") ? profilePropertyService.getProfileSettingByName(name.substring(0, name.indexOf('.'))) : profilePropertyService.getProfileSettingByName(name);
         //
         String propertyName = propertySetting.getPropertyName();
-        List<String> systemMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
+        List<String> systemMultivaluedFields = Arrays.asList("user", "phones", "ims");
         if (systemMultivaluedFields.contains(propertyName)) {
           List<Map<String, String>> maps;
           // child list is empty
@@ -96,8 +97,10 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
             String [] valuesArray = value.substring(1, value.length() - 1).split(",");
             for(String valueString : valuesArray) {
               Map<String, String> map = new HashMap<>();
-              map.put("value", valueString);
-              multivaluedPropsList.add(map);
+              if(StringUtils.isNotBlank(valueString)) {
+                map.put("value", valueString.trim());
+                multivaluedPropsList.add(map);
+              }
             }
             proprtiesMap.put(name, multivaluedPropsList);
           } else {
