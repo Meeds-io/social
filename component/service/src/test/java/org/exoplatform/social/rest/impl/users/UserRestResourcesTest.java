@@ -1424,4 +1424,37 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals("root", entities.get(0).get("username"));
     endSession();
   }
+
+  public void testGetListManagersAndManagedUsersCount() throws Exception {
+    startSessionAs("root");
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Identity maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
+
+    //mock ProfileSearchConnector
+    ProfileSearchConnector profileSearchConnector = mock(ProfileSearchConnector.class);
+    RDBMSIdentityStorageImpl rdbmsIdentityStorage = getContainer().getComponentInstanceOfType(RDBMSIdentityStorageImpl.class);
+    when(profileSearchConnector.search(any(),
+                                       any(),
+                                       any(),
+                                       anyLong(),
+                                       anyLong())).thenReturn(List.of(maryIdentity.getId()));
+    rdbmsIdentityStorage.setProfileSearchConnector(profileSearchConnector);
+
+    Profile rootProfile = rootIdentity.getProfile();
+    Map<String, String> values = new HashMap<>();
+    List<Map<String, String>> manager = new ArrayList<>();
+    values.put("value", "john");
+    manager.add(values);
+    rootProfile.setProperty("manager", manager);
+    identityManager.updateProfile(rootProfile, true);
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("content-type", "application/json");
+    ContainerResponse response = service("GET", getURLResource("users/root?expand=settings,manager,managedUsersCount"), "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    DataEntity dataEntity = (DataEntity) response.getEntity();
+    assertEquals(1, ((List<DataEntity>)dataEntity.get("managers")).size());
+    assertEquals(0 , (int) dataEntity.get("managedUsersCount"));
+    endSession();
+  }
 }
