@@ -16,8 +16,7 @@ function() {
     const topBarHeight = document.querySelector('#UITopBarContainerParent')?.offsetHeight || 0;
     const bodyMaxHeight = `calc(var(--100vh, 100vh) - ${topBarHeight}px)`;
 
-    const parentScrollableSelector = document.querySelector('#UISiteBody .UITopBarContainer') && '#UIPageBody' || '#UISiteBody';
-    const siteBody = document.querySelector(parentScrollableSelector) || document.querySelector('#UIPageBody');
+    const siteBody = document.querySelector(getScrollableSelector()) || document.querySelector('#UIPageBody');
     if (!siteBody) {
       return;
     }
@@ -27,7 +26,7 @@ function() {
       siteBody.classList.add('overflow-x-hidden');
       siteBody.style.maxHeight = bodyMaxHeight;
       siteBody.setAttribute('scroll-control', 'true');
-      const middleBar = document.querySelector('.MiddleToolBarTDContainer .MiddleToolBar');
+      const middleBar = document.querySelector('.MiddleToolBarTDContainer .MiddleToolBar') || document.querySelector('#MiddleToolBarChildren');
       if (middleBar) {
         const shadowBox = document.createElement('div');
         shadowBox.id = 'TopBarBoxShadow';
@@ -48,8 +47,7 @@ function() {
   }
 
   function controlBodyScrollClass() {
-    const parentScrollableSelector = document.querySelector('#UISiteBody .UITopBarContainer') && '#UIPageBody' || '#UISiteBody';
-    const siteBody = document.querySelector(parentScrollableSelector) || document.querySelector('#UIPageBody');
+    const siteBody = document.querySelector(getScrollableSelector()) || document.querySelector('#UIPageBody');
     const topBarBoxShadow = document.querySelector('#TopBarBoxShadow');
     if(siteBody.scrollTop) {
       if (topBarBoxShadow && topBarBoxShadow.style.visibility === 'hidden') {
@@ -60,5 +58,13 @@ function() {
         document.querySelector('#TopBarBoxShadow').style.visibility = 'hidden';
       }
     }
+  }
+
+  function getScrollableSelector() {
+    return document.querySelector('.page-scroll-content')
+      && '.page-scroll-content'
+      || (document.querySelector('#UISiteBody .UITopBarContainer')
+          && '#UIPageBody'
+          || '#UISiteBody');
   }
 }();
