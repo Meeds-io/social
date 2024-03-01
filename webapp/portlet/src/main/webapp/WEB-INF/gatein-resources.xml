@@ -2679,6 +2679,32 @@
     </depends>
   </module>
 
+  <!-- Used by multiple addons: tasks & layout -->
+  <module>
+    <name>vueDraggable</name>
+    <script>
+      <adapter>
+        (function() {
+        <include>/js/lib/vueDraggable.min.js</include>
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>sortablejs</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>sortablejs</name>
+    <script>
+      <adapter>
+        (function() {
+        <include>/js/lib/sortable.min.js</include>
+        })();
+      </adapter>
+    </script>
+  </module>
+
   <module>
     <name>topbarLoading</name>
     <load-group>baseGRP</load-group>
