@@ -579,8 +579,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
-    assertEquals(45, receivedImage.getWidth());
-    assertEquals(45, receivedImage.getHeight());
+    assertEquals(55, receivedImage.getWidth());
+    assertEquals(55, receivedImage.getHeight());
 
   }
 
