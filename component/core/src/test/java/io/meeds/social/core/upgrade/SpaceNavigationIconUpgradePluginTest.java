@@ -51,9 +51,11 @@ public class SpaceNavigationIconUpgradePluginTest {
     when(entityManager.createNativeQuery(anyString())).thenReturn(query);
     when(query.executeUpdate()).thenReturn(2);
     boolean proceedToUpgrade = spaceNavigationIconUpgradePlugin.shouldProceedToUpgrade(null, null);
+    //
     assertTrue(proceedToUpgrade);
     UpgradePluginExecutionContext upgradePluginExecutionContext = new UpgradePluginExecutionContext("6.4.0", 0);
     proceedToUpgrade = spaceNavigationIconUpgradePlugin.shouldProceedToUpgrade("6.5.0", "6.4.0", upgradePluginExecutionContext);
+    //
     assertTrue(proceedToUpgrade);
     spaceNavigationIconUpgradePlugin.processUpgrade("oldVersion", "newVersion");
     // Capture the argument passed to createNativeQuery
