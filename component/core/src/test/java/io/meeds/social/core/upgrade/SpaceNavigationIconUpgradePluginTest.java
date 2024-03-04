@@ -6,6 +6,7 @@ import org.exoplatform.container.xml.ValueParam;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -55,6 +56,28 @@ public class SpaceNavigationIconUpgradePluginTest {
     proceedToUpgrade = spaceNavigationIconUpgradePlugin.shouldProceedToUpgrade("6.5.0", "6.4.0", upgradePluginExecutionContext);
     assertTrue(proceedToUpgrade);
     spaceNavigationIconUpgradePlugin.processUpgrade("oldVersion", "newVersion");
+    // Capture the argument passed to createNativeQuery
+    ArgumentCaptor<String> sqlStatementCaptor = ArgumentCaptor.forClass(String.class);
+    verify(entityManager).createNativeQuery(sqlStatementCaptor.capture());
+
+    // Get the captured SQL statement
+    String actualSQLStatement = sqlStatementCaptor.getValue();
+
+    // Expected SQL statement
+    String expectedSql = "  UPDATE PORTAL_NAVIGATION_NODES\n" +
+            "  SET ICON =\n" +
+            "    CASE\n" +
+            "      WHEN PARENT_ID IN (SELECT NODE_ID FROM (SELECT * FROM PORTAL_NAVIGATION_NODES WHERE NAME LIKE 'default') AS PARENT_NAVIGATION) THEN TRIM('fas fa-stream')\n" +
+            "         WHEN NAME in ('settings') THEN TRIM('fas fa-cog')\n   WHEN NAME in ('members') THEN TRIM('fas fa-users')\n\n" +
+            "    END\n" +
+            "  WHERE ICON IS NULL\n" +
+            "  AND EXISTS (SELECT * FROM PORTAL_PAGES p INNER JOIN PORTAL_SITES s ON s.ID = p.SITE_ID WHERE PAGE_ID = p.ID AND s.TYPE = 1 AND s.NAME LIKE '/spaces/%')\n";
+    // Assert the captured SQL statement is equal to expected SQL statement
+    assertEquals(expectedSql.trim(),actualSQLStatement.trim());
+    verify(query).executeUpdate();
+    // Verify the result
     assertEquals(2, spaceNavigationIconUpgradePlugin.getMigratedSpaceNodeIcons());
+    // Verify no more interactions
+    verifyNoMoreInteractions(entityManager, query);
   }
 }
