@@ -102,6 +102,9 @@ export default {
       this.$emit('delete', this.image);
     },
     openImageCropDrawer() {
+      if (this.imageItem?.src) {
+        this.imageItem.src = this.imageItem.src.split('&')[0];
+      }
       document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{detail: this.imageItem}));
     },
   }

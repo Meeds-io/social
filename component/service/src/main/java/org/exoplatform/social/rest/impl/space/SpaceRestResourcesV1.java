@@ -531,7 +531,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                      @DefaultValue("false")
                                      @QueryParam("byId")
                                      boolean byId,
-                                     @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("45x45") @QueryParam("size") String size,
+                                     @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("55x55") @QueryParam("size") String size,
                                      @Parameter(
                                          description = "A mandatory valid token that is used to authorize anonymous request",
                                          required = false
