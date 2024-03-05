@@ -41,7 +41,7 @@ public class SpaceNavigationIconUpgradePlugin extends UpgradeProductPlugin {
                                                            UPDATE PORTAL_NAVIGATION_NODES
                                                            SET ICON =
                                                              CASE
-                                                               WHEN (SELECT pn.NAME FROM (SELECT * FROM PORTAL_NAVIGATION_NODES) pn WHERE pn.NODE_ID = PARENT_ID) = 'default' THEN TRIM('fas fa-stream')
+                                                               WHEN PARENT_ID IN (SELECT NODE_ID FROM (SELECT * FROM PORTAL_NAVIGATION_NODES WHERE NAME LIKE 'default') AS PARENT_NAVIGATION) THEN TRIM('fas fa-stream')
                                                                %s
                                                              END
                                                            WHERE ICON IS NULL
@@ -59,6 +59,8 @@ public class SpaceNavigationIconUpgradePlugin extends UpgradeProductPlugin {
   private final EntityManagerService entityManagerService;
 
   private final Map<String, String>  spaceNodes           = new HashMap<>();
+
+  private int migratedSpaceNodeIcons;
 
   public SpaceNavigationIconUpgradePlugin(EntityManagerService entityManagerService, InitParams initParams) {
     super(initParams);
@@ -84,7 +86,7 @@ public class SpaceNavigationIconUpgradePlugin extends UpgradeProductPlugin {
 
     LOG.info("Start:: Upgrade of space node icons");
     Set<Map.Entry<String, String>> spaceNodesEntrySet = spaceNodes.entrySet();
-    int migratedSpaceNodeIcons = upgradeSpaceNodeIcons(spaceNodesEntrySet);
+    this.migratedSpaceNodeIcons = upgradeSpaceNodeIcons(spaceNodesEntrySet);
     LOG.info("End:: Upgrade of '{}' space node icons. It tooks {} ms",
              migratedSpaceNodeIcons,
              (System.currentTimeMillis() - startupTime));
@@ -103,5 +105,9 @@ public class SpaceNavigationIconUpgradePlugin extends UpgradeProductPlugin {
 
     Query query = entityManager.createNativeQuery(sqlStatement);
     return query.executeUpdate();
+  }
+
+  public int getMigratedSpaceNodeIcons() {
+    return migratedSpaceNodeIcons;
   }
 }
