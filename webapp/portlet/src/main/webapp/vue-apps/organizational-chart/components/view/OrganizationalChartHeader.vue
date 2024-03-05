@@ -19,104 +19,17 @@
  -->
 
 <template>
-  <div
-    v-if="!hasSettings && isAdmin"
-    class="d-flex">
-    <v-btn
-      class="btn ma-auto btn-primary"
-      flat
-      outlined
-      @click="openChartSettingsDrawer">
-      <v-icon
-        class="me-1"
-        size="16">
-        fas fa-sitemap
-      </v-icon>
-      {{ $t('organizationalChart.configure.label') }}
-    </v-btn>
-  </div>
-  <v-sheet
-    v-else
-    height="28"
-    class="d-flex mb-2">
-    <p
-      v-if="hasHeaderTitle"
-      class="my-auto widget-text-header text-truncate">
-      {{ configuredTitle }}
+  <div class="d-flex">
+    <p class="mb-2 widget-text-header text-truncate">
+      {{ $t('organizationalChart.header.label') }}
     </p>
     <div
       class="ms-auto d-flex">
-      <div>
-        <v-btn
-          v-if="hover || isMobile"
-          class="ms-auto my-0 icon-default-color me-5"
-          :loading="isPrintingPdf"
-          :title="$t('organizationalChart.download.label')"
-          small
-          icon
-          @click="downloadChart">
-          <v-icon
-            size="20">
-            fas fa-download
-          </v-icon>
-        </v-btn>
-      </div>
-      <div v-if="isAdmin">
-        <v-btn
-          v-if="hover || isMobile"
-          class="ms-auto my-0 icon-default-color"
-          small
-          icon
-          @click="openChartSettingsDrawer">
-          <v-icon
-            size="20">
-            fas fa-cog
-          </v-icon>
-        </v-btn>
-      </div>
     </div>
-  </v-sheet>
+  </div>
 </template>
 
 <script>
 export default {
-  props: {
-    hasSettings: {
-      type: Boolean,
-      default: false
-    },
-    configuredTitle: {
-      type: String,
-      default: null
-    },
-    isAdmin: {
-      type: Boolean,
-      default: false
-    },
-    hover: {
-      type: Boolean,
-      default: false
-    },
-    isMobile: {
-      type: Boolean,
-      default: false
-    },
-    hasHeaderTitle: {
-      type: Boolean,
-      default: false
-    },
-    isPrintingPdf: {
-      type: Boolean,
-      default: false
-    }
-  },
-  methods: {
-    openChartSettingsDrawer() {
-      this.$emit('open-chart-settings');
-    },
-    downloadChart() {
-      this.$emit('download-chart');
-    }
-  }
 };
 </script>

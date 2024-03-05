@@ -1937,9 +1937,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>translationField</module>
-      </depends>
-      <depends>
         <module>peopleListComponents</module>
       </depends>
       <depends>
@@ -1950,9 +1947,6 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>jspdf</module>
       </depends>
       <depends>
         <module>jquery</module>
