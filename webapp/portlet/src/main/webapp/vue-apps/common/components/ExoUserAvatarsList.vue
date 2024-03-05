@@ -1,72 +1,65 @@
 <template>
-  <v-hover>
-    <v-card
-      v-if="!retrieveExtraInformation"
-      slot-scope="{ hover }"
-      :class="hover && clickable && 'light-grey-background'"
-      :ripple="clickable"
-      class="d-flex flex-nowrap position-relative"
-      color="transparent"
-      flat
-      @click="$emit('open-detail')">
-      <exo-user-avatar
-        v-for="(user, index) in usersToDisplay"
+  <div class="d-flex flex-nowrap position-relative align-center">
+    <template v-for="(user, index) in usersToDisplay">
+      <div
+        v-if="!retrieveExtraInformation"
         :key="`${user}_${index}`"
-        :identity="user"
-        :size="iconSize"
-        :extra-class="'mx-1'"
-        :popover="popover"
-        :clickable="clickable"
-        avatar />
+        :ripple="clickable"
+        color="transparent"
+        @click="$emit('open-detail')">
+        <v-hover v-slot="{ hover }">
+          <exo-user-avatar
+            :identity="user"
+            :size="iconSize"
+            :extra-class="parentClass"
+            :popover="popover"
+            :clickable="clickable"
+            :compact="compact"
+            :margin-left="marginLeft"
+            :class="{ 'mt-n1 z-index-two': hover && compact }"
+            avatar />
+        </v-hover>
+      </div>
+      <div
+        v-else
+        :key="`${user}_${index}`"
+        :ripple="clickable"
+        color="transparent"
+        @click="$emit('open-detail')">
+        <v-hover v-slot="{ hover }">
+          <exo-user-avatar
+            :profile-id="user.userName"
+            :size="iconSize"
+            :extra-class="parentClass"
+            :popover="popover"
+            :clickable="clickable"
+            :compact="compact"
+            :margin-left="marginLeft"
+            :class="{ 'mt-n1 z-index-two': hover && compact }"
+            avatar />
+        </v-hover>
+      </div>
+    </template>
+    <v-hover v-slot="{ hover }">
       <v-btn
         v-if="showMoreAvatarsNumber"
         :height="iconSize"
         :width="iconSize"
+        :class="{ 'mt-n1 z-index-two': hover && compact, 'ml-n4': compact }"
         fab
-        depressed>
+        depressed
+        @click="$emit('open-detail')">
         <v-avatar
           :size="iconSize"
+          :class="{ 'border-white content-box-sizing ': compact }"
           class="notDisplayedIdentitiesOverlay">
-          <div class="notDisplayedIdentities d-flex align-center justify-center caption">
+          <div class="notDisplayedIdentities d-flex align-center justify-center subtitle-2 white--text font-weight-bold z-index-one text-center">
             +{{ showMoreAvatarsNumber }}
           </div>
         </v-avatar>
       </v-btn>
-    </v-card>
-    <v-card
-      v-else
-      slot-scope="{ hover }"
-      :class="hover && clickable && 'light-grey-background'"
-      :ripple="clickable"
-      class="d-flex flex-nowrap position-relative"
-      color="transparent"
-      flat
-      @click="$emit('open-detail')">
-      <exo-user-avatar
-        v-for="(user, index) in usersToDisplay"
-        :key="`${user}_${index}`"
-        :profile-id="user.userName"
-        :size="iconSize"
-        :extra-class="'mx-1'"
-        :popover="popover"
-        :clickable="clickable"
-        avatar />
-      <v-btn
-        v-if="showMoreAvatarsNumber"
-        :height="iconSize"
-        :width="iconSize"
-        fab
-        depressed>
-        <v-avatar
-          :size="iconSize"
-          class="notDisplayedIdentitiesOverlay">
-          <div class="notDisplayedIdentities d-flex align-center justify-center caption">
-            +{{ showMoreAvatarsNumber }}
-          </div>
-        </v-avatar>
-      </v-btn>
-    </v-card>
-  </v-hover>
+    </v-hover>
+  </div>
 </template>
 
 <script>
@@ -104,9 +97,21 @@ export default {
       type: Boolean,
       default: () => false
     },
+    extraClass: {
+      type: String,
+      default: () => '',
+    },
     compact: {
       type: Boolean,
       default: () => false
+    },
+    allowAnimation: {
+      type: Boolean,
+      default: () => false,
+    },
+    marginLeft: {
+      type: String,
+      default: () => '',
     },
   },
   computed: {
@@ -134,6 +139,9 @@ export default {
         return `right: ${this.iconSize + 4}px !important`;
       } 
       return 'right: 0px !important';
+    },
+    parentClass() {
+      return `${this.compact && 'transition-2s'} mx-1`;
     },
   },
 };

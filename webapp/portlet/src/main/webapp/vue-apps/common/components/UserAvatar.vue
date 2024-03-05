@@ -17,7 +17,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
-        :class="[avatarClass, compact && 'border-white']"
+        :class="[avatarClass, compact && 'border-white content-box-sizing']"
         class="ma-0 flex-shrink-0">
         <img
           :src="userAvatarUrl"
@@ -88,7 +88,9 @@
   <div 
     v-else
     class="profile-popover user-wrapper text-truncate"
-    :class="parentClass">
+    :class="parentClass"
+    @mouseover="test"
+    @mouseleave="test">
     <component 
       v-if="avatar"
       :is="clickable && 'v-btn' || 'a'"
@@ -102,7 +104,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
-        :class="avatarClass"
+        :class="[avatarClass, compact && 'border-white content-box-sizing']"
         class="ma-0 flex-shrink-0">
         <img
           :src="userAvatarUrl"
@@ -145,7 +147,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
         :size="size"
-        :class="avatarClass"
+        :class="[avatarClass, compact && 'border-white content-box-sizing']"
         class="ma-0">
         <img
           :src="userAvatarUrl"
@@ -250,6 +252,10 @@ export default {
       type: String,
       default: () => '',
     },
+    marginLeft: {
+      type: String,
+      default: () => '',
+    },
     offsetX: {
       type: Boolean,
       default: () => false,
@@ -273,6 +279,7 @@ export default {
         .toString()
         .toString()}`,
       retrievedIdentity: null,
+      showAnimation: false
     };
   },
   computed: {
@@ -320,7 +327,7 @@ export default {
       return `${this.alignTop && 'align-start' || 'align-center'}`;
     },
     parentClass() {
-      return `${this.avatar && `${this.extraClass} flex-shrink-0` || this.extraClass || ''} ${this.compact && 'ml-n5'}`;
+      return `${this.avatar && `${this.extraClass} flex-shrink-0 mx-1` || this.extraClass || ''} ${this.marginLeft}`;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
@@ -331,7 +338,7 @@ export default {
     params() {
       return {
         identityType: 'USER_PROFILE',
-        identityId: this.username,        
+        identityId: this.username,
       };
     },
     popoverIdentity() {
