@@ -54,7 +54,7 @@
       </init-params>
     </component-plugin>
     <component-plugin>
-      <name>SpaceNavigationIconUpgradePlugin</name>
+      <name>SpaceNavigationIconMigration</name>
       <set-method>addUpgradePlugin</set-method>
       <type>io.meeds.social.core.upgrade.SpaceNavigationIconUpgradePlugin</type>
       <description>Configure space node icons</description>
@@ -66,8 +66,8 @@
         </value-param>
         <value-param>
           <name>plugin.upgrade.target.version</name>
-          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.5.0)</description>
-          <value>6.5.0</value>
+          <description>The plugin target version (will not be executed if previous version is equal or higher than 6.5.2)</description>
+          <value>6.5.2</value>
         </value-param>
         <value-param>
           <name>space.node.names</name>
