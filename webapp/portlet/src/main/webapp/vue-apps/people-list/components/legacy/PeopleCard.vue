@@ -17,7 +17,7 @@
         @accept-to-connect="acceptToConnect"
         @refuse-to-connect="refuseToConnect"
         @cancel-request="cancelRequest" />
-      <people-card-front-compact
+      <people-user-compact-card
         v-else
         :is-mobile="isMobile"
         :user="user"
