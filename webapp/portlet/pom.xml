@@ -126,6 +126,7 @@
                 <include>portlet/VerticalMenu/Style.less</include>
                 <include>common/siteDetails/Style.less</include>
                 <include>common/AdministrationSite/Style.less</include>
+                <include>portlet/organizational-chart/Style.less</include>
                 <!-- Deprecated Portlets -->
                 <include>portlet/TopBarNotification/Style.less</include>
                 <!-- Standalone Modules -->

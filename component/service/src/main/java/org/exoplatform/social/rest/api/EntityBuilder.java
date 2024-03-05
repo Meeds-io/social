@@ -102,6 +102,7 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.processor.I18NActivityProcessor;
+import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
@@ -115,27 +116,7 @@ import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.BaseEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.CommentEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.ExperienceEntity;
-import org.exoplatform.social.rest.entity.GroupNodeEntity;
-import org.exoplatform.social.rest.entity.GroupSpaceBindingEntity;
-import org.exoplatform.social.rest.entity.GroupSpaceBindingOperationReportEntity;
-import org.exoplatform.social.rest.entity.IMEntity;
-import org.exoplatform.social.rest.entity.IdentityEntity;
-import org.exoplatform.social.rest.entity.LinkEntity;
-import org.exoplatform.social.rest.entity.MetadataItemEntity;
-import org.exoplatform.social.rest.entity.PhoneEntity;
-import org.exoplatform.social.rest.entity.ProfileEntity;
-import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
-import org.exoplatform.social.rest.entity.RelationshipEntity;
-import org.exoplatform.social.rest.entity.SiteEntity;
-import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.rest.entity.SpaceMembershipEntity;
-import org.exoplatform.social.rest.entity.URLEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
@@ -207,18 +188,20 @@ public class EntityBuilder {
   /** Child Groups of group root */
   public static final String              ORGANIZATION_GROUP_TYPE                    = "childGroups";
 
-  public static final String              MANAGER_MEMBERSHIP                         = "manager";
+  public static final String              MANAGER                                    = "manager";
 
   public static final String              REDACTOR_MEMBERSHIP                        = "redactor";
 
   public static final String              PUBLISHER_MEMBERSHIP                       = "publisher";
 
   public static final CacheControl        NO_CACHE_CC                                = new CacheControl();
-  
+
   public static final String              GROUP                                      = "group";
 
   private static final JsonEntityProvider JSON_ENTITY_PROVIDER                       = new JsonEntityProvider();
-  
+
+  public static final String              SETTINGS                                   = "settings";
+
   private static UserPortalConfigService  userPortalConfigService;
 
   private static LayoutService            layoutService;
@@ -414,15 +397,50 @@ public class EntityBuilder {
         }
       }
     }
-    if (expandAttributes.contains("settings")) {
+    if (expandAttributes.contains(SETTINGS)) {
       List<Long> hiddenProfileProperties =
                                          getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(profile.getIdentity()
                                                                                                                        .getId()));
       userEntity.setProperties(EntityBuilder.buildProperties(profile, hiddenProfileProperties));
     }
+    if (expandAttributes.contains(MANAGER) && profile.getProperty(MANAGER) != null) {
+      buildListManagers(userEntity, profile, restPath);
+    }
+    if (expandAttributes.contains("managedUsersCount")) {
+      buildManagedUsersCount(userEntity);
+    }
     return userEntity;
   }
+
+  private static void buildManagedUsersCount(ProfileEntity userEntity) {
+    ProfileFilter filter = new ProfileFilter();
+    filter.setEnabled(true);
+    filter.setUserType("internal");
+    filter.setProfileSettings(Map.of(MANAGER, userEntity.getUsername()));
+    ListAccess<Identity> managedUsers = getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
+                                                                                          filter,
+                                                                                          true);
+    try {
+      userEntity.setManagedUsersCount(managedUsers.getSize());
+    } catch (Exception e) {
+      LOG.error("Error while building managed users count for user: {}", userEntity.getUsername(), e);
+    }
+  }
   
+  private static void buildListManagers(ProfileEntity userEntity, Profile profile, String restPath) {
+    @SuppressWarnings("unchecked")
+    ArrayList<HashMap<String, String>> userNames = (ArrayList<HashMap<String, String>>) profile.getProperty(MANAGER);
+    List<DataEntity> managers = new ArrayList<>();
+    userNames.forEach(property -> {
+      Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, property.get(VALUE));
+      if (identity != null) {
+        ProfileEntity manager = buildEntityProfile(identity.getProfile(), restPath, SETTINGS);
+        managers.add(manager.getDataEntity());
+      }
+    });
+    userEntity.setManagers(managers);
+  }
+
   private static ProfilePropertyService getProfilePropertyService() {
     if (profilePropertyService == null) {
       profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
@@ -671,7 +689,7 @@ public class EntityBuilder {
         if (expandFields.contains(RestProperties.MANAGERS)) {
           managers = new LinkEntity(buildEntityProfiles(space.getManagers(), restPath, expand));
         } else {
-          managers = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), MANAGER_MEMBERSHIP, restPath));
+          managers = new LinkEntity(Util.getMembersSpaceRestUrl(space.getId(), MANAGER, restPath));
         }
         spaceEntity.setManagers(managers);
 
