@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.core.upgrade.SpaceNavigationIconUpgradePluginTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -52,6 +53,7 @@ import io.meeds.social.image.plugin.ImageAttachmentPluginTest;
     UserProfileComparatorTest.class,
     ActivityIndexingServiceConnectorTest.class,
     ActivitySearchConnectorTest.class,
+    SpaceNavigationIconUpgradePluginTest.class,
 })
 public class NoContainerTestSuite {
 
