@@ -212,7 +212,7 @@ export default {
   },
   computed: {
     isSameUser() {
-      return this.user && this.user.username === eXo.env.portal.userName;
+      return this.user?.username === eXo?.env?.portal?.userName;
     },
     userMenuParentId() {
       return this.user?.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
@@ -227,7 +227,7 @@ export default {
       return this.user?.position || '';
     },
     externalUser() {
-      return this.user.external === 'true';
+      return this.user?.external === 'true';
     },
   },
   created() {

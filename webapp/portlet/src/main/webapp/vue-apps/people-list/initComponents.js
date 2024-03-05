@@ -1,13 +1,14 @@
 import PeopleList from './components/PeopleList.vue';
 import PeopleCardList from './components/PeopleCardList.vue';
 import PeopleToolbar from './components/PeopleToolbar.vue';
-import PeopleCard from './components/PeopleCard.vue';
-import PeopleCardFront from './components/PeopleCardFront.vue';
-import PeopleCardReverse from './components/PeopleCardReverse.vue';
 import PeopleAdvancedFilterDrawer from './components/PeopleAdvancedFilterDrawer.vue';
 import AdvancedFilterInputItem from './components/AdvancedFilterInputItem.vue';
-import PeopleConnectionOptionItem from './components/PeopleConnectionOptionItem.vue';
-import PeopleCardFrontCompact from './components/PeopleCardFrontCompact.vue';
+import PeopleConnectionOptionItem from './components/legacy/PeopleConnectionOptionItem.vue';
+import PeopleCard from './components/legacy/PeopleCard.vue';
+import PeopleCardFront from './components/legacy/PeopleCardFront.vue';
+import PeopleCardReverse from './components/legacy/PeopleCardReverse.vue';
+import PeopleUserCompactCard from './components/usercard/PeopleUserCompactCard.vue';
+import PeopleUserCard from './components/usercard/PeopleUserCard.vue';
 
 const components = {
   'people-list': PeopleList,
@@ -19,7 +20,8 @@ const components = {
   'people-advanced-filter-drawer': PeopleAdvancedFilterDrawer,
   'people-advanced-filter-input-item': AdvancedFilterInputItem,
   'people-connection-option-item': PeopleConnectionOptionItem,
-  'people-card-front-compact': PeopleCardFrontCompact,
+  'people-user-compact-card': PeopleUserCompactCard,
+  'people-user-card': PeopleUserCard,
 };
 
 for (const key in components) {

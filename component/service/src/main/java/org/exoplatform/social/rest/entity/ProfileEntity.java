@@ -24,75 +24,79 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.identity.model.Profile;
 
 public class ProfileEntity extends BaseEntity {
-  public static final String IMS               = "ims";
+  public static final String IMS                 = "ims";
 
-  public static final String EXPERIENCES       = "experiences";
+  public static final String EXPERIENCES         = "experiences";
 
-  public static final String PHONES            = "phones";
+  public static final String PHONES              = "phones";
 
-  public static final String ABOUT_ME          = "aboutMe";
+  public static final String ABOUT_ME            = "aboutMe";
 
-  public static final String TIME_ZONE         = "timeZone";
+  public static final String TIME_ZONE           = "timeZone";
 
-  public static final String TIME_ZONE_DST     = "timeZoneDSTSavings";
+  public static final String TIME_ZONE_DST       = "timeZoneDSTSavings";
 
-  public static final String BANNER            = "banner";
+  public static final String BANNER              = "banner";
 
-  public static final String AVATAR            = "avatar";
+  public static final String AVATAR              = "avatar";
 
-  public static final String DEFAULT_AVATAR    = "isDefaultAvatar";
+  public static final String DEFAULT_AVATAR      = "isDefaultAvatar";
 
-  public static final String POSITION          = "position";
+  public static final String POSITION            = "position";
 
-  public static final String EMAIL             = "email";
+  public static final String EMAIL               = "email";
 
-  public static final String GENDER            = "gender";
+  public static final String GENDER              = "gender";
 
-  public static final String FULLNAME          = "fullname";
+  public static final String FULLNAME            = "fullname";
 
-  public static final String LASTNAME          = "lastname";
+  public static final String LASTNAME            = "lastname";
 
-  public static final String FIRSTNAME         = "firstname";
+  public static final String FIRSTNAME           = "firstname";
 
-  public static final String USERNAME          = "username";
+  public static final String USERNAME            = "username";
 
-  public static final long   serialVersionUID  = -3241490307391015454L;
+  public static final long   serialVersionUID    = -3241490307391015454L;
 
-  public static final String IDENTITY          = "identity";
+  public static final String IDENTITY            = "identity";
 
-  public static final String URLS              = "urls";
+  public static final String URLS                = "urls";
 
-  public static final String DELETED           = "deleted";
+  public static final String DELETED             = "deleted";
 
-  public static final String ENABLED           = "enabled";
+  public static final String ENABLED             = "enabled";
 
-  public static final String IS_INTERNAL       = "isInternal";
+  public static final String IS_INTERNAL         = "isInternal";
 
-  public static final String COMPANY           = "company";
+  public static final String COMPANY             = "company";
 
-  public static final String LOCATION          = "location";
+  public static final String LOCATION            = "location";
 
-  public static final String DEPARTMENT        = "department";
+  public static final String DEPARTMENT          = "department";
 
-  public static final String TEAM              = "team";
+  public static final String TEAM                = "team";
 
-  public static final String PROFESSION        = "profession";
+  public static final String PROFESSION          = "profession";
 
-  public static final String COUNTRY           = "country";
+  public static final String COUNTRY             = "country";
 
-  public static final String CITY              = "city";
+  public static final String CITY                = "city";
 
-  public static final String EXTERNAL          = "external";
+  public static final String EXTERNAL            = "external";
 
-  public static final String LAST_LOGIN_TIME   = "lastLoginTime";
+  public static final String LAST_LOGIN_TIME     = "lastLoginTime";
 
-  public static final String ENROLLMENT_DATE   = "enrollmentDate";
+  public static final String ENROLLMENT_DATE     = "enrollmentDate";
 
-  public static final String SYNCHRONIZED_DATE = "synchronizedDate";
+  public static final String SYNCHRONIZED_DATE   = "synchronizedDate";
 
-  public static final String CREATED_DATE   = "createdDate";
-  
-  public static final String IS_ADMIN          = "isAdmin";
+  public static final String CREATED_DATE        = "createdDate";
+
+  public static final String IS_ADMIN            = "isAdmin";
+
+  public static final String MANAGERS            = "managers";
+
+  public static final String MANAGED_USERS_COUNT = "managedUsersCount";
 
   public ProfileEntity() {
   }
@@ -416,8 +420,8 @@ public class ProfileEntity extends BaseEntity {
     return getString("connectionsInCommonCount");
   }
 
-  public String getProperties() {
-    return getString("properties");
+  public List<ProfilePropertySettingEntity> getProperties() {
+    return (List<ProfilePropertySettingEntity>) getProperty("properties");
   }
 
   public ProfileEntity setProperties(List<ProfilePropertySettingEntity> properties) {
@@ -538,6 +542,24 @@ public class ProfileEntity extends BaseEntity {
 
   public ProfileEntity setIsAdmin(boolean isAdmin) {
     setProperty(IS_ADMIN, isAdmin);
+    return this;
+  }
+
+  public List<DataEntity> getManagers() {
+    return (List<DataEntity>) getProperty(MANAGERS);
+  }
+
+  public ProfileEntity setManagers(List<DataEntity> managers) {
+    setProperty(MANAGERS, managers);
+    return this;
+  }
+
+  public String getManagedUsersCount() {
+    return getString(MANAGED_USERS_COUNT);
+  }
+
+  public ProfileEntity setManagedUsersCount(int managedUsersCount) {
+    setProperty(MANAGED_USERS_COUNT, managedUsersCount);
     return this;
   }
   
