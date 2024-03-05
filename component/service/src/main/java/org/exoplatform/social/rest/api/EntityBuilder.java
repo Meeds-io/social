@@ -429,21 +429,12 @@ public class EntityBuilder {
   
   private static void buildListManagers(ProfileEntity userEntity, Profile profile, String restPath) {
     @SuppressWarnings("unchecked")
-    ArrayList<Map<String, String>> userNames = new ArrayList<>();
-    if(profile.getProperty(MANAGER) instanceof List<?>) {
-      userNames = (ArrayList<Map<String, String>>) profile.getProperty(MANAGER);
-    } else {
-      // In case of AD, the manager is a single value property
-      Map<String, String> value = new HashMap<>();
-      value.put(VALUE, (String) profile.getProperty(MANAGER));
-      userNames.add(value);
-    }
+    ArrayList<HashMap<String, String>> userNames = (ArrayList<HashMap<String, String>>) profile.getProperty(MANAGER);
     List<DataEntity> managers = new ArrayList<>();
     userNames.forEach(property -> {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, property.get(VALUE));
       if (identity != null) {
         ProfileEntity manager = buildEntityProfile(identity.getProfile(), restPath, SETTINGS);
-        buildManagedUsersCount(manager);
         managers.add(manager.getDataEntity());
       }
     });
@@ -756,7 +747,7 @@ public class EntityBuilder {
             spaceEntity.setUnreadItems(unreadItems);
           }
         }
-        
+
         if (expandFields.contains(RestProperties.MUTED)) {
           UserSettingService userSettingService = ExoContainerContext.getService(UserSettingService.class);
           UserSetting userSetting = userSettingService.get(userId);
@@ -1703,7 +1694,6 @@ public class EntityBuilder {
     profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
     profilePropertySettingEntity.setRequired(profilePropertySetting.isRequired());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
-    profilePropertySettingEntity.setUpdated(profilePropertySetting.getUpdated());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
     profilePropertySettingEntity.setHiddenable(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting));

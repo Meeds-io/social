@@ -38,13 +38,39 @@
           <span class="d-flex uiIconGroup"></span>
         </v-btn>
         <v-spacer />
-        <div v-if="isMobile">
+        <div v-if="isMobile && !isSameUser">
           <v-icon
             size="14"
             class="my-1"
             @click="openBottomMenu">
             fas fa-ellipsis-v
           </v-icon>
+          <v-bottom-sheet v-model="bottomMenu" class="pa-0">
+            <v-sheet class="text-center">
+              <v-list dense>
+                <v-list-item
+                  v-for="(extension, i) in enabledProfileActionExtensions"
+                  :key="i"
+                  @click="extensionClick(extension)">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-icon class="mx-4" size="18">{{ extension.class }}</v-icon>
+                    <span class="mx-2">
+                      {{ extension.title }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+                <people-connection-option-item
+                  :relationship-status="relationshipStatus"
+                  :is-mobile="isMobile"
+                  :is-updating-status="isUpdatingStatus"
+                  @connect="connect"
+                  @disconnect="disconnect"
+                  @accept-to-connect="acceptToConnect"
+                  @refuse-to-connect="refuseToConnect"
+                  @cancel-request="cancelRequest" />
+              </v-list>
+            </v-sheet>
+          </v-bottom-sheet>
         </div>
         <template v-else-if="canUseActionsMenu && !isSameUser">
           <v-menu
@@ -83,36 +109,97 @@
                   </span>
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item
-                v-for="(extension, i) in filteredUserNavigationExtensions"
-                :key="i"
-                @click="extension.click(user)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon
-                    size="18">
-                    {{ extension.class }}
-                  </v-icon>
-                  <span class="mx-2">
-                    {{ extension.title || $t(extension.titleKey) }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
+              <people-connection-option-item
+                :relationship-status="relationshipStatus"
+                :is-updating-status="isUpdatingStatus"
+                :compact-display="true"
+                :is-mobile="isMobile"
+                @connect="connect"
+                @disconnect="disconnect"
+                @accept-to-connect="acceptToConnect"
+                @refuse-to-connect="refuseToConnect"
+                @cancel-request="cancelRequest" />
             </v-list>
           </v-menu>
         </template>
       </div>
-      <div class="mt-3 peopleAvatar">
-        <a :href="url">
-          <v-img
-            :lazy-src="`${userAvatarUrl}`"
-            :src="`${userAvatarUrl}`"
-            transition="none"
-            class="mx-auto"
-            height="40px"
-            width="40px"
-            max-height="40px"
-            max-width="40px"
-            eager />
+      <template v-else-if="canUseActionsMenu && !isSameUser">
+        <v-menu
+          ref="actionMenu"
+          v-model="displayActionMenu"
+          :attach="`#${userMenuParentId}`"
+          transition="slide-x-reverse-transition"
+          content-class="peopleActionMenu mt-n6 me-4"
+          offset-y>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              :title="$t('peopleList.label.openUserMenu')"
+              class="d-block"
+              icon
+              text>
+              <v-icon
+                class="icon-default-size icon-default-color">
+                mdi-dots-vertical
+              </v-icon>
+            </v-btn>
+          </template>
+          <v-list class="pa-0 white" dense>
+            <v-list-item
+              v-for="(extension, i) in enabledProfileActionExtensions"
+              :key="i"
+              @click="extension.click(user)">
+              <v-list-item-title class="align-center d-flex">
+                <v-icon
+                  size="18">
+                  {{ extension.class }}
+                </v-icon>
+                <span class="mx-2">
+                  {{ extension.title }}
+                </span>
+              </v-list-item-title>
+            </v-list-item>
+            <people-connection-option-item
+              :relationship-status="relationshipStatus"
+              :is-updating-status="isUpdatingStatus"
+              :compact-display="true"
+              :is-mobile="isMobile"
+              @connect="connect"
+              @disconnect="disconnect"
+              @accept-to-connect="acceptToConnect"
+              @refuse-to-connect="refuseToConnect"
+              @cancel-request="cancelRequest" />
+          </v-list>
+        </v-menu>
+      </template>
+    </div>
+    <div class="mt-4 peopleAvatar">
+      <a :href="url">
+        <v-img
+          :lazy-src="`${userAvatarUrl}`"
+          :src="`${userAvatarUrl}`"
+          transition="none"
+          class="mx-auto"
+          height="40px"
+          width="40px"
+          max-height="40px"
+          max-width="40px"
+          eager />
+      </a>
+    </div>
+    <v-card-text
+      class="peopleCardBody align-center py-0 py-sm-1 d-flex full-height">
+      <div class="my-auto">
+        <a
+          :href="url"
+          :title="user.fullname"
+          :class="usernameClass"
+          class="userFullname font-weight-bold text-capitalize">
+          {{ user.fullname }}
+          <span v-if="externalUser" class="externalFlagClass">
+            {{ $t('peopleList.label.external') }}
+          </span>
         </a>
       </div>
       <v-card-text
@@ -153,21 +240,17 @@ export default {
       type: Boolean,
       default: false,
     },
-    userNavigationExtensions: {
-      type: Array,
-      default: () => [],
-    },
     enabledProfileActionExtensions: {
-      type: Array,
-      default: () => [],
-    },
-    spaceMembersExtensions: {
       type: Array,
       default: () => [],
     },
     isMobile: {
       type: Boolean,
       default: false,
+    },
+    relationshipStatus: {
+      type: String,
+      default: null
     },
     url: {
       type: String,
@@ -194,12 +277,12 @@ export default {
       } else {
         document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
       }
+    },
+    relationshipStatus() {
+      this.$root.$emit('relationship-status-updated', this.user, this.relationshipStatus);
     }
   },
   computed: {
-    filteredUserNavigationExtensions() {
-      return this.userNavigationExtensions.filter(extension => extension.enabled(this.user));
-    },
     isSameUser() {
       return this.user?.username === eXo?.env?.portal?.userName;
     },
@@ -229,14 +312,29 @@ export default {
     });
   },
   methods: {
+    connect() {
+      this.$emit('connect', this.user);
+    },
+    disconnect() {
+      this.$emit('disconnect', this.user);
+    },
+    acceptToConnect() {
+      this.$emit('accept-to-connect', this.user);
+    },
+    refuseToConnect() {
+      this.$emit('refuse-to-connect', this.user);
+    },
+    cancelRequest() {
+      this.$emit('cancel-request', this.user);
+    },
     openBottomMenu() {
       if (!this.isSameUser) {
-        this.$root.$emit('open-people-compact-card-options-drawer',
-          this.user, [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
-      } else {
-        this.$root.$emit('open-people-compact-card-options-drawer',
-          this.user, [...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
+        this.bottomMenu = true;
       }
+    },
+    extensionClick(extension) {
+      extension.click(this.user);
+      this.bottomMenu = false;
     }
   },
 };
