@@ -9,6 +9,7 @@
           :size="30"
           :allow-animation="likersToDisplay.length > 1"
           :class="[index === 0 && 'pl-4']"
+          margin-left="ml-n5"
           popover
           avatar
           compact
