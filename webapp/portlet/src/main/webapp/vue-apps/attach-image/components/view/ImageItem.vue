@@ -25,7 +25,7 @@
     class="attachment-card-item overflow-hidden d-flex flex-column border-box-sizing mx-2"
     height="210px"
     max-height="210px"
-    max-width="100%"
+    max-width="250px"
     @click="$emit('preview-attachment')"
     @focus="hover = true"
     @blur="hover = false"
