@@ -40,25 +40,25 @@
         </v-hover>
       </div>
     </template>
-    <v-hover v-slot="{ hover }">
-      <v-btn
-        v-if="showMoreAvatarsNumber"
-        :height="iconSize"
-        :width="iconSize"
-        :class="{ 'mt-n1 z-index-two': hover && compact, 'ml-n4': compact }"
-        fab
-        depressed
-        @click="$emit('open-detail')">
-        <v-avatar
-          :size="iconSize"
-          :class="{ 'border-white content-box-sizing ': compact }"
-          class="notDisplayedIdentitiesOverlay">
-          <div class="notDisplayedIdentities d-flex align-center justify-center subtitle-2 white--text font-weight-bold z-index-one text-center">
-            +{{ showMoreAvatarsNumber }}
-          </div>
-        </v-avatar>
-      </v-btn>
-    </v-hover>
+    <v-btn
+      v-if="showMoreAvatarsNumber"
+      :height="iconSize"
+      :width="iconSize"
+      :class="{ 'mt-n1 z-index-two': compact && showAnimation, 'ml-n4': compact }"
+      fab
+      depressed
+      @click="$emit('open-detail')"
+      @mouseover="showAnimation = true"
+      @mouseleave="showAnimation = false">
+      <v-avatar
+        :size="iconSize"
+        :class="{ 'border-white content-box-sizing ': compact }"
+        class="notDisplayedIdentitiesOverlay">
+        <div class="notDisplayedIdentities d-flex align-center justify-center subtitle-2 white--text font-weight-bold z-index-one text-center">
+          +{{ showMoreAvatarsNumber }}
+        </div>
+      </v-avatar>
+    </v-btn>
   </div>
 </template>
 
@@ -114,6 +114,11 @@ export default {
       default: () => '',
     },
   },
+  data() {
+    return {
+      showAnimation: false
+    };
+  },
   computed: {
     usersToDisplay() {
       return this.users && this.users.slice(0, this.max);
@@ -143,6 +148,9 @@ export default {
     parentClass() {
       return `${this.compact && 'transition-2s'} mx-1`;
     },
+    displayAnimation() {
+      return this.showAnimation;
+    }
   },
 };
 </script>
