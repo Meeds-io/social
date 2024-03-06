@@ -21,8 +21,8 @@
     :object-id="metadataObjectId"
     :object-type="metadataObjectType"
     :attachments="attachments"
-    :preview-width="250"
-    :preview-height="250" />
+    :preview-width="350"
+    :preview-height="350" />
 </template>
 <script>
 export default {
