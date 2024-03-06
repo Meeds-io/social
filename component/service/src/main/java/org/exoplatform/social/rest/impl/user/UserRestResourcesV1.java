@@ -654,7 +654,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                     @QueryParam("byId")
                                     boolean byId,
                                     @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                    @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("55x55") @QueryParam("size") String size,
+                                    @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("100x100") @QueryParam("size") String size,
                                     @Parameter(
                                         description = "A mandatory valid token that is used to authorize anonymous request"
                                     ) @QueryParam("r") String token) throws IOException {
