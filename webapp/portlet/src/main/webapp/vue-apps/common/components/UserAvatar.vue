@@ -88,9 +88,7 @@
   <div 
     v-else
     class="profile-popover user-wrapper text-truncate"
-    :class="parentClass"
-    @mouseover="test"
-    @mouseleave="test">
+    :class="parentClass">
     <component 
       v-if="avatar"
       :is="clickable && 'v-btn' || 'a'"
