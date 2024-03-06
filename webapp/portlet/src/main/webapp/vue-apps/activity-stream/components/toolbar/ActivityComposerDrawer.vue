@@ -382,6 +382,9 @@ export default {
           }
         } else {
           this.loading = true;
+          if (!this.spaceId && !!eXo.env.portal.spaceId) {
+            this.spaceId = eXo.env.portal.spaceId;
+          }
           this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
             .then(activity => {
               this.activityId = activity.id;
