@@ -32,7 +32,7 @@
         <v-list-item-title>
           <exo-user-avatar
             :identity="identity"
-            :size="46"
+            :size="45"
             :popover="false"
             bold-title
             link-style>
