@@ -27,7 +27,7 @@
     </v-list-item-icon>
     <v-list-item-content class="d-flex">
       <div class="d-flex align-center justify-space-between my-auto">
-        <span>{{ navigationLabel }}</span>
+        <span class="text-truncate" :style="navigationLabelStyle">{{ navigationLabel }}</span>
         <v-chip
           v-if="unreadBadge"
           color="error-color-background"
@@ -78,6 +78,9 @@ export default {
         && (this.badgeApplicationName === 'activity' && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0)
       || 0;
     },
+    navigationLabelStyle() {
+      return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px'};
+    }
   },
 };
 </script>
