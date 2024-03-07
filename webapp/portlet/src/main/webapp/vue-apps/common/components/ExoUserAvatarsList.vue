@@ -15,7 +15,7 @@
             :popover="popover"
             :clickable="clickable"
             :compact="compact"
-            :margin-left="marginLeft"
+            :margin-left="index > 0 && marginLeft || ''"
             :class="{ 'mt-n1 z-index-two': hover && compact }"
             avatar />
         </v-hover>
@@ -34,7 +34,7 @@
             :popover="popover"
             :clickable="clickable"
             :compact="compact"
-            :margin-left="marginLeft"
+            :margin-left="index > 0 && marginLeft || ''"
             :class="{ 'mt-n1 z-index-two': hover && compact }"
             avatar />
         </v-hover>

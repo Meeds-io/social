@@ -36,7 +36,10 @@
           <exo-user-avatars-list
             :users="space.managers"
             :icon-size="28"
+            :margin-left="space.managers.length > 1 && 'ml-n4' || ''"
+            :compact="space.managers.length > 1"
             max="5"
+            clickable="'false'"
             avatar-overlay-position
             @open-detail="$root.$emit('displaySpaceManagers', space)" />
         </v-card-text>
