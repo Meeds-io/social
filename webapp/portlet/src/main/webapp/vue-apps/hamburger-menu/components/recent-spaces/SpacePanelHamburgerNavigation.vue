@@ -64,9 +64,10 @@
             :users="managersToDisplay"
             :icon-size="30"
             :popover="false"
-            margin-left="ml-n5"
+            :margin-left="managersToDisplay.length > 1 && 'ml-n5' || ''"
+            :compact="managersToDisplay.length > 1"
+            clickable="'false'"
             max="3"
-            compact
             avatar-overlay-position
             @open-detail="openDetails()" />
         </v-list-item-action>
