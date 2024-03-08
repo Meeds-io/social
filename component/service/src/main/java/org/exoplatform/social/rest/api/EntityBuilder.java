@@ -1992,7 +1992,7 @@ public class EntityBuilder {
   }
   private static Visibility[] convertVisibilities(List<String> visibilityNames) {
     if (visibilityNames == null) {
-      return Visibility.values();
+      return Visibility.DEFAULT_VISIBILITIES;
     }
     return visibilityNames.stream()
             .map(visibilityName -> Visibility.valueOf(StringUtils.upperCase(visibilityName)))
