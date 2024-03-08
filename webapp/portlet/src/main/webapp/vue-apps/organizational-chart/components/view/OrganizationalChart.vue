@@ -21,10 +21,11 @@
 <template>
   <div>
     <div class="width-fit-content ma-auto">
-      <div class="d-flex flex-wrap-reverse justify-center">
+      <div
+        class="d-flex flex-wrap-reverse flex-row justify-center">
         <span
           v-if="!managers?.length"
-          class="mb-2">
+          class="text-subtitle-1 text-color">
           <v-icon>
             fas fa-user-friends
           </v-icon>
@@ -34,31 +35,34 @@
           v-else
           v-for="manager in managers"
           :key="manager.id"
-          class="mb-2 ms-2 me-2"
+          class="mt-5 ms-3 me-3"
           :user="manager"
           @click="updateChart(manager)" />
       </div>
-      <v-divider />
+      <v-divider class="mt-2 mb-1 mx-auto" />
     </div>
     <div class="chartVerticalLine">
       <v-divider
-        class="d-flex ma-auto"
+        class="d-flex mx-auto"
         vertical />
     </div>
     <people-user-card
       id="user"
+      class="my-1"
       :user="user"
       :preferences="preferences"
       :profile-action-extensions="profileActionExtensions" />
     <div class="chartVerticalLine">
       <v-divider
-        class="d-flex ma-auto"
+        class="d-flex mx-auto"
         vertical />
     </div>
     <div class="width-fit-content ma-auto">
-      <v-divider class="mb-2" />
-      <div class="d-flex flex-wrap justify-center">
+      <v-divider class="mb-2 mt-1 mx-2" />
+      <div
+        class="d-flex flex-wrap justify-center">
         <span
+          class="text-subtitle-1 text-color"
           v-if="!managedUsers?.length">
           <v-icon>
             fas fa-user-friends
@@ -69,7 +73,7 @@
           v-else
           v-for="managedUser in managedUsers"
           :key="managedUser.id"
-          class="mb-2 ms-2 me-2"
+          class="mb-6 ms-3 me-3"
           :user="managedUser"
           @click="updateChart(managedUser)" />
       </div>
