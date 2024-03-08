@@ -15,7 +15,7 @@
       </a>
     </div>
     <table class="uiGrid table table-hover table-striped">
-      <tr>          
+      <tr>
         <th>
           {{ $t('social.spaces.administration.manageSpaces.space') }}
         </th>
@@ -41,7 +41,8 @@
         <td class="empty center" colspan="12"> {{ $t('social.spaces.administration.manageSpaces.noSpaces') }} </td>
       </tr>
       <tr v-for="(space, index) in spaces" :key="space.id">
-        <td>
+        <td
+          style="max-width: 300px">
           <img
             v-if="space.avatarUrl != null"
             :src="space.avatarUrl"
@@ -93,7 +94,7 @@
                        siteType: 'GROUP'}" />
         </td>
       </tr>
-    </table> 
+    </table>
     <div v-if="totalPages > 1" class="pagination uiPageIterator d-flex">
       <ul class="ms-auto">
         <li :class="{'disabled': currentPage === 1}">
@@ -135,7 +136,7 @@
           </a>
         </li>
       </ul>
-    </div> 
+    </div>
     <exo-spaces-administration-modal
       v-show="showConfirmMessageModal"
       :title="$t('social.spaces.administration.delete.spaces.confirm.title')"
@@ -149,7 +150,7 @@
     <spaces-administration-home-layout-confirm
       v-if="resetSpaceHomeLayoutEnabled" />
     <v-navigation-drawer
-      id="GroupBindingDrawer"        
+      id="GroupBindingDrawer"
       v-model="showGroupBindingForm"
       absolute
       right
@@ -166,7 +167,7 @@
         @openBindingModal="openBindingModal"
         @openRemoveBindingModal="openRemoveBindingModal" />
     </v-navigation-drawer>
-    <exo-spaces-administration-modal 
+    <exo-spaces-administration-modal
       v-show="showConfirmMessageBindingModal"
       :title="$t('social.spaces.administration.manageSpaces.spaceBindingForm.confirmation.title')"
       :display-close="false"
