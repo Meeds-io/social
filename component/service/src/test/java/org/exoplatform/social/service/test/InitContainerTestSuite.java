@@ -29,6 +29,7 @@ import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesTest;
 import org.exoplatform.social.rest.impl.comment.CommentRestResourcesTest;
 import org.exoplatform.social.rest.impl.favorite.FavoriteRestTest;
 import org.exoplatform.social.rest.impl.identity.IdentityRestResourcesTest;
+import org.exoplatform.social.rest.impl.registry.ApplicationRegistryRestTest;
 import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesTest;
 import org.exoplatform.social.rest.impl.space.SpaceRestResourcesTest;
 import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesTest;
@@ -73,6 +74,7 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   ObserverRestTest.class,
   LinkRestTest.class,
   SiteRestTest.class,
+  ApplicationRegistryRestTest.class,
 })
 @ConfigTestCase(AbstractServiceTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
