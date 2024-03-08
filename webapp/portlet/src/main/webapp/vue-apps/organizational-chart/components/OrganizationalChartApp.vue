@@ -19,10 +19,9 @@
  -->
 
 <template>
-  <v-app>
+  <v-app v-if="showApplication">
     <v-card
       outlined
-      min-height="300"
       class="white border-radius pa-5 card-border-radius">
       <div
         v-if="isLoading"
@@ -33,17 +32,31 @@
           indeterminate />
       </div>
       <div v-else>
-        <organizational-chart-header />
+        <organizational-chart-header
+          v-if="!preview"
+          :has-settings="hasSettings"
+          :configured-title="configuredHeaderTitle"
+          :is-admin="isAdmin"
+          @open-chart-settings="openSettingsDrawer" />
         <organizational-chart
+          v-if="hasSettings || preview"
           :user="user"
           :managed-users="managedUsersList"
           :profile-action-extensions="profileActionExtensions"
           :is-loading="isLoadingManagedUsers"
           :has-more="hasMore"
+          :preview="preview"
+          :preview-count="previewCount"
           @update-chart="updateChart"
           @load-more-managed-users="getManagedUsers" />
       </div>
     </v-card>
+    <organizational-chart-settings-drawer
+      v-if="!preview"
+      ref="chartSettingsDrawer"
+      :selected-user="user"
+      :saved-header-text="configuredHeaderTitle"
+      @save-application-settings="saveApplicationSettings" />
   </v-app>
 </template>
 
@@ -62,33 +75,97 @@ export default {
       isLoading: true,
       profileActionExtensions: [],
       userName: eXo?.env?.portal.userName,
-      collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'})
+      collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+      settingsContextKey: 'GLOBAL',
+      settingScopeKey: 'APPLICATION',
+      settingsCenterUserKey: 'organizationalChartCenterUser',
+      settingsHeaderTitleKey: 'organizationalChartHeaderTitle'
     };
   },
+  props: {
+    preview: {
+      type: Boolean,
+      default: false
+    },
+    previewCount: {
+      type: Number,
+      default: 2
+    },
+    initialUserName: {
+      type: String,
+      default: null
+    },
+    isSpaceManager: {
+      type: Boolean,
+      default: false
+    },
+  },
+  watch: {
+    initialUserName() {
+      if (this.initialUserName) {
+        this.updateChart(this.initialUserName);
+      }
+    }
+  },
   computed: {
+    showApplication() {
+      return (this.hasSettings || !this.hasSettings && this.isAdmin) || this.preview;
+    },
+    isAdmin() {
+      return this.user?.isAdmin || this.isSpaceManager;
+    },
+    configuredHeaderTitle() {
+      return this.$root?.settings?.title;
+    },
+    applicationId() {
+      return this.$root?.applicationId;
+    },
+    hasSettings() {
+      return this.$root.settings?.user !== 'null';
+    },
     managedUsersList() {
+      return this.preview && this.sortedManagedUsersList?.length
+                          && this.sortedManagedUsersList.slice(0, this.previewCount) || this.sortedManagedUsersList;
+    },
+    sortedManagedUsersList() {
       return this.managedUsers?.filter(managedUser => managedUser.enabled)
         ?.sort((a, b) => this.usersNaturalComparator(a, b));
     }
   },
-  beforeCreate() {
-    this.isLoading = true;
-    this.$userService.getUser(eXo?.env?.portal.userName, 'settings,manager,managedUsersCount').then(user => {
-      this.user = user;
-    });
-  },
   created() {
-    this.getManagedUsers();
+    this.updateChart(this.initialUserName ||  this.userName);
     this.refreshExtensions();
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
   },
   methods: {
+    saveApplicationSettings(settings) {
+      return this.saveSetting(this.settingsCenterUserKey, settings?.user).then(() => {
+        this.saveSetting(this.settingsHeaderTitleKey, settings?.title).then(() => {
+          this.$refs.chartSettingsDrawer.close();
+          this.$root.settings = settings;
+          const user = settings.connectedUser && eXo?.env?.portal?.userName
+                                              || settings?.user;
+          this.$root.settings.user = user;
+          this.updateChart(user);
+          this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.success'), 'success');
+        });
+      }).catch(() => {
+        this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.error'), 'error');
+      });
+    },
+    saveSetting(settingKey, settingValue) {
+      return this.$settingService.setSettingValue(this.settingsContextKey, '',
+        this.settingScopeKey, this.applicationId, settingKey, settingValue);
+    },
+    openSettingsDrawer() {
+      this.$refs.chartSettingsDrawer.open();
+    },
     usersNaturalComparator(a, b) {
       return this.collator.compare(a.fullname, b.fullname);
     },
-    updateChart(user) {
+    updateChart(userName) {
       this.isLoading = true;
-      this.userName = user.username;
+      this.userName = userName;
       this.managedUsers = [];
       this.getUser();
       this.getManagedUsers();

@@ -1,12 +1,48 @@
+<%@ page import="org.exoplatform.commons.api.settings.SettingService" %>
+<%@ page import="org.exoplatform.commons.utils.CommonsUtils" %>
+<%@ page import="org.exoplatform.commons.api.settings.data.Context" %>
+<%@ page import="org.exoplatform.commons.api.settings.data.Scope" %>
+<%@ page import="org.exoplatform.commons.api.settings.SettingValue" %>
+<%@page import="org.exoplatform.portal.webui.application.UIPortlet"%>
+<%@ page import="org.exoplatform.social.core.space.model.Space" %>
+<%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
+<%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <portlet:defineObjects/>
+<%
+    String id = UIPortlet.getCurrentUIPortlet().getStorageId();
+    String applicationId = "organizationalChart" + id;
+    SettingService settingsService = CommonsUtils.getService(SettingService.class);
+    SettingValue<?> centerUserSettingValue = settingsService
+            .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartCenterUser");
+    SettingValue<?> headerTitleSettingValue = settingsService
+            .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartHeaderTitle");
+
+    String centerUser = centerUserSettingValue != null && centerUserSettingValue.getValue() != null
+            ? centerUserSettingValue.getValue().toString() : null;
+    String headerTitle = headerTitleSettingValue != null && headerTitleSettingValue.getValue() != null
+            ? headerTitleSettingValue.getValue().toString() : null;
+
+    boolean isManager = false;
+    Space space = SpaceUtils.getSpaceByContext();
+    if (space != null) {
+      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+      isManager = spaceService.isSuperManager(request.getRemoteUser()) || spaceService.isManager(space, request.getRemoteUser());
+    }
+%>
 
 <div class="VuetifyApp">
     <div data-app="true"
          id="organizationalChart"
          class="v-application transparent v-application--is-ltr theme--light">
         <script type="text/javascript">
-            require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init());
+            const userName = eXo?.env?.portal?.userName;
+            const settings = {
+                user: "<%=centerUser%>" === '@connected@' && userName || "<%=centerUser%>",
+                title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
+                isSpaceManager: <%=isManager%>
+            }
+            require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init('<%=applicationId%>', settings));
         </script>
     </div>
 </div>
