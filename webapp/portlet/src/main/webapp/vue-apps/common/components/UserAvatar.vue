@@ -1,7 +1,6 @@
 <template>
-  <div v-if="show">
     <div
-      v-if="popover"
+      v-if="popover && show"
       v-identity-popover="popoverIdentity"
       class="profile-popover user-wrapper text-truncate"
       :class="parentClass">
@@ -105,7 +104,7 @@
       </component>
     </div>
     <div
-      v-else
+      v-else-if="show"
       class="profile-popover user-wrapper text-truncate"
       :class="parentClass">
       <component
@@ -207,7 +206,6 @@
         </template>
       </component>
     </div>
-  </div>
 </template>
 
 <script>
