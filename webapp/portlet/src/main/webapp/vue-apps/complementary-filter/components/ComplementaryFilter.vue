@@ -22,7 +22,7 @@
   <v-app>
     <div
       v-if="hasValues"
-      class="px-3">
+      class="px-3 my-auto">
       <p
         v-if="showMessage"
         class="text-color subtitle-1">
