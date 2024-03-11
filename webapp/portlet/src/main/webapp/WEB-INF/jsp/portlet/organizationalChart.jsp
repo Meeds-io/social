@@ -3,7 +3,7 @@
 <%@ page import="org.exoplatform.commons.api.settings.data.Context" %>
 <%@ page import="org.exoplatform.commons.api.settings.data.Scope" %>
 <%@ page import="org.exoplatform.commons.api.settings.SettingValue" %>
-<%@page import="org.exoplatform.portal.webui.application.UIPortlet"%>
+<%@ page import="org.exoplatform.portal.webui.application.UIPortlet" %>
 <%@ page import="org.exoplatform.social.core.space.model.Space" %>
 <%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
 <%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
