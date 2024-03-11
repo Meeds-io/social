@@ -1,7 +1,7 @@
 <template>
   <div
-      :class="extraClass"
-      class="d-flex flex-nowrap align-center border-box-sizing">
+    :class="extraClass"
+    class="d-flex flex-nowrap align-center border-box-sizing">
     <template v-for="(user, index) in usersToDisplay">
       <div
         v-if="!retrieveExtraInformation"
