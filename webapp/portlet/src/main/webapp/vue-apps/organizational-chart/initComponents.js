@@ -22,13 +22,15 @@ import OrganizationalChartApp from './components/OrganizationalChartApp.vue';
 import OrganizationalChart from './components/view/OrganizationalChart.vue';
 import OrganizationalChartHeader from './components/view/OrganizationalChartHeader.vue';
 import ChartUserCompactCard from './components/view/ChartUserCompactCard.vue';
+import OrganizationalChartSettingsDrawer from './components/settings/OrganizationalChartSettingsDrawer.vue';
+
 
 const components = {
   'organizational-chart-app': OrganizationalChartApp,
   'organizational-chart': OrganizationalChart,
   'organizational-chart-header': OrganizationalChartHeader,
-  'chart-user-compact-card': ChartUserCompactCard
-
+  'chart-user-compact-card': ChartUserCompactCard,
+  'organizational-chart-settings-drawer': OrganizationalChartSettingsDrawer
 };
 
 for (const key in components) {

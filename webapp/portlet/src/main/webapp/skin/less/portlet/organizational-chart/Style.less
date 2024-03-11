@@ -3,12 +3,25 @@
   @import "../../common/UserCard/Style.less";
 
   .chartVerticalLine {
-    height: 80px;
+    height: 38px;
   }
 
   .chartCompactUserCard {
     .userCardTitle p {
       line-height: 1.2;
     }
+  }
+
+  .identitySuggester .v-input__control .v-select__selections {
+    padding: 10px !important;
+    min-height: auto !important;
+  }
+
+  .chartPreview {
+    width: 200%;
+    height: 200%;
+    scale: 0.5;
+    pointer-events: none;
+    transform-origin: 0 0;
   }
 }
