@@ -40,13 +40,22 @@ const urls = [
   `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.PeopleListApplication-${lang}.json`
 ];
 
-export function init() {
+export function init(applicationId, settings) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     Vue.createApp({
+      data() {
+        return {
+          applicationId: applicationId,
+          settings: settings
+        };
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<organizational-chart-app id="${appId}" />`,
+      template: `<organizational-chart-app 
+                   id="${appId}"
+                   :is-space-manager="${settings?.isSpaceManager}"
+                   :initial-user-name="'${settings?.user}'"/>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'Organizational Chart');
