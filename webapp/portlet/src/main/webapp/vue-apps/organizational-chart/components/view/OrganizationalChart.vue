@@ -23,7 +23,7 @@
     <div class="width-fit-content ma-auto">
       <div class="d-flex flex-wrap-reverse justify-center">
         <span
-          v-if="!managers?.length"
+          v-if="!listManagers?.length"
           class="mb-2">
           <v-icon>
             fas fa-user-friends
@@ -32,7 +32,7 @@
         </span>
         <chart-user-compact-card
           v-else
-          v-for="manager in managers"
+          v-for="manager in listManagers"
           :key="manager.id"
           class="mb-2 ms-2 me-2"
           :user="manager"
@@ -48,7 +48,6 @@
     <people-user-card
       id="user"
       :user="user"
-      :preferences="preferences"
       :profile-action-extensions="profileActionExtensions" />
     <div class="chartVerticalLine">
       <v-divider
@@ -76,7 +75,7 @@
     </div>
     <div
       class="mt-2 d-flex flex-column"
-      v-if="hasMore">
+      v-if="hasMore && !preview">
       <v-btn
         :loading="isLoading"
         class="btn"
@@ -102,10 +101,6 @@ export default {
       type: Object,
       default: null
     },
-    preferences: {
-      type: Object,
-      default: null,
-    },
     managedUsers: {
       type: Array,
       default: () => []
@@ -121,9 +116,21 @@ export default {
     hasMore: {
       type: Boolean,
       default: false
+    },
+    preview: {
+      type: Boolean,
+      default: false
+    },
+    previewCount: {
+      type: Number,
+      default: 2
     }
   },
   computed: {
+    listManagers() {
+      return this.preview && this.managers?.length
+                          && this.managers.slice(0, this.previewCount) || this.managers;
+    },
     managers() {
       return this.user?.managers?.filter(manager => manager.enabled)
         ?.sort((a, b) => this.usersNaturalComparator(a,b));
@@ -140,7 +147,7 @@ export default {
       this.$emit('load-more-managed-users');
     },
     updateChart(user) {
-      this.$emit('update-chart', user);
+      this.$emit('update-chart', user.username);
     },
     scrollUserToViewCenter() {
       setTimeout(() => {
