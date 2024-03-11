@@ -1,12 +1,14 @@
 <template>
   <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
-    <div class="reactionsUsersAvatar position-relative d-none d-lg-inline">
-      <div class="d-flex flex-nowrap">
+    <div
+        :style="`min-height:${avatarSize}px`"
+        class="reactionsUsersAvatar position-relative d-none d-lg-inline">
+      <div class="d-flex flex-nowrap position-absolute">
         <exo-user-avatar
           v-for="(liker, index) in likersToDisplay"
           :key="liker.id"
           :identity="liker"
-          :size="30"
+          :size="avatarSize"
           :allow-animation="likersToDisplay.length > 1"
           :class="[index === 0 && 'pl-4']"
           margin-left="ml-n5"

@@ -1,5 +1,7 @@
 <template>
-  <div class="d-flex flex-nowrap position-relative align-center">
+  <div
+      :class="extraClass"
+      class="d-flex flex-nowrap align-center border-box-sizing">
     <template v-for="(user, index) in usersToDisplay">
       <div
         v-if="!retrieveExtraInformation"
@@ -24,7 +26,7 @@
         v-else
         :key="`${user}_${index}`"
         :ripple="clickable"
-        color="transparent"
+        color="transparent py-1 border-box-sizing"
         @click="$emit('open-detail')">
         <v-hover v-slot="{ hover }">
           <exo-user-avatar
