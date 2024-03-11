@@ -22,8 +22,7 @@
   <v-card
     :id="userMenuParentId"
     class="peopleCardItem d-flex mx-2"
-    flat
-    hover>
+    flat>
     <div class="peopleToolbarIcons my-auto ms-auto">
       <v-btn
         v-if="user.isGroupBound"
