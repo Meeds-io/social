@@ -29,12 +29,18 @@
 
 #ProfileContactInformation {
 
-  .quickSearchResultExpanded {
-    @import "../../common/PeopleList/Style.less";
-  }
+  #quickSearchUsersListDrawer {
+    .quickSearchResultExpanded {
+      @import "../../common/PeopleList/Style.less";
+    }
 
-  .quickSearchResultCollapsed {
-    @import "../../common/ProfileCard/Style-mobile.less";
+    .quickSearchResultCollapsed {
+      @import "../../common/ProfileCard/Style-mobile.less";
+    }
+
+    .filter-message {
+      top: 2px;
+    }
   }
 
   .list-no-selection {

@@ -20,6 +20,7 @@
 
 <template>
   <exo-drawer
+    id="quickSearchUsersListDrawer"
     ref="quickSearchUsersListDrawer"
     allow-expand
     right
@@ -36,7 +37,7 @@
         :hide-right-filter-button="true"
         :compact="true"
         :filter-message="filterMessage"
-        filter-message-class="subtitle-1 text-color ps-1"
+        filter-message-class="position-absolute filter-message subtitle-1 text-color ps-1"
         @keyword-changed="keyword = $event" />
       <complementary-filter
         class="mt-n1 z-index-two position-relative"
