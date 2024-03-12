@@ -1,5 +1,7 @@
 <template>
-  <div class="activityReactionsContainer activityLikersAndKudos position-absolute text-font-size d-flex flex-nowrap py-2">
+  <div
+    :class="large && 'position-absolute' || ''"
+    class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
     <div
       :style="`min-height:${avatarSize}px`"
       class="reactionsUsersAvatar position-relative d-none d-lg-inline">
@@ -98,6 +100,9 @@ export default {
     },
     displayAnimation() {
       return this.showAvatarAnimation;
+    },
+    large() {
+      return this.$vuetify.breakpoint.lg;
     }
   },
   methods: {
