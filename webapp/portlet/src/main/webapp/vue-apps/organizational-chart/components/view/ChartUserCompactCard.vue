@@ -24,23 +24,23 @@
     <v-card
       :class="hover && 'elevation-2'"
       class="mx-auto d-flex flex-column border-box-sizing card-border-radius chartCompactUserCard"
-      width="290"
-      height="100"
+      width="268"
+      height="85"
       outlined
       @click="$emit('click')">
       <div>
         <v-list-item class="px-2">
           <v-list-item-avatar
             class="me-2 mb-auto"
-            size="50">
+            size="35">
             <v-img
-              :src="`${avatarUrl}&size=50x50`"
+              :src="`${avatarUrl}&size=35x35`"
               :lazy-src="avatarUrl" />
           </v-list-item-avatar>
-          <v-list-item-content class="pb-0">
+          <v-list-item-content class="pb-0 pt-1">
             <v-list-item-title
-              class="text-wrap userCardTitle">
-              <p class="text-truncate-2 text-subtitle-1 text-break font-weight-bold mb-0">
+              class="text-wrap userCardTitle mb-0">
+              <p class="text-truncate-2 text-subtitle-2 text-break font-weight-bold mb-0">
                 {{ fullName }}
                 <span
                   v-if="externalUser"
@@ -49,17 +49,20 @@
                 </span>
               </p>
             </v-list-item-title>
-            <v-list-item-subtitle
-              class="mb-0 text-body-2  text-truncate"
-              v-sanitized-html="position" />
+            <v-list-item-subtitle>
+              <p class="mb-0 caption text-truncate">
+                {{ position }}
+              </p>
+            </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
       </div>
       <div
+        v-if="managedUsersCount !== '0'"
         class="d-flex mt-auto align-self-end pe-2 pb-1">
         <p class="mb-0">
           <v-icon
-            size="18">
+            size="16">
             fas fa-user-friends
           </v-icon>
           {{ managedUsersCount }}
