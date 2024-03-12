@@ -56,6 +56,7 @@
       ref="chartSettingsDrawer"
       :selected-user="user"
       :saved-header-text="configuredHeaderTitle"
+      :has-settings="hasSettings"
       @save-application-settings="saveApplicationSettings" />
   </v-app>
 </template>
@@ -109,7 +110,7 @@ export default {
   },
   computed: {
     showApplication() {
-      return (this.hasSettings || !this.hasSettings && this.isAdmin) || this.preview;
+      return this.hasSettings || (!this.hasSettings && this.isAdmin) || this.preview;
     },
     isAdmin() {
       return this.user?.isAdmin || this.isSpaceManager;
@@ -121,7 +122,7 @@ export default {
       return this.$root?.applicationId;
     },
     hasSettings() {
-      return this.$root.settings?.user !== 'null';
+      return this.$root.settings?.user;
     },
     managedUsersList() {
       return this.preview && this.sortedManagedUsersList?.length
@@ -133,7 +134,8 @@ export default {
     }
   },
   created() {
-    this.updateChart(this.initialUserName ||  this.userName);
+    const centerUser = this.initialUserName || this.userName;
+    this.updateChart(centerUser);
     this.refreshExtensions();
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
   },

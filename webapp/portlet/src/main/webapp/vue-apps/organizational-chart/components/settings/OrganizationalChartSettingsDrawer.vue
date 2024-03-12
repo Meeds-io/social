@@ -129,7 +129,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary"
-          :disabled="!settingsUpdated"
+          :disabled="!settingsUpdated && hasSettings"
           @click="saveApplicationSettings">
           {{ $t('organizationalChart.settings.save.label') }}
         </v-btn>
@@ -162,6 +162,10 @@ export default {
     savedHeaderText: {
       type: String,
       default: null
+    },
+    hasSettings: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
