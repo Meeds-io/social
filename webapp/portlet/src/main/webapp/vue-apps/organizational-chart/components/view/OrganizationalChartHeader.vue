@@ -19,17 +19,65 @@
  -->
 
 <template>
-  <div class="d-flex">
-    <p class="mb-2 widget-text-header text-truncate">
-      {{ $t('organizationalChart.header.label') }}
+  <div
+    v-if="!hasSettings && isAdmin"
+    class="d-flex">
+    <v-btn
+      class="btn ma-auto btn-primary"
+      flat
+      outlined
+      @click="openChartSettingsDrawer">
+      <v-icon
+        class="me-1"
+        size="16">
+        fas fa-sitemap
+      </v-icon>
+      {{ $t('organizationalChart.configure.label') }}
+    </v-btn>
+  </div>
+  <div
+    v-else
+    class="d-flex mb-2">
+    <p class="my-auto widget-text-header text-truncate">
+      {{ configuredTitle }}
     </p>
     <div
+      v-if="isAdmin"
       class="ms-auto d-flex">
+      <v-btn
+        class="ms-auto my-0 pt-1 icon-default-color"
+        small
+        icon
+        @click="openChartSettingsDrawer">
+        <v-icon
+          size="20">
+          fas fa-cog
+        </v-icon>
+      </v-btn>
     </div>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    hasSettings: {
+      type: Boolean,
+      default: false
+    },
+    configuredTitle: {
+      type: String,
+      default: null
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    openChartSettingsDrawer() {
+      this.$emit('open-chart-settings');
+    }
+  }
 };
 </script>

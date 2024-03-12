@@ -20,7 +20,7 @@
 
 <template>
   <v-chip
-    class="mx-1 mb-1"
+    class="ma-1"
     color="primary"
     :outlined="!isSelected"
     @click="selectSuggestion">
