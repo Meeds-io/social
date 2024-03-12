@@ -55,7 +55,7 @@ export function init(applicationId, settings) {
       template: `<organizational-chart-app 
                    id="${appId}"
                    :is-space-manager="${settings?.isSpaceManager}"
-                   :initial-user-name="'${settings?.user}'"/>`,
+                   :initial-user-name="${settings?.user}"/>`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'Organizational Chart');
