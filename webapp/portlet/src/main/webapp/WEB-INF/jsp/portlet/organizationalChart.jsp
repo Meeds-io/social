@@ -7,6 +7,7 @@
 <%@ page import="org.exoplatform.social.core.space.model.Space" %>
 <%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
 <%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
+<%@ page import="java.util.Objects" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <portlet:defineObjects/>
 <%
@@ -23,6 +24,10 @@
     String headerTitle = headerTitleSettingValue != null && headerTitleSettingValue.getValue() != null
             ? headerTitleSettingValue.getValue().toString() : null;
 
+    if (Objects.equals(centerUser, "@connected@")) {
+        centerUser = request.getRemoteUser();
+    }
+
     boolean isManager = false;
     Space space = SpaceUtils.getSpaceByContext();
     if (space != null) {
@@ -36,9 +41,8 @@
          id="organizationalChart"
          class="v-application transparent v-application--is-ltr theme--light">
         <script type="text/javascript">
-            const userName = eXo?.env?.portal?.userName;
             const settings = {
-                user: "<%=centerUser%>" === '@connected@' && userName || "<%=centerUser%>",
+                user: "<%=centerUser%>" !== 'null' && "'<%=centerUser%>'" || null,
                 title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
                 isSpaceManager: <%=isManager%>
             }
