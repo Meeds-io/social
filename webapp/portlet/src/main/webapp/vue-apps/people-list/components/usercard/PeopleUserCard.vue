@@ -23,27 +23,27 @@
     <v-card
       :class="hover && 'elevation-2'"
       class="mx-auto border-box-sizing card-border-radius socialUserCard"
-      width="300"
-      height="235"
+      width="268"
+      height="227"
       :href="profileUrl"
       outlined>
       <v-img
         :lazy-src="bannerUrl"
         :src="bannerUrl"
-        height="60px" />
+        height="50px" />
       <div class="d-flex">
         <v-avatar
-          class="mt-n12 ms-5"
-          size="80">
+          class="mt-n10 ms-5"
+          size="65">
           <v-img
-            :src="`${avatarUrl}&size=80x80`"
+            :src="`${avatarUrl}&size=65x65`"
             :alt="fullName"
             eager />
         </v-avatar>
         <v-card-title
           class="ps-1 pe-2 py-2 userCardTitle align-baseline">
           <p
-            class="text-truncate-2 text-break text-subtitle-1 font-weight-bold mb-0">
+            class="text-truncate-2 text-break text-subtitle-2 font-weight-bold mb-0">
             {{ fullName }}
             <span
               v-if="externalUser"
@@ -54,15 +54,15 @@
         </v-card-title>
       </div>
       <div class="userFieldsArea">
-        <p class="mb-0 text-body-2 px-3 text-truncate">
+        <p class="mb-0 text-subtitle-2 px-3 text-truncate">
           {{ firstField }}
         </p>
         <v-card-subtitle
           class="px-3">
-          <p class="mb-0 text-truncate">
+          <p class="mb-0 text-subtitle-2 text-truncate">
             {{ secondField }}
           </p>
-          <p class="mb-0 text-truncate">
+          <p class="mb-0 text-subtitle-2 text-truncate">
             {{ thirdField }}
           </p>
         </v-card-subtitle>
