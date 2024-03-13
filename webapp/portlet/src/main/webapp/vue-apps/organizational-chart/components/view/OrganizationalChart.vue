@@ -47,7 +47,7 @@
         vertical />
     </div>
     <people-user-card
-      id="user"
+      id="chartCenterUser"
       class="my-1"
       :user="user"
       :profile-action-extensions="profileActionExtensions" />
