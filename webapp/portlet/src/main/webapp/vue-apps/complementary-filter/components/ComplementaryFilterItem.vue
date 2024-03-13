@@ -20,9 +20,10 @@
 
 <template>
   <v-chip
-    class="ma-1"
+    class="ma-1 transition-2s"
     color="primary"
     :outlined="!isSelected"
+    :class="isSelected && 'suggestion-selected'"
     @click="selectSuggestion">
     <span
       :class="!isSelected && 'primary--text'">
