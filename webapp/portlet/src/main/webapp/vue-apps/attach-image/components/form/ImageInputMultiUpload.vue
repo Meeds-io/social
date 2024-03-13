@@ -77,7 +77,7 @@ export default {
         return;
       } else {
         filesArray.forEach((file) => {
-          if (!file?.type?.includes('image/')) {
+          if (!file?.type?.includes?.('image/')) {
             return;
           }
           if (file.size > this.maxFileSize) {
