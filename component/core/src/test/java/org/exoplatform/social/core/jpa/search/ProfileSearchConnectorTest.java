@@ -14,6 +14,8 @@ import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import static org.mockito.Mockito.mockStatic;
@@ -63,7 +65,7 @@ public class ProfileSearchConnectorTest {
     }
 
     @Test
-    public void testSearchWithEmail() {
+    public void testSearchWithEmail() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
         Identity identity1 = new Identity("test","test");
@@ -97,9 +99,8 @@ public class ProfileSearchConnectorTest {
                 "        \"filter\" : {\n" +
                 "          \"bool\" :{\n" +
                 "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( ( test:*test*) )\"\n" +
-                "          }\n" +
+                "      {"+
+                buildAdvancedFilterQuery(filter) +
                 "      }\n" +
                 "    ],\n" +
                 "    \"should\": [\n" +
@@ -186,7 +187,7 @@ public class ProfileSearchConnectorTest {
     }
 
     @Test
-    public void testSearchWithNameOrUsername() {
+    public void testSearchWithNameOrUsername() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
         profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
@@ -220,9 +221,8 @@ public class ProfileSearchConnectorTest {
                 "        \"filter\" : {\n" +
                 "          \"bool\" :{\n" +
                 "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( ( test:*test*) )\"\n" +
-                "          }\n" +
+                "      {"+
+                buildAdvancedFilterQuery(filter) +
                 "      }\n" +
                 "    ],\n" +
                 "    \"should\": [\n" +
@@ -303,7 +303,7 @@ public class ProfileSearchConnectorTest {
     }
 
     @Test
-    public void testCount() {
+    public void testCount() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
         profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient);
         ProfileFilter filter = new ProfileFilter();
@@ -336,9 +336,8 @@ public class ProfileSearchConnectorTest {
                 "        \"filter\" : {\n" +
                 "          \"bool\" :{\n" +
                 "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( ( test:*test*) )\"\n" +
-                "          }\n" +
+                "      {"+
+                buildAdvancedFilterQuery(filter) +
                 "      }\n" +
                 "    ],\n" +
                 "    \"should\": [\n" +
@@ -416,6 +415,14 @@ public class ProfileSearchConnectorTest {
         Assert.assertEquals(1, result);
     }
 
+    private String buildAdvancedFilterQuery(ProfileFilter filter) throws NoSuchMethodException,
+                                                                  InvocationTargetException,
+                                                                  IllegalAccessException {
+      Method method = profileSearchConnector.getClass().getDeclaredMethod("buildAdvancedFilterExpression", ProfileFilter.class);
+      method.setAccessible(true);
+      return (String) method.invoke(profileSearchConnector, filter);
+    }
+    
     private InitParams getInitParams() {
         InitParams params = new InitParams();
         PropertiesParam constructorParams = new PropertiesParam();
