@@ -12,7 +12,6 @@
       ref="peopleList"
       :keyword="keyword"
       :filter="filter"
-      :loading-people="loadingPeople"
       :people-count="peopleCount"
       @loaded="peopleLoaded" />
     <people-advanced-filter-drawer />
@@ -31,7 +30,6 @@ export default {
   data: () => ({
     keyword: null,
     peopleCount: 0,
-    loadingPeople: false,
   }),
   methods: {
     peopleLoaded(peopleCount) {

@@ -43,6 +43,11 @@
                   {{ $t('peopleList.label.noPeopleYet') }}
                 </p>
               </template>
+              <v-btn
+                class="btn btn-primary"
+                @click="resetFilters">
+                {{ $t('pepole.advanced.filter.button.reset') }}
+              </v-btn>
             </div>
           </div>
         </v-container>
@@ -84,11 +89,7 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
-    },
-    loadingPeople: {
-      type: Boolean,
-      default: false,
-    },
+    }
   },
   data: () => ({
     profileExtensions: [],
@@ -104,6 +105,7 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
     abortController: null,
+    loadingPeople: false
   }),
   computed: {
     profileActionExtensions() {
@@ -158,6 +160,11 @@ export default {
     this.refreshExtensions();
   },
   methods: {
+    resetFilters() {
+      this.$root.$emit('reset-filter');
+      this.$root.$emit('reset-advanced-filter');
+      this.$root.$emit('reset-advanced-filter-count');
+    },
     refreshExtensions() {
       this.profileExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
       this.spaceMemberExtensions = this.spaceId && extensionRegistry.loadExtensions('space-member-extension', 'action') || [];
