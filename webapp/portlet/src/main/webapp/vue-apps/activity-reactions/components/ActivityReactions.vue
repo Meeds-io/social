@@ -102,7 +102,7 @@ export default {
       return this.showAvatarAnimation;
     },
     isDesktop() {
-      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.mobileBreakpoint;
+      return !this.$vuetify.breakpoint.mobile;
     }
   },
   methods: {
