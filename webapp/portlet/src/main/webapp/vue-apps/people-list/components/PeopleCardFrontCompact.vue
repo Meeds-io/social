@@ -19,38 +19,91 @@
  -->
 
 <template>
-  <v-card
-    :id="userMenuParentId"
-    class="peopleCardItem d-flex mx-2"
-    flat>
-    <div class="peopleToolbarIcons my-auto ms-auto">
-      <v-btn
-        v-if="user.isGroupBound"
-        :title="$t('peopleList.label.groupBound')"
-        :ripple="false"
-        color="grey"
-        class="peopleGroupMemberBindingIcon d-flex not-clickable ms-1"
-        icon
-        small>
-        <span class="d-flex uiIconGroup"></span>
-      </v-btn>
-      <v-spacer />
-      <div v-if="isMobile && !isSameUser">
-        <v-icon
-          size="14"
-          class="my-1"
-          @click="openBottomMenu">
-          fas fa-ellipsis-v
-        </v-icon>
-        <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-          <v-sheet class="text-center">
-            <v-list dense>
+  <v-hover v-slot="{hover}">
+    <v-card
+      :id="userMenuParentId"
+      class="peopleCardItem d-flex mx-2"
+      :class="hover && 'grey lighten-4'"
+      ripple
+      flat>
+      <div class="peopleToolbarIcons my-auto ms-auto">
+        <v-btn
+          v-if="user.isGroupBound"
+          :title="$t('peopleList.label.groupBound')"
+          :ripple="false"
+          color="grey"
+          class="peopleGroupMemberBindingIcon d-flex not-clickable ms-1"
+          icon
+          small>
+          <span class="d-flex uiIconGroup"></span>
+        </v-btn>
+        <v-spacer />
+        <div v-if="isMobile && !isSameUser">
+          <v-icon
+            size="14"
+            class="my-1"
+            @click="openBottomMenu">
+            fas fa-ellipsis-v
+          </v-icon>
+          <v-bottom-sheet v-model="bottomMenu" class="pa-0">
+            <v-sheet class="text-center">
+              <v-list dense>
+                <v-list-item
+                  v-for="(extension, i) in enabledProfileActionExtensions"
+                  :key="i"
+                  @click="extensionClick(extension)">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-icon class="mx-4" size="18">{{ extension.class }}</v-icon>
+                    <span class="mx-2">
+                      {{ extension.title }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+                <people-connection-option-item
+                  :relationship-status="relationshipStatus"
+                  :is-mobile="isMobile"
+                  :is-updating-status="isUpdatingStatus"
+                  @connect="connect"
+                  @disconnect="disconnect"
+                  @accept-to-connect="acceptToConnect"
+                  @refuse-to-connect="refuseToConnect"
+                  @cancel-request="cancelRequest" />
+              </v-list>
+            </v-sheet>
+          </v-bottom-sheet>
+        </div>
+        <template v-else-if="canUseActionsMenu && !isSameUser">
+          <v-menu
+            ref="actionMenu"
+            v-model="displayActionMenu"
+            :attach="`#${userMenuParentId}`"
+            transition="slide-x-reverse-transition"
+            content-class="peopleActionMenu mt-n6 me-4"
+            offset-y>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                :title="$t('peopleList.label.openUserMenu')"
+                class="d-block"
+                icon
+                text>
+                <v-icon
+                  class="icon-default-size icon-default-color">
+                  mdi-dots-vertical
+                </v-icon>
+              </v-btn>
+            </template>
+            <v-list class="pa-0 white" dense>
               <v-list-item
                 v-for="(extension, i) in enabledProfileActionExtensions"
                 :key="i"
-                @click="extensionClick(extension)">
+                @click="extension.click(user)">
                 <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="18">{{ extension.class }}</v-icon>
+                  <v-icon
+                    size="18">
+                    {{ extension.class }}
+                  </v-icon>
                   <span class="mx-2">
                     {{ extension.title }}
                   </span>
@@ -58,16 +111,17 @@
               </v-list-item>
               <people-connection-option-item
                 :relationship-status="relationshipStatus"
-                :is-mobile="isMobile"
                 :is-updating-status="isUpdatingStatus"
+                :compact-display="true"
+                :is-mobile="isMobile"
                 @connect="connect"
                 @disconnect="disconnect"
                 @accept-to-connect="acceptToConnect"
                 @refuse-to-connect="refuseToConnect"
                 @cancel-request="cancelRequest" />
             </v-list>
-          </v-sheet>
-        </v-bottom-sheet>
+          </v-menu>
+        </template>
       </div>
       <template v-else-if="canUseActionsMenu && !isSameUser">
         <v-menu
@@ -147,13 +201,32 @@
             {{ $t('peopleList.label.external') }}
           </span>
         </a>
-        <v-card-subtitle
-          class="userPositionLabel text-truncate pa-0 mt-0 mt-sm-auto">
-          {{ userPosition }}
-        </v-card-subtitle>
       </div>
-    </v-card-text>
-  </v-card>
+      <v-card-text
+        class="peopleCardBody align-center py-0 py-sm-1 d-flex full-height">
+        <div class="my-auto">
+          <a
+            :href="url"
+            :title="user.fullname"
+            :class="usernameClass"
+            class="userFullname font-weight-bold text-capitalize">
+            {{ user.fullname }}
+            <span v-if="externalUser" class="externalFlagClass">
+              {{ $t('peopleList.label.external') }}
+            </span>
+          </a>
+          <v-card-subtitle
+            class="userPositionLabel text-truncate pa-0 mt-0 mt-sm-auto">
+            <a
+              :href="url"
+              class="grey--text text--darken-1">
+              {{ userPosition }}
+            </a>
+          </v-card-subtitle>
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-hover>
 </template>
 
 <script>
