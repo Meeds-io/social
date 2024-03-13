@@ -16,7 +16,6 @@
       ref="spaceMembers"
       :keyword="keyword"
       :filter="filter"
-      :loading-people="loadingPeople"
       :space-id="spaceId"
       :people-count="peopleCount"
       :is-manager="isManager"
@@ -52,7 +51,6 @@ export default {
   data: () => ({
     keyword: null,
     peopleCount: 0,
-    loadingPeople: false,
     space: null,
   }),
   created() {

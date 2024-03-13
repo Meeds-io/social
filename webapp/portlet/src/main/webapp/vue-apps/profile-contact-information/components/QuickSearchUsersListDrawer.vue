@@ -53,7 +53,18 @@
       <div
         v-if="!isSearching && !listUsers.length"
         class="mt-auto mb-auto pt-5 align-center">
-        {{ $t('Search.noResults') }}
+        <v-icon
+          size="50">
+          fas fa-users
+        </v-icon>
+        <p>
+          {{ $t('profileContactInformation.quickSearch.noPeople') }}
+        </p>
+        <v-btn
+          class="btn btn-primary"
+          @click="resetFilter">
+          {{ $t('profileContactInformation.quickSearch.resetFilter') }}
+        </v-btn>
       </div>
       <div v-else>
         <div
@@ -166,6 +177,10 @@ export default {
     this.$root.$on('relationship-status-updated', this.updateRelationshipStatus);
   },
   methods: {
+    resetFilter() {
+      this.$root.$emit('filter-reset-selections');
+      this.$root.$emit('reset-filter');
+    },
     loadingCallBack(isLoading) {
       if (isLoading) {
         this.$refs.quickSearchUsersListDrawer.startLoading();
@@ -207,8 +222,7 @@ export default {
       this.$refs.quickSearchUsersListDrawer.close();
     },
     open(profileSetting, propertyValue) {
-      this.$root.$emit('filter-reset-selections');
-      this.$root.$emit('reset-filter');
+      this.resetFilter();
       this.profileSetting = profileSetting;
       this.propertyValue = propertyValue;
       this.hasCombinations = false;
