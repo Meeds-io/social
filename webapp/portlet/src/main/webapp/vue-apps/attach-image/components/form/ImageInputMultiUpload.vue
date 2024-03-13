@@ -77,9 +77,6 @@ export default {
         return;
       } else {
         filesArray.forEach((file) => {
-          if (!file?.type?.includes('image/')) {
-            return;
-          }
           if (file.size > this.maxFileSize) {
             this.$root.$emit('alert-message', this.$t('attachment.tooBigFile.label', {
               0: Number.parseFloat(file.size / 1024 / 1024).toFixed(2).replace('.00', ''),
