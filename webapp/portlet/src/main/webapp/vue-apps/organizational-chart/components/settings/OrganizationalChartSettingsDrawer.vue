@@ -80,7 +80,7 @@
           </label>
           <v-card
             class="grey pa-1 mt-2 lighten-2 overflow-hidden"
-            height="300"
+            height="306"
             outlined>
             <organizational-chart-app
               v-if="initialUserName"
@@ -101,7 +101,7 @@
             <div>
               <v-switch
                 v-model="showHeaderInput"
-                :ripple="false"
+                :aria-label="$t('organizationalChart.settings.addHeader.label')"
                 color="primary"
                 class="my-auto" />
             </div>
@@ -111,6 +111,7 @@
               v-if="showHeaderInput"
               v-model="headerTitle"
               append-icon="fas fa-language"
+              :aria-label="headerTitle"
               class="pt-3"
               maxlength="500"
               outlined
@@ -129,7 +130,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary"
-          :disabled="!settingsUpdated && hasSettings"
+          :disabled="!settingsUpdated"
           @click="saveApplicationSettings">
           {{ $t('organizationalChart.settings.save.label') }}
         </v-btn>
@@ -189,8 +190,12 @@ export default {
     previewCount() {
       return this.expanded && 3 || 2;
     },
+    firstSetupValid() {
+      return this.connectedUser || this.user?.remoteId;
+    },
     settingsUpdated() {
-      return this.centerUserUpdated || this.savedHeaderText !== this.headerTitle;
+      return !this.hasSettings && this.firstSetupValid
+                               || (this.centerUserUpdated || this.savedHeaderText !== this.headerTitle);
     },
     centerUserUpdated() {
       return this.user && this.selectedUser?.username !== this.user?.remoteId;
