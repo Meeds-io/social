@@ -55,38 +55,40 @@
         class="mt-auto mb-auto pt-5 align-center">
         {{ $t('Search.noResults') }}
       </div>
-      <div
-        v-if="expanded"
-        class="pa-2 quickSearchResultExpanded">
-        <v-container class="pa-0">
-          <v-row>
-            <v-col
-              v-for="user in listUsers"
-              :key="user.id"
-              :id="`peopleCardItem${user.id}`"
-              cols="12"
-              sm="3"
-              md="4"
-              lg="3"
-              xl="3"
-              class="pa-0">
-              <people-card
-                :user="user"
-                :profile-action-extensions="profileActionExtensions" />
-            </v-col>
-          </v-row>
-        </v-container>
-      </div>
-      <div
-        v-else
-        class="pt-2 mt-n1 quickSearchResultExpanded quickSearchResultCollapsed">
-        <people-card
-          v-for="user in listUsers"
-          :key="user.id"
-          :id="`peopleCardItem${user.id}`"
-          :user="user"
-          :profile-action-extensions="profileActionExtensions"
-          :compact-display="true" />
+      <div v-else>
+        <div
+          v-if="expanded"
+          class="pa-2 quickSearchResultExpanded">
+          <v-container class="pa-0">
+            <v-row>
+              <v-col
+                v-for="user in listUsers"
+                :key="user.id"
+                :id="`peopleCardItem${user.id}`"
+                cols="12"
+                sm="3"
+                md="4"
+                lg="3"
+                xl="3"
+                class="pa-0">
+                <people-card
+                  :user="user"
+                  :profile-action-extensions="profileActionExtensions" />
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
+        <div
+          v-else
+          class="pt-2 mt-n1 quickSearchResultExpanded quickSearchResultCollapsed">
+          <people-card
+            v-for="user in listUsers"
+            :key="user.id"
+            :id="`peopleCardItem${user.id}`"
+            :user="user"
+            :profile-action-extensions="profileActionExtensions"
+            :compact-display="true" />
+        </div>
       </div>
     </template>
     <template
@@ -94,11 +96,11 @@
       slot="footer">
       <div class="ma-auto d-flex width-full">
         <v-btn
-          :loading="isSearching"
+          :loading="isLoading"
           class="btn btn-primary width-full"
           flat
           outlined
-          @click="search">
+          @click="search(true)">
           {{ $t('Search.button.loadMore') }}
         </v-btn>
       </div>
@@ -179,6 +181,7 @@ export default {
       if (!suggestions.length && !this.listUsers.length) {
         return;
       }
+      this.isSearching = true;
       this.selectedSuggestions = suggestions;
       this.users = [];
       this.search();
@@ -214,7 +217,7 @@ export default {
       this.search();
       this.$refs.quickSearchUsersListDrawer.open();
     },
-    search() {
+    search(loadMore) {
       if (this.keyword) {
         this.profileSetting['fullName'] = this.keyword;
         this.users = [];
@@ -227,6 +230,7 @@ export default {
         });
       }
       this.isSearching = true;
+      this.isLoading = loadMore;
       if (this.abortController) {
         this.abortController.abort();
       }
@@ -239,6 +243,7 @@ export default {
       }).finally(() => {
         this.abortController = null;
         this.isSearching = false;
+        this.isLoading = false;
         this.$root.$emit('update-filter-suggestions');
       });
     }
