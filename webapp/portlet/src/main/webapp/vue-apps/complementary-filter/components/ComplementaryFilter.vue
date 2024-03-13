@@ -171,6 +171,7 @@ export default {
     getComplementaryFilterSuggestions() {
       this.isLoading = true;
       this.loadingCallBack(true);
+      this.suggestions = [];
       return this.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
         .then(suggestions => {
           this.suggestions = suggestions?.sort((a, b) => b.count - a.count);
