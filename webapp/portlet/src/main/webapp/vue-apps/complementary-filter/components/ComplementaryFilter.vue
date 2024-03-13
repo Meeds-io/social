@@ -21,7 +21,15 @@
 <template>
   <v-app>
     <div
-      v-if="hasValues"
+      v-if="isLoading"
+      class="width-full py-1 d-flex full-height">
+      <v-progress-circular
+        class="ma-auto"
+        color="primary"
+        indeterminate />
+    </div>
+    <div
+      v-else-if="hasValues"
       class="px-3 my-auto">
       <p
         v-if="showMessage"
@@ -92,7 +100,8 @@ export default {
       selections: [],
       suggestions: [],
       tempRemovedSuggestions: [],
-      otherFilterItemsSelected: false
+      otherFilterItemsSelected: false,
+      isLoading: false
     };
   },
   computed: {
@@ -160,7 +169,7 @@ export default {
       this.getComplementaryFilterSuggestions();
     },
     getComplementaryFilterSuggestions() {
-      this.suggestions = [];
+      this.isLoading = true;
       this.loadingCallBack(true);
       return this.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
         .then(suggestions => {
@@ -170,6 +179,7 @@ export default {
         }).finally(() => {
           this.$emit('build-suggestions-terminated', this.suggestions);
           this.loadingCallBack(false);
+          this.isLoading = false;
         });
     }
   }
