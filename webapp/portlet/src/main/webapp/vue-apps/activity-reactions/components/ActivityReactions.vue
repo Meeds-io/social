@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="large && 'position-absolute' || ''"
+    :class="isDesktop && 'position-absolute' || ''"
     class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
     <div
       :style="`min-height:${avatarSize}px`"
@@ -101,8 +101,8 @@ export default {
     displayAnimation() {
       return this.showAvatarAnimation;
     },
-    large() {
-      return this.$vuetify.breakpoint.lg;
+    isDesktop() {
+      return !this.$vuetify.breakpoint.mobile;
     }
   },
   methods: {
