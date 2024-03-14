@@ -204,11 +204,13 @@ export default {
           }
         }, 200);
       }
-      this.$el.closest('#stickyBlockDesktop').style.position = 'static';
     }
   },
   created() {
     this.$root.$on('links-form-drawer', this.open);
+  },
+  mounted() {
+    document.querySelector('#vuetify-apps').appendChild(this.$el);
   },
   beforeDestroy() {
     this.$root.$off('links-form-drawer', this.open);
