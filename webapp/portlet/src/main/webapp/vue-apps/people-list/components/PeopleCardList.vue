@@ -232,7 +232,7 @@ export default {
       this.abortController = new AbortController();
       let filterUsersFunction;
       if (this.filter) {
-        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.abortController.signal);
+        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
       }
       return filterUsersFunction.then(data => {
         const users = data && data.users || [];

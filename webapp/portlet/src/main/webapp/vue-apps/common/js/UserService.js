@@ -77,8 +77,21 @@ export function getUsers(query, offset, limit, expand, signal, excludeCurrentUse
     }
   });
 }
-export function getUsersByAdvancedFilter(settings, offset, limit, expand,filterType, signal) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/advancedfilter?offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&filterType=${filterType || 'all'}&returnSize=true`, {
+
+export function getUsersByAdvancedFilter(settings, offset, limit, expand, filterType, name, excludeCurrentUser, signal) {
+  const formData = new FormData();
+  formData.append('offset', offset);
+  formData.append('limit', limit);
+  formData.append('expand', expand);
+  formData.append('filterType', filterType);
+  if (name) {
+    formData.append('q', name);
+  }
+  if (excludeCurrentUser) {
+    formData.append('excludeCurrentUser', excludeCurrentUser);
+  }
+  const params = new URLSearchParams(formData).toString();
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/advancedfilter?${params}&returnSize=true`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

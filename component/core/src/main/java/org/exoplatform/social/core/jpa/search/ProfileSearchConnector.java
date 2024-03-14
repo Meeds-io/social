@@ -172,12 +172,8 @@ public class ProfileSearchConnector {
     boolean appendCommar = false;
     //filter by profile settings
       if (expEsForAdvancedFilter != null) {
-
-        esSubQuery.append("    \"filter\": [\n");
-        esSubQuery.append("      {");
         esSubQuery.append(expEsForAdvancedFilter);
-        esSubQuery.append("      }\n");
-        esSubQuery.append("    ],\n");
+        esSubQuery.append(",\n");
 
       }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
@@ -490,7 +486,6 @@ public class ProfileSearchConnector {
     StringBuilder query = new StringBuilder();
     Map<String, String> settings = filter.getProfileSettings();
     query.append("""
-            "bool": {
               "must": [""");
     settings.forEach((key, value) -> query.append("""
                     {
@@ -503,7 +498,6 @@ public class ProfileSearchConnector {
     query.replace(lastComma, lastComma + 1, "");
     query.append("""
                ]
-            }
             """);
 
     return query.toString();
