@@ -78,12 +78,15 @@ export function getUsers(query, offset, limit, expand, signal, excludeCurrentUse
   });
 }
 
-export function getUsersByAdvancedFilter(settings, offset, limit, expand,filterType, signal, excludeCurrentUser) {
+export function getUsersByAdvancedFilter(settings, offset, limit, expand, filterType, name, excludeCurrentUser, signal) {
   const formData = new FormData();
   formData.append('offset', offset);
   formData.append('limit', limit);
   formData.append('expand', expand);
   formData.append('filterType', filterType);
+  if (name) {
+    formData.append('q', name);
+  }
   if (excludeCurrentUser) {
     formData.append('excludeCurrentUser', excludeCurrentUser);
   }
