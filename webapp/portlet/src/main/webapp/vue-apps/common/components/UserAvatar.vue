@@ -335,7 +335,7 @@ export default {
       return this.userIdentity?.username ||  this.userIdentity?.userName || this.profileId;
     },
     enabled() {
-      return !this.userIdentity || this.userIdentity?.enabled;
+      return this.userIdentity?.enabled;
     },  
     deleted() {
       return this.userIdentity?.deleted;
