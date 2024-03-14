@@ -167,6 +167,7 @@ export default {
       this.loadingCallBack(this.isSearching);
     },
     keyword() {
+      this.users = [];
       this.search();
     },
   },
@@ -232,12 +233,6 @@ export default {
       this.$refs.quickSearchUsersListDrawer.open();
     },
     search(loadMore) {
-      if (this.keyword) {
-        this.profileSetting['fullName'] = this.keyword;
-        this.users = [];
-      } else {
-        delete this.profileSetting['fullName'];
-      }
       if (this.selectedSuggestions?.length) {
         this.selectedSuggestions.forEach(suggestion => {
           this.profileSetting[suggestion.key] = suggestion.value;
@@ -251,7 +246,7 @@ export default {
       this.abortController = new AbortController();
       this.offset = this.users.length || 0;
       this.limit = this.limit || this.pageSize;
-      this.$userService.getUsersByAdvancedFilter(this.profileSetting, this.offset, this.limit + 1, this.fieldsToRetrieve,'all', this.abortController.signal).then(data => {
+      this.$userService.getUsersByAdvancedFilter(this.profileSetting, this.offset, this.limit + 1, this.fieldsToRetrieve,'all', this.keyword, false, this.abortController.signal,).then(data => {
         this.users.push(...data.users);
         this.hasMore = data.users?.length > this.limit;
       }).finally(() => {
