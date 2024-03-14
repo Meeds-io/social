@@ -448,6 +448,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                            @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
                            @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings,
+                           @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
                            @Parameter(description = "Whether to exclude current user from search result") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
 
     String userId;
@@ -475,6 +476,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       Identity[] identities;
       int totalSize = 0;
       ProfileFilter filter = new ProfileFilter();
+      filter.setName(q == null || q.isEmpty() ? "" : q);
       if (filterType.equals("all")) {
         filter.setEnabled(!isDisabled);
         if (!isDisabled) {
