@@ -4,6 +4,7 @@
       v-identity-popover="popoverIdentity"
       class="profile-popover user-wrapper text-truncate"
       :class="parentClass">
+      {{ identity }}
       <component
         v-if="avatar"
         :is="clickable && 'v-btn' || 'a'"
@@ -334,7 +335,7 @@ export default {
       return this.userIdentity?.username ||  this.userIdentity?.userName || this.profileId;
     },
     enabled() {
-      return this.userIdentity?.enabled;  
+      return !this.userIdentity || this.userIdentity?.enabled;
     },  
     deleted() {
       return this.userIdentity?.deleted;
