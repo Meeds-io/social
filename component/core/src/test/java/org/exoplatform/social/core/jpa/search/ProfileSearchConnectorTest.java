@@ -98,11 +98,8 @@ public class ProfileSearchConnectorTest {
                 "      \"constant_score\" : {\n" +
                 "        \"filter\" : {\n" +
                 "          \"bool\" :{\n" +
-                "    \"filter\": [\n" +
-                "      {"+
                 buildAdvancedFilterQuery(filter) +
-                "      }\n" +
-                "    ],\n" +
+                ",\n" +
                 "    \"should\": [\n" +
                 "                  {\n" +
                 "                    \"term\": {\n" +
@@ -220,11 +217,8 @@ public class ProfileSearchConnectorTest {
                 "      \"constant_score\" : {\n" +
                 "        \"filter\" : {\n" +
                 "          \"bool\" :{\n" +
-                "    \"filter\": [\n" +
-                "      {"+
                 buildAdvancedFilterQuery(filter) +
-                "      }\n" +
-                "    ],\n" +
+                ",\n" +
                 "    \"should\": [\n" +
                 "                  {\n" +
                 "                    \"term\": {\n" +
@@ -335,11 +329,8 @@ public class ProfileSearchConnectorTest {
                 "      \"constant_score\" : {\n" +
                 "        \"filter\" : {\n" +
                 "          \"bool\" :{\n" +
-                "    \"filter\": [\n" +
-                "      {"+
                 buildAdvancedFilterQuery(filter) +
-                "      }\n" +
-                "    ],\n" +
+                ",\n" +
                 "    \"should\": [\n" +
                 "                  {\n" +
                 "                    \"term\": {\n" +
