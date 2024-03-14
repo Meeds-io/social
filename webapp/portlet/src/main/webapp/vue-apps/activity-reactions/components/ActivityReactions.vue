@@ -1,12 +1,16 @@
 <template>
-  <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
-    <div class="reactionsUsersAvatar position-relative d-none d-lg-inline">
+  <div
+    :class="isDesktop && 'position-absolute' || ''"
+    class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
+    <div
+      :style="`min-height:${avatarSize}px`"
+      class="reactionsUsersAvatar position-relative d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
         <exo-user-avatar
           v-for="(liker, index) in likersToDisplay"
           :key="liker.id"
           :identity="liker"
-          :size="30"
+          :size="avatarSize"
           :allow-animation="likersToDisplay.length > 1"
           :class="[index === 0 && 'pl-4']"
           margin-left="ml-n5"
@@ -23,7 +27,7 @@
             <div
               v-bind="attrs"
               v-on="on"
-              :class="displayAnimation && 'mt-n2 transition-2s'"
+              :class="displayAnimation && 'mt-n1 transition-2s'"
               class="seeMoreLikers border-white d-flex align-center justify-center clickable"
               @click="openDrawer"
               @mouseover="showAvatarAnimation = true"
@@ -96,6 +100,9 @@ export default {
     },
     displayAnimation() {
       return this.showAvatarAnimation;
+    },
+    isDesktop() {
+      return !this.$vuetify.breakpoint.mobile;
     }
   },
   methods: {
