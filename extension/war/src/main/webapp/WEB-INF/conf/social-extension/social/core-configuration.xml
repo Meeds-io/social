@@ -747,6 +747,14 @@
                 <name>synchronizationDisabledProperties</name>
                 <value>fullName,firstName,lastName,email,phones,phones.work,phones.home,phones.other,ims,ims.facebook,ims.msn,ims.jitsi,ims.skype,ims.other</value>
             </value-param>
+            <value-param>
+                <name>unHiddenableProperties</name>
+                <value>${social.profile.unHiddenable.properties:fullName,firstName,lastName}</value>
+            </value-param>
+            <value-param>
+                <name>excludedQuickSearchProperties</name>
+                <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,phones,ims,urls,acceptedTermsAndConditions,github,passwordSalt128,user.other-info.external}</value>
+            </value-param>
         </init-params>
     </component>
 

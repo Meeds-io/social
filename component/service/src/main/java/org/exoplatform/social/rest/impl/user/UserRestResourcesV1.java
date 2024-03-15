@@ -16,11 +16,6 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
-import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentities;
-import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentitiesOfSpace;
-import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -149,6 +144,9 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import static org.exoplatform.social.rest.api.RestUtils.*;
+
 /**
  * 
  * Provides REST Services for manipulating jobs related to users.
@@ -449,7 +447,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
                            @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                            @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
-                           @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings) throws Exception {
+                           @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings,
+                           @Parameter(description = "Whether to exclude current user from search result") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
 
     String userId;
     try {
@@ -461,48 +460,57 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.UNAUTHORIZED).build();
     }
 
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-    if (target == null) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
-      throw new WebApplicationException(Response.Status.FORBIDDEN);
-    }
-
-    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
-    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    Identity[] identities;
-    int totalSize = 0;
-    ProfileFilter filter = new ProfileFilter();
-    if (filterType.equals("all")) {
-      filter.setEnabled(!isDisabled);
-      if (!isDisabled) {
-        filter.setUserType(userType);
+    try {
+      Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
+      if (target == null) {
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
       }
-    }
-    if (settings != null) {
-      filter.setExcludedIdentityList(Collections.singletonList(target));
-      settings.replaceAll((key, value) -> value.trim());
-    }
-    filter.setProfileSettings(settings);
-    ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
-    identities = list.load(offset, limit);
-    if (returnSize) {
-      totalSize = list.getSize();
-    }
-    List<DataEntity> profileInfos = new ArrayList<>();
-    for (Identity identity : identities) {
-      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
-      //
-      profileInfos.add(profileInfo.getDataEntity());
-    }
-    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
-    if (returnSize) {
-      collectionUser.setSize(totalSize);
-    }
 
-    return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
+        throw new WebApplicationException(Response.Status.FORBIDDEN);
+      }
+
+      offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
+      limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
+      Identity[] identities;
+      int totalSize = 0;
+      ProfileFilter filter = new ProfileFilter();
+      if (filterType.equals("all")) {
+        filter.setEnabled(!isDisabled);
+        if (!isDisabled) {
+          filter.setUserType(userType);
+        }
+      }
+      if (excludeCurrentUser) {
+        filter.setExcludedIdentityList(Collections.singletonList(target));
+      }
+      if (settings != null) {
+        settings.replaceAll((key, value) -> value.trim());
+      }
+      filter.setProfileSettings(settings);
+      ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
+      identities = list.load(offset, limit);
+      if (returnSize) {
+        totalSize = list.getSize();
+      }
+      List<DataEntity> profileInfos = new ArrayList<>();
+      for (Identity identity : identities) {
+        if (identity != null) {
+          ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
+          //
+          profileInfos.add(profileInfo.getDataEntity());
+        }
+      }
+      CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
+      if (returnSize) {
+        collectionUser.setSize(totalSize);
+      }
+
+      return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    } catch (Exception e) {
+      LOG.error("Unable to get users or connections with advanced filter", e);
+      return Response.status(HTTPStatus.INTERNAL_ERROR).entity(e.getMessage()).build();
+    }
   }
 
   @POST
@@ -582,7 +590,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
     String expandedSettings = expand;
     if (expand != null && expand.contains("settings")) {
-      expandedSettings = String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE)));
+      expandedSettings =
+                       String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),
+                                                                                                       profilePropertyService,
+                                                                                                       ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                                       Long.parseLong(identity.getId()))));
     }
 
     long cacheTime = identity.getCacheTime();
@@ -1096,7 +1108,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
-          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false);
+          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
+          updateProfilePropertyVisibility(profileProperty);
+          if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME) || profileProperty.getPropertyName().equals(Profile.LAST_NAME) ) {
+            profile = getUserIdentity(username).getProfile();
+          }
         } else {
           List<Map<String, String>> maps = new ArrayList<>();
           profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
@@ -1109,7 +1125,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               maps.add(childrenMap);
             }
           });
-          updateProfileField(profile, profileProperty.getPropertyName(), maps, false);
+          updateProfileField(profile, profileProperty.getPropertyName(), maps, true);
+          updateProfilePropertyVisibility(profileProperty);
         }
       } catch (IllegalAccessException e) {
         LOG.error("User {} is not allowed to update attributes", currentUser);
@@ -1583,6 +1600,14 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       importUsersAsync(fileLocation, userImportResultEntity, locale, url, ConversationState.getCurrent());
     }
     return null;
+  }
+  
+  private void updateProfilePropertyVisibility(ProfilePropertySettingEntity profileProperty) {
+    if (profileProperty.isToHide()) {
+      profilePropertyService.hidePropertySetting(getCurrentUserIdentityId(), profileProperty.getId());
+    } else if (profileProperty.isToShow()) {
+      profilePropertyService.showPropertySetting(getCurrentUserIdentityId(), profileProperty.getId());
+    }
   }
 
   private void importUsersAsync(String fileLocation,

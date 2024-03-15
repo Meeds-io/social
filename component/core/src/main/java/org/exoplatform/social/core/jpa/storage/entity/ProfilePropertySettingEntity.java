@@ -71,6 +71,9 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "GROUP_SYNCHRONIZED")
   private boolean isGroupSynchronized;
 
+  @Column(name = "IS_HIDDENABLE")
+  private boolean isHiddenable;
+
 
   public Long getId() {
     return id;
@@ -150,6 +153,14 @@ public class ProfilePropertySettingEntity implements Serializable {
 
   public void setRequired(boolean required) {
     isRequired = required;
+  }
+
+  public boolean isHiddenable() {
+    return isHiddenable;
+  }
+
+  public void setHiddenable(boolean hiddenable) {
+    isHiddenable = hiddenable;
   }
 
   @Override

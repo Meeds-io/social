@@ -79,6 +79,7 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
+    profilePropertySettingEntity.setHiddenable(profilePropertySetting.isHiddenbale());
     return profilePropertySettingEntity;
   }
 
@@ -97,6 +98,7 @@ public class ProfileSettingStorage {
     profilePropertySetting.setGroupSynchronized(profilePropertySettingEntity.isGroupSynchronized());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
+    profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     return profilePropertySetting;
   }
 

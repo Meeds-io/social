@@ -7,6 +7,9 @@
         </span>
       </div>
       <div class="align-end flex-grow-1 text-no-wrap text-end">
+        <profile-hide-property-button
+          v-if="property.multiValued"
+          :property="property" />
         <v-btn
           color="primary"
           class="px-0"
@@ -22,6 +25,7 @@
       <profile-contact-edit-multi-field-select
         v-if="childProperty.isNew || (childProperty.visible && childProperty.active && childProperty.value) || (property.multiValued && property.active && property.visible && childProperty.value)"
         :property="childProperty"
+        :parent-propery="property"
         :properties="property.children"
         :multi-valued="property.multiValued"
         @propertyUpdated="propertyUpdated"
@@ -48,7 +52,7 @@ export default {
       this.$emit('propertyUpdated',this.property);
     },
     addNewItem() {
-      const item = {isNew: true};
+      const item = {isNew: true, editable: true};
       this.property.children.push(item);
       this.$forceUpdate();
     },

@@ -20,8 +20,7 @@
               class="pa-0">
               <people-card
                 :user="user"
-                :profile-action-extensions="profileActionExtensions"
-                @refresh="searchPeople" />
+                :profile-action-extensions="profileActionExtensions" />
             </v-col>
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
@@ -109,7 +108,7 @@ export default {
   computed: {
     profileActionExtensions() {
       const profileActionExtensions = [...this.profileExtensions, ...this.spaceMemberExtensions];
-      profileActionExtensions.sort((a, b) => (a.sort || 100) - (b.sort || 100));
+      profileActionExtensions.sort((a, b) => (a.order || 100) - (b.order || 100));
       return profileActionExtensions;
     },
     canShowMore() {
@@ -182,7 +181,7 @@ export default {
           || this.filter === 'publisher') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
       } else {
-        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal, true);
+        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       }
       return searchUsersFunction.then(data => {
         const users = data && data.users || [];
