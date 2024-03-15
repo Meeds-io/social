@@ -45,7 +45,7 @@
       v-if="isAdmin"
       class="ms-auto d-flex">
       <v-btn
-        class="ms-auto my-0 pt-1 icon-default-color"
+        class="ms-auto my-0 icon-default-color"
         small
         icon
         @click="openChartSettingsDrawer">

@@ -155,7 +155,7 @@ export default {
     },
     scrollUserToViewCenter() {
       setTimeout(() => {
-        document.getElementById('user').scrollIntoView(this.scrollToViewProps);
+        document.getElementById('chartCenterUser').scrollIntoView(this.scrollToViewProps);
       }, 500);
     }
   }
