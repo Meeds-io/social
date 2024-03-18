@@ -110,12 +110,13 @@
             <v-text-field
               v-if="showHeaderInput"
               v-model="headerTitle"
-              append-icon="fas fa-language"
               :aria-label="headerTitle"
+              append-icon="fas fa-language"
               class="pt-3"
               maxlength="500"
               outlined
-              dense />
+              dense
+              @click:append="setI18nHeaderTitle" />
           </div>
         </v-sheet>
       </div>
@@ -223,6 +224,9 @@ export default {
     }
   },
   methods: {
+    setI18nHeaderTitle() {
+      this.headerTitle = this.$t('organizationalChart.header.label');
+    },
     removeSelectedUser() {
       this.user = this.selectedUserData = null;
     },
