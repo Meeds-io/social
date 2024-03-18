@@ -35,8 +35,9 @@
       {{ $t('organizationalChart.configure.label') }}
     </v-btn>
   </div>
-  <div
+  <v-sheet
     v-else
+    height="28"
     class="d-flex mb-2">
     <p class="my-auto widget-text-header text-truncate">
       {{ configuredTitle }}
@@ -45,6 +46,7 @@
       v-if="isAdmin"
       class="ms-auto d-flex">
       <v-btn
+        v-if="hover || isMobile"
         class="ms-auto my-0 icon-default-color"
         small
         icon
@@ -55,7 +57,7 @@
         </v-icon>
       </v-btn>
     </div>
-  </div>
+  </v-sheet>
 </template>
 
 <script>
@@ -70,6 +72,14 @@ export default {
       default: null
     },
     isAdmin: {
+      type: Boolean,
+      default: false
+    },
+    hover: {
+      type: Boolean,
+      default: false
+    },
+    isMobile: {
       type: Boolean,
       default: false
     }
