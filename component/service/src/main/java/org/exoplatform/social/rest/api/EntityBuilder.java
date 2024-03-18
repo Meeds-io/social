@@ -435,6 +435,7 @@ public class EntityBuilder {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, property.get(VALUE));
       if (identity != null) {
         ProfileEntity manager = buildEntityProfile(identity.getProfile(), restPath, SETTINGS);
+        buildManagedUsersCount(manager);
         managers.add(manager.getDataEntity());
       }
     });
