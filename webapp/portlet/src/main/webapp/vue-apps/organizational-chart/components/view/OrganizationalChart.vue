@@ -22,6 +22,7 @@
   <div>
     <div class="width-fit-content ma-auto">
       <div
+        id="chartListManagers"
         class="d-flex flex-wrap-reverse flex-row justify-center">
         <span
           v-if="!listManagers?.length"
@@ -39,7 +40,9 @@
           :user="manager"
           @click="updateChart(manager)" />
       </div>
-      <v-divider class="mt-2 mb-1 mx-auto" />
+      <v-divider
+        class="mt-2 mb-1 mx-auto"
+        :style="{width: `${this.topSeparatorWidth}px`}"/>
     </div>
     <div class="chartVerticalLine">
       <v-divider
@@ -57,8 +60,11 @@
         vertical />
     </div>
     <div class="width-fit-content ma-auto">
-      <v-divider class="mb-2 mt-1 mx-2" />
+      <v-divider
+        class="mb-2 mt-1 mx-auto"
+        :style="{width: `${this.bottomSeparatorWidth}px`}"/>
       <div
+        id="chartListSubordinates"
         class="d-flex flex-wrap justify-center">
         <span
           class="text-subtitle-1 text-color"
@@ -97,7 +103,9 @@
 export default {
   data() {
     return {
-      scrollToViewProps: {behavior: 'smooth', block: 'center', inline: 'center'}
+      scrollToViewProps: {behavior: 'smooth', block: 'center', inline: 'center'},
+      topSeparatorWidth: 'auto',
+      bottomSeparatorWidth: 'auto'
     };
   },
   props: {
@@ -140,10 +148,22 @@ export default {
         ?.sort((a, b) => this.usersNaturalComparator(a,b));
     }
   },
+  created() {
+    addEventListener('resize', () => {
+      this.calculateSeparatorsWidth();
+    });
+  },
   mounted() {
     this.scrollUserToViewCenter();
+    setTimeout(() => {
+      this.calculateSeparatorsWidth();
+    }, 200);
   },
   methods: {
+    calculateSeparatorsWidth() {
+      this.topSeparatorWidth = this.getExpectedSeparatorWidth('chartListManagers');
+      this.bottomSeparatorWidth = this.getExpectedSeparatorWidth('chartListSubordinates');
+    },
     usersNaturalComparator(a, b) {
       return this.$root.$children[0].usersNaturalComparator(a, b);
     },
@@ -157,7 +177,16 @@ export default {
       setTimeout(() => {
         document.getElementById('chartCenterUser').scrollIntoView(this.scrollToViewProps);
       }, 500);
-    }
+    },
+    getExpectedSeparatorWidth(containerId) {
+      const chartUserCardWidth = 268 + 24;
+      const containerWidth = document.getElementById(containerId)?.offsetWidth;
+      let cardsPerLine = (containerWidth / chartUserCardWidth) >> 0;
+      cardsPerLine = this.preview && cardsPerLine > this.previewCount
+                                  && this.previewCount
+                                  || cardsPerLine;
+      return (cardsPerLine * chartUserCardWidth) - 24;
+    },
   }
 };
 </script>
