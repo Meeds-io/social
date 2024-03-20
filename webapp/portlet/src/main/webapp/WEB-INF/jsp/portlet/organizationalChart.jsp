@@ -46,7 +46,9 @@
                 title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
                 isSpaceManager: <%=isManager%>
             }
-            require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init('<%=applicationId%>', settings));
+            if (eXo?.env?.portal?.organizationalChartEnabled) {
+                require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init('<%=applicationId%>', settings));
+            }
         </script>
     </div>
 </div>
