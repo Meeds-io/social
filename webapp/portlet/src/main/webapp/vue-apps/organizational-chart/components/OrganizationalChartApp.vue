@@ -20,37 +20,41 @@
 
 <template>
   <v-app v-if="showApplication">
-    <v-card
-      outlined
-      class="white border-radius pa-5 card-border-radius">
-      <div
-        v-if="isLoading"
-        class="width-full d-flex full-height">
-        <v-progress-circular
-          class="ma-auto"
-          color="primary"
-          indeterminate />
-      </div>
-      <div v-else>
-        <organizational-chart-header
-          v-if="!preview"
-          :has-settings="hasSettings"
-          :configured-title="configuredHeaderTitle"
-          :is-admin="isAdmin"
-          @open-chart-settings="openSettingsDrawer" />
-        <organizational-chart
-          v-if="hasSettings || preview"
-          :user="user"
-          :managed-users="managedUsersList"
-          :profile-action-extensions="profileActionExtensions"
-          :is-loading="isLoadingManagedUsers"
-          :has-more="hasMore"
-          :preview="preview"
-          :preview-count="previewCount"
-          @update-chart="updateChart"
-          @load-more-managed-users="getManagedUsers" />
-      </div>
-    </v-card>
+    <v-hover v-slot="{ hover }">
+      <v-card
+        outlined
+        class="white border-radius pa-5 card-border-radius">
+        <div
+          v-if="isLoading"
+          class="width-full d-flex full-height">
+          <v-progress-circular
+            class="ma-auto"
+            color="primary"
+            indeterminate />
+        </div>
+        <div v-else>
+          <organizational-chart-header
+            v-if="!preview"
+            :has-settings="hasSettings"
+            :configured-title="configuredHeaderTitle"
+            :is-admin="isAdmin"
+            :hover="hover"
+            :is-mobile="isMobile"
+            @open-chart-settings="openSettingsDrawer" />
+          <organizational-chart
+            v-if="hasSettings || preview"
+            :user="user"
+            :managed-users="managedUsersList"
+            :profile-action-extensions="profileActionExtensions"
+            :is-loading="isLoadingManagedUsers"
+            :has-more="hasMore"
+            :preview="preview"
+            :preview-count="previewCount"
+            @update-chart="updateChart"
+            @load-more-managed-users="getManagedUsers" />
+        </div>
+      </v-card>
+    </v-hover>
     <organizational-chart-settings-drawer
       v-if="!preview"
       ref="chartSettingsDrawer"
@@ -109,6 +113,9 @@ export default {
     }
   },
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.smAndDown;
+    },
     showApplication() {
       return this.hasSettings || (!this.hasSettings && this.isAdmin) || this.preview;
     },
