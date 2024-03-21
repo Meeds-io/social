@@ -8,6 +8,9 @@
 <%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
 <%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
 <%@ page import="java.util.Objects" %>
+<%@ page import="javax.portlet.PortletPreferences" %>
+<%@ page import="org.exoplatform.services.resources.ResourceBundleService" %>
+<%@ page import="java.util.ResourceBundle" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <portlet:defineObjects/>
 <%
@@ -23,6 +26,19 @@
             ? centerUserSettingValue.getValue().toString() : null;
     String headerTitle = headerTitleSettingValue != null && headerTitleSettingValue.getValue() != null
             ? headerTitleSettingValue.getValue().toString() : null;
+
+
+    if (centerUser == null) {
+        PortletPreferences preferences = renderRequest.getPreferences();
+        centerUser = preferences.getValue("centerUser", null);
+        try {
+            ResourceBundleService resourceBundleService = CommonsUtils.getService(ResourceBundleService.class);
+            ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portlet.Portlets", request.getLocale());
+            headerTitle = resourceBundle.getString(preferences.getValue("headerTitle", null));
+        } catch (Exception e) {
+            headerTitle = null;
+        }
+    }
 
     if (Objects.equals(centerUser, "@connected@")) {
         centerUser = request.getRemoteUser();
