@@ -8,6 +8,7 @@
 <%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
 <%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
 <%@ page import="java.util.Objects" %>
+<%@ page import="org.exoplatform.social.webui.Utils" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <portlet:defineObjects/>
 <%
@@ -25,7 +26,7 @@
             ? headerTitleSettingValue.getValue().toString() : null;
 
     if (Objects.equals(centerUser, "@connected@")) {
-        centerUser = request.getRemoteUser();
+        centerUser = Utils.getOwnerIdentityId();
     }
 
     boolean isManager = false;
@@ -42,7 +43,7 @@
          class="v-application transparent v-application--is-ltr theme--light">
         <script type="text/javascript">
             const settings = {
-                user: "<%=centerUser%>" !== 'null' && "'<%=centerUser%>'" || null,
+                userId: "<%=centerUser%>" !== 'null' && "'<%=centerUser%>'" || null,
                 title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
                 isSpaceManager: <%=isManager%>
             }
