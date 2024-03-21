@@ -370,10 +370,6 @@ public class SpaceServiceImpl implements SpaceService {
       throw new RuntimeException("Error while creating the space " + space.getDisplayName() + ": space name cannot exceed 200 characters");
     }
 
-    if (!SpaceUtils.isValidSpaceName(space.getDisplayName())) {
-      throw new RuntimeException("Error while creating the space " + space.getDisplayName()+ ": space name can only contain letters, digits or space characters only");
-    }
-
     if(!spacesAdministrationService.canCreateSpace(creator)) {
       throw new RuntimeException("User does not have permissions to create a space.");
     }
