@@ -131,7 +131,7 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
   response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithCorrectName);
   assertEquals(200, response.getStatus());
   response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithSpecialCharacter);
-  assertEquals(500, response.getStatus());
+  assertEquals(200, response.getStatus());
   response = getResponse("PUT", getURLResource("spaces/" + space.getId()), inputWithAndCharacter);
   assertEquals(200, response.getStatus());
 }

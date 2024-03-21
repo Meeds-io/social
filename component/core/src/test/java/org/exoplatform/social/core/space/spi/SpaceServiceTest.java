@@ -1218,12 +1218,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    try {
-      spaceService.createSpace(space, creator);
-      fail("Should have thrown an RuntimeException because Name is invalid");
-    } catch (RuntimeException e) {
-      assertTrue(e.getMessage().contains("space name can only contain letters, digits or space characters only"));
-    }
+    spaceService.createSpace(space, creator);
   }
 
   /**

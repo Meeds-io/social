@@ -32,9 +32,9 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Pattern;
 
 import javax.portlet.RenderRequest;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -179,10 +179,6 @@ public class SpaceUtils {
                                                                            new ConcurrentHashMap<String, Application>();
 
   private static final String                                 REMOTE_CATEGORY_NAME  = "remote";
-
-  private static final Pattern                                SPACE_NAME_PATTERN    =
-                                                                                 Pattern.compile("^([\\p{L}\\s\\d\'_&/-]+[\\s]?)+$");
-
   private static final String                                 PORTAL_PAGE_TITLE     = "portal:requestTitle";
 
   private static final String                                 NUMBER_REG_PATTERN       = "[0-9]";
@@ -192,16 +188,6 @@ public class SpaceUtils {
   private static final String                                 SPACE_STR                = " ";
 
   private static final String                                 CURRENT_SPACE            = "CurrentSpace";
-
-  /**
-   * Checks if Space Name is in a valid form or not.
-   *
-   * @param name
-   * @return
-   */
-  public static boolean isValidSpaceName(String name) {
-    return SPACE_NAME_PATTERN.matcher(name).matches();
-  }
 
   /**
    * Creates a new group from an existing group. This new group will get all
