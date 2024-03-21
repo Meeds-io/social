@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <v-list-item :href="navigationUri" dense>
+  <v-list-item :href="navigationUri" :target="target" dense>
     <v-list-item-icon class="my-auto d-flex">
       <v-icon class="icon-default-color icon-default-size ma-auto">
         {{ navigationIcon }}
@@ -61,6 +61,9 @@ export default {
     },
     navigationUri() {
       return this.navigation?.link && this.urlVerify(this.navigation?.link) || this.navigation?.uri;
+    },
+    target() {
+      return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
     badgeApplicationName() {
       // TODO to know what application id to associate to each page uri

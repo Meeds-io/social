@@ -941,6 +941,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       app.setProperty("label", node.getResolvedLabel());
       app.setProperty("icon", node.getIcon());
       app.setProperty("uri", node.getURI());
+      app.setProperty("target", node.getTarget());
       if (node.getPageRef() != null) {
         Page navigationNodePage = SpaceUtils.getLayoutService().getPage(node.getPageRef());
         if (PageType.LINK.equals(PageType.valueOf(navigationNodePage.getType()))) {
