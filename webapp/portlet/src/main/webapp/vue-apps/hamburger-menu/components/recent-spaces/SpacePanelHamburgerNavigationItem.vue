@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <v-list-item :href="navigationUri" dense>
+  <v-list-item :href="navigationUri" :target="target" dense>
     <v-list-item-icon class="my-auto d-flex">
       <v-icon class="icon-default-color icon-default-size ma-auto">
         {{ navigationIcon }}
@@ -60,7 +60,10 @@ export default {
       return this.navigation?.label;
     },
     navigationUri() {
-      return this.navigation?.uri || '';
+      return this.navigation?.link && this.urlVerify(this.navigation?.link) || this.navigation?.uri;
+    },
+    target() {
+      return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
     badgeApplicationName() {
       // TODO to know what application id to associate to each page uri
@@ -82,5 +85,25 @@ export default {
       return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px'};
     }
   },
+  methods: {
+    urlVerify(url) {
+      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/) && this.isValidUrl(url) ) {
+        url = `//${url}`;
+      }
+      return url ;
+    },
+    isValidUrl(str) {
+      const pattern = new RegExp(
+        '^([a-zA-Z]+:\\/\\/)?' +
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+        '((\\d{1,3}\\.){3}\\d{1,3}))' +
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+        '(\\?[;&a-z\\d%_.~+=-]*)?' +
+        '(\\#[-a-z\\d_]*)?$',
+        'i'
+      );
+      return pattern.test(str);
+    }
+  }
 };
 </script>
