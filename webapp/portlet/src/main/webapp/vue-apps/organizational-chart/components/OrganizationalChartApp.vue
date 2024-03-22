@@ -66,6 +66,7 @@
 </template>
 
 <script>
+
 export default {
   data() {
     return {
@@ -79,12 +80,13 @@ export default {
       isLoadingManagedUsers: false,
       isLoading: true,
       profileActionExtensions: [],
-      userName: eXo?.env?.portal.userName,
+      userId: eXo?.env?.portal.userIdentityId,
       collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       settingsContextKey: 'GLOBAL',
       settingScopeKey: 'APPLICATION',
       settingsCenterUserKey: 'organizationalChartCenterUser',
-      settingsHeaderTitleKey: 'organizationalChartHeaderTitle'
+      settingsHeaderTitleKey: 'organizationalChartHeaderTitle',
+      centerUserIdUrlParam: 'centerUserId'
     };
   },
   props: {
@@ -96,7 +98,7 @@ export default {
       type: Number,
       default: 2
     },
-    initialUserName: {
+    initialUserId: {
       type: String,
       default: null
     },
@@ -106,9 +108,9 @@ export default {
     },
   },
   watch: {
-    initialUserName() {
-      if (this.initialUserName) {
-        this.updateChart(this.initialUserName);
+    initialUserId() {
+      if (this.initialUserId) {
+        this.updateChart(this.initialUserId);
       }
     }
   },
@@ -129,7 +131,7 @@ export default {
       return this.$root?.applicationId;
     },
     hasSettings() {
-      return this.$root.settings?.user;
+      return this.$root.settings?.userId;
     },
     managedUsersList() {
       return this.preview && this.sortedManagedUsersList?.length
@@ -141,21 +143,31 @@ export default {
     }
   },
   created() {
-    const centerUser = this.initialUserName || this.userName;
+    const centerUser = this.getRequestedCenterUserId() || this.initialUserId || this.userId;
     this.updateChart(centerUser);
     this.refreshExtensions();
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
   },
   methods: {
+    updateUrl(identityId) {
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.set(this.centerUserIdUrlParam, identityId);
+      const url = `${window.location.pathname}?${searchParams.toString()}`;
+      window.history.pushState('OrganizationalChartUrl', '', url);
+    },
+    getRequestedCenterUserId() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams?.get(this.centerUserIdUrlParam);
+    },
     saveApplicationSettings(settings) {
-      return this.saveSetting(this.settingsCenterUserKey, settings?.user).then(() => {
+      return this.saveSetting(this.settingsCenterUserKey, settings?.userId).then(() => {
         this.saveSetting(this.settingsHeaderTitleKey, settings?.title).then(() => {
           this.$refs.chartSettingsDrawer.close();
           this.$root.settings = settings;
-          const user = settings.connectedUser && eXo?.env?.portal?.userName
-                                              || settings?.user;
-          this.$root.settings.user = user;
-          this.updateChart(user);
+          const userId = settings.connectedUser && eXo?.env?.portal?.userIdentityId
+                                              || settings?.userId;
+          this.$root.settings.userId = userId;
+          this.updateChart(userId);
           this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.success'), 'success');
         });
       }).catch(() => {
@@ -172,24 +184,25 @@ export default {
     usersNaturalComparator(a, b) {
       return this.collator.compare(a.fullname, b.fullname);
     },
-    updateChart(userName) {
+    updateChart(userId) {
+      this.updateUrl(userId);
       this.isLoading = true;
-      this.userName = userName;
+      this.userId = userId;
       this.managedUsers = [];
       this.getUser();
-      this.getManagedUsers();
     },
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
       this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
     },
     getUser() {
-      return this.$userService.getUser(this.userName, this.fieldsToRetrieve).then(user => {
-        this.user = user;
+      return this.$identityService.getIdentityById(this.userId, this.fieldsToRetrieve).then(user => {
+        this.user = user?.profile;
+        this.getManagedUsers();
       });
     },
     getManagedUsers() {
-      const profileSetting = {manager: this.userName};
+      const profileSetting = {manager: this.user?.username};
       if (this.abortController) {
         this.abortController.abort();
       }
