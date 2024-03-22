@@ -83,9 +83,9 @@
             height="306"
             outlined>
             <organizational-chart-app
-              v-if="initialUserName"
+              v-if="initialUserId"
               class="white position-relative chartPreview"
-              :initial-user-name="initialUserName"
+              :initial-user-id="initialUserId"
               :preview-count="previewCount"
               :preview="true" />
           </v-card>
@@ -180,7 +180,7 @@ export default {
     },
     chartCenterUser() {
       if (this.connectedUser) {
-        this.user = {remoteId: eXo?.env?.portal.userName};
+        this.user = {identityId: eXo?.env?.portal.userIdentityId};
       } else {
         this.user = null;
         this.selectedUserData = !this.isConnectedUserSelected && this.selectedUser || null;
@@ -192,20 +192,20 @@ export default {
       return this.expanded && 3 || 2;
     },
     firstSetupValid() {
-      return this.connectedUser || this.user?.remoteId;
+      return this.connectedUser || this.user?.identityId;
     },
     settingsUpdated() {
       return !this.hasSettings && this.firstSetupValid
                                || (this.centerUserUpdated || this.savedHeaderText !== this.headerTitle);
     },
     centerUserUpdated() {
-      return this.user && this.selectedUser?.username !== this.user?.remoteId;
+      return this.user && this.selectedUser?.id !== this.user?.identityId;
     },
     showSelected() {
       return this.specificUser && (this.user || this.selectedUserData);
     },
     isConnectedUserSelected() {
-      return this.selectedUser?.username === eXo?.env?.portal?.userName;
+      return this.selectedUser?.id === eXo?.env?.portal?.userIdentityId;
     },
     avatarUrl() {
       return this.user?.profile?.avatarUrl || this.selectedUserData?.avatar;
@@ -219,8 +219,8 @@ export default {
     userFullName() {
       return this.user?.profile?.fullName || this.selectedUserData?.fullname;
     },
-    initialUserName() {
-      return this.user?.remoteId || this.selectedUserData?.username;
+    initialUserId() {
+      return this.user?.identityId || this.selectedUserData?.id;
     }
   },
   methods: {
@@ -233,7 +233,7 @@ export default {
     saveApplicationSettings() {
       const settings = {
         connectedUser: this.connectedUser,
-        user: this.connectedUser && this.chartCenterUser || this.user?.remoteId,
+        userId: this.connectedUser && this.chartCenterUser || this.user?.identityId,
         title: this.headerTitle
       };
       this.$emit('save-application-settings', settings);
