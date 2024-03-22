@@ -151,7 +151,7 @@ export default {
       this.$emit('load-more-managed-users');
     },
     updateChart(user) {
-      this.$emit('update-chart', user.username);
+      this.$emit('update-chart', user.id);
     },
     scrollUserToViewCenter() {
       setTimeout(() => {
