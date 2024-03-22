@@ -64,6 +64,8 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.deprecation.DeprecatedAPI;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.PageType;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
@@ -939,6 +941,13 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       app.setProperty("label", node.getResolvedLabel());
       app.setProperty("icon", node.getIcon());
       app.setProperty("uri", node.getURI());
+      app.setProperty("target", node.getTarget());
+      if (node.getPageRef() != null) {
+        Page navigationNodePage = SpaceUtils.getLayoutService().getPage(node.getPageRef());
+        if (PageType.LINK.equals(PageType.valueOf(navigationNodePage.getType()))) {
+          app.setProperty("link", navigationNodePage.getLink());
+        }
+      }
       return app.getDataEntity();
     }).collect(Collectors.toList());
     return Response.ok(spaceNavigations, MediaType.APPLICATION_JSON).build();
