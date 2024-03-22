@@ -4,6 +4,7 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
@@ -120,7 +121,7 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     headers = new MultivaluedMapImpl();
     headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
     response =
-             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
+             service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId()+"?expand=settings", "", headers, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
   }
@@ -172,6 +173,24 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId(), "", headers, null);
     assertNotNull(response);
     assertEquals(304, response.getStatus());
+
+    headers.putSingle("If-None-Match", "\"" + eTagJohn.getValue() + "\"");
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId()+"?expand=settings", "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    eTagJohn = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
+
+    headers.putSingle("If-None-Match", "\"" + eTagJohn.getValue() + "\"");
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId()+"?expand=settings", "", headers, null);
+    assertNotNull(response);
+    assertEquals(304, response.getStatus());
+
+    Profile profile = johnIdentity.getProfile();
+    profile.setProperty("position", "Developer");
+    identityManager.updateProfile(profile, true);
+    response = service("GET", "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId()+"?expand=settings", "", headers, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
   }
 
   public void testCacheWhenUserJoinsSpace() throws Exception {
