@@ -166,7 +166,11 @@ export default {
       return this.getSelectionIndex(suggestion) !== -1;
     },
     updateFilterSuggestions() {
-      this.getComplementaryFilterSuggestions();
+      if (!this.listObjectIds?.length) {
+        this.suggestions = [...this.selections].sort((a, b) => b.count - a.count);
+      } else {
+        this.getComplementaryFilterSuggestions();
+      }
     },
     getComplementaryFilterSuggestions() {
       this.isLoading = true;
@@ -175,8 +179,6 @@ export default {
       return this.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
         .then(suggestions => {
           this.suggestions = suggestions?.sort((a, b) => b.count - a.count);
-        }).catch(() => {
-          this.loadingCallBack(false);
         }).finally(() => {
           this.$emit('build-suggestions-terminated', this.suggestions);
           this.loadingCallBack(false);
