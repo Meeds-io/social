@@ -195,6 +195,7 @@ export default {
     },
     selectedSuggestionsUpdated(suggestions) {
       if (!suggestions.length && !this.listUsers.length) {
+        this.$root.$emit('update-filter-suggestions');
         return;
       }
       this.isSearching = true;
