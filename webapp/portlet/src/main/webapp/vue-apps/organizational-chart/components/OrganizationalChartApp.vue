@@ -59,8 +59,11 @@
       v-if="!preview"
       ref="chartSettingsDrawer"
       :selected-user="user"
-      :saved-header-text="configuredHeaderTitle"
+      :saved-header-translations="savedHeaderTranslations"
+      :application-id="applicationId"
       :has-settings="hasSettings"
+      :saved-user-id="savedUserId"
+      :language="language"
       @save-application-settings="saveApplicationSettings" />
   </v-app>
 </template>
@@ -86,7 +89,10 @@ export default {
       settingScopeKey: 'APPLICATION',
       settingsCenterUserKey: 'organizationalChartCenterUser',
       settingsHeaderTitleKey: 'organizationalChartHeaderTitle',
-      centerUserIdUrlParam: 'centerUserId'
+      centerUserIdUrlParam: 'centerUserId',
+      headerTitleFieldName: 'chartHeaderTitle',
+      translationObjectType: 'organizationalChart',
+      language: eXo?.env?.portal?.language,
     };
   },
   props: {
@@ -124,14 +130,20 @@ export default {
     isAdmin() {
       return this.user?.isAdmin || this.isSpaceManager;
     },
+    savedHeaderTranslations() {
+      return this.$root.settings?.headerTranslations;
+    },
     configuredHeaderTitle() {
       return this.$root?.settings?.title;
     },
     applicationId() {
       return this.$root?.applicationId;
     },
-    hasSettings() {
+    savedUserId() {
       return this.$root.settings?.userId;
+    },
+    hasSettings() {
+      return !!this.savedUserId;
     },
     managedUsersList() {
       return this.preview && this.sortedManagedUsersList?.length
@@ -159,9 +171,18 @@ export default {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams?.get(this.centerUserIdUrlParam);
     },
+    saveOrDeleteTranslations(settings) {
+      if (settings?.headerTranslations) {
+        return this.$translationService.saveTranslations(this.translationObjectType, this.applicationId,
+          this.headerTitleFieldName, settings?.headerTranslations);
+      } else if (this.savedHeaderTranslations) {
+        return this.$translationService.deleteTranslations(this.translationObjectType, this.applicationId);
+      }
+      return Promise.resolve();
+    },
     saveApplicationSettings(settings) {
       return this.saveSetting(this.settingsCenterUserKey, settings?.userId).then(() => {
-        this.saveSetting(this.settingsHeaderTitleKey, settings?.title).then(() => {
+        return this.saveOrDeleteTranslations(settings).then(() => {
           this.$refs.chartSettingsDrawer.close();
           this.$root.settings = settings;
           const userId = settings.connectedUser && eXo?.env?.portal?.userIdentityId
@@ -175,8 +196,11 @@ export default {
       });
     },
     saveSetting(settingKey, settingValue) {
+      if (!settingValue) {
+        return;
+      }
       return this.$settingService.setSettingValue(this.settingsContextKey, '',
-        this.settingScopeKey, this.applicationId, settingKey, settingValue);
+        this.settingScopeKey, `organizationalChart${this.applicationId}`, settingKey, settingValue);
     },
     openSettingsDrawer() {
       this.$refs.chartSettingsDrawer.open();
@@ -196,10 +220,17 @@ export default {
       this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
     },
     getUser() {
-      return this.$identityService.getIdentityById(this.userId, this.fieldsToRetrieve).then(user => {
-        this.user = user?.profile;
-        this.getManagedUsers();
-      });
+      if (isNaN(this.userId)) {
+        return this.$userService.getUser(this.userId, this.fieldsToRetrieve).then(user => {
+          this.user = user;
+          this.getManagedUsers();
+        });
+      } else {
+        return this.$identityService.getIdentityById(this.userId, this.fieldsToRetrieve).then(user => {
+          this.user = user?.profile;
+          this.getManagedUsers();
+        });
+      }
     },
     getManagedUsers() {
       const profileSetting = {manager: this.user?.username};

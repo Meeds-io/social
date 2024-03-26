@@ -12,22 +12,33 @@
 <%@ page import="javax.portlet.PortletPreferences" %>
 <%@ page import="org.exoplatform.services.resources.ResourceBundleService" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="io.meeds.social.translation.service.TranslationService" %>
+<%@ page import="io.meeds.social.translation.model.TranslationField" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects/>
 <%
+    String appObjectType = "organizationalChart";
     String id = UIPortlet.getCurrentUIPortlet().getStorageId();
-    String applicationId = "organizationalChart" + id;
+    String applicationId =  appObjectType + id;
     SettingService settingsService = CommonsUtils.getService(SettingService.class);
     SettingValue<?> centerUserSettingValue = settingsService
             .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartCenterUser");
-    SettingValue<?> headerTitleSettingValue = settingsService
-            .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartHeaderTitle");
-
     String centerUser = centerUserSettingValue != null && centerUserSettingValue.getValue() != null
             ? centerUserSettingValue.getValue().toString() : null;
-    String headerTitle = headerTitleSettingValue != null && headerTitleSettingValue.getValue() != null
-            ? headerTitleSettingValue.getValue().toString() : null;
 
+    TranslationService translationService = CommonsUtils.getService(TranslationService.class);
+    TranslationField translationField = translationService.getTranslationField(appObjectType, Long.parseLong(id), "chartHeaderTitle");
+    Map<Locale, String> labels = translationField.getLabels();
+    String headerTitle = null;
+    String headerTranslations = null;
+    if (labels != null && !labels.isEmpty()) {
+        headerTitle = labels.get(request.getLocale());
+        ObjectMapper mapper = new ObjectMapper();
+        headerTranslations = mapper.writeValueAsString(labels);
+    }
 
     if (centerUser == null) {
         PortletPreferences preferences = renderRequest.getPreferences();
@@ -59,12 +70,13 @@
          class="v-application transparent v-application--is-ltr theme--light">
         <script type="text/javascript">
             const settings = {
-                userId: "<%=centerUser%>" !== 'null' && "'<%=centerUser%>'" || null,
+                userId: "<%=centerUser%>" !== 'null' && "<%=centerUser%>" || null,
                 title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
+                headerTranslations: <%=headerTranslations%>,
                 isSpaceManager: <%=isManager%>
             }
             if (eXo?.env?.portal?.organizationalChartEnabled) {
-                require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init('<%=applicationId%>', settings));
+                require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init('<%=id%>', settings));
             }
         </script>
     </div>

@@ -107,16 +107,23 @@
             </div>
           </div>
           <div>
-            <v-text-field
+            <translation-text-field
               v-if="showHeaderInput"
+              ref="headerTitleInput"
+              id="headerTitleInput"
               v-model="headerTitle"
-              :aria-label="headerTitle"
-              append-icon="fas fa-language"
-              class="pt-3"
+              :object-id="applicationId"
+              :default-language="language"
+              field-name="chartHeaderTitle"
+              object-type="organizationalChart"
+              :placeholder="$t('organizationalChart.headerTitle.placeholder')"
+              drawer-title="organizationalChart.label.headerTitle.translation"
               maxlength="500"
-              outlined
-              dense
-              @click:append="setI18nHeaderTitle" />
+              class="pt-3"
+              no-expand-icon
+              back-icon
+              autofocus
+              required />
           </div>
         </v-sheet>
       </div>
@@ -153,7 +160,7 @@ export default {
       selectedUserData: null,
       expanded: false,
       showHeaderInput: true,
-      headerTitle: null
+      headerTitle: null,
     };
   },
   props: {
@@ -161,19 +168,31 @@ export default {
       type: Object,
       default: null
     },
-    savedHeaderText: {
-      type: String,
+    savedHeaderTranslations: {
+      type: Object,
       default: null
     },
     hasSettings: {
       type: Boolean,
       default: false
+    },
+    applicationId: {
+      type: String,
+      default: null
+    },
+    language: {
+      type: String,
+      default: 'en'
+    },
+    savedUserId: {
+      type: String,
+      default: null
     }
   },
   watch: {
     showHeaderInput() {
       if (this.showHeaderInput) {
-        this.headerTitle = this.savedHeaderText || this.$t('organizationalChart.header.label');
+        this.headerTitle = this.savedHeaderTranslations || {[this.language]: this.$t('organizationalChart.header.label')};
       } else {
         this.headerTitle = null;
       }
@@ -196,10 +215,15 @@ export default {
     },
     settingsUpdated() {
       return !this.hasSettings && this.firstSetupValid
-                               || (this.centerUserUpdated || this.savedHeaderText !== this.headerTitle);
+                               || (this.centerUserUpdated || this.listTranslationsUpdated);
+    },
+    listTranslationsUpdated() {
+      return JSON.stringify(Object.values(this.savedHeaderTranslations || {}).sort()) !==
+          JSON.stringify(Object.values(this.headerTitle || {}).sort());
     },
     centerUserUpdated() {
-      return this.user && this.selectedUser?.id !== this.user?.identityId;
+      return this.user && this.selectedUser?.id !== this.user?.identityId
+                       || this.selectedUser?.id !== this.savedUserId;
     },
     showSelected() {
       return this.specificUser && (this.user || this.selectedUserData);
@@ -224,17 +248,17 @@ export default {
     }
   },
   methods: {
-    setI18nHeaderTitle() {
-      this.headerTitle = this.$t('organizationalChart.header.label');
-    },
     removeSelectedUser() {
       this.user = this.selectedUserData = null;
     },
     saveApplicationSettings() {
       const settings = {
         connectedUser: this.connectedUser,
-        userId: this.connectedUser && this.chartCenterUser || this.user?.identityId,
-        title: this.headerTitle
+        userId: this.connectedUser && this.chartCenterUser
+                                   || this.user?.identityId
+                                   || this.selectedUserData?.id,
+        headerTranslations: this.headerTitle || null,
+        title: this.headerTitle?.[this.language]
       };
       this.$emit('save-application-settings', settings);
     },
@@ -244,8 +268,8 @@ export default {
     },
     initSettings() {
       this.selectedUserData = this.selectedUser;
-      this.headerTitle = !this.selectedUser && this.$t('organizationalChart.header.label')
-                                            || this.savedHeaderText;
+      this.headerTitle = !this.selectedUser && {[this.language]: this.$t('organizationalChart.header.label')}
+                                            || this.savedHeaderTranslations;
       this.showHeaderInput = !this.selectedUser || !!this.headerTitle;
       this.chartCenterUser = (!this.selectedUser || this.isConnectedUserSelected)
                                                 && this.connectedUserOption

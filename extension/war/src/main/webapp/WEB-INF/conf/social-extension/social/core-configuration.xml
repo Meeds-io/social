@@ -1004,6 +1004,11 @@
             <set-method>addPlugin</set-method>
             <type>org.exoplatform.social.core.plugin.SiteTranslationPlugin</type>
         </component-plugin>
+        <component-plugin>
+            <name>organizationalChart</name>
+            <set-method>addPlugin</set-method>
+            <type>org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslation</type>
+        </component-plugin>
     </external-component-plugins>
     <external-component-plugins>
       <target-component>io.meeds.social.translation.service.TranslationService</target-component>
