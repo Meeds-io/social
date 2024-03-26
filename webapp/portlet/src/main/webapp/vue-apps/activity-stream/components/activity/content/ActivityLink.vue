@@ -100,9 +100,18 @@
           v-if="summary"
           :child="summaryElement"
           :title="summaryTooltip"
-          :class="useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'"
+          :class="bodyClass"
           class="caption text-wrap text-break reset-style-box rich-editor-content"
           dir="auto" />
+        <v-btn
+          v-if="collapsed && !fullContent && readMore"
+          class="d-flex ml-auto mb-3"
+          color="blue"
+          text
+          plain
+          @click="displayFullContent">
+          {{ $t('UIActivity.label.seeMore') }}
+        </v-btn>
       </div>
     </template>
   </dynamic-html-element>
@@ -123,6 +132,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    collapsed: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     title: null,
@@ -134,6 +147,8 @@ export default {
     tooltip: null,
     useEllipsisOnSummary: true,
     useEllipsisOnTitle: true,
+    fullContent: false,
+    displayReadMoreButton: false
   }),
   computed: {
     getTitle() {
@@ -242,6 +257,12 @@ export default {
         template: ExtendedDomPurify.purify(`<div>${this.title}</div>`) || '',
       };
     },
+    bodyClass() {
+      return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'content-collapsed overflow-hidden' || ''}`;
+    },
+    readMore() {
+      return this.displayReadMoreButton;
+    }
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
@@ -252,6 +273,12 @@ export default {
   },
   created() {
     this.retrieveActivityProperties();
+    window.addEventListener('resize', () => {
+      this.displayReadMore();
+    });
+  },
+  mounted() {
+    this.displayReadMore();
   },
   methods: {
     retrieveActivityProperties() {
@@ -272,6 +299,13 @@ export default {
         this.thumbnail = this.getThumbnail && this.getThumbnail(this.activity, this.isActivityDetail);
       }
     },
+    displayReadMore() {
+      const elem = this.$el.querySelector('.rich-editor-content');
+      this.displayReadMoreButton = elem.scrollHeight > elem.clientHeight;
+    },
+    displayFullContent() {
+      this.fullContent = !this.fullContent;
+    }
   },
 };
 </script>
