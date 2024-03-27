@@ -380,6 +380,53 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(1, metadataItems.size());
     assertEquals(storedMetadataItem.getId(), metadataItems.get(0).getId());
   }
+  
+  public void getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds() throws ObjectAlreadyExistsException {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId = creatorId;
+    long spaceId = 200l;
+    String objectId = "objectId105";
+    String parentObjectId = "parentObjectId";
+    String objectType = "objectType16";
+    String type = userMetadataType.getName();
+    String name = "testMetadata11";
+
+    MetadataObject metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    metadataItemObject.setSpaceId(spaceId);
+    MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+    MetadataItem storedMetadataItem = metadataService.createMetadataItem(metadataItemObject, metadataKey, creatorId);
+
+    long space2Id = 300l;
+    String object2Id = "objectId106";
+
+    MetadataObject metadataItem2Object = newMetadataObjectInstance(objectType, object2Id, parentObjectId);
+    metadataItem2Object.setSpaceId(space2Id);
+    metadataService.createMetadataItem(metadataItem2Object, metadataKey, creatorId);
+
+    long creator2Id = Long.parseLong(maryIdentity.getId());
+    long audience2Id = creator2Id;
+    long space3Id = 400l;
+    String object3Id = "objectId1107";
+
+    MetadataObject metadataItem3Object = newMetadataObjectInstance(objectType, object3Id, parentObjectId);
+    metadataItem3Object.setSpaceId(space3Id);
+    MetadataKey metadataKey2 = new MetadataKey(type, name, audience2Id);
+    MetadataItem storedMetadataItem3 = metadataService.createMetadataItem(metadataItem3Object, metadataKey2, creator2Id);
+
+    restartTransaction();
+    List<MetadataItem> metadataItems =
+                                     metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(name,
+                                                                                                               type,
+                                                                                                               objectType,
+                                                                                                               Arrays.asList(spaceId,
+                                                                                                                             space3Id),
+                                                                                                               0,
+                                                                                                               10);
+    assertNotNull(metadataItems);
+    assertEquals(2, metadataItems.size());
+    assertEquals(storedMetadataItem.getId(), metadataItems.get(0).getId());
+    assertEquals(storedMetadataItem3.getId(), metadataItems.get(1).getId());
+  }
 
   public void testGetMetadataItemsByMetadataNameAndTypeAndObjectAndMetadataItemProperty() throws ObjectAlreadyExistsException {
     long creatorId = Long.parseLong(johnIdentity.getId());
