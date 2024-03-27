@@ -121,7 +121,10 @@
               ref="headerTitleInput"
               id="headerTitleInput"
               v-model="headerTitle"
+              :object-id="applicationId"
               :default-language="language"
+              field-name="chartHeaderTitle"
+              object-type="organizationalChart"
               :placeholder="$t('organizationalChart.headerTitle.placeholder')"
               drawer-title="organizationalChart.label.headerTitle.translation"
               maxlength="500"
@@ -193,24 +196,12 @@ export default {
     savedUserId: {
       type: String,
       default: null
-    },
-    canUpdateCenterUser: {
-      type: Boolean,
-      default: true
-    },
-    defaultTitle: {
-      type: String,
-      default: null
-    },
-    hasHeaderTitle: {
-      type: Boolean,
-      default: false
     }
   },
   watch: {
     showHeaderInput() {
       if (this.showHeaderInput) {
-        this.headerTitle = this.savedHeaderTranslations || this.defaultHeaderTitle;
+        this.headerTitle = this.savedHeaderTranslations || {[this.language]: this.$t('organizationalChart.header.label')};
       } else {
         this.headerTitle = null;
       }
@@ -279,9 +270,7 @@ export default {
                                    || this.user?.identityId
                                    || this.selectedUserData?.id,
         headerTranslations: this.headerTitle || null,
-        title: this.headerTitle?.[this.language] || this.defaultTitle,
-        canUpdateCenterUser: this.canUpdateCenterUser,
-        hasHeaderTitle: this.showHeaderInput
+        title: this.headerTitle?.[this.language]
       };
       this.$emit('save-application-settings', settings);
     },
@@ -300,10 +289,9 @@ export default {
     },
     initSettings() {
       this.selectedUserData = this.selectedUser;
-      this.headerTitle = !this.selectedUser && this.defaultHeaderTitle
+      this.headerTitle = !this.selectedUser && {[this.language]: this.$t('organizationalChart.header.label')}
                                             || this.savedHeaderTranslations;
-      this.bindDefaultHeaderTitle();
-      this.showHeaderInput = !!this.headerTitle;
+      this.showHeaderInput = !this.selectedUser || !!this.headerTitle;
       this.chartCenterUser = (!this.selectedUser || this.isConnectedUserSelected)
                                                 && this.connectedUserOption
                                                 || this.specificUserOption;

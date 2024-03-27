@@ -17,7 +17,6 @@
 package org.exoplatform.social.core.jpa.test;
 
 import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnectorTest;
-import org.exoplatform.social.core.listeners.ManagerPropertySettingUpdatedListenerTest;
 import org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslationTest;
 import org.exoplatform.social.core.upgrade.UserPasswordHashMigrationTest;
 import org.exoplatform.social.core.utils.MentionUtilsTest;
@@ -140,8 +139,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ProfileSearchConnectorTest.class,
   ComplementaryFilterSearchConnectorTest.class,
   ProfileIndexingServiceConnectorTest.class,
-  OrganizationalChartHeaderTranslationTest.class,
-  ManagerPropertySettingUpdatedListenerTest.class
+  OrganizationalChartHeaderTranslationTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {
