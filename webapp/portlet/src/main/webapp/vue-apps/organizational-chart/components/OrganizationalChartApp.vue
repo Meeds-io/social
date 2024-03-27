@@ -64,6 +64,7 @@
       :has-settings="hasSettings"
       :saved-user-id="savedUserId"
       :language="language"
+      :can-update-center-user="canUpdateCenterUser"
       @save-application-settings="saveApplicationSettings" />
   </v-app>
 </template>
@@ -142,8 +143,11 @@ export default {
     savedUserId() {
       return this.$root.settings?.userId;
     },
+    canUpdateCenterUser() {
+      return this.$root.settings?.canUpdateCenterUser;
+    },
     hasSettings() {
-      return !!this.savedUserId;
+      return !!this.savedUserId || !this.canUpdateCenterUser;
     },
     managedUsersList() {
       return this.preview && this.sortedManagedUsersList?.length
