@@ -184,6 +184,7 @@ export default {
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
         loading: this.loading,
+        collapsed: !this.unreadMetadata,
       };
     },
     init() {
