@@ -79,3 +79,16 @@ export function saveDefaultLanguage(lang) {
     }
   });
 }
+
+export function deleteTranslations(objectType, objectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/${objectType}/${objectId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp?.ok) {
+      return resp;
+    } else {
+      throw new Error(`Error while deleting list of translations for field ${objectType}/${objectId}`);
+    }
+  });
+}
