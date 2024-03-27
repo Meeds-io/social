@@ -1931,6 +1931,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
         <module>peopleListComponents</module>
       </depends>
       <depends>
