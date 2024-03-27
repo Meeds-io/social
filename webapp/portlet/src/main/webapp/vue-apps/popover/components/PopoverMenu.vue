@@ -137,7 +137,7 @@ export default {
       }
       if (this.menu) {
         // workaround for menu v-select absolute content that must be displayed inside the menu
-        $('.profile-popover-menu').css('height', '160px');
+        $('.profile-popover-menu').css('height', '100%');
       }
     });
     // Force to close user popover when scrolling
