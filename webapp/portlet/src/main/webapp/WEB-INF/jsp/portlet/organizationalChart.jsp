@@ -40,9 +40,13 @@
         headerTranslations = mapper.writeValueAsString(labels);
     }
 
+    boolean canUpdateCenterUser = true;
     if (centerUser == null) {
         PortletPreferences preferences = renderRequest.getPreferences();
-        centerUser = preferences.getValue("centerUser", null);
+        canUpdateCenterUser = Boolean.parseBoolean(preferences.getValue("canUpdateCenterUser", "true"));
+        if (canUpdateCenterUser) {
+            centerUser = preferences.getValue("centerUser", null);
+        }
         try {
             ResourceBundleService resourceBundleService = CommonsUtils.getService(ResourceBundleService.class);
             ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portlet.Portlets", request.getLocale());
@@ -73,6 +77,7 @@
                 userId: "<%=centerUser%>" !== 'null' && "<%=centerUser%>" || null,
                 title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
                 headerTranslations: <%=headerTranslations%>,
+                canUpdateCenterUser: <%=canUpdateCenterUser%>,
                 isSpaceManager: <%=isManager%>
             }
             if (eXo?.env?.portal?.organizationalChartEnabled) {
