@@ -44,39 +44,48 @@
             <p class="caption grey--text">
               {{ $t('organizationalChart.settings.centerUser.info') }}
             </p>
-            <v-radio-group
-              name="chartCenterUser"
-              v-model="chartCenterUser">
-              <v-radio
-                :label="$t('organizationalChart.settings.connectedUser.label')"
-                :value="connectedUserOption" />
-              <v-radio
-                :label="$t('organizationalChart.settings.specificUser.label')"
-                :value="specificUserOption" />
-            </v-radio-group>
-            <exo-identity-suggester
-              v-if="specificUser && !user && !selectedUserData"
-              ref="chartCenterUserSuggester"
-              v-model="user"
-              :labels="{
-                searchPlaceholder: this.$t('organizationalChart.search.placeholder'),
-                placeholder: this.$t(`organizationalChart.search.user.placeholder`),
-                noDataLabel: this.$t('Search.noResults'),
-              }"
-              :ignore-items="listIgnoredItems"
-              include-users
-              :search-options="{}"
-              @input="selectUser" />
-            <v-chip
-              v-if="showSelected"
-              class="primary white--text"
-              close
-              @click:close="removeSelectedUser">
-              <v-avatar left>
-                <v-img :src="avatarUrl" />
-              </v-avatar>
-              {{ userFullName }}
-            </v-chip>
+            <div v-if="canUpdateCenterUser">
+              <v-radio-group
+                name="chartCenterUser"
+                v-model="chartCenterUser">
+                <v-radio
+                  :label="$t('organizationalChart.settings.connectedUser.label')"
+                  :value="connectedUserOption" />
+                <v-radio
+                  :label="$t('organizationalChart.settings.specificUser.label')"
+                  :value="specificUserOption" />
+              </v-radio-group>
+              <exo-identity-suggester
+                v-if="specificUser && !user && !selectedUserData"
+                ref="chartCenterUserSuggester"
+                v-model="user"
+                :labels="{
+                  searchPlaceholder: this.$t('organizationalChart.search.placeholder'),
+                  placeholder: this.$t(`organizationalChart.search.user.placeholder`),
+                  noDataLabel: this.$t('Search.noResults'),
+                }"
+                :ignore-items="listIgnoredItems"
+                include-users
+                :search-options="{}"
+                @input="selectUser" />
+              <v-chip
+                v-else-if="showSelected"
+                class="primary white--text"
+                close
+                @click:close="removeSelectedUser">
+                <v-avatar left>
+                  <v-img :src="avatarUrl" />
+                </v-avatar>
+                {{ userFullName }}
+              </v-chip>
+            </div>
+            <div v-else>
+              <v-chip
+                class="grey lighten-1"
+                :title="$t('organizationalChart.displayedUser.settings.disabled')">
+                {{ $t('organizationalChart.displayedUser.disabled.message') }}
+              </v-chip>
+            </div>
           </label>
           <v-card
             class="grey pa-1 mt-2 lighten-2 overflow-hidden"
@@ -187,6 +196,10 @@ export default {
     savedUserId: {
       type: String,
       default: null
+    },
+    canUpdateCenterUser: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
