@@ -227,4 +227,26 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
     };
     translationService.addPlugin(translationPlugin);
   }
+
+  public void testDeleteTranslationLabels() throws Exception {
+    startSessionAs(username);
+
+    String url = "/social/translations/" + objectType + "/" + objectId;
+
+    ContainerResponse response = getResponse("DELETE", url, null);
+    assertNotNull(response);
+    assertEquals(500, response.getStatus());
+
+    setTranslationPlugin(true, false, spaceId, audienceId);
+
+    response = getResponse("DELETE", url, null);
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    setTranslationPlugin(true, true, spaceId, audienceId);
+
+    response = getResponse("DELETE", url, null);
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+  }
 }

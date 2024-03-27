@@ -26,14 +26,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -200,6 +193,37 @@ public class TranslationRest implements ResourceContainer {
     }
   }
 
+  @DELETE
+  @Path("{objectType}/{objectId}")
+  @RolesAllowed("users")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(
+          summary = "Deletes a list of translation labels for a given Object's field identified by its type and id ",
+          method = "DELETE",
+          description = "Deletes a list of translation labels for a given Object's field identified by its type and id")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "401", description = "Unauthorized operation"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+  })
+  public Response deleteTranslationLabels(
+          @Parameter(description = "Object type, like 'activity', 'task' ...", required = true)
+          @PathParam("objectType")
+          String objectType,
+          @Parameter(description = "Object technical identifier", required = true)
+          @PathParam("objectId")
+          long objectId) {
+    try {
+      translationService.deleteTranslationLabels(objectType, objectId, RestUtils.getCurrentUser());
+      return Response.noContent().build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
+    } catch (Exception e) {
+      return Response.serverError().entity(e.getMessage()).build();
+    }
+  }
+  
+  
   private Map<String, String> getSupportedLocales(Locale defaultLocale) {
     return localeConfigService.getLocalConfigs() == null ? Collections.singletonMap(defaultLocale.toLanguageTag(),
                                                                                     getLocaleDisplayName(defaultLocale,
