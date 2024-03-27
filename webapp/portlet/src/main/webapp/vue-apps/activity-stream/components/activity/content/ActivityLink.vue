@@ -273,12 +273,10 @@ export default {
   },
   created() {
     this.retrieveActivityProperties();
-    window.addEventListener('resize', () => {
-      this.displayReadMore();
-    });
+    window.addEventListener('resize', this.displayReadMore);
   },
-  mounted() {
-    this.displayReadMore();
+  beforeDestroy() {
+    window.removeEventListener('resize', this.displayReadMore);
   },
   methods: {
     retrieveActivityProperties() {

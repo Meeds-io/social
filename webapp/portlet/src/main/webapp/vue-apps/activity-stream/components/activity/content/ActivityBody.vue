@@ -88,9 +88,10 @@ export default {
   },
   created() {
     this.retrieveActivityProperties();
-    window.addEventListener('resize', () => {
-      this.displayReadMore();
-    });
+    window.addEventListener('resize', this.displayReadMore);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.displayReadMore);
   },
   mounted() {
     this.$tagService.initTags(this.$t('Tag.tooltip.startSearch'));
