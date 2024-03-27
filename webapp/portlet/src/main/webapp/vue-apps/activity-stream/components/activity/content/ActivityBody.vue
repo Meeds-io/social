@@ -1,11 +1,22 @@
 <template>
-  <dynamic-html-element
-    v-if="isBodyNotEmpty"
-    :child="bodyElement"
-    :element="element"
-    :class="bodyClass"
-    class="reset-style-box rich-editor-content text-break overflow-hidden"
-    dir="auto" />
+  <div>
+    <dynamic-html-element
+      v-if="isBodyNotEmpty"
+      :child="bodyElement"
+      :element="element"
+      :class="bodyClass"
+      class="reset-style-box rich-editor-content text-break overflow-hidden"
+      dir="auto" />
+    <v-btn
+      v-if="collapsed && !fullContent && readMore"
+      class="d-flex ml-auto mb-3"
+      color="blue"
+      text
+      plain
+      @click="displayFullContent">
+      {{ $t('UIActivity.label.seeMore') }}
+    </v-btn>
+  </div>
 </template>
 
 <script>
@@ -27,9 +38,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    collapsed: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     body: null,
+    fullContent: false,
+    displayReadMoreButton: false
   }),
   computed: {
     bodyElement() {
@@ -56,8 +73,11 @@ export default {
       return this.activity && this.activity.activityId;
     },
     bodyClass() {
-      return this.isComment && 'rich-editor-content' || 'postContent text-color py-0';
+      return `${this.isComment && 'rich-editor-content' || 'postContent text-color py-0'} ${this.collapsed && !this.fullContent && 'content-collapsed overflow-hidden' || ''}`;
     },
+    readMore() {
+      return this.displayReadMoreButton;
+    }
   },
   watch: {
     loading() {
@@ -68,14 +88,26 @@ export default {
   },
   created() {
     this.retrieveActivityProperties();
+    window.addEventListener('resize', this.displayReadMore);
   },
   mounted() {
     this.$tagService.initTags(this.$t('Tag.tooltip.startSearch'));
+    this.displayReadMore();
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.displayReadMore);
   },
   methods: {
     retrieveActivityProperties() {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
     },
+    displayReadMore() {
+      const elem = this.$el.querySelector('.rich-editor-content');
+      this.displayReadMoreButton = elem?.scrollHeight > elem?.clientHeight;
+    },
+    displayFullContent() {
+      this.fullContent = !this.fullContent;
+    }
   },
 };
 </script>
