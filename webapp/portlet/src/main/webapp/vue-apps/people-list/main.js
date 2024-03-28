@@ -1,3 +1,5 @@
+import {registerExtensions} from './components/js/extensions';
+
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -10,6 +12,7 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 export function init(filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+    registerExtensions();
     Vue.createApp({
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));

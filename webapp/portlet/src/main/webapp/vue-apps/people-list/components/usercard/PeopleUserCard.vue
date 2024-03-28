@@ -23,7 +23,8 @@
     <v-card
       :class="hover && 'elevation-2'"
       class="mx-auto border-box-sizing card-border-radius socialUserCard"
-      width="268"
+      :width="$attrs.width"
+      :min-width="$attrs.minWidth"
       height="227"
       :href="profileUrl"
       outlined>
@@ -67,20 +68,35 @@
           </p>
         </v-card-subtitle>
       </div>
-      <v-card-actions
-        v-if="!isSameUser"
-        class="justify-end d-flex width-full">
-        <v-btn
-          v-for="extension in profileActionExtensions"
-          :key="extension.id"
-          icon
-          @click.prevent="extension.click(user)">
-          <v-icon
-            :title="extension.title"
-            size="22">
-            {{ extension.class }}
-          </v-icon>
-        </v-btn>
+      <v-card-actions>
+        <div class="me-auto">
+          <v-btn
+            v-for="extension in filteredUserNavigationExtensions"
+            :key="extension.id"
+            icon
+            @click.prevent="extension.click(user)">
+            <v-icon
+              :title="$t(extension.titleKey)"
+              size="22">
+              {{ extension.class }}
+            </v-icon>
+          </v-btn>
+        </div>
+        <div
+          v-if="!isSameUser"
+          class="ms-auto">
+          <v-btn
+            v-for="extension in filteredProfileActionExtensions"
+            :key="extension.id"
+            icon
+            @click.prevent="extension.click(user)">
+            <v-icon
+              :title="extension.title"
+              size="22">
+              {{ extension.class }}
+            </v-icon>
+          </v-btn>
+        </div>
       </v-card-actions>
     </v-card>
   </v-hover>
@@ -106,8 +122,23 @@ export default {
       type: Array,
       default: () => []
     },
+    userNavigationExtensions: {
+      type: Array,
+      default: () => []
+    },
+    ignoredNavigationExtensions: {
+      type: Array,
+      default: () => []
+    }
   },
   computed: {
+    filteredUserNavigationExtensions() {
+      return this.userNavigationExtensions.filter(extension => extension.enabled(this.user)
+        && !this.ignoredNavigationExtensions.includes(extension?.id));
+    },
+    filteredProfileActionExtensions() {
+      return this.profileActionExtensions.filter(extension => extension.enabled(this.user?.dataEntity || this.user));
+    },
     isSameUser() {
       return this.user?.username === eXo?.env?.portal?.userName;
     },

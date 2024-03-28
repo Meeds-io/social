@@ -49,7 +49,10 @@
     <people-user-card
       id="chartCenterUser"
       class="my-1"
+      width="268"
+      :ignored-navigation-extensions="['user-chart']"
       :user="user"
+      :user-navigation-extensions="userNavigationExtensions"
       :profile-action-extensions="profileActionExtensions" />
     <div class="chartVerticalLine">
       <v-divider
@@ -110,6 +113,10 @@ export default {
       default: () => []
     },
     profileActionExtensions: {
+      type: Array,
+      default: () => []
+    },
+    userNavigationExtensions: {
       type: Array,
       default: () => []
     },
