@@ -166,7 +166,7 @@ export default {
       return this.getSelectionIndex(suggestion) !== -1;
     },
     updateFilterSuggestions() {
-      if (!this.listObjectIds?.length) {
+      if (this.listObjectIds?.length <= 1) {
         this.suggestions = [...this.selections].sort((a, b) => b.count - a.count);
       } else {
         this.getComplementaryFilterSuggestions();
