@@ -46,6 +46,7 @@
             :user="user"
             :managed-users="managedUsersList"
             :profile-action-extensions="profileActionExtensions"
+            :user-navigation-extensions="userExtensions"
             :is-loading="isLoadingManagedUsers"
             :has-more="hasMore"
             :preview="preview"
@@ -84,6 +85,7 @@ export default {
       isLoadingManagedUsers: false,
       isLoading: true,
       profileActionExtensions: [],
+      userExtensions: [],
       userId: eXo?.env?.portal.userIdentityId,
       collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       settingsContextKey: 'GLOBAL',
@@ -162,7 +164,9 @@ export default {
     const centerUser = this.getRequestedCenterUserId() || this.initialUserId || this.userId;
     this.updateChart(centerUser);
     this.refreshExtensions();
+    this.refreshUserExtensions();
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
   },
   methods: {
     updateUrl(identityId) {
@@ -222,6 +226,10 @@ export default {
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
       this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+    },
+    refreshUserExtensions() {
+      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
+      this.userExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
     },
     getUser() {
       if (isNaN(this.userId)) {
