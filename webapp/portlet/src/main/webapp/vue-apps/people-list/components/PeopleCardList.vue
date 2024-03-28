@@ -93,8 +93,9 @@ export default {
   },
   data: () => ({
     profileExtensions: [],
+    userExtensions: [],
     spaceMemberExtensions: [],
-    fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
+    fieldsToRetrieve: 'settings,all,spacesCount,relationshipStatus,connectionsCount,binding',
     userType: 'internal',
     initialized: false,
     hasPeople: false,
@@ -150,6 +151,7 @@ export default {
     // To refresh menu when a new extension is ready to be used
     document.addEventListener('space-member-extension-updated', this.refreshExtensions);
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
 
     // To broadcast event about current page supporting profile extensions
     document.dispatchEvent(new CustomEvent('profile-extension-init'));
@@ -158,12 +160,16 @@ export default {
     this.$root.$on('advanced-filter', profileSettings => this.getUsersByadvancedfilter(profileSettings));
 
     this.refreshExtensions();
+    this.refreshUserExtensions();
   },
   methods: {
     resetFilters() {
       this.$root.$emit('reset-filter');
       this.$root.$emit('reset-advanced-filter');
       this.$root.$emit('reset-advanced-filter-count');
+    },
+    refreshUserExtensions() {
+      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
     },
     refreshExtensions() {
       this.profileExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
