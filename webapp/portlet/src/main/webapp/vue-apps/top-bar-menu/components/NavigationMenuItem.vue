@@ -34,12 +34,11 @@
         :class="`mx-auto text-caption text-break ${extraClass} ${notClickable}`"
         v-on="on"
         v-bind="attrs"
-        :href="navigationNodeUri"
-        :target="navigationNodeTarget"
         :link="hasPage"
         :aria-label="$t('topBar.navigation.menu.openMenu')"
         role="tab"
         @click.stop="checkLink(navigation, $event)"
+        @click="openUrl(navigationNodeUri, navigationNodeTarget)"
         @change="updateNavigationState(navigation.uri)">
         <span
           class="text-truncate-3">
@@ -108,7 +107,7 @@ export default {
       return !!this.navigation?.pageKey;
     },
     navigationNodeUri() {
-      return this.navigation?.pageLink && this.urlVerify(this.navigation?.pageLink) || `${this.baseSiteUri}${this.navigation.uri}`;
+      return this.navigation?.pageLink || `${this.baseSiteUri}${this.navigation.uri}`;
     },
     navigationNodeTarget() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
@@ -165,11 +164,13 @@ export default {
       });
       return childrenHasPage;
     },
-    urlVerify(url) {
+    openUrl(url, target) {
       if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
         url = `//${url}`;
+      } else if (url.match(/^(\/portal\/)/)) {
+        url = `${window.location.origin}${url}`;
       }
-      return url ;
+      window.open(url, target);
     },
   }
 };
