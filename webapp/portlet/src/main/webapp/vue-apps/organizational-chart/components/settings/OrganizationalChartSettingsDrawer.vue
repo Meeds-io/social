@@ -121,10 +121,7 @@
               ref="headerTitleInput"
               id="headerTitleInput"
               v-model="headerTitle"
-              :object-id="applicationId"
               :default-language="language"
-              field-name="chartHeaderTitle"
-              object-type="organizationalChart"
               :placeholder="$t('organizationalChart.headerTitle.placeholder')"
               drawer-title="organizationalChart.label.headerTitle.translation"
               maxlength="500"
@@ -200,12 +197,20 @@ export default {
     canUpdateCenterUser: {
       type: Boolean,
       default: true
+    },
+    defaultTitle: {
+      type: String,
+      default: null
+    },
+    hasHeaderTitle: {
+      type: Boolean,
+      default: false
     }
   },
   watch: {
     showHeaderInput() {
       if (this.showHeaderInput) {
-        this.headerTitle = this.savedHeaderTranslations || {[this.language]: this.$t('organizationalChart.header.label')};
+        this.headerTitle = this.savedHeaderTranslations || this.defaultHeaderTitle;
       } else {
         this.headerTitle = null;
       }
@@ -258,6 +263,9 @@ export default {
     },
     initialUserId() {
       return this.user?.identityId || this.selectedUserData?.id;
+    },
+    defaultHeaderTitle() {
+      return {[this.language]: this.defaultTitle || this.$t('organizationalChart.header.label')};
     }
   },
   methods: {
@@ -271,7 +279,9 @@ export default {
                                    || this.user?.identityId
                                    || this.selectedUserData?.id,
         headerTranslations: this.headerTitle || null,
-        title: this.headerTitle?.[this.language]
+        title: this.headerTitle?.[this.language] || this.defaultTitle,
+        canUpdateCenterUser: this.canUpdateCenterUser,
+        hasHeaderTitle: this.showHeaderInput
       };
       this.$emit('save-application-settings', settings);
     },
@@ -279,11 +289,21 @@ export default {
       this.user = user;
       this.listIgnoredItems = [user?.id];
     },
+    bindDefaultHeaderTitle() {
+      if (!this.hasHeaderTitle) {
+        return;
+      }
+      this.headerTitle = this.headerTitle || {};
+      if (!this.headerTitle?.[this.language]) {
+        this.headerTitle[this.language] = this.defaultTitle || this.$t('organizationalChart.header.label');
+      }
+    },
     initSettings() {
       this.selectedUserData = this.selectedUser;
-      this.headerTitle = !this.selectedUser && {[this.language]: this.$t('organizationalChart.header.label')}
+      this.headerTitle = !this.selectedUser && this.defaultHeaderTitle
                                             || this.savedHeaderTranslations;
-      this.showHeaderInput = !this.selectedUser || !!this.headerTitle;
+      this.bindDefaultHeaderTitle();
+      this.showHeaderInput = this.hasSettings && !!this.headerTitle;
       this.chartCenterUser = (!this.selectedUser || this.isConnectedUserSelected)
                                                 && this.connectedUserOption
                                                 || this.specificUserOption;
