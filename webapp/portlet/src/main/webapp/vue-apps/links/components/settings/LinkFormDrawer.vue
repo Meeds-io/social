@@ -219,14 +219,16 @@ export default {
     open(link, edit, index) {
       if (!link) {
         link = {};
-      }
-      if (!link.name?.[this.$root.defaultLanguage]) {
         link.name = {};
         link.name[this.$root.defaultLanguage] = '';
-      }
-      if (!link.description?.[this.$root.defaultLanguage]) {
         link.description = {};
         link.description[this.$root.defaultLanguage] = '';
+      }
+      if (!link.name?.[this.$root.defaultLanguage]) {
+        link.name[this.$root.defaultLanguage] = link.name['en'] || '';
+      }
+      if (!link.description?.[this.$root.defaultLanguage]) {
+        link.description[this.$root.defaultLanguage] = link.description['en'] || '';
       }
       if (!link.iconSrc) {
         link.iconSrc = null;
