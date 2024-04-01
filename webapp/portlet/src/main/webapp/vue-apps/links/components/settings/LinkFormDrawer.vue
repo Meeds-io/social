@@ -221,12 +221,10 @@ export default {
         link = {};
       }
       if (!link.name?.[this.$root.defaultLanguage]) {
-        link.name = {};
-        link.name[this.$root.defaultLanguage] = '';
+        link.name[this.$root.defaultLanguage] = link.name['en'] || '';
       }
       if (!link.description?.[this.$root.defaultLanguage]) {
-        link.description = {};
-        link.description[this.$root.defaultLanguage] = '';
+        link.description[this.$root.defaultLanguage] = link.description['en'] || '';
       }
       if (!link.iconSrc) {
         link.iconSrc = null;

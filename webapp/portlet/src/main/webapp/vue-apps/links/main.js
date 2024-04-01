@@ -64,7 +64,17 @@ export function init(appId, name, canEdit) {
           },
           retrieveSettings() {
             return this.$linkService.getSettings(this.name, this.language)
-              .then(settings => this.settings = settings);
+              .then(settings => {
+                settings.links.forEach(link => {
+                  if (!link.name?.[this.defaultLanguage]) {
+                    link.name[this.defaultLanguage] = link.name['en'] || '';
+                  }
+                  if (!link.description?.[this.defaultLanguage]) {
+                    link.description[this.defaultLanguage] = link.description['en'] || '';
+                  }
+                });
+                this.settings = settings;
+              });
           },
         },
         template: `<links-app id="${appId}"></links-app>`,
