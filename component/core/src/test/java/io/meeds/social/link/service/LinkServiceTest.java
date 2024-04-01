@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileInfo;
@@ -43,6 +44,7 @@ import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.mock.MockUploadService;
@@ -88,6 +90,8 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
 
   private FileService         fileService;
 
+  private LocaleConfigService localeConfigService;
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -96,6 +100,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     identityRegistry = getContainer().getComponentInstanceOfType(IdentityRegistry.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     fileService = getContainer().getComponentInstanceOfType(FileService.class);
+    localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
     begin();
   }
 
@@ -373,6 +378,45 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     assertFalse(linkService.hasEditPermission(LINK_SETTING_NAME, null));
     assertFalse(linkService.hasEditPermission(LINK_SETTING_NAME, registerInternalUser(USERNAME)));
     assertTrue(linkService.hasEditPermission(LINK_SETTING_NAME, registerAdministratorUser(USERNAME)));
+  }
+
+  public void testGetLinkTranslations() throws ObjectNotFoundException, IllegalAccessException {
+    LinkSetting linkSetting = initLinkSetting(LINK_SETTING_NAME, "testSaveLinkSettingPermissions");
+    assertNotNull(linkSetting);
+
+    linkSetting.setHeader(Collections.singletonMap("en", "header"));
+    linkSetting.setLargeIcon(true);
+    linkSetting.setShowName(true);
+    linkSetting.setSeeMore("SeeMore");
+    linkSetting.setType(LinkDisplayType.COLUMN);
+    linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
+
+    List<Link> links = linkService.getLinks(LINK_SETTING_NAME, null, true);
+    assertNotNull(links);
+    assertEquals(0l, links.size());
+
+    Link linkToSave1 = new Link(0,
+            Collections.singletonMap("en", "Website"),
+            Collections.singletonMap("en", "Website description"),
+            "https://localhost/",
+            true,
+            5,
+            0);
+    List<Link> linksToSave = Collections.singletonList(linkToSave1.clone());
+    linkService.saveLinkSetting(linkSetting, linksToSave, registerAdministratorUser(USERNAME));
+    links = linkService.getLinks(LINK_SETTING_NAME, "en", true);
+    assertNotNull(links);
+    assertEquals(1, links.size());
+    Map<String, String> name = links.get(0).getName();
+    assertNotNull(name.get("en"));
+    assertNull(name.get("fr"));
+    localeConfigService.saveDefaultLocaleConfig("fr");
+    links = linkService.getLinks(LINK_SETTING_NAME, "fr", true);
+    assertNotNull(links);
+    assertEquals(1, links.size());
+    name = links.get(0).getName();
+    assertNotNull(name.get("en"));
+    assertNull(name.get("fr"));
   }
 
   private LinkSetting initLinkSetting(String linkSettingName, String pageName) {
