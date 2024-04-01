@@ -391,7 +391,10 @@ public class LinkServiceImpl implements LinkService {
       if (StringUtils.isBlank(label)) {
         String defaultLanguage = localeConfigService.getDefaultLocaleConfig().getLocale().toLanguageTag();
         if (StringUtils.equals(defaultLanguage, language)) {
-          return Collections.singletonMap(defaultLanguage, "");
+          if (!Locale.ENGLISH.toLanguageTag().equals(language)) {
+            label = translationService.getTranslationLabel(objectType, objectId, fieldName, Locale.ENGLISH);
+          }
+          return Collections.singletonMap(Locale.ENGLISH.toLanguageTag(), !StringUtils.isBlank(label) ? label : "");
         } else {
           return Collections.singletonMap(language,
                                           getTranslations(objectType, objectId, fieldName, defaultLanguage).get(defaultLanguage));

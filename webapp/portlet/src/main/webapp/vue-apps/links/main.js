@@ -60,12 +60,24 @@ export function init(appId, name, canEdit) {
         },
         methods: {
           init() {
-            return this.retrieveSettings();
+            return this.retrieveSettings().then(() => this.computeDefaultTranslations()) ;
           },
           retrieveSettings() {
             return this.$linkService.getSettings(this.name, this.language)
-              .then(settings => this.settings = settings);
+              .then(settings => {
+                this.settings = settings;
+              });
           },
+          computeDefaultTranslations() {
+            return this.settings.links.forEach(link => {
+              if (!link.name?.[this.defaultLanguage]) {
+                link.name[this.defaultLanguage] = link.name['en'] || '';
+              }
+              if (!link.description?.[this.defaultLanguage]) {
+                link.description[this.defaultLanguage] = link.description['en'] || '';
+              }
+            });
+          }
         },
         template: `<links-app id="${appId}"></links-app>`,
         vuetify: Vue.prototype.vuetifyOptions,
