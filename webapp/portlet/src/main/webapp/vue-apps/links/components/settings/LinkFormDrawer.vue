@@ -219,6 +219,10 @@ export default {
     open(link, edit, index) {
       if (!link) {
         link = {};
+        link.name = {};
+        link.name[this.$root.defaultLanguage] = '';
+        link.description = {};
+        link.description[this.$root.defaultLanguage] = '';
       }
       if (!link.name?.[this.$root.defaultLanguage]) {
         link.name[this.$root.defaultLanguage] = link.name['en'] || '';
