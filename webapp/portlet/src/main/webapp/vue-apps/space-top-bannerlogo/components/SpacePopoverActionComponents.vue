@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     initTitleActionComponent(action) {
-      if (action.init && !action.isStartedInit && action.enabled) {
+      if (action.init && action.enabled) {
         action.isStartedInit = true;
         let container = this.$refs[action.key];
         if (container && container.length > 0) {
