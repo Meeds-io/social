@@ -38,6 +38,7 @@
             :has-settings="hasSettings"
             :configured-title="configuredHeaderTitle"
             :is-admin="isAdmin"
+            :has-header-title="hasHeaderTitle"
             :hover="hover"
             :is-mobile="isMobile"
             @open-chart-settings="openSettingsDrawer" />
@@ -65,7 +66,9 @@
       :has-settings="hasSettings"
       :saved-user-id="savedUserId"
       :language="language"
+      :default-title="configuredHeaderTitle"
       :can-update-center-user="canUpdateCenterUser"
+      :has-header-title="hasHeaderTitle"
       @save-application-settings="saveApplicationSettings" />
   </v-app>
 </template>
@@ -91,7 +94,7 @@ export default {
       settingsContextKey: 'GLOBAL',
       settingScopeKey: 'APPLICATION',
       settingsCenterUserKey: 'organizationalChartCenterUser',
-      settingsHeaderTitleKey: 'organizationalChartHeaderTitle',
+      settingsHasHeaderTitleKey: 'organizationalChartHasHeaderTitle',
       centerUserIdUrlParam: 'centerUserId',
       headerTitleFieldName: 'chartHeaderTitle',
       translationObjectType: 'organizationalChart',
@@ -145,6 +148,9 @@ export default {
     savedUserId() {
       return this.$root.settings?.userId;
     },
+    hasHeaderTitle() {
+      return this.$root.settings?.hasHeaderTitle;
+    },
     canUpdateCenterUser() {
       return this.$root.settings?.canUpdateCenterUser;
     },
@@ -190,14 +196,16 @@ export default {
     },
     saveApplicationSettings(settings) {
       return this.saveSetting(this.settingsCenterUserKey, settings?.userId).then(() => {
-        return this.saveOrDeleteTranslations(settings).then(() => {
-          this.$refs.chartSettingsDrawer.close();
-          this.$root.settings = settings;
-          const userId = settings.connectedUser && eXo?.env?.portal?.userIdentityId
-                                              || settings?.userId;
-          this.$root.settings.userId = userId;
-          this.updateChart(userId);
-          this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.success'), 'success');
+        return this.saveSetting(this.settingsHasHeaderTitleKey, String(settings?.hasHeaderTitle)).then(() => {
+          return this.saveOrDeleteTranslations(settings).then(() => {
+            this.$refs.chartSettingsDrawer.close();
+            this.$root.settings = settings;
+            const userId = settings.connectedUser && eXo?.env?.portal?.userIdentityId
+                                                || settings?.userId;
+            this.$root.settings.userId = userId;
+            this.updateChart(userId);
+            this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.success'), 'success');
+          });
         });
       }).catch(() => {
         this.$root.$emit('alert-message', this.$t('organizationalChart.settings.saved.error'), 'error');

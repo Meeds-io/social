@@ -39,7 +39,9 @@
     v-else
     height="28"
     class="d-flex mb-2">
-    <p class="my-auto widget-text-header text-truncate">
+    <p
+      v-if="hasHeaderTitle"
+      class="my-auto widget-text-header text-truncate">
       {{ configuredTitle }}
     </p>
     <div
@@ -80,6 +82,10 @@ export default {
       default: false
     },
     isMobile: {
+      type: Boolean,
+      default: false
+    },
+    hasHeaderTitle: {
       type: Boolean,
       default: false
     }

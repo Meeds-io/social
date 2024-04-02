@@ -28,6 +28,10 @@
             .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartCenterUser");
     String centerUser = centerUserSettingValue != null && centerUserSettingValue.getValue() != null
             ? centerUserSettingValue.getValue().toString() : null;
+    SettingValue<?> hasHeaderTitleSettingValue = settingsService
+            .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartHasHeaderTitle");
+    boolean hasHeaderTitle = hasHeaderTitleSettingValue == null || hasHeaderTitleSettingValue.getValue() == null
+            || Boolean.parseBoolean(hasHeaderTitleSettingValue.getValue().toString());
 
     TranslationService translationService = CommonsUtils.getService(TranslationService.class);
     TranslationField translationField = translationService.getTranslationField(appObjectType, Long.parseLong(id), "chartHeaderTitle");
@@ -43,12 +47,14 @@
     boolean canUpdateCenterUser = Boolean.parseBoolean(preferences.getValue("canUpdateCenterUser", "true"));
     if (centerUser == null) {
         centerUser = preferences.getValue("centerUser", null);
+    }
+    if (headerTitle == null) {
         try {
             ResourceBundleService resourceBundleService = CommonsUtils.getService(ResourceBundleService.class);
             ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portlet.Portlets", request.getLocale());
             headerTitle = resourceBundle.getString(preferences.getValue("headerTitle", null));
         } catch (Exception e) {
-            headerTitle = null;
+            headerTitle = "";
         }
     }
 
@@ -74,6 +80,7 @@
                 title: "<%=headerTitle%>" !== 'null' && "<%=headerTitle%>" || null,
                 headerTranslations: <%=headerTranslations%>,
                 canUpdateCenterUser: <%=canUpdateCenterUser%>,
+                hasHeaderTitle: <%=hasHeaderTitle%>,
                 isSpaceManager: <%=isManager%>
             }
             if (eXo?.env?.portal?.organizationalChartEnabled) {
