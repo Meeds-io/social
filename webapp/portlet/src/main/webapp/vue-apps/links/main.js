@@ -60,12 +60,13 @@ export function init(appId, name, canEdit) {
         },
         methods: {
           init() {
-            return this.retrieveSettings().then(() => this.computeDefaultTranslations()) ;
+            return this.retrieveSettings();
           },
           retrieveSettings() {
             return this.$linkService.getSettings(this.name, this.language)
               .then(settings => {
                 this.settings = settings;
+                this.computeDefaultTranslations();
               });
           },
           computeDefaultTranslations() {
