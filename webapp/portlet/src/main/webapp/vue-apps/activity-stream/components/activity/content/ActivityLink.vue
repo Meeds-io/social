@@ -275,12 +275,14 @@ export default {
   created() {
     this.retrieveActivityProperties();
     window.addEventListener('resize', this.displayReadMore);
+    this.$root.$on('activity-stream-activity-updateActivity', this.handleCollapseActivity);
   },
   mounted() {
     this.displayReadMore();
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.displayReadMore);
+    this.$root.$off('activity-stream-activity-updateActivity', this.handleCollapseActivity);
   },
   methods: {
     retrieveActivityProperties() {
@@ -308,6 +310,11 @@ export default {
     },
     displayFullContent() {
       this.fullContent = !this.fullContent;
+    },
+    handleCollapseActivity(activityId) {
+      if (activityId === this.activityId) {
+        this.displayFullContent();
+      }
     }
   },
 };
