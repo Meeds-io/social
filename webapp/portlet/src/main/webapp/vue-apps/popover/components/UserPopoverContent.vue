@@ -46,6 +46,20 @@
       </v-list-item-content>
     </v-list-item>
     <div v-if="!isCurrentUser" class="d-flex justify-end">
+      <div class="me-auto">
+        <v-btn
+          v-for="extension in filteredUserNavigationExtensions"
+          :key="extension.id"
+          icon
+          @click.prevent="extension.click(identity)">
+          <v-icon
+            class="primary--text"
+            :title="extension.title || $t(extension.titleKey)"
+            size="14">
+            {{ extension.class }}
+          </v-icon>
+        </v-btn>
+      </div>
       <extension-registry-components
         :params="params"
         class="d-flex"
@@ -74,9 +88,13 @@ export default {
   data() {
     return {
       externalExtensions: [],
+      userExtensions: [],
     };
   },
   computed: {
+    filteredUserNavigationExtensions() {
+      return this.userExtensions.filter(extension => extension.enabled(this.identity));
+    },
     params() {
       return {
         identityType: 'USER_TIPTIP',
@@ -108,7 +126,15 @@ export default {
       },
     },
   },
+  created() {
+    this.refreshUserExtensions();
+    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
+  },
   methods: {
+    refreshUserExtensions() {
+      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
+      this.userExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+    },
     refreshExtensions() {
       this.externalExtensions = [];
       this.$nextTick(() => {

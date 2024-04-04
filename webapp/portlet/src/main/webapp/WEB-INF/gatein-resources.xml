@@ -1899,6 +1899,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>organizationalChartExtension</module>
+      </depends>
+      <depends>
         <module>translationField</module>
       </depends>
       <depends>
@@ -2023,6 +2026,9 @@
       <module>vuetify</module>
     </depends>
     <depends>
+      <module>organizationalChartExtension</module>
+    </depends>
+    <depends>
       <module>eXoVueI18n</module>
     </depends>
     <depends>
@@ -2086,6 +2092,9 @@
       <minify>false</minify>
       <path>/js/peopleListComponents.bundle.js</path>
     </script>
+    <depends>
+      <module>organizationalChartExtension</module>
+    </depends>
     <depends>
       <module>commonVueComponents</module>
     </depends>
@@ -2787,6 +2796,20 @@
       <minify>false</minify>
       <path>/js/lib/html2canvas.min.js</path>
     </script>
+  </module>
+
+  <module>
+    <name>organizationalChartExtension</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/organizationalChartExtension.bundle.js</path>
+    </script>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
   </module>
 
   <!-- Base Javascripts for anonymous mode -->
