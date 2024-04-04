@@ -128,6 +128,7 @@ export default {
     initialized: false,
     noExtension: false,
     unreadMetadata: null,
+    isRead: false
   }),
   computed: {
     id() {
@@ -184,7 +185,7 @@ export default {
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
         loading: this.loading,
-        collapsed: !this.unreadMetadata,
+        collapsed: !this.isRead,
       };
     },
     init() {
@@ -228,6 +229,7 @@ export default {
     initialized() {
       if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
+        this.isRead = this.unreadMetadata;
       }
     },
   },
