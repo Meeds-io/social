@@ -30,7 +30,8 @@
         v-for="nav in navigations"
         :key="nav.id"
         :value="nav.id"
-        @click="openUrl(nav.uri, nav?.target)"
+        :href="urlVerify(nav.uri)"
+        :target="nav?.target === 'SAME_TAB' && '_self' || '_blank'"
         class="spaceNavigationTab">
         {{ nav.label }}
       </v-tab>
@@ -116,14 +117,11 @@ export default {
         window.setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
       });
     },
-    openUrl(url, target) {
-      target = target === 'SAME_TAB' && '_self' || '_blank' ;
+    urlVerify(url) {
       if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/) && this.isValidUrl(url) ) {
         url = `//${url}`;
-      } else if (url.match(/^(\/portal\/)/)) {
-        url = `${window.location.origin}${url}`;
       }
-      window.open(url, target);
+      return url ;
     },
     isValidUrl(str) {
       const pattern = new RegExp(
