@@ -70,6 +70,7 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
@@ -746,12 +747,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       StringBuilder url = new StringBuilder(uri);
 
       PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-      LayoutService layoutService = CommonsUtils.getService(LayoutService.class);
-      String currentSiteName = CommonsUtils.getCurrentSite().getName();
+      LocaleConfigService localeConfigService = CommonsUtils.getService(LocaleConfigService.class);
       Locale locale = null;
       try {
-        String currentSiteLocale = layoutService.getPortalConfig(currentSiteName).getLocale();
-        locale = new Locale(currentSiteLocale);
+        String defaultLanguage = localeConfigService.getDefaultLocaleConfig().getLocale().toLanguageTag();
+        locale = new Locale(defaultLanguage);
       } catch (Exception e) {
         LOG.error("Failure to retrieve portal config", e);
       }
