@@ -104,7 +104,7 @@
           class="caption text-wrap text-break reset-style-box rich-editor-content"
           dir="auto" />
         <v-btn
-          v-if="collapsed && !fullContent && readMore"
+          v-if="showReadMore"
           class="d-flex ml-auto mb-3"
           color="blue"
           text
@@ -261,8 +261,11 @@ export default {
     bodyClass() {
       return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'content-collapsed overflow-hidden' || ''}`;
     },
-    readMore() {
-      return this.displayReadMoreButton;
+    canCollapse() {
+      return this.activityTypeExtension?.isCollapsed;
+    },
+    showReadMore() {
+      return this.collapsed && !this.fullContent && this.canCollapse && this.displayReadMoreButton;
     }
   },
   watch: {
