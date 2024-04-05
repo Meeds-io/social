@@ -1946,6 +1946,9 @@
         <module>extensionRegistry</module>
       </depends>
       <depends>
+        <module>jspdf</module>
+      </depends>
+      <depends>
         <module>jquery</module>
         <as>$</as>
       </depends>
@@ -2819,7 +2822,31 @@
       <as>$</as>
     </depends>
   </module>
-  
+
+  <module>
+    <name>jspdf</name>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/jspdf.min.js</include>
+        return jspdf;
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>html2canvas</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>html2canvas</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/html2canvas.min.js</path>
+    </script>
+  </module>
+
   <!-- Base Javascripts for anonymous mode -->
   <module>
     <name>I18NMessage</name>

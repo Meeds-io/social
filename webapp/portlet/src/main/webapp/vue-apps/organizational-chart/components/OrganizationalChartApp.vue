@@ -41,9 +41,12 @@
             :has-header-title="hasHeaderTitle"
             :hover="hover"
             :is-mobile="isMobile"
+            :is-printing-pdf="isPrintingPdf"
+            @download-chart="downloadChart"
             @open-chart-settings="openSettingsDrawer" />
           <organizational-chart
             v-if="hasSettings || preview"
+            id="chart"
             :user="user"
             :managed-users="managedUsersList"
             :profile-action-extensions="profileActionExtensions"
@@ -99,6 +102,7 @@ export default {
       headerTitleFieldName: 'chartHeaderTitle',
       translationObjectType: 'organizationalChart',
       language: eXo?.env?.portal?.language,
+      isPrintingPdf: false
     };
   },
   props: {
@@ -175,6 +179,32 @@ export default {
     document.addEventListener('user-extension-updated', this.refreshUserExtensions);
   },
   methods: {
+    downloadChart() {
+      this.isPrintingPdf = true;
+      const content = document.getElementById('chart');
+      html2canvas(content, { scale: 2 })
+        .then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          /* eslint-disable new-cap */
+          const doc = new jspdf.jsPDF({orientation: 'landscape', unit: 'mm', format: [400, 600]});
+          const img = new Image();
+          img.src = imgData;
+          img.onload = function() {
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const scaleFactor = Math.min(pageWidth / imgWidth, (pageHeight - 20) / imgHeight);
+            const imageX = (pageWidth - (imgWidth * scaleFactor)) / 2;
+            const imageY = (pageHeight - (imgHeight * scaleFactor)) / 2;
+            doc.addImage(imgData, 'PNG', imageX, imageY, imgWidth * scaleFactor, imgHeight * scaleFactor);
+            doc.save('chart.pdf');
+          };
+        })
+        .catch(() => {
+          this.$root.$emit('alert-message', this.$t('organizationalChart.download.pdf.error'), 'error');
+        }).finally(() => this.isPrintingPdf = false);
+    },
     updateUrl(identityId) {
       const searchParams = new URLSearchParams(window.location.search);
       searchParams.set(this.centerUserIdUrlParam, identityId);
