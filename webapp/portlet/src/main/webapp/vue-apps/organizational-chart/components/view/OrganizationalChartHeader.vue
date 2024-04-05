@@ -45,19 +45,35 @@
       {{ configuredTitle }}
     </p>
     <div
-      v-if="isAdmin"
       class="ms-auto d-flex">
-      <v-btn
-        v-if="hover || isMobile"
-        class="ms-auto my-0 icon-default-color"
-        small
-        icon
-        @click="openChartSettingsDrawer">
-        <v-icon
-          size="20">
-          fas fa-cog
-        </v-icon>
-      </v-btn>
+      <div>
+        <v-btn
+          v-if="hover || isMobile"
+          class="ms-auto my-0 icon-default-color me-5"
+          :loading="isPrintingPdf"
+          :title="$t('organizationalChart.download.label')"
+          small
+          icon
+          @click="downloadChart">
+          <v-icon
+            size="20">
+            fas fa-download
+          </v-icon>
+        </v-btn>
+      </div>
+      <div v-if="isAdmin">
+        <v-btn
+          v-if="hover || isMobile"
+          class="ms-auto my-0 icon-default-color"
+          small
+          icon
+          @click="openChartSettingsDrawer">
+          <v-icon
+            size="20">
+            fas fa-cog
+          </v-icon>
+        </v-btn>
+      </div>
     </div>
   </v-sheet>
 </template>
@@ -88,11 +104,18 @@ export default {
     hasHeaderTitle: {
       type: Boolean,
       default: false
+    },
+    isPrintingPdf: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
     openChartSettingsDrawer() {
       this.$emit('open-chart-settings');
+    },
+    downloadChart() {
+      this.$emit('download-chart');
     }
   }
 };
