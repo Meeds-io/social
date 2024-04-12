@@ -268,6 +268,18 @@
                         <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.TranslationCache.cacheMode:replication}</string></field>
                     </object>
                 </object-param>
+                <!-- Avatar -->
+                <object-param>
+                    <name>social.ProfileAvatar</name>
+                    <description>The Cache configuration for the ProfileAvatar</description>
+                    <object type="org.exoplatform.services.cache.impl.infinispan.generic.GenericExoCacheConfig">
+                        <field name="name"><string>social.ProfileAvatar</string></field>
+                        <field name="strategy" profiles="cluster"><string>${exo.cache.social.ProfileAvatar.strategy:LIRS}</string></field>
+                        <field name="maxSize"><int>${exo.cache.social.ProfileAvatar.MaxNodes:300}</int></field>
+                        <field name="liveTime"><long>${exo.cache.social.ProfileAvatar.TimeToLive:600}</long></field>
+                        <field name="cacheMode"  profiles="cluster"><string>${exo.cache.social.TranslationCache.cacheMode:replication}</string></field>
+                    </object>
+                </object-param>
             </init-params>
         </component-plugin>
     </external-component-plugins>
