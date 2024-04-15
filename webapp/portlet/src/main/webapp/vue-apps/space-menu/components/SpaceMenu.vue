@@ -30,6 +30,7 @@
         v-for="nav in navigations"
         :key="nav.id"
         :value="nav.id"
+        :href="nav.uri"
         @click="openUrl(nav.uri, nav?.target)"
         class="spaceNavigationTab">
         {{ nav.label }}
