@@ -278,6 +278,7 @@ export default {
               });
           }
         }
+        this.isRead = true;
         this.loading = false;
         this.initialized = true;
       });
