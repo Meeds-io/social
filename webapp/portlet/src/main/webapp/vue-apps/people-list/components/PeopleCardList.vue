@@ -7,17 +7,20 @@
       color="primary" />
     <v-card-text id="peopleListBody" class="pb-0">
       <v-item-group>
-        <v-container class="pa-0">
+        <v-container
+          class="pa-0"
+          fluid>
           <v-row v-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">
             <v-col
               v-for="user in filteredPeople"
               :key="user.id"
               :id="`peopleCardItem${user.id}`"
               cols="12"
-              md="6"
-              lg="4"
-              xl="4"
-              class="pa-0">
+              sm="6"
+              :md="$attrs.md || 6"
+              :lg="$attrs.lg || 4"
+              :xl="$attrs.xl || 4"
+              class="pa-2">
               <people-card
                 :user="user"
                 :space-members-extensions="spaceMembersActionExtensions"
@@ -98,7 +101,7 @@ export default {
     profileExtensions: [],
     userExtensions: [],
     spaceMemberExtensions: [],
-    fieldsToRetrieve: 'settings,all,spacesCount,relationshipStatus,connectionsCount,binding',
+    fieldsToRetrieve: 'settings,all,binding',
     userType: 'internal',
     initialized: false,
     hasPeople: false,
@@ -119,9 +122,10 @@ export default {
   }),
   computed: {
     profileActionExtensions() {
-      const profileActionExtensions = [...this.profileExtensions, ...this.spaceMemberExtensions];
-      profileActionExtensions.sort((a, b) => (a.order || 100) - (b.order || 100));
-      return profileActionExtensions;
+      return [...this.profileExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
+    },
+    spaceMembersActionExtensions() {
+      return [...this.spaceMemberExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
     },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
