@@ -290,7 +290,7 @@ export default {
       this.listIgnoredItems = [user?.id];
     },
     bindDefaultHeaderTitle() {
-      if (!this.hasHeaderTitle) {
+      if (!this.hasHeaderTitle && this.hasSettings) {
         return;
       }
       this.headerTitle = this.headerTitle || {};
@@ -303,7 +303,7 @@ export default {
       this.headerTitle = !this.selectedUser && this.defaultHeaderTitle
                                             || this.savedHeaderTranslations;
       this.bindDefaultHeaderTitle();
-      this.showHeaderInput = this.hasSettings && !!this.headerTitle;
+      this.showHeaderInput = !!this.headerTitle;
       this.chartCenterUser = (!this.selectedUser || this.isConnectedUserSelected)
                                                 && this.connectedUserOption
                                                 || this.specificUserOption;
