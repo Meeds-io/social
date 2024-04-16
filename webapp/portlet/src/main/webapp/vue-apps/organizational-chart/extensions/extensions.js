@@ -1,7 +1,7 @@
-export function registerExtensions() {
+export function registerExtension(title) {
   const chartNavigation = {
     id: 'user-chart',
-    titleKey: 'organizationalChart.header.label',
+    title: title,
     icon: 'fas fa-sitemap',
     class: 'fas fa-sitemap',
     order: 10,
