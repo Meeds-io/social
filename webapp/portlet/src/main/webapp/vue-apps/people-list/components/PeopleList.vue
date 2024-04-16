@@ -15,7 +15,8 @@
       :people-count="peopleCount"
       @loaded="peopleLoaded" />
     <people-advanced-filter-drawer />
-  </v-app>    
+    <people-compact-card-options-drawer />
+  </v-app>
 </template>
 
 <script>
