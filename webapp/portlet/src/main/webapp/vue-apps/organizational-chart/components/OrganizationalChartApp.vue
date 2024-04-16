@@ -206,12 +206,18 @@ export default {
         }).finally(() => this.isPrintingPdf = false);
     },
     updateUrl(identityId) {
+      if (this.preview) {
+        return;
+      }
       const searchParams = new URLSearchParams(window.location.search);
       searchParams.set(this.centerUserIdUrlParam, identityId);
       const url = `${window.location.pathname}?${searchParams.toString()}`;
       window.history.pushState('OrganizationalChartUrl', '', url);
     },
     getRequestedCenterUserId() {
+      if (this.preview) {
+        return null;
+      }
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams?.get(this.centerUserIdUrlParam);
     },
