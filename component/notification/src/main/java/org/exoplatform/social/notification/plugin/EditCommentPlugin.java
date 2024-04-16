@@ -71,13 +71,10 @@ public class EditCommentPlugin extends BaseNotificationPlugin {
   public boolean isValid(NotificationContext ctx) {
     ExoSocialActivity comment = ctx.value(SocialNotificationUtils.ACTIVITY);
     ExoSocialActivity activity = Utils.getActivityManager().getParentActivity(comment);
-
-    if (isSubComment && comment.getParentCommentId() == null) {
+    if (!Utils.getActivityManager().isNotificationEnabled(comment) || (isSubComment && comment.getParentCommentId() == null)) {
       return false;
     }
-
-    Identity spaceIdentity = Utils.getIdentityManager()
-                                  .getOrCreateSpaceIdentity(activity.getStreamOwner());
+    Identity spaceIdentity = Utils.getIdentityManager().getOrCreateSpaceIdentity(activity.getStreamOwner());
     // if the space is not null and it's not the default activity of space, then
     // it's valid to make notification
     return spaceIdentity == null || !activity.getPosterId().equals(spaceIdentity.getId());
