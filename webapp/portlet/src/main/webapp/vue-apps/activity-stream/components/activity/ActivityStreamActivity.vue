@@ -229,7 +229,8 @@ export default {
     initialized() {
       if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
-        this.isRead = this.unreadMetadata;
+        const isLikeAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'Like' || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'LikeComment';
+        this.isRead = this.unreadMetadata && !isLikeAction;
       }
     },
   },

@@ -44,6 +44,8 @@ public class SpaceWebNotificationItem {
 
   private String      activityId;
 
+  private String      activityActionType;
+
   public SpaceWebNotificationItem(String applicationName, String applicationItemId, long userId, long spaceId) {
     this.applicationName = applicationName;
     this.applicationItemId = applicationItemId;
