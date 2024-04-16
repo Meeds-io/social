@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.notification.plugin;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -28,7 +29,9 @@ import org.exoplatform.social.notification.model.SpaceWebNotificationItem;
 
 public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlugin {
 
-  public static final String ID = "ActivitySpaceWebNotificationPlugin";
+  public static final String ID                     = "ActivitySpaceWebNotificationPlugin";
+
+  public static final String ACTIVITY_ACTION_SUFFIX = "Plugin";
 
   private ActivityManager    activityManager;
 
@@ -57,11 +60,20 @@ public class ActivitySpaceWebNotificationPlugin extends SpaceWebNotificationPlug
                                                                                        metadataObject.getId(),
                                                                                        0,
                                                                                        metadataObject.getSpaceId());
+
       if (activity.isComment()) {
         spaceWebNotificationItem.setActivityId(activity.getParentId());
         spaceWebNotificationItem.addApplicationSubItem(activity.getId());
       } else {
         spaceWebNotificationItem.setActivityId(activity.getId());
+      }
+      String activityActionType = notification.getKey().getId();
+      if (StringUtils.isNotBlank(activityActionType)) {
+        if (activityActionType.endsWith(ACTIVITY_ACTION_SUFFIX)) {
+          activityActionType =
+              activityActionType.substring(0, activityActionType.length() - ACTIVITY_ACTION_SUFFIX.length()).trim();
+        }
+        spaceWebNotificationItem.setActivityActionType(activityActionType);
       }
       return spaceWebNotificationItem;
     } else {
