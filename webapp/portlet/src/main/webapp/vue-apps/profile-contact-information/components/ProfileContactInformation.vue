@@ -78,6 +78,7 @@
       :upload-limit="uploadLimit" />
     <quick-search-users-list-drawer
       :properties="quickSearchSettingProperties" />
+    <people-compact-card-options-drawer />
   </v-app>
 </template>
 
