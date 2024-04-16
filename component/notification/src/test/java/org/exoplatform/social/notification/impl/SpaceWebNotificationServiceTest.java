@@ -184,6 +184,7 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     String itemId1 = "subItem1";
     spaceWebNotificationItem.setActivityId(activityId);
     spaceWebNotificationItem.addApplicationSubItem(itemId1);
+    spaceWebNotificationItem.setActivityActionType("Like");
 
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE_NAME, String.valueOf(userIdentityId), userIdentityId);
     MetadataObject metadataObject = new MetadataObject(METADATA_OBJECT_TYPE,
@@ -196,7 +197,7 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
                                                          eq(metadataKey),
                                                          argThat(
                                                            props -> 
-                                                             props != null && props.size() == 2
+                                                             props != null && props.size() == 3
                                                                  && itemId1.equals(props.get("applicationSubItemIds"))
                                                                  && spaceWebNotificationItem.getActivityId().equals(props.get(ACTIVITY_ID_PROP))
                                                          ),
@@ -229,13 +230,14 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
     String itemId2 = "subItem2";
     spaceWebNotificationItem.addApplicationSubItem(itemId2);
     spaceWebNotificationItem.setActivityId(activityId);
+    spaceWebNotificationItem.setActivityActionType("Like");
     spaceWebNotificationService.markAsUnread(spaceWebNotificationItem);
 
     verify(metadataService, times(1)).createMetadataItem(eq(metadataObject),
                                                          eq(metadataKey),
                                                          argThat(
                                                            props -> 
-                                                             props != null && props.size() == 2
+                                                             props != null && props.size() == 3
                                                                  && (itemId1 + "," + itemId2).equals(props.get("applicationSubItemIds"))
                                                                  && spaceWebNotificationItem.getActivityId().equals(props.get(ACTIVITY_ID_PROP))
                                                          ),
