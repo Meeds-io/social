@@ -59,18 +59,19 @@ import org.exoplatform.social.core.manager.IdentityManager;
 @SuppressWarnings("removal")
 public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationService, Startable {
 
-  private static final String              SPACE_NOT_FOUND               = "Space with id %s doesn't exist";
+  private static final String              SPACE_NOT_FOUND                        = "Space with id %s doesn't exist";
 
-  private static final String              USER_NOT_MEMBER_OF_SPACE      = "User %s isn't member of space %s";
+  private static final String              USER_NOT_MEMBER_OF_SPACE               = "User %s isn't member of space %s";
 
-  public static final String               APPLICATION_SUB_ITEM_IDS      = "applicationSubItemIds";
+  public static final String               APPLICATION_SUB_ITEM_IDS               = "applicationSubItemIds";
 
-  public static final String               METADATA_TYPE_NAME            = "unread";
+  public static final String               METADATA_TYPE_NAME                     = "unread";
 
-  public static final String               METADATA_ACTIVITY_ID_PROPERTY = "activityId";
+  public static final String               METADATA_ACTIVITY_ID_PROPERTY          = "activityId";
 
-  private static final Log                 LOG                           =
-                                               ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
+  public static final String               METADATA_ACTIVITY_ACTION_TYPE_PROPERTY = "actionType";
+
+  private static final Log                 LOG                                    = ExoLogger.getLogger(SpaceWebNotificationServiceImpl.class);
 
   private PortalContainer                  container;
 
@@ -330,6 +331,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
     Map<String, String> props = new HashMap<>();
     props.put(APPLICATION_SUB_ITEM_IDS, StringUtils.join(notificationItem.getApplicationSubItemIds(), ","));
     props.put(METADATA_ACTIVITY_ID_PROPERTY, notificationItem.getActivityId());
+    props.put(METADATA_ACTIVITY_ACTION_TYPE_PROPERTY, notificationItem.getActivityActionType());
     return props;
   }
 
