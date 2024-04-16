@@ -71,18 +71,20 @@
         <div
           v-if="expanded"
           class="pa-2 quickSearchResultExpanded">
-          <v-container class="pa-0">
+          <v-container
+            fluid
+            class="pa-3">
             <v-row>
               <v-col
                 v-for="user in listUsers"
                 :key="user.id"
                 :id="`peopleCardItem${user.id}`"
                 cols="12"
-                sm="3"
+                sm="6"
                 md="4"
                 lg="3"
                 xl="3"
-                class="pa-0">
+                class="pa-2">
                 <people-card
                   :user="user"
                   :user-navigation-extensions="userExtensions"
@@ -100,6 +102,7 @@
             :key="user.id"
             :id="`peopleCardItem${user.id}`"
             :user="user"
+            :user-navigation-extensions="userExtensions"
             :profile-action-extensions="profileActionExtensions"
             :compact-display="true" />
         </div>
@@ -120,6 +123,7 @@
       </div>
     </template>
   </exo-drawer>
+
 </template>
 
 <script>
@@ -131,9 +135,10 @@ export default {
       pageSize: 9,
       limit: 0,
       offset: 0,
-      fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
+      fieldsToRetrieve: 'all,relationshipStatus,settings',
       hasMore: false,
       profileActionExtensions: [],
+      userExtensions: [],
       profileSetting: null,
       expanded: false,
       propertyValue: null,
@@ -180,11 +185,15 @@ export default {
   },
   created() {
     this.refreshExtensions();
+    this.refreshUserExtensions();
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
     this.$root.$on('open-quick-search-users-drawer', this.open);
-    this.$root.$on('relationship-status-updated', this.updateRelationshipStatus);
   },
   methods: {
+    refreshUserExtensions() {
+      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
+    },
     resetFilter() {
       this.$root.$emit('filter-reset-selections');
       this.$root.$emit('reset-filter');
@@ -215,12 +224,6 @@ export default {
     },
     buildSuggestionsTerminated(suggestions) {
       this.hasCombinations = suggestions?.length;
-    },
-    updateRelationshipStatus(user, status) {
-      const index = this.users.findIndex(obj => obj.id === user.id);
-      if (index !== -1) {
-        this.users[index].relationshipStatus = status;
-      }
     },
     filterDrawerClosed(close) {
       if (close) {

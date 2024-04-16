@@ -45,32 +45,6 @@
             @click="openBottomMenu">
             fas fa-ellipsis-v
           </v-icon>
-          <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-            <v-sheet class="text-center">
-              <v-list dense>
-                <v-list-item
-                  v-for="(extension, i) in enabledProfileActionExtensions"
-                  :key="i"
-                  @click="extensionClick(extension)">
-                  <v-list-item-title class="align-center d-flex">
-                    <v-icon class="mx-4" size="18">{{ extension.class }}</v-icon>
-                    <span class="mx-2">
-                      {{ extension.title }}
-                    </span>
-                  </v-list-item-title>
-                </v-list-item>
-                <people-connection-option-item
-                  :relationship-status="relationshipStatus"
-                  :is-mobile="isMobile"
-                  :is-updating-status="isUpdatingStatus"
-                  @connect="connect"
-                  @disconnect="disconnect"
-                  @accept-to-connect="acceptToConnect"
-                  @refuse-to-connect="refuseToConnect"
-                  @cancel-request="cancelRequest" />
-              </v-list>
-            </v-sheet>
-          </v-bottom-sheet>
         </div>
         <template v-else-if="canUseActionsMenu && !isSameUser">
           <v-menu
@@ -179,17 +153,21 @@ export default {
       type: Boolean,
       default: false,
     },
+    userNavigationExtensions: {
+      type: Array,
+      default: () => [],
+    },
     enabledProfileActionExtensions: {
+      type: Array,
+      default: () => [],
+    },
+    spaceMembersExtensions: {
       type: Array,
       default: () => [],
     },
     isMobile: {
       type: Boolean,
       default: false,
-    },
-    relationshipStatus: {
-      type: String,
-      default: null
     },
     url: {
       type: String,
@@ -216,9 +194,6 @@ export default {
       } else {
         document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
       }
-    },
-    relationshipStatus() {
-      this.$root.$emit('relationship-status-updated', this.user, this.relationshipStatus);
     }
   },
   computed: {
@@ -254,29 +229,9 @@ export default {
     });
   },
   methods: {
-    connect() {
-      this.$emit('connect', this.user);
-    },
-    disconnect() {
-      this.$emit('disconnect', this.user);
-    },
-    acceptToConnect() {
-      this.$emit('accept-to-connect', this.user);
-    },
-    refuseToConnect() {
-      this.$emit('refuse-to-connect', this.user);
-    },
-    cancelRequest() {
-      this.$emit('cancel-request', this.user);
-    },
     openBottomMenu() {
-      if (!this.isSameUser) {
-        this.bottomMenu = true;
-      }
-    },
-    extensionClick(extension) {
-      extension.click(this.user);
-      this.bottomMenu = false;
+      this.$root.$emit('open-people-compact-card-options-drawer',
+        this.user, [...this.enabledProfileActionExtensions, ...this.userNavigationExtensions], this.spaceMembersExtensions);
     }
   },
 };
