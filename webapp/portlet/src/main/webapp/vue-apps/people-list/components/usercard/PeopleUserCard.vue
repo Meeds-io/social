@@ -171,11 +171,6 @@
 export default {
   data() {
     return {
-      preferences: {
-        firstField: 'position',
-        secondField: 'team',
-        thirdField: 'city'
-      },
       menu: false
     };
   },
@@ -199,6 +194,16 @@ export default {
     ignoredNavigationExtensions: {
       type: Array,
       default: () => []
+    },
+    preferences: {
+      type: Object,
+      default: () => {
+        return {
+          firstField: 'position',
+          secondField: 'team',
+          thirdField: 'city'
+        };
+      }
     }
   },
   computed: {

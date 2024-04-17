@@ -19,6 +19,7 @@
  */
 
 import ProfileSettings from './components/ProfileSettings.vue';
+import ProfileAttributeSettings from './components/ProfileAttributeSettings.vue';
 import ProfileSettingsHeader from './components/ProfileSettingsHeader.vue';
 import ProfileSettingsTable from './components/ProfileSettingsTable.vue';
 import ProfileSettingsActionMenu from './components/menu/ProfileSettingsActionMenu.vue';
@@ -26,9 +27,12 @@ import SettingsActionsCell from './components/cells/SettingsActionsCell.vue';
 import ProfileSettingFormDrawer from './components/drawers/ProfileSettingFormDrawer.vue';
 import ProfilePropertyLabels from './components/drawers/ProfilePropertyLabels.vue';
 import PropertyLabel from './components/drawers/PropertyLabel.vue';
+import ProfileSettingsOption from './components/views/ProfileSettingsOption.vue';
+import UserCardSettingsDrawer from './components/drawers/UserCardSettingsDrawer.vue';
 
 const components = {
   'profile-settings': ProfileSettings,
+  'profile-attribute-settings': ProfileAttributeSettings,
   'profile-settings-header': ProfileSettingsHeader,
   'profile-settings-table': ProfileSettingsTable,
   'profile-settings-action-menu': ProfileSettingsActionMenu,
@@ -36,6 +40,8 @@ const components = {
   'profile-setting-form-drawer': ProfileSettingFormDrawer,
   'profile-property-labels': ProfilePropertyLabels,
   'property-label': PropertyLabel,
+  'profile-settings-option': ProfileSettingsOption,
+  'user-card-settings-drawer': UserCardSettingsDrawer
 };
 
 for (const key in components) {
