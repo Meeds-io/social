@@ -50,7 +50,7 @@
         v-if="spaceMembersExtensions.length"
         class="full-width position-absolute z-index-two">
         <v-menu
-          v-if="hover"
+          v-if="hover || showMenu"
           ref="actionMenu"
           v-model="menu"
           transition="slide-x-reverse-transition"
@@ -171,12 +171,12 @@
 export default {
   data() {
     return {
-      preferences: {
+      menu: false,
+      defaultPreferences: {
         firstField: 'position',
         secondField: 'team',
         thirdField: 'city'
-      },
-      menu: false
+      }
     };
   },
   props: {
@@ -199,9 +199,23 @@ export default {
     ignoredNavigationExtensions: {
       type: Array,
       default: () => []
+    },
+    preferences: {
+      type: Object,
+      default: null
+    },
+    isMobile: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
+    showMenu() {
+      return this.menu || this.isMobile;
+    },
+    preferencesObject() {
+      return this.preferences || this.defaultPreferences;
+    },
     filteredUserNavigationExtensions() {
       return this.userNavigationExtensions.filter(extension => extension.enabled(this.user)
         && !this.ignoredNavigationExtensions.includes(extension?.id));
@@ -213,16 +227,16 @@ export default {
       return this.user?.username === eXo?.env?.portal?.userName;
     },
     fieldsToDisplay() {
-      return this.user?.properties?.filter(property => Object.values(this.preferences).includes(property.propertyName));
+      return this.user?.properties?.filter(property => Object.values(this.preferencesObject).includes(property.propertyName));
     },
     firstField() {
-      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.firstField)[0]?.value;
+      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferencesObject.firstField)[0]?.value;
     },
     secondField() {
-      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.secondField)[0]?.value;
+      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferencesObject.secondField)[0]?.value;
     },
     thirdField() {
-      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.thirdField)[0]?.value;
+      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferencesObject.thirdField)[0]?.value;
     },
     bannerUrl() {
       return this.user?.banner;
