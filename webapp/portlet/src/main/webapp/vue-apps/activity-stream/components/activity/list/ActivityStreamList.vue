@@ -242,6 +242,7 @@ export default {
       }
     });
     this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
+    this.$root.$on('activity-stream-activity-createComment', this.updateActivityDisplayById);
     this.$root.$on('activities-refresh', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
@@ -259,6 +260,7 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
+    this.$root.$off('activity-stream-activity-createComment', this.updateActivityDisplayById);
   },
   methods: {
     init() {
