@@ -248,6 +248,7 @@ export default {
   created() {
     this.$root.$on('activity-extension-abort', this.abortSpecificExtension);
     this.$root.$on('activity-refresh-ui', this.retrieveActivityProperties);
+    this.$root.$on('activity-stream-activity-createComment', this.refreshActivityLastComments);
     this.retrieveActivityProperties();
   },
   mounted() {
@@ -271,6 +272,7 @@ export default {
   beforeDestroy() {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);
     this.$root.$off('activity-extension-abort', this.abortSpecificExtension);
+    this.$root.$off('activity-stream-activity-createComment', this.refreshActivityLastComments);
   },
   methods: {
     retrieveActivityProperties(activityId) {
@@ -291,7 +293,6 @@ export default {
           }
         }
         this.isRead = true;
-        this.hasNewComment = true;
         this.loading = false;
         this.initialized = true;
       });
@@ -325,6 +326,11 @@ export default {
     abortSpecificExtension(activityId) {
       if (activityId === this.activityId) {
         this.noExtension = true;
+      }
+    },
+    refreshActivityLastComments(activityId) {
+      if (activityId === this.activityId) {
+        this.hasNewComment = true;
       }
     },
     markAsRead() {
