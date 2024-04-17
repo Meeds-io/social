@@ -109,16 +109,20 @@
                   </span>
                 </v-list-item-title>
               </v-list-item>
-              <people-connection-option-item
-                :relationship-status="relationshipStatus"
-                :is-updating-status="isUpdatingStatus"
-                :compact-display="true"
-                :is-mobile="isMobile"
-                @connect="connect"
-                @disconnect="disconnect"
-                @accept-to-connect="acceptToConnect"
-                @refuse-to-connect="refuseToConnect"
-                @cancel-request="cancelRequest" />
+              <v-list-item
+                v-for="(extension, i) in filteredUserNavigationExtensions"
+                :key="i"
+                @click="extension.click(user)">
+                <v-list-item-title class="align-center d-flex">
+                  <v-icon
+                    size="18">
+                    {{ extension.class }}
+                  </v-icon>
+                  <span class="mx-2">
+                    {{ extension.title || $t(extension.titleKey) }}
+                  </span>
+                </v-list-item-title>
+              </v-list-item>
             </v-list>
           </v-menu>
         </template>
@@ -218,6 +222,9 @@ export default {
     }
   },
   computed: {
+    filteredUserNavigationExtensions() {
+      return this.userNavigationExtensions.filter(extension => extension.enabled(this.user));
+    },
     isSameUser() {
       return this.user?.username === eXo?.env?.portal?.userName;
     },

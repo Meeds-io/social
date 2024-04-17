@@ -20,7 +20,10 @@
               class="pa-0">
               <people-card
                 :user="user"
-                :profile-action-extensions="profileActionExtensions" />
+                :space-members-extensions="spaceMembersActionExtensions"
+                :user-navigation-extensions="userExtensions"
+                :profile-action-extensions="profileActionExtensions"
+                :user-card-settings="userCardSettings" />
             </v-col>
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
@@ -106,7 +109,13 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
     abortController: null,
-    loadingPeople: false
+    loadingPeople: false,
+    userCardSettingsContextKey: 'GLOBAL',
+    userCardSettingScopeKey: 'GLOBAL',
+    userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
+    userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
+    userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
+    userCardSettings: null
   }),
   computed: {
     profileActionExtensions() {
@@ -144,8 +153,9 @@ export default {
     filter() {
       this.searchPeople();
     },
-  }, 
+  },
   created() {
+    this.getSavedUserCardSettings();
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
     // To refresh menu when a new extension is ready to be used
@@ -163,6 +173,23 @@ export default {
     this.refreshUserExtensions();
   },
   methods: {
+    getCardSetting(settingKey) {
+      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
+        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
+    },
+    getSavedUserCardSettings() {
+      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
+        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
+          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
+            this.userCardSettings = {
+              firstField: firstFieldSetting?.value,
+              secondField: secondFieldSetting?.value,
+              thirdField: thirdFieldSetting?.value
+            };
+          });
+        });
+      });
+    },
     resetFilters() {
       this.$root.$emit('reset-filter');
       this.$root.$emit('reset-advanced-filter');
