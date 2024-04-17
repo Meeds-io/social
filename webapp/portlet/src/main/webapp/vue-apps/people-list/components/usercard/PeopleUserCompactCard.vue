@@ -84,7 +84,7 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-for="(extension, i) in userNavigationExtensions"
+                v-for="(extension, i) in filteredUserNavigationExtensions"
                 :key="i"
                 @click="extension.click(user)">
                 <v-list-item-title class="align-center d-flex">
@@ -197,6 +197,9 @@ export default {
     }
   },
   computed: {
+    filteredUserNavigationExtensions() {
+      return this.userNavigationExtensions.filter(extension => extension.enabled(this.user));
+    },
     isSameUser() {
       return this.user?.username === eXo?.env?.portal?.userName;
     },
