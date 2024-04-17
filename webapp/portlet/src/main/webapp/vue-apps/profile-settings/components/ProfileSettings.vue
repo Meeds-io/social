@@ -52,7 +52,7 @@
     <user-card-settings-drawer
       ref="userCardSettings"
       :user="user"
-      :settings="userCardFilteredFieldSettings"
+      :settings="filteredSettings"
       :is-saving-settings="isSavingCardSettings"
       :saved-settings="savedCardSettings"
       @closed="setMainPageSelected"
@@ -126,14 +126,6 @@ export default {
       return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
                                                                   && !setting?.children?.length
                                                                   && !this.excludedSettingsProp?.includes(setting.propertyName))
-        .map(setting => {
-          return {label: this.getResolvedName(setting), value: setting.propertyName};
-        });
-    },
-    userCardFilteredFieldSettings() {
-      return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
-                                                                  && !setting?.children?.length
-                                                                  && !this.unHiddenableProperties?.includes(setting.propertyName))
         .map(setting => {
           return {label: this.getResolvedName(setting), value: setting.propertyName};
         });
@@ -258,8 +250,22 @@ export default {
       return this.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
         this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
     },
+    getCardSetting(settingKey) {
+      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
+        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
+    },
     getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
+        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
+          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
+            this.savedCardSettings = {
+              firstField: firstFieldSetting?.value,
+              secondField: secondFieldSetting?.value,
+              thirdField: thirdFieldSetting?.value
+            };
+          });
+        });
+      });
     },
     saveUserCardSettings(firstField, secondField, thirdField) {
       this.isSavingCardSettings = true;

@@ -89,7 +89,7 @@
                   :user="user"
                   :user-navigation-extensions="userExtensions"
                   :profile-action-extensions="profileActionExtensions"
-                  :user-card-settings="userCardSettings" />
+                  :settings-preferences="userCardSettings" />
               </v-col>
             </v-row>
           </v-container>

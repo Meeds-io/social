@@ -113,6 +113,11 @@ export default {
     originalLimitToFetch: 0,
     abortController: null,
     loadingPeople: false,
+    userCardSettingsContextKey: 'GLOBAL',
+    userCardSettingScopeKey: 'GLOBAL',
+    userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
+    userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
+    userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
     userCardSettings: null
   }),
   computed: {
@@ -172,8 +177,22 @@ export default {
     this.refreshUserExtensions();
   },
   methods: {
+    getCardSetting(settingKey) {
+      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
+        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
+    },
     getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
+        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
+          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
+            this.userCardSettings = {
+              firstField: firstFieldSetting?.value,
+              secondField: secondFieldSetting?.value,
+              thirdField: thirdFieldSetting?.value
+            };
+          });
+        });
+      });
     },
     resetFilters() {
       this.$root.$emit('reset-filter');
