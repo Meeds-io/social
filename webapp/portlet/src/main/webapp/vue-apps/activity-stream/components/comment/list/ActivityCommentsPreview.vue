@@ -6,6 +6,7 @@
       height="2"
       indeterminate />
     <activity-comments
+      v-if="displayComments"
       :activity="activity"
       :comments="comments"
       :comment-types="commentTypes"
@@ -15,7 +16,7 @@
       @comment-deleted="retrieveLastComment"
       @comment-updated="retrieveLastComment" />
     <v-btn
-      v-if="commentsSize > 2"
+      v-if="commentsSize > 0"
       :disabled="loading"
       class="primary--text font-weight-bold mb-1 subtitle-2 px-0"
       small
@@ -42,6 +43,10 @@ export default {
       type: Object,
       default: null,
     },
+    displayComments: {
+      type: Boolean,
+      default: false,
+    }
   },
   data: () => ({
     comments: [],
@@ -53,6 +58,13 @@ export default {
     parentCommentClass() {
       return this.commentsSize && 'pb-0 pt-5' || 'pa-0';
     },
+  },
+  watch: {
+    displayComments() {
+      if (this.displayComments) {
+        this.retrieveLastComment();
+      }
+    }
   },
   created() {
     if (this.activity && this.activity.comments && typeof this.activity.comments === 'object') {
