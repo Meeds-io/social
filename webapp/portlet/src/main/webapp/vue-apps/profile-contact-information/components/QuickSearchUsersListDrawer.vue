@@ -87,7 +87,8 @@
                 <people-card
                   :user="user"
                   :user-navigation-extensions="userExtensions"
-                  :profile-action-extensions="profileActionExtensions" />
+                  :profile-action-extensions="profileActionExtensions"
+                  :settings-preferences="userCardSettings" />
               </v-col>
             </v-row>
           </v-container>
@@ -121,7 +122,6 @@
       </div>
     </template>
   </exo-drawer>
-
 </template>
 
 <script>
@@ -144,13 +144,17 @@ export default {
       keyword: null,
       hasCombinations: false,
       selectedSuggestions: [],
-      isLoading: false,
+      isLoading: false
     };
   },
   props: {
     properties: {
       type: Array,
       default: () => []
+    },
+    userCardSettings: {
+      type: Object,
+      default: null
     }
   },
   computed: {
