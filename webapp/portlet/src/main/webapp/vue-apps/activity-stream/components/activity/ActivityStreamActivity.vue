@@ -41,6 +41,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
+          :display-comments="activityCommented"
           class="px-4" />
       </template>
     </template>
@@ -77,6 +78,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
+          :display-comments="activityCommented"
           class="px-4" />
       </template>
     </template>
@@ -128,7 +130,8 @@ export default {
     initialized: false,
     noExtension: false,
     unreadMetadata: null,
-    isRead: false
+    isRead: false,
+    hasNewComment: false,
   }),
   computed: {
     id() {
@@ -203,6 +206,9 @@ export default {
     spaceId() {
       return this.activity?.activityStream?.space?.id || '';
     },
+    activityCommented() {
+      return this.hasNewComment;
+    }
   },
   watch: {
     activityLoading() {
@@ -229,8 +235,13 @@ export default {
     initialized() {
       if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
-        const isLikeAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'Like' || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'LikeComment';
-        this.isRead = this.unreadMetadata && !isLikeAction;
+        const isLikeAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'Like'
+            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'LikeComment';
+        const isNewCommentAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityComment'
+            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityReplyToComment'
+            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'EditComment';
+        this.isRead = this.unreadMetadata && !isLikeAction && !isNewCommentAction;
+        this.hasNewComment = this.unreadMetadata && isNewCommentAction;
       }
     },
   },
@@ -280,6 +291,7 @@ export default {
           }
         }
         this.isRead = true;
+        this.hasNewComment = true;
         this.loading = false;
         this.initialized = true;
       });
