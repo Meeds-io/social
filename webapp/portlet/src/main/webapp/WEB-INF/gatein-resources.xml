@@ -823,6 +823,9 @@
         <module>peopleListComponents</module>
       </depends>
       <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
