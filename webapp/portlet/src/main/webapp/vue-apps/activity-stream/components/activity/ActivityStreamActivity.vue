@@ -236,10 +236,7 @@ export default {
       if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
         const isLikeAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'Like'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'LikeComment'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityComment'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityReplyToComment'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'EditComment';
+            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'LikeComment';
         const isNewCommentAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityComment'
             || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityReplyToComment'
             || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'EditComment';
