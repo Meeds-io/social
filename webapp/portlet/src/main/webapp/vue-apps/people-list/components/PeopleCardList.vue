@@ -7,20 +7,17 @@
       color="primary" />
     <v-card-text id="peopleListBody" class="pb-0">
       <v-item-group>
-        <v-container
-          class="pa-0"
-          fluid>
+        <v-container class="pa-0">
           <v-row v-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">
             <v-col
               v-for="user in filteredPeople"
               :key="user.id"
               :id="`peopleCardItem${user.id}`"
               cols="12"
-              sm="6"
-              :md="$attrs.md || 6"
-              :lg="$attrs.lg || 4"
-              :xl="$attrs.xl || 4"
-              class="pa-2">
+              md="6"
+              lg="4"
+              xl="4"
+              class="pa-0">
               <people-card
                 :user="user"
                 :space-members-extensions="spaceMembersActionExtensions"
@@ -101,7 +98,7 @@ export default {
     profileExtensions: [],
     userExtensions: [],
     spaceMemberExtensions: [],
-    fieldsToRetrieve: 'settings,all,binding',
+    fieldsToRetrieve: 'settings,all,spacesCount,relationshipStatus,connectionsCount,binding',
     userType: 'internal',
     initialized: false,
     hasPeople: false,
@@ -113,14 +110,18 @@ export default {
     originalLimitToFetch: 0,
     abortController: null,
     loadingPeople: false,
+    userCardSettingsContextKey: 'GLOBAL',
+    userCardSettingScopeKey: 'GLOBAL',
+    userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
+    userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
+    userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
     userCardSettings: null
   }),
   computed: {
     profileActionExtensions() {
-      return [...this.profileExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
-    },
-    spaceMembersActionExtensions() {
-      return [...this.spaceMemberExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
+      const profileActionExtensions = [...this.profileExtensions, ...this.spaceMemberExtensions];
+      profileActionExtensions.sort((a, b) => (a.order || 100) - (b.order || 100));
+      return profileActionExtensions;
     },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
@@ -172,8 +173,22 @@ export default {
     this.refreshUserExtensions();
   },
   methods: {
+    getCardSetting(settingKey) {
+      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
+        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
+    },
     getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
+        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
+          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
+            this.userCardSettings = {
+              firstField: firstFieldSetting?.value,
+              secondField: secondFieldSetting?.value,
+              thirdField: thirdFieldSetting?.value
+            };
+          });
+        });
+      });
     },
     resetFilters() {
       this.$root.$emit('reset-filter');

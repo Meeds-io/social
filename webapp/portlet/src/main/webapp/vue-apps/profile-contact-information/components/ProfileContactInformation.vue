@@ -97,6 +97,11 @@ export default {
     user: null,
     excludedSearchProps: [],
     settings: [],
+    userCardSettingsContextKey: 'GLOBAL',
+    userCardSettingScopeKey: 'GLOBAL',
+    userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
+    userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
+    userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
     userCardSettings: null
   }),
   computed: {
@@ -127,7 +132,6 @@ export default {
   created() {
     this.getSavedUserCardSettings();
     this.refreshProperties();
-    this.getProfileSettings();
   },
   mounted() {
     document.addEventListener('userPropertiesModified', () => {
@@ -145,8 +149,22 @@ export default {
           this.settings = settings?.settings || [];
         });
     },
+    getCardSetting(settingKey) {
+      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
+        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
+    },
     getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
+        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
+          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
+            this.userCardSettings = {
+              firstField: firstFieldSetting?.value,
+              secondField: secondFieldSetting?.value,
+              thirdField: thirdFieldSetting?.value
+            };
+          });
+        });
+      });
     },
     canShowProperty(property) {
       return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
@@ -172,7 +190,7 @@ export default {
       return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
         .then(userdataEntity => {
           this.user = userdataEntity;
-          this.properties = userdataEntity?.properties.filter(item => item.active && !(item.propertyType === 'user' && eXo.env.portal.isExternal === 'true')).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
+          this.properties = userdataEntity?.properties.filter(item => item.active).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
           this.$nextTick().then(() => this.$root.$emit('application-loaded'));
           if (broadcast){
             document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));

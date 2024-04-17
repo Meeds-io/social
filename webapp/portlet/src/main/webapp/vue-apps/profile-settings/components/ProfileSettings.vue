@@ -52,7 +52,7 @@
     <user-card-settings-drawer
       ref="userCardSettings"
       :user="user"
-      :settings="userCardFilteredFieldSettings"
+      :settings="filteredSettings"
       :is-saving-settings="isSavingCardSettings"
       :saved-settings="savedCardSettings"
       @closed="setMainPageSelected"
@@ -106,6 +106,7 @@ export default {
     this.$root.$on('delete-labels', this.deleteLabels);
     this.$root.$on('move-up-setting', this.moveUpSetting);
     this.$root.$on('move-down-setting', this.moveDownSetting);
+    this.$root.$on('settings-set-filter', this.setFilter);
     this.$root.$on('cancel-edit-add', this.displayNoChangeWarning);
     window.addEventListener('popstate', this.updateSelected);
     setTimeout(() => {
@@ -126,14 +127,6 @@ export default {
       return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
                                                                   && !setting?.children?.length
                                                                   && !this.excludedSettingsProp?.includes(setting.propertyName))
-        .map(setting => {
-          return {label: this.getResolvedName(setting), value: setting.propertyName};
-        });
-    },
-    userCardFilteredFieldSettings() {
-      return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
-                                                                  && !setting?.children?.length
-                                                                  && !this.unHiddenableProperties?.includes(setting.propertyName))
         .map(setting => {
           return {label: this.getResolvedName(setting), value: setting.propertyName};
         });
@@ -210,6 +203,9 @@ export default {
     deleteLabels(labels) {
       this.$profileLabelService.deleteLabels(labels);
     },
+    setFilter(filter) {
+      this.filter = filter;
+    },
     moveUpSetting(setting) {
       this.moveSetting(setting, 'up');
     },
@@ -258,8 +254,22 @@ export default {
       return this.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
         this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
     },
+    getCardSetting(settingKey) {
+      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
+        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
+    },
     getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
+        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
+          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
+            this.savedCardSettings = {
+              firstField: firstFieldSetting?.value,
+              secondField: secondFieldSetting?.value,
+              thirdField: thirdFieldSetting?.value
+            };
+          });
+        });
+      });
     },
     saveUserCardSettings(firstField, secondField, thirdField) {
       this.isSavingCardSettings = true;
