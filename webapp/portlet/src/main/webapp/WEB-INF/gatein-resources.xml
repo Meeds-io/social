@@ -1812,6 +1812,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>peopleListComponents</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>

@@ -85,7 +85,9 @@
                 class="pa-0">
                 <people-card
                   :user="user"
-                  :profile-action-extensions="profileActionExtensions" />
+                  :user-navigation-extensions="userExtensions"
+                  :profile-action-extensions="profileActionExtensions"
+                  :settings-preferences="userCardSettings" />
               </v-col>
             </v-row>
           </v-container>
@@ -139,13 +141,17 @@ export default {
       keyword: null,
       hasCombinations: false,
       selectedSuggestions: [],
-      isLoading: false,
+      isLoading: false
     };
   },
   props: {
     properties: {
       type: Array,
       default: () => []
+    },
+    userCardSettings: {
+      type: Object,
+      default: null
     }
   },
   computed: {
