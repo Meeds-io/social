@@ -83,9 +83,7 @@
                 hasHeaderTitle: <%=hasHeaderTitle%>,
                 isSpaceManager: <%=isManager%>
             }
-            if (eXo?.env?.portal?.organizationalChartEnabled) {
-                require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init('<%=id%>', settings));
-            }
+            require(['PORTLET/social-portlet/OrganizationalChart'], app => app.init('<%=id%>', settings));
         </script>
     </div>
 </div>
