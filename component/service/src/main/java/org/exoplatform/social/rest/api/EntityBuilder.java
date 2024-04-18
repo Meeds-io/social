@@ -411,13 +411,6 @@ public class EntityBuilder {
     }
     return userEntity;
   }
-  
-  private static ProfilePropertyService getProfilePropertyService() {
-    if (profilePropertyService == null) {
-      profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
-    }
-    return profilePropertyService;
-  }
 
   private static void buildManagedUsersCount(ProfileEntity userEntity) {
     ProfileFilter filter = new ProfileFilter();
