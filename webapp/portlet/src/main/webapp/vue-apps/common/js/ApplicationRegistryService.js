@@ -30,8 +30,8 @@ export function getApplications() {
   });
 }
 
-export function getCategories() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/applications/categories`, {
+export function getCategories(expand) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/applications/categories${expand ? `?expand=${expand}` : ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
