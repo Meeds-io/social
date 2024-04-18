@@ -20,23 +20,31 @@ package org.exoplatform.social.rest.impl.registry;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.gatein.pc.api.PortletInvoker;
+import org.gatein.pc.api.info.ModeInfo;
 
 import org.exoplatform.application.registry.Application;
 import org.exoplatform.application.registry.ApplicationCategory;
 import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -67,12 +75,18 @@ public class ApplicationRegistryRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled")
   })
   @SneakyThrows
-  public Response getApplications() {
+  public Response getApplications(
+                                  @Parameter(description = "Allow to include optional resource properties when needed", required = false)
+                                  @QueryParam("expand")
+                                  String expand) {
     Collection<ApplicationCategory> categories = applicationRegistryService.detectPortletsFromWars();
     List<Application> applications = categories.stream()
                                                .flatMap(c -> c.getApplications().stream())
                                                .filter(this::hasPermission)
                                                .toList();
+    if (StringUtils.contains(expand, "supportedModes")) {
+      applications.forEach(this::addSupportedMode);
+    }
     return Response.ok(applications).build();
   }
 
@@ -88,18 +102,24 @@ public class ApplicationRegistryRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled")
   })
   @SneakyThrows
-  public Response getApplicationCategories() {
+  public Response getApplicationCategories(
+                                           @Parameter(description = "Allow to include optional resource properties when needed", required = false)
+                                           @QueryParam("expand")
+                                           String expand) {
     List<ApplicationCategory> categories = applicationRegistryService.getApplicationCategories()
                                                                      .stream()
                                                                      .filter(this::hasPermission)
-                                                                     .map(this::filterApplications)
+                                                                     .map(c -> this.filterApplications(c, expand))
                                                                      .toList();
     return Response.ok(categories).build();
   }
 
-  private ApplicationCategory filterApplications(ApplicationCategory category) {
+  private ApplicationCategory filterApplications(ApplicationCategory category, String expand) {
     if (category.getApplications() != null) {
       category.setApplications(category.getApplications().stream().filter(this::hasPermission).toList());
+      if (StringUtils.contains(expand, "supportedModes")) {
+        category.getApplications().forEach(this::addSupportedMode);
+      }
     }
     return category;
   }
@@ -118,6 +138,21 @@ public class ApplicationRegistryRest implements ResourceContainer {
     } else {
       return userAcl.hasPermission(application.getAccessPermissions().toArray(new String[0]));
     }
+  }
+
+  @SneakyThrows
+  private void addSupportedMode(Application application) {
+    ExoContainer manager = ExoContainerContext.getCurrentContainer();
+    PortletInvoker portletInvoker = (PortletInvoker) manager.getComponentInstance(PortletInvoker.class);
+    portletInvoker.getPortlets()
+                  .stream()
+                  .filter(p -> StringUtils.equals(application.getContentId(),
+                                                  p.getInfo().getApplicationName() + "/" + p.getInfo().getName()))
+                  .findFirst()
+                  .ifPresent(p -> {
+                    Set<ModeInfo> allModes = p.getInfo().getCapabilities().getModes(org.gatein.common.net.media.MediaType.create("text/html"));
+                    application.setSupportedModes(allModes.stream().map(m -> m.getModeName()).toList());
+                  });
   }
 
 }
