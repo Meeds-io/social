@@ -7,7 +7,7 @@
       :space-members-extensions="filteredSpaceMembersExtensions"
       :profile-action-extensions="profileActionExtensions"
       :preferences="userCardSettings"
-      :is-mobile="isMobile"/>
+      :is-mobile="isMobile" />
     <people-user-compact-card
       v-else
       :is-mobile="isMobile"
