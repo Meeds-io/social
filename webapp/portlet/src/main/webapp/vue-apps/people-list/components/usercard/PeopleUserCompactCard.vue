@@ -231,7 +231,7 @@ export default {
   methods: {
     openBottomMenu() {
       this.$root.$emit('open-people-compact-card-options-drawer',
-        this.user, [...this.enabledProfileActionExtensions, ...this.userNavigationExtensions], this.spaceMembersExtensions);
+        this.user, [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
     }
   },
 };

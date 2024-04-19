@@ -46,16 +46,13 @@ export default {
   data: () => ({
     sendingAction: false,
     sendingSecondAction: false,
-    relationshipStatus: null,
   }),
-  watch: {
-    relationshipStatus() {
-      this.$root.$emit('relationship-status-updated', this.user, this.relationshipStatus);
-    }
-  },
   computed: {
     filteredSpaceMembersExtensions() {
       return this.spaceMembersExtensions.filter(extension => extension.enabled(this.user));
+    },
+    enabledProfileActionExtensions() {
+      return this.profileActionExtensions.filter(extension => extension.enabled(this.user));
     },
     isMobile() {
       return this.$vuetify.breakpoint.smAndDown;
@@ -84,33 +81,7 @@ export default {
       } else {
         return '#';
       }
-    },
-    enabledProfileActionExtensions() {
-      if (!this.profileActionExtensions || !this.user) {
-        return [];
-      }
-      if (this.isSameUser && this.user.isManager) {
-        return this.profileActionExtensions.slice().filter(extension => ((extension.title === this.$t('peopleList.button.removeManager'))
-            || (extension.title === this.$t('peopleList.button.setAsRedactor') || extension.title === this.$t('peopleList.button.removeRedactor') || extension.title === this.$t('peopleList.button.promotePublisher') || extension.title === this.$t('peopleList.button.removePublisher')) && (extension.enabled(this.user))));
-      }
-      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
-    },
-  },
-  created() {
-    this.relationshipStatus = this.user.relationshipStatus;
-  },
-  methods: {
-    getRelationshipStatus(relationship) {
-      if (relationship.status === 'PENDING'
-          && relationship?.sender?.username === eXo?.env?.portal?.userName) {
-        return 'OUTGOING';
-      } else if (relationship.status === 'PENDING') {
-        return 'INCOMING';
-      } else {
-        return relationship.status;
-      }
-    },
-
+    }
   }
 };
 </script>
