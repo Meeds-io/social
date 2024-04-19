@@ -32,24 +32,6 @@
         :lazy-src="bannerUrl"
         :src="bannerUrl"
         height="50px">
-        <div class="ms-11 ps-11 mt-2 position-absolute z-index-two">
-          <people-user-role
-            v-if="isManager"
-            :title="$t('peopleList.label.spaceManager')"
-            :icon="'fas fa-user-cog'" />
-          <people-user-role
-            v-if="isRedactor"
-            :title="$t('peopleList.label.spaceRedactor')"
-            :icon="'fas fa-user-edit'" />
-          <people-user-role
-            v-if="isPublisher"
-            :title="$t('peopleList.label.spacePublisher')"
-            :icon="'fas fa-paper-plane'" />
-          <people-user-role
-            v-if="isGroupBound"
-            :title="$t('peopleList.label.groupBound')"
-            :icon="'fas fa-users'" />
-        </div>
         <div
           v-if="spaceMembersExtensions.length"
           class="full-width position-absolute z-index-two">
@@ -97,6 +79,24 @@
             </v-list>
           </v-menu>
         </div>
+        <div class="ms-11 ps-11 mt-2 position-absolute z-index-two">
+          <people-user-role
+            v-if="isManager"
+            :title="$t('peopleList.label.spaceManager')"
+            :icon="'fas fa-user-cog'" />
+          <people-user-role
+            v-if="isRedactor"
+            :title="$t('peopleList.label.spaceRedactor')"
+            :icon="'fas fa-user-edit'" />
+          <people-user-role
+            v-if="isPublisher"
+            :title="$t('peopleList.label.spacePublisher')"
+            :icon="'fas fa-paper-plane'" />
+          <people-user-role
+            v-if="isGroupBound"
+            :title="$t('peopleList.label.groupBound')"
+            :icon="'fas fa-users'" />
+        </div>
       </v-img>
       <div class="d-flex">
         <v-avatar
@@ -139,10 +139,11 @@
           <v-btn
             v-for="extension in filteredUserNavigationExtensions"
             :key="extension.id"
+            :aria-label="extension.title"
             icon
             @click.prevent="extension.click(user)">
             <v-icon
-              :title="extension.title || $t(extension.titleKey)"
+              :title="extension.title"
               size="22">
               {{ extension.class }}
             </v-icon>
@@ -154,6 +155,7 @@
           <v-btn
             v-for="extension in filteredProfileActionExtensions"
             :key="extension.id"
+            :aria-label="extension.title"
             icon
             @click.prevent="extension.click(user)">
             <v-icon
