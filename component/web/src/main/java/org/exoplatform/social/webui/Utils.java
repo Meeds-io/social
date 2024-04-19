@@ -27,6 +27,7 @@ import jakarta.servlet.http.Cookie;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
@@ -38,6 +39,8 @@ import org.exoplatform.portal.webui.workspace.UIPortalApplication;
 import org.exoplatform.portal.webui.workspace.UIWorkingWorkspace;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.Authenticator;
+import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -718,6 +721,32 @@ public class Utils {
   public static boolean isSpacesManager(Identity userIdentity) {
     String username = userIdentity == null || !userIdentity.isUser() ? null : userIdentity.getRemoteId();
     return StringUtils.isNotBlank(username) && ExoContainerContext.getService(SpaceService.class).isSuperManager(username);
+  }
+
+  public static boolean isRewardingManager(Identity userIdentity) {
+    String username = userIdentity == null || !userIdentity.isUser() ? null : userIdentity.getRemoteId();
+    if (StringUtils.isBlank(username)) {
+      return false;
+    }
+    org.exoplatform.services.security.Identity aclIdentity = getUserAclIdentity(username);
+    return aclIdentity != null && aclIdentity.isMemberOf("/platform/rewarding");
+  }
+
+  public static org.exoplatform.services.security.Identity getUserAclIdentity(String username) {
+    if (StringUtils.isBlank(username)) {
+      return null;
+    }
+    IdentityRegistry identityRegistry = ExoContainerContext.getService(IdentityRegistry.class);
+    org.exoplatform.services.security.Identity aclIdentity = identityRegistry.getIdentity(username);
+    if (aclIdentity == null) {
+      Authenticator authenticator = CommonsUtils.getService(Authenticator.class);
+      try {
+        aclIdentity = authenticator.createIdentity(username);
+      } catch (Exception e) {
+        LOG.warn("Error getting memberships of user {}", username, e);
+      }
+    }
+    return aclIdentity;
   }
 
   public static Space getSpaceByContext() {
