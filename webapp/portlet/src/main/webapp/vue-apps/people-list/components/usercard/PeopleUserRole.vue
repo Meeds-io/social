@@ -19,14 +19,18 @@
  -->
 <template>
   <v-btn
-    :title="title"
     :ripple="false"
+    :title="title"
     class="white"
     width="21"
     height="21"
     icon
-    @click.prevent>
-    <v-icon class="primary--text" size="10">{{ icon }}</v-icon>
+    @click.stop.prevent>
+    <v-icon
+      class="primary--text"
+      size="10">
+      {{ icon }}
+    </v-icon>
   </v-btn>
 </template>
 
