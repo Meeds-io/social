@@ -71,7 +71,9 @@ export default {
         class: 'fas fa-user-minus',
         order: 2,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && user.isMember && !user.isGroupBound;
+          return ['member', 'manager', 'redactor', 'publisher'].includes(this.filter)
+                 && user.isMember && user?.username !== eXo?.env?.portal?.userName
+                 && !user.isGroupBound;
         },
         click: (user) => {
           this.$spaceService.removeMember(eXo.env.portal.spaceName, user.username)
