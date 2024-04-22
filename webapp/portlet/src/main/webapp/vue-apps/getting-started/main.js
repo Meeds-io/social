@@ -16,14 +16,14 @@ if (parentAppElement) {
     parentAppElementBtn.onclick = () => {
       hideGettingStarted().then(() => {
         const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
-        hideGettingStarted().then(() => parentElementToHide.classList.add('hidden'));
+        hideGettingStarted().then(() => Vue.prototype.$updateApplicationVisibility(false, parentElementToHide));
       });
     };
   }
 } else {
-  document.querySelector('#GettingStartedContainerChildren .PORTLET-FRAGMENT').classList.add('hidden');
+  Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#GettingStartedContainerChildren .PORTLET-FRAGMENT'));
 }
 
 if (parentAppElement && parentAppElement.dataset.canClose === 'true') {
-  parentAppElement.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+  Vue.prototype.$updateApplicationVisibility(false, parentAppElement);
 }
