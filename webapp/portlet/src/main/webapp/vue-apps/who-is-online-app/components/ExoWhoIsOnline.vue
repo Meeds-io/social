@@ -49,17 +49,24 @@ export default {
     this.$root.$applicationLoaded();
   },
   created() {
-    document.onreadystatechange = () => {
-      if (document.readyState === 'complete' && !this.loaded) {
-        this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
-        setInterval(function () {
-          this.retrieveOnlineUsers();
-        }.bind(this), this.delay);
-        this.loaded=true;
-      }
-    };
+    if (document.readyState === 'complete' && !this.loaded) {
+      this.init();
+    } else {
+      document.onreadystatechange = () => {
+        if (document.readyState === 'complete' && !this.loaded) {
+          this.init();
+        }
+      };
+    }
   },
   methods: {
+    init() {
+      this.loaded=true;
+      this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
+      setInterval(function () {
+        this.retrieveOnlineUsers();
+      }.bind(this), this.delay);
+    },
     retrieveOnlineUsers() {
       return whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
         .then(data => {
