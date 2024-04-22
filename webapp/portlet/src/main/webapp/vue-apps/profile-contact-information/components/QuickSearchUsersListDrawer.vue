@@ -160,7 +160,7 @@ export default {
           || this.properties;
     },
     filterMessage() {
-      return this.hasCombinations && this.$t('complementaryFilter.suggestions.message') || ' ';
+      return this.$t('complementaryFilter.suggestions.message') || ' ';
     }
   },
   watch: {
