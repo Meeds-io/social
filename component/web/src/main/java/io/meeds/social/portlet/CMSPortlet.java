@@ -20,7 +20,7 @@ package io.meeds.social.portlet;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.portlet.PortletConfig;
@@ -53,8 +53,6 @@ import org.exoplatform.social.webui.Utils;
 import io.meeds.social.cms.service.CMSService;
 
 public class CMSPortlet extends GenericDispatchedViewPortlet {
-
-  protected static final Random             RANDOM               = new Random();
 
   protected static final String             NAME                 = "name";
 
@@ -176,9 +174,10 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
   }
 
   private String generateRandomId() {
+    String storageId = UIPortlet.getCurrentUIPortlet() == null ? "" : UIPortlet.getCurrentUIPortlet().getStorageId();
     String name;
     do {
-      name = PREFIX_UNTITLED_NAME + String.valueOf(RANDOM.nextLong());
+      name = PREFIX_UNTITLED_NAME + storageId + "-" + UUID.randomUUID().toString();
     } while (isSettingNameExists(name));
     return name;
   }
