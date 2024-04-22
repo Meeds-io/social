@@ -18,7 +18,7 @@
 
 -->
 <template>
-  <v-toolbar flat>
+  <v-toolbar class="z-index-one" flat>
     <div id="applicationToolbar" class="d-flex flex-grow-1 align-center content-box-sizing position-relative">
       <!-- Left Content -->
       <div
