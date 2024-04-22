@@ -38,6 +38,7 @@
         :compact="true"
         :filter-message="filterMessage"
         filter-message-class="position-absolute filter-message subtitle-1 text-color ps-1"
+        class="transparent"
         @keyword-changed="keyword = $event" />
       <complementary-filter
         class="mt-n1 z-index-two position-relative"
@@ -49,7 +50,7 @@
         @build-suggestions-terminated="buildSuggestionsTerminated"
         @filter-changed="selectedSuggestionsUpdated"
         @filter-suggestion-unselected="unselectSuggestion"
-        @filter-drawer-closed="filterDrawerClosed"/>
+        @filter-drawer-closed="filterDrawerClosed" />
       <div
         v-if="!isSearching && !listUsers.length"
         class="mt-auto mb-auto pt-5 align-center">
