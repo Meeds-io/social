@@ -38,6 +38,7 @@
         :compact="true"
         :filter-message="filterMessage"
         filter-message-class="position-absolute filter-message subtitle-1 text-color ps-1"
+        class="transparent"
         @keyword-changed="keyword = $event" />
       <complementary-filter
         class="mt-n1 z-index-two position-relative"
