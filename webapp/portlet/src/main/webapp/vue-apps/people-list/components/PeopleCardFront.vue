@@ -110,7 +110,10 @@
               :key="i"
               @click="extension.click(user)">
               <v-list-item-title class="align-center d-flex">
-                <i v-if="extension.icon" :class="extension.icon" class="uiIcon"></i>
+                <i
+                  v-if="extension.icon"
+                  :class="extension.icon"
+                  class="uiIcon"></i>
                 <v-icon v-else size="18">
                   {{ extension.class }}
                 </v-icon>
