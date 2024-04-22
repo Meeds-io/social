@@ -22,7 +22,7 @@
   <parent>
     <artifactId>social</artifactId>
     <groupId>org.exoplatform.social</groupId>
-    <version>6.6.x-meed-SNAPSHOT</version>
+    <version>6.6.0-meed-20240422</version>
   </parent>
   <artifactId>social-component</artifactId>
   <packaging>pom</packaging>
