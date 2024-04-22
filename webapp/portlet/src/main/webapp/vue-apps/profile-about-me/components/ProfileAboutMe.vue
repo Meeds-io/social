@@ -93,11 +93,7 @@ export default {
   },
   watch: {
     displayApp() {
-      if (this.displayApp) {
-        this.$el.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
-      } else {
-        this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
-      }
+      this.$root.$updateApplicationVisibility(this.displayApp);
     }
   },
   created() {
