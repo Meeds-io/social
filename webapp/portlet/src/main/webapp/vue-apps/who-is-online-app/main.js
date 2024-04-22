@@ -29,7 +29,7 @@ export function init() {
     .then(() => {
       const onlineUsers = JSON.parse(document.getElementById('whoIsOnlineDefaultValue').value);
       if (!onlineUsers.length) {
-        document.querySelector('#OnlinePortlet').closest('.PORTLET-FRAGMENT').classList.add('hidden');
+        Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet'));
       }
       if (onlineUsers && onlineUsers.length) {
         const avatars = JSON.parse(document.getElementById('whoIsOnlineAvatarsDefaultValue').value);
