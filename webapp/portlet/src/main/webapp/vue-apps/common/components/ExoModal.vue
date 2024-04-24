@@ -84,11 +84,15 @@ export default {
     }
   },
   created() {
-    $(document).on('keydown', (event) => {
-      if (event.key === 'Escape') {
-        this.dialog = false;
-      }
-    });
+    document.addEventListener('keydown', this.closeOnEscape);
+  },
+  mounted() {
+    if (this.$el.closest('.layout-sticky-application')) {
+      document.querySelector('#vuetify-apps').appendChild(this.$el);
+    }
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.closeOnEscape);
   },
   methods: {
     open() {
@@ -96,6 +100,11 @@ export default {
     },
     close() {
       this.dialog = false;
+    },
+    closeOnEscape(event) {
+      if (event.key === 'Escape') {
+        this.close();
+      }
     },
   }
 };
