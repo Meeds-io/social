@@ -107,6 +107,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    detached: {
+      type: Boolean,
+      default: () => false,
+    },
     eager: {
       type: Boolean,
       default: () => false,
@@ -239,6 +243,11 @@ export default {
     document.addEventListener('closeAllDrawers', this.close);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.addEventListener('close-editor-container', this.closeDisplayedDrawer);
+  },
+  mounted() {
+    if (this.detached || this.$el.closest('.layout-sticky-application')) {
+      document.querySelector('#vuetify-apps').appendChild(this.$el);
+    }
   },
   beforeDestroy() {
     document.removeEventListener('modalOpened', this.setModalOpened);
