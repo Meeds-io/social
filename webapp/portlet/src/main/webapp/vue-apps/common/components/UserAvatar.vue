@@ -17,7 +17,7 @@
         @click="clickable && $emit('avatar-click', $event)">
         <v-avatar
           :size="size"
-          :class="[avatarClass, compact && 'border-white']"
+          :class="[avatarClass, compact && 'border-white content-box-sizing']"
           class="ma-0 flex-shrink-0">
           <img
             :src="userAvatarUrl"
@@ -120,7 +120,7 @@
         @click="clickable && $emit('avatar-click', $event)">
         <v-avatar
           :size="size"
-          :class="avatarClass"
+          :class="[avatarClass, compact && 'border-white content-box-sizing']"
           class="ma-0 flex-shrink-0">
           <img
             :src="userAvatarUrl"
@@ -172,7 +172,7 @@
         @click="clickable && $emit('avatar-click', $event)">
         <v-avatar
           :size="size"
-          :class="avatarClass"
+          :class="[avatarClass, compact && 'border-white content-box-sizing']"
           class="ma-0">
           <img
             :src="userAvatarUrl"
