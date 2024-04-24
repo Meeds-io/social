@@ -144,26 +144,32 @@
             @click.prevent="extension.click(user)">
             <v-icon
               :title="extension.title"
-              size="22">
+              size="20">
               {{ extension.class }}
             </v-icon>
           </v-btn>
         </div>
         <div
           v-if="!isSameUser"
-          class="ms-auto">
-          <v-btn
-            v-for="extension in filteredProfileActionExtensions"
-            :key="extension.id"
-            :aria-label="extension.title"
-            icon
-            @click.prevent="extension.click(user)">
-            <v-icon
-              :title="extension.title"
-              size="22">
-              {{ extension.class }}
-            </v-icon>
-          </v-btn>
+          class="ms-auto d-flex">
+          <span v-for="extension in filteredProfileActionExtensions"
+            :key="extension.id">
+            <v-btn
+              v-if="!extension.init"
+              :aria-label="extension.title"
+              icon
+              @click.prevent="extension.click(user)">
+              <v-icon
+                :title="extension.title"
+                size="20">
+                {{ extension.class }}
+              </v-icon>
+            </v-btn>
+            <span v-else
+              :class="`${extension.appClass} ${extension.typeClass}`"
+              :ref="extension.id">
+            </span>
+          </span>
         </div>
       </v-card-actions>
     </v-card>
@@ -275,6 +281,9 @@ export default {
   created() {
     document.addEventListener('mousedown',  this.closeMenu);
   },
+  mounted() {
+    this.initExtensions();
+  },
   methods: {
     closeMenu() {
       if (this.menu) {
@@ -282,6 +291,17 @@ export default {
           this.menu = false;
         }, 200);
       }
+    },
+    initExtensions() {
+      this.filteredProfileActionExtensions.forEach((extension) => {
+        if (extension.init) {
+          let container = this.$refs[extension.id];
+          if (container && container.length > 0) {
+            container = container[0];
+            extension.init(container, this.user.username);
+          }
+        }
+      });
     }
   }
 };
