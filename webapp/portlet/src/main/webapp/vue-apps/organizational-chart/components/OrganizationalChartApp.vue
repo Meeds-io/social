@@ -241,7 +241,7 @@ export default {
       this.offset = this.managedUsers.length || 0;
       this.limit = this.limit || this.pageSize;
       this.isLoadingManagedUsers = true;
-      this.$userService.getUsersByAdvancedFilter(profileSetting, this.offset, this.limit + 1, 'settings,managedUsersCount', 'all', this.abortController.signal).then(data => {
+      this.$userService.getUsersByAdvancedFilter(profileSetting, this.offset, this.limit + 1, 'settings,managedUsersCount', 'all', null, false, this.abortController.signal).then(data => {
         const users = data?.users?.slice(0, this.limit);
         this.managedUsers.push(...users);
         this.hasMore = data?.users?.length > this.limit;

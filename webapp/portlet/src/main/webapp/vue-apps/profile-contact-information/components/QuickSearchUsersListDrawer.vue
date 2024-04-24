@@ -240,7 +240,7 @@ export default {
       this.hasCombinations = false;
       this.selectedSuggestions = [];
       this.users = [];
-      this.search();
+      this.search(true);
       this.$refs.quickSearchUsersListDrawer.open();
     },
     search(loadMore) {
