@@ -28,71 +28,6 @@
       height="227"
       :href="profileUrl"
       outlined>
-      <div class="ms-11 ps-11 mt-2 position-absolute z-index-two">
-        <people-user-role
-          v-if="isManager"
-          :title="$t('peopleList.label.spaceManager')"
-          :icon="'fas fa-user-cog'" />
-        <people-user-role
-          v-if="isRedactor"
-          :title="$t('peopleList.label.spaceRedactor')"
-          :icon="'fas fa-user-edit'" />
-        <people-user-role
-          v-if="isPublisher"
-          :title="$t('peopleList.label.spacePublisher')"
-          :icon="'fas fa-paper-plane'" />
-        <people-user-role
-          v-if="isGroupBound"
-          :title="$t('peopleList.label.groupBound')"
-          :icon="'fas fa-users'" />
-      </div>
-      <div
-        v-if="spaceMembersExtensions.length"
-        class="full-width position-absolute z-index-two">
-        <v-menu
-          v-if="hover"
-          ref="actionMenu"
-          v-model="menu"
-          transition="slide-x-reverse-transition"
-          content-class="mt-6 ms-5"
-          left
-          offset-x>
-          <template #activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs"
-              v-on="on"
-              :title="$t('peopleList.label.openUserMenu')"
-              class="d-block grey darken-1 mt-2 ms-auto me-2"
-              width="21"
-              height="21"
-              icon
-              text
-              @click.prevent>
-              <v-icon
-                class="white--text"
-                size="13">
-                fas fa-ellipsis-v
-              </v-icon>
-            </v-btn>
-          </template>
-          <v-list class="pa-0 white" dense>
-            <v-list-item
-              v-for="(extension, i) in spaceMembersExtensions"
-              :key="i"
-              @click="extension.click(user)">
-              <v-list-item-title class="align-center d-flex">
-                <v-icon
-                  size="15">
-                  {{ extension.class }}
-                </v-icon>
-                <span class="mx-2">
-                  {{ extension.title }}
-                </span>
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
       <v-img
         :lazy-src="bannerUrl"
         :src="bannerUrl"
@@ -209,26 +144,32 @@
             @click.prevent="extension.click(user)">
             <v-icon
               :title="extension.title"
-              size="22">
+              size="20">
               {{ extension.class }}
             </v-icon>
           </v-btn>
         </div>
         <div
           v-if="!isSameUser"
-          class="ms-auto">
-          <v-btn
-            v-for="extension in filteredProfileActionExtensions"
-            :key="extension.id"
-            :aria-label="extension.title"
-            icon
-            @click.prevent="extension.click(user)">
-            <v-icon
-              :title="extension.title"
-              size="22">
-              {{ extension.class }}
-            </v-icon>
-          </v-btn>
+          class="ms-auto d-flex">
+          <span v-for="extension in filteredProfileActionExtensions"
+            :key="extension.id">
+            <v-btn
+              v-if="!extension.init"
+              :aria-label="extension.title"
+              icon
+              @click.prevent="extension.click(user)">
+              <v-icon
+                :title="extension.title"
+                size="20">
+                {{ extension.class }}
+              </v-icon>
+            </v-btn>
+            <span v-else
+              :class="`${extension.appClass} ${extension.typeClass}`"
+              :ref="extension.id">
+            </span>
+          </span>
         </div>
       </v-card-actions>
     </v-card>
@@ -245,7 +186,6 @@ export default {
         secondField: 'team',
         thirdField: 'city'
       },
-      menu: false
     };
   },
   props: {
@@ -341,6 +281,9 @@ export default {
   created() {
     document.addEventListener('mousedown',  this.closeMenu);
   },
+  mounted() {
+    this.initExtensions();
+  },
   methods: {
     closeMenu() {
       if (this.menu) {
@@ -348,6 +291,17 @@ export default {
           this.menu = false;
         }, 200);
       }
+    },
+    initExtensions() {
+      this.filteredProfileActionExtensions.forEach((extension) => {
+        if (extension.init) {
+          let container = this.$refs[extension.id];
+          if (container && container.length > 0) {
+            container = container[0];
+            extension.init(container, this.user.username);
+          }
+        }
+      });
     }
   }
 };

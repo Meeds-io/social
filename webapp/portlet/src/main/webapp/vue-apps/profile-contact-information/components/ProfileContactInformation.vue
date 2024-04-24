@@ -132,6 +132,7 @@ export default {
   created() {
     this.getSavedUserCardSettings();
     this.refreshProperties();
+    this.getProfileSettings();
   },
   mounted() {
     document.addEventListener('userPropertiesModified', () => {

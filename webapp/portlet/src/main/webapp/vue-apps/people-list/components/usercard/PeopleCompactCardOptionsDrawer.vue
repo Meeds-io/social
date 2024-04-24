@@ -26,21 +26,28 @@
     <template slot="content">
       <v-list dense>
         <v-list-item-group>
-          <v-list-item
-            v-for="(extension, i) in profileActionExtensions"
-            :key="i"
-            @click="triggerExtension(extension)">
-            <v-list-item-title class="align-center d-flex">
-              <v-icon
-                class="ms-4 me-2 itemIconSize"
-                size="18">
-                {{ extension.class }}
-              </v-icon>
-              <span class="mx-2">
-                {{ extension.title || $t(extension.titleKey) }}
-              </span>
-            </v-list-item-title>
-          </v-list-item>
+          <span v-for="(extension, i) in profileActionExtensions"
+            :key="i">
+            <v-list-item
+              v-if="!extension.init"
+              @click="triggerExtension(extension)">
+                <v-list-item-title class="align-center d-flex">
+                <v-icon
+                  class="ms-4 me-2 itemIconSize"
+                  size="20">
+                  {{ extension.class }}
+                </v-icon>
+                <span class="mx-2">
+                  {{ extension.title || $t(extension.titleKey) }}
+                </span>
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              v-else
+              :class="`${extension.appClass} ${extension.typeClass}`"
+              :ref="extension.id">
+            </v-list-item>
+          </span>
         </v-list-item-group>
         <v-divider
           v-if="spaceMembersExtensions.length"
@@ -53,7 +60,7 @@
             <v-list-item-title class="align-center d-flex">
               <v-icon
                 class="ms-4 me-2 itemIconSize"
-                size="18">
+                size="20">
                 {{ extension.class }}
               </v-icon>
               <span class="mx-2">
@@ -90,6 +97,21 @@ export default {
       this.profileActionExtensions = profileActions;
       this.spaceMembersExtensions = spaceMembersActions;
       this.$refs.userOptionsDrawer.open();
+      this.$nextTick().then(() => {
+        this.initExtensions();
+      });
+    },
+    initExtensions() {
+      this.profileActionExtensions.forEach((extension) => {
+        if (extension.init) {
+          let container = this.$refs[extension.id];
+          if (container && container.length > 0) {
+            container = container[0].$el;
+            container.innerHTML='';
+            extension.init(container, this.user.username);
+          }
+        }
+      });
     }
   }
 };
