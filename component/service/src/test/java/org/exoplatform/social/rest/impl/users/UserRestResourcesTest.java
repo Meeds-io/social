@@ -157,18 +157,24 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting urlsPropertySetting = new ProfilePropertySetting();
     urlsPropertySetting.setPropertyName("urls");
     urlsPropertySetting.setMultiValued(true);
+    urlsPropertySetting.setVisible(true);
+    urlsPropertySetting.setEditable(true);
     urlsPropertySetting = profilePropertyService.createPropertySetting(urlsPropertySetting);
     tearDownProfilePropertyList.add(urlsPropertySetting);
 
     // Create profile properties
     ProfilePropertySetting phonesPropertySetting = new ProfilePropertySetting();
     phonesPropertySetting.setPropertyName("phones");
+    phonesPropertySetting.setVisible(true);
+    phonesPropertySetting.setEditable(true);
     phonesPropertySetting = profilePropertyService.createPropertySetting(phonesPropertySetting);
     tearDownProfilePropertyList.add(phonesPropertySetting);
 
     ProfilePropertySetting workPhonePropertySetting = new ProfilePropertySetting();
     workPhonePropertySetting.setPropertyName("phones.work");
     workPhonePropertySetting.setMultiValued(false);
+    workPhonePropertySetting.setVisible(true);
+    workPhonePropertySetting.setEditable(true);
     workPhonePropertySetting.setParentId(phonesPropertySetting.getId());
     workPhonePropertySetting = profilePropertyService.createPropertySetting(workPhonePropertySetting);
     tearDownProfilePropertyList.add(workPhonePropertySetting);
@@ -176,6 +182,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting homePhonePropertySetting = new ProfilePropertySetting();
     homePhonePropertySetting.setPropertyName("phones.home");
     homePhonePropertySetting.setMultiValued(false);
+    homePhonePropertySetting.setVisible(true);
+    homePhonePropertySetting.setEditable(true);
     homePhonePropertySetting.setParentId(phonesPropertySetting.getId());
     homePhonePropertySetting = profilePropertyService.createPropertySetting(homePhonePropertySetting);
     tearDownProfilePropertyList.add(homePhonePropertySetting);
@@ -184,12 +192,16 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting imsPropertySetting = new ProfilePropertySetting();
     imsPropertySetting.setPropertyName("ims");
     imsPropertySetting.setMultiValued(false);
+    imsPropertySetting.setVisible(true);
+    imsPropertySetting.setEditable(true);
     imsPropertySetting = profilePropertyService.createPropertySetting(imsPropertySetting);
     tearDownProfilePropertyList.add(imsPropertySetting);
 
     ProfilePropertySetting facebookPropertySetting = new ProfilePropertySetting();
     facebookPropertySetting.setPropertyName("ims.facebook");
     facebookPropertySetting.setMultiValued(false);
+    facebookPropertySetting.setVisible(true);
+    facebookPropertySetting.setEditable(true);
     facebookPropertySetting.setParentId(imsPropertySetting.getId());
     facebookPropertySetting = profilePropertyService.createPropertySetting(facebookPropertySetting);
     tearDownProfilePropertyList.add(facebookPropertySetting);
@@ -199,6 +211,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
           ProfilePropertySetting basicProfilePropertySetting = new ProfilePropertySetting();
           basicProfilePropertySetting.setPropertyName(profileProperty);
           basicProfilePropertySetting.setMultiValued(false);
+      basicProfilePropertySetting.setVisible(true);
           try {
             basicProfilePropertySetting = profilePropertyService.createPropertySetting(basicProfilePropertySetting);
             tearDownProfilePropertyList.add(basicProfilePropertySetting);
@@ -486,6 +499,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
     profilePropertySetting.setPropertyName(Profile.LOCATION);
+    profilePropertySetting.setEditable(true);
     profilePropertyService.createPropertySetting(profilePropertySetting);
     ContainerResponse response1 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag1 = response1.getHttpHeaders().get("etag").toString();
@@ -496,7 +510,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     label.setLabel("labelTest");
     label.setLanguage("en");
     label.setObjectType("profileProperty");
-    label.setObjectId(profilePropertyService.getProfileSettingByName(Profile.FIRST_NAME).getId().toString());
+    label.setObjectId(profilePropertyService.getProfileSettingByName(Profile.LOCATION).getId().toString());
     profileLabelService.createLabel(label);
     ContainerResponse response2 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag2 = response2.getHttpHeaders().get("etag").toString();
