@@ -45,7 +45,7 @@ export default {
     this.$root.$applicationLoaded();
   },
   created() {
-    if (document.readyState === 'complete' && !this.loaded) {
+    if (document.readyState === 'complete') {
       this.init();
     } else {
       document.onreadystatechange = () => {
@@ -53,15 +53,21 @@ export default {
           this.init();
         }
       };
+      window.setTimeout(() => {
+        if (!this.loaded) {
+          this.init();
+        }
+      }, 2000);
     }
+    if (window.whosOnlineInterval) {
+      window.clearInterval(window.whosOnlineInterval);
+    }
+    window.whosOnlineInterval = window.setInterval(() => this.retrieveOnlineUsers(), this.delay);
   },
   methods: {
     init() {
-      this.loaded=true;
+      this.loaded = true;
       this.initOnlineUsers(this.$root.onlineUsers && this.$root.onlineUsers.users || []);
-      setInterval(function () {
-        this.retrieveOnlineUsers();
-      }.bind(this), this.delay);
     },
     retrieveOnlineUsers() {
       return whoIsOnlineServices.getOnlineUsers(eXo.env.portal.spaceId)
