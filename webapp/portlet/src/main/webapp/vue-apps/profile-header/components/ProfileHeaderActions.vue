@@ -6,16 +6,18 @@
     flat
     tile>
     <div class="d-flex justify-end flex-wrap my-auto">
-      <v-btn
-        v-for="(extension, i) in enabledProfileActionExtensions"
-        :key="i"
-        class="btn ma-2 mb-0"
-        @click="extension.click(user)">
-        <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
-        <span class="buttonText">
-          {{ extension.title }}
-        </span>
-      </v-btn>
+      <span v-for="(extension, i) in enabledProfileActionExtensions"
+        :key="i">
+        <v-btn
+          class="btn ma-2 mb-0"
+          @click="extension.click(user)"
+          v-if="!extension.init">
+          <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
+          <span class="buttonText">
+            {{ extension.title }}
+          </span>
+        </v-btn>
+      </span>
       <div v-if="invited" class="invitationButtons d-inline">
         <v-dialog
           v-model="mobileAcceptRefuseConnectionDialog"

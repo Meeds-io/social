@@ -144,7 +144,7 @@
             @click.prevent="extension.click(user)">
             <v-icon
               :title="extension.title"
-              size="22">
+              size="20">
               {{ extension.class }}
             </v-icon>
           </v-btn>
@@ -161,7 +161,7 @@
               @click.prevent="extension.click(user)">
               <v-icon
                 :title="extension.title"
-                size="22">
+                size="20">
                 {{ extension.class }}
               </v-icon>
             </v-btn>
