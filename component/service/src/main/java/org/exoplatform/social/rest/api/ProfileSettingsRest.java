@@ -31,6 +31,7 @@ import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
@@ -52,6 +53,8 @@ import java.util.Map;
 public class ProfileSettingsRest implements ResourceContainer {
 
   private static final Log LOG = ExoLogger.getLogger(ProfileSettingsRest.class);
+
+  private static final String GROUP_ADMINISTRATORS = "/platform/administrators";
 
   private final ProfilePropertyService profilePropertyService;
 
@@ -80,6 +83,9 @@ public class ProfileSettingsRest implements ResourceContainer {
     }
     try {
       List<ProfilePropertySetting> properties = profilePropertyService.getPropertySettings();
+      if (!ConversationState.getCurrent().getIdentity().isMemberOf(GROUP_ADMINISTRATORS)) {
+        properties = properties.stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
+      }
       List<String> unHiddenbaleProperties = profilePropertyService.getUnhiddenableProfileProperties();
       List<String> excludedQuickSearchProperties = profilePropertyService.getExcludedQuickSearchProperties();
       List<ProfilePropertySettingEntity> propertySettingEntities =
