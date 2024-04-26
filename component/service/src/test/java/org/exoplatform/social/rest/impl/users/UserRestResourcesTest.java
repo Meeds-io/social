@@ -1,6 +1,6 @@
 package org.exoplatform.social.rest.impl.users;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -18,17 +18,11 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.ObjectAlreadyExistsException;
-import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
-import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
-import org.exoplatform.social.core.model.ProfileLabel;
-import org.exoplatform.social.core.profilelabel.ProfileLabelService;
-import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
@@ -43,10 +37,14 @@ import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
+import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.mock.MockUploadService;
+import org.exoplatform.social.core.model.ProfileLabel;
+import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.service.LinkProvider;
@@ -59,6 +57,7 @@ import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
 import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
 import org.exoplatform.social.service.test.AbstractResourceTest;
@@ -161,18 +160,24 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting urlsPropertySetting = new ProfilePropertySetting();
     urlsPropertySetting.setPropertyName("urls");
     urlsPropertySetting.setMultiValued(true);
+    urlsPropertySetting.setVisible(true);
+    urlsPropertySetting.setEditable(true);
     urlsPropertySetting = profilePropertyService.createPropertySetting(urlsPropertySetting);
     tearDownProfilePropertyList.add(urlsPropertySetting);
 
     // Create profile properties
     ProfilePropertySetting phonesPropertySetting = new ProfilePropertySetting();
     phonesPropertySetting.setPropertyName("phones");
+    phonesPropertySetting.setVisible(true);
+    phonesPropertySetting.setEditable(true);
     phonesPropertySetting = profilePropertyService.createPropertySetting(phonesPropertySetting);
     tearDownProfilePropertyList.add(phonesPropertySetting);
 
     ProfilePropertySetting workPhonePropertySetting = new ProfilePropertySetting();
     workPhonePropertySetting.setPropertyName("phones.work");
     workPhonePropertySetting.setMultiValued(false);
+    workPhonePropertySetting.setVisible(true);
+    workPhonePropertySetting.setEditable(true);
     workPhonePropertySetting.setParentId(phonesPropertySetting.getId());
     workPhonePropertySetting = profilePropertyService.createPropertySetting(workPhonePropertySetting);
     tearDownProfilePropertyList.add(workPhonePropertySetting);
@@ -180,6 +185,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting homePhonePropertySetting = new ProfilePropertySetting();
     homePhonePropertySetting.setPropertyName("phones.home");
     homePhonePropertySetting.setMultiValued(false);
+    homePhonePropertySetting.setVisible(true);
+    homePhonePropertySetting.setEditable(true);
     homePhonePropertySetting.setParentId(phonesPropertySetting.getId());
     homePhonePropertySetting = profilePropertyService.createPropertySetting(homePhonePropertySetting);
     tearDownProfilePropertyList.add(homePhonePropertySetting);
@@ -188,12 +195,16 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting imsPropertySetting = new ProfilePropertySetting();
     imsPropertySetting.setPropertyName("ims");
     imsPropertySetting.setMultiValued(false);
+    imsPropertySetting.setVisible(true);
+    imsPropertySetting.setEditable(true);
     imsPropertySetting = profilePropertyService.createPropertySetting(imsPropertySetting);
     tearDownProfilePropertyList.add(imsPropertySetting);
 
     ProfilePropertySetting facebookPropertySetting = new ProfilePropertySetting();
     facebookPropertySetting.setPropertyName("ims.facebook");
     facebookPropertySetting.setMultiValued(false);
+    facebookPropertySetting.setVisible(true);
+    facebookPropertySetting.setEditable(true);
     facebookPropertySetting.setParentId(imsPropertySetting.getId());
     facebookPropertySetting = profilePropertyService.createPropertySetting(facebookPropertySetting);
     tearDownProfilePropertyList.add(facebookPropertySetting);
@@ -203,6 +214,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
           ProfilePropertySetting basicProfilePropertySetting = new ProfilePropertySetting();
           basicProfilePropertySetting.setPropertyName(profileProperty);
           basicProfilePropertySetting.setMultiValued(false);
+      basicProfilePropertySetting.setVisible(true);
           try {
             basicProfilePropertySetting = profilePropertyService.createPropertySetting(basicProfilePropertySetting);
             tearDownProfilePropertyList.add(basicProfilePropertySetting);
@@ -490,6 +502,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
     profilePropertySetting.setPropertyName(Profile.LOCATION);
+    profilePropertySetting.setEditable(true);
     profilePropertyService.createPropertySetting(profilePropertySetting);
     ContainerResponse response1 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag1 = response1.getHttpHeaders().get("etag").toString();
@@ -500,7 +513,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     label.setLabel("labelTest");
     label.setLanguage("en");
     label.setObjectType("profileProperty");
-    label.setObjectId(profilePropertyService.getProfileSettingByName(Profile.FIRST_NAME).getId().toString());
+    label.setObjectId(profilePropertyService.getProfileSettingByName(Profile.LOCATION).getId().toString());
     profileLabelService.createLabel(label);
     ContainerResponse response2 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag2 = response2.getHttpHeaders().get("etag").toString();
