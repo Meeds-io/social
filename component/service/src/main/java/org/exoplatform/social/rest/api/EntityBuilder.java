@@ -453,7 +453,7 @@ public class EntityBuilder {
 
     Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
     ProfilePropertyService profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
-    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings().stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
     boolean internal = false;
