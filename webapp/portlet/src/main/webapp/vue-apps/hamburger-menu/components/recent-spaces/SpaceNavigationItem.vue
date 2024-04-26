@@ -24,7 +24,8 @@
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     class="px-2 spaceItem text-truncate"
     @click="openOrCloseDrawer">
-    <v-list-item-avatar 
+    <v-list-item-avatar
+      :aria-label="spaceDisplayName"
       size="28"
       class="me-3 ms-3 tile my-0 spaceAvatar"
       tile>
@@ -59,7 +60,8 @@
     class="px-2 spaceItem"
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
-    <v-list-item-avatar 
+    <v-list-item-avatar
+      :aria-label="spaceDisplayName"
       size="28"
       class="me-3 ms-2 tile my-0 spaceAvatar"
       tile>
