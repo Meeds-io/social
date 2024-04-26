@@ -69,11 +69,7 @@ export default {
       }
     },
     isVisible() {
-      if (this.isVisible) {
-        this.$el.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
-      } else {
-        this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
-      }
+      this.$root.$updateApplicationVisibility(this.isVisible);
     }
   },
   created() {
@@ -90,7 +86,7 @@ export default {
   },
   mounted() {
     if (!this.isVisible) {
-      this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
+      this.$root.$updateApplicationVisibility(false);
     }
   },
   methods: {

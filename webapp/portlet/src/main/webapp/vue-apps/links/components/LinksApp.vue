@@ -70,11 +70,7 @@ export default {
   },
   watch: {
     canView() {
-      if (this.canView) {
-        this.$el.parentElement.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
-      } else {
-        this.$el.parentElement.closest('.PORTLET-FRAGMENT').classList.add('hidden');
-      }
+      this.$root.$updateApplicationVisibility(this.canView);
     }
   },
   created() {
