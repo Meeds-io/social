@@ -1905,9 +1905,6 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>organizationalChartExtension</module>
-      </depends>
-      <depends>
         <module>translationField</module>
       </depends>
       <depends>
@@ -2032,9 +2029,6 @@
       <module>vuetify</module>
     </depends>
     <depends>
-      <module>organizationalChartExtension</module>
-    </depends>
-    <depends>
       <module>eXoVueI18n</module>
     </depends>
     <depends>
@@ -2098,9 +2092,6 @@
       <minify>false</minify>
       <path>/js/peopleListComponents.bundle.js</path>
     </script>
-    <depends>
-      <module>organizationalChartExtension</module>
-    </depends>
     <depends>
       <module>commonVueComponents</module>
     </depends>
@@ -2831,7 +2822,8 @@
   </module>
 
   <module>
-    <name>organizationalChartExtension</name>
+    <name>organizationalChartPopoverExtension</name>
+    <load-group>popoverGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/organizationalChartExtension.bundle.js</path>
