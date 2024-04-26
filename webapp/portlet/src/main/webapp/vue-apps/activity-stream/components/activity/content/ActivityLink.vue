@@ -89,7 +89,7 @@
           {{ defaultIconClass }}
         </v-icon>
       </v-avatar>
-      <div class="my-4">
+      <div class="my-4 position-relative">
         <dynamic-html-element
           v-if="title"
           :child="titleElement"
@@ -105,7 +105,7 @@
           dir="auto" />
         <v-btn
           v-if="showReadMore"
-          class="d-flex ml-auto mb-3"
+          class="d-flex ml-auto  pb-1 mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 application-background hover-underline"
           color="blue"
           text
           plain
