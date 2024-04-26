@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div
+    :class="collapsed && !fullContent && readMore && 'mb-3'"
+    class="position-relative">
     <dynamic-html-element
       v-if="isBodyNotEmpty"
       :child="bodyElement"
@@ -9,7 +11,7 @@
       dir="auto" />
     <v-btn
       v-if="collapsed && !fullContent && readMore"
-      class="d-flex ml-auto mb-3"
+      class="d-flex ml-auto pb-1 mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 application-background hover-underline"
       color="blue"
       text
       plain
