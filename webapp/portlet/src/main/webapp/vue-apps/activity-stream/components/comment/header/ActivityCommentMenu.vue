@@ -58,7 +58,8 @@ export default {
   }),
   computed: {
     enabledActions() {
-      return this.actions && Object.values(this.actions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.comment, this.commentTypeExtension));
+      return this.actions && Object.values(this.actions).filter(action => action.isEnabled && action.id && action.click && action.isEnabled(this.activity, this.comment, this.commentTypeExtension))
+        .sort((ext1, ext2) => (ext1.rank || 0) - (ext2.rank || 0));
     },
   },
   created() {
