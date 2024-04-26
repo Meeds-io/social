@@ -35,21 +35,17 @@ const vuetify = Vue.prototype.vuetifyOptions;
 
 const appId = 'topBarMenu';
 
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 export function init() {
+  document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+
   const appElement = document.createElement('div');
   appElement.id = appId;
-
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, url).then(i18n =>
     // init Vue app when locale resources are ready
     Vue.createApp({
-      mounted() {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      },
       template: `<top-bar-navigation-menu v-cacheable id="${appId}" />`,
       vuetify,
       i18n
-    }, appElement, 'TopBar Navigation Menu');
-  });
+    }, appElement, 'TopBar Navigation Menu')
+  ).finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
 }

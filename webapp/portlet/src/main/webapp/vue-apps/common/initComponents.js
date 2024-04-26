@@ -102,6 +102,22 @@ Vue.prototype.$applicationLoaded = function() {
   }}));
 };
 
+Vue.prototype.$updateApplicationVisibility = function(visible, element) {
+  if (!element) {
+    element = this?.$root?.$el;
+  }
+  if (!element?.className?.includes?.('PORTLET-FRAGMENT')) {
+    element = element?.parentElement;
+  }
+  if (element?.parentElement) {
+    if (visible) {
+      element.closest?.('.PORTLET-FRAGMENT')?.parentElement?.classList?.remove?.('hidden');
+    } else {
+      element.closest?.('.PORTLET-FRAGMENT')?.parentElement?.classList?.add?.('hidden');
+    }
+  }
+};
+
 Vue.createApp = function(params, el, appName) {
   const element = typeof el === 'string' ? document.querySelector(el) : el;
   if (element) {
