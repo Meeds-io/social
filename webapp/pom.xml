@@ -22,8 +22,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.meeds.social</groupId>
-    <version>7.0.x-exo-SNAPSHOT</version>
     <artifactId>social</artifactId>
+    <version>7.0.x-maintenance-SNAPSHOT</version>
   </parent>
   <artifactId>social-webapp</artifactId>
   <packaging>war</packaging>
