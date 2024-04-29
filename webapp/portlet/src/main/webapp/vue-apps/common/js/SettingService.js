@@ -15,3 +15,17 @@ export function setSettingValue(contextKey, contextValue, scopeKey, scopeValue, 
     }
   });
 }
+
+export function getSettingValue(contextKey, contextValue, scopeKey, scopeValue, key) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/${contextKey},${contextValue}/${scopeKey},${scopeValue}/${key}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json()
+        .then(v => v?.value);
+    } else {
+      return null;
+    }
+  });
+}
