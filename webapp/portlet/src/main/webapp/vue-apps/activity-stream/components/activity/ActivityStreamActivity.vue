@@ -207,7 +207,7 @@ export default {
       return this.activity?.activityStream?.space?.id || '';
     },
     activityCommented() {
-      return this.hasNewComment || this.isActivityDetail !== null;
+      return this.hasNewComment || !this.isActivityDetail;
     }
   },
   watch: {
