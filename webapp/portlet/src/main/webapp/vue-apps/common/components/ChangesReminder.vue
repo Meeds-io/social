@@ -16,9 +16,10 @@
                 v-bind="attrs"
                 v-on="on">
                 <v-btn
+                  class="me-n3"
                   icon
                   @click="dialog = false">
-                  <v-icon size="18">mdi-close</v-icon>
+                  <v-icon size="18">fa-times</v-icon>
                 </v-btn>
               </div>
             </template>
@@ -29,12 +30,16 @@
         </v-card-title>
         <v-card-text><img :src="reminder.img" alt=""></v-card-text>
         <v-card-text class="text-subtitle-1 font-weight-bold dark-grey-color">{{ reminder.title }}</v-card-text>
-        <v-card-text>
+        <v-card-text v-if="$slots.default">
+          <slot></slot>
+        </v-card-text>
+        <v-card-text v-else>
           {{ reminder.description }}
         </v-card-text>
         <v-card-actions class="pe-6">
           <v-spacer />
           <v-btn
+            :loading="loading"
             text
             class="primary--text text-subtitle-1 font-weight-bold"
             @click="doNotRemindMe">
@@ -45,9 +50,7 @@
     </v-dialog>
   </v-app>
 </template>
-
 <script>
-
 export default {
   props: {
     reminder: {
@@ -58,24 +61,39 @@ export default {
   data () {
     return {
       dialog: false,
+      loading: false,
     };
   },
+  watch: {
+    dialog() {
+      if (this.dialog) {
+        this.$emit('opened');
+      } else {
+        this.$emit('closed');
+      }
+    },
+  },
   created() {
-    document.addEventListener('changes-reminder-open' , () => this.getReminderStatus());
+    document.addEventListener('changes-reminder-open' , this.open);
+  },
+  beforeDestroy() {
+    document.removeEventListener('changes-reminder-open' , this.open);
   },
   methods: {
-    getReminderStatus() {
-      return this.$featureService.isFeatureEnabled(this.reminder.name).then(status => {
-        this.dialog = status;
-      });
+    open() {
+      this.$settingService.getSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name)
+        .then(data => this.dialog = !data?.value)
+        .catch(() => this.dialog = true);
+    },
+    close() {
+      this.dialog = false;
     },
     doNotRemindMe() {
+      this.loading = true;
       this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name, true)
-        .then(() => {
-          this.dialog = false;
-        });
+        .then(() => this.dialog = false)
+        .finally(() => this.loading = false);
     }
   }
-
 };
 </script>
