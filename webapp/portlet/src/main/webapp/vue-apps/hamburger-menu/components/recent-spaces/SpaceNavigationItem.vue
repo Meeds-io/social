@@ -22,10 +22,10 @@
   <v-list-item
     v-if="isMobile"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
+    :aria-label="spaceDisplayName"
     class="px-2 spaceItem text-truncate"
     @click="openOrCloseDrawer">
     <v-list-item-avatar
-      :aria-label="spaceDisplayName"
       size="28"
       class="me-3 ms-3 tile my-0 spaceAvatar"
       tile>
@@ -55,13 +55,13 @@
     v-else
     :href="spaceLink"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
-    link
     :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
+    :aria-label="spaceDisplayName"
     class="px-2 spaceItem"
+    link
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
     <v-list-item-avatar
-      :aria-label="spaceDisplayName"
       size="28"
       class="me-3 ms-2 tile my-0 spaceAvatar"
       tile>
