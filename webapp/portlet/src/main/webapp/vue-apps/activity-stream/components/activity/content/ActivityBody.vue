@@ -11,6 +11,7 @@
       dir="auto" />
     <v-btn
       v-if="collapsed && !fullContent && readMore"
+      :aria-label="$t('UIActivity.label.seeMore')"
       class="d-flex ml-auto pb-1 mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 application-background hover-underline"
       color="blue"
       text
