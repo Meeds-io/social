@@ -239,7 +239,8 @@ export default {
             || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'LikeComment';
         const isNewCommentAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityComment'
             || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityReplyToComment'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'EditComment';
+            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'EditComment'
+            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'GamificationActionAnnouncedNotification';
         this.isRead = this.unreadMetadata && !isLikeAction && !isNewCommentAction;
         this.hasNewComment = this.unreadMetadata && isNewCommentAction;
       }
