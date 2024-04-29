@@ -25,7 +25,8 @@
     class="px-2 spaceItem text-truncate"
     role="button"
     @click="openOrCloseDrawer">
-    <v-list-item-avatar 
+    <v-list-item-avatar
+      :aria-label="spaceDisplayName"
       size="28"
       class="me-3 ms-3 tile my-0 spaceAvatar"
       tile>
@@ -60,7 +61,8 @@
     role="link"
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
-    <v-list-item-avatar 
+    <v-list-item-avatar
+      :aria-label="spaceDisplayName"
       size="28"
       class="me-3 ms-2 tile my-0 spaceAvatar"
       tile>

@@ -21,10 +21,11 @@
 <template>
   <v-list-item
     v-if="!displaySequentially"
-    :class="isCurrentSite && ' v-item--active v-list-item--active ' || ' '"
-    role="button"
-    @click="openOrCloseDrawer">
-    <v-list-item-icon class="flex align-center flex-grow-0 my-2">
+    @click="openOrCloseDrawer"
+    :class="isCurrentSite && ' v-item--active v-list-item--active ' || ' '">
+    <v-list-item-icon
+      :aria-label="site.displayName"
+      class="flex align-center flex-grow-0 my-2">
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
     </v-list-item-icon>
@@ -42,7 +43,9 @@
     role="link"
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
-    <v-list-item-icon class="flex align-center flex-grow-0 my-2">
+    <v-list-item-icon
+      :aria-label="site.displayName"
+      class="flex align-center flex-grow-0 my-2">
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
     </v-list-item-icon>
