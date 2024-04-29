@@ -17,8 +17,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getApplications() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/applications`, {
+export function getApplications(expand) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/applications${expand ? `?expand=${expand}` : ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
