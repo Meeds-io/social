@@ -31,6 +31,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.metadata.storage.MetadataStorage;
+import org.exoplatform.social.metadata.MetadataFilter;
 import org.exoplatform.social.metadata.MetadataInitPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
@@ -342,7 +343,13 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                                                  offset,
                                                                                  limit);
   }
-  
+
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByFilter(MetadataFilter filter, long offset, long limit) {
+    return metadataStorage.getMetadataItemsByFilter(filter, offset, limit);
+  }
+
   @Override
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
                                                                                       String metadataTypeName,
