@@ -45,9 +45,9 @@
             :href="nav.fullUri"
             :class="homeLink === nav.fullUri && 'UserPageLinkHome' || 'UserPageLink'"
             :target="nav.uriTarget"
+            :aria-label="nav.label"
             link>
             <v-list-item-icon
-              :aria-label="nav.label"
               class="flex align-center flex-grow-0 my-2">
               <v-icon> {{ nav.icon || defaultIcon }}</v-icon>
             </v-list-item-icon>

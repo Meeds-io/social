@@ -22,9 +22,9 @@
   <v-list-item
     v-if="!displaySequentially"
     @click="openOrCloseDrawer"
-    :class="isCurrentSite && ' v-item--active v-list-item--active ' || ' '">
+    :class="isCurrentSite && ' v-item--active v-list-item--active ' || ' '"
+    :aria-label="site.displayName">
     <v-list-item-icon
-      :aria-label="site.displayName"
       class="flex align-center flex-grow-0 my-2">
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
@@ -40,11 +40,10 @@
     :href="uri"
     :target="target"
     :class="itemClass"
-    role="link"
+    :aria-label="site.displayName"
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
     <v-list-item-icon
-      :aria-label="site.displayName"
       class="flex align-center flex-grow-0 my-2">
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
