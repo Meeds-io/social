@@ -369,7 +369,7 @@ export default {
     goToBindingReports() {
       this.showGroupBindingForm = false;
       this.$emit('bindingReports');
-      this.navigateTo('g/:platform:users/spacesAdministration#bindingReports');
+      this.navigateTo('administration/home/organisation/spaces');
       this.forceRerender();
     },
     navigateTo(pagelink) {
