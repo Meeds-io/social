@@ -34,6 +34,7 @@ import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataItemDAO;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
+import org.exoplatform.social.metadata.MetadataFilter;
 import org.exoplatform.social.metadata.model.Metadata;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
@@ -216,6 +217,19 @@ public class MetadataStorage {
     }
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
+
+  public List<MetadataItem> getMetadataItemsByFilter(MetadataFilter metadataFilter, long offset, long limit) {
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataFilter.getMetadataTypeName());
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByFilter(metadataFilter,
+                                                                                        metadataType.getId(),
+                                                                                        offset,
+                                                                                        limit);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
 
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
                                                                                      String metadataTypeName,
