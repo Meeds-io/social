@@ -7,17 +7,17 @@
       :child="bodyElement"
       :element="element"
       :class="bodyClass"
-      class="reset-style-box rich-editor-content text-break overflow-hidden"
+      class="reset-style-box rich-editor-content text-break"
       dir="auto" />
     <v-btn
       v-if="collapsed && !fullContent && readMore"
       :aria-label="$t('UIActivity.label.seeMore')"
-      class="d-flex ml-auto pb-1 mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 application-background hover-underline"
+      class="d-flex ms-auto mb-0 pb-2px pl-0 pr-0 height-auto position-absolute r-0 b-0 linear-gradient-white-background hover-underline"
       color="blue"
       text
       plain
       @click="displayFullContent">
-      {{ $t('UIActivity.label.seeMore') }}
+      <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
     </v-btn>
   </div>
 </template>
@@ -76,7 +76,7 @@ export default {
       return this.activity && this.activity.activityId;
     },
     bodyClass() {
-      return `${this.isComment && 'rich-editor-content' || 'postContent text-color py-0'} ${this.collapsed && !this.fullContent && 'content-collapsed overflow-hidden' || ''}`;
+      return `${this.isComment && 'rich-editor-content' || 'postContent text-color py-0'} ${this.collapsed && !this.fullContent && 'text-truncate-4-no-ellipsis' || ''}`;
     },
     readMore() {
       return this.displayReadMoreButton;
