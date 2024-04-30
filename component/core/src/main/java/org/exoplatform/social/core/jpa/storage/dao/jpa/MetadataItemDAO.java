@@ -15,15 +15,14 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.Query;
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
-
-import jakarta.persistence.criteria.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
@@ -32,6 +31,18 @@ import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataFilter;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
 
