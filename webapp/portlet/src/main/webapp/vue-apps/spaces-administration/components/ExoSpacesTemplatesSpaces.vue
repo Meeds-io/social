@@ -40,13 +40,7 @@
   </div>
 </template>
 <script>
-import * as spaceTemplatesServices from '../spaceTemplatesServices';
-import ExoSpaceTemplate from './ExoSpaceTemplate.vue';
-
 export default {
-  components: {
-    'exo-space-template': ExoSpaceTemplate
-  },
   data() {
     return {
       templates: [],
@@ -59,7 +53,7 @@ export default {
   },
   methods: {
     initTemplates() {
-      spaceTemplatesServices.getTemplates().then(data => {
+      this.$spaceTemplatesServices.getTemplates().then(data => {
         this.templates = data;
       });
     },

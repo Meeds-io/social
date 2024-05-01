@@ -97,10 +97,7 @@
     </div>
   </div>
 </template>
-
 <script>
-import * as spacesAdministrationServices from '../spacesAdministrationServices';
-
 export default {
   data() {
     return {
@@ -150,12 +147,12 @@ export default {
     }
   },
   created() {
-    spacesAdministrationServices.getBindingReportOperations().then(data => {
+    this.$spacesAdministrationServices.getBindingReportOperations().then(data => {
       this.operations = data.groupSpaceBindingReportOperations;
     }).finally(() => this.loading = false);
   }, methods: {
     uploadCSVFile(spaceId, action, groupId, groupBindingId) {
-      spacesAdministrationServices.getReport(spaceId, action, groupId, groupBindingId);
+      this.$spacesAdministrationServices.getReport(spaceId, action, groupId, groupBindingId);
     },
     getOperationType(type) {
       const action = type.toLowerCase();
