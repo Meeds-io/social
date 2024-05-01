@@ -98,7 +98,6 @@
   </div>
 </template>
 <script>
-import * as spacesAdministrationServices from '../spacesAdministrationServices';
 export default {
   data() {
     return {
@@ -182,7 +181,7 @@ export default {
     savePermissionsCreateSpace() {
       $('.tooltip.fade.bottom.in').remove();
       if (this.creators){
-        spacesAdministrationServices.updateSpacesAdministrationSetting('spacesCreators',
+        this.$spacesAdministrationServices.updateSpacesAdministrationSetting('spacesCreators',
           this.creators.map(creator => {
             const splitCreator = creator.split(':');
             return { 'membershipType': splitCreator[0], 'group': splitCreator[1] };
@@ -191,7 +190,7 @@ export default {
       this.spacesCreatorsEditMode = false;
     },
     getSettingValueCreateSpace() {
-      spacesAdministrationServices.getSpacesAdministrationSetting('spacesCreators').then(data => {
+      this.$spacesAdministrationServices.getSpacesAdministrationSetting('spacesCreators').then(data => {
         if (data) {
           this.creators = [];
           for (const permission of data.memberships) {
@@ -253,7 +252,7 @@ export default {
         return callback(); 
       }
 
-      spacesAdministrationServices.getGroups(query).then(data => {
+      this.$spacesAdministrationServices.getGroups(query).then(data => {
         const groups = [];
         for (const group of data.entities) {
           groups.push({
@@ -293,7 +292,7 @@ export default {
     savePermissionsSpacesAdministrators() {
       $('.tooltip.fade.bottom.in').remove();
       if (this.administrators){
-        spacesAdministrationServices.updateSpacesAdministrationSetting('spacesAdministrators',
+        this.$spacesAdministrationServices.updateSpacesAdministrationSetting('spacesAdministrators',
           this.administrators.map(administrator => {
             const splitAdministrators = administrator.split(':');
             return { 'membershipType': splitAdministrators[0], 'group': splitAdministrators[1] };
@@ -302,7 +301,7 @@ export default {
       this.spacesAdministratorsEditMode = false;
     },
     getSettingValueSpacesAdministrators(){
-      spacesAdministrationServices.getSpacesAdministrationSetting('spacesAdministrators').then(data => {
+      this.$spacesAdministrationServices.getSpacesAdministrationSetting('spacesAdministrators').then(data => {
         if (data) {
           this.administrators = [];
           for (const permission of data.memberships) {
