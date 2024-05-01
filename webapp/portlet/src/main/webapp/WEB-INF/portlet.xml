@@ -231,11 +231,27 @@
 
   <portlet>
     <portlet-name>SpaceMenuPortlet</portlet-name>
-    <display-name>Space banner</display-name>
+    <display-name>Space banner and menu</display-name>
     <portlet-class>org.exoplatform.social.portlet.SpaceHeaderPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/spaceHeader.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Space banner and menu</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>SpaceBannerPortlet</portlet-name>
+    <display-name>Space banner</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/spaceBanner.jsp</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
