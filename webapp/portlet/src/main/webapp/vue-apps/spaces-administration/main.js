@@ -1,4 +1,5 @@
-import './components/initComponents.js';
+import './initComponents.js';
+import './services.js';
 
 // getting language of the PLF 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';

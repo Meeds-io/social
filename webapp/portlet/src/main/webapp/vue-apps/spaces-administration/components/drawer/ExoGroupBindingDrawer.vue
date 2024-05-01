@@ -1,85 +1,42 @@
 <template>
-  <div>
-    <v-flex v-show="!showSelectGroupsTree" id="GroupBindingForm">
-      <v-card-title 
-        class="title">
-        <v-layout class="pa-2" row>
-          <v-flex>
-            <span>
-              {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.title') }}
-            </span>
-          </v-flex>
-          <v-flex xs1>
-            <v-btn
-              icon
-              class="rightIcon"
-              @click="closeDrawer">
-              <v-icon 
-                large
-                class="closeIcon">
-                close
-              </v-icon>
-            </v-btn>          
-          </v-flex>
-        </v-layout>
-      </v-card-title>
-      <div class="content">
-        <v-layout
-          class="mt-4 ps-2"
-          wrap>
-          <v-flex align-center xs1>
-            <img
-              v-if="spaceToBind && spaceToBind.avatarUrl != null"
-              :src="spaceToBind.avatarUrl"
-              class="avatar">
-            <img
-              v-else
-              :src="avatar"
-              class="avatar">
-          </v-flex>
-          <v-flex pt-1 class="spaceName">
-            <span> {{ spaceToBind ? spaceToBind.displayName : '' }} </span>
-          </v-flex>
-        </v-layout>
-        <v-layout
-          class="pt-5 ps-3 mb-4"
-          wrap>
-          <v-flex xs9>
-            <exo-group-suggester
-              v-model="groups"
-              :options="suggesterOptions"
-              :source-providers="[findGroups]"
-              :bound-groups="groupSpaceBindings"
-              :second-drawer-selected-groups="secondDrawerSelectedGroups"
-              :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')" />
-          </v-flex>
-          <v-flex xs1 />
-          <v-flex xs1>
-            <v-btn
-              :title="$t('social.spaces.administration.manageSpaces.spaceBindingForm.selectList')"
-              icon
-              class="rightIcon"
-              @click="goToSelectGroups">
-              <i class="uiIconSpaceBinding uiIconGroup"></i>
-            </v-btn>
-          </v-flex>
-        </v-layout>
-        <v-layout v-show="boundGroupsLoading" column>
-          <v-flex ps-4>
-            <v-skeleton-loader
-              class="mx-auto"
-              type="heading" />
-          </v-flex>
-          <v-spacer />
-          <v-flex
-            pt-4
-            ps-4
-            pe-8>
-            <v-skeleton-loader
-              class="mx-auto"
-              type="paragraph@3" />
-          </v-flex>
-        </v-layout>
+  <exo-drawer
+    id="GroupBindingForm"
+    v-model="drawer"
+    ref="drawer"
+    right
+    @closed="$emit('close')">
+    <template #title>
+      {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.title') }}
+    </template>
+    <template v-if="drawer" #content>
+      <div class="pa-4">
+        <div class="d-flex align-center mb-4">
+          <img
+            v-if="spaceToBind && spaceToBind.avatarUrl != null"
+            :src="spaceToBind.avatarUrl"
+            class="avatar">
+          <img
+            v-else
+            :src="avatar"
+            class="avatar">
+          <span class="ps-2">{{ spaceToBind ? spaceToBind.displayName : '' }} </span>
+        </div>
+        <div class="d-flex mb-4">
+          <exo-group-suggester
+            v-model="groups"
+            :options="suggesterOptions"
+            :source-providers="[findGroups]"
+            :bound-groups="groupSpaceBindings"
+            :second-drawer-selected-groups="secondDrawerSelectedGroups"
+            :placeholder="$t('social.spaces.administration.manageSpaces.spaceBindingForm.textField.placeHolder')" />
+          <v-btn
+            :title="$t('social.spaces.administration.manageSpaces.spaceBindingForm.selectList')"
+            icon
+            class="rightIcon"
+            @click="goToSelectGroups">
+            <i class="uiIconSpaceBinding uiIconGroup"></i>
+          </v-btn>
+        </div>
         <v-layout v-if="groupSpaceBindings.length > 0 && !boundGroupsLoading" column>
           <v-flex>
             <span class="subtitle-1">
@@ -113,39 +70,30 @@
           </v-flex>
         </v-layout>
       </div>
-      <v-card-actions absolute class="drawerActions">
-        <v-layout>
-          <v-flex class="xs6" />
-          <button
-            type="button"
-            class="btn ms-2"
-            @click="cancelBinding">
-            {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}
-          </button>
-          <button
-            :disabled="!isAllowToSave"
-            type="button"
-            class="btn btn-primary ms-6"
-            @click="$emit('openBindingModal', groups)">
-            {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.apply') }}
-          </button>
-        </v-layout>
-      </v-card-actions>      
-    </v-flex>
-    <div v-show="showSelectGroupsTree">
       <exo-group-binding-second-level-drawer
+        ref="groupSelection"
         :already-selected="groups"
         :group-space-bindings="groupSpaceBindings"
-        @selectionSaved="selectionSaved"
-        @back="back"
-        @close="closeDrawer" />
-    </div>
-  </div>
+        @selectionSaved="selectionSaved" />
+    </template>
+    <template #footer>
+      <div class="d-flex justify-end">
+        <v-btn
+          class="btn me-2"
+          @click="cancelBinding">
+          {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}
+        </v-btn>
+        <v-btn
+          :disabled="!isAllowToSave"
+          class="btn btn-primary"
+          @click="$emit('openBindingModal', groups)">
+          {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.apply') }}
+        </v-btn>
+      </div>
+    </template>
+  </exo-drawer>
 </template>
-
 <script>
-import * as spacesAdministrationServices from '../../spacesAdministrationServices';
-
 export default {
   props: {
     spaceToBind: {
@@ -166,7 +114,7 @@ export default {
     return {
       textAreaValue: '',
       groups: [],
-      showSelectGroupsTree: false,
+      drawer: false,
       avatar: this.$spacesConstants && this.$spacesConstants.DEFAULT_SPACE_AVATAR,
       secondDrawerSelectedGroups: [],
       suggesterOptions: {
@@ -174,8 +122,6 @@ export default {
         plugins: ['remove_button', 'restore_on_backspace'],
         create: false,
         createOnBlur: false,
-        highlight: false,
-        openOnFocus: false,
         valueField: 'value',
         labelField: 'text',
         searchField: ['text'],
@@ -191,7 +137,7 @@ export default {
   },
   computed: {
     isAllowToSave() {
-      return this.groups && this.groups.length > 0;
+      return this.groups?.length;
     },
   },
   methods: {
@@ -199,7 +145,7 @@ export default {
       if (!query.length) {
         return callback();
       }
-      spacesAdministrationServices.getGroups(query).then(data => {
+      this.$spacesAdministrationServices.getGroups(query).then(data => {
         const groups = [];
         const boundGroups = this.groupSpaceBindings.map(binding => binding.group);
         for (const group of data.entities) {
@@ -221,19 +167,17 @@ export default {
       `;
     },
     goToSelectGroups() {
-      this.showSelectGroupsTree = true;
+      this.$refs.groupSelection.open();
     },
-    back() {
-      this.showSelectGroupsTree = !this.showSelectGroupsTree;
+    open() {
+      this.$refs.drawer.open();
     },
-    closeDrawer() {
-      this.showSelectGroupsTree = false;
-      this.$emit('close');
+    close() {
+      this.$refs.drawer.close();
     },
     cancelBinding() {
       this.groups = [];
-      this.$emit('close');
-      this.showSelectGroupsTree = false;
+      this.close();
     },
     renderGroupName(groupName) {
       let groupPrettyName = groupName.slice(groupName.lastIndexOf('/') + 1, groupName.length);
@@ -242,10 +186,7 @@ export default {
     },
     selectionSaved(saved) {
       this.secondDrawerSelectedGroups = saved;
-      const groupsIds = saved.map(group => group.id);
-      this.showSelectGroupsTree = false;
-      this.groups = [];
-      this.groups.push(...groupsIds);
+      this.groups = saved.map(group => group.id);
     },
   }
 };
