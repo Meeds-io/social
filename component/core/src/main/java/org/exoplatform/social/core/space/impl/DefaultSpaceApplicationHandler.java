@@ -565,9 +565,6 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       
       pageStorage.savePage(new PageContext(pageKey, pageState));
       layoutService.save(page);
-      page = layoutService.getPage(page.getPageId());
-      PageContext pageContext = pageStorage.loadPage(PageKey.parse(page.getPageId()));
-      pageContext.update(page);
     } catch (Exception e) {
       LOG.warn(e.getMessage(), e);
     }
@@ -611,7 +608,6 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       page = userPortalConfigService.createPageTemplate("spaceHomePage",
                                                         PortalConfig.GROUP_TYPE,
                                                         space.getGroupId());
-      setPermissionForPage(page.getChildren(), "*:" + space.getGroupId());
     } else {
       page = userPortalConfigService.createPageTemplate("space",
                                                         PortalConfig.GROUP_TYPE,
