@@ -1,46 +1,13 @@
 <template>
-  <div class="secondDrawer">
-    <v-card-title class="title">
-      <v-layout
-        v-show="!searchMode"
-        pa-2
-        justify-center
-        align-baseline
-        wrap
-        row>
-        <v-flex
-          align-self-end
-          xs1>
-          <v-btn
-            icon
-            class="leftIcon"
-            @click="$emit('back')">
-            <v-icon small>arrow_back</v-icon>
-          </v-btn>
-        </v-flex>
-        <v-flex>
-          <span class="subtitle-1">
-            {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.selectGroups') }}
-          </span>
-        </v-flex>
-        <v-flex xs1>
-          <v-btn icon @click="searchMode = true">
-            <v-icon class="closeIcon">search</v-icon>
-          </v-btn>
-        </v-flex>
-        <v-flex xs1 me-2>
-          <v-btn
-            icon
-            class="rightIcon"
-            @click="closeDrawer">
-            <v-icon
-              large
-              class="closeIcon">
-              close
-            </v-icon>
-          </v-btn>
-        </v-flex>
-      </v-layout>
+  <exo-drawer
+    id="GroupBindingForm"
+    ref="drawer"
+    right
+    @closed="$emit('closed')">
+    <template #title>
+      {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.selectGroups') }}
+    </template>
+    <template #content>
       <v-layout
         v-show="searchMode"
         pa-2
@@ -70,83 +37,77 @@
             hide-details />
         </v-flex>
       </v-layout>
-    </v-card-title>
-    <v-layout
-      pt-4
-      ps-2
-      class="content">
-      <v-flex>
-        <div v-show="loading">
-          <v-flex
-            pt-4
-            ps-4
-            pe-8>
-            <v-skeleton-loader
-              class="mx-auto"
-              type="paragraph@3" />
-          </v-flex>
-        </div>
-        <v-treeview
-          v-show="!loading && !searching"
-          id="treeDisplayMode"
-          v-model="selection"
-          :items="items"
-          :open="openedNodes"
-          :active="selection"
-          selection-type="independent"
-          item-disabled="bound"
-          expand-icon="mdi-chevron-down"
-          dense
-          shaped
-          hoverable
-          selectable
-          open-on-click
-          return-object />
-        <v-treeview
-          v-show="searching"
-          id="treeSearchMode"
-          v-model="selection"
-          :items="items"
-          :search="search"
-          :open="openItems"
-          :active="active"
-          selection-type="independent"
-          item-disabled="bound"
-          expand-icon="mdi-chevron-down"
-          dense
-          shaped
-          hoverable
-          selectable
-          activatable
-          multiple-active
-          open-on-click
-          return-object />
-      </v-flex>
-    </v-layout>
-    <v-card-actions absolute class="drawerActions">
-      <v-layout>
-        <v-flex class="xs6" />
-        <button
-          type="button"
+      <v-layout
+        pt-4
+        ps-2
+        class="content">
+        <v-flex>
+          <div v-show="loading">
+            <v-flex
+              pt-4
+              ps-4
+              pe-8>
+              <v-skeleton-loader
+                class="mx-auto"
+                type="paragraph@3" />
+            </v-flex>
+          </div>
+          <v-treeview
+            v-show="!loading && !searching"
+            id="treeDisplayMode"
+            v-model="selection"
+            :items="items"
+            :open="openedNodes"
+            :active="selection"
+            selection-type="independent"
+            item-disabled="bound"
+            expand-icon="mdi-chevron-down"
+            dense
+            shaped
+            hoverable
+            selectable
+            open-on-click
+            return-object />
+          <v-treeview
+            v-show="searching"
+            id="treeSearchMode"
+            v-model="selection"
+            :items="items"
+            :search="search"
+            :open="openItems"
+            :active="active"
+            selection-type="independent"
+            item-disabled="bound"
+            expand-icon="mdi-chevron-down"
+            dense
+            shaped
+            hoverable
+            selectable
+            activatable
+            multiple-active
+            open-on-click
+            return-object />
+        </v-flex>
+      </v-layout>
+    </template>
+    <template #footer>
+      <div class="d-flex justify-end">
+        <v-btn
           class="btn ms-2"
-          @click="cancelSelection">
+          @click="close">
           {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.cancel') }}
-        </button>
-        <button
+        </v-btn>
+        <v-btn
           :disabled="!isAllowToSave"
-          type="button"
           class="btn btn-primary ms-6"
           @click="saveSelection">
           {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.save') }}
-        </button>
-      </v-layout>
-    </v-card-actions>      
-  </div>
+        </v-btn>
+      </div>
+    </template>      
+  </exo-drawer>
 </template>
-
 <script>
-import * as spacesAdministrationServices from '../../spacesAdministrationServices';
-
 export default {
   props: {
     alreadySelected: {
@@ -189,7 +150,7 @@ export default {
           nonConfirmedSelection.push(groupId);
         }
       });
-      return nonConfirmedSelection.length - this.groupSpaceBindings.length > 0;
+      return nonConfirmedSelection.length > 0;
     },
     searching() {
       return this.search;
@@ -263,7 +224,7 @@ export default {
   },
   methods: {
     getRootChildGroups() {
-      spacesAdministrationServices.getGroupsTree(null).then(data => {
+      this.$spacesAdministrationServices.getGroupsTree(null).then(data => {
         this.items = data.childGroups;
       }).finally(() => {
         this.loading = false;
@@ -316,43 +277,33 @@ export default {
         const boundGroupIds = this.groupSpaceBindings.map(binding => binding.group);
         boundGroupIds.forEach(groupId => {
           const item = this.getItem(groupId);
-          item.bound = true;
-          boundItems.push(item);
+          if (item) {
+            item.bound = true;
+            boundItems.push(item);
+          }
         });
       }
       return boundItems;
     },
-    closeDrawer() {
+    open() {
+      this.$refs.drawer.open();
+    },
+    close() {
       this.selection = [];
       this.search = '';
-      this.$emit('close');
-    },
-    cancelSelection() {
-      // get last index of bound groups
-      const index = this.groupSpaceBindings.length -1;
-      // count unbound groups
-      const count = this.selection.length - this.groupSpaceBindings.length;
-      if (count > 0) {
-        // deselect only unbound groups
-        this.selection.splice(index + 1, count);
-      } else {
-        this.$emit('back');
-      }
+      this.$refs.drawer.close();
     },
     saveSelection() {
       // selection data shouldn't be modified directly. 
-      const saved = [];
-      saved.push(...this.selection);
-      // get last index of bound groups
-      const index = this.groupSpaceBindings.length -1;
-      // deselect only unbound groups
-      saved.splice(0, index + 1);
+      const saved = this.selection;
       // clear open items, active items, search and search mode.
       this.openItems = [];
       this.active = [];
       this.search = '';
       this.searchMode = false;
       this.$emit('selectionSaved', saved);
+      this.close();
+      this.selection = [];
     },
     getChildNodes(parentNodes) {
       // add child nodes to allItems.
