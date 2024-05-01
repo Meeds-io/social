@@ -264,7 +264,7 @@
                 <value>
                   <object type="org.exoplatform.application.registry.Application">
                     <field name="applicationName">
-                      <string>SpaceMenuPortlet</string>
+                      <string>SpaceBannerPortlet</string>
                     </field>
                     <field name="categoryName">
                       <string>tools</string>
@@ -279,7 +279,7 @@
                       <string>portlet</string>
                     </field>
                     <field name="contentId">
-                      <string>social-portlet/SpaceMenuPortlet</string>
+                      <string>social-portlet/SpaceBannerPortlet</string>
                     </field>
                     <field name="accessPermissions">
                       <collection type="java.util.ArrayList" item-type="java.lang.String">
