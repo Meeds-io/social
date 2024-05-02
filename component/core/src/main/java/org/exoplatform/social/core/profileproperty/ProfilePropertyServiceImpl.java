@@ -24,7 +24,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Context;
+import org.exoplatform.commons.api.settings.data.Scope;
+
+import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.picocontainer.Startable;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
@@ -37,22 +46,50 @@ import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage
 
 public class ProfilePropertyServiceImpl implements ProfilePropertyService, Startable {
 
-  private static final Log                           LOG                                 =
+  private static final Log                           LOG                                    =
                                                          ExoLogger.getLogger(ProfilePropertyServiceImpl.class);
 
   private final ProfileSettingStorage                profileSettingStorage;
 
-  private static final String SYNCHRONIZED_DISABLED_PROPERTIES= "synchronizationDisabledProperties";
+  private final SettingService                       settingService;
 
-  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins              = new ArrayList<>();
+  private final IndexingService                      indexingService;
 
-  private  List<String>                         synchronizedGroupDisabledProperties = new ArrayList<>();
+  private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES       = "synchronizationDisabledProperties";
 
-  public ProfilePropertyServiceImpl(InitParams params, ProfileSettingStorage profileSettingStorage) {
+  private static final String                        UNHIDDENABLE_PROPERTIES_PARAM          = "unHiddenableProperties";
+
+  private static final String                        EXCLUDED_QUICK_SEARCH_PROPERTIES_PARAM = "excludedQuickSearchProperties";
+
+  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins                 = new ArrayList<>();
+
+  private List<String>                               synchronizedGroupDisabledProperties    = new ArrayList<>();
+
+  private static List<String>                        nonHiddenableProps                     = new ArrayList<>();
+
+  private static List<String>                        excludedQuickSearchProps               = new ArrayList<>();
+
+  private static final Scope                         HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE =
+                                                                                            Scope.APPLICATION.id("ProfilePropertySettings");
+
+  private static final String                        HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY   = "HiddenProfilePropertySettings";
+
+  public ProfilePropertyServiceImpl(InitParams params,
+                                    ProfileSettingStorage profileSettingStorage,
+                                    SettingService settingService,
+                                    IndexingService indexingService) {
     this.profileSettingStorage = profileSettingStorage;
+    this.settingService = settingService;
+    this.indexingService = indexingService;
     if (params != null) {
       try {
-        synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES).getValue().split(","));
+        synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES)
+                                                                  .getValue()
+                                                                  .split(","));
+        nonHiddenableProps = Arrays.asList(params.getValueParam(UNHIDDENABLE_PROPERTIES_PARAM).getValue().split(","));
+        excludedQuickSearchProps = Arrays.asList(params.getValueParam(EXCLUDED_QUICK_SEARCH_PROPERTIES_PARAM)
+                                                       .getValue()
+                                                       .split(","));
       } catch (Exception e) {
         LOG.warn("List of disabled properties for synchronization not provided, all properties can be synchronized! ");
       }
@@ -77,6 +114,24 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   @Override
   public ProfilePropertySetting getProfileSettingById(Long id) {
     return profileSettingStorage.getProfileSettingById(id);
+  }
+
+  @Override
+  public List<String> getUnhiddenableProfileProperties() {
+    return nonHiddenableProps;
+  }
+
+  @Override
+  public List<String> getExcludedQuickSearchProperties() {
+    return excludedQuickSearchProps;
+  }
+
+  @Override
+  public boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting) {
+    if (nonHiddenableProps.contains(propertySetting.getPropertyName()) || hasChildProperties(propertySetting)) {
+      return false;
+    }
+    return propertySetting.isHiddenbale();
   }
 
   @Override
@@ -105,6 +160,10 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   @Override
   public void updatePropertySetting(ProfilePropertySetting profilePropertySetting) {
+    if (profilePropertySetting.isHiddenbale()
+        && getUnhiddenableProfileProperties().contains(profilePropertySetting.getPropertyName())) {
+      throw new IllegalArgumentException(String.format("%s cannot be hidden", profilePropertySetting.getPropertyName()));
+    }
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }
@@ -139,6 +198,58 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   @Override
   public List<String> getPropertySettingNames() {
     return getPropertySettings().stream().map(ProfilePropertySetting::getPropertyName).toList();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void hidePropertySetting(long userIdentityId, long profilePropertyId) {
+    List<Long> hiddenProperties = getHiddenProfilePropertyIds(userIdentityId);hiddenProperties.remove(profilePropertyId);
+    hiddenProperties.add(profilePropertyId);
+    settingService.set(Context.USER.id(String.valueOf(userIdentityId)),
+                       HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE,
+                       HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY,
+                       SettingValue.create(hiddenProperties.toString()));
+    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(userIdentityId));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void showPropertySetting(long userIdentityId, long profilePropertyId) {
+    List<Long> hiddenProperties = getHiddenProfilePropertyIds(userIdentityId);
+    hiddenProperties.remove(profilePropertyId);
+    settingService.set(Context.USER.id(String.valueOf(userIdentityId)),
+                       HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE,
+                       HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY,
+                       SettingValue.create(hiddenProperties.toString()));
+    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(userIdentityId));
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<Long> getHiddenProfilePropertyIds(long userIdentityId) {
+    List<Long> hiddenProfileProperties = new ArrayList<>();
+    SettingValue<?> settingValue = settingService.get(Context.USER.id(String.valueOf(userIdentityId)),
+                                                      HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE,
+                                                      HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY);
+    if (settingValue == null) {
+      return hiddenProfileProperties;
+    }
+
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      hiddenProfileProperties = mapper.readValue(settingValue.getValue().toString(), new TypeReference<ArrayList<Long>>() {
+      });
+    } catch (Exception e) {
+      LOG.error("Error while parsing hidden properties setting of user: {}", userIdentityId, e);
+    }
+    return hiddenProfileProperties;
   }
 
   @Override

@@ -23,7 +23,40 @@
 
 @import (css) "/platform-ui/skin/css/component/ImageCropper/cropper.min.css";
 
+@peopleCardParentMargin: 22px;
+@peopleCardMaxHeight: 227px;
+@peopleCardParentMaxHeight: @peopleCardParentMargin + @peopleCardMaxHeight;
+
 #ProfileContactInformation {
+
+  #quickSearchUsersListDrawer {
+    .quickSearchResultExpanded {
+      @import "../../common/PeopleList/Style.less";
+    }
+
+    .quickSearchResultCollapsed {
+      @import "../../common/ProfileCard/Style-mobile.less";
+    }
+
+    .filter-message {
+      top: 2px;
+    }
+
+    .suggestion-selected {
+      border: 1px solid;
+    }
+  }
+
+  .list-no-selection {
+    .v-list-item--active::before {
+      opacity: 0;
+    }
+
+    .v-list-item--active:hover::before, .v-list-item:focus::before {
+      opacity: 0.04;
+    }
+  }
+
   .fullnameFields, .fullnameLabels {
     > div {
       max-width: 50%;
@@ -60,8 +93,17 @@
 
     .removeMultiFieldValue {
       position: absolute;
-      right: 0;
       top: 10px;
+    }
+
+    .hasParent {
+      right: 40px ~'; /** orientation=lt */ ';
+      left: 40px ~'; /** orientation=rt */ ';
+    }
+
+    .noParent {
+      right: 10px ~'; /** orientation=lt */ ';
+      left: 10px ~'; /** orientation=rt */ ';
     }
   }
 
@@ -71,5 +113,9 @@
     border-radius: 50%;
     height: 30px;
     width: 30px;
+  }
+
+  .opacity-5 {
+    opacity: 0.5;
   }
 }

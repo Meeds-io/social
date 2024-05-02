@@ -122,7 +122,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
   public Identity[] load(int offset, int limit) throws Exception, IllegalArgumentException {
     int usedLimit = limit;
     if (profileFilter != null && profileFilter.getViewerIdentity() != null) {
-      // If viewer is added in filter, he shouldn't be retured in results
+      // If viewer is added in filter, he shouldn't be returned in results
       // Thus, we get the results + 1 in order to delete the identity
       // of viewer if retrieved
       usedLimit++;

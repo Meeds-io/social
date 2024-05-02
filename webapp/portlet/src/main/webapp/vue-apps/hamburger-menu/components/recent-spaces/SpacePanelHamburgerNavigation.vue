@@ -64,6 +64,9 @@
             :users="managersToDisplay"
             :icon-size="30"
             :popover="false"
+            :margin-left="managersToDisplay.length > 1 && 'ml-n5' || ''"
+            :compact="managersToDisplay.length > 1"
+            clickable="'false'"
             max="3"
             avatar-overlay-position
             @open-detail="openDetails()" />

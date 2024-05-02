@@ -35,6 +35,7 @@ import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 
 /**
@@ -43,17 +44,19 @@ import org.exoplatform.social.core.relationship.model.Relationship;
  */
 public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String    TYPE = "profile";
+  public static final String           TYPE         = "profile";
 
-  private static final Log      LOG  = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
+  private static final Log             LOG          = ExoLogger.getLogger(ProfileIndexingServiceConnector.class);
 
-  private final IdentityManager identityManager;
+  private final IdentityManager        identityManager;
 
-  private final ConnectionDAO   connectionDAO;
+  private final ConnectionDAO          connectionDAO;
 
-  private final IdentityDAO     identityDAO;
+  private final IdentityDAO            identityDAO;
 
   private final ProfilePropertyService profilePropertyService;
+
+  private static final String          HIDDEN_VALUE = "hidden";
 
   public ProfileIndexingServiceConnector(InitParams initParams,
                                          IdentityManager identityManager,
@@ -159,52 +162,53 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   @Override
   public String getMapping() {
+    StringBuilder profileSettingsFieldsMapping = new StringBuilder();
+    for(ProfilePropertySetting propertySetting : profilePropertyService.getPropertySettings()) {
+      if(!propertySetting.isMultiValued() && propertySetting.getParentId() == null && !profilePropertyService.hasChildProperties(propertySetting) && !"email".equals(propertySetting.getPropertyName())) {
+        profileSettingsFieldsMapping.append("    \"").append(propertySetting.getPropertyName().equals("fullName")? "name" : propertySetting.getPropertyName()).append("\" : {")
+                .append("      \"type\" : \"text\",")
+                .append("      \"index_options\": \"offsets\",")
+                .append("      \"fields\": {")
+                .append("        \"raw\": {")
+                .append("          \"type\": \"keyword\"")
+                .append("        },")
+                .append("        \"whitespace\": {")
+                .append("          \"type\": \"text\",")
+                .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
+                .append("        }")
+                .append("      }")
+                .append("    },\n");
+      }
+    }
     StringBuilder mapping = new StringBuilder()
             .append("{")
+            .append("""
+                      "dynamic_templates": [
+                        {
+                        "strings_dynamic_mapping": {
+                            "match_mapping_type": "string",
+                            "mapping": {
+                              "type": "text",
+                              "fields": {
+                                "raw": {
+                                "type": "keyword"
+                              },
+                              "whitespace": {
+                                "type": "text",
+                                "analyzer": "whitespace_lowercase_asciifolding"
+                              }
+                            },
+                            "index_options": "offsets"
+                            }
+                          }
+                        }
+                      ],
+                    """)
             .append("  \"properties\" : {\n")
             .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
-            .append("    \"name\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
-            .append("    \"firstName\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
-            .append("    \"lastName\" : {")
-            .append("      \"type\" : \"text\",")
-            .append("      \"index_options\": \"offsets\",")
-            .append("      \"fields\": {")
-            .append("        \"raw\": {")
-            .append("          \"type\": \"keyword\"")
-            .append("        },")
-            .append("        \"whitespace\": {")
-            .append("          \"type\": \"text\",")
-            .append("          \"analyzer\": \"whitespace_lowercase_asciifolding\"")
-            .append("        }")
-            .append("      }")
-            .append("    },\n")
+            .append(profileSettingsFieldsMapping)
             .append("    \"email\" : {\"type\" : \"keyword\"},\n")
             .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
-            .append("    \"position\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
@@ -249,7 +253,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
         if (profile.getProperty(profilePropertySettingName) != null && profile.getProperty(profilePropertySettingName) instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
             // Avoid having dots in field names in ES, otherwise properties with String values may be converted in Objects in some cases
-            fields.put(profilePropertySettingName.replace(".", "_"), value);
+            addPropertyToDocumentFields(fields, profilePropertySettingName, value, Long.parseLong(id));
           }
         } else {
           List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(profilePropertySettingName);
@@ -259,7 +263,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
                 .map(property -> property.get("value"))
                 .collect(Collectors.joining(",", "", ""));
             if (StringUtils.isNotEmpty(value)) {
-              fields.put(profilePropertySettingName.replace(".", "_"), removeAccents(value));
+              addPropertyToDocumentFields(fields, profilePropertySettingName, removeAccents(value), Long.parseLong(id));
             }
           }
         }
@@ -279,6 +283,22 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
             System.currentTimeMillis() - ts);
 
     return document;
+  }
+
+  private void addPropertyToDocumentFields(Map<String, String> fields, String propertyName, String value, long userIdentityId) {
+    if(isPropertyHidden(propertyName, userIdentityId)) {
+      fields.put(propertyName.replace(".", "_"), HIDDEN_VALUE);
+    } else {
+      fields.put(propertyName.replace(".", "_"), value);
+    }
+  }
+
+  private Boolean isPropertyHidden(String propertyName, long userIdentityId) {
+    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
+    if (propertySetting != null) {
+      return profilePropertyService.getHiddenProfilePropertyIds(userIdentityId).contains(propertySetting.getId());
+    }
+    return false;
   }
 
   private static String removeAccents(String string) {

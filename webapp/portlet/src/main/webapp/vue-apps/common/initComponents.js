@@ -26,6 +26,9 @@ import Notifications from './components/Notifications.vue';
 import RippleHoverButton from './components/RippleHoverButton.vue';
 import AttachmentsDraggableZone from './components/AttachmentsDraggableZone.vue';
 import WidgetWrapper from './components/Widget.vue';
+import HelpDrawer from './components/HelpDrawer.vue';
+import HelpLabel from './components/HelpLabel.vue';
+import HelpTooltip from './components/HelpTooltip.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -62,6 +65,9 @@ const components = {
   'ripple-hover-button': RippleHoverButton,
   'attachments-draggable-zone': AttachmentsDraggableZone,
   'widget-wrapper': WidgetWrapper,
+  'help-drawer': HelpDrawer,
+  'help-label': HelpLabel,
+  'help-tooltip': HelpTooltip,
 };
 
 for (const key in components) {
@@ -94,6 +100,22 @@ Vue.prototype.$applicationLoaded = function() {
     appName: this.appName,
     time: Date.now(),
   }}));
+};
+
+Vue.prototype.$updateApplicationVisibility = function(visible, element) {
+  if (!element) {
+    element = this?.$root?.$el;
+  }
+  if (!element?.className?.includes?.('PORTLET-FRAGMENT')) {
+    element = element?.parentElement;
+  }
+  if (element?.parentElement) {
+    if (visible) {
+      element.closest?.('.PORTLET-FRAGMENT')?.parentElement?.classList?.remove?.('hidden');
+    } else {
+      element.closest?.('.PORTLET-FRAGMENT')?.parentElement?.classList?.add?.('hidden');
+    }
+  }
 };
 
 Vue.createApp = function(params, el, appName) {

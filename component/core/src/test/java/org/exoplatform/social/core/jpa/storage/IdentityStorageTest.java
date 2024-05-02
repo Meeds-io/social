@@ -1082,15 +1082,14 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals("male", identity.getProfile().getGender());
     assertEquals("developer", identity.getProfile().getPosition());
 
-    profile.setProperty(Profile.POSITION, null);
+    profile.removeProperty(Profile.POSITION);
     identityStorage.updateProfile(profile);
 
     identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userName);
     assertNotNull(identity);
     assertNotNull(identity.getProfile());
     assertEquals("male", identity.getProfile().getGender());
-    assertEquals(null, identity.getProfile().getPosition());
-
+    assertNull(identity.getProfile().getPosition());
 
     profile.setProperty("multi-field", Collections.singletonList("new field"));
     identityStorage.updateProfile(profile);
@@ -1100,8 +1099,16 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertNotNull(identity.getProfile());
     assertNotNull(identity.getProfile().getProperty("multi-field"));
     assertTrue(identity.getProfile().getProperty("multi-field") instanceof ArrayList<?>);
+
+    profile.removeProperty("multi-field");
+    identityStorage.updateProfile(profile);
+
+    identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userName);
+    assertNotNull(identity);
+    assertNotNull(identity.getProfile());
+    assertNull(identity.getProfile().getProperty("multi-field"));
   }
-  
+
   /**
    * Populate one identity with remoteId.
    * 

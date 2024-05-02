@@ -386,13 +386,6 @@ export default {
       } else {
         this.stepper = 1;
       }
-    },
-    drawer(){
-      if (this.drawer) {
-        this.$el.closest('#stickyBlockDesktop').style.position = 'static';
-      } else {
-        this.$el.closest('#stickyBlockDesktop').style.position = 'sticky';
-      }
     }
   },
   created() {
@@ -400,6 +393,9 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('links-settings-drawer', this.open);
+  },
+  mounted() {
+    document.querySelector('#vuetify-apps').appendChild(this.$el);
   },
   methods: {
     open(openForm) {
@@ -410,6 +406,14 @@ export default {
         .then(settings => {
           this.settings = settings;
           this.links = settings?.links || [];
+          this.links.forEach(link => {
+            if (!link.name?.[this.$root.defaultLanguage]) {
+              link.name[this.$root.defaultLanguage] = link.name['en'] || '';
+            }
+            if (!link.description?.[this.$root.defaultLanguage]) {
+              link.description[this.$root.defaultLanguage] = link.description['en'] || '';
+            }
+          });
           this.showHeader = !!this.settings?.header?.[this.$root.defaultLanguage]?.length;
           this.seeMore = !!this.settings?.seeMore?.length;
           if (!this.showHeader) {

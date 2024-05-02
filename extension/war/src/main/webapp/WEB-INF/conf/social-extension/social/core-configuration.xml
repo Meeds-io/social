@@ -747,6 +747,14 @@
                 <name>synchronizationDisabledProperties</name>
                 <value>fullName,firstName,lastName,email,phones,phones.work,phones.home,phones.other,ims,ims.facebook,ims.msn,ims.jitsi,ims.skype,ims.other</value>
             </value-param>
+            <value-param>
+                <name>unHiddenableProperties</name>
+                <value>${social.profile.unHiddenable.properties:fullName,firstName,lastName}</value>
+            </value-param>
+            <value-param>
+                <name>excludedQuickSearchProperties</name>
+                <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,phones,ims,urls,acceptedTermsAndConditions,github,passwordSalt128,user.other-info.external}</value>
+            </value-param>
         </init-params>
     </component>
 
@@ -770,7 +778,6 @@
             <name>SocialFeatureProperties</name>
             <property name="exo.feature.SpaceHomeLayoutReset.enabled" value="${exo.feature.SpaceHomeLayoutReset.enabled:false}" />
             <property name="exo.feature.PostToNetwork.enabled" value="${exo.feature.PostToNetwork.enabled:false}" />
-            <property name="exo.feature.oldAdministrationMenu.enabled" value="${exo.feature.oldAdministrationMenu.enabled:false}" />
           </properties-param>
         </init-params>
     </component>
@@ -803,6 +810,7 @@
                     <name>init.resources</name>
                     <description>The resources that start with the following package name should be load from file system</description>
                     <value>locale.portal</value>
+                    <value>locale.portal.HamburgerMenu</value>
                 </values-param>
                 <values-param>
                     <name>portal.resource.names</name>

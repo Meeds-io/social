@@ -142,6 +142,9 @@ export default {
     errorCode() {
       return this.params?.error || this.params?.errorCode || this.params?.errorMessage;
     },
+    errorField() {
+      return this.params?.errorField;
+    },
     successMessage() {
       return this.successCode && this.$te(`UILoginForm.label.${this.successCode}`)
         && this.$t(`UILoginForm.label.${this.successCode}`)
@@ -165,7 +168,7 @@ export default {
     errorMessage: {
       immediate: true,
       handler: function() {
-        if (this.errorMessage?.trim()?.length) {
+        if (!this.errorField && this.errorMessage?.trim()?.length) {
           this.displayAlert(this.errorMessage, 'error');
         }
       },

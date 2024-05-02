@@ -1,37 +1,47 @@
 <template>
-  <div class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
-    <div class="reactionsUsersAvatar position-relative d-none d-lg-inline">
+  <div
+    :class="isDesktop && 'position-absolute' || ''"
+    class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
+    <div
+      :style="`min-height:${avatarSize}px`"
+      class="reactionsUsersAvatar position-relative d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
         <exo-user-avatar
-          v-for="liker in likersToDisplay"
+          v-for="(liker, index) in likersToDisplay"
           :key="liker.id"
           :identity="liker"
-          :size="30"
+          :size="avatarSize"
+          :allow-animation="likersToDisplay.length > 1"
+          :class="[index === 0 && 'pl-4']"
+          margin-left="ml-n5"
           popover
-          avatar 
-          extra-class="me-1" />
+          avatar
+          compact
+          extra-class="me-1 transition-2s" />
       </div>
     </div>
-    <div class="activityLikersAndKudosDrawer d-none d-lg-inline">
-      <div class="seeMoreReactionsContainer">
-        <div
-          v-if="seeMoreLikerToDisplay"
-          class="seeMoreLikers"
-          @click="openDrawer">
-          <span class="seeMoreLikersDetails">+{{ showMoreLikersNumber }}</span>
-        </div>
-        <p
-          v-if="likersNumber && likersNumber <= 1"
-          class="likersNumber my-auto pl-2 align-self-end caption text-no-wrap"
-          @click="openDrawer">
-          {{ likersNumber }} {{ $t('UIActivity.label.single_Reaction_Number') }}
-        </p>
-        <p
-          v-if="likersNumber > 1"
-          class="likersNumber my-auto pl-2 align-self-end caption text-no-wrap"
-          @click="openDrawer">
-          {{ likersNumber }} {{ $t('UIActivity.label.Reactions_Number') }}
-        </p>
+    <div class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5">
+      <div v-if="seeMoreLikerToDisplay" class="seeMoreReactionsContainer">
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <div
+              v-bind="attrs"
+              v-on="on"
+              :class="displayAnimation && 'mt-n1 transition-2s'"
+              class="seeMoreLikers border-white d-flex align-center justify-center clickable"
+              @click="openDrawer"
+              @mouseover="showAvatarAnimation = true"
+              @mouseleave="showAvatarAnimation = false">
+              <span
+                class="position-absolute subtitle-2 white--text font-weight-bold z-index-one text-center">
+                +{{ showMoreLikersNumber }}
+              </span>
+            </div>
+          </template>
+          <span>
+            {{ $t('activity.reactions.seeMore') }}
+          </span>
+        </v-tooltip>
       </div>
     </div>
     <activity-reactions-mobile
@@ -73,6 +83,7 @@ export default {
   },
   data: () => ({
     maxLikersToShow: 4,
+    showAvatarAnimation: false
   }),
   computed: {
     seeMoreLikerToDisplay () {
@@ -86,6 +97,12 @@ export default {
     },
     activityPosterId() {
       return this.activity && this.activity.identity && this.activity.identity.profile && this.activity.identity.profile.username;
+    },
+    displayAnimation() {
+      return this.showAvatarAnimation;
+    },
+    isDesktop() {
+      return !this.$vuetify.breakpoint.mobile;
     }
   },
   methods: {

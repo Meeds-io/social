@@ -1,8 +1,28 @@
+<!--
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2024 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ -->
+
 <template>
   <v-card
     :id="userMenuParentId"
-    :outlined="!isMobile"
-    class="peopleCardItem d-block d-sm-flex mx-2"
+    outlined
+    class="peopleCardItem d-flex mx-2"
     flat
     hover>
     <v-img
@@ -12,13 +32,13 @@
       height="80px"
       class="white--text align-start d-block peopleBannerImg"
       eager />
-
-    <div class="peopleToolbarIcons px-2">
+    <div
+      class="peopleToolbarIcons mt-1">
       <v-btn
         :title="$t('peopleList.label.openUserInfo')"
         icon
         small
-        class="peopleInfoIcon d-flex"
+        class="peopleInfoIcon d-flex ms-1"
         @click="$emit('flip')">
         <v-icon size="12">fa-info</v-icon>
       </v-btn>
@@ -63,111 +83,46 @@
         <span class="d-flex uiIconGroup"></span>
       </v-btn>
       <v-spacer />
-      <div v-if="isMobile && !isSameUser">
-        <v-icon 
-          size="14" 
-          class="my-1" 
-          @click="openBottomMenu">
-          fas fa-ellipsis-v
-        </v-icon>
-        <v-bottom-sheet v-model="bottomMenu" class="pa-0">
-          <v-sheet class="text-center">
-            <v-list dense>
-              <v-list-item 
-                v-if="confirmedUser"
-                @click="disconnect">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">fas fa-minus-circle</v-icon>
-                  <span class="mx-2">
-                    {{ $t('peopleList.button.disconnect') }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item 
-                v-else-if="incomingUser">
-                <v-list-item-title class="align-center d-flex">
-                  <div @click="acceptToConnect">
-                    <v-icon class="mx-4" size="16">mdi-check</v-icon>
-                    <span class="mx-2">
-                      {{ $t('peopleList.button.acceptToConnect') }}
-                    </span>
-                  </div>
-                  <v-divider
-                    vertical />
-                  <div @click="refuseToConnect">
-                    <v-icon class="mx-4" size="16">mdi-close</v-icon>
-                    <span class="mx-2">
-                      {{ $t('peopleList.button.refuseToConnect') }}
-                    </span>
-                  </div>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item 
-                v-else-if="outgoingUser"
-                @click="cancelRequest">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">mdi-close</v-icon>
-                  <span class="mx-2">
-                    {{ $t('peopleList.button.cancelRequest') }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item 
-                v-else
-                @click="connect">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="16">fas fa-plus-circle</v-icon>
-                  <span class="mx-2">
-                    {{ $t('peopleList.button.connect') }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                v-for="(extension, i) in enabledProfileActionExtensions"
-                :key="i"
-                @click="extensionClick(extension)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon class="mx-4" size="20">{{ extension.class }}</v-icon>
-                  <span class="mx-2">
-                    {{ extension.title }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-sheet>
-        </v-bottom-sheet>
-      </div>
-      <template v-if="canUseActionsMenu">
-        <v-btn
-          :title="$t('peopleList.label.openUserMenu')"
-          icon
-          text
-          class="peopleMenuIcon d-block"
-          @click="displayActionMenu = true">
-          <v-icon size="21">mdi-dots-vertical</v-icon>
-        </v-btn>
+      <template v-if="canUseActionsMenu && !isSameUser">
         <v-menu
           ref="actionMenu"
           v-model="displayActionMenu"
           :attach="`#${userMenuParentId}`"
           transition="slide-x-reverse-transition"
-          content-class="peopleActionMenu"
+          content-class="peopleActionMenu mt-n6 me-4"
           offset-y>
-          <v-list class="pa-0" dense>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              :title="$t('peopleList.label.openUserMenu')"
+              icon
+              text
+              class="d-block me-1 peopleMenuIcon">
+              <v-icon size="21">
+                mdi-dots-vertical
+              </v-icon>
+            </v-btn>
+          </template>
+          <v-list class="pa-0 white" dense>
             <v-list-item
               v-for="(extension, i) in enabledProfileActionExtensions"
               :key="i"
               @click="extension.click(user)">
-              <v-list-item-title class="peopleActionItem">
-                <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
-                {{ extension.title }}
+              <v-list-item-title class="align-center d-flex">
+                <v-icon
+                  size="18">
+                  {{ extension.class }}
+                </v-icon>
+                <span class="mx-2">
+                  {{ extension.title }}
+                </span>
               </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
       </template>
     </div>
-
     <div class="peopleAvatar">
       <a :href="url">
         <v-img
@@ -182,24 +137,27 @@
           eager />
       </a>
     </div>
-
-    <v-card-text class="peopleCardBody align-center py-0 py-sm-1">
-      <a
-        :href="url"
-        :title="user.fullname"
-        :class="usernameClass"
-        class="userFullname font-weight-bold">
-        {{ user.fullname }}
-        <span v-if="externalUser" class="externalFlagClass">
-          {{ $t('peopleList.label.external') }}
-        </span>
-      </a>
-      <v-card-subtitle 
-        class="userPositionLabel text-truncate py-0 mt-0 mt-sm-auto"
-        v-sanitized-html="userPosition" />
+    <v-card-text
+      class="peopleCardBody align-center py-0 py-sm-1">
+      <div>
+        <a
+          :href="url"
+          :title="user.fullname"
+          :class="usernameClass"
+          class="userFullname font-weight-bold">
+          {{ user.fullname }}
+          <span v-if="externalUser" class="externalFlagClass">
+            {{ $t('peopleList.label.external') }}
+          </span>
+        </a>
+        <v-card-subtitle
+          class="userPositionLabel text-truncate pa-0 mt-0 mt-sm-auto"
+          v-sanitized-html="userPosition" />
+      </div>
     </v-card-text>
-
-    <v-card-actions v-if="!isSameUser && !isMobile" class="peopleCardActions">
+    <v-card-actions
+      v-if="!isSameUser"
+      class="peopleCardActions mt-auto mb-3">
       <exo-confirm-dialog
         ref="confirmDialog"
         :title="confirmTitle"
@@ -224,8 +182,8 @@
       </v-btn>
       <v-btn
         v-else-if="confirmedUser"
-        :loading="sendingAction"
-        :disabled="sendingAction"
+        :loading="isSendingAction"
+        :disabled="isSendingAction"
         class="btn mx-auto peopleRelationshipButton disconnectUserButton"
         depressed
         block
@@ -239,8 +197,8 @@
       <div v-else-if="incomingUser" class="invitationButtons">
         <div class="acceptToConnectButtonParent">
           <v-btn
-            :loading="sendingAction"
-            :disabled="sendingAction"
+            :loading="isSendingAction"
+            :disabled="isSendingAction"
             class="btn mx-auto peopleRelationshipButton acceptToConnectButton"
             depressed
             @click="acceptToConnect">
@@ -258,25 +216,27 @@
             <v-icon>mdi-menu-down</v-icon>
           </v-btn>
         </div>
-        <v-btn
-          v-show="displaySecondButton"
-          :loading="sendingSecondAction"
-          :disabled="sendingSecondAction"
-          class="btn mx-auto peopleRelationshipButton refuseToConnectButton"
-          depressed
-          block
-          @click="refuseToConnect">
-          <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"></i>
-          <span class="d-flex">
-            {{ $t('peopleList.button.refuseToConnect') }}
-          </span>
-          <v-icon class="d-none relationshipButtonMinus">mdi-close</v-icon>
-        </v-btn>
+        <div class="position-absolute width-full ps-2 pe-3">
+          <v-btn
+            v-show="displaySecondButton"
+            :loading="isSendingSecondAction"
+            :disabled="isSendingSecondAction"
+            class="btn ms-n1 peopleRelationshipButton refuseToConnectButton"
+            depressed
+            block
+            @click="refuseToConnect">
+            <i class="uiIconSocCancelConnectUser peopleRelationshipIcon d-inline"></i>
+            <span class="d-flex">
+              {{ $t('peopleList.button.refuseToConnect') }}
+            </span>
+            <v-icon class="d-none relationshipButtonMinus">mdi-close</v-icon>
+          </v-btn>
+        </div>
       </div>
       <v-btn
         v-else-if="outgoingUser"
-        :loading="sendingAction"
-        :disabled="sendingAction"
+        :loading="isSendingAction"
+        :disabled="isSendingAction"
         class="btn mx-auto peopleRelationshipButton cancelRequestButton"
         depressed
         block
@@ -289,8 +249,8 @@
       </v-btn>
       <v-btn
         v-else
-        :loading="sendingAction"
-        :disabled="sendingAction"
+        :loading="isSendingAction"
+        :disabled="isSendingAction"
         class="btn mx-auto peopleRelationshipButton connectUserButton"
         depressed
         block
@@ -316,21 +276,38 @@ export default {
       type: Boolean,
       default: false,
     },
-    profileActionExtensions: {
+    enabledProfileActionExtensions: {
       type: Array,
       default: () => [],
+    },
+    isSendingAction: {
+      type: Boolean,
+      default: false,
+    },
+    isSendingSecondAction: {
+      type: Boolean,
+      default: false,
+    },
+    relationshipStatus: {
+      type: String,
+      default: null
+    },
+    url: {
+      type: String,
+      default: null
+    },
+    userAvatarUrl: {
+      type: String,
+      default: null
     },
   },
   data: () => ({
     displayActionMenu: false,
     waitTimeUntilCloseMenu: 200,
-    sendingAction: false,
-    sendingSecondAction: false,
     confirmTitle: '',
     confirmMessage: '',
     okMethod: null,
     displaySecondButton: false,
-    bottomMenu: false
   }),
   watch: {
     displayActionMenu(newVal) {
@@ -339,26 +316,11 @@ export default {
       } else {
         document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
       }
-    },
+    }
   },
   computed: {
     isSameUser() {
       return this.user && this.user.username === eXo.env.portal.userName;
-    },
-    userAvatarUrl() {
-      let userAvatarUrl;
-      if (this.user?.enabled) {
-        userAvatarUrl = this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
-      } else {
-        userAvatarUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
-      }
-      if (!userAvatarUrl.includes('?')) {
-        userAvatarUrl += '?';
-      } else {
-        userAvatarUrl += '&';
-      }
-      userAvatarUrl += 'size=65x65';
-      return userAvatarUrl;
     },
     userBannerUrl() {
       return this.user && this.user.banner || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/banner`;
@@ -366,43 +328,23 @@ export default {
     userMenuParentId() {
       return this.user && this.user.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
     },
-    enabledProfileActionExtensions() {
-      if (!this.profileActionExtensions || !this.user) {
-        return [];
-      }
-      if (this.isSameUser && this.user.isManager) {
-        return this.profileActionExtensions.slice().filter(extension => ((extension.title === this.$t('peopleList.button.removeManager'))
-            || (extension.title === this.$t('peopleList.button.setAsRedactor') || extension.title === this.$t('peopleList.button.removeRedactor') || extension.title === this.$t('peopleList.button.promotePublisher') || extension.title === this.$t('peopleList.button.removePublisher')) && (extension.enabled(this.user))));
-      }
-      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
-    },
     canUseActionsMenu() {
       return this.user && this.enabledProfileActionExtensions.length;
     },
-    url() {
-      if (this.user && this.user.username) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.user.username}`;
-      } else {
-        return '#';
-      }
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.xs;
-    },
     usernameClass() {
-      return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color'} ${this.isMobile && 'text-truncate-2 mt-0' || 'text-truncate pt-1 d-block'}`;
+      return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'text-color text-truncate pt-1 d-block'}`;
     },
     confirmedUser() {
-      return this.user?.relationshipStatus === 'CONFIRMED';
+      return this.relationshipStatus === 'CONFIRMED';
     },
     incomingUser() {
-      return this.user?.relationshipStatus === 'INCOMING';
+      return this.relationshipStatus === 'INCOMING';
     },
     outgoingUser() {
-      return this.user?.relationshipStatus === 'OUTGOING';
+      return this.relationshipStatus === 'OUTGOING';
     },
     userPosition() {
-      return this.user?.position || (this.isMobile ? '--' : '&nbsp;'); 
+      return this.user?.position || '&nbsp;';
     },
     externalUser() {
       return this.user.external === 'true';
@@ -420,28 +362,10 @@ export default {
   },
   methods: {
     connect() {
-      this.sendingAction = true;
-      this.$userService.connect(this.user.username)
-        .then(() => this.$emit('refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
+      this.$emit('connect', this.user);
     },
     disconnect() {
-      this.sendingAction = true;
-      this.$userService.deleteRelationship(this.user.username)
-        .then(() => this.$emit('refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
+      this.$emit('disconnect', this.user);
     },
     disconnectConfirm() {
       this.openConfirmDialog(
@@ -450,40 +374,13 @@ export default {
         this.disconnect);
     },
     acceptToConnect() {
-      this.sendingAction = true;
-      this.$userService.confirm(this.user.username)
-        .then(() => this.$emit('refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
+      this.$emit('accept-to-connect', this.user);
     },
     refuseToConnect() {
-      this.sendingSecondAction = true;
-      this.$userService.deleteRelationship(this.user.username)
-        .then(() => this.$emit('refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingSecondAction = false;
-        });
+      this.$emit('refuse-to-connect', this.user);
     },
     cancelRequest() {
-      this.sendingAction = true;
-      this.$userService.deleteRelationship(this.user.username)
-        .then(() => this.$emit('refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
+      this.$emit('cancel-request', this.user);
     },
     openConfirmDialog(title, message, okMethod) {
       this.confirmTitle = title;
@@ -505,15 +402,6 @@ export default {
       this.confirmMessage = '';
       this.okMethod = null;
     },
-    openBottomMenu() {
-      if (!this.isSameUser) {
-        this.bottomMenu = true;
-      }
-    },
-    extensionClick(extension) {
-      extension.click(this.user);
-      this.bottomMenu = false;
-    }
   },
 };
 </script>

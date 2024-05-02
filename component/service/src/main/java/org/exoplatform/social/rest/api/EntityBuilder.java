@@ -224,6 +224,8 @@ public class EntityBuilder {
   private static LayoutService            layoutService;
 
   private static UserACL                  userACL;
+  
+  private static ProfilePropertyService   profilePropertyService;
 
   static {
     NO_CACHE_CC.setNoCache(true);
@@ -318,6 +320,7 @@ public class EntityBuilder {
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
     userEntity.setDefaultAvatar(profile.isDefaultAvatar());
+    userEntity.setIsAdmin(getUserACL().isSuperUser() || getUserACL().isUserInGroup(getUserACL().getAdminGroups()));
     if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
       userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
@@ -412,16 +415,26 @@ public class EntityBuilder {
       }
     }
     if (expandAttributes.contains("settings")) {
-      userEntity.setProperties(EntityBuilder.buildProperties(profile));
+      List<Long> hiddenProfileProperties =
+                                         getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(profile.getIdentity()
+                                                                                                                       .getId()));
+      userEntity.setProperties(EntityBuilder.buildProperties(profile, hiddenProfileProperties));
     }
     return userEntity;
   }
+  
+  private static ProfilePropertyService getProfilePropertyService() {
+    if (profilePropertyService == null) {
+      profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
+    }
+    return profilePropertyService;
+  }
 
-  public static List<ProfilePropertySettingEntity> buildProperties(Profile profile) {
+  public static List<ProfilePropertySettingEntity> buildProperties(Profile profile, List<Long> hiddenProfileProperties) {
 
     Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
     ProfilePropertyService profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
-    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings();
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings().stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
     boolean internal = false;
@@ -442,6 +455,7 @@ public class EntityBuilder {
                                                                   buildEntityProfilePropertySetting(property,
                                                                                                     profilePropertyService,
                                                                                                     ProfilePropertyService.LABELS_OBJECT_TYPE);
+        profilePropertySettingEntity.setHidden(hiddenProfileProperties.contains(profilePropertySettingEntity.getId()));
         if (profile.getProperty(property.getPropertyName()) != null) {
           if (profile.getProperty(property.getPropertyName()) instanceof String propertyValue) {
             if (StringUtils.isNotEmpty(propertyValue)) {
@@ -477,6 +491,8 @@ public class EntityBuilder {
                                                       buildEntityProfilePropertySetting(propertySetting,
                                                                                         profilePropertyService,
                                                                                         ProfilePropertyService.LABELS_OBJECT_TYPE);
+                      subProfilePropertySettingEntity.setHidden(hiddenProfileProperties.contains(subProfilePropertySettingEntity.getId()));
+
                     } else {
                       subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
                     }
@@ -1662,6 +1678,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
+    profilePropertySettingEntity.setHiddenable(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting));
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
                                                                                                 String.valueOf(profilePropertySetting.getId())));
     profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
@@ -1673,18 +1690,23 @@ public class EntityBuilder {
    * objects list
    *
    * @param profilePropertySettingList the ProfilePropertySetting objects list
+   * @param userIdentityId user identity id
    * @return the ProfilePropertySettingEntity rest objects list
    */
   public static List<ProfilePropertySettingEntity> buildEntityProfilePropertySettingList(List<ProfilePropertySetting> profilePropertySettingList,
                                                                                          ProfilePropertyService profilePropertyService,
-                                                                                         String objectType) {
+                                                                                         String objectType,
+                                                                                         long userIdentityId) {
     if (profilePropertySettingList.isEmpty())
       return new ArrayList<>();
+    
+    List<Long> hiddenPropertyIds = profilePropertyService.getHiddenProfilePropertyIds(userIdentityId);
     List<ProfilePropertySettingEntity> profilePropertySettingsList = new ArrayList<>();
     for (ProfilePropertySetting propertySetting : profilePropertySettingList) {
       ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,
                                                                                                     profilePropertyService,
                                                                                                     objectType);
+      profilePropertySettingEntity.setHidden(hiddenPropertyIds.contains(profilePropertySettingEntity.getId()));
       profilePropertySettingsList.add(profilePropertySettingEntity);
     }
     for (int i = 0; i < profilePropertySettingsList.size(); i++) {
@@ -1704,9 +1726,11 @@ public class EntityBuilder {
    * @param profilePropertySettingEntity the ProfilePropertySettingEntity object
    * @return the ProfilePropertySetting object
    */
-  public static ProfilePropertySetting buildProfilePropertySettingFromEntity(ProfilePropertySettingEntity profilePropertySettingEntity) {
+  public static ProfilePropertySetting buildProfilePropertySettingFromEntity(ProfilePropertySettingEntity profilePropertySettingEntity,
+                                                                             ProfilePropertyService profilePropertyService) {
     if (profilePropertySettingEntity == null)
       return null;
+
     ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
     profilePropertySetting.setId(profilePropertySettingEntity.getId());
     profilePropertySetting.setActive(profilePropertySettingEntity.isActive());
@@ -1722,6 +1746,7 @@ public class EntityBuilder {
     profilePropertySetting.setRequired(profilePropertySettingEntity.isRequired());
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
+    profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     return profilePropertySetting;
   }
 
@@ -1992,7 +2017,7 @@ public class EntityBuilder {
   }
   private static Visibility[] convertVisibilities(List<String> visibilityNames) {
     if (visibilityNames == null) {
-      return Visibility.values();
+      return Visibility.DEFAULT_VISIBILITIES;
     }
     return visibilityNames.stream()
             .map(visibilityName -> Visibility.valueOf(StringUtils.upperCase(visibilityName)))

@@ -31,6 +31,7 @@ import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
@@ -42,7 +43,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Path(VersionResources.VERSION_ONE + "/social/profile/settings")
@@ -50,6 +53,8 @@ import java.util.List;
 public class ProfileSettingsRest implements ResourceContainer {
 
   private static final Log LOG = ExoLogger.getLogger(ProfileSettingsRest.class);
+
+  private static final String GROUP_ADMINISTRATORS = "/platform/administrators";
 
   private final ProfilePropertyService profilePropertyService;
 
@@ -78,8 +83,21 @@ public class ProfileSettingsRest implements ResourceContainer {
     }
     try {
       List<ProfilePropertySetting> properties = profilePropertyService.getPropertySettings();
-      List<ProfilePropertySettingEntity> propertySettingEntities = EntityBuilder.buildEntityProfilePropertySettingList(properties, profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE);
-      return Response.ok(propertySettingEntities).build();
+      if (!ConversationState.getCurrent().getIdentity().isMemberOf(GROUP_ADMINISTRATORS)) {
+        properties = properties.stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
+      }
+      List<String> unHiddenbaleProperties = profilePropertyService.getUnhiddenableProfileProperties();
+      List<String> excludedQuickSearchProperties = profilePropertyService.getExcludedQuickSearchProperties();
+      List<ProfilePropertySettingEntity> propertySettingEntities =
+                                                                 EntityBuilder.buildEntityProfilePropertySettingList(properties,
+                                                                                                                     profilePropertyService,
+                                                                                                                     ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                                                     currentIdentityId);
+      Map<String, List<?>> settings = new HashMap<>();
+      settings.put("settings", propertySettingEntities);
+      settings.put("unHiddenableProperties", unHiddenbaleProperties);
+      settings.put("excludedQuickSearchProperties", excludedQuickSearchProperties);
+      return Response.ok(settings).build();
     }catch (Exception e) {
       LOG.error("An error occurred while getting list of settings", e);
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();
@@ -107,7 +125,9 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(Status.BAD_REQUEST).entity("Profile property setting is null or property name not provided").build();
     }
     try {
-      ProfilePropertySetting newProperty = profilePropertyService.createPropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
+      ProfilePropertySetting newProperty =
+                                         profilePropertyService.createPropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity,
+                                                                                                                                          profilePropertyService));
       return Response.ok(EntityBuilder.buildEntityProfilePropertySetting(newProperty,profilePropertyService, ProfilePropertyService.LABELS_OBJECT_TYPE)).build();
     } catch (ObjectAlreadyExistsException ex) {
       LOG.warn("Cannot add a property named {}, this name is already used",profilePropertySettingEntity.getPropertyName(), ex);
@@ -136,7 +156,8 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(Status.BAD_REQUEST).entity("Profile property setting is null").build();
     }
     try {
-      profilePropertyService.updatePropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity));
+      profilePropertyService.updatePropertySetting(EntityBuilder.buildProfilePropertySettingFromEntity(profilePropertySettingEntity,
+                                                                                                       profilePropertyService));
       return Response.noContent().build();
     } catch (Exception ex) {
       LOG.warn("Failed to update the Property setting", ex);
@@ -170,5 +191,4 @@ public class ProfileSettingsRest implements ResourceContainer {
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();
     }
   }
-
 }

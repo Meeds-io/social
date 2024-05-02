@@ -188,6 +188,58 @@
               class="activeSwitcher my-auto" />
           </v-list-item-action>
         </v-list-item>
+        <v-list-item>
+          <v-list-item-content
+            transition="fade-transition"
+            class="d-flex activeLabel py-0">
+            <v-list-item-title
+              class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <div>
+                {{ $t('profileSettings.label.hiddenable') }}
+              </div>
+            </v-list-item-title>
+            <v-list-item-subtitle
+              class="mt-n3">
+              <span
+                v-if="setting.hiddenable"
+                class="caption">
+                {{ $t('profileSettings.label.hiddenable.enabled') }}
+              </span>
+              <span
+                v-else
+                class="caption">
+                {{ $t('profileSettings.label.hiddenable.disabled') }}
+              </span>
+            </v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-tooltip
+              bottom
+              :disabled="!unHiddenableSetting">
+              <template #activator="{ on, attrs }">
+                <div
+                  v-bind="attrs"
+                  v-on="on">
+                  <v-switch
+                    v-model="setting.hiddenable"
+                    :disabled="saving || unHiddenableSetting"
+                    :alt="setting.hiddenable && $t('profileSettings.show.property.alt')
+                      || $t('profileSettings.hide.property.alt')"
+                    :ripple="false"
+                    color="primary"
+                    :aria-labelledBy="$t('profileSettings.label.hiddenable')"
+                    class="activeSwitcher my-auto" />
+                </div>
+              </template>
+              <span v-if="setting?.children?.length">
+                {{ $t('profileSettings.hiddenable.parentProperty.disabled') }}
+              </span>
+              <span v-else>
+                {{ $t('profileSettings.unHiddenable.property.tooltip') }}
+              </span>
+            </v-tooltip>
+          </v-list-item-action>
+        </v-list-item>
       </v-form>
     </template>
     <template slot="footer">
@@ -218,6 +270,10 @@ export default {
       type: Object,
       default: null
     },
+    unHiddenableProperties: {
+      type: Array,
+      default: () => []
+    },
     languages: {
       type: Object,
       default: null
@@ -236,9 +292,12 @@ export default {
     labelsObjectType: 'profileProperty',
     initialSetting: {},
     initialLabels: [],
-    areLabelsChanged: false
+    areLabelsChanged: false,
   }),
   computed: {
+    unHiddenableSetting() {
+      return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
+    },
     title() {
       if (this.newSetting) {
         return this.$t('profileSettings.drawer.title.addSetting');
@@ -399,7 +458,7 @@ export default {
       } 
     },
     areSettingsEqual(initialSetting, setting) {
-      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable'
+      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable', 'hiddenable'
       ];
       for (const field of fields) {
         if (field === 'parentId' && setting[field] === '') {

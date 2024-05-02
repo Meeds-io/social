@@ -64,10 +64,13 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.deprecation.DeprecatedAPI;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.PageType;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
@@ -531,7 +534,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                      @DefaultValue("false")
                                      @QueryParam("byId")
                                      boolean byId,
-                                     @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("45x45") @QueryParam("size") String size,
+                                     @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("100x100") @QueryParam("size") String size,
                                      @Parameter(
                                          description = "A mandatory valid token that is used to authorize anonymous request",
                                          required = false
@@ -744,12 +747,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       StringBuilder url = new StringBuilder(uri);
 
       PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-      LayoutService layoutService = CommonsUtils.getService(LayoutService.class);
-      String currentSiteName = CommonsUtils.getCurrentSite().getName();
+      LocaleConfigService localeConfigService = CommonsUtils.getService(LocaleConfigService.class);
       Locale locale = null;
       try {
-        String currentSiteLocale = layoutService.getPortalConfig(currentSiteName).getLocale();
-        locale = new Locale(currentSiteLocale);
+        String defaultLanguage = localeConfigService.getDefaultLocaleConfig().getLocale().toLanguageTag();
+        locale = new Locale(defaultLanguage);
       } catch (Exception e) {
         LOG.error("Failure to retrieve portal config", e);
       }
@@ -939,6 +941,13 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       app.setProperty("label", node.getResolvedLabel());
       app.setProperty("icon", node.getIcon());
       app.setProperty("uri", node.getURI());
+      app.setProperty("target", node.getTarget());
+      if (node.getPageRef() != null) {
+        Page navigationNodePage = SpaceUtils.getLayoutService().getPage(node.getPageRef());
+        if (PageType.LINK.equals(PageType.valueOf(navigationNodePage.getType()))) {
+          app.setProperty("link", navigationNodePage.getLink());
+        }
+      }
       return app.getDataEntity();
     }).collect(Collectors.toList());
     return Response.ok(spaceNavigations, MediaType.APPLICATION_JSON).build();

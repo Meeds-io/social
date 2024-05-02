@@ -10,6 +10,7 @@
       :nudge-width="200"
       max-width="350"
       min-width="300"
+      content-class="no-box-shadow full-height pa-1 mt-6 "
       offset-y>
       <template #activator="{ on, attrs }">
         <div
@@ -87,6 +88,9 @@
                       :users="mangersToDisplay"
                       :icon-size="30"
                       :popover="false"
+                      :margin-left="mangersToDisplay.length > 1 && 'ml-n4' || ''"
+                      :compact="mangersToDisplay.length > 1"
+                      clickable="'false'"
                       max="3"
                       retrieve-extra-information
                       avatar-overlay-position

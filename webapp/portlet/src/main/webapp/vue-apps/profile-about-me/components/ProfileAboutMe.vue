@@ -76,7 +76,7 @@ export default {
   }),
   computed: {
     valid() {
-      return !this.modifyingAboutMe || this.modifyingAboutMe.length <= this.maxLength;
+      return !this.modifyingAboutMe || this.$utils.htmlToText(this.modifyingAboutMe).length <= this.maxLength;
     },
     title() {
       return this.owner && this.$t('profileAboutYouself.title') || this.$t('profileAboutMe.title');
@@ -93,11 +93,7 @@ export default {
   },
   watch: {
     displayApp() {
-      if (this.displayApp) {
-        this.$el.closest('.PORTLET-FRAGMENT').classList.remove('hidden');
-      } else {
-        this.$el.closest('.PORTLET-FRAGMENT').classList.add('hidden');
-      }
+      this.$root.$updateApplicationVisibility(this.displayApp);
     }
   },
   created() {

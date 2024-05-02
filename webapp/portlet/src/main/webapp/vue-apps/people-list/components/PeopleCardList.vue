@@ -20,8 +20,7 @@
               class="pa-0">
               <people-card
                 :user="user"
-                :profile-action-extensions="profileActionExtensions"
-                @refresh="searchPeople" />
+                :profile-action-extensions="profileActionExtensions" />
             </v-col>
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
@@ -44,6 +43,11 @@
                   {{ $t('peopleList.label.noPeopleYet') }}
                 </p>
               </template>
+              <v-btn
+                class="btn btn-primary"
+                @click="resetFilters">
+                {{ $t('pepole.advanced.filter.button.reset') }}
+              </v-btn>
             </div>
           </div>
         </v-container>
@@ -85,11 +89,7 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
-    },
-    loadingPeople: {
-      type: Boolean,
-      default: false,
-    },
+    }
   },
   data: () => ({
     profileExtensions: [],
@@ -105,11 +105,12 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
     abortController: null,
+    loadingPeople: false
   }),
   computed: {
     profileActionExtensions() {
       const profileActionExtensions = [...this.profileExtensions, ...this.spaceMemberExtensions];
-      profileActionExtensions.sort((a, b) => (a.sort || 100) - (b.sort || 100));
+      profileActionExtensions.sort((a, b) => (a.order || 100) - (b.order || 100));
       return profileActionExtensions;
     },
     canShowMore() {
@@ -159,6 +160,11 @@ export default {
     this.refreshExtensions();
   },
   methods: {
+    resetFilters() {
+      this.$root.$emit('reset-filter');
+      this.$root.$emit('reset-advanced-filter');
+      this.$root.$emit('reset-advanced-filter-count');
+    },
     refreshExtensions() {
       this.profileExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
       this.spaceMemberExtensions = this.spaceId && extensionRegistry.loadExtensions('space-member-extension', 'action') || [];
@@ -182,7 +188,7 @@ export default {
           || this.filter === 'publisher') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
       } else {
-        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal, true);
+        searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       }
       return searchUsersFunction.then(data => {
         const users = data && data.users || [];
@@ -225,7 +231,7 @@ export default {
       this.abortController = new AbortController();
       let filterUsersFunction;
       if (this.filter) {
-        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.abortController.signal);
+        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
       }
       return filterUsersFunction.then(data => {
         const users = data && data.users || [];

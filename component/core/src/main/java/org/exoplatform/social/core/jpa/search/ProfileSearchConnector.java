@@ -172,14 +172,8 @@ public class ProfileSearchConnector {
     boolean appendCommar = false;
     //filter by profile settings
       if (expEsForAdvancedFilter != null) {
-
-        esSubQuery.append("    \"filter\": [\n");
-        esSubQuery.append("      {");
-        esSubQuery.append("          \"query_string\": {\n");
-        esSubQuery.append("            \"query\": \"" + expEsForAdvancedFilter + "\"\n");
-        esSubQuery.append("          }\n");
-        esSubQuery.append("      }\n");
-        esSubQuery.append("    ],\n");
+        esSubQuery.append(expEsForAdvancedFilter);
+        esSubQuery.append(",\n");
 
       }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
@@ -489,34 +483,24 @@ public class ProfileSearchConnector {
   }
 
   private String buildAdvancedFilterExpression(ProfileFilter filter) {
-    StringBuilder esExp = new StringBuilder();
+    StringBuilder query = new StringBuilder();
     Map<String, String> settings = filter.getProfileSettings();
-    esExp.append("( ");
-    int settingsCount = 0 ;
-    for (Map.Entry<String, String> entry : settings.entrySet()){
-      String inputKey = entry.getKey().replace(" ", "\\\\ ");
-      String inputValue = entry.getValue().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
-      if (inputValue.startsWith("\"") && inputValue.endsWith("\"")) {
-        inputValue = inputValue.replace("\"", "");
-      }
-      String[] splittedValue = inputValue.split(" ");
-      if (splittedValue.length > 1) {
-        for (int i = 0; i < splittedValue.length; i++) {
-          if (i != 0 ) {
-            esExp.append(" AND ") ;
-          }
-          esExp.append(inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(splittedValue[i])).append(StorageUtils.ASTERISK_STR);
-        }
-        esExp.append(")");
-      } else {
-        esExp.append("( "+inputKey+":").append(StorageUtils.ASTERISK_STR).append(removeAccents(inputValue)).append(StorageUtils.ASTERISK_STR);
-        esExp.append(")");
-      }
-      if ( settingsCount != settings.size()- 1 ) esExp.append(" AND ") ;
-      settingsCount += 1 ;
-    }
-    esExp.append(" )");
-    return esExp.toString();
+    query.append("""
+              "must": [""");
+    settings.forEach((key, value) -> query.append("""
+                    {
+                    "term": {
+                       "%s.raw": "%s"
+                     }
+                   },
+                """.formatted(key, value)));
+    int lastComma = query.lastIndexOf(",");
+    query.replace(lastComma, lastComma + 1, "");
+    query.append("""
+               ]
+            """);
+
+    return query.toString();
   }
 
   private static String removeAccents(String string) {

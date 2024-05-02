@@ -14,15 +14,18 @@
         flat>
         <div v-for="property in properties" :key="property.id">
           <profile-contact-edit-multi-field
-            v-if="property.editable && (property.multiValued || (property.children && property.children.length))"
+            v-if="property.multiValued || property?.children?.length"
             :property="property"
             @propertyUpdated="propertyUpdated" />
-          <div v-else-if="property.editable">
+          <div v-else>
             <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
-              {{ getResolvedName(property) }}<span v-if="property.required">*</span>
+              {{ getResolvedName(property) }}
+              <span v-if="property.required">*</span>
             </v-card-text>
             <v-card-text class="d-flex py-0">
-              <v-card-text :title="disabledField(property) ? $t('profileContactInformation.synchronizedUser.tooltip') :$t('profileContactInformation.'+property.propertyName)" class="d-flex pa-0">
+              <v-card-text
+                :title="disabledFieldTitle(property)"
+                class="d-flex pa-0">
                 <input
                   v-model="property.value"
                   :disabled="saving || disabledField(property)"
@@ -34,6 +37,8 @@
                   @change="propertyUpdated(property)"
                   @input="propertyUpdated(property)">
               </v-card-text>
+              <profile-hide-property-button
+                :property="property" />
             </v-card-text>
           </div>
         </div>
@@ -68,23 +73,42 @@ export default {
     saving: null,
     fieldError: false,
     disabled: true,
+    disabledFields: ['firstName', 'lastName', 'email']
   }),
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
+    this.$root.$on('hide-profile-property', this.hideProperty);
+    this.$root.$on('show-profile-property', this.showProperty);
   },
   methods: {
-    
+    hideProperty(property) {
+      property.hidden = true;
+      property.toHide = true;
+      this.propertyUpdated(property);
+    },
+    showProperty(property) {
+      property.hidden = false;
+      property.toShow = true;
+      this.propertyUpdated(property);
+    },
     resetCustomValidity() {
       if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity('');}
       if (this.$refs.firstNameInput) { this.$refs.firstNameInput[0].setCustomValidity('');}
       if (this.$refs.lastNameInput) { this.$refs.lastNameInput[0].setCustomValidity('');}
       this.$root.$emit('reset-custom-validity');   
     },
-
-    disabledField(property){
-      return !property.internal && (property.propertyName==='firstName' || property.propertyName==='lastName' || property.propertyName==='email');
+    disabledSynchronizedField(property) {
+      return !property.internal && this.disabledFields.includes(property.propertyName);
     },
-    
+    disabledField(property) {
+      return !property.editable || this.disabledSynchronizedField(property);
+    },
+    disabledFieldTitle(property) {
+      return this.disabledSynchronizedField(property) && this.$t('profileContactInformation.synchronizedUser.tooltip')
+                                                      || this.disabledField(property)
+                                                      && this.$t('profileContactInformation.nonEditable.field')
+                                                      || this.$t(`profileContactInformation.${property.propertyName}`);
+    },
     save() {
       this.fieldError = false;
       

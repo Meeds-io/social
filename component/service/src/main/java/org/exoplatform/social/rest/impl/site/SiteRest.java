@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
@@ -99,7 +98,6 @@ public class SiteRest implements ResourceContainer {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
   @Operation(summary = "Gets sites", description = "Gets sites", method = "GET")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
@@ -224,13 +222,14 @@ public class SiteRest implements ResourceContainer {
   @GET
   @Path("{siteId}")
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
   @Operation(summary = "Gets a specific site by id", description = "Gets site by id", method = "GET")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"), })
-  public Response getSiteById(@Context
-  HttpServletRequest httpServletRequest, @Context
-  Request request,
+  public Response getSiteById(
+                              @Context
+                              HttpServletRequest httpServletRequest,
+                              @Context
+                              Request request,
                               @Parameter(description = "site Id", required = true)
                               @PathParam("siteId")
                               String siteId,
@@ -297,7 +296,6 @@ public class SiteRest implements ResourceContainer {
   @PATCH
   @Path("{siteId}")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  @RolesAllowed("users")
   @Operation(summary = "Updates a specific site attribute by id", description = "Updates a specific site attribute by id", method = "PATCH")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Request fulfilled"),
@@ -338,15 +336,15 @@ public class SiteRest implements ResourceContainer {
 
   @GET
   @Path("{siteName}/banner")
-  @RolesAllowed("users")
   @Produces("image/png")
   @Operation(summary = "Gets a site banner", method = "GET")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
       @ApiResponse(responseCode = "500", description = "Internal server error"),
       @ApiResponse(responseCode = "403", description = "Forbidden request"),
       @ApiResponse(responseCode = "404", description = "Resource not found") })
-  public Response getSiteBanner(@Context
-  Request request,
+  public Response getSiteBanner(
+                                @Context
+                                Request request,
                                 @Parameter(description = "site name", required = true)
                                 @PathParam("siteName")
                                 String siteName,
@@ -354,6 +352,13 @@ public class SiteRest implements ResourceContainer {
                                 @QueryParam("bannerId")
                                 long bannerId) {
     try {
+      PortalConfig site = layoutService.getPortalConfig(siteName);
+      if (site == null) {
+        return Response.status(Status.NOT_FOUND).build();
+      }
+      if (!userACL.hasAccessPermission(site)) {
+        return Response.status(Status.UNAUTHORIZED).build();
+      }
       boolean isDefault = bannerId == 0;
       EntityTag eTag = !isDefault ? new EntityTag(String.valueOf(bannerId)) : new EntityTag(siteName);
       Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);

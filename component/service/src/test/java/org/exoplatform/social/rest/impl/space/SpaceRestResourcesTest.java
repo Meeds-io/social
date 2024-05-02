@@ -436,8 +436,8 @@ public void testSpaceDisplayNameUpdateWithDifferentCases () throws Exception {
     assertEquals(200, response.getStatus());
 
     BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
-    assertEquals(45, receivedImage.getWidth());
-    assertEquals(45, receivedImage.getHeight());
+    assertEquals(100, receivedImage.getWidth());
+    assertEquals(100, receivedImage.getHeight());
   }
 
   public void testGetSpaceAvatarWithOriginalSize() throws Exception {

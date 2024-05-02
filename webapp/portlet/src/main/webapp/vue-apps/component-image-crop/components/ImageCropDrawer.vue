@@ -564,7 +564,7 @@ export default {
                 reject(error);
               })
               .finally(() => this.sendingImage = false);
-          });
+          }, null, 1);
       });
     },
     getCroppedCanvas() {
@@ -572,6 +572,7 @@ export default {
         const croppedCanvas = this.cropper.getCroppedCanvas(this.maxImageWidth && {
           maxWidth: this.maxImageWidth * 2,
           maxHeight: this.maxImageHeight * 2,
+          imageSmoothingQuality: 'high'
         });
         const width = croppedCanvas.width;
         const height = croppedCanvas.height;
@@ -582,6 +583,7 @@ export default {
 
         const context = canvas.getContext('2d');
         context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = 'high';
         context.drawImage(croppedCanvas, 0, 0, width, height);
         context.globalCompositeOperation = 'destination-in';
         context.beginPath();
@@ -592,6 +594,7 @@ export default {
         return this.cropper.getCroppedCanvas(this.maxImageWidth && {
           maxWidth: this.maxImageWidth,
           maxHeight: this.maxImageHeight,
+          imageSmoothingQuality: 'high'
         });
       }
     },

@@ -111,4 +111,52 @@ public interface ProfilePropertyService {
    * @return Boolean : true if the current property is a default propertie
    */
   boolean isDefaultProperties(ProfilePropertySetting propertySetting);
+
+  /**
+   * Gets unhiddenable properties
+   *
+   * @return {@link List} of {@link String}
+   */
+  List<String> getUnhiddenableProfileProperties();
+
+  /**
+   * Gets excluded quick search properties
+   *
+   * @return {@link List} of {@link String}
+   */
+  List<String> getExcludedQuickSearchProperties();
+
+  /**
+   * Checks if property is hiddenable
+   *
+   * @param propertySetting profile property setting
+   * @return true if property is hiddenbale and false otherwise
+   */
+  boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting);
+
+  /**
+   * Hide profile property setting
+   *
+   * @param userIdentityId user identity id
+   * @param profilePropertyId profile property id
+   */
+  void hidePropertySetting(long userIdentityId, long profilePropertyId);
+
+
+  /**
+   * Show profile property setting
+   *
+   * @param userIdentityId user identity id
+   * @param profilePropertyId profile property id
+   */
+  void showPropertySetting(long userIdentityId, long profilePropertyId);
+
+  /**
+   * Get hidden profile property Ids
+   *
+   * @param userIdentityId user identity ide
+   * @return {@link List} of {@link Long}
+   */
+  List<Long> getHiddenProfilePropertyIds(long userIdentityId);
+
 }

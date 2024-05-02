@@ -1298,6 +1298,15 @@
         <path>/js/profileContactInformation.bundle.js</path>
       </script>
       <depends>
+        <module>complementaryFilter</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>peopleListComponents</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -1331,6 +1340,9 @@
       </script>
       <depends>
         <module>peopleListComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
       </depends>
       <depends>
         <module>vue</module>
@@ -2667,6 +2679,32 @@
     </depends>
   </module>
 
+  <!-- Used by multiple addons: tasks & layout -->
+  <module>
+    <name>vueDraggable</name>
+    <script>
+      <adapter>
+        (function() {
+        <include>/js/lib/vueDraggable.min.js</include>
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>sortablejs</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>sortablejs</name>
+    <script>
+      <adapter>
+        (function() {
+        <include>/js/lib/sortable.min.js</include>
+        })();
+      </adapter>
+    </script>
+  </module>
+
   <module>
     <name>topbarLoading</name>
     <load-group>baseGRP</load-group>
@@ -2678,6 +2716,32 @@
     </depends>
   </module>
 
+  <module>
+    <name>complementaryFilter</name>
+    <script>
+      <path>/js/complementaryFilter.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>jquery</module>
+      <as>$</as>
+    </depends>
+  </module>
+  
   <!-- Base Javascripts for anonymous mode -->
   <module>
     <name>I18NMessage</name>
