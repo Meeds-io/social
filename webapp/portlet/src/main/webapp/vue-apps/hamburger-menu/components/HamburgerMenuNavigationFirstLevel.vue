@@ -45,8 +45,8 @@
         @input="$emit('stickyPreference', $event)" />
       <v-sheet
         id="StickyHamburgerMenu"
-        max-height="calc(100vh - 115px)"
         :aria-label="$t('menu.role.navigation.first.level')"
+        max-height="calc(100vh - 115px)"
         max-width="100%"
         class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
         flat

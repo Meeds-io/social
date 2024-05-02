@@ -37,7 +37,7 @@
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :link="hasPage"
-        :aria-label="$t('topBar.navigation.menu.openMenu')"
+        :aria-label="navigation.label"
         role="tab"
         @click.stop="checkLink(navigation, $event)"
         @click="openUrl(navigationNodeUri, navigationNodeTarget)"

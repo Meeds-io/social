@@ -41,7 +41,7 @@
             link
             :href="allSpacesLink" 
             @click="leftNavigationActionEvent($event,'addNewSpace')">
-            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
+            <v-icon class="me-0 pa-2 icon-default-color" small>
               fa-plus
             </v-icon>
           </v-btn>
@@ -65,14 +65,14 @@
             icon 
             :href="allSpacesLink" 
             @click="leftNavigationActionEvent($event,'addNewSpace')">
-            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
+            <v-icon class="me-0 pa-2 icon-default-color" small>
               fa-plus
             </v-icon>
           </v-btn>
           <ripple-hover-button
             icon
             @ripple-hover="$root.$emit('change-recent-spaces-menu')">
-            <v-icon class="me-0 pa-2 icon-default-color clickable" small>
+            <v-icon class="me-0 pa-2 icon-default-color" small>
               {{ arrowIconClass }} 
             </v-icon>
           </ripple-hover-button>
