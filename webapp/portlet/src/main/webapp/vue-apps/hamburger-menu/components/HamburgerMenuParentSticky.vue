@@ -20,7 +20,7 @@
 -->
 <template>
   <v-menu
-    :value="true"
+    v-model="menu"
     :absolute="false"
     :close-on-click="false"
     :close-on-content-click="false"
@@ -28,6 +28,8 @@
     :min-width="drawerWidth"
     max-width="none"
     attach="#ParentSiteStickyMenu"
+    disable-keys
+    disabled
     eager
     tile>
     <slot></slot>
@@ -51,6 +53,7 @@ export default {
   },
   data: () => ({
     open: false,
+    menu: true,
     componentId: `sticky-menu-${parseInt(Math.random() * 65536)}`,
     extraClass: '',
   }),
@@ -62,6 +65,11 @@ export default {
         window.setTimeout(() => {
           this.extraClass = '';
         }, 300);
+      }
+    },
+    menu() {
+      if (!this.menu) {
+        this.$nextTick().then(() => this.menu = true);
       }
     },
     open() {
