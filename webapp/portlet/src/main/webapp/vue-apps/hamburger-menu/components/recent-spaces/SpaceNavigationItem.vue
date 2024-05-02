@@ -23,6 +23,7 @@
     v-if="isMobile"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     class="px-2 spaceItem text-truncate"
+    role="button"
     @click="openOrCloseDrawer">
     <v-list-item-avatar 
       size="28"
@@ -54,9 +55,9 @@
     v-else
     :href="spaceLink"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
-    link
     :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
     class="px-2 spaceItem"
+    role="link"
     @mouseover="showItemActions = true"
     @mouseleave="showItemActions = false">
     <v-list-item-avatar 
@@ -84,7 +85,7 @@
         @ripple-hover="openOrCloseDrawer()">
         <v-icon
           :id="space.id"
-          class="me-0 pa-2 icon-default-color clickable"
+          class="me-0 pa-2 icon-default-color"
           small>
           {{ arrowIcon }} 
         </v-icon>

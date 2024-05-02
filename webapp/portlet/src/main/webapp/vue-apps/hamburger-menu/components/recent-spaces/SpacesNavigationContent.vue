@@ -23,8 +23,12 @@
     :class="shaped && 'ms-12'"
     class="mx-0 spacesNavigationContent"
     flat>
-    <v-list dense>
-      <v-list-item-group :value="selectedSpaceIndex">
+    <v-list
+      :role="null"
+      dense>
+      <v-list-item-group
+        :value="selectedSpaceIndex"
+        :role="null">
         <space-navigation-item
           v-for="space in filteredSpaces" 
           :key="space.id"

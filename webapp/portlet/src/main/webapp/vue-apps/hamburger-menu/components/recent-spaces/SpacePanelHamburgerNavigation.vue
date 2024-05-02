@@ -79,14 +79,16 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
-              v-bind="attrs" 
-              v-on="on" 
+              :aria-label="$t('menu.spaces.makeAsHomePage')"
+              role="button"
               link
-              icon 
+              icon
+              v-bind="attrs"
+              v-on="on"
               @click="$root.$emit('change-home-link-space', space)">
               <v-icon 
-                class="me-0 pa-2" 
                 :class="isHomeLink && 'primary--text' || 'icon-default-color'" 
+                class="me-0 pa-2" 
                 small>
                 fa-house-user
               </v-icon>

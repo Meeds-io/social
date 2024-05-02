@@ -22,11 +22,13 @@
   <v-flex id="ProfileHamburgerNavigation">
     <v-list-item
       :href="PROFILE_URI"
+      :arial-label="$t('menu.userProfilePageLink')"
+      role="link"
       class="accountTitleItem top-bar-height">
       <v-list-item-avatar size="44" class="me-3 mt-0 mb-0 elevation-1">
         <img
           :src="avatar"
-          :alt="fullName"
+          alt="Avatar"
           width="44"
           height="44">
       </v-list-item-avatar>
@@ -37,6 +39,7 @@
       <v-list-item-action v-if="stickyAllowed" class="my-auto">
         <v-btn
           :title="value && $t('menu.collapse') || $t('menu.expand')"
+          :aria-label="value && $t('menu.collapse') || $t('menu.expand')"
           icon
           @click="changeMenuStickiness">
           <v-icon>{{ arrowIconClass }}</v-icon>
