@@ -27,10 +27,10 @@ export function init(params) {
           logoPath: params.logoPath,
           portalPath: params.portalPath,
           imageClass: params.imageClass,
-          logoTitle: params.logoTitle,
+          logoTitle: decodeURIComponent(params.logoTitle || ''),
           titleClass: params.titleClass,
           membersNumber: params.membersNumber,
-          spaceDescription: params.spaceDescription,
+          spaceDescription: decodeURIComponent(params.spaceDescription || ''),
           managers: params.managers,
           homePath: params.homePath,
         };
