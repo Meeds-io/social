@@ -59,8 +59,8 @@
           <i class="v-icon fas fa-search position-static d-flex icon-medium-size icon-default-color"></i>
         </span>
       </button>
-      <textarea id="searchConnectorsDefaultValue" class="d-none"><%= jsonSearchConnectors%></textarea>
-      <textarea id="searchSkinUrlsDefaultValue" class="d-none"><%= skinUrlsString%></textarea>
+      <textarea id="searchConnectorsDefaultValue" aria-hidden="true" class="d-none"><%= jsonSearchConnectors%></textarea>
+      <textarea id="searchSkinUrlsDefaultValue" aria-hidden="true" class="d-none"><%= skinUrlsString%></textarea>
       <% if (rcontext.getRequestURI().endsWith("/search") || rcontext.getRequestURI().equals("search")) { %>
       <script type="text/javascript">
         require(['PORTLET/social-portlet/Search'], app => app.init());

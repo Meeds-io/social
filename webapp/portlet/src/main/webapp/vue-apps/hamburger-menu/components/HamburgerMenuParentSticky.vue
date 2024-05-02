@@ -26,6 +26,7 @@
     :close-on-content-click="false"
     :content-class="`overflow-hidden elevation-0 fill-height ${extraClass} ${componentId}`"
     :min-width="drawerWidth"
+    :role="null"
     max-width="none"
     attach="#ParentSiteStickyMenu"
     eager
