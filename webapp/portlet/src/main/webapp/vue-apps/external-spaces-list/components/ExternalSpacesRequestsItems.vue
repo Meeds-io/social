@@ -28,7 +28,7 @@
             </v-list-item-avatar>
             <v-list-item-content class="py-0">
               <v-list-item-title class="text-color text-truncate requestSpaceName" v-text="item.displayName" />
-              <v-list-item-subtitle class="caption grey-color" v-text="item.description" />
+              <v-list-item-subtitle class="caption grey-color" v-sanitized-html="item.description" />
             </v-list-item-content>
             <v-list-item-action>
               <v-btn-toggle

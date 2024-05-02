@@ -202,9 +202,6 @@ export default {
     spaceMembersCount() {
       return this.space && this.space.membersCount;
     },
-    spaceDescription() {
-      return this.space && this.space.description;
-    },
     fullnameStyle() {
       return `${this.boldTitle && 'font-weight-bold ' || ''}${this.smallFontSize && 'caption ' || ''}`;
     },
