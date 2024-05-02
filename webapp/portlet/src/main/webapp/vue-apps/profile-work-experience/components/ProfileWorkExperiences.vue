@@ -37,7 +37,6 @@
     </widget-wrapper> 
     <profile-work-experience-drawer
       ref="profileWorkExperiencesDrawer"
-      :key="workExperiencesDrawerKey"
       :experiences="experiences"
       @refreshWorkExperiencesDrawer="initWorkExperiencesDrawer"
       @refresh="setExperiences($event)" />
@@ -52,7 +51,6 @@ export default {
     experiences: null,
     error: null,
     saving: null,
-    workExperiencesDrawerKey: 0,
     initialized: false,
   }),
   computed: {
@@ -129,9 +127,6 @@ export default {
       if (this.displayEmptyBlock && event?.target?.id === 'emptyExperiencesLink') {
         this.addWorkExperience();
       }
-    },
-    initWorkExperiencesDrawer() {
-      this.workExperiencesDrawerKey += 1;
     },
     editWorkExperiences() {
       this.$refs.profileWorkExperiencesDrawer.open();
