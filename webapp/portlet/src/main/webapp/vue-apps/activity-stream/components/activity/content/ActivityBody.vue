@@ -76,7 +76,7 @@ export default {
       return this.activity && this.activity.activityId;
     },
     bodyClass() {
-      return `${this.isComment && 'rich-editor-content' || 'postContent text-color py-0'} ${this.collapsed && !this.fullContent && 'text-truncate-4-no-ellipsis' || ''}`;
+      return `${this.isComment && 'rich-editor-content' || 'postContent text-color py-0'} ${this.collapsed && !this.fullContent && 'text-truncate-4 has-overflow' || ''}`;
     },
     readMore() {
       return this.displayReadMoreButton;
