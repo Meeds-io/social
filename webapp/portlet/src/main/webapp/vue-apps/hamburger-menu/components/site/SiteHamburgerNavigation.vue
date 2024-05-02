@@ -19,18 +19,23 @@
 
 -->
 <template>
-  <v-container 
+  <v-container
     id="SiteHamburgerNavigation"
-    px-0
-    py-0
-    class="white">
-    <div v-if="navigations" class="mx-0">
-      <v-list  
-        dense 
+    class="px-0 py-0 white">
+    <div
+      v-if="navigations"
+      :role="null"
+      class="mx-0">
+      <v-list
+        :class="extraClass"
+        :role="null"
         min-width="90%"
         class="pb-0"
-        :class="extraClass">
-        <v-list-item-group v-model="selectedNavigationIndex" :aria-label="navigationsLabel">
+        dense>
+        <v-list-item-group
+          v-model="selectedNavigationIndex"
+          :aria-label="navigationsLabel"
+          :role="null">
           <v-list-item
             v-for="nav in navigationsToDisplay"
             :key="nav.uri"
@@ -40,7 +45,8 @@
             :href="nav.fullUri"
             :class="homeLink === nav.fullUri && 'UserPageLinkHome' || 'UserPageLink'"
             :target="nav.uriTarget"
-            link>
+            :aria-label="nav.label"
+            role="link">
             <v-list-item-icon class="flex align-center flex-grow-0 my-2">
               <v-icon> {{ nav.icon || defaultIcon }}</v-icon>
             </v-list-item-icon>
@@ -50,15 +56,28 @@
                 v-text="nav.label" />
             </v-list-item-content>
             <v-list-item-action class="my-auto">
-              <v-btn
-                v-bind="attrs" 
-                v-on="on" 
-                link
-                icon
-                @click="selectHome($event, nav)">
-                <span class="fas fa-house-user icon-default-color homePage">
+              <v-tooltip bottom>
+                <template #activator="{ on, attrs }">
+                  <v-btn
+                    :aria-label="$t('menu.spaces.makeAsHomePage')"
+                    role="button"
+                    link
+                    icon
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="selectHome($event, nav)">
+                    <v-icon 
+                      :class="homeLink === nav.fullUri && 'primary--text' || 'icon-default-color'" 
+                      class="homePage" 
+                      small>
+                      fa-house-user
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <span>
+                  {{ $t('menu.spaces.makeAsHomePage') }}
                 </span>
-              </v-btn>
+              </v-tooltip>
             </v-list-item-action>
           </v-list-item>
         </v-list-item-group>

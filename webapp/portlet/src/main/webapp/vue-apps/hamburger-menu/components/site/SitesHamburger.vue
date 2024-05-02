@@ -20,26 +20,27 @@
 -->
 <template>
   <v-list
+    :role="null"
     dense
     min-width="90%"
     class="pb-0">
     <v-list-item-group
+      role="navigation"
       aria-label="displayedSites"
       link>
-      <div
-        v-for="site in sites"
-        :key="site.name">
+      <template v-for="site in sites">
         <site-hamburger-navigation
           v-if="site.metaSite"
+          :key="site.name"
+          :site="site.name"
           :extra-class="'pt-0'"
-          :navigations="site.siteNavigations" 
-          :site="site.name" />
+          :navigations="site.siteNavigations" />
         <site-hamburger-item
           v-else
           :key="site.name"
           :site="site"
           :opened-site="openedSite" />
-      </div>
+      </template>
     </v-list-item-group> 
   </v-list>
 </template>
