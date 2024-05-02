@@ -261,7 +261,12 @@ export default {
   },
   methods: {
     open() {
-      this.drawer = true;
+      if (this.$el?.closest?.('.layout-sticky-application') || eXo.openedDrawers.length) {
+        document.querySelector('#vuetify-apps').appendChild(this.$el);
+        this.$nextTick().then(() => this.drawer = true);
+      } else {
+        this.drawer = true;
+      }
     },
     setModalOpened() {
       this.modalOpened = this.drawer;
