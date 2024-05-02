@@ -51,9 +51,7 @@
         </v-list-item-content>
       </v-list-item>
     </v-flex>
-    <p class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4">
-      {{ description }}
-    </p>
+    <p v-sanitized-html="description" class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4"></p>
     <v-flex>
       <v-list-item>
         <v-list-item-content class="body-2 grey--text text-truncate text--darken-1">
