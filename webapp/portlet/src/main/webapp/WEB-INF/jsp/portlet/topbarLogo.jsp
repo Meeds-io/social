@@ -1,3 +1,4 @@
+<%@page import="java.net.URLEncoder"%>
 <%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.exoplatform.commons.api.notification.model.UserSetting"%>
 <%@page import="org.exoplatform.commons.api.notification.service.setting.UserSettingService"%>
@@ -102,9 +103,9 @@
     isMember: `<%=isMember%>`,
     logoPath: `<%=logoPath%>`,
     portalPath: `<%=portalPath%>`,
-    logoTitle: `<%=logoTitle%>`,
+    logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
     membersNumber: `<%=membersNumber%>`,
-    spaceDescription: `<%=spaceDescription%>`,
+    spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
     managers: topbarLogoManagers,
     homePath: `<%=homePath%>`
   };
