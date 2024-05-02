@@ -12,7 +12,7 @@
         <form
           ref="form"
           :disabled="savingSpace || spaceSaved"
-          class="ma-4 d-flex row"
+          class="ma-4 d-flex flex-column"
           @submit="saveSpace">
           <div class="width-full d-flex">
             <space-setting-avatar
@@ -38,15 +38,14 @@
           <v-label for="description">
             {{ $t('SpaceSettings.label.description') }}
           </v-label>
-          <textarea
+          <rich-editor
+            id="spaceDescriptionRichEditor"
             v-model="space.description"
             :placeholder="$t('SpaceSettings.label.description')"
-            name="description"
-            rows="20"
-            maxlength="2000"
-            noresize
-            class="input-block-level ignore-vuetify-classes my-3">
-          </textarea>
+            :max-length="maxDescriptionLength"
+            :tag-enabled="false"
+            class="my-3"
+            ck-editor-type="spaceDescription" />
           <v-label for="spaceTemplate">
             {{ $t('SpaceSettings.label.spaceTemplate') }}
           </v-label>
@@ -159,6 +158,7 @@ export default {
     spaceTemplate: null,
     templates: [],
     avatarData: null,
+    maxDescriptionLength: 2000,
     cropOptions: {
       aspectRatio: 1,
       viewMode: 1,
@@ -166,7 +166,7 @@ export default {
   }),
   computed: {
     saveButtonDisabled() {
-      return this.savingSpace || this.spaceSaved || !this.space.id;
+      return this.savingSpace || this.spaceSaved || !this.space.id || (this.space.description?.length || 0) > this.maxDescriptionLength;
     },
     maxUploadSizeInBytes() {
       return Number(this.maxUploadSize) * 1024 *1024;

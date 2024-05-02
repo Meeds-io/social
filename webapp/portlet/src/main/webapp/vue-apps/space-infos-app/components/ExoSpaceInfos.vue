@@ -3,10 +3,9 @@
     <widget-wrapper :title="$t('social.space.description.title')">
       <p 
         id="spaceDescription"
+        v-sanitized-html="description"
         :class="description?.length && 'mb-4' || 'mb-0'"
-        class="text-color"> 
-        {{ description }} 
-      </p>
+        class="text-color"></p>
       <div id="spaceManagersList">
         <div class="d-flex align-center mb-4">
           <v-icon size="16" class="me-2 icon-default-color">fa-user-cog</v-icon>

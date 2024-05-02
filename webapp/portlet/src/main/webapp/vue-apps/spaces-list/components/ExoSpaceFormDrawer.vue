@@ -1,6 +1,7 @@
 <template>
   <exo-drawer
     ref="spaceFormDrawer"
+    v-model="drawer"
     right
     class="spaceFormDrawer"
     @opened="stepper = 1"
@@ -8,7 +9,7 @@
     <template slot="title">
       {{ title }}
     </template>
-    <template slot="content">
+    <template v-if="drawer" slot="content">
       <div></div>
       <div>
         <v-stepper
@@ -39,15 +40,14 @@
               <v-label for="description">
                 {{ $t('spacesList.label.description') }}
               </v-label>
-              <textarea
+              <rich-editor
+                id="spaceDescriptionRichEditor"
                 v-model="space.description"
-                :placeholder="$t('spacesList.label.description')"
-                name="description"
-                rows="20"
-                maxlength="2000"
-                noresize
-                class="input-block-level ignore-vuetify-classes my-3">
-              </textarea>
+                :placeholder="$t('SpaceSettings.label.description')"
+                :max-length="maxDescriptionLength"
+                :tag-enabled="false"
+                class="my-3"
+                ck-editor-type="spaceDescription" />
               <v-label for="spaceTemplate">
                 {{ $t('spacesList.label.spaceTemplate') }}
               </v-label>
@@ -222,6 +222,7 @@
 
 export default {
   data: () => ({
+    drawer: false,
     savingSpace: false,
     spaceSaved: false,
     space: {},
@@ -232,11 +233,12 @@ export default {
     spaceTemplate: null,
     templates: [],
     selectedSpacesWithExternals: [],
-    externalAlert: false
+    externalAlert: false,
+    maxDescriptionLength: 2000,
   }),
   computed: {
     saveButtonDisabled() {
-      return this.savingSpace || this.spaceSaved || this.stepper < 3 && !this.space.id;
+      return this.savingSpace || this.spaceSaved || this.stepper < 3 && !this.space.id || (this.space.description?.length || 0) > this.maxDescriptionLength;
     },
     displayedForm() {
       return this.$refs && this.$refs[`form${this.stepper}`];

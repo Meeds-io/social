@@ -65,9 +65,7 @@
               <v-list-item-subtitle>
                 {{ membersNumber }} {{ $t('space.logo.banner.popover.members') }}
               </v-list-item-subtitle>
-              <p class="text-truncate-2 text-caption text--primary font-weight-medium">
-                {{ spaceDescription }}
-              </p>
+              <p v-sanitized-html="spaceDescription" class="text-truncate-2 text-caption text--primary font-weight-medium"></p>
             </v-list-item-content>
           </v-list-item>
         </v-list>
