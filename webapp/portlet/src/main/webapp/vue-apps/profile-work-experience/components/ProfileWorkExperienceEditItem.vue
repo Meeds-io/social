@@ -59,12 +59,12 @@
         <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold me-3">
           {{ $t('profileWorkExperiences.startDate') }}
         </div>
-        <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold px-3">
+        <div v-if="!isCurrent" class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold px-3">
           {{ $t('profileWorkExperiences.endDate') }}
         </div>
       </v-card-text>
-      <v-card-text class="d-flex py-0 profileWorkExperiencesDates">
-        <div class="align-start flex-grow-0 text-no-wrap text-left font-weight-bold half-width me-3">
+      <v-card-text class="d-flex flex-row full-width py-0 profileWorkExperiencesDates">
+        <div class="align-start flex-grow-0 col-6 pa-0 text-no-wrap text-left font-weight-bold half-width me-3">
           <date-picker
             v-model="experience.startDate"
             :left="$vuetify.rtl"
@@ -73,7 +73,7 @@
             return-iso
             required />
         </div>
-        <div class="align-end flex-grow-0 text-no-wrap text-left font-weight-bold half-width">
+        <div v-if="!isCurrent" class="align-end flex-grow-0 col-6 pa-0 text-no-wrap text-left font-weight-bold half-width">
           <date-picker
             v-model="endDate"
             :disabled="isCurrent"
