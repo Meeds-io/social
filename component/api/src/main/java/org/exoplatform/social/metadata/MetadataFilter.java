@@ -31,6 +31,8 @@ import java.util.Map;
 @NoArgsConstructor
 public class MetadataFilter {
 
+  private Long                creatorId;
+
   private String              metadataName;
 
   private String              metadataTypeName;
@@ -39,7 +41,13 @@ public class MetadataFilter {
 
   private List<Long>          metadataSpaceIds;
 
-  private Long                creatorId;
-
   private Map<String, String> metadataProperties;
+
+  /**
+   * To be used when we need to combine list of properties using or condition:
+   * ((in spacesIds and metadataProperties equal condition)
+   * or (combinedMetadataProperties equal condition))
+   */
+  private Map<String, String> combinedMetadataProperties;
+
 }
