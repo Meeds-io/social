@@ -16,6 +16,9 @@
     title = bundle.getString("locale.portlet.gettingStarted.title");
   }
 
+%>
+<div class="VuetifyApp" id="GettingStartedPortletParent">
+<%
   List<GettingStartedStep> steps = ExoContainerContext.getService(GettingStartedService.class).getUserSteps(request.getRemoteUser());
   if (steps != null && steps.size() > 0) {
     boolean canClose = true;
@@ -24,7 +27,6 @@
       canClose = canClose && step.getStatus() != null && step.getStatus().booleanValue();
     }
 %>
-<div class="VuetifyApp">
   <div style="" id="GettingStartedPortlet" data-can-close="<%=canClose%>">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light" id="app">
@@ -83,5 +85,8 @@
       </div>
     </div>
   </div>
-</div>
 <% } %>
+  <script type="text/javascript">
+    window.require(['PORTLET/social-portlet/GettingStarted'], app => app.init());
+  </script>
+</div>
