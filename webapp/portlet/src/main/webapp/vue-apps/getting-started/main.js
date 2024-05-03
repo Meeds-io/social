@@ -9,21 +9,19 @@ export function hideGettingStarted() {
   });
 }
 
-const parentAppElement = document.querySelector('#GettingStartedPortlet');
-const parentAppElementBtn = document.querySelector('#GettingStartedPortlet .btClose');
-if (parentAppElement) {
-  if (parentAppElementBtn) {
-    parentAppElementBtn.onclick = () => {
-      hideGettingStarted().then(() => {
-        const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
-        hideGettingStarted().then(() => Vue.prototype.$updateApplicationVisibility(false, parentElementToHide));
-      });
-    };
+export function init() {
+  const parentAppElement = document.querySelector('#GettingStartedPortlet');
+  const parentAppElementBtn = document.querySelector('#GettingStartedPortlet .btClose');
+  if (parentAppElement) {
+    if (parentAppElementBtn) {
+      parentAppElementBtn.onclick = () => {
+        hideGettingStarted().then(() => {
+          const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
+          hideGettingStarted().then(() => Vue.prototype.$updateApplicationVisibility(false, parentElementToHide));
+        });
+      };
+    }
+  } else {
+    Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#GettingStartedPortletParent'));
   }
-} else {
-  Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#GettingStartedContainerChildren .PORTLET-FRAGMENT'));
-}
-
-if (parentAppElement && parentAppElement.dataset.canClose === 'true') {
-  Vue.prototype.$updateApplicationVisibility(false, parentAppElement);
 }
