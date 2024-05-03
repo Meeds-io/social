@@ -101,7 +101,7 @@
           :child="summaryElement"
           :title="summaryTooltip"
           :class="bodyClass"
-          class="caption text-wrap text-break reset-style-box rich-editor-content"
+          class="text-wrap text-break reset-style-box rich-editor-content"
           dir="auto" />
         <v-btn
           v-if="showReadMore"
@@ -111,7 +111,7 @@
           text
           plain
           @click="displayFullContent">
-          {{ $t('UIActivity.label.seeMore') }}
+          <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
         </v-btn>
       </div>
     </template>
@@ -260,7 +260,7 @@ export default {
       };
     },
     bodyClass() {
-      return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'content-collapsed overflow-hidden' || ''}`;
+      return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
     },
     canCollapse() {
       return this.activityTypeExtension?.isCollapsed;
