@@ -407,26 +407,56 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     if (!CollectionUtils.isEmpty(filter.getMetadataObjectTypes())) {
       predicates.add(criteriaBuilder.and(root.get(OBJECT_TYPE_PARAM).in(filter.getMetadataObjectTypes())));
     }
-    if (!CollectionUtils.isEmpty(filter.getMetadataSpaceIds())) {
-      predicates.add(criteriaBuilder.and(root.get(SPACE_ID).in(filter.getMetadataSpaceIds())));
-    }
     if (filter.getCreatorId() != null) {
       predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(CREATOR_ID), filter.getCreatorId())));
     }
 
-    if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
-      Join<MetadataItemEntity, MetadataEntity> metadata = root.join(METADATA, JoinType.INNER);
-      MapJoin<MetadataItemEntity, String, String> metadataItemProp = root.joinMap(PROPERTIES, JoinType.INNER);
-      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(TYPE), metadataType)));
-      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(NAME), filter.getMetadataName())));
-      filter.getMetadataProperties().forEach((key, value) -> {
-        predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.key(), key)));
-        predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.value(), value)));
-      });
-    }
+    buildMetadataFilterPropertiesPredicates(criteriaBuilder, root, filter, predicates, metadataType);
 
     criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
     criteriaQuery.orderBy(criteriaBuilder.desc(root.get(CREATED_DATE)), criteriaBuilder.desc(root.get(ID)));
     return getEntityManager().createQuery(criteriaQuery);
+  }
+
+  private void buildMetadataFilterPropertiesPredicates(CriteriaBuilder criteriaBuilder,
+                                                       Root<?> root,
+                                                       MetadataFilter filter,
+                                                       List<Predicate> predicates,
+                                                       long metadataType) {
+    List<Predicate> propertiesAndSpacePredicates = new ArrayList<>();
+    List<Predicate> combinedPropertiesPredicates = new ArrayList<>();
+
+    if (!CollectionUtils.isEmpty(filter.getMetadataSpaceIds())) {
+      propertiesAndSpacePredicates.add(criteriaBuilder.and(root.get(SPACE_ID).in(filter.getMetadataSpaceIds())));
+    }
+    if (!MapUtils.isEmpty(filter.getMetadataProperties()) || !MapUtils.isEmpty(filter.getCombinedMetadataProperties())) {
+      Join<MetadataItemEntity, MetadataEntity> metadata = root.join(METADATA, JoinType.INNER);
+      MapJoin<MetadataItemEntity, String, String> metadataItemProp = root.joinMap(PROPERTIES, JoinType.INNER);
+      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(TYPE), metadataType)));
+      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(NAME), filter.getMetadataName())));
+
+      if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
+        filter.getMetadataProperties().forEach((key, value) -> {
+          propertiesAndSpacePredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.key(), key)));
+          propertiesAndSpacePredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.value(), value)));
+        });
+      }
+      if (!MapUtils.isEmpty(filter.getCombinedMetadataProperties())) {
+        filter.getCombinedMetadataProperties().forEach((key, value) -> {
+          combinedPropertiesPredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.key(), key)));
+          combinedPropertiesPredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.value(), value)));
+        });
+      }
+    }
+
+    Predicate subPredicate;
+    if (!CollectionUtils.isEmpty(propertiesAndSpacePredicates)) {
+      subPredicate = criteriaBuilder.and(propertiesAndSpacePredicates.toArray(new Predicate[0]));
+      if (!CollectionUtils.isEmpty(combinedPropertiesPredicates)) {
+        Predicate combinedPredicate = criteriaBuilder.and(combinedPropertiesPredicates.toArray(new Predicate[0]));
+        subPredicate = criteriaBuilder.or(subPredicate, combinedPredicate);
+      }
+      predicates.add(criteriaBuilder.and(subPredicate));
+    }
   }
 }

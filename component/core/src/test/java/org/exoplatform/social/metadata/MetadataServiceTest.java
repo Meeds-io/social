@@ -448,21 +448,34 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(storedMetadataItem3.getId(), metadataItems.get(0).getId());
     assertEquals(storedMetadataItem.getId(), metadataItems.get(1).getId());
 
+    objectId = "objectId1058";
+    metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
     Map<String, String> properties1 = new LinkedHashMap<>();
     properties1.put("staged", String.valueOf(true));
     name = "testMetadataPropFilter";
+    metadataItemObject.setSpaceId(spaceId);
     metadataService.createMetadataItem(metadataItemObject, new MetadataKey(type, name, audienceId), properties1, creatorId);
+
+    objectId = "objectId1059";
+    metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    Map<String, String> properties2 = new LinkedHashMap<>();
+    properties2.put("staged", String.valueOf(false));
+    name = "testMetadataPropFilter";
+    metadataService.createMetadataItem(metadataItemObject, new MetadataKey(type, name, audienceId), properties2, creatorId);
     metadataFilter = new MetadataFilter();
     metadataFilter.setMetadataName(name);
     metadataFilter.setMetadataTypeName(type);
     metadataFilter.setMetadataObjectTypes(List.of(objectType));
     metadataFilter.setMetadataSpaceIds(List.of(spaceId, space3Id));
     metadataFilter.setMetadataProperties(properties1);
+    metadataFilter.setCombinedMetadataProperties(properties2);
     metadataFilter.setCreatorId(creatorId);
 
     metadataItems = metadataService.getMetadataItemsByFilter(metadataFilter, 0, 10);
     assertNotNull(metadataItems);
-    assertEquals(1, metadataItems.size());
+    assertEquals(2, metadataItems.size());
   }
 
   public void testGetMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds() throws ObjectAlreadyExistsException {
