@@ -194,16 +194,6 @@ public class SpaceUtils {
   private static final String                                 CURRENT_SPACE            = "CurrentSpace";
 
   /**
-   * Checks if Space Name is in a valid form or not.
-   *
-   * @param name
-   * @return
-   */
-  public static boolean isValidSpaceName(String name) {
-    return SPACE_NAME_PATTERN.matcher(name).matches();
-  }
-
-  /**
    * Creates a new group from an existing group. This new group will get all
    * data from existing group except for group name
    *

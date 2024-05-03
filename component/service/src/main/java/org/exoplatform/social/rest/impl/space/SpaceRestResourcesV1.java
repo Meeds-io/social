@@ -66,7 +66,6 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.PageType;
-import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -354,7 +353,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                                 "<br />\"visibility\": \"private\"," +
                                                 "<br />\"subscription\": \"validation\"<br />}" 
                                                 , required = true) SpaceEntity model) throws Exception {
-    if (model == null || model.getDisplayName() == null || model.getDisplayName().length() < 3 || model.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(model.getDisplayName())) {
+    if (model == null || model.getDisplayName() == null || model.getDisplayName().length() < 3 || model.getDisplayName().length() > 200) {
       throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
@@ -729,7 +728,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     if (space == null || (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    if (model.getDisplayName() != null && (model.getDisplayName().length() < 3 || model.getDisplayName().length() > 200 || !SpaceUtils.isValidSpaceName(model.getDisplayName()))) {
+    if (model.getDisplayName() != null && (model.getDisplayName().length() < 3 || model.getDisplayName().length() > 200)) {
       throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
