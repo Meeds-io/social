@@ -259,7 +259,7 @@ export default {
       };
     },
     bodyClass() {
-      return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'text-truncate-4 has-overflow' || ''}`;
+      return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'text-truncate-4' || ''}`;
     },
     canCollapse() {
       return this.activityTypeExtension?.isCollapsed;
