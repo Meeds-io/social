@@ -101,7 +101,7 @@
           :child="summaryElement"
           :title="summaryTooltip"
           :class="bodyClass"
-          class="caption text-wrap text-break reset-style-box rich-editor-content"
+          class="text-wrap text-break reset-style-box rich-editor-content"
           dir="auto" />
         <v-btn
           v-if="showReadMore"
@@ -146,6 +146,7 @@ export default {
     thumbnail: null,
     sourceLink: null,
     tooltip: null,
+    regularFontSizeOnSummary: false,
     useEllipsisOnSummary: true,
     useEllipsisOnTitle: true,
     fullContent: false,
@@ -259,7 +260,7 @@ export default {
       };
     },
     bodyClass() {
-      return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'text-truncate-4' || ''}`;
+      return `${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'} ${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'text-truncate-4' || ''}`;
     },
     canCollapse() {
       return this.activityTypeExtension?.isCollapsed;
@@ -289,6 +290,7 @@ export default {
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
+      this.regularFontSizeOnSummary = this.activityTypeExtension.regularFontSizeOnSummary === true;
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       if (this.title && this.title.key) {
         this.title = this.$t(this.title.key, this.title.params || {});
