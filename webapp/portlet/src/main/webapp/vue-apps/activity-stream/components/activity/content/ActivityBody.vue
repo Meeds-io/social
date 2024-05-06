@@ -103,6 +103,17 @@ export default {
   methods: {
     retrieveActivityProperties() {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
+      if (this.body &&
+          this.body.indexOf('href') !== -1 &&
+          this.body.indexOf('href') === this.body.lastIndexOf('href')) {
+        const hasEmbeddedHtml = this.activity && this.activity.templateParams && this.activity.templateParams.html;
+        if (hasEmbeddedHtml) {
+          const startLinkIndex =  this.body.indexOf('<a href');
+          const endLinkIndex =  this.body.indexOf('</a>') + ('</a>').length;
+          const link = this.body.substring(startLinkIndex, endLinkIndex);
+          this.body = this.body.replaceAll(link, '');
+        }
+      }
     },
     displayReadMore() {
       const elem = this.$el.querySelector('.rich-editor-content');
