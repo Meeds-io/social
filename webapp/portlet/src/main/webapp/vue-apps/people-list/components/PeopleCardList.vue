@@ -105,6 +105,7 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
     abortController: null,
+    advancedFilter: null,
   }),
   computed: {
     profileActionExtensions() {
@@ -152,7 +153,7 @@ export default {
 
     // To broadcast event about current page supporting profile extensions
     document.dispatchEvent(new CustomEvent('profile-extension-init'));
-    this.$root.$on('reset-advanced-filter', this.searchPeople);
+    this.$root.$on('reset-advanced-filter', this.resetAdvancedFilter);
 
     this.$root.$on('advanced-filter', profileSettings => this.getUsersByadvancedfilter(profileSettings));
 
@@ -181,6 +182,8 @@ export default {
           || this.filter === 'redactor'
           || this.filter === 'publisher') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
+      } else if (this.advancedFilter) {
+        searchUsersFunction = this.$userService.getUsersByAdvancedFilter(this.advancedFilter, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.abortController.signal);
       } else {
         searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal, true);
       }
@@ -211,11 +214,15 @@ export default {
         this.limitToFetch = this.originalLimitToFetch;
       }
     },
+    resetAdvancedFilter() {
+      this.advancedFilter = null;
+      this.searchPeople();
+    },
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
     },
     getUsersByadvancedfilter(profileSettings) {
-
+      this.advancedFilter=profileSettings;
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
       // to finally let only 'limitToFetch' users
