@@ -60,6 +60,8 @@ public class ProfilePropertySettingEntity {
 
   private boolean                            isInternal;
 
+  private Long                               updated;
+
   private boolean                            isGroupSynchronizationEnabled;
 
   private boolean                            toHide;

@@ -20,6 +20,7 @@
 
 package org.exoplatform.social.core.profileproperty.storage;
 
+import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
@@ -51,6 +52,7 @@ public class ProfileSettingStorage {
   }
 
   public ProfilePropertySetting saveProfilePropertySetting(ProfilePropertySetting profilePropertySetting, boolean isNew) {
+    profilePropertySetting.setUpdated(System.currentTimeMillis());
     if (isNew) {
       ProfilePropertySettingEntity newProfilePropertySettingEntity =
                                                                    profilePropertySettingDAO.create(convertToEntity(profilePropertySetting));
@@ -81,6 +83,7 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setHiddenable(profilePropertySetting.isHiddenbale());
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
+    profilePropertySettingEntity.setUpdatedDate(new Date(profilePropertySetting.getUpdated()));
     return profilePropertySettingEntity;
   }
 
@@ -101,6 +104,7 @@ public class ProfileSettingStorage {
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
+    profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdatedDate().getTime());
     return profilePropertySetting;
   }
 
