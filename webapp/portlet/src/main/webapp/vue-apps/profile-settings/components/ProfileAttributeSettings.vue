@@ -89,6 +89,9 @@ export default {
     },
     close() {
       this.$emit('back-to-main-page');
+    },
+    setFilter(filter) {
+      this.filter = filter;
     }
   }
 };
