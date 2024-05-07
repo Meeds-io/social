@@ -67,6 +67,7 @@ export default {
   }),
   created() {
     this.languagesData = [...this.languages].sort((a, b) => a.value.localeCompare(b.value));
+    this.$root.$on('settings-set-filter', this.setFilter);
   },
   computed: {
     filteredSettings(){
@@ -84,6 +85,9 @@ export default {
   methods: {
     close() {
       this.$emit('back-to-main-page');
+    },
+    setFilter(filter) {
+      this.filter = filter;
     }
   }
 };
