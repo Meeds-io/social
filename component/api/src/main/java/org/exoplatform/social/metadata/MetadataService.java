@@ -361,7 +361,7 @@ public interface MetadataService {
 
   /**
    * Retrieves the Metadata item attached to a given {@link Metadata} name, type
-   * and {@link MetadataItem} object type and {@link MetadataItem} space id
+   * and {@link MetadataItem} space ids
    *
    * @param metadataName {@link Metadata} name
    * @param metadataTypeName {@link Metadata} type name
@@ -375,6 +375,27 @@ public interface MetadataService {
                                                                               List<Long> spaceIds,
                                                                               long offset,
                                                                               long limit) {
+    throw new UnsupportedOperationException();
+  }
+  
+  /**
+   * Retrieves the Metadata item attached to a given {@link Metadata} name, type
+   * and {@link MetadataItem} object type and {@link MetadataItem} space ids
+   *
+   * @param metadataName {@link Metadata} name
+   * @param metadataTypeName {@link Metadata} type name
+   * @param objectType objectType {@link MetadataItem} objectType
+   * @param spaceIds spaceId {@link List} of {@link MetadataItem}
+   * @param offset offset of ids to retrieve
+   * @param limit limit of ids to retrieve
+   * @return {@link List} of linked {@link MetadataItem}
+   */
+  default List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
+                                                                                       String metadataTypeName,
+                                                                                       String objectType,
+                                                                                       List<Long> spaceIds,
+                                                                                       long offset,
+                                                                                       long limit) {
     throw new UnsupportedOperationException();
   }
 
@@ -579,4 +600,16 @@ public interface MetadataService {
   List<String> findMetadataNamesByUserAndQuery(String term, String metadataTypeName, Set<Long> audienceIds, long creatorId,
                                                long limit);
 
+
+  /**
+   * Retrieves Metadata items by {@link MetadataFilter}
+   *
+   * @param filter {@link MetadataFilter} metadata filter
+   * @param offset offset of items to retrieve
+   * @param limit limit of items to retrieve
+   * @return {@link List} of linked {@link MetadataItem}}
+   */
+  default List<MetadataItem> getMetadataItemsByFilter(MetadataFilter filter, long offset, long limit) {
+    throw new UnsupportedOperationException();
+  }
 }
