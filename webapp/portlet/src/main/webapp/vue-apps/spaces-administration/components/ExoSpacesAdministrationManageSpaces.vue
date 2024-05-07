@@ -55,35 +55,57 @@
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.visibility.'+space.visibility) }} </td>
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
         <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
-        <td class="center actionContainer d-flex">
-          <a
-            :title="$t('social.spaces.administration.manageSpaces.actions.bind')"
-            v-if="canBindGroupsAndSpaces"
-            class="actionIcon"
-            @click="openSpaceBindingDrawer(space, index)">
-            <i :class="{'bound': space.hasBindings}" class="uiIconSpaceBinding uiIconGroup"></i>
-          </a>
-          <a
-            :title="$t('social.spaces.administration.manageSpaces.actions.edit')"
-            :href="getSpaceLinkSetting(space.displayName,space.groupId)"
-            class="actionIcon"
-            target="_blank">
-            <i class="uiIconEdit uiIconLightGray"></i>
-          </a>
-          <v-btn
-            v-if="resetSpaceHomeLayoutEnabled"
-            :title="$t('social.spaces.administration.manageSpaces.actions.resetHomeLayout')"
-            :loading="restoringHomeLayout === space.id"
-            icon
-            @click="openRestoreLayoutConfirm(space)">
-            <v-icon color="primary" size="18">fas fa-undo</v-icon>
-          </v-btn>
-          <a
-            :title="$t('social.spaces.administration.manageSpaces.actions.delete')"
-            class="actionIcon"
-            @click="deleteSpaceById(space.id, index)">
-            <i class="uiIconDeleteUser uiIconLightGray"></i>
-          </a>
+        <td class="center actionContainer d-flex align-center justify-center">
+          <v-tooltip v-if="canBindGroupsAndSpaces" bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                icon
+                v-bind="attrs"
+                v-on="on"
+                @click="openSpaceBindingDrawer(space, index)">
+                <v-icon :class="space.hasBindings && 'primary--text' || 'icon-default-color'" size="18">fa-users</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t('social.spaces.administration.manageSpaces.actions.bind') }}</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                :href="getSpaceLinkSetting(space.displayName,space.groupId)"
+                target="_blank"
+                icon
+                v-bind="attrs"
+                v-on="on">
+                <v-icon color="primary" size="18">fa-edit</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t('social.spaces.administration.manageSpaces.actions.edit') }}</span>
+          </v-tooltip>
+          <v-tooltip v-if="resetSpaceHomeLayoutEnabled" bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                :loading="restoringHomeLayout === space.id"
+                icon
+                v-bind="attrs"
+                v-on="on"
+                @click="openRestoreLayoutConfirm(space)">
+                <v-icon color="primary" size="18">fa-undo</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t('social.spaces.administration.manageSpaces.actions.resetHomeLayout') }}</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                icon
+                v-bind="attrs"
+                v-on="on"
+                @click="deleteSpaceById(space.id, index)">
+                <v-icon color="primary" size="18">fa-trash</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t('social.spaces.administration.manageSpaces.actions.delete') }}</span>
+          </v-tooltip>
           <extension-registry-components
             name="manageSpaceActions"
             type="manage-space-actions"
@@ -149,24 +171,14 @@
     </exo-spaces-administration-modal>
     <spaces-administration-home-layout-confirm
       v-if="resetSpaceHomeLayoutEnabled" />
-    <v-navigation-drawer
-      id="GroupBindingDrawer"
-      v-model="showGroupBindingForm"
-      absolute
-      right
-      stateless
-      temporary
-      width="500"
-      max-width="100vw">
-      <exo-group-binding-drawer
-        :key="groupBindingDrawerKey"
-        :group-space-bindings="groupSpaceBindings"
-        :bound-groups-loading="bindingsLoading"
-        :space-to-bind="spaceToBind"
-        @close="closeGroupBindingDrawer"
-        @openBindingModal="openBindingModal"
-        @openRemoveBindingModal="openRemoveBindingModal" />
-    </v-navigation-drawer>
+    <exo-group-binding-drawer
+      ref="groupBindingForm"
+      :group-space-bindings="groupSpaceBindings"
+      :bound-groups-loading="bindingsLoading"
+      :space-to-bind="spaceToBind"
+      @close="closeGroupBindingDrawer"
+      @openBindingModal="openBindingModal"
+      @openRemoveBindingModal="openRemoveBindingModal" />
     <exo-spaces-administration-modal
       v-show="showConfirmMessageBindingModal"
       :title="$t('social.spaces.administration.manageSpaces.spaceBindingForm.confirmation.title')"
@@ -197,8 +209,6 @@
   </div>
 </template>
 <script>
-import * as spacesAdministrationServices from '../spacesAdministrationServices';
-
 export default {
   props: {
     canBindGroupsAndSpaces: {
@@ -208,7 +218,6 @@ export default {
   },
   data() {
     return {
-      showGroupBindingForm: false,
       showConfirmMessageModal: false,
       restoringHomeLayout: null,
       resetSpaceHomeLayoutEnabled: eXo.env.portal.SpaceHomeLayoutResetEnabled,
@@ -223,7 +232,6 @@ export default {
       searchText: '',
       maxVisiblePagesButtons: 3,
       maxVisibleButtons: 5,
-      groupBindingDrawerKey: 0,
       showConfirmMessageBindingModal: false,
       showConfirmMessageRemoveBindingModal: false,
       groupsToBind: [],
@@ -290,14 +298,14 @@ export default {
   },
   methods: {
     initSpaces() {
-      return spacesAdministrationServices.getSpaces().then(data =>{
+      return this.$spacesAdministrationServices.getSpaces().then(data =>{
         this.spaces = data.spaces;
         this.totalPages = Math.ceil(data.size / this.$spacesConstants.SPACES_PER_PAGE);
       });
     },
     getSpacesPerPage(currentPage) {
       const offset = ( currentPage - 1 ) * this.$spacesConstants.SPACES_PER_PAGE;
-      spacesAdministrationServices.getSpacesPerPage(offset).then(data =>{
+      this.$spacesAdministrationServices.getSpacesPerPage(offset).then(data =>{
         this.spaces = data.spaces;
         this.currentPage = currentPage;
       }); 
@@ -308,16 +316,16 @@ export default {
       this.spaceToDeleteIndex = index;
     },
     confirmDelete(){
-      spacesAdministrationServices.deleteSpaceById(this.spaceToDeleteId).then(() => {
+      this.$spacesAdministrationServices.deleteSpaceById(this.spaceToDeleteId).then(() => {
         this.spaces.splice(this.spaceToDeleteIndex, 1);
       });
       this.showConfirmMessageModal = false;
     },
     getSpaceLinkSetting(spaceDisplayName,groupId){
-      return spacesAdministrationServices.getSpaceLinkSetting(spaceDisplayName,groupId);
+      return this.$spacesAdministrationServices.getSpaceLinkSetting(spaceDisplayName,groupId);
     },
     searchSpaces(){
-      spacesAdministrationServices.searchSpaces(this.searchText).then(data => {
+      this.$spacesAdministrationServices.searchSpaces(this.searchText).then(data => {
         this.spaces = data.spaces;
         this.totalPages = Math.ceil(data.size / this.$spacesConstants.SPACES_PER_PAGE);
       });
@@ -329,19 +337,19 @@ export default {
       this.spaceToBind = space;
       this.spaceName = space.displayName;
       this.spaceToBindIndex = index;
-      this.showGroupBindingForm = true;
+      this.groupSpaceBindings = [];
+      this.$refs.groupBindingForm.open();
       if (space.hasBindings) {
-        spacesAdministrationServices.getGroupSpaceBindings(space.id).then(data => {
-          this.groupSpaceBindings = data.groupSpaceBindings;
-        }).finally(() => this.bindingsLoading = false);
+        this.$spacesAdministrationServices.getGroupSpaceBindings(space.id)
+          .then(data => this.groupSpaceBindings = data?.groupSpaceBindings)
+          .finally(() => this.bindingsLoading = false);
       } else {
         this.bindingsLoading = false;
       }
     },
     closeGroupBindingDrawer() {
-      this.showGroupBindingForm = false;
+      this.$refs.groupBindingForm.close();
       this.groupSpaceBindings = [];
-      this.forceRerender();
     },
     openBindingModal(groups) {
       this.groupsToBind = groups;
@@ -359,18 +367,17 @@ export default {
       this.showConfirmMessageRemoveBindingModal = false;
     },
     confirmBinding() {
-      spacesAdministrationServices.saveGroupsSpaceBindings(this.spaceToBind.id, this.groupsToBind).finally(() => this.goToBindingReports());
+      this.$spacesAdministrationServices.saveGroupsSpaceBindings(this.spaceToBind.id, this.groupsToBind).finally(() => this.goToBindingReports());
       this.showConfirmMessageBindingModal = false;
     },
     confirmRemoveBinding() {
-      spacesAdministrationServices.removeBinding(this.binding.id).finally(() => this.goToBindingReports());
+      this.$spacesAdministrationServices.removeBinding(this.binding.id).finally(() => this.goToBindingReports());
       this.showConfirmMessageRemoveBindingModal = false;
     },
     goToBindingReports() {
-      this.showGroupBindingForm = false;
+      this.$refs.groupBindingForm.close();
       this.$emit('bindingReports');
       this.navigateTo('administration/home/organisation/spaces');
-      this.forceRerender();
     },
     navigateTo(pagelink) {
       location.href=`${ eXo.env.portal.context }/${ pagelink }` ;
@@ -379,9 +386,6 @@ export default {
       let groupPrettyName = groupName.slice(groupName.lastIndexOf('/') + 1, groupName.length);
       groupPrettyName = groupPrettyName.charAt(0).toUpperCase() + groupPrettyName.slice(1);
       return `${groupPrettyName} (${groupName})`;
-    },
-    forceRerender() {
-      this.groupBindingDrawerKey += 1;
     },
     openRestoreLayoutConfirm(space) {
       this.$root.$emit('close-alert-message');

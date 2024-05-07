@@ -63,8 +63,6 @@
   </v-layout>
 </template>
 <script>
-import * as externalSpacesListService from '../externalSpacesListService.js';
-
 export default {
   props: {
     avatarSize: {
@@ -84,7 +82,7 @@ export default {
   methods: {
     getSpacesRequests() {
       this.spacesRequests = [];
-      externalSpacesListService.getExternalSpacesRequests().then(
+      this.$externalSpacesListService.getExternalSpacesRequests().then(
         (data) => {
           for (let i = 0; i < data.spacesMemberships.length; i++) {
             const spaceRequest = {};
@@ -109,7 +107,7 @@ export default {
       );
     },
     replyInvitationToJoinSpace(spaceId, reply) {
-      externalSpacesListService.replyInvitationToJoinSpace(spaceId, reply)
+      this.$externalSpacesListService.replyInvitationToJoinSpace(spaceId, reply)
         .then(() => {
           if (reply === 'approved') {
             const confirmedRequest = this.spacesRequests.filter(request => request.id === spaceId)[0];
