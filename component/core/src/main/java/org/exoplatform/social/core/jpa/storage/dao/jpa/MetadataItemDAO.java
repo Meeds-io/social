@@ -15,12 +15,7 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -28,7 +23,6 @@ import org.apache.commons.collections.MapUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataFilter;
 
@@ -36,13 +30,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.MapJoin;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
 
@@ -396,67 +383,103 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   }
 
   private Query buildMetadataFilterQuery(MetadataFilter filter, long metadataType) {
-    CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
-    CriteriaQuery<MetadataItemEntity> criteriaQuery = criteriaBuilder.createQuery(MetadataItemEntity.class);
-    Root<MetadataItemEntity> root = criteriaQuery.from(MetadataItemEntity.class);
 
-    List<Predicate> predicates = new ArrayList<>();
-    predicates.add(criteriaBuilder.equal(root.get(METADATA).get(TYPE), metadataType));
-    predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(METADATA).get(NAME), filter.getMetadataName())));
-
-    if (!CollectionUtils.isEmpty(filter.getMetadataObjectTypes())) {
-      predicates.add(criteriaBuilder.and(root.get(OBJECT_TYPE_PARAM).in(filter.getMetadataObjectTypes())));
+    StringBuilder query = new StringBuilder();
+    query.append("""
+        SELECT metadataItems.* FROM SOC_METADATA_ITEMS metadataItems
+        INNER JOIN SOC_METADATAS  ON metadataItems.METADATA_ID = SOC_METADATAS.METADATA_ID\s
+        AND SOC_METADATAS.TYPE=""");
+    query.append(metadataType);
+    query.append(" AND SOC_METADATAS.NAME ='");
+    query.append(filter.getMetadataName());
+    query.append("' ");
+    if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
+      query.append("""
+           INNER JOIN SOC_METADATA_ITEMS_PROPERTIES\s
+          ON metadataItems.METADATA_ITEM_ID = SOC_METADATA_ITEMS_PROPERTIES.METADATA_ITEM_ID\s
+          """);
     }
     if (filter.getCreatorId() != null) {
-      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(CREATOR_ID), filter.getCreatorId())));
+      query.append(" AND metadataItems.CREATOR_ID =");
+      query.append(filter.getCreatorId());
     }
-
-    buildMetadataFilterPropertiesPredicates(criteriaBuilder, root, filter, predicates, metadataType);
-
-    criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
-    criteriaQuery.orderBy(criteriaBuilder.desc(root.get(CREATED_DATE)), criteriaBuilder.desc(root.get(ID)));
-    return getEntityManager().createQuery(criteriaQuery);
+    if (!CollectionUtils.isEmpty(filter.getMetadataObjectTypes())) {
+      String objectTypes = filter.getMetadataObjectTypes().stream()
+                                 .map(s -> "'" + s + "'")
+                                 .collect(Collectors.joining(","));
+      query.append(" AND metadataItems.OBJECT_TYPE in (");
+      query.append(objectTypes);
+      query.append(")");
+    }
+    StringBuilder spaceIdsQuery = new StringBuilder();
+    if (!CollectionUtils.isEmpty(filter.getMetadataSpaceIds())) {
+      String spaceIds = filter.getMetadataSpaceIds().stream()
+                              .map(String::valueOf)
+                              .collect(Collectors.joining(","));
+      spaceIdsQuery.append(" metadataItems.SPACE_ID in (");
+      spaceIdsQuery.append(spaceIds);
+      spaceIdsQuery.append(")");
+    }
+    StringBuilder propertiesQuery = new StringBuilder();
+    if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
+      propertiesQuery.append(" AND ");
+      buildPropertiesQuery(propertiesQuery, filter.getMetadataProperties());
+      StringBuilder combinedPropertiesQuery = new StringBuilder();
+      if (!MapUtils.isEmpty(filter.getCombinedMetadataProperties())) {
+        combinedPropertiesQuery.append(") OR ");
+        buildPropertiesQuery(combinedPropertiesQuery, filter.getCombinedMetadataProperties());
+      }
+      query.append(" AND (");
+      query.append(spaceIdsQuery);
+      query.append(propertiesQuery);
+      query.append(combinedPropertiesQuery);
+      query.append(") )");
+    } else {
+      query.append(" AND ");
+      query.append(spaceIdsQuery);
+    }
+    query.append(" GROUP BY metadataItems.METADATA_ITEM_ID");
+    query.append(" ORDER BY metadataItems.CREATED_DATE DESC, metadataItems.METADATA_ID DESC");
+    return getEntityManager().createNativeQuery(query.toString(), MetadataItemEntity.class);
   }
 
-  private void buildMetadataFilterPropertiesPredicates(CriteriaBuilder criteriaBuilder,
-                                                       Root<?> root,
-                                                       MetadataFilter filter,
-                                                       List<Predicate> predicates,
-                                                       long metadataType) {
-    List<Predicate> propertiesAndSpacePredicates = new ArrayList<>();
-    List<Predicate> combinedPropertiesPredicates = new ArrayList<>();
-
-    if (!CollectionUtils.isEmpty(filter.getMetadataSpaceIds())) {
-      propertiesAndSpacePredicates.add(criteriaBuilder.and(root.get(SPACE_ID).in(filter.getMetadataSpaceIds())));
+  private void buildPropertiesQuery(StringBuilder query, Map<String, String> properties) {
+    Iterator<Map.Entry<String, String>> iterator = properties.entrySet().iterator();
+    Map.Entry<String, String> lastEntry = iterator.next();
+    String lastKey = lastEntry.getKey();
+    String lastValue = lastEntry.getValue();
+    if (properties.size() == 1) {
+      query.append(" ( SOC_METADATA_ITEMS_PROPERTIES.NAME='");
+      query.append(lastKey);
+      query.append("' AND SOC_METADATA_ITEMS_PROPERTIES.VALUE='");
+      query.append(lastValue);
+      query.append("' ");
+      return;
     }
-    if (!MapUtils.isEmpty(filter.getMetadataProperties()) || !MapUtils.isEmpty(filter.getCombinedMetadataProperties())) {
-      Join<MetadataItemEntity, MetadataEntity> metadata = root.join(METADATA, JoinType.INNER);
-      MapJoin<MetadataItemEntity, String, String> metadataItemProp = root.joinMap(PROPERTIES, JoinType.INNER);
-      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(TYPE), metadataType)));
-      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(NAME), filter.getMetadataName())));
+    StringBuilder whereClaus = new StringBuilder();
+    query.append(""" 
+        ( metadataItems.METADATA_ITEM_ID IN (
+        SELECT %s.METADATA_ITEM_ID FROM
+        """.formatted(lastKey + lastValue));
+    query.append(" SOC_METADATA_ITEMS_PROPERTIES %s ".formatted(lastKey + lastValue));
+    whereClaus.append("WHERE %s.NAME = '%s' AND %s.VALUE = '%s' ".formatted(lastKey + lastValue,
+                                                                            lastKey,
+                                                                            lastKey + lastValue,
+                                                                            lastValue));
+    while (iterator.hasNext()) {
+      Map.Entry<String, String> entry = iterator.next();
+      String key = entry.getKey();
+      String value = entry.getValue();
+      query.append("JOIN SOC_METADATA_ITEMS_PROPERTIES %s ".formatted(key + value));
+      query.append("ON %s.METADATA_ITEM_ID ".formatted(lastKey + lastValue));
+      query.append("= %s.METADATA_ITEM_ID ".formatted(key + value));
 
-      if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
-        filter.getMetadataProperties().forEach((key, value) -> {
-          propertiesAndSpacePredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.key(), key)));
-          propertiesAndSpacePredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.value(), value)));
-        });
-      }
-      if (!MapUtils.isEmpty(filter.getCombinedMetadataProperties())) {
-        filter.getCombinedMetadataProperties().forEach((key, value) -> {
-          combinedPropertiesPredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.key(), key)));
-          combinedPropertiesPredicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.value(), value)));
-        });
-      }
+      whereClaus.append(" AND %s.NAME = '%s' AND %s.VALUE = '%s' ".formatted(key + value, key, key + value, value));
+      lastEntry = entry;
+      lastValue = lastEntry.getValue();
+      lastKey = lastEntry.getKey();
     }
-
-    Predicate subPredicate;
-    if (!CollectionUtils.isEmpty(propertiesAndSpacePredicates)) {
-      subPredicate = criteriaBuilder.and(propertiesAndSpacePredicates.toArray(new Predicate[0]));
-      if (!CollectionUtils.isEmpty(combinedPropertiesPredicates)) {
-        Predicate combinedPredicate = criteriaBuilder.and(combinedPropertiesPredicates.toArray(new Predicate[0]));
-        subPredicate = criteriaBuilder.or(subPredicate, combinedPredicate);
-      }
-      predicates.add(criteriaBuilder.and(subPredicate));
-    }
+    query.append(whereClaus);
+    query.append(")");
   }
 }
