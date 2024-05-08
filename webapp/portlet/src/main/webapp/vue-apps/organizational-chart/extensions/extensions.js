@@ -5,7 +5,7 @@ export function registerExtension(title) {
     icon: 'fas fa-sitemap',
     class: 'fas fa-sitemap',
     order: 10,
-    enabled: () => true,
+    enabled: () => !eXo.env.portal.isExternal,
     click: (profile) => {
       const isCurrentUser = profile.id === eXo.env.portal.userIdentityId;
       const chartPage = isCurrentUser && 'dashboard/myteam' || 'organizationalchart';
