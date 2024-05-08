@@ -53,4 +53,6 @@ public class ProfilePropertySetting {
   private boolean isMultiValued;
 
   private Long    id;
+
+  private Long    updated;
 }
