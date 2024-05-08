@@ -1695,6 +1695,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setGroupSynchronized(profilePropertySetting.isGroupSynchronized());
     profilePropertySettingEntity.setRequired(profilePropertySetting.isRequired());
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
+    profilePropertySettingEntity.setUpdated(profilePropertySetting.getUpdated());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
     profilePropertySettingEntity.setHiddenable(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting));
@@ -1768,6 +1769,7 @@ public class EntityBuilder {
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
+    profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdated());
     return profilePropertySetting;
   }
 
