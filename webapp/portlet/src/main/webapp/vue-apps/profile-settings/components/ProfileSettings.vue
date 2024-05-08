@@ -106,7 +106,6 @@ export default {
     this.$root.$on('delete-labels', this.deleteLabels);
     this.$root.$on('move-up-setting', this.moveUpSetting);
     this.$root.$on('move-down-setting', this.moveDownSetting);
-    this.$root.$on('settings-set-filter', this.setFilter);
     this.$root.$on('cancel-edit-add', this.displayNoChangeWarning);
     window.addEventListener('popstate', this.updateSelected);
     setTimeout(() => {
@@ -210,9 +209,6 @@ export default {
     },
     deleteLabels(labels) {
       this.$profileLabelService.deleteLabels(labels);
-    },
-    setFilter(filter) {
-      this.filter = filter;
     },
     moveUpSetting(setting) {
       this.moveSetting(setting, 'up');
