@@ -206,6 +206,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
             .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
             .append(profileSettingsFieldsMapping)
             .append("    \"email\" : {\"type\" : \"keyword\"},\n")
+            .append("    \"connections\" : {\"type\" : \"long\"},\n")
             .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
             .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
