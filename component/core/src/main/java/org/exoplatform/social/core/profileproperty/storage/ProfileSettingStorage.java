@@ -83,6 +83,7 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setHiddenable(profilePropertySetting.isHiddenbale());
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
+    profilePropertySettingEntity.setUpdatedDate(new Date(profilePropertySetting.getUpdated()));
     return profilePropertySettingEntity;
   }
 
@@ -103,6 +104,7 @@ public class ProfileSettingStorage {
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
+    profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdatedDate().getTime());
     return profilePropertySetting;
   }
 

@@ -187,6 +187,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (createdProfilePropertySetting != null) {
       profilePropertySetting.setPropertyType(createdProfilePropertySetting.getPropertyType());
     }
+    profilePropertySetting.setUpdated(System.currentTimeMillis());
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
     try {
       listenerService.broadcast("profile-property-setting-updated", this, profilePropertySetting);
