@@ -22,7 +22,9 @@ export function getSettingValue(contextKey, contextValue, scopeKey, scopeValue, 
     credentials: 'include',
   }).then(resp => {
     if (!resp?.ok) {
-      throw new Error('Response code indicates a server error', resp);
+      if (resp.status !== 404) {
+        throw new Error('Response code indicates a server error', resp);
+      }
     } else {
       return resp.json();
     }
