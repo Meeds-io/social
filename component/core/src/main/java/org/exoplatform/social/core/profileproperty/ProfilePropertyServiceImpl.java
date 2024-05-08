@@ -150,6 +150,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }
+    profilePropertySetting.setUpdated(System.currentTimeMillis());
     profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
     if (profilePropertySetting.getOrder() == null) {
       profilePropertySetting.setOrder(profilePropertySetting.getId());
@@ -176,6 +177,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (createdProfilePropertySetting != null) {
       profilePropertySetting.setPropertyType(createdProfilePropertySetting.getPropertyType());
     }
+    profilePropertySetting.setUpdated(System.currentTimeMillis());
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
   }
 
