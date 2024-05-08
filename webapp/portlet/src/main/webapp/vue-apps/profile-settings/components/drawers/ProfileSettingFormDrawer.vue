@@ -101,7 +101,7 @@
             </v-tooltip>
           </label>
           <label
-            for="propertyType"
+            for="settingParentField"
             class="mx-4 mt-2">
             <span class="font-weight-bold">
               {{ $t('profileSettings.label.parent') }}
@@ -415,7 +415,7 @@ export default {
       this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
       this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
       this.parents = Object.assign([], this.settings);
-      this.parents = this.parents.filter(setting => (setting.id !== this.setting.id && !setting.parentId) && (setting.children?.length || setting.multiValued));
+      this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId && !setting.multiValued);
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = true;
       this.changes= false;
@@ -426,7 +426,7 @@ export default {
       this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
       this.setting = { ...setting};
       this.parents = Object.assign([], this.settings);
-      this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => (setting.id !== this.setting.id && !setting.parentId) &&  (setting.children?.length || setting.multiValued)) || [];
+      this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId && !setting.multiValued) || [];
       this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;
