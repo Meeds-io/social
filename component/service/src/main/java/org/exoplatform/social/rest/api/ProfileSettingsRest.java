@@ -26,6 +26,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.services.log.ExoLogger;
@@ -34,6 +36,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -43,20 +46,29 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Path(VersionResources.VERSION_ONE + "/social/profile/settings")
 @Tag(name = VersionResources.VERSION_ONE + "/social/profile/settings\"", description = "Operations on profile settings")
 public class ProfileSettingsRest implements ResourceContainer {
 
-  private static final Log LOG = ExoLogger.getLogger(ProfileSettingsRest.class);
+  private static final Log             LOG                    = ExoLogger.getLogger(ProfileSettingsRest.class);
 
-  private static final String GROUP_ADMINISTRATORS = "/platform/administrators";
+  private static final String          GROUP_ADMINISTRATORS   = "/platform/administrators";
 
   private final ProfilePropertyService profilePropertyService;
+
+  private static final int             CACHE_IN_SECONDS       = 604800;
+
+  private static final int             CACHE_IN_MILLI_SECONDS = 604800 * 1000;
+
+  private static final CacheControl    CACHE_CONTROL          = new CacheControl();
+
+  static {
+    CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
+    CACHE_CONTROL.setMustRevalidate(true);
+  }
 
   public ProfileSettingsRest(ProfilePropertyService profilePropertyService) {
     this.profilePropertyService = profilePropertyService;
@@ -135,6 +147,45 @@ public class ProfileSettingsRest implements ResourceContainer {
     }catch (Exception ex) {
       LOG.warn("Failed to create a new Property setting named {}",profilePropertySettingEntity.getPropertyName(), ex);
       return Response.status(HTTPStatus.INTERNAL_ERROR).build();
+    }
+  }
+
+  @GET
+  @Path("{name}")
+  @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Get a Profile property setting", method = "GET", description = "Get a Profile property setting.")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized operation") })
+  public Response getPropertySetting(@Context
+  UriInfo uriInfo, @Context Request request,
+                                     @Parameter(description = "The name of the profile property setting object", required = true)
+                                     @PathParam("name")
+                                     String profilePropertySettingName) {
+    if (StringUtils.isBlank(profilePropertySettingName)) {
+      return Response.status(Status.BAD_REQUEST).entity("The name of the profile property setting is missing").build();
+    }
+    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(profilePropertySettingName);
+    if (propertySetting != null) {
+      ProfilePropertySettingEntity profilePropertySettingEntity =
+                                                                EntityBuilder.buildEntityProfilePropertySetting(propertySetting,
+                                                                                                                profilePropertyService,
+                                                                                                                ProfilePropertyService.LABELS_OBJECT_TYPE);
+      String eTagValue = String.valueOf(Objects.hash(profilePropertySettingName, propertySetting.getUpdated()));
+      EntityTag eTag = new EntityTag(eTagValue, true);
+      Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+      if (builder == null) {
+        builder = Response.ok(profilePropertySettingEntity, MediaType.APPLICATION_JSON);
+        builder.tag(eTag);
+        builder.lastModified(new Date(profilePropertySettingEntity.getUpdated()));
+        builder.cacheControl(CACHE_CONTROL);
+      }
+      return builder.build();
+    } else {
+      LOG.warn("Could not find the profile property setting with name : {}", profilePropertySettingName);
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 
