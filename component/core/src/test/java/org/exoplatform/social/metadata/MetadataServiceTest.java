@@ -532,7 +532,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     metadataItems = metadataService.getMetadataItemsByFilter(metadataFilter, 0, 10);
     assertNotNull(metadataItems);
-    assertEquals(2, metadataItems.size());
+    assertEquals(1, metadataItems.size());
   }
 
   public void testGetMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds() throws ObjectAlreadyExistsException {

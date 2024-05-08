@@ -425,11 +425,13 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
       if (StringUtils.isNotBlank(spaceIdsQuery)) {
         propertiesQuery.append(" AND ");
+        buildPropertiesQuery(propertiesQuery, filter.getMetadataProperties());
       }
-      buildPropertiesQuery(propertiesQuery, filter.getMetadataProperties());
       StringBuilder combinedPropertiesQuery = new StringBuilder();
       if (!MapUtils.isEmpty(filter.getCombinedMetadataProperties())) {
-        combinedPropertiesQuery.append(") OR ");
+        if (StringUtils.isNotBlank(spaceIdsQuery)) {
+          combinedPropertiesQuery.append(") OR ");
+        }
         buildPropertiesQuery(combinedPropertiesQuery, filter.getCombinedMetadataProperties());
       }
       query.append(" AND (");
