@@ -448,16 +448,86 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(storedMetadataItem3.getId(), metadataItems.get(0).getId());
     assertEquals(storedMetadataItem.getId(), metadataItems.get(1).getId());
 
+    objectId = "objectId10598";
+    metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    Map<String, String> properties0 = new LinkedHashMap<>();
+    properties0.put("onlyOneKey", "value");
+    name = "testMetadataPropFilter";
+    metadataItemObject.setSpaceId(spaceId);
+    metadataService.createMetadataItem(metadataItemObject, new MetadataKey(type, name, audienceId), properties0, creatorId);
+
+    metadataFilter = new MetadataFilter();
+    metadataFilter.setMetadataName(name);
+    metadataFilter.setMetadataTypeName(type);
+    metadataFilter.setMetadataObjectTypes(List.of(objectType));
+    metadataFilter.setMetadataSpaceIds(List.of(spaceId, space3Id));
+    metadataFilter.setMetadataProperties(properties0);
+    metadataFilter.setCreatorId(creatorId);
+
+    metadataItems = metadataService.getMetadataItemsByFilter(metadataFilter, 0, 10);
+    assertNotNull(metadataItems);
+    assertEquals(1, metadataItems.size());
+
+    objectId = "objectId1058";
+    metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
     Map<String, String> properties1 = new LinkedHashMap<>();
     properties1.put("staged", String.valueOf(true));
+    properties1.put("audience", "all");
+    properties1.put("posted", "true");
+    properties1.put("otherKey", "value");
     name = "testMetadataPropFilter";
+    metadataItemObject.setSpaceId(spaceId);
     metadataService.createMetadataItem(metadataItemObject, new MetadataKey(type, name, audienceId), properties1, creatorId);
+
+    objectId = "objectId1059";
+    metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    Map<String, String> properties2 = new LinkedHashMap<>();
+    properties2.put("staged", String.valueOf(true));
+    properties2.put("audience", "spaces");
+    properties2.put("posted", "false");
+    properties2.put("otherKey", "otherValue");
+    name = "testMetadataPropFilter";
+    metadataService.createMetadataItem(metadataItemObject, new MetadataKey(type, name, audienceId), properties2, creatorId);
     metadataFilter = new MetadataFilter();
     metadataFilter.setMetadataName(name);
     metadataFilter.setMetadataTypeName(type);
     metadataFilter.setMetadataObjectTypes(List.of(objectType));
     metadataFilter.setMetadataSpaceIds(List.of(spaceId, space3Id));
     metadataFilter.setMetadataProperties(properties1);
+    metadataFilter.setCombinedMetadataProperties(properties2);
+    metadataFilter.setCreatorId(creatorId);
+
+    metadataItems = metadataService.getMetadataItemsByFilter(metadataFilter, 0, 10);
+    assertNotNull(metadataItems);
+    assertEquals(2, metadataItems.size());
+
+    objectId = "objectId10585";
+    metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    Map<String, String> properties3 = new LinkedHashMap<>();
+    properties3.put("otherOnlyOneKey", "value");
+    name = "testMetadataPropFilter";
+    metadataItemObject.setSpaceId(spaceId);
+    metadataService.createMetadataItem(metadataItemObject, new MetadataKey(type, name, audienceId), properties3, creatorId);
+
+    objectId = "objectId10586";
+    metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+
+    Map<String, String> properties4 = new LinkedHashMap<>();
+    properties4.put("otherOnlyOneKey", "otherValue");
+    name = "testMetadataPropFilter";
+    metadataItemObject.setSpaceId(spaceId);
+    metadataService.createMetadataItem(metadataItemObject, new MetadataKey(type, name, audienceId), properties4, creatorId);
+
+    metadataFilter = new MetadataFilter();
+    metadataFilter.setMetadataName(name);
+    metadataFilter.setMetadataTypeName(type);
+    metadataFilter.setMetadataObjectTypes(List.of(objectType));
+    metadataFilter.setMetadataProperties(properties3);
+    metadataFilter.setCombinedMetadataProperties(properties4);
     metadataFilter.setCreatorId(creatorId);
 
     metadataItems = metadataService.getMetadataItemsByFilter(metadataFilter, 0, 10);
