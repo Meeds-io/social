@@ -132,6 +132,9 @@ export default {
     unreadMetadata: null,
     isCollapsed: false,
     hasNewComment: false,
+    extensionApp: 'activity',
+    activityActionTypeExtension: 'expand-action-type',
+    activityExpandActionTypes: [],
   }),
   computed: {
     id() {
@@ -182,8 +185,7 @@ export default {
       };
     },
     displayLastCommentsRequiredActions() {
-      return this.activityTypeExtension && this.activityTypeExtension.displayLastCommentsRequiredActions;
-
+      return this.activityExpandActionTypes;
     },
     extendedComponentParams() {
       return {
@@ -255,6 +257,8 @@ export default {
     this.$root.$on('activity-refresh-ui', this.retrieveActivityProperties);
     this.$root.$on('activity-stream-activity-createComment', this.refreshActivityLastComments);
     this.retrieveActivityProperties();
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityActionTypeExtension}-updated`, this.refreshExpandActionTypes);
+    this.refreshExpandActionTypes();
   },
   mounted() {
     if ((this.$root.selectedCommentId || this.$root.replyToComment) && this.activity && this.activity.id === this.$root.selectedActivityId) {
@@ -278,6 +282,7 @@ export default {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);
     this.$root.$off('activity-extension-abort', this.abortSpecificExtension);
     this.$root.$off('activity-stream-activity-createComment', this.refreshActivityLastComments);
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionTypeExtension}-updated`, this.refreshExpandActionTypes);
   },
   methods: {
     retrieveActivityProperties(activityId) {
@@ -327,6 +332,14 @@ export default {
           }
         }
       }
+    },
+    refreshExpandActionTypes() {
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionTypeExtension);
+      extensions.forEach(extension => {
+        if (extension.id) {
+          this.activityExpandActionTypes.push(extension.id);
+        }
+      });
     },
     abortSpecificExtension(activityId) {
       if (activityId === this.activityId) {

@@ -95,7 +95,6 @@ const defaultActivityOptions = {
       || (!activity?.originalActivity && activity?.body?.replaceAll('%', '%25'))
       || ''));
   },
-  displayLastCommentsRequiredActions: ['ActivityComment', 'ActivityReplyToComment', 'EditComment', 'ActivityMention', 'ActivityCommentWatch'],
   canShare: () => true,
 };
 
@@ -114,6 +113,31 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 extensionRegistry.registerExtension('activity', 'type', {
   type: 'default',
   options: defaultActivityOptions,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityComment',
+  rank: 5,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityReplyToComment',
+  rank: 10,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'EditComment',
+  rank: 15,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityMention',
+  rank: 20,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityCommentWatch',
+  rank: 25,
 });
 
 extensionRegistry.registerExtension('activity', 'action', {
