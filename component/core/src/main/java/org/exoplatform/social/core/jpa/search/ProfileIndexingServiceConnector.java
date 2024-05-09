@@ -162,7 +162,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
   public String getMapping() {
     StringBuilder profileSettingsFieldsMapping = new StringBuilder();
     for(ProfilePropertySetting propertySetting : profilePropertyService.getPropertySettings()) {
-      if(!propertySetting.isMultiValued() && propertySetting.getParentId() == null && !profilePropertyService.hasChildProperties(propertySetting) && !"email".equals(propertySetting.getPropertyName())) {
+      if(propertySetting.isVisible() && propertySetting.isEditable() && !propertySetting.isMultiValued() && propertySetting.getParentId() == null && !profilePropertyService.hasChildProperties(propertySetting) && !"email".equals(propertySetting.getPropertyName())) {
         profileSettingsFieldsMapping.append("    \"").append(propertySetting.getPropertyName().equals("fullName")? "name" : propertySetting.getPropertyName()).append("\" : {")
                 .append("      \"type\" : \"text\",")
                 .append("      \"index_options\": \"offsets\",")
@@ -206,6 +206,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
             .append("    \"userName\" : {\"type\" : \"keyword\"},\n")
             .append(profileSettingsFieldsMapping)
             .append("    \"email\" : {\"type\" : \"keyword\"},\n")
+            .append("    \"connections\" : {\"type\" : \"long\"},\n")
             .append("    \"avatarUrl\" : {\"type\" : \"text\", \"index\": false},\n")
             .append("    \"skills\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
             .append("    \"aboutMe\" : {\"type\" : \"text\", \"index_options\": \"offsets\"},\n")
@@ -246,22 +247,23 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
     Date createdDate = new Date(profile.getCreatedTime());
 
-    for (String profilePropertySettingName : profilePropertyService.getPropertySettingNames()) {
-      if (!fields.containsKey(profilePropertySettingName)) {
-        if (profile.getProperty(profilePropertySettingName) != null && profile.getProperty(profilePropertySettingName) instanceof String value) {
+    for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
+      if (profilePropertySetting.isVisible() && profilePropertySetting.isEditable() && !fields.containsKey(profilePropertySetting.getPropertyName())) {
+        // Avoid indexing invisible and not editable properties
+        if (profile.getProperty(profilePropertySetting.getPropertyName()) != null && profile.getProperty(profilePropertySetting.getPropertyName()) instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
             // Avoid having dots in field names in ES, otherwise properties with String values may be converted in Objects in some cases
-            fields.put(profilePropertySettingName.replace(".", "_"), value);
+            fields.put(profilePropertySetting.getPropertyName().replace(".", "_"), value);
           }
         } else {
-          List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(profilePropertySettingName);
+          List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(profilePropertySetting.getPropertyName());
           if (CollectionUtils.isNotEmpty(multiValues)) {
             String value = multiValues.stream()
                 .filter(property -> property.get("value") != null)
                 .map(property -> property.get("value"))
                 .collect(Collectors.joining(",", "", ""));
             if (StringUtils.isNotEmpty(value)) {
-              fields.put(profilePropertySettingName.replace(".", "_"), removeAccents(value));
+              fields.put(profilePropertySetting.getPropertyName().replace(".", "_"), removeAccents(value));
             }
           }
         }
