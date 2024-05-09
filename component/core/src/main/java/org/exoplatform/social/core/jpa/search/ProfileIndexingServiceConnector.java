@@ -164,7 +164,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
   public String getMapping() {
     StringBuilder profileSettingsFieldsMapping = new StringBuilder();
     for(ProfilePropertySetting propertySetting : profilePropertyService.getPropertySettings()) {
-      if(!propertySetting.isMultiValued() && propertySetting.getParentId() == null && !profilePropertyService.hasChildProperties(propertySetting) && !"email".equals(propertySetting.getPropertyName())) {
+      if(propertySetting.isVisible() && propertySetting.isEditable() && !propertySetting.isMultiValued() && propertySetting.getParentId() == null && !profilePropertyService.hasChildProperties(propertySetting) && !"email".equals(propertySetting.getPropertyName())) {
         profileSettingsFieldsMapping.append("    \"").append(propertySetting.getPropertyName().equals("fullName")? "name" : propertySetting.getPropertyName()).append("\" : {")
                 .append("      \"type\" : \"text\",")
                 .append("      \"index_options\": \"offsets\",")
