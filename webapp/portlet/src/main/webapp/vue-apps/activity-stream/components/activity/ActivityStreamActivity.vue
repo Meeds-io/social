@@ -181,8 +181,9 @@ export default {
         },
       };
     },
-    activityCommented() {
-      return this.activityTypeExtension && this.activityTypeExtension.displayLastComments && this.activityTypeExtension.displayLastComments(this.activity);
+    displayLastCommentsRequiredActions() {
+      return this.activityTypeExtension && this.activityTypeExtension.displayLastCommentsRequiredActions;
+
     },
     extendedComponentParams() {
       return {
@@ -240,11 +241,12 @@ export default {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
         const isLikeAction = this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'Like'
             || this.unreadMetadata?.properties?.actionType === 'LikeComment';
-        const isNewActivityCommentAction = this.unreadMetadata?.properties?.actionType === 'ActivityComment'
-            || this.unreadMetadata?.properties?.actionType === 'ActivityReplyToComment'
-            || this.unreadMetadata?.properties?.actionType === 'EditComment';
-        this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityCommentAction;
-        this.hasNewComment = this.activityCommented || this.unreadMetadata && isNewActivityCommentAction;
+        const actionType = this.unreadMetadata?.properties?.actionType || '';
+        const isNewActivityComment = this.displayLastCommentsRequiredActions?.length
+                                     && actionType.length
+                                     && this.displayLastCommentsRequiredActions.indexOf(actionType) >= 0;
+        this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityComment;
+        this.hasNewComment = isNewActivityComment;
       }
     },
   },

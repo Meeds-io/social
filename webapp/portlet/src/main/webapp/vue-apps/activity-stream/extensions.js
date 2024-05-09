@@ -95,6 +95,7 @@ const defaultActivityOptions = {
       || (!activity?.originalActivity && activity?.body?.replaceAll('%', '%25'))
       || ''));
   },
+  displayLastCommentsRequiredActions: ['ActivityComment', 'ActivityReplyToComment', 'EditComment', 'ActivityMention', 'ActivityCommentWatch'],
   canShare: () => true,
 };
 
