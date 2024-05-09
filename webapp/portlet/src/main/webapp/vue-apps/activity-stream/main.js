@@ -62,6 +62,7 @@ export function init(maxFileSize) {
           selectedActivityId: null,
           selectedCommentId: null,
           replyToComment: false,
+          displayCommentActionsType: []
         },
         created() {
           this.replyToComment = window.location.hash.includes('#comment-reply');
