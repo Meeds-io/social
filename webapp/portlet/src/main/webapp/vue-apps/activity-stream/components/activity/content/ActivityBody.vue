@@ -12,7 +12,7 @@
     <v-btn
       v-if="collapsed && !fullContent && readMore"
       :aria-label="$t('UIActivity.label.seeMore')"
-      class="d-flex ms-auto mb-0 pb-2px pl-0 pr-0 height-auto position-absolute r-0 b-0 linear-gradient-white-background hover-underline"
+      class="d-flex ms-auto mb-0 pb-2px pl-2 pr-0 height-auto position-absolute r-0 b-0 linear-gradient-white-background hover-underline"
       color="blue"
       text
       plain
@@ -103,17 +103,6 @@ export default {
   methods: {
     retrieveActivityProperties() {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
-      if (this.body &&
-          this.body.indexOf('href') !== -1 &&
-          this.body.indexOf('href') === this.body.lastIndexOf('href')) {
-        const hasEmbeddedHtml = this.activity && this.activity.templateParams && this.activity.templateParams.html;
-        if (hasEmbeddedHtml) {
-          const startLinkIndex =  this.body.indexOf('<a href');
-          const endLinkIndex =  this.body.indexOf('</a>') + ('</a>').length;
-          const link = this.body.substring(startLinkIndex, endLinkIndex);
-          this.body = this.body.replaceAll(link, '');
-        }
-      }
     },
     displayReadMore() {
       const elem = this.$el.querySelector('.rich-editor-content');

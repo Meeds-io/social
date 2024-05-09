@@ -130,7 +130,7 @@ export default {
     initialized: false,
     noExtension: false,
     unreadMetadata: null,
-    isRead: false,
+    isCollapsed: false,
     hasNewComment: false,
   }),
   computed: {
@@ -191,7 +191,7 @@ export default {
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
         loading: this.loading,
-        collapsed: !this.isRead,
+        collapsed: !this.isCollapsed,
       };
     },
     init() {
@@ -239,12 +239,12 @@ export default {
       if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
         const isLikeAction = this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'Like'
-            || this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'LikeComment';
-        const isNewActivityCommentAction = this.unreadMetadata && this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityComment'
-            || this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'ActivityReplyToComment'
-            || this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'EditComment';
-        this.isRead = this.unreadMetadata && !isLikeAction && !isNewActivityCommentAction;
-        this.hasNewComment = this.unreadMetadata && isNewActivityCommentAction || this.activityCommented;
+            || this.unreadMetadata?.properties?.actionType === 'LikeComment';
+        const isNewActivityCommentAction = this.unreadMetadata?.properties?.actionType === 'ActivityComment'
+            || this.unreadMetadata?.properties?.actionType === 'ActivityReplyToComment'
+            || this.unreadMetadata?.properties?.actionType === 'EditComment';
+        this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityCommentAction;
+        this.hasNewComment = this.activityCommented || this.unreadMetadata && isNewActivityCommentAction;
       }
     },
   },
