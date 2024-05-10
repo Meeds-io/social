@@ -28,9 +28,9 @@
         class="d-inline-block">
         <v-btn
           v-if="!isHidden"
-          :disabled="!isHiddenable"
+          :disabled="!isHiddenable || !property.visible"
           icon
-          :aria-label="$t('profileContactInformation.hide.property.label')"
+          :aria-label="unhiddenableOrHiddenByAdminMessage"
           @click="hideProperty">
           <v-icon
             size="18"
@@ -53,6 +53,9 @@
     </template>
     <span v-if="!isHiddenable && !isNew">
       {{ $t('profileContactInformation.hiddenable.disabled') }}
+    </span>
+    <span v-else-if="!property.visible && !isNew">
+      {{ $t('profileContactInformation.invisible.property.cant.be.hidden.label') }}
     </span>
     <span v-else-if="!isHidden && !isNew">
       {{ $t('profileContactInformation.hide.property.label') }}
@@ -83,6 +86,9 @@ export default {
     },
     isNew() {
       return this.property?.isNew;
+    },
+    unhiddenableOrHiddenByAdminMessage() {
+      return !this.property?.visible ? this.$t('profileContactInformation.invisible.property.cant.be.hidden.label') : this.$t('profileContactInformation.hide.property.label');
     }
   },
   methods: {
