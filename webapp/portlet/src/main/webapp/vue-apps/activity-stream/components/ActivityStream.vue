@@ -125,7 +125,7 @@ export default {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionTypeExtension);
       extensions.forEach(extension => {
         if (extension.id) {
-          this.$root.displayCommentActionsType.push(extension.id);
+          this.$root.displayCommentActionTypes.push(extension.id);
         }
       });
     },

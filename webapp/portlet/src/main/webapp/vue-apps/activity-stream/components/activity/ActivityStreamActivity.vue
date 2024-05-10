@@ -241,9 +241,9 @@ export default {
         const isLikeAction = this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'Like'
             || this.unreadMetadata?.properties?.actionType === 'LikeComment';
         const actionType = this.unreadMetadata?.properties?.actionType || '';
-        const isNewActivityComment = this.$root.displayCommentActionsType?.length
+        const isNewActivityComment = this.$root.displayCommentActionTypes?.length
                                      && actionType.length
-                                     && this.$root.displayCommentActionsType.indexOf(actionType) >= 0;
+                                     && this.$root.displayCommentActionTypes.indexOf(actionType) >= 0;
         this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityComment;
         this.hasNewComment = isNewActivityComment;
       }
