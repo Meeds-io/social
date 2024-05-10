@@ -41,7 +41,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
-          :display-comments="activityCommented"
+          :display-comments="showLastComments"
           class="px-4" />
       </template>
     </template>
@@ -78,7 +78,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
-          :display-comments="activityCommented"
+          :display-comments="showLastComments"
           class="px-4" />
       </template>
     </template>
@@ -130,7 +130,7 @@ export default {
     initialized: false,
     noExtension: false,
     unreadMetadata: null,
-    isRead: false,
+    isCollapsed: false,
     hasNewComment: false,
   }),
   computed: {
@@ -181,6 +181,9 @@ export default {
         },
       };
     },
+    displayLastCommentsRequiredActions() {
+      return this.activityExpandActionTypes;
+    },
     extendedComponentParams() {
       return {
         activity: this.activity,
@@ -188,7 +191,7 @@ export default {
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
         loading: this.loading,
-        collapsed: !this.isRead,
+        collapsed: !this.isCollapsed,
       };
     },
     init() {
@@ -206,7 +209,7 @@ export default {
     spaceId() {
       return this.activity?.activityStream?.space?.id || '';
     },
-    activityCommented() {
+    showLastComments() {
       return this.hasNewComment || this.isActivityDetail;
     }
   },
@@ -235,14 +238,14 @@ export default {
     initialized() {
       if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
-        const isLikeAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'Like'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'LikeComment';
-        const isNewCommentAction = this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityComment'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'ActivityReplyToComment'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'EditComment'
-            || this.activity?.metadatas?.unread[0]?.properties?.actionType === 'GamificationActionAnnouncedNotification';
-        this.isRead = this.unreadMetadata && !isLikeAction && !isNewCommentAction;
-        this.hasNewComment = this.unreadMetadata && isNewCommentAction;
+        const isLikeAction = this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'Like'
+            || this.unreadMetadata?.properties?.actionType === 'LikeComment';
+        const actionType = this.unreadMetadata?.properties?.actionType || '';
+        const isNewActivityComment = this.$root.displayCommentActionTypes?.length
+                                     && actionType.length
+                                     && this.$root.displayCommentActionTypes.indexOf(actionType) >= 0;
+        this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityComment;
+        this.hasNewComment = isNewActivityComment;
       }
     },
   },
