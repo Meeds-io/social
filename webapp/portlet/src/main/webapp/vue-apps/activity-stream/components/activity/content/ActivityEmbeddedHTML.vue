@@ -2,7 +2,7 @@
   <div
     v-if="embeddedHTML"
     :style="parentStyle"
-    class="d-flex flex-column flex activity-embedded-box mx-auto">
+    class="d-flex flex-column flex activity-embedded-box mt-3 mx-auto">
     <div
       v-if="elementReady"
       v-html="embeddedHTML"

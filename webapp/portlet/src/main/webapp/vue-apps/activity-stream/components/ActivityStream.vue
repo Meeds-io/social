@@ -42,6 +42,7 @@ export default {
     activityTypeExtension: 'type',
     activityActionExtension: 'action',
     commentActionExtension: 'comment-action',
+    activityActionTypeExtension: 'expand-action-type',
   }),
   computed: {
     commentTypes() {
@@ -65,6 +66,8 @@ export default {
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
     document.addEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
     document.addEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, this.refreshCommentActions);
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityActionTypeExtension}-updated`, this.refreshExpandActionTypes);
+    this.refreshExpandActionTypes();
     this.refreshActivityTypes();
     this.refreshActivityActions();
     this.refreshCommentActions();
@@ -115,6 +118,14 @@ export default {
       extensions.forEach(extension => {
         if (extension.id) {
           this.$set(this.commentActions, extension.id, extension);
+        }
+      });
+    },
+    refreshExpandActionTypes() {
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityActionTypeExtension);
+      extensions.forEach(extension => {
+        if (extension.id) {
+          this.$root.displayCommentActionTypes.push(extension.id);
         }
       });
     },
