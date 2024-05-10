@@ -38,7 +38,7 @@
           <span class="d-flex uiIconGroup"></span>
         </v-btn>
         <v-spacer />
-        <div v-if="isMobile && !isSameUser">
+        <div v-if="isMobile">
           <v-icon
             size="14"
             class="my-1"
@@ -230,8 +230,13 @@ export default {
   },
   methods: {
     openBottomMenu() {
-      this.$root.$emit('open-people-compact-card-options-drawer',
-        this.user, [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
+      if (!this.isSameUser) {
+        this.$root.$emit('open-people-compact-card-options-drawer',
+          this.user, [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
+      } else {
+        this.$root.$emit('open-people-compact-card-options-drawer',
+          this.user, [...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
+      }
     }
   },
 };
