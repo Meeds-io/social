@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.api.settings.SettingService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
@@ -97,6 +98,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private LocaleConfigService          localeConfigService;
 
+  private SettingService               settingService;
+
   private Identity                     rootIdentity;
 
   private Identity                     johnIdentity;
@@ -128,6 +131,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     passwordRecoveryService = getContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
+    settingService = getContainer().getComponentInstanceOfType(SettingService.class);
     rootIdentity = createIdentity("root");
     johnIdentity = createIdentity("john");
     maryIdentity = createIdentity("mary");
@@ -153,7 +157,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                       imageThumbnailService,
                                                                       profilePropertyService,
                                                                       passwordRecoveryService,
-                                                                      localeConfigService);
+                                                                      localeConfigService,
+                                                                      settingService);
     registry(userRestResourcesV1);
 
     // Create profile properties
@@ -307,7 +312,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                     imageThumbnailService,
                                                                     profilePropertyService,
                                                                     passwordRecoveryService,
-                                                                    localeConfigService);
+                                                                    localeConfigService,
+                                                                    settingService);
     registry(userRestResources);
 
     //when
