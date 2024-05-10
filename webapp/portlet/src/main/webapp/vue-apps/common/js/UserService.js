@@ -442,7 +442,7 @@ export function getUserCardSettings() {
     credentials: 'include',
   }).then((resp) => {
     if (!resp || !resp.ok) {
-      throw new Error('Error when updating users');
+      throw new Error('Error while getting user card settings');
     } else {
       return resp.json();
     }

@@ -1540,8 +1540,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @Operation(
-          summary = "Gets the filed settings of a user card",
-          description = "Gets the filed settings of a user card",
+          summary = "Gets the field settings of a user card",
+          description = "Gets the field settings of a user card",
           method = "GET")
   @ApiResponses(value = {
           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
