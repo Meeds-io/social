@@ -435,3 +435,16 @@ export function multiSelectAction(action, selectedUsers) {
     }
   });
 }
+
+export function getUserCardSettings() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/userCardSettings`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (!resp || !resp.ok) {
+      throw new Error('Error while getting user card settings');
+    } else {
+      return resp.json();
+    }
+  });
+}
