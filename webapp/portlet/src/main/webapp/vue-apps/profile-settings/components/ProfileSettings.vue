@@ -250,22 +250,8 @@ export default {
       return this.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
         this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
     },
-    getCardSetting(settingKey) {
-      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
-        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
-    },
     getSavedUserCardSettings() {
-      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
-        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
-          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
-            this.savedCardSettings = {
-              firstField: firstFieldSetting?.value,
-              secondField: secondFieldSetting?.value,
-              thirdField: thirdFieldSetting?.value
-            };
-          });
-        });
-      });
+      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
     },
     saveUserCardSettings(firstField, secondField, thirdField) {
       this.isSavingCardSettings = true;
