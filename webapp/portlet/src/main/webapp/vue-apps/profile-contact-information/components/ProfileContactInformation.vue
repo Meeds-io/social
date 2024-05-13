@@ -97,11 +97,6 @@ export default {
     user: null,
     excludedSearchProps: [],
     settings: [],
-    userCardSettingsContextKey: 'GLOBAL',
-    userCardSettingScopeKey: 'GLOBAL',
-    userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
-    userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
-    userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
     userCardSettings: null
   }),
   computed: {
@@ -150,22 +145,8 @@ export default {
           this.settings = settings?.settings || [];
         });
     },
-    getCardSetting(settingKey) {
-      return this.$settingService.getSettingValue(this.userCardSettingsContextKey, '',
-        this.userCardSettingScopeKey, 'UserCardSettings', settingKey);
-    },
     getSavedUserCardSettings() {
-      return this.getCardSetting(this.userCardFirstFieldSettingKey).then((firstFieldSetting) => {
-        return this.getCardSetting(this.userCardSecondFieldSettingKey).then((secondFieldSetting) => {
-          return this.getCardSetting(this.userCardThirdFieldSettingKey).then((thirdFieldSetting) => {
-            this.userCardSettings = {
-              firstField: firstFieldSetting?.value,
-              secondField: secondFieldSetting?.value,
-              thirdField: thirdFieldSetting?.value
-            };
-          });
-        });
-      });
+      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
     },
     canShowProperty(property) {
       return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
