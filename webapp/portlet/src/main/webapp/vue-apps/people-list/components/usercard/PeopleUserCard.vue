@@ -49,14 +49,14 @@
                 v-on="on"
                 :title="$t('peopleList.label.openUserMenu')"
                 class="d-block grey darken-1 mt-2 ms-auto me-2"
-                width="21"
-                height="21"
+                width="24"
+                height="24"
                 icon
                 text
                 @click.prevent>
                 <v-icon
                   class="white--text"
-                  size="13">
+                  size="12">
                   fas fa-ellipsis-v
                 </v-icon>
               </v-btn>
