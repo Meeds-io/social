@@ -21,14 +21,14 @@
   <v-btn
     :ripple="false"
     :title="title"
-    class="white"
-    width="21"
-    height="21"
+    class="userRole"
+    width="24"
+    height="24"
     icon
     @click.stop.prevent>
     <v-icon
       class="primary--text"
-      size="10">
+      size="12">
       {{ icon }}
     </v-icon>
   </v-btn>
