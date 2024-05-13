@@ -52,7 +52,7 @@
     <user-card-settings-drawer
       ref="userCardSettings"
       :user="user"
-      :settings="filteredSettings"
+      :settings="userCardFilteredFieldSettings"
       :is-saving-settings="isSavingCardSettings"
       :saved-settings="savedCardSettings"
       @closed="setMainPageSelected"
@@ -127,6 +127,14 @@ export default {
       return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
                                                                   && !setting?.children?.length
                                                                   && !this.excludedSettingsProp?.includes(setting.propertyName))
+        .map(setting => {
+          return {label: this.getResolvedName(setting), value: setting.propertyName};
+        });
+    },
+    userCardFilteredFieldSettings() {
+      return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
+                                                                  && !setting?.children?.length
+                                                                  && !this.unHiddenableProperties?.includes(setting.propertyName))
         .map(setting => {
           return {label: this.getResolvedName(setting), value: setting.propertyName};
         });
