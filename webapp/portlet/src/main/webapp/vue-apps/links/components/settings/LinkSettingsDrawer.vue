@@ -289,7 +289,7 @@ export default {
     showHeader: false,
     seeMore: false,
     valid: false,
-    maxHeaderLength: 25,
+    maxHeaderLength: 50,
     settingsHeader: null,
   }),
   computed: {
