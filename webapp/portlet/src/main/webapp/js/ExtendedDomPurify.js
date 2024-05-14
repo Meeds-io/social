@@ -49,9 +49,15 @@
       ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder', 'scrolling', 'v-identity-popover'],
     });
     DOMPurify.addHook('afterSanitizeAttributes', function(node) {
-      // add noopener attribute to external links to eliminate vulnerabilities
+      const nodeText = node.textContent;
       if ('target' in node) {
+        // add noopener attribute to external links to eliminate vulnerabilities
         node.setAttribute('rel', 'noopener');
+        // add text ellipsis when link length is up to 75 characters
+        if (nodeText && nodeText.length > 75) {
+          node.setAttribute('title', nodeText);
+          node.textContent = node.textContent.substring(0,75)+'...';
+        }
       }
     });
     DOMPurify.addHook('uponSanitizeElement', function(node) {
