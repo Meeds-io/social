@@ -56,6 +56,7 @@
         // add text ellipsis when link length is up to 75 characters
         if (nodeText && nodeText.length > 75) {
           node.setAttribute('title', nodeText);
+          node.setAttribute('Aria-label', nodeText);
           node.textContent = node.textContent.substring(0,75)+'...';
         }
       }
