@@ -1,8 +1,21 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
 package org.exoplatform.social.core.listeners;
 
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
+import io.meeds.common.ContainerTransactional;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
@@ -29,29 +42,25 @@ public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePrope
   }
 
   @Override
+  @ContainerTransactional
   public void onEvent(Event<ProfilePropertyService, ProfilePropertySetting> event) throws Exception {
     ProfilePropertySetting propertySetting = event.getData();
     if ("manager".equalsIgnoreCase(event.getData().getPropertyName())) {
-      RequestLifeCycle.begin(PortalContainer.getInstance());
-      try {
-        for(String pageRefKey : orgChartPages) {
-          PageKey pageKey = PageKey.parse(pageRefKey);
-          PageContext pageContext = pageStorage.loadPage(pageKey);
-          if (pageContext != null) {
-            PageState page = pageContext.getState();
-            PageState pageState = new PageState(page.getDisplayName(),
-                    page.getDescription(),
-                    page.getShowMaxWindow(),
-                    page.getFactoryId(),
-                    propertySetting.isActive() ? ALL_USERS_PERMISSION : List.of(userACL.getSuperUser()),
-                    page.getEditPermission(),
-                    page.getMoveAppsPermissions(),
-                    page.getMoveContainersPermissions());
-            pageStorage.savePage(new PageContext(pageKey, pageState));
-          }
+      for(String pageRefKey : orgChartPages) {
+        PageKey pageKey = PageKey.parse(pageRefKey);
+        PageContext pageContext = pageStorage.loadPage(pageKey);
+        if (pageContext != null) {
+          PageState page = pageContext.getState();
+          PageState pageState = new PageState(page.getDisplayName(),
+                  page.getDescription(),
+                  page.getShowMaxWindow(),
+                  page.getFactoryId(),
+                  propertySetting.isActive() ? ALL_USERS_PERMISSION : List.of(userACL.getSuperUser()),
+                  page.getEditPermission(),
+                  page.getMoveAppsPermissions(),
+                  page.getMoveContainersPermissions());
+          pageStorage.savePage(new PageContext(pageKey, pageState));
         }
-      } finally {
-        RequestLifeCycle.end();
       }
     }
   }
