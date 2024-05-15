@@ -21,9 +21,11 @@ public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePrope
   public static final List<String> orgChartPages = List.of("portal::mycraft::myteam", "portal::global::organizationalchart");
   private static final List<String> ALL_USERS_PERMISSION = List.of("*:/platform/users");
   private final PageStorage pageStorage;
+  private final UserACL userACL;
 
-  public ManagerPropertySettingUpdatedListener(PageStorage pageStorage) {
+  public ManagerPropertySettingUpdatedListener(PageStorage pageStorage, UserACL userACL) {
     this.pageStorage = pageStorage;
+    this.userACL = userACL;
   }
 
   @Override
@@ -37,7 +39,6 @@ public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePrope
           PageContext pageContext = pageStorage.loadPage(pageKey);
           if (pageContext != null) {
             PageState page = pageContext.getState();
-            UserACL userACL = CommonsUtils.getService(UserACL.class);
             PageState pageState = new PageState(page.getDisplayName(),
                     page.getDescription(),
                     page.getShowMaxWindow(),
