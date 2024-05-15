@@ -33,6 +33,7 @@ import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 
 import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.picocontainer.Startable;
 
@@ -54,6 +55,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private final SettingService                       settingService;
 
   private final IndexingService                      indexingService;
+
+  private final ListenerService                      listenerService;
 
   private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES       = "synchronizationDisabledProperties";
 
@@ -77,10 +80,12 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
                                     SettingService settingService,
-                                    IndexingService indexingService) {
+                                    IndexingService indexingService,
+                                    ListenerService listenerService) {
     this.profileSettingStorage = profileSettingStorage;
     this.settingService = settingService;
     this.indexingService = indexingService;
+    this.listenerService = listenerService;
     if (params != null) {
       try {
         synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES)
@@ -156,6 +161,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
       profilePropertySetting.setOrder(profilePropertySetting.getId());
       profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
     }
+    try {
+      listenerService.broadcast("profile-property-setting-created", this, profilePropertySetting);
+    } catch (Exception e) {
+      LOG.error("An error occurred when broadcasting the creation event of the property setting {}", profilePropertySetting.getPropertyName(), e);
+    }
     return profilePropertySetting;
   }
 
@@ -179,6 +189,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     }
     profilePropertySetting.setUpdated(System.currentTimeMillis());
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
+    try {
+      listenerService.broadcast("profile-property-setting-updated", this, profilePropertySetting);
+    } catch (Exception e) {
+      LOG.error("An error occurred when broadcasting the update event of the property setting {}", profilePropertySetting.getPropertyName(), e);
+    }
   }
 
   @Override
