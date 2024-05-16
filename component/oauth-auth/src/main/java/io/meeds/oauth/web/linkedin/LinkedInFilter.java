@@ -40,7 +40,7 @@ import io.meeds.oauth.web.OAuthProviderFilter;
 
 public class LinkedInFilter extends OAuthProviderFilter<LinkedinAccessTokenContext> {
   private static String URL_CURRENT_PROFILE_USER       =
-                                                 "https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams))";
+                                                 "https://api.linkedin.com/v2/userinfo";
 
   private static String URL_CURRENT_PROFILE_USER_EMAIL =
                                                        "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))";
@@ -61,37 +61,21 @@ public class LinkedInFilter extends OAuthProviderFilter<LinkedinAccessTokenConte
     LinkedinAccessTokenContext accessTokenContext = interactionState.getAccessTokenContext();
 
     OAuthRequest oauthRequest = new OAuthRequest(Verb.GET, URL_CURRENT_PROFILE_USER);
-    OAuthRequest oauthRequest1 = new OAuthRequest(Verb.GET, URL_CURRENT_PROFILE_USER_EMAIL);
     accessTokenContext.oauth20Service.signRequest(accessTokenContext.accessToken, oauthRequest);
-    accessTokenContext.oauth20Service.signRequest(accessTokenContext.accessToken, oauthRequest1);
-    oauthRequest.addHeader("x-li-format", "json");
-    oauthRequest.addHeader("Accept-Language", "ru-RU");
-    oauthRequest1.addHeader("x-li-format", "json");
-    oauthRequest1.addHeader("Accept-Language", "ru-RU");
+
     try {
       Response responses = accessTokenContext.oauth20Service.execute(oauthRequest);
       String body = responses.getBody();
       JSONObject json = new JSONObject(body);
-      Response responses1 = accessTokenContext.oauth20Service.execute(oauthRequest1);
-      String body1 = responses1.getBody();
-      JSONObject json1 = new JSONObject(body1);
-      String id = json.getString("id");
-      String firstName = json.getString("firstName").substring(23, json.getString("firstName").indexOf("\"},"));
-      String lastName = json.getString("lastName").substring(23, json.getString("lastName").indexOf("\"},"));
-      String displayName = firstName + " " + lastName;
-      String email = json1.getString("elements").substring(71, json1.getString("elements").indexOf("\"}}]"));
+      String firstName = json.getString("given_name");
+      String lastName = json.getString("family_name");
+      String displayName = json.getString("name");
+      String email = json.getString("email");
 
-      String avatar = json.optString("pictureUrl");
-      JSONObject profilePictures = json.optJSONObject("pictureUrls");
-      if (profilePictures != null) {
-        JSONArray arr = profilePictures.optJSONArray("values");
-        if (arr != null && arr.length() > 0) {
-          avatar = arr.getString(0);
-        }
-      }
+      String avatar = json.getString("picture");
 
       OAuthPrincipal<LinkedinAccessTokenContext> principal =
-                                                           new OAuthPrincipal<LinkedinAccessTokenContext>(id,
+                                                           new OAuthPrincipal<LinkedinAccessTokenContext>(null,
                                                                                                           firstName,
                                                                                                           lastName,
                                                                                                           displayName,
