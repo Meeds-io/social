@@ -5,7 +5,8 @@
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    class="d-flex flex-no-wrap activity-thumbnail-box">
+    :class="!isMobile && 'd-flex flex-no-wrap' || 'd-block'"
+    class="activity-thumbnail-box card-border-radius border-color mb-4 light-grey-background hover-background">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
         <v-avatar
@@ -50,10 +51,9 @@
         v-if="supportsThumbnail"
         :min-height="thumbnailHeight"
         :height="thumbnailHeight"
-        :min-width="thumbnailWidth"
-        :width="thumbnailWidth"
-        :class="thumbnailNoBorder || 'border-color'"
-        class="border-box-sizing align-start my-4 me-4"
+        :min-width="!isMobile && thumbnailWidth || '100%'"
+        :width="!isMobile && thumbnailWidth || '100%'"
+        class="border-box-sizing align-start me-2"
         rounded
         eager
         tile>
@@ -61,6 +61,7 @@
           v-if="thumbnail"
           :src="thumbnail"
           :alt="title"
+          :class="!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius'"
           class="object-fit-cover my-auto"
           loading="lazy">
         <v-icon
@@ -89,7 +90,9 @@
           {{ defaultIconClass }}
         </v-icon>
       </v-avatar>
-      <div class="my-4 position-relative">
+      <div
+        :class="isMobile && 'mx-3' || ''"
+        class="my-2 position-relative">
         <dynamic-html-element
           v-if="title"
           :child="titleElement"
@@ -208,19 +211,19 @@ export default {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
     },
     thumbnailHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.height || '150px';
+      return this.thumbnailProperties && this.thumbnailProperties.height || '100px';
     },
     thumbnailWidth() {
-      return this.thumbnailProperties && this.thumbnailProperties.width || '252px';
+      return this.thumbnailProperties && this.thumbnailProperties.width || '175px';
     },
     thumbnailNoBorder() {
       return this.thumbnailProperties && this.thumbnailProperties.noBorder;
     },
     iconHeight() {
-      return this.defaultIcon && this.defaultIcon.height || '150px';
+      return this.defaultIcon && this.defaultIcon.height || '100px';
     },
     iconWidth() {
-      return this.defaultIcon && this.defaultIcon.width || '90px';
+      return this.defaultIcon && this.defaultIcon.width || '175px';
     },
     iconNoBorder() {
       return this.defaultIcon && this.defaultIcon.noBorder;
@@ -267,7 +270,10 @@ export default {
     },
     showReadMore() {
       return this.collapsed && !this.fullContent && this.canCollapse && this.displayReadMoreButton;
-    }
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.smAndDown;
+    },
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
