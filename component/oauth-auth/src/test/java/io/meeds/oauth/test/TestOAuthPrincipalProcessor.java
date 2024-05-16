@@ -106,7 +106,7 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
 
   public void testLinkedInGenerateGateInUser() {
     OAuthProviderType providerType = new OAuthProviderType("LINKEDIN", true, "", null, null, "", "");
-    OAuthPrincipal principal = new OAuthPrincipal("randomString",
+    OAuthPrincipal principal = new OAuthPrincipal("",
                                                   "firstName",
                                                   "lastName",
                                                   "displayName",
@@ -118,7 +118,7 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
     User user = principalProcessor.convertToGateInUser(principal);
 
     assertNotNull(user);
-    assertEquals("linkedin_user", user.getUserName());
+    assertEquals(null, user.getUserName());
     assertEquals("linkedin_user@localhost.com", user.getEmail());
     assertEquals("firstName", user.getFirstName());
     assertEquals("lastName", user.getLastName());
@@ -129,7 +129,7 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
 
     String apiKey = "86joj41np68x05";
     String apiSecret = "B6Sz1fAUPGxRSraC";
-    String scope = "r_liteprofile r_emailaddress w_member_social";
+    String scope = "profile email";
     String secretState = "secret999999";
     String redirectURL = "http://127.0.0.1:8080/portal/linkedinAuth";
     HttpServletRequest request = mock(HttpServletRequest.class);
@@ -146,7 +146,7 @@ public class TestOAuthPrincipalProcessor extends AbstractKernelTest {
     String state = linkedinProcessor.processOAuthInteraction(request, response).getState().name();
     assertEquals("AUTH", state);
     String redirect = linkedinProcessor.oAuth20Service.getAuthorizationUrl(secretState);
-    assertEquals("https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86joj41np68x05&redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fportal%2FlinkedinAuth&scope=r_liteprofile%20r_emailaddress%20w_member_social&state=secret999999",
+    assertEquals("https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86joj41np68x05&redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fportal%2FlinkedinAuth&scope=profile%20email&state=secret999999",
                  redirect);
 
   }
