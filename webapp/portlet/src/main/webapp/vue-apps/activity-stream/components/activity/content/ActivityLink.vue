@@ -5,8 +5,7 @@
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    :class="!isMobile && 'd-flex flex-no-wrap' || 'd-block'"
-    class="activity-thumbnail-box card-border-radius border-color mb-4 light-grey-background hover-background">
+    class="d-block d-md-flex flex-md-nowrap activity-thumbnail-box card-border-radius border-color mb-4 light-grey-background hover-background">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
         <v-avatar
