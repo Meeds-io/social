@@ -32,7 +32,8 @@ import java.util.List;
 public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePropertyService, ProfilePropertySetting> {
 
   public static final List<String> orgChartPages = List.of("portal::mycraft::myteam", "portal::global::organizationalchart");
-  private static final List<String> ALL_USERS_PERMISSION = List.of("*:/platform/users");
+  private static final String ALL_USERS_PERMISSION = "*:/platform/users";
+  private static final String ALL_ADMINISTRATORS_PERMISSION = "*:/platform/administrators";
   private final PageStorage pageStorage;
   private final UserACL userACL;
 
@@ -55,10 +56,10 @@ public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePrope
                   page.getDescription(),
                   page.getShowMaxWindow(),
                   page.getFactoryId(),
-                  propertySetting.isActive() ? ALL_USERS_PERMISSION : List.of(userACL.getSuperUser()),
-                  page.getEditPermission(),
-                  page.getMoveAppsPermissions(),
-                  page.getMoveContainersPermissions());
+                  propertySetting.isActive() ? List.of(ALL_USERS_PERMISSION) : List.of(userACL.getSuperUser()),
+                  propertySetting.isActive() ? ALL_ADMINISTRATORS_PERMISSION : userACL.getSuperUser(),
+                  propertySetting.isActive() ? List.of(ALL_ADMINISTRATORS_PERMISSION) : List.of(userACL.getSuperUser()),
+                  propertySetting.isActive() ? List.of(ALL_ADMINISTRATORS_PERMISSION) : List.of(userACL.getSuperUser()));
           pageStorage.savePage(new PageContext(pageKey, pageState));
         }
       }
