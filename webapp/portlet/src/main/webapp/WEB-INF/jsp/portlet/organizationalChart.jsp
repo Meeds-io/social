@@ -74,7 +74,7 @@
     }
 %>
 
-<div class="VuetifyApp" id="organizationalChart">
+<div class="VuetifyApp" id="organizationalChartParent">
     <div data-app="true"
          id="organizationalChart"
          class="v-application transparent v-application--is-ltr theme--light">
