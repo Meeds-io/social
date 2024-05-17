@@ -5,7 +5,7 @@
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    class="d-block d-sm-flex flex-sm-nowrap activity-thumbnail-box card-border-radius border-color mb-4 light-grey-background hover-background">
+    :class="!useEmbeddedLinkView && 'd-flex flex-no-wrap my-4' || 'activity-thumbnail-box light-grey-background-color hover-background card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
         <v-avatar
@@ -50,9 +50,9 @@
         v-if="supportsThumbnail"
         :min-height="thumbnailHeight"
         :height="thumbnailHeight"
-        :min-width="!isMobile && thumbnailWidth || '100%'"
-        :width="!isMobile && thumbnailWidth || '100%'"
-        class="border-box-sizing align-start me-2"
+        :min-width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
+        :width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
+        class="border-box-sizing align-start me-4"
         rounded
         eager
         tile>
@@ -60,7 +60,7 @@
           v-if="thumbnail"
           :src="thumbnail"
           :alt="title"
-          :class="!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius'"
+          :class="useEmbeddedLinkView && (!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')"
           class="object-fit-cover my-auto"
           loading="lazy">
         <v-icon
@@ -152,7 +152,9 @@ export default {
     useEllipsisOnSummary: true,
     useEllipsisOnTitle: true,
     fullContent: false,
-    displayReadMoreButton: false
+    displayReadMoreButton: false,
+    useEmbeddedLinkView: true,
+    summaryLinesToDisplay: 2
   }),
   computed: {
     getTitle() {
@@ -210,10 +212,10 @@ export default {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
     },
     thumbnailHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.height || '100px';
+      return this.thumbnailProperties && this.thumbnailProperties.height || (!this.useEmbeddedLinkView && '150px' || '100px');
     },
     thumbnailWidth() {
-      return this.thumbnailProperties && this.thumbnailProperties.width || '175px';
+      return this.thumbnailProperties && this.thumbnailProperties.width || (!this.useEmbeddedLinkView && '252px' || '150px');
     },
     thumbnailNoBorder() {
       return this.thumbnailProperties && this.thumbnailProperties.noBorder;
@@ -262,7 +264,10 @@ export default {
       };
     },
     bodyClass() {
-      return `${this.useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
+      return `${this.textTruncate || ''} ${this.useEllipsisOnSummary && 'text-light-color' || 'text-color'} ${!this.useEllipsisOnSummary && this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
+    },
+    textTruncate() {
+      return this.useEllipsisOnSummary && `text-truncate-${this.summaryLinesToDisplay}`;
     },
     canCollapse() {
       return this.activityTypeExtension?.isCollapsed;
@@ -295,6 +300,8 @@ export default {
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
+      this.useEmbeddedLinkView = this.activityTypeExtension && !this.activityTypeExtension.noEmbeddedLinkView;
+      this.summaryLinesToDisplay = this.activityTypeExtension?.summaryLinesToDisplay || 2;
       this.regularFontSizeOnSummary = this.activityTypeExtension.regularFontSizeOnSummary === true;
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       if (this.title && this.title.key) {
