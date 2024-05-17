@@ -302,7 +302,6 @@ export default {
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
       this.useEmbeddedLinkView = this.activityTypeExtension && !this.activityTypeExtension.noEmbeddedLinkView;
       this.summaryLinesToDisplay = this.activityTypeExtension?.summaryLinesToDisplay || 2;
-      console.warn(this.summaryLinesToDisplay);
       this.regularFontSizeOnSummary = this.activityTypeExtension.regularFontSizeOnSummary === true;
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       if (this.title && this.title.key) {
