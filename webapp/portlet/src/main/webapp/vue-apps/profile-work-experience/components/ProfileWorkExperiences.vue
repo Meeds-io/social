@@ -1,8 +1,7 @@
 <template>
   <v-app
     v-if="displayApp"
-    :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'"
-    class="white">
+    :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'">
     <widget-wrapper :title="title">
       <template v-if="owner" #action>
         <v-btn
