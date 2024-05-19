@@ -202,7 +202,15 @@ export default {
       return this.defaultLanguage || this.translationConfiguration?.defaultLanguage;
     },
     supportedLocales() {
-      return this.supportedLanguages || this.translationConfiguration?.supportedLanguages;
+      const supportedLocales = this.supportedLanguages || this.translationConfiguration?.supportedLanguages;
+      if (supportedLocales) {
+        const locales = {};
+        Object.keys(supportedLocales).forEach(l => {
+          locales[l.replace('_', '-')] = supportedLocales[l];
+        });
+        return locales;
+      }
+      return null;
     },
     translationsCount() {
       return this.valuesPerLanguage && Object.keys(this.valuesPerLanguage).length || 0;
