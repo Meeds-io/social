@@ -264,6 +264,7 @@ export default {
     refreshExistingLanguages(sort) {
       if (sort) {
         this.existingLanguages = Object.keys(this.translations).slice()
+          .filter(l => this.supportedLanguages?.[l])
           .sort((a, b) => {
             if (a === this.defaultLanguage) {
               return -1;
@@ -274,7 +275,8 @@ export default {
             }
           });
       } else {
-        this.existingLanguages = Object.keys(this.translations).slice();
+        this.existingLanguages = Object.keys(this.translations).slice()
+          .filter(l => this.supportedLanguages[l]);
       }
     },
     addValue() {
