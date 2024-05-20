@@ -20,8 +20,7 @@
 
 <template>
   <v-app
-    :class="owner && 'profileContactInformation' || 'profileContactInformationOther'"
-    class="white">
+    :class="owner && 'profileContactInformation' || 'profileContactInformationOther'">
     <widget-wrapper :title="title">
       <template #action>
         <v-btn
