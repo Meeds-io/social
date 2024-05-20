@@ -587,7 +587,19 @@ export default {
         content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
         content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
       }
+      if (content.includes('<a') && content.includes('</a>')) {
+        const tempdiv = document.createElement('div');
+        tempdiv.innerHTML = content;
+        const links = tempdiv.getElementsByTagName('a');
+        for (const link of links) {
+          if (!link.href.includes(eXo.env.portal.context) && !link.hasAttribute('target')) {
+            link.setAttribute('target', '_blank');
+          }
+        }
+        content = tempdiv.innerHTML;
+      }
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
+
       return content;
     },
     updateInput(content) {
