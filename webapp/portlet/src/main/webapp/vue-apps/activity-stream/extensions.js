@@ -62,10 +62,10 @@ const defaultActivityOptions = {
                               || activity.title
                               || '',
   getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
-  getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
+  getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '/social-portlet/images/link.jpg',
   getThumbnailProperties: activity => !(activity  && activity.templateParams && activity.templateParams.image) && {
     height: '90px',
-    width: '90px',
+    width: '140px',
     noBorder: true,
   },
   isUseSameViewForMobile: activity => !activity || !activity.templateParams || !activity.templateParams.image,
