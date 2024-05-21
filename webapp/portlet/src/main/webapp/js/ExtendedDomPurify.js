@@ -49,14 +49,16 @@
       ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder', 'scrolling', 'v-identity-popover'],
     });
     DOMPurify.addHook('afterSanitizeAttributes', function(node) {
-      const nodeText = node.textContent;
+
       if ('target' in node) {
         // add noopener attribute to external links to eliminate vulnerabilities
         node.setAttribute('rel', 'noopener');
         // add text ellipsis when link length is up to 75 characters
+        const nodeText = node.textContent;
+        const nodeLink = node.getAttribute('href');
         if (nodeText && nodeText.length > 75) {
-          node.setAttribute('title', nodeText);
-          node.setAttribute('Aria-label', nodeText);
+          node.setAttribute('title', nodeLink);
+          node.setAttribute('Aria-label', nodeLink);
           node.textContent = node.textContent.substring(0,75)+'...';
         }
       }
