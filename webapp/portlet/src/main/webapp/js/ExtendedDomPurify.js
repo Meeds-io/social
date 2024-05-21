@@ -49,13 +49,15 @@
       ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder', 'scrolling', 'v-identity-popover'],
     });
     DOMPurify.addHook('afterSanitizeAttributes', function(node) {
-
       if ('target' in node) {
-        // add noopener attribute to external links to eliminate vulnerabilities
-        node.setAttribute('rel', 'noopener');
-        // add text ellipsis when link length is up to 75 characters
         const nodeText = node.textContent;
         const nodeLink = node.getAttribute('href');
+        // add noopener attribute to external links to eliminate vulnerabilities
+        if (nodeLink.indexOf(window.location.origin) === -1) {
+          node.setAttribute('target', '_blank');
+          node.setAttribute('rel', 'nofollow noopener noreferrer');
+        }
+        // add text ellipsis when link length is up to 75 characters
         if (nodeText && nodeText.length > 75) {
           node.setAttribute('title', nodeLink);
           node.setAttribute('Aria-label', nodeLink);
