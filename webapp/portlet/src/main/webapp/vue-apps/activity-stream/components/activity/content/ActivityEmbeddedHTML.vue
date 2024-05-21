@@ -44,7 +44,8 @@ export default {
   }),
   computed: {
     embeddedHTML() {
-      return this.activity && this.activity.templateParams && this.activity.templateParams.html;
+      const htmlElement = this.activity?.templateParams?.html;
+      return this.computeEmbeddedHTML(htmlElement);
     },
     sourceLink() {
       return this.activity && this.activity.templateParams && this.activity.templateParams.link || '';
@@ -78,7 +79,6 @@ export default {
       return {
         width: `${width}px`,
         maxWidth: `${this.maxWidth}px`,
-        maxHeight: `${this.maxWidth}px`,
       };
     },
   },
@@ -86,5 +86,15 @@ export default {
     this.maxWidth = this.$el && this.$el.parentElement.offsetWidth < this.maxWidth && String(this.$el.parentElement.offsetWidth - 2) || `${this.maxWidth}`;
     this.elementReady = true;
   },
+  methods: {
+    computeEmbeddedHTML(htmlElement) {
+      const tempdiv = document.createElement('div');
+      tempdiv.innerHTML = htmlElement;
+      if (tempdiv.firstElementChild.style.maxWidth) {
+        tempdiv.firstElementChild.style.maxWidth = `${this.maxWidth}px`;
+      }
+      return tempdiv.innerHTML;
+    }
+  }
 };
 </script>
