@@ -44,7 +44,7 @@ export default {
   }),
   computed: {
     embeddedHTML() {
-      const htmlElement = this.activity && this.activity.templateParams && this.activity.templateParams.html;
+      const htmlElement = this.activity?.templateParams?.html;
       return this.computeEmbeddedHTML(htmlElement);
     },
     sourceLink() {
