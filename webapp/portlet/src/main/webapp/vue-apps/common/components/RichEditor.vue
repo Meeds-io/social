@@ -587,6 +587,23 @@ export default {
         content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
         content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
       }
+      if (content.includes('<a') && content.includes('</a>')) {
+        const tempdiv = document.createElement('div');
+        tempdiv.innerHTML = content;
+        const links = tempdiv.getElementsByTagName('a');
+        for (const link of links) {
+          if (link.href.indexOf(window.location.origin) === -1) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'nofollow noopener noreferrer');
+          }
+          if (link.text.length > 75) {
+            link.setAttribute('title', link.href);
+            link.setAttribute('Aria-label', link.href);
+            link.text = `${link.text.substring(0,75)  }...`;
+          }
+        }
+        content = tempdiv.innerHTML;
+      }
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
       return content;
     },
