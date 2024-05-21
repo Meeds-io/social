@@ -78,11 +78,6 @@ export default {
 
       const experiences = this.experiencesToEdit.filter(experience => experience && (experience.startDate || experience.endDate || experience.position || experience.company || experience.description || experience.skills));
       for (const experience of experiences) {
-        if (!experience.endDate && this.hasCurrentExperience && !experience.id) {
-          this.handleError(this.$t('profileWorkExperiences.invalidStillInPosition'));
-          return;
-        }
-
         experience.company = experience.company && experience.company.trim();
         if (!experience.company || experience.company.length > 100 || experience.company.length < 3) {
           this.handleError(this.$t('profileWorkExperiences.invalidFieldLength', {

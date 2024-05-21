@@ -27,8 +27,10 @@
         <template #activator="{ on, attrs }">
           <a
             :href="productLink"
+            :aria-label="$t('menu.productName.seeProduct')"
             target="_blank"
             class="body-2 text-sub-title my-auto"
+            role="link"
             v-bind="attrs"
             v-on="on">
             {{ productName }}

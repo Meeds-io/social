@@ -22,7 +22,7 @@
         <div
           v-if="space.description"
           v-sanitized-html="space.description"
-          :title="space.description"
+          :title="spaceDescriptionTitle"
           class="text-truncate-3"></div>
       </v-card-text>
 
@@ -54,6 +54,11 @@ export default {
     space: {
       type: Object,
       default: null,
+    },
+  },
+  computed: {
+    spaceDescriptionTitle() {
+      return this.$utils.htmlToText(this.space.description || '');
     },
   },
 };

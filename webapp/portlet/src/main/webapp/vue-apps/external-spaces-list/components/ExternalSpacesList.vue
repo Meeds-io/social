@@ -1,6 +1,6 @@
 <template>
-  <v-app v-if="isShown">
-    <widget-wrapper :title="$t('externalSpacesList.title.yourSpaces')">
+  <v-app>
+    <widget-wrapper v-if="isShown" :title="$t('externalSpacesList.title.yourSpaces')">
       <v-list dense class="py-0">
         <template>
           <external-space-item
@@ -14,8 +14,6 @@
   </v-app>
 </template>
 <script>
-import * as externalSpacesListService from '../externalSpacesListService.js';
-
 export default {
   data () {
     return {
@@ -30,14 +28,17 @@ export default {
   },
   created() {
     this.getExternalSpacesList();
-    externalSpacesListService.getExternalSpacesRequests().then(
-      (data) => {
-        this.spacesRequestsSize = data.spacesMemberships.length;
-      }).finally(() => this.$root.$applicationLoaded());
+    this.$externalSpacesListService.getExternalSpacesRequests()
+      .then(data => this.spacesRequestsSize = data.spacesMemberships.length)
+      .then(() => this.$nextTick())
+      .finally(() => {
+        this.$root.$applicationLoaded();
+        this.$root.$updateApplicationVisibility(this.isShown);
+      });
   },
   methods: {
     getExternalSpacesList() {
-      externalSpacesListService.getExternalSpacesList().then(data => {
+      this.$externalSpacesListService.getExternalSpacesList().then(data => {
         this.spacesList = data.spaces;
       });
     },

@@ -1206,7 +1206,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testCreateSpaceWithInvalidSpaceName() throws RuntimeException {
     Space space = new Space();
-    String spaceDisplayName = "%zzz:^!/<>";
+    String spaceDisplayName = "%zzz:^!/<>😁";
     space.setDisplayName(spaceDisplayName);
     String creator = "root";
     String shortName = "zzz";
@@ -1218,12 +1218,16 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    try {
-      spaceService.createSpace(space, creator);
-      fail("Should have thrown an RuntimeException because Name is invalid");
-    } catch (RuntimeException e) {
-      assertTrue(e.getMessage().contains("space name can only contain letters, digits or space characters only"));
-    }
+    space = spaceService.createSpace(space, creator);
+    assertEquals(spaceDisplayName, space.getDisplayName());
+    assertFalse(space.getPrettyName().contains("%"));
+    assertFalse(space.getPrettyName().contains("^"));
+    assertFalse(space.getPrettyName().contains(":"));
+    assertFalse(space.getPrettyName().contains("!"));
+    assertFalse(space.getPrettyName().contains("/"));
+    assertFalse(space.getPrettyName().contains("<"));
+    assertFalse(space.getPrettyName().contains(">"));
+    assertFalse(space.getPrettyName().contains("😁"));
   }
 
   /**

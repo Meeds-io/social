@@ -15,24 +15,34 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.Query;
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
+import org.exoplatform.social.metadata.MetadataFilter;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
 
@@ -65,6 +75,19 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String CREATOR_ID           = "creatorId";
 
   private static final String AUDIENCE_ID          = "audienceId";
+
+  private static final String METADATA             = "metadata";
+
+  private static final String TYPE                 = "type";
+
+  private static final String NAME                 = "name";
+
+  private static final String PROPERTIES           = "properties";
+
+  private static final String CREATED_DATE         = "createdDate";
+
+  private static final String ID                   = "id";
+
 
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
@@ -215,6 +238,18 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
+  public List<MetadataItemEntity> getMetadataItemsByFilter(MetadataFilter filter, long metadataType, long offset, long limit) {
+    Query query = buildMetadataFilterQuery(filter, metadataType);
+    if (offset > 0) {
+      query.setFirstResult((int) offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults((int) limit);
+    }
+    List<MetadataItemEntity> resultList = query.getResultList();
+    return resultList == null ? Collections.emptyList() : resultList;
+  }
+
   public List<MetadataItemEntity> getMetadataItemsByTypeAndSpaceIdAndCreatorId(long metadataType,
                                                                                long spaceId,
                                                                                long creatorId) {
@@ -360,4 +395,38 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return items.size();
   }
 
+  private Query buildMetadataFilterQuery(MetadataFilter filter, long metadataType) {
+    CriteriaBuilder criteriaBuilder = getEntityManager().getCriteriaBuilder();
+    CriteriaQuery<MetadataItemEntity> criteriaQuery = criteriaBuilder.createQuery(MetadataItemEntity.class);
+    Root<MetadataItemEntity> root = criteriaQuery.from(MetadataItemEntity.class);
+
+    List<Predicate> predicates = new ArrayList<>();
+    predicates.add(criteriaBuilder.equal(root.get(METADATA).get(TYPE), metadataType));
+    predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(METADATA).get(NAME), filter.getMetadataName())));
+
+    if (!CollectionUtils.isEmpty(filter.getMetadataObjectTypes())) {
+      predicates.add(criteriaBuilder.and(root.get(OBJECT_TYPE_PARAM).in(filter.getMetadataObjectTypes())));
+    }
+    if (!CollectionUtils.isEmpty(filter.getMetadataSpaceIds())) {
+      predicates.add(criteriaBuilder.and(root.get(SPACE_ID).in(filter.getMetadataSpaceIds())));
+    }
+    if (filter.getCreatorId() != null) {
+      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get(CREATOR_ID), filter.getCreatorId())));
+    }
+
+    if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
+      Join<MetadataItemEntity, MetadataEntity> metadata = root.join(METADATA, JoinType.INNER);
+      MapJoin<MetadataItemEntity, String, String> metadataItemProp = root.joinMap(PROPERTIES, JoinType.INNER);
+      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(TYPE), metadataType)));
+      predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadata.get(NAME), filter.getMetadataName())));
+      filter.getMetadataProperties().forEach((key, value) -> {
+        predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.key(), key)));
+        predicates.add(criteriaBuilder.and(criteriaBuilder.equal(metadataItemProp.value(), value)));
+      });
+    }
+
+    criteriaQuery.select(root).where(predicates.toArray(new Predicate[0]));
+    criteriaQuery.orderBy(criteriaBuilder.desc(root.get(CREATED_DATE)), criteriaBuilder.desc(root.get(ID)));
+    return getEntityManager().createQuery(criteriaQuery);
+  }
 }

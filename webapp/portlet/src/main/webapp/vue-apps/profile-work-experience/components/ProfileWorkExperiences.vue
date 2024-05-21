@@ -1,8 +1,7 @@
 <template>
   <v-app
     v-if="displayApp"
-    :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'"
-    class="white">
+    :class="owner && 'profileWorkExperience' || 'profileWorkExperienceOther'">
     <widget-wrapper :title="title">
       <template v-if="owner" #action>
         <v-btn
@@ -37,7 +36,6 @@
     </widget-wrapper> 
     <profile-work-experience-drawer
       ref="profileWorkExperiencesDrawer"
-      :key="workExperiencesDrawerKey"
       :experiences="experiences"
       @refreshWorkExperiencesDrawer="initWorkExperiencesDrawer"
       @refresh="setExperiences($event)" />
@@ -52,7 +50,6 @@ export default {
     experiences: null,
     error: null,
     saving: null,
-    workExperiencesDrawerKey: 0,
     initialized: false,
   }),
   computed: {
@@ -129,9 +126,6 @@ export default {
       if (this.displayEmptyBlock && event?.target?.id === 'emptyExperiencesLink') {
         this.addWorkExperience();
       }
-    },
-    initWorkExperiencesDrawer() {
-      this.workExperiencesDrawerKey += 1;
     },
     editWorkExperiences() {
       this.$refs.profileWorkExperiencesDrawer.open();

@@ -71,8 +71,6 @@
 </template>
 
 <script>
-import * as spacesAdministrationServices from '../spacesAdministrationServices';
-
 export default {
   props: {
     applicationsByCategory: {
@@ -107,7 +105,7 @@ export default {
     }
   },
   created() {
-    spacesAdministrationServices.getUserPermissions(eXo.env.portal.userName)
+    this.$spacesAdministrationServices.getUserPermissions(eXo.env.portal.userName)
       .then(data => {
         if (data && data.platformAdministrator) {
           this.canChangePermissions = data.platformAdministrator;
