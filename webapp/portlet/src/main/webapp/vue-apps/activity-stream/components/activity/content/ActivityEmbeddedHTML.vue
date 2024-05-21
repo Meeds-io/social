@@ -41,7 +41,6 @@ export default {
   data: () => ({
     maxWidth: 320,
     elementReady: false,
-    isReelVideo: false
   }),
   computed: {
     embeddedHTML() {
@@ -80,7 +79,6 @@ export default {
       return {
         width: `${width}px`,
         maxWidth: `${this.maxWidth}px`,
-        maxHeight: !this.isReelVideo ? `${this.maxWidth}px` : '100%',
       };
     },
   },
@@ -92,10 +90,8 @@ export default {
     computeEmbeddedHTML(htmlElement) {
       const tempdiv = document.createElement('div');
       tempdiv.innerHTML = htmlElement;
-      if (tempdiv.firstElementChild.hasAttribute('style')
-          && tempdiv.firstElementChild.getAttribute('style').indexOf('max-width:') === 0) {
-        tempdiv.firstElementChild.setAttribute('style', `max-width:${this.maxWidth}px`);
-        this.isReelVideo = true;
+      if (tempdiv.firstElementChild.style.maxWidth) {
+        tempdiv.firstElementChild.style.maxWidth = `${this.maxWidth}px`;
       }
       return tempdiv.innerHTML;
     }
