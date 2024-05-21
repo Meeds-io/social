@@ -1,0 +1,526 @@
+#
+# Your Crowdin credentials
+#
+"project_id_env" : "CROWDIN_PROJECT_ID"
+"api_token_env" : "CROWDIN_PERSONAL_TOKEN"
+"base_path" : "."
+"base_url" : "https://api.crowdin.com"
+
+#
+# Choose file structure in Crowdin
+# e.g. true or false
+#
+"preserve_hierarchy": true
+#
+# Files configuration
+#
+files: [
+  # Files
+  # component
+  {
+    "source" : "/component/core/src/main/resources/locale/social/Core_en.properties",
+
+    "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace" : {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest" : "platform/social/component/Core.properties",
+    "update_option" : "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes" : 0,
+  },
+  {
+    "source" : "/component/service/src/main/resources/locale/social/Webui_en.properties",
+
+    "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace" : {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest" : "platform/social/component/Webui.properties",
+    "update_option" : "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes" : 0,
+  },
+  {
+    "source" : "/component/service/src/main/resources/locale/social/menu/webui_en.properties",
+
+    "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace" : {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest" : "platform/social/menu/webui.properties",
+    "update_option" : "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes" : 0,
+  },
+  # extension
+  {
+    "source" : "/extension/war/src/main/resources/locale/notification/template/Notification_en.properties",
+
+    "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace" : {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest" : "platform/social/extension/Notification.properties",
+    "update_option" : "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes" : 0,
+  },
+  {
+    "source" : "/extension/war/src/main/resources/locale/portal/HamburgerMenu_en.properties",
+
+    "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace" : {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest" : "platform/social/extension/hamburgerMenu.properties",
+    "update_option" : "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes" : 0,
+  },
+  # webapp
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portal_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/portal.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/Portlets_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/Portlets.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/GeneralSettings_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/GeneralSettings.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/SpaceInfosPortlet_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/SpaceInfosPortlet.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/whoisonline/whoisonline_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/whoisonline.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/GettingStartedPortlet_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/GettingStarted.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/ExternalSpacesListApplication_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/ExternalSpacesListApplication.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/PeopleListApplication_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/PeopleListApplication.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/PeopleOverview_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/PeopleOverview.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/ProfileAboutMe_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/ProfileAboutMe.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/ProfileContactInformation_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/ProfileContactInformation.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/ProfileHeader_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/ProfileHeader.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/ProfileWorkExperience_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/ProfileWorkExperience.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/SpacesAdministrationPortlet_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/SpaceAdministrationPortlet.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/SpacesListApplication_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/SpacesListApplication.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/UserPopup_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/UserPopup.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/SpacesOverview_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/SpacesOverview.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/social/SuggestionsPortlet_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/SuggestionsPortlet.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/Login_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/Login.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/UserNotificationPortlet_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/UserNotificationPortlet.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/NotificationAdministration_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/NotificationAdministration.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/Links_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/Links.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+  {
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/PlatformSettings_en.properties",
+
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": {
+      "_en!": "","ar_SA": "ar","ar_OM": "aro","az_AZ": "az","ca_ES": "ca","ceb_PH": "ceb",
+      "co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","eu_ES": "eu","fa_IR": "fa",
+      "fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","hi_IN": "hi","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja",
+      "kab_KAB": "kab","ko_KR": "ko","lt_LT": "lt","ms_MY": "ms","nl_NL": "nl","no_NO": "no","pcm_NG": "pcm","pl_PL": "pl",
+      "pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq",
+      "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
+      "zh_CN": "zh_CN","zh_TW": "zh_TW",
+    },
+    "dest": "platform/social/webapp/PlatformSettings.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
+]
