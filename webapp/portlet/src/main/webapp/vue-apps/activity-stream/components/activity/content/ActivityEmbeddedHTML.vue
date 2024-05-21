@@ -41,10 +41,12 @@ export default {
   data: () => ({
     maxWidth: 320,
     elementReady: false,
+    isReelVideo: false
   }),
   computed: {
     embeddedHTML() {
-      return this.activity && this.activity.templateParams && this.activity.templateParams.html;
+      const htmlElement = this.activity && this.activity.templateParams && this.activity.templateParams.html;
+      return this.computeEmbeddedHTML(htmlElement);
     },
     sourceLink() {
       return this.activity && this.activity.templateParams && this.activity.templateParams.link || '';
@@ -78,7 +80,7 @@ export default {
       return {
         width: `${width}px`,
         maxWidth: `${this.maxWidth}px`,
-        maxHeight: `${this.maxWidth}px`,
+        maxHeight: !this.isReelVideo ? `${this.maxWidth}px` : '100%',
       };
     },
   },
@@ -86,5 +88,17 @@ export default {
     this.maxWidth = this.$el && this.$el.parentElement.offsetWidth < this.maxWidth && String(this.$el.parentElement.offsetWidth - 2) || `${this.maxWidth}`;
     this.elementReady = true;
   },
+  methods: {
+    computeEmbeddedHTML(htmlElement) {
+      const tempdiv = document.createElement('div');
+      tempdiv.innerHTML = htmlElement;
+      if (tempdiv.firstElementChild.hasAttribute('style')
+          && tempdiv.firstElementChild.getAttribute('style').indexOf('max-width:') === 0) {
+        tempdiv.firstElementChild.setAttribute('style', `max-width:${this.maxWidth}px`);
+        this.isReelVideo = true;
+      }
+      return tempdiv.innerHTML;
+    }
+  }
 };
 </script>
