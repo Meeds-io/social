@@ -592,14 +592,19 @@ export default {
         tempdiv.innerHTML = content;
         const links = tempdiv.getElementsByTagName('a');
         for (const link of links) {
-          if (!link.href.includes(eXo.env.portal.context) && !link.hasAttribute('target')) {
+          if (link.href.indexOf(window.location.origin) === -1) {
             link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'nofollow noopener noreferrer');
+          }
+          if (link.text.length > 75) {
+            link.setAttribute('title', link.href);
+            link.setAttribute('Aria-label', link.href);
+            link.text = `${link.text.substring(0,75)  }...`;
           }
         }
         content = tempdiv.innerHTML;
       }
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
-
       return content;
     },
     updateInput(content) {
