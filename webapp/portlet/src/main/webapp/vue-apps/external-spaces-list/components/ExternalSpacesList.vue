@@ -1,15 +1,22 @@
 <template>
   <v-app v-if="isShown">
     <widget-wrapper :title="$t('externalSpacesList.title.yourSpaces')">
-      <v-list dense class="py-0">
+      <v-list dense class="py-0 external-spaces-list">
         <template>
           <external-space-item
             v-for="space in spacesList"
             :key="space.id"
             :space="space" />
-          <external-spaces-requests-items @invitationReplied="refreshSpaces" />
         </template>
       </v-list>
+      <v-btn
+        :loading="loading"
+        :disabled="!hasMore"
+        class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
+        outlined
+        @click="loadMore()">
+        {{ $t('button.loadMore') }}
+      </v-btn> 
     </widget-wrapper>
   </v-app>
 </template>
@@ -20,7 +27,11 @@ export default {
   data () {
     return {
       spacesList: [],
-      spacesRequestsSize: 0,
+      hasMore: false,
+      loading: false,
+      pageSize: 10,
+      limit: 10,
+      offset: 0,
     };
   },
   computed: {
@@ -30,19 +41,23 @@ export default {
   },
   created() {
     this.getExternalSpacesList();
-    externalSpacesListService.getExternalSpacesRequests().then(
-      (data) => {
-        this.spacesRequestsSize = data.spacesMemberships.length;
-      }).finally(() => this.$root.$applicationLoaded());
   },
   methods: {
     getExternalSpacesList() {
-      externalSpacesListService.getExternalSpacesList().then(data => {
-        this.spacesList = data.spaces;
+      externalSpacesListService.getExternalSpacesList(this.offset,this.limit).then(data => {
+        this.spacesList = this.spacesList.concat(data.spaces);
+        this.hasMore = data.spaces.length===this.pageSize;
+        this.loading=false;
       });
     },
     refreshSpaces(space) {
       this.spacesList.unshift(space);
+    },
+    loadMore() {
+      this.loading=true;
+      this.limit += this.pageSize;
+      this.offset += this.pageSize;
+      this.getExternalSpacesList();
     },
   }
 };
