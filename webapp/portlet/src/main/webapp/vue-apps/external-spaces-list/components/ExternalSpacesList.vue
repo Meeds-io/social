@@ -50,9 +50,6 @@ export default {
         this.loading=false;
       });
     },
-    refreshSpaces(space) {
-      this.spacesList.unshift(space);
-    },
     loadMore() {
       this.loading=true;
       this.limit += this.pageSize;
