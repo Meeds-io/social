@@ -471,6 +471,7 @@ export default {
     },
     installOembed: function(embedResponse) {
       const response = embedResponse?.data?.data?.response;
+      console.warn(response);
       if (this.supportsOembed && response) {
         const oembedUrl = response.url;
         this.setOembedParams({
