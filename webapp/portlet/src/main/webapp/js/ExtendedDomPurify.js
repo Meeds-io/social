@@ -53,7 +53,7 @@
         const nodeText = node.textContent;
         const nodeLink = node.getAttribute('href');
         // add noopener attribute to external links to eliminate vulnerabilities
-        if (nodeLink.indexOf(window.location.origin) === -1) {
+        if (nodeLink && nodeLink.indexOf(window.location.origin) === -1) {
           node.setAttribute('target', '_blank');
           node.setAttribute('rel', 'nofollow noopener noreferrer');
         }
