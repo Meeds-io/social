@@ -320,7 +320,7 @@ export default {
     },
     displayReadMore() {
       const elem = this.$el?.querySelector?.('.rich-editor-content');
-      this.displayReadMoreButton = elem?.scrollHeight > elem?.clientHeight;
+      this.displayReadMoreButton = elem && elem?.scrollHeight > elem?.clientHeight;
     },
     displayFullContent() {
       this.fullContent = !this.fullContent;
