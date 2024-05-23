@@ -106,7 +106,7 @@ export default {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
     },
     displayReadMore() {
-      const elem = this.$el.querySelector('.rich-editor-content');
+      const elem = this.$el?.querySelector?.('.rich-editor-content');
       this.displayReadMoreButton = elem?.scrollHeight > elem?.clientHeight;
     },
     displayFullContent() {
