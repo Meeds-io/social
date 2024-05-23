@@ -51,7 +51,7 @@ public class LinkedinProcessorImpl implements LinkedinProcessor {
 
   private final String              apiSecret;
 
-  private String                    scope = "r_liteprofile r_emailaddress w_member_social";
+  private String                    scope = "openid profile email";
 
   private final SecureRandomService secureRandomService;
 

@@ -15,6 +15,7 @@
  */
 package io.meeds.oauth.linkedin;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.impl.UserImpl;
 
@@ -27,14 +28,10 @@ public class LinkedInPrincipalProcessor implements OAuthPrincipalProcessor {
   public User convertToGateInUser(OAuthPrincipal principal) {
     String email = principal.getEmail();
     String username = principal.getUserName();
-    if (email != null) {
-      int index = email.indexOf('@');
-      if (index > 0) {
-        username = email.substring(0, index);
-      }
+    User gateinUser = new UserImpl();
+    if (StringUtils.isNotBlank(username)) {
+      gateinUser.setUserName(OAuthUtils.refineUserName(username));
     }
-
-    User gateinUser = new UserImpl(OAuthUtils.refineUserName(username));
     gateinUser.setFirstName(principal.getFirstName());
     gateinUser.setLastName(principal.getLastName());
     gateinUser.setEmail(email);
