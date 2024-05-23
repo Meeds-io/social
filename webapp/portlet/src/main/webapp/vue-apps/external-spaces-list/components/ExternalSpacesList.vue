@@ -50,7 +50,6 @@ export default {
     },
     loadMore() {
       this.loading=true;
-      this.limit += this.pageSize;
       this.offset += this.pageSize;
       this.getExternalSpacesList();
     }
