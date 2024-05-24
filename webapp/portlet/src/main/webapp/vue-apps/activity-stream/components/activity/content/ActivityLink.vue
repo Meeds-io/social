@@ -5,7 +5,7 @@
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    :class="!useEmbeddedLinkView && 'd-flex flex-no-wrap my-4' || 'activity-thumbnail-box light-grey-background-color hover-background hover-elevation card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'">
+    :class="!useEmbeddedLinkView && 'd-flex flex-no-wrap my-4' || 'activity-thumbnail-box light-grey-background-color overflow-hidden hover-background hover-elevation card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
         <v-avatar
@@ -15,14 +15,13 @@
           :min-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
           :class="thumbnailMobileNoBorder || 'border-color'"
-          rounded
           eager
           tile>
           <img
             v-if="thumbnail"
             :src="`${thumbnail}`"
             :alt="title"
-            class="object-fit-cover my-auto"
+            class="my-auto"
             loading="lazy">
           <v-icon
             v-else
@@ -52,16 +51,17 @@
         :height="thumbnailHeight"
         :min-width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
         :width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
-        class="border-box-sizing align-start me-4"
-        rounded
+        :class="useEmbeddedLinkView && (!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')"
+        :style="`background-color: ${thumbnailBG};`"
+        class="border-box-sizing align-start me-4 rounded-l"
         eager
         tile>
         <img
           v-if="thumbnail"
           :src="thumbnail"
           :alt="title"
-          :class="useEmbeddedLinkView && (!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')"
-          class="object-fit-cover my-auto"
+          :class="thumbnailClass"
+          class="my-auto"
           loading="lazy">
         <v-icon
           v-else
@@ -79,7 +79,6 @@
         :width="iconWidth"
         :class="iconNoBorder || 'border-color'"
         class="border-box-sizing align-start my-4 me-4"
-        rounded
         eager
         tile>
         <v-icon
@@ -154,7 +153,8 @@ export default {
     fullContent: false,
     displayReadMoreButton: false,
     useEmbeddedLinkView: true,
-    summaryLinesToDisplay: 2
+    summaryLinesToDisplay: 2,
+    isLandscapeThumbnail: false
   }),
   computed: {
     getTitle() {
@@ -183,6 +183,9 @@ export default {
         return this.activityTypeExtension.isUseSameViewForMobile(this.activity, this.isActivityDetail);
       }
       return this.activityTypeExtension && this.activityTypeExtension.useSameViewForMobile;
+    },
+    isDefaultThumbnail() {
+      return this.activityTypeExtension && this.activityTypeExtension.isDefaultThumbnail && this.activityTypeExtension.isDefaultThumbnail(this.activity);
     },
     supportsIcon() {
       return this.supportsThumbnail || (this.activityTypeExtension && this.activityTypeExtension.supportsIcon);
@@ -216,6 +219,15 @@ export default {
     },
     thumbnailWidth() {
       return this.thumbnailProperties && this.thumbnailProperties.width || (!this.useEmbeddedLinkView && '252px' || '150px');
+    },
+    thumbnailPreviewHeight() {
+      return this.activityTypeExtension && this.activityTypeExtension.getPreviewHeight && this.activityTypeExtension.getPreviewHeight(this.activity) || 0;
+    },
+    thumbnailPreviewWidth() {
+      return this.activityTypeExtension && this.activityTypeExtension.getPreviewWidth && this.activityTypeExtension.getPreviewWidth(this.activity) || 0;
+    },
+    thumbnailBG() {
+      return this.activityTypeExtension && this.activityTypeExtension.getPreviewWidth && this.activityTypeExtension.getThumbnailBG(this.activity) || 'rgb(231, 231, 231)';
     },
     thumbnailNoBorder() {
       return this.thumbnailProperties && this.thumbnailProperties.noBorder;
@@ -278,6 +290,9 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.smAndDown;
     },
+    thumbnailClass() {
+      return `${this.useEmbeddedLinkView && (!this.isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')} ${this.isLandscapeThumbnail && 'object-fit-cover' || 'object-fit-contain' }`;
+    }
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
@@ -316,6 +331,13 @@ export default {
       this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
       if (this.supportsThumbnail) {
         this.thumbnail = this.getThumbnail && this.getThumbnail(this.activity, this.isActivityDetail);
+        if (this.isDefaultThumbnail) {
+          this.isLandscapeThumbnail = true;
+        } else {
+          if (this.thumbnail && this.thumbnailPreviewWidth > 0 && this.thumbnailPreviewHeight > 0) {
+            this.isLandscapeThumbnail = Number(this.thumbnailPreviewWidth) > Number(this.thumbnailPreviewHeight);
+          }
+        }
       }
     },
     displayReadMore() {
