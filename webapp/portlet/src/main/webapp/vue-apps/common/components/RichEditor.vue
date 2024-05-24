@@ -170,8 +170,7 @@ export default {
     baseUrl: eXo.env.server.portalBaseURL,
     containInvalidUsers: false,
     spaceId: null,
-    backUpMessage: null,
-    defaultRGB: 'rgb(231, 231, 231)',
+    backUpMessage: null
   }),
   computed: {
     ckEditorInstanceId() {
@@ -474,36 +473,30 @@ export default {
       const response = embedResponse?.data?.data?.response;
       if (this.supportsOembed && response) {
         const oembedUrl = response.url;
+        const oembedParams = {
+          link: oembedUrl || '-',
+          image: response.type !== 'video' && response.thumbnail_url || '-',
+          html: response.type === 'video' && response.html || '-',
+          title: response.title || '-',
+          description: response.description || '-',
+          previewHeight: response.thumbnail_height || '-',
+          previewWidth: response.thumbnail_width || '-',
+          default_title: this.getContent(this.inputVal, false),
+          comment: this.getContentNoEmbed(this.inputVal),
+        };
         if (response.thumbnail_url 
             && response.thumbnail_height 
             && response.thumbnail_width 
             && Number(response.thumbnail_height) >= Number(response.thumbnail_width)) {
           this.getAverageColor(response.thumbnail_url).then(() => {
-            this.setOembedParams({
-              link: oembedUrl || '-',
-              image: response.type !== 'video' && response.thumbnail_url || '-',
-              html: response.type === 'video' && response.html || '-',
-              title: response.title || '-',
-              description: response.description || '-',
-              previewHeight: response.thumbnail_height || '-',
-              previewWidth: response.thumbnail_width || '-',
-              default_title: this.getContent(this.inputVal, false),
-              comment: this.getContentNoEmbed(this.inputVal),
-              bgColor: this.defaultRGB
-            });
+            this.getAverageColor(response.thumbnail_url)
+              .then(bgColor => {
+                oembedParams.bgColor = bgColor;
+                this.setOembedParams(oembedParams);
+              });
           });
         } else {
-          this.setOembedParams({
-            link: oembedUrl || '-',
-            image: response.type !== 'video' && response.thumbnail_url || '-',
-            html: response.type === 'video' && response.html || '-',
-            title: response.title || '-',
-            description: response.description || '-',
-            previewHeight: response.thumbnail_height || '-',
-            previewWidth: response.thumbnail_width || '-',
-            default_title: this.getContent(this.inputVal, false),
-            comment: this.getContentNoEmbed(this.inputVal)
-          });
+          this.setOembedParams(oembedParams);
         }  
       } else {
         this.clearOembedParams();
@@ -843,7 +836,7 @@ export default {
             rgb = { r: 0, g: 0, b: 0};
           let i = -4, count = 0;
           const length = data.data.length;
-          while ( (i += blockSize * 4) < length ) {
+          while ( (i += blockSize * 4) < length) {
             ++count;
             rgb.r += data.data[i];
             rgb.g += data.data[i+1];
@@ -853,10 +846,10 @@ export default {
           rgb.r = ~~(rgb.r/count);
           rgb.g = ~~(rgb.g/count);
           rgb.b = ~~(rgb.b/count);
-          this.defaultRGB = `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+          return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
         })
         .catch(() => {
-          this.defaultRGB = 'rgb(231, 231, 231)';
+          return 'rgb(231, 231, 231)';
         });
     },
     loadImage(img) {
