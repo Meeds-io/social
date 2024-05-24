@@ -849,7 +849,7 @@ export default {
           return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
         })
         .catch(e => {
-          console.debug('Error while computing image background color', e);
+          console.debug('Error while computing image background color', e); // eslint-disable-line no-console
           return 'rgb(231, 231, 231)';
         });
     },
