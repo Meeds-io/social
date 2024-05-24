@@ -154,8 +154,7 @@ export default {
     displayReadMoreButton: false,
     useEmbeddedLinkView: true,
     summaryLinesToDisplay: 2,
-    isLandscapeThumbnail: false,
-    bgColor: 'rgb(231, 231, 231)',
+    isLandscapeThumbnail: false
   }),
   computed: {
     getTitle() {

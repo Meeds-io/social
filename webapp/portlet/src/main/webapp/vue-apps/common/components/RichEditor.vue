@@ -848,7 +848,8 @@ export default {
           rgb.b = ~~(rgb.b/count);
           return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
         })
-        .catch(() => {
+        .catch(e => {
+          console.debug('Error while computing image background color', e);
           return 'rgb(231, 231, 231)';
         });
     },
