@@ -52,7 +52,7 @@
         :min-width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
         :width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
         :class="useEmbeddedLinkView && (!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')"
-        :style="`background-color: ${bgColor};`"
+        :style="`background-color: ${thumbnailBG};`"
         class="border-box-sizing align-start me-4 rounded-l"
         eager
         tile>
@@ -227,6 +227,9 @@ export default {
     thumbnailPreviewWidth() {
       return this.activityTypeExtension && this.activityTypeExtension.getPreviewWidth && this.activityTypeExtension.getPreviewWidth(this.activity) || 0;
     },
+    thumbnailBG() {
+      return this.activityTypeExtension && this.activityTypeExtension.getPreviewWidth && this.activityTypeExtension.getThumbnailBG(this.activity) || 'rgb(231, 231, 231)';
+    },
     thumbnailNoBorder() {
       return this.thumbnailProperties && this.thumbnailProperties.noBorder;
     },
@@ -334,13 +337,6 @@ export default {
         } else {
           if (this.thumbnail && this.thumbnailPreviewWidth > 0 && this.thumbnailPreviewHeight > 0) {
             this.isLandscapeThumbnail = Number(this.thumbnailPreviewWidth) > Number(this.thumbnailPreviewHeight);
-            if (!this.isLandscapeThumbnail) {
-              const img = new Image();
-              img.addEventListener('load', () => {
-                this.bgColor = this.getAverageColor(img);
-              });
-              img.src = this.thumbnail;
-            }
           }
         }
       }
@@ -352,39 +348,6 @@ export default {
     displayFullContent() {
       this.fullContent = !this.fullContent;
     },
-    getAverageColor(img) {
-      const blockSize = 5,
-        defaultRGB = '(231, 231, 231)',
-        canvas = document.createElement('canvas'),
-        height = canvas.height = 100,
-        width = canvas.width = 150,
-        context = canvas.getContext && canvas.getContext('2d'),
-        rgb = { r: 0, g: 0, b: 0};
-      if (!context) {
-        return defaultRGB;
-      }
-      context.drawImage(img, 0, 0);
-      img.crossOrigin = 1;
-      let data = '', i = -4, count = 0;
-      try {
-        data = context.getImageData(0, 0, width, height);
-      } catch (e) {
-        /* security error, img on diff domain */
-        return defaultRGB;
-      }
-      const length = data.data.length;
-      while ( (i += blockSize * 4) < length ) {
-        ++count;
-        rgb.r += data.data[i];
-        rgb.g += data.data[i+1];
-        rgb.b += data.data[i+2];
-      }
-      // ~~ used to floor values
-      rgb.r = ~~(rgb.r/count);
-      rgb.g = ~~(rgb.g/count);
-      rgb.b = ~~(rgb.b/count);
-      return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
-    }
   },
 };
 </script>

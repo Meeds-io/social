@@ -66,6 +66,7 @@ const defaultActivityOptions = {
   isDefaultThumbnail: activity => !(activity && activity.templateParams && activity.templateParams.image && activity.templateParams.image.length > 0),
   getPreviewWidth: activity => activity && activity.templateParams && activity.templateParams.previewWidth || 0,
   getPreviewHeight: activity => activity && activity.templateParams && activity.templateParams.previewHeight || 0,
+  getThumbnailBG: activity => activity && activity.templateParams && activity.templateParams.bgColor,
   getThumbnailProperties: activity => !(activity  && activity.templateParams && activity.templateParams.image) && {
     height: '90px',
     width: '140px',
