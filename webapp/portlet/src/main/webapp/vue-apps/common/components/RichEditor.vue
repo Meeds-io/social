@@ -473,7 +473,7 @@ export default {
       const response = embedResponse?.data?.data?.response;
       if (this.supportsOembed && response) {
         const oembedUrl = response.url;
-        this.setOembedParams({
+        const oembedParams = {
           link: oembedUrl || '-',
           image: response.type !== 'video' && response.thumbnail_url || '-',
           html: response.type === 'video' && response.html || '-',
@@ -483,7 +483,21 @@ export default {
           previewWidth: response.thumbnail_width || '-',
           default_title: this.getContent(this.inputVal, false),
           comment: this.getContentNoEmbed(this.inputVal),
-        });
+        };
+        if (response.thumbnail_url 
+            && response.thumbnail_height 
+            && response.thumbnail_width 
+            && Number(response.thumbnail_height) >= Number(response.thumbnail_width)) {
+          this.getAverageColor(response.thumbnail_url).then(() => {
+            this.getAverageColor(response.thumbnail_url)
+              .then(bgColor => {
+                oembedParams.bgColor = bgColor;
+                this.setOembedParams(oembedParams);
+              });
+          });
+        } else {
+          this.setOembedParams(oembedParams);
+        }  
       } else {
         this.clearOembedParams();
       }
@@ -814,6 +828,46 @@ export default {
     },
     emitChanges(attachements, changed){
       this.$emit('attachments-edited', attachements, changed);
+    },
+    getAverageColor(imgElem) {
+      return this.loadImage(imgElem)
+        .then(data => {
+          const blockSize = 5,
+            rgb = { r: 0, g: 0, b: 0};
+          let i = -4, count = 0;
+          const length = data.data.length;
+          while ( (i += blockSize * 4) < length) {
+            ++count;
+            rgb.r += data.data[i];
+            rgb.g += data.data[i+1];
+            rgb.b += data.data[i+2];
+          }
+          // ~~ used to floor values
+          rgb.r = ~~(rgb.r/count);
+          rgb.g = ~~(rgb.g/count);
+          rgb.b = ~~(rgb.b/count);
+          return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+        })
+        .catch(e => {
+          console.debug('Error while computing image background color', e); // eslint-disable-line no-console
+          return 'rgb(231, 231, 231)';
+        });
+    },
+    loadImage(img) {
+      return new Promise(resolve => {
+        const canvas = document.createElement('canvas'),
+          height = canvas.height = 100,
+          width = canvas.width = 150,
+          context = canvas.getContext && canvas.getContext('2d');
+        context.imageSmoothingEnabled = true;
+        const imageElement = new Image();
+        imageElement.src = img;
+        imageElement.crossOrigin = 1;
+        imageElement.onload = () => {
+          context.drawImage(imageElement, 0, 0, width, height);
+          resolve(context.getImageData(0, 0, width, height));
+        };
+      });
     }
   }
 };
