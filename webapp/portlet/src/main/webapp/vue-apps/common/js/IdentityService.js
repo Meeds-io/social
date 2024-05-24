@@ -1,5 +1,5 @@
-export function getIdentityById(identityId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${identityId}`, {
+export function getIdentityById(identityId, expand) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${identityId}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

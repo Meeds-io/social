@@ -7,20 +7,26 @@
       color="primary" />
     <v-card-text id="peopleListBody" class="pb-0">
       <v-item-group>
-        <v-container class="pa-0">
+        <v-container
+          class="pa-0"
+          fluid>
           <v-row v-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">
             <v-col
               v-for="user in filteredPeople"
               :key="user.id"
               :id="`peopleCardItem${user.id}`"
               cols="12"
-              md="6"
-              lg="4"
-              xl="4"
-              class="pa-0">
+              sm="6"
+              :md="$attrs.md || 6"
+              :lg="$attrs.lg || 4"
+              :xl="$attrs.xl || 4"
+              class="pa-2">
               <people-card
                 :user="user"
-                :profile-action-extensions="profileActionExtensions" />
+                :space-members-extensions="spaceMembersActionExtensions"
+                :user-navigation-extensions="userExtensions"
+                :profile-action-extensions="profileActionExtensions"
+                :user-card-settings="userCardSettings" />
             </v-col>
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
@@ -93,8 +99,9 @@ export default {
   },
   data: () => ({
     profileExtensions: [],
+    userExtensions: [],
     spaceMemberExtensions: [],
-    fieldsToRetrieve: 'all,spacesCount,relationshipStatus,connectionsCount,binding',
+    fieldsToRetrieve: 'settings,all,binding',
     userType: 'internal',
     initialized: false,
     hasPeople: false,
@@ -105,13 +112,15 @@ export default {
     limitToFetch: 0,
     originalLimitToFetch: 0,
     abortController: null,
-    loadingPeople: false
+    loadingPeople: false,
+    userCardSettings: null
   }),
   computed: {
     profileActionExtensions() {
-      const profileActionExtensions = [...this.profileExtensions, ...this.spaceMemberExtensions];
-      profileActionExtensions.sort((a, b) => (a.order || 100) - (b.order || 100));
-      return profileActionExtensions;
+      return [...this.profileExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
+    },
+    spaceMembersActionExtensions() {
+      return [...this.spaceMemberExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
     },
     canShowMore() {
       return this.loadingPeople || this.users.length >= this.limitToFetch;
@@ -143,13 +152,15 @@ export default {
     filter() {
       this.searchPeople();
     },
-  }, 
+  },
   created() {
+    this.getSavedUserCardSettings();
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
     // To refresh menu when a new extension is ready to be used
     document.addEventListener('space-member-extension-updated', this.refreshExtensions);
     document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
 
     // To broadcast event about current page supporting profile extensions
     document.dispatchEvent(new CustomEvent('profile-extension-init'));
@@ -158,12 +169,19 @@ export default {
     this.$root.$on('advanced-filter', profileSettings => this.getUsersByadvancedfilter(profileSettings));
 
     this.refreshExtensions();
+    this.refreshUserExtensions();
   },
   methods: {
+    getSavedUserCardSettings() {
+      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+    },
     resetFilters() {
       this.$root.$emit('reset-filter');
       this.$root.$emit('reset-advanced-filter');
       this.$root.$emit('reset-advanced-filter-count');
+    },
+    refreshUserExtensions() {
+      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
     },
     refreshExtensions() {
       this.profileExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];

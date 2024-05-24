@@ -13,8 +13,12 @@
         class="form-horizontal"
         flat>
         <div v-for="property in properties" :key="property.id">
+          <profile-contact-user-type-property
+            v-if="property.propertyType=== 'user'"
+            :property="property"
+            @property-updated="propertyUpdated" />
           <profile-contact-edit-multi-field
-            v-if="property.multiValued || property?.children?.length"
+            v-else-if="property.multiValued || property?.children?.length"
             :property="property"
             @propertyUpdated="propertyUpdated" />
           <div v-else>
@@ -230,6 +234,8 @@ export default {
       if (event) {
         this.properties = JSON.parse(JSON.stringify(event));
       }
+      this.propertiesToSave = [];
+      this.disabled = true;
       this.$refs.profileContactInformationDrawer.open();
     },
     propertyUpdated(item){

@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.core.profileproperty.ProfileProperty;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -50,9 +53,14 @@ import org.exoplatform.social.core.storage.impl.StorageUtils;
 public class ProfileSearchConnector {
   private static final Log LOG = ExoLogger.getLogger(ProfileSearchConnector.class);
   private final ElasticSearchingClient client;
+  private final ProfilePropertyService profilePropertyService;
+
   private String index;
   
-  public ProfileSearchConnector(InitParams initParams, ElasticSearchingClient client) {
+  public ProfileSearchConnector(InitParams initParams,
+                                ElasticSearchingClient client,
+                                ProfilePropertyService profilePropertyService) {
+    this.profilePropertyService = profilePropertyService;
     PropertiesParam param = initParams.getPropertiesParam("constructor.params");
     this.index = param.getProperty("index");
     this.client = client;
@@ -487,13 +495,26 @@ public class ProfileSearchConnector {
     Map<String, String> settings = filter.getProfileSettings();
     query.append("""
               "must": [""");
-    settings.forEach((key, value) -> query.append("""
+    settings.forEach((key, value) -> {
+      ProfilePropertySetting property = profilePropertyService.getProfileSettingByName(key);
+      if (property != null && !property.isMultiValued()) {
+        query.append("""
                     {
                     "term": {
                        "%s.raw": "%s"
                      }
                    },
-                """.formatted(key, value)));
+                """.formatted(key, value));
+      } else {
+        query.append("""
+                    {
+                    "query_string": {
+                       "query": "%s:%s"
+                     }
+                   },
+                """.formatted(key, value));
+      }
+    });
     int lastComma = query.lastIndexOf(",");
     query.replace(lastComma, lastComma + 1, "");
     query.append("""

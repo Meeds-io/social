@@ -41,6 +41,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.IdentityRestResources;
@@ -56,8 +57,11 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
 
   private IdentityManager identityManager;
   
-  public IdentityRestResourcesV1(IdentityManager identityManager) {
+  private final ProfilePropertyService profilePropertyService;
+
+  public IdentityRestResourcesV1(IdentityManager identityManager, ProfilePropertyService profilePropertyService) {
     this.identityManager = identityManager;
+    this.profilePropertyService = profilePropertyService;
   }
   /**
    * {@inheritDoc}
@@ -127,8 +131,16 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     org.exoplatform.services.security.Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     String authenticatedUser = authenticatedUserIdentity.getUserId();
 
+    String expandedSettings = expand;
+    if (expand != null && expand.contains("settings") && OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
+      expandedSettings =
+             String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),
+                                                                                             profilePropertyService,
+                                                                                             ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                             Long.parseLong(identity.getId()))));
+    }
     long cacheTime = identity.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expandedSettings));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);

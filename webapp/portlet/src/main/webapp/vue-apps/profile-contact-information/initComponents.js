@@ -7,6 +7,8 @@ import ProfileSingleValuedProperty from './components/ProfileSingleValuedPropert
 import QuickSearchUsersListDrawer from './components/QuickSearchUsersListDrawer.vue';
 import ProfileHidePropertyButton from './components/ProfileHidePropertyButton.vue';
 import ProfileHiddenPropertyInfo from './components/ProfileHiddenPropertyInfo.vue';
+import ProfileContactUserTypeProperty from './components/ProfileContactUserTypeProperty.vue';
+import ProfileUserTypePropertyValues from './components/ProfileUserTypePropertyValues.vue';
 
 const components = {
   'profile-contact-information': ProfileContactInformation,
@@ -17,7 +19,9 @@ const components = {
   'profile-single-valued-property': ProfileSingleValuedProperty,
   'quick-search-users-list-drawer': QuickSearchUsersListDrawer,
   'profile-hide-property-button': ProfileHidePropertyButton,
-  'profile-hidden-property-info': ProfileHiddenPropertyInfo
+  'profile-hidden-property-info': ProfileHiddenPropertyInfo,
+  'profile-contact-user-type-property': ProfileContactUserTypeProperty,
+  'profile-user-type-property-values': ProfileUserTypePropertyValues
 };
 
 for (const key in components) {

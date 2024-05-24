@@ -76,7 +76,9 @@
       ref="contactInformationEdit"
       :upload-limit="uploadLimit" />
     <quick-search-users-list-drawer
-      :properties="quickSearchSettingProperties" />
+      :properties="quickSearchSettingProperties"
+      :user-card-settings="userCardSettings" />
+    <people-compact-card-options-drawer />
   </v-app>
 </template>
 
@@ -94,7 +96,8 @@ export default {
     properties: [],
     user: null,
     excludedSearchProps: [],
-    settings: []
+    settings: [],
+    userCardSettings: null
   }),
   computed: {
     isMobile() {
@@ -122,7 +125,9 @@ export default {
       });
   },
   created() {
+    this.getSavedUserCardSettings();
     this.refreshProperties();
+    this.getProfileSettings();
   },
   mounted() {
     document.addEventListener('userPropertiesModified', () => {
@@ -134,6 +139,15 @@ export default {
     }
   },
   methods: {
+    getProfileSettings() {
+      return this.$profileSettingsService.getSettings()
+        .then(settings => {
+          this.settings = settings?.settings || [];
+        });
+    },
+    getSavedUserCardSettings() {
+      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+    },
     canShowProperty(property) {
       return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
     },
@@ -143,7 +157,7 @@ export default {
                                .every(child => child.hidden));
     },
     isSearchable(property) {
-      return !this.excludedSearchProps?.includes(property.propertyName)
+      return property.propertyType !=='user' && !this.excludedSearchProps?.includes(property.propertyName)
                          && !new RegExp(`^(${this.excludedSearchProps?.join('.|')}.)`)?.exec(property.propertyName) ;
     },
     quickSearch(property, childProperty) {
@@ -158,7 +172,7 @@ export default {
       return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
         .then(userdataEntity => {
           this.user = userdataEntity;
-          this.properties = userdataEntity?.properties.filter(item => item.active).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
+          this.properties = userdataEntity?.properties.filter(item => item.active && !(item.propertyType === 'user' && eXo.env.portal.isExternal === 'true')).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
           this.$nextTick().then(() => this.$root.$emit('application-loaded'));
           if (broadcast){
             document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));

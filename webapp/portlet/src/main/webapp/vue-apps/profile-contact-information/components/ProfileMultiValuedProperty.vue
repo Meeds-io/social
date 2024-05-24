@@ -31,6 +31,25 @@
     <div
       class="align-end flex-grow-1 text-truncate text-end">
       <div
+        v-if="userProperty"
+        class="ms-auto width-fit-content">
+        <div
+          v-for="property in property.children"
+          :key="property.value"
+          class="my-1"
+          :class="property.hidden && 'opacity-5'">
+          <exo-user-avatar
+            v-if="canShowChild(property)"
+            :profile-id="property.value"
+            :show-disabled-user="false"
+            :size="28"
+            class="my-auto"
+            popover-left-position
+            align-top />
+        </div>
+      </div>
+      <div
+        v-else
         v-for="(childProperty, i) in property.children"
         :key="i"
         :title="childProperty.value"
@@ -101,6 +120,11 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+  computed: {
+    userProperty() {
+      return this.property.propertyType === 'user';
+    }
   },
   methods: {
     quickSearch(childProperty) {

@@ -19,11 +19,15 @@
       :space-id="spaceId"
       :people-count="peopleCount"
       :is-manager="isManager"
+      md="4"
+      lg="3"
+      xl="3"
       @loaded="peopleLoaded" />
     <space-invitation-drawer
       ref="spaceInvitationDrawer"
       :is-external-feature-enabled="isExternalFeatureEnabled"
       @refresh="refreshInvited" />
+    <people-compact-card-options-drawer />
   </v-app>
 </template>
 
@@ -63,10 +67,13 @@ export default {
       extensionRegistry.registerExtension('space-member-extension', 'action', {
         id: 'spaceMembers-removeMember',
         title: this.$t('peopleList.button.removeMember'),
-        icon: 'uiIconTrash',
-        order: 0,
+        icon: 'fa-user-minus',
+        class: 'fas fa-user-minus',
+        order: 2,
         enabled: (user) => {
-          return (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && user.isMember && !user.isGroupBound;
+          return ['member', 'manager', 'redactor', 'publisher'].includes(this.filter)
+                 && user.isMember && user?.username !== eXo?.env?.portal?.userName
+                 && !user.isGroupBound;
         },
         click: (user) => {
           this.$spaceService.removeMember(eXo.env.portal.spaceName, user.username)
@@ -77,6 +84,7 @@ export default {
         id: 'spaceMembers-removeManager',
         title: this.$t('peopleList.button.removeManager'),
         icon: 'uiIconMemberAdmin',
+        class: 'fas fa-user-cog',
         order: 1,
         enabled: (user) => {
           return user.isManager && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
@@ -90,6 +98,7 @@ export default {
         id: 'spaceMembers-promoteManager',
         title: this.$t('peopleList.button.promoteManager'),
         icon: 'uiIconMemberAdmin',
+        class: 'fas fa-user-cog',
         order: 1,
         enabled: (user) => {
           return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isManager;
@@ -103,6 +112,7 @@ export default {
         id: 'spaceMembers-setAsRedactor',
         title: this.$t('peopleList.button.setAsRedactor'),
         icon: 'uiIconEditMembership',
+        class: 'fas fa-user-edit',
         order: 1,
         enabled: (user) => {
           return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isSpaceRedactor;
@@ -116,6 +126,7 @@ export default {
         id: 'spaceMembers-removeRedactor',
         title: this.$t('peopleList.button.removeRedactor'),
         icon: 'uiIconEditMembership',
+        class: 'fas fa-user-edit',
         order: 1,
         enabled: (user) => {
           return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
@@ -129,6 +140,7 @@ export default {
         id: 'spaceMembers-promotePublisher',
         title: this.$t('peopleList.button.promotePublisher'),
         icon: 'fa fa-paper-plane',
+        class: 'fas fa-paper-plane',
         order: 1,
         enabled: (user) => {
           return !user.isSpacePublisher && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
@@ -142,6 +154,7 @@ export default {
         id: 'spaceMembers-removePublisher',
         title: this.$t('peopleList.button.removePublisher'),
         icon: 'fa fa-paper-plane',
+        class: 'fas fa-paper-plane',
         order: 1,
         enabled: (user) => {
           return user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
@@ -201,7 +214,8 @@ export default {
     },
     peopleLoaded(peopleCount) {
       this.peopleCount = peopleCount;
-    }
+    },
+
   },
 };
 </script>

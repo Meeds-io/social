@@ -32,6 +32,8 @@ public class ProfilePropertySetting {
 
   private String  propertyName;
 
+  private String  propertyType;
+  
   private boolean isVisible;
 
   private boolean isEditable;
@@ -45,10 +47,12 @@ public class ProfilePropertySetting {
   private boolean isGroupSynchronized;
 
   private boolean isHiddenbale;
-
+  
   private boolean isRequired;
 
   private boolean isMultiValued;
 
   private Long    id;
+
+  private Long    updated;
 }

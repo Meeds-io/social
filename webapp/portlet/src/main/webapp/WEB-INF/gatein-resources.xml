@@ -310,6 +310,14 @@
     <css-path>/skin/css/portlet/VerticalMenu/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>OrganizationalChart</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/organizational-chart/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
   
   <portal-skin>
     <skin-name>Enterprise</skin-name>
@@ -813,6 +821,9 @@
       </script>
       <depends>
         <module>peopleListComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
       </depends>
       <depends>
         <module>commonVueComponents</module>
@@ -1342,6 +1353,9 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
+        <module>suggester</module>
+      </depends>
+      <depends>
         <module>vue</module>
       </depends>
       <depends>
@@ -1801,6 +1815,9 @@
         <module>vuetify</module>
       </depends>
       <depends>
+        <module>peopleListComponents</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -1898,6 +1915,44 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>OrganizationalChart</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/organizationalChart.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
+        <module>peopleListComponents</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>jspdf</module>
       </depends>
       <depends>
         <module>jquery</module>
@@ -2773,7 +2828,46 @@
       <as>$</as>
     </depends>
   </module>
-  
+
+  <module>
+    <name>jspdf</name>
+    <script>
+      <minify>false</minify>
+      <adapter>
+        (function() {
+        <include>/js/lib/jspdf.min.js</include>
+        return jspdf;
+        })();
+      </adapter>
+    </script>
+    <depends>
+      <module>html2canvas</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>html2canvas</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/lib/html2canvas.min.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>organizationalChartPopoverExtension</name>
+    <load-group>popoverGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/organizationalChartExtension.bundle.js</path>
+    </script>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
   <!-- Base Javascripts for anonymous mode -->
   <module>
     <name>I18NMessage</name>

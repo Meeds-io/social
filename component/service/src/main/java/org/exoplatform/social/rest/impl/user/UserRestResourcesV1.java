@@ -32,6 +32,10 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
+import org.exoplatform.commons.api.settings.data.Scope;
+import org.exoplatform.settings.rest.SettingEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -113,6 +117,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private static final String CONNECTED              = "connected";
 
+  public static final String USER_CARD_SETTINGS      = "UserCardSettings";
+
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
   private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
@@ -174,6 +180,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
 
   private UploadService       uploadService;
 
+  private SettingService      settingService;
+
   private ExecutorService     importExecutorService = null;
   
   public UserRestResourcesV1(ActivityRestResourcesV1 activityRestResourcesV1,
@@ -188,7 +196,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                              ImageThumbnailService imageThumbnailService,
                              ProfilePropertyService profilePropertyService,
                              PasswordRecoveryService passwordRecoveryService,
-                             LocaleConfigService localeConfigService) {
+                             LocaleConfigService localeConfigService,
+                             SettingService settingService) {
     this.userACL = userACL;
     this.activityRestResourcesV1 = activityRestResourcesV1;
     this.organizationService = organizationService;
@@ -203,6 +212,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     this.passwordRecoveryService = passwordRecoveryService;
     this.localeConfigService = localeConfigService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
+    this.settingService = settingService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
@@ -1525,6 +1535,42 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     return errorResponse == null ? Response.noContent().build() : errorResponse;
   }
 
+  @GET
+  @Path("userCardSettings")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(
+          summary = "Gets the field settings of a user card",
+          description = "Gets the field settings of a user card",
+          method = "GET")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input"),
+          @ApiResponse(responseCode = "401", description = "User does not have permissions to get it"),
+          @ApiResponse(responseCode = "404", description = "Setting does not exist"),
+          @ApiResponse(responseCode = "500", description = "Internal server error")})
+  public Response getUserCardSettings(@Context Request request) {
+
+    SettingValue<?> userCardFirstFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardFirstFieldSetting");
+    SettingValue<?> userCardSecondFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardSecondFieldSetting");
+    SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardThirdFieldSetting");
+
+    JSONObject userCardSettings = new JSONObject();
+    userCardSettings.put("firstField", userCardFirstFieldSetting.getValue());
+    userCardSettings.put("secondField", userCardSecondFieldSetting.getValue());
+    userCardSettings.put("thirdField", userCardThirdFieldSetting.getValue());
+
+    String eTagValue = String.valueOf(Objects.hash(userCardFirstFieldSetting.getValue(), userCardSecondFieldSetting.getValue(), userCardThirdFieldSetting.getValue()));
+    EntityTag eTag = new EntityTag(eTagValue, true);
+    Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
+    if (builder == null) {
+      builder = Response.ok(userCardSettings.toString(), MediaType.APPLICATION_JSON);
+      builder.tag(eTag);
+      builder.cacheControl(CACHE_CONTROL);
+    }
+    return builder.build();
+  }
+
   private Response importUsers(String uploadId, String fileLocation, Locale locale, StringBuilder url, boolean sync) {
     UserImportResultEntity userImportResultEntity = new UserImportResultEntity();
     importUsersProcessing.put(uploadId, userImportResultEntity);
@@ -1582,7 +1628,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       List<String> fields = new ArrayList<>(Arrays.stream(headerLine.split(",")).map(String::trim).toList());
       List<String> standardFields = List.of("userName", "password", "groups", "aboutMe", "timeZone", "enabled");
-      List<String> systemParentAndMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls");
+      List<String> systemParentAndMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls", "manager");
       List<String> unauthorizedFields = new ArrayList<>();
       ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
       RequestLifeCycle.begin(PortalContainer.getInstance());
@@ -1794,7 +1840,11 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         userProfileProperties.computeIfAbsent(propertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
         @SuppressWarnings("unchecked")
         ArrayList<Map<String, String>> values = (ArrayList<Map<String, String>>) userProfileProperties.get(propertySetting.getPropertyName());
-        values.add(childPropertyMap);
+        for (String val : propertyValue.split(";")) {
+          Map<String, String> childProperty = new HashMap<>();
+          childProperty.put("value", val);
+          values.add(childProperty);
+        }
         userProfileProperties.put(propertySetting.getPropertyName(), values);
       } else if (parentPropertySetting != null){
         childPropertyMap.put("key", propertySetting.getPropertyName());

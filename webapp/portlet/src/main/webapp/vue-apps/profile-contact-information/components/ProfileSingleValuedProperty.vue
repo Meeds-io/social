@@ -31,8 +31,23 @@
     </div>
     <div
       class="align-end flex-grow-1 text-truncate text-end">
+      <div
+        v-if="userProperty"
+        class="ms-auto width-fit-content">
+        <div
+          class="my-1"
+          :class="property.hidden && 'opacity-5'">
+          <exo-user-avatar
+            :profile-id="property.value"
+            :show-disabled-user="false"
+            :size="28"
+            class="my-auto"
+            popover-left-position
+            align-top />
+        </div>
+      </div>
       <v-btn
-        v-if="searchable"
+        v-else-if="searchable"
         v-autolinker="property.value"
         class="primary--text text-subtitle-2 pa-0 font-weight-regular"
         min-width="auto"
@@ -70,6 +85,11 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+  computed: {
+    userProperty() {
+      return this.property.propertyType === 'user';
+    }
   },
   methods: {
     quickSearch() {

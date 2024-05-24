@@ -24,6 +24,7 @@ import org.exoplatform.commons.api.persistence.ExoEntity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity(name = "SocProfileSettingEntity")
 @ExoEntity
@@ -74,6 +75,12 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "IS_HIDDENABLE")
   private boolean isHiddenable;
 
+  @Column(name = "PROPERTY_TYPE")
+  private String propertyType;
+
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "UPDATED_DATE", nullable = false)
+  private Date updatedDate      = new Date();
 
   public Long getId() {
     return id;
@@ -163,6 +170,22 @@ public class ProfilePropertySettingEntity implements Serializable {
     isHiddenable = hiddenable;
   }
 
+  public String getPropertyType() {
+    return propertyType;
+  }
+
+  public void setPropertyType(String propertyType) {
+    this.propertyType = propertyType;
+  }
+
+  public Date getUpdatedDate() {
+    return updatedDate;
+  }
+
+  public void setUpdatedDate(Date updatedDate) {
+    this.updatedDate = updatedDate;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder(getId().toString());
@@ -174,6 +197,8 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(isMultiValued());
     builder.append(":").append(isRequired());
     builder.append(":").append(isGroupSynchronized());
+    builder.append(":").append(isHiddenable());
+    builder.append(":").append(getPropertyType());
     builder.append(":").append(getParentId());
     return builder.toString();
   }

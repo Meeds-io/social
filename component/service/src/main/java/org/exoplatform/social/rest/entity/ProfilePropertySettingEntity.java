@@ -40,6 +40,8 @@ public class ProfilePropertySettingEntity {
 
   private String                             resolvedLabel;
 
+  private String                             propertyType;
+
   private boolean                            isVisible;
 
   private boolean                            isEditable;
@@ -57,6 +59,8 @@ public class ProfilePropertySettingEntity {
   private boolean                            isMultiValued;
 
   private boolean                            isInternal;
+
+  private Long                               updated;
 
   private boolean                            isGroupSynchronizationEnabled;
 
