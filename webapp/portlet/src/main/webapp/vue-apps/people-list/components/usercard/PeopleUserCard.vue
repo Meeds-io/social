@@ -185,7 +185,7 @@ export default {
         firstField: 'position',
         secondField: 'team',
         thirdField: 'city'
-      },
+      }
     };
   },
   props: {
