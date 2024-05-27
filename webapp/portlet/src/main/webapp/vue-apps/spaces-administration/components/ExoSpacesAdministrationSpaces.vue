@@ -18,12 +18,6 @@
               href="#permissions">
               {{ $t('social.spaces.administration.permissions') }}
             </v-tab>
-            <v-tab key="spaceApplications" href="#spaceApplications">
-              {{ $t('social.spaces.applications') }}
-            </v-tab>
-            <v-tab key="spaceTemplates" href="#spaceTemplates">
-              {{ $t('social.spaces.templates') }}
-            </v-tab>
             <v-tab
               v-if="canChangePermissions"
               key="bindingReports"
@@ -44,17 +38,6 @@
               id="permissions"
               value="permissions">
               <exo-spaces-administration-manage-permissions />
-            </v-tab-item>
-            <v-tab-item
-              id="spaceApplications"
-              value="spaceApplications"
-              class="px-4 py-2">
-              <exo-space-applications :applications-by-category="applicationsByCategory" />
-            </v-tab-item>
-            <v-tab-item
-              id="spaceTemplates"
-              value="spaceTemplates">
-              <exo-space-templates-spaces />
             </v-tab-item>
             <v-tab-item
               v-if="canChangePermissions"
@@ -80,28 +63,20 @@ export default {
   },
   data() { 
     return {
-      selectedTab: 'applications',
+      selectedTab: 'manage',
       activeTab: 1,
       canChangePermissions: false
     };
   },
   computed: {
     showManageSpaces() {
-      return this.activeTab && this.activeTab === 1;
+      return this.activeTab === 1;
     },
     showPermissions() {
-      const permissionTabNumber = 2;
-      return this.canChangePermissions && this.activeTab && this.activeTab === permissionTabNumber;
-    },
-    showSpaceApplications() {
-      return this.activeTab === 3;
-    },
-    showSpaceTemplates() {
-      return this.activeTab === 4;
+      return this.activeTab === 2 && this.canChangePermissions;
     },
     showBindingReports() {
-      const bindingReportsTabNumber = 5;
-      return this.canChangePermissions && this.activeTab && this.activeTab === bindingReportsTabNumber && this.canChangePermissions;
+      return this.activeTab === 3 && this.canChangePermissions && this.canChangePermissions;
     }
   },
   created() {
@@ -115,7 +90,7 @@ export default {
   mounted() {
     const windowLocationHash = window.location.hash;
     if (windowLocationHash === '#bindingReports') {
-      this.activeTab = 5;
+      this.activeTab = 3;
     } else if (windowLocationHash === '#permissions') {
       this.activeTab = 2;
     } else {
