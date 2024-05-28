@@ -1,5 +1,5 @@
-export function getExternalSpacesList() {
-  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_USER_API}${eXo.env.portal.userName}/spaces?limit=-1`, {
+export function getExternalSpacesList(offset,limit) {
+  return fetch(`${Vue.prototype.$spacesConstants.SOCIAL_USER_API}${eXo.env.portal.userName}/spaces?offset=${offset}&limit=${limit}`, {
     method: 'GET',
     credentials: 'include',
   }).then((resp) => {
