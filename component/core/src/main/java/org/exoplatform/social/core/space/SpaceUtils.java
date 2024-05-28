@@ -23,37 +23,26 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Pattern;
 
 import javax.portlet.RenderRequest;
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.file.model.FileItem;
-import org.exoplatform.commons.file.services.FileService;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
 import org.gatein.common.i18n.LocalizedString;
-import org.gatein.common.util.Tools;
 import org.gatein.pc.api.Portlet;
 import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.info.MetaInfo;
 import org.gatein.pc.api.info.PortletInfo;
 
-import org.exoplatform.application.registry.Application;
-import org.exoplatform.application.registry.ApplicationCategory;
-import org.exoplatform.application.registry.ApplicationRegistryService;
+import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ExpressionUtil;
 import org.exoplatform.commons.utils.ListAccess;
@@ -117,8 +106,10 @@ import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.common.router.ExoRouter;
 import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -126,6 +117,9 @@ import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
 import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 import org.exoplatform.web.application.RequestContext;
 import org.exoplatform.webui.application.WebuiRequestContext;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.SneakyThrows;
 
 /**
  * SpaceUtils Utility for working with space
@@ -145,45 +139,39 @@ public class SpaceUtils {
    *             by 1.2.9
    */
   @Deprecated
-  public static final String                                  MANAGER               = "manager";
+  public static final String                                  MANAGER                  = "manager";
 
-  public static final String                                  MEMBER                = "member";
-  
-  public static final String                                  REDACTOR              = "redactor";
-  
-  public static final String                                  PUBLISHER             = "publisher";
+  public static final String                                  MEMBER                   = "member";
 
-  public static final String                                  MENU_CONTAINER        = "Menu";
+  public static final String                                  REDACTOR                 = "redactor";
 
-  public static final String                                  APPLICATION_CONTAINER = "Application";
+  public static final String                                  PUBLISHER                = "publisher";
 
-  public static final String                                  SPACE_URL             = "SPACE_URL";
+  public static final String                                  MENU_CONTAINER           = "Menu";
 
-  public static final String                                  SPACE_SETTINGS_PAGE   = "settings";
+  public static final String                                  APPLICATION_CONTAINER    = "Application";
 
-  /**
-   * The id of the container in plf.
-   * 
-   * @since 1.2.8
-   */
-  private static final String                                 SPACE_MENU            = "SpaceMenu";
+  public static final String                                  SPACE_URL                = "SPACE_URL";
+
+  public static final String                                  SPACE_SETTINGS_PAGE      = "settings";
 
   /**
    * The id of the container in plf.
    * 
    * @since 1.2.8
    */
-  private static final String                                 SPACE_APPLICATIONS    = "SpaceApplications";
+  private static final String                                 SPACE_MENU               = "SpaceMenu";
 
-  private static final ConcurrentHashMap<String, Application> appListCache          =
-                                                                           new ConcurrentHashMap<String, Application>();
+  /**
+   * The id of the container in plf.
+   * 
+   * @since 1.2.8
+   */
+  private static final String                                 SPACE_APPLICATIONS       = "SpaceApplications";
 
-  private static final String                                 REMOTE_CATEGORY_NAME  = "remote";
+  private static final ConcurrentHashMap<String, Application> APP_LIST_CACHE           = new ConcurrentHashMap<>();
 
-  private static final Pattern                                SPACE_NAME_PATTERN    =
-                                                                                 Pattern.compile("^([\\p{L}\\s\\d\'_&/-]+[\\s]?)+$");
-
-  private static final String                                 PORTAL_PAGE_TITLE     = "portal:requestTitle";
+  private static final String                                 PORTAL_PAGE_TITLE        = "portal:requestTitle";
 
   private static final String                                 NUMBER_REG_PATTERN       = "[0-9]";
 
@@ -192,6 +180,8 @@ public class SpaceUtils {
   private static final String                                 SPACE_STR                = " ";
 
   private static final String                                 CURRENT_SPACE            = "CurrentSpace";
+
+  private static Set<Portlet>                                 portletsCache            = null;
 
   /**
    * Creates a new group from an existing group. This new group will get all
@@ -229,182 +219,35 @@ public class SpaceUtils {
   }
 
   /**
-   * Gets applications that a group has right to access
-   *
-   * @param groupId
-   * @return applications
-   * @throws Exception
-   */
-  public static List<Application> getApplications(String groupId) throws Exception {
-
-    List<Application> list = new CopyOnWriteArrayList<Application>();
-    ApplicationRegistryService appRegistrySrc = getApplicationRegistryService();
-
-    List<ApplicationCategory> listCategory = appRegistrySrc.getApplicationCategories();
-    Iterator<ApplicationCategory> cateItr = listCategory.iterator();
-    while (cateItr.hasNext()) {
-      ApplicationCategory cate = cateItr.next();
-      if (!hasAccessPermission(cate, groupId)) {
-        cateItr.remove();
-        continue;
-      }
-      ApplicationType<org.exoplatform.portal.pom.spi.portlet.Portlet> portletType = ApplicationType.PORTLET;
-      List<Application> applications = appRegistrySrc.getApplications(cate, portletType);
-      Iterator<Application> appIterator = applications.iterator();
-      while (appIterator.hasNext()) {
-        Application app = appIterator.next();
-        if (!hasAccessPermission(app, groupId)) {
-          appIterator.remove();
-        } else {
-          list.add(app);
-        }
-      }
-    }
-    return list;
-  }
-
-  /**
-   * Gets appStore of HashMap type with key = ApplicationCategory and value =
-   * list of applications. appStore is filter by access permission from that
-   * group; filter by application category access permission and filtered by
-   * application permission.
-   *
-   * @param space
-   * @return appStore
-   * @throws Exception
-   */
-  public static Map<ApplicationCategory, List<Application>> getAppStore(Space space) throws Exception {
-    Map<ApplicationCategory, List<Application>> appStore = new LinkedHashMap<ApplicationCategory, List<Application>>();
-    ApplicationRegistryService appRegistryService = getApplicationRegistryService();
-    String groupId = space.getGroupId();
-    List<ApplicationCategory> categoryList = appRegistryService.getApplicationCategories();
-    Collections.sort(categoryList, new PortletCategoryComparator());
-    Iterator<ApplicationCategory> cateItr = categoryList.iterator();
-    while (cateItr.hasNext()) {
-      ApplicationCategory appCategory = cateItr.next();
-      if (!hasAccessPermission(appCategory, groupId)) {
-        continue;
-      }
-      List<Application> tempAppList = new ArrayList<Application>();
-      List<Application> appList = appCategory.getApplications();
-      Collections.sort(appList, new PortletComparator());
-      Iterator<Application> appItr = appList.iterator();
-      while (appItr.hasNext()) {
-        Application application = appItr.next();
-        if (!hasAccessPermission(application, groupId)) {
-          continue;
-        }
-        tempAppList.add(application);
-      }
-      if (tempAppList.size() > 0) {
-        appStore.put(appCategory, tempAppList);
-      }
-    }
-    return appStore;
-  }
-
-  /**
-   * Gets application from portal container. This is used to get application
-   * when get application by applicationRegistry return null.
+   * Gets application from portal container
    *
    * @param appId
    * @return An application has name match input appId.
-   * @throws Exception
    */
-  public static Application getAppFromPortalContainer(String appId) throws Exception {
-    if (appListCache.containsKey(appId)) {
-      return appListCache.get(appId);
-    }
-
-    ExoContainer container = ExoContainerContext.getCurrentContainer();
-
-    PortletInvoker portletInvoker = (PortletInvoker) container.getComponentInstance(PortletInvoker.class);
-    Set<Portlet> portlets = portletInvoker.getPortlets();
-    ApplicationRegistryService appRegistryService = getApplicationRegistryService();
-    for (Portlet portlet : portlets) {
-      PortletInfo info = portlet.getInfo();
-      String portletApplicationName = info.getApplicationName();
-      String portletName = info.getName();
-
-      portletApplicationName = portletApplicationName.replace('/', '_');
-      portletName = portletName.replace('/', '_');
-
-      if (portletName.equals(appId)) {
-        LocalizedString keywordsLS = info.getMeta().getMetaValue(MetaInfo.KEYWORDS);
-
-        String[] categoryNames = null;
-        if (keywordsLS != null) {
-          String keywords = keywordsLS.getDefaultString();
-          if (keywords != null && keywords.length() != 0) {
-            categoryNames = keywords.split(",");
-          }
-        }
-
-        if (categoryNames == null || categoryNames.length == 0) {
-          categoryNames = new String[] { portletApplicationName };
-        }
-
-        if (portlet.isRemote()) {
-          categoryNames = Tools.appendTo(categoryNames, REMOTE_CATEGORY_NAME);
-        }
-
-        for (String categoryName : categoryNames) {
-          ApplicationCategory category;
-
-          categoryName = categoryName.trim();
-
-          category = appRegistryService.getApplicationCategory(categoryName);
-          if (category == null) {
-            category = new ApplicationCategory();
-            category.setName(categoryName);
-            category.setDisplayName(categoryName);
-          }
-
-          Application app = appRegistryService.getApplication(categoryName + "/" + portletName);
-          if (app != null) {
-            return app;
-          }
-
-          // ContentType<?> contentType;
-          String contentId;
-
-          LocalizedString descriptionLS = portlet.getInfo()
-                                                 .getMeta()
-                                                 .getMetaValue(MetaInfo.DESCRIPTION);
-          LocalizedString displayNameLS = portlet.getInfo()
-                                                 .getMeta()
-                                                 .getMetaValue(MetaInfo.DISPLAY_NAME);
-
-          app = new Application();
-
-          if (portlet.isRemote()) {
-            // contentType = WSRP.CONTENT_TYPE;
-            contentId = portlet.getContext().getId();
-          } else {
-            contentId = info.getApplicationName() + "/" + info.getName();
-          }
-          app.setType(ApplicationType.PORTLET);
-          app.setContentId(contentId);
-          app.setApplicationName(portletName);
-          app.setCategoryName(categoryName);
-          app.setDisplayName(getLocalizedStringValue(displayNameLS, portletName));
-          app.setDescription(getLocalizedStringValue(descriptionLS, portletName));
-          Application oldApp = appListCache.putIfAbsent(app.getApplicationName(), app);
-          return oldApp == null ? app : oldApp;
-        }
+  public static Application getApplication(String appId) {
+    return APP_LIST_CACHE.computeIfAbsent(appId, key -> {
+      Portlet portlet = getPortlets().stream()
+                                     .filter(p -> appId.equals(p.getInfo().getName())
+                                                  || appId.equals(p.getInfo().getApplicationName() + "/" + p.getInfo().getName()))
+                                     .findFirst()
+                                     .orElse(null);
+      if (portlet == null) {
+        return null;
       }
-    }
+      PortletInfo info = portlet.getInfo();
+      MetaInfo meta = info.getMeta();
+      LocalizedString descriptionLS = meta.getMetaValue(MetaInfo.DESCRIPTION);
+      LocalizedString displayNameLS = meta.getMetaValue(MetaInfo.DISPLAY_NAME);
+      String portletName = info.getName();
+      String archiveName = info.getApplicationName();
 
-    return null;
-  }
-
-  /**
-   * PortletCategoryComparator
-   */
-  static class PortletCategoryComparator implements Comparator<ApplicationCategory> {
-    public int compare(ApplicationCategory cat1, ApplicationCategory cat2) {
-      return cat1.getDisplayName(true).compareTo(cat2.getDisplayName(true));
-    }
+      Application app = new Application();
+      app.setContentId(archiveName + "/" + portletName);
+      app.setApplicationName(portletName);
+      app.setDisplayName(getLocalizedStringValue(displayNameLS, portletName));
+      app.setDescription(getLocalizedStringValue(descriptionLS, portletName));
+      return app;
+    });
   }
 
   /**
@@ -937,14 +780,14 @@ public class SpaceUtils {
         removeUserFromGroupWithManagerMembership(userId, space.getGroupId());
       }
     }
-    
+
     // remove users from group with role is redactor
     if (space.getRedactors() != null) {
       for (String userId : space.getRedactors()) {
         removeUserFromGroupWithRedactorMembership(userId, space.getGroupId());
       }
     }
-    
+
     // remove users from group which role is publisher
     if (space.getPublishers() != null) {
       for (String userId : space.getPublishers()) {
@@ -1009,7 +852,8 @@ public class SpaceUtils {
       Group existingGroup = groupHandler.findGroupById(groupId);
       membershipHandler.linkMembership(user, existingGroup, membershipType, true);
     } catch (Exception e) {
-      throw new IllegalStateException("Unable to add user: " + remoteId + " to group: " + groupId + " with membership: " + membership,
+      throw new IllegalStateException("Unable to add user: " + remoteId + " to group: " + groupId + " with membership: " +
+          membership,
                                       e);
     } finally {
       clearIdentityCaching(OrganizationIdentityProvider.NAME, remoteId);
@@ -1033,7 +877,7 @@ public class SpaceUtils {
   public static void addUserToGroupWithMemberMembership(String remoteId, String groupId) {
     addUserToGroupWithMembership(remoteId, groupId, MEMBER);
   }
-  
+
   /**
    * Adds the user to group with the membership (redactor).
    * 
@@ -1043,7 +887,7 @@ public class SpaceUtils {
   public static void addUserToGroupWithRedactorMembership(String remoteId, String groupId) {
     addUserToGroupWithMembership(remoteId, groupId, REDACTOR);
   }
-  
+
   /**
    * Adds the user to group with the membership (publisher).
    * 
@@ -1066,7 +910,8 @@ public class SpaceUtils {
   }
 
   /**
-   * Removes the user from group with the membership (member, manager, redactor, publisher).
+   * Removes the user from group with the membership (member, manager, redactor,
+   * publisher).
    * 
    * @param remoteId
    * @param groupId
@@ -1133,7 +978,7 @@ public class SpaceUtils {
   public static void removeUserFromGroupWithMemberMembership(String remoteId, String groupId) {
     removeUserFromGroupWithMembership(remoteId, groupId, MEMBER);
   }
-  
+
   /**
    * Removes the user from group with redactor membership.
    * 
@@ -1143,7 +988,7 @@ public class SpaceUtils {
   public static void removeUserFromGroupWithRedactorMembership(String remoteId, String groupId) {
     removeUserFromGroupWithMembership(remoteId, groupId, REDACTOR);
   }
-  
+
   /**
    * Removes the user from group with publisher membership.
    * 
@@ -1174,7 +1019,7 @@ public class SpaceUtils {
   public static void removeUserFromGroupWithAnyMembership(String remoteId, String groupId) {
     removeUserFromGroupWithMembership(remoteId, groupId, MembershipTypeHandler.ANY_MEMBERSHIP_TYPE);
   }
-  
+
   /**
    * Creates group navigation if not existed or return existing group navigation
    * based on groupId
@@ -1652,8 +1497,7 @@ public class SpaceUtils {
         if (app.contains(appId)) {
           String[] splited = app.split(":");
           if (splited.length != 4) {
-            LOG.warn("appStatus is not in correct form of [appId:appNodeName:isRemovableString:status] : "
-                + app);
+            LOG.warn("appStatus is not in correct form of [appId:appNodeName:isRemovableString:status] : " + app);
             return null;
           }
 
@@ -1662,27 +1506,6 @@ public class SpaceUtils {
       }
     }
     return null;
-  }
-
-  /**
-   * Checks if a group can have access to an application
-   *
-   * @param app
-   * @param groupId
-   * @return
-   * @throws Exception
-   */
-  private static boolean hasAccessPermission(Application app, String groupId) throws Exception {
-    List<String> permissions = app.getAccessPermissions();
-    if (permissions == null) {
-      return false;
-    }
-    for (String ele : permissions) {
-      if (hasViewPermission(ele, groupId)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -1703,27 +1526,6 @@ public class SpaceUtils {
   public static LayoutService getLayoutService() {
     PortalContainer portalContainer = PortalContainer.getInstance();
     return portalContainer.getComponentInstanceOfType(LayoutService.class);
-  }
-
-  /**
-   * Checks if a group have access permission to an application category
-   *
-   * @param app
-   * @param groupId
-   * @return true if that group has access permission; otherwise, false
-   * @throws Exception
-   */
-  private static boolean hasAccessPermission(ApplicationCategory app, String groupId) throws Exception {
-    List<String> permissions = app.getAccessPermissions();
-    if (permissions == null) {
-      return false;
-    }
-    for (String ele : permissions) {
-      if (hasViewPermission(ele, groupId)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -1762,16 +1564,6 @@ public class SpaceUtils {
     } else {
       return localizedString.getDefaultString();
     }
-  }
-
-  /**
-   * Gets application registry service
-   *
-   * @return
-   */
-  private static ApplicationRegistryService getApplicationRegistryService() {
-    PortalContainer portalContainer = PortalContainer.getInstance();
-    return (ApplicationRegistryService) portalContainer.getComponentInstanceOfType(ApplicationRegistryService.class);
   }
 
   /**
@@ -1940,18 +1732,19 @@ public class SpaceUtils {
     return new ArrayList<String>(userNames);
   }
 
-
   /**
-   * Check if the user has the role redactor in that space or that the space is not redactional
+   * Check if the user has the role redactor in that space or that the space is
+   * not redactional
    * 
    * @param userName
    * @param spaceGroupId
-   * @return boolean true if the user has that role Or the role is not present in the space
+   * @return boolean true if the user has that role Or the role is not present
+   *         in the space
    */
   public static boolean isRedactor(String userName, String spaceGroupId) {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
     return space != null && (getSpaceService().isRedactor(space, userName)
-        || (ArrayUtils.isEmpty(space.getRedactors()) && getSpaceService().isMember(space, userName)));
+                             || (ArrayUtils.isEmpty(space.getRedactors()) && getSpaceService().isMember(space, userName)));
   }
 
   /**
@@ -1959,7 +1752,8 @@ public class SpaceUtils {
    *
    * @param userName
    * @param spaceGroupId
-   * @return boolean true if the user is supermanager of all spaces or has the role manager in that space
+   * @return boolean true if the user is supermanager of all spaces or has the
+   *         role manager in that space
    */
   public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) {
     Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
@@ -2002,13 +1796,13 @@ public class SpaceUtils {
       if (!hasSettingPermission(space, currentuser) && (settingNavigation != null)) {
         parentNavigation.removeChild(settingNavigation.getName());
       }
-      
+
       navigations.add(parentNavigation);
       navigations.addAll(parentNavigation.getChildren());
       filterUnreachablePages(navigations);
       computeNavigationLabels(navigations, locale);
     } catch (Exception e) {
-      LOG.error("Get UserNode of Space failed.",e);
+      LOG.error("Get UserNode of Space failed.", e);
     }
     return navigations;
   }
@@ -2039,7 +1833,7 @@ public class SpaceUtils {
 
   public static boolean isHomeNavigation(UserNode node) {
     return node.getParent() == null || StringUtils.equals(node.getParent().getName(), "default")
-        || node.getParent().getParent() == null;
+           || node.getParent().getParent() == null;
   }
 
   public static String getResolvedAppLabel(UserNode userNode, ResourceBundle resourceBundle, Locale locale) {
@@ -2099,8 +1893,8 @@ public class SpaceUtils {
     }
     ((PortalRequestContext) RequestContext.getCurrentInstance()).getRequest()
                                                                 .setAttribute(PORTAL_PAGE_TITLE,
-                                                                              space.getDisplayName() + " - "
-                                                                                  + selectedUserNodeLabel);
+                                                                              space.getDisplayName() + " - " +
+                                                                                  selectedUserNodeLabel);
   }
 
   public static UserPortalConfigService getUserPortalConfigService() {
@@ -2151,4 +1945,13 @@ public class SpaceUtils {
     // clear caching for space
     cachedSpaceStorage.clearSpaceCached(spaceId);
   }
+
+  @SneakyThrows
+  private static Set<Portlet> getPortlets() {
+    if (portletsCache == null) {
+      portletsCache = ExoContainerContext.getService(PortletInvoker.class).getPortlets();
+    }
+    return portletsCache;
+  }
+
 }
