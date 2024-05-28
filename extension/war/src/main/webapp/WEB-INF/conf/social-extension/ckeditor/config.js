@@ -36,7 +36,7 @@ CKEDITOR.editorConfig = function(config) {
   config.skin = 'moono-exo,/commons-extension/ckeditor/skins/moono-exo/';
 
   document.addEventListener('rich-editor-ready', () => {
-    var supportsOembed = config.supportsOembed;
+    let supportsOembed = config.supportsOembed;
     if (supportsOembed) {
       if (config.extraPlugins.indexOf('embedsemantic') < 0) {
         config.extraPlugins = `${config.extraPlugins},embedsemantic`;
