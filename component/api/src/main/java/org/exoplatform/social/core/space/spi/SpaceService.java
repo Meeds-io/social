@@ -17,9 +17,7 @@
 package org.exoplatform.social.core.space.spi;
 
 import java.util.List;
-import java.util.Locale;
 
-import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -34,12 +32,6 @@ import org.exoplatform.social.core.space.model.Space;
  *
  */
 public interface SpaceService {
-
-  /**
-   * Will be removed by 4.0.x.
-   */
-  @Deprecated
-  final String SPACES_APP_ID = "exosocial:spaces";
 
   /**
    * Gets a space by its display name.
@@ -1594,13 +1586,6 @@ public interface SpaceService {
   }
 
   /**
-   * @return {@link List} of {@link Application} that can be instantiated in spaces
-   */
-  default List<Application> getSpacesApplications() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * @return a list of external invitations in space
    */
   default List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
@@ -1650,25 +1635,6 @@ public interface SpaceService {
    * @param email
    */
   default void deleteExternalUserInvitations(String email) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Add an application to applications list that can be instantiated in space
-   * context
-   * 
-   * @param application of type {@link Application}
-   */
-  default void addSpacesApplication(Application application) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Delete application from list of spaces applications
-   * 
-   * @param applicationName application name to delete
-   */
-  default void deleteSpacesApplication(String applicationName) {
     throw new UnsupportedOperationException();
   }
 
