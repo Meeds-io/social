@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.exoplatform.application.registry.Application;
+
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -64,6 +64,7 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.mock.SpaceListenerPluginMock;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
+import org.exoplatform.social.core.space.Application;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceListAccess;
@@ -2796,23 +2797,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     lastSpaces = spaceService.getLastSpaces(5);
     assertEquals(2, lastSpaces.size());
     assertEquals(sp1, lastSpaces.get(0));
-  }
-
-  public void testSpaceApplications() {
-    List<Application> spacesApplications = spaceService.getSpacesApplications();
-    assertNotNull(spacesApplications);
-    assertEquals(0, spacesApplications.size());
-
-    Application application = new Application();
-    application.setApplicationName("applicationName");
-    application.setType(ApplicationType.PORTLET);
-    application.setDisplayName("displayName");
-    application.setContentId("appName/portletName");
-    spaceService.addSpacesApplication(application);
-
-    spacesApplications = spaceService.getSpacesApplications();
-    assertNotNull(spacesApplications);
-    assertEquals(1, spacesApplications.size());
   }
 
   public void testInviteSuperManager() throws Exception {

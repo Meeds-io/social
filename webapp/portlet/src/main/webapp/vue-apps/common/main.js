@@ -20,7 +20,6 @@ import * as navigationService from '../common/js/NavigationService.js';
 import * as profileSettingsService from '../common/js/ProfileSettingsService.js';
 import * as profileLabelService from '../common/js/ProfileLabelService.js';
 import * as siteService from './js/SiteService.js';
-import * as applicationRegistryService from './js/ApplicationRegistryService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -97,9 +96,6 @@ window.Object.defineProperty(Vue.prototype, '$profileLabelService', {
 });
 window.Object.defineProperty(Vue.prototype, '$navigationService', {
   value: navigationService,
-});
-window.Object.defineProperty(Vue.prototype, '$applicationRegistryService', {
-  value: applicationRegistryService,
 });
 
 if (eXo.env.portal.userIdentityId) {

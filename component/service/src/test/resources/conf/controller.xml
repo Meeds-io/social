@@ -24,15 +24,6 @@
     xmlns="http://www.gatein.org/xml/ns/gatein_controller_1_1"
     separator-escape=":">
 
-  <route path="/standalone/{gtn:path}">    
-    <route-param qname="gtn:handler">
-      <value>standalone</value>
-    </route-param>
-    <path-param qname="gtn:path" encoding="preserve-path">
-      <pattern>.*</pattern>
-    </path-param>
-  </route>
-
   <route path="/upload">
     <route-param qname="gtn:handler">
       <value>upload</value>
@@ -43,38 +34,6 @@
     <route-param qname="gtn:handler">
       <value>download</value>
     </route-param>
-  </route>
-
-  <!-- The legacy route -->
-  <route path="/public">
-    <route path="/">
-      <route-param qname="gtn:handler">
-        <value>default</value>
-      </route-param>
-    </route>
-    <route path="/{gtn:sitename}/{gtn:path}">
-      <route-param qname="gtn:handler">
-        <value>legacy</value>
-      </route-param>
-      <path-param qname="gtn:path" encoding="preserve-path">
-        <pattern>.*</pattern>
-      </path-param>
-    </route>
-  </route>
-  <route path="/private">
-    <route path="/">
-      <route-param qname="gtn:handler">
-        <value>default</value>
-      </route-param>
-    </route>
-    <route path="/{gtn:sitename}/{gtn:path}">
-	  <route-param qname="gtn:handler">
-	    <value>legacy</value>
-	  </route-param>
-	  <path-param qname="gtn:path" encoding="preserve-path">
-	    <pattern>.*</pattern>
-	  </path-param>
-  	</route>
   </route>
 
   <!-- Skin handler -->
@@ -143,19 +102,6 @@
       </request-param>
       <route-param qname="gtn:sitetype">
         <value>group</value>
-      </route-param>
-      <path-param qname="gtn:path" encoding="preserve-path">
-        <pattern>.*</pattern>
-      </path-param>
-    </route>
-
-    <!-- The user access -->
-    <route path="/u/{gtn:sitename}/{gtn:path}">
-      <request-param qname="gtn:lang" name="lang" value-mapping="never-empty">
-        <pattern>([A-Za-z]{2}(-[A-Za-z]{2})?)?</pattern>
-      </request-param>
-      <route-param qname="gtn:sitetype">
-        <value>user</value>
       </route-param>
       <path-param qname="gtn:path" encoding="preserve-path">
         <pattern>.*</pattern>
