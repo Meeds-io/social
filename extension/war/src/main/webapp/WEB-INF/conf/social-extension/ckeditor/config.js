@@ -35,6 +35,20 @@ CKEDITOR.editorConfig = function(config) {
   config.extraPlugins = 'simpleLink,suggester,hideBottomToolbar';
   config.skin = 'moono-exo,/commons-extension/ckeditor/skins/moono-exo/';
 
+  document.addEventListener('rich-editor-ready', () => {
+    var supportsOembed = config.supportsOembed;
+    if (supportsOembed) {
+      if (config.extraPlugins.indexOf('embedsemantic') < 0) {
+        config.extraPlugins = `${config.extraPlugins},embedsemantic`;
+      }
+      if (config.extraPlugins.indexOf('embedbase') < 0) {
+        config.extraPlugins = `${config.extraPlugins},embedbase`;
+      }
+    } else {
+      config.removePlugins = `${config.removePlugins},embedsemantic,embedbase`;
+    }
+  });
+
   // Define changes to default configuration here.
   // For complete reference see:
   // http://docs.ckeditor.com/#!/api/CKEDITOR.config

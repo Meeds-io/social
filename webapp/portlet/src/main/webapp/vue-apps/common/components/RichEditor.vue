@@ -223,6 +223,7 @@ export default {
     editorReady() {
       if (this.editorReady) {
         this.$emit('ready');
+        document.dispatchEvent(new CustomEvent('rich-editor-ready'));
         this.initOembedParams();
       } else {
         this.$emit('unloaded');
@@ -324,11 +325,6 @@ export default {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
-      if (this.supportsOembed) {
-        extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
-      } else {
-        removePlugins = `${removePlugins},embedsemantic,embedbase`;
-      }
       if (this.tagEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
         toolbar[0].push('tagSuggester');
@@ -378,6 +374,7 @@ export default {
         startupFocus: this.autofocus && this.focusPosition,
         pasteFilter: 'p; a[!href]; strong; i', 
         toolbarLocation: this.toolbarPosition,
+        supportsOembed: this.supportsOembed,
       };
       if (!this.disableAutoGrow) {
         options.autoGrow_onStartup = false;
