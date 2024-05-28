@@ -299,9 +299,13 @@ public class MetadataItemEntity implements Serializable {
     this.createdDate = createdDate;
   }
 
-  public Date getUpdatedDate() { return updatedDate; }
+  public Date getUpdatedDate() {
+    return updatedDate;
+  }
 
-  public void setUpdatedDate(Date updatedDate) { this.updatedDate = updatedDate; }
+  public void setUpdatedDate(Date updatedDate) {
+    this.updatedDate = updatedDate;
+  }
 
   public Map<String, String> getProperties() {
     return properties;

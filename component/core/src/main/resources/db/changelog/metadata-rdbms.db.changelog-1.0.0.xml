@@ -168,8 +168,8 @@
 
   <changeSet author="metadata" id="1.0.0-12">
     <addColumn tableName="SOC_METADATA_ITEMS">
-      <column name="UPDATED_DATE" type="TIMESTAMP" defaultValueDate="${now}">
-        <constraints nullable="false" />
+      <column name="UPDATED_DATE" type="TIMESTAMP">
+        <constraints nullable="true" />
       </column>
     </addColumn>
   </changeSet>
