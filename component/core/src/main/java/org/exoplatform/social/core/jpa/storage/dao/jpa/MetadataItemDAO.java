@@ -385,6 +385,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   private Query buildMetadataFilterQuery(MetadataFilter filter, long metadataType) {
 
+    String[] allowedSortFields = new String[] {"UPDATED_DATE", "CREATED_DATE"};
     StringBuilder query = new StringBuilder();
     query.append("""
         SELECT metadataItems.* FROM SOC_METADATA_ITEMS metadataItems
@@ -444,7 +445,12 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       query.append(spaceIdsQuery);
     }
     query.append(" GROUP BY metadataItems.METADATA_ITEM_ID");
-    query.append(" ORDER BY metadataItems.CREATED_DATE DESC, metadataItems.METADATA_ID DESC");
+    if (filter.getSortField() != null && Arrays.asList(allowedSortFields).contains(filter.getSortField())) {
+      query.append(" ORDER BY metadataItems.%s DESC, metadataItems.METADATA_ID DESC".formatted(filter.getSortField()));
+    }
+    else {
+      query.append(" ORDER BY metadataItems.CREATED_DATE DESC, metadataItems.METADATA_ID DESC");
+    }
     return getEntityManager().createNativeQuery(query.toString(), MetadataItemEntity.class);
   }
 

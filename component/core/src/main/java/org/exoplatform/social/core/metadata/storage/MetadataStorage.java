@@ -488,6 +488,7 @@ public class MetadataStorage {
     metadataItem.setSpaceId(metadataItemEntity.getSpaceId());
     metadataItem.setCreatorId(metadataItemEntity.getCreatorId());
     metadataItem.setCreatedDate(metadataItemEntity.getCreatedDate().getTime());
+    metadataItem.setUpdatedDate(metadataItemEntity.getUpdatedDate().getTime());
     MetadataEntity metadataEntity = metadataItemEntity.getMetadata();
     Metadata metadata = fromEntity(metadataEntity);
     metadataItem.setMetadata(metadata);
@@ -519,6 +520,11 @@ public class MetadataStorage {
     metadataItemEntity.setObjectType(metadataItem.getObjectType());
     metadataItemEntity.setParentObjectId(metadataItem.getParentObjectId());
     metadataItemEntity.setProperties(metadataItem.getProperties());
+    if (metadataItem.getUpdatedDate() != 0 && metadataItem.getUpdatedDate() != metadataItemEntity.getUpdatedDate().getTime()) {
+      metadataItemEntity.setUpdatedDate(new Date(metadataItem.getUpdatedDate()));
+    } else {
+      metadataItemEntity.setUpdatedDate(new Date());
+    }
     return metadataItemEntity;
   }
 

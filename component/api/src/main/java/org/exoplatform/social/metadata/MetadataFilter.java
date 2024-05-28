@@ -41,6 +41,8 @@ public class MetadataFilter {
 
   private List<Long>          metadataSpaceIds;
 
+  private String              sortField;
+
   private Map<String, String> metadataProperties;
 
   /**

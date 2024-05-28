@@ -226,6 +226,9 @@ public class MetadataItemEntity implements Serializable {
   @Column(name = "CREATED_DATE", nullable = false)
   private Date                createdDate;
 
+  @Column(name = "UPDATED_DATE", nullable = false)
+  private Date                updatedDate;
+
   @ElementCollection(fetch = FetchType.EAGER)
   @MapKeyColumn(name = "NAME")
   @Column(name = "VALUE")
@@ -294,6 +297,14 @@ public class MetadataItemEntity implements Serializable {
 
   public void setCreatedDate(Date createdDate) {
     this.createdDate = createdDate;
+  }
+
+  public Date getUpdatedDate() {
+    return updatedDate;
+  }
+
+  public void setUpdatedDate(Date updatedDate) {
+    this.updatedDate = updatedDate;
   }
 
   public Map<String, String> getProperties() {
