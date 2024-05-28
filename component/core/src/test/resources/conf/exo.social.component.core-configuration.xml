@@ -477,6 +477,11 @@
     <type>org.exoplatform.social.core.processor.I18NActivityProcessor</type>
   </component>
 
+  <component>
+    <key>org.gatein.pc.api.PortletInvoker</key>
+    <type>io.meeds.social.mock.PortletInvokerMock</type>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
     <component-plugin>
@@ -1313,160 +1318,6 @@
                       <string>members</string>
                     </field>
                     <!--<field name="icon"><string>SpaceMembersIcon</string></field>-->
-                  </object>
-                </value>
-              </collection>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.application.registry.ApplicationRegistryService</target-component>
-    <component-plugin>
-      <name>new.portal.portlets.registry</name>
-      <set-method>initListener</set-method>
-      <type>org.exoplatform.application.registry.ApplicationCategoriesPlugins</type>
-      <description>this listener init the portlets are registered in PortletRegister</description>
-      <init-params>
-        <object-param>
-          <name>social</name>
-          <description>description</description>
-          <object type="org.exoplatform.application.registry.ApplicationCategory">
-            <field name="name">
-              <string>social</string>
-            </field>
-            <field name="displayName">
-              <string>social</string>
-            </field>
-            <field name="description">
-              <string>Applications for social</string>
-            </field>
-            <field name="accessPermissions">
-              <collection type="java.util.ArrayList" item-type="java.lang.String">
-                <value>
-                  <string>*:/platform/users</string>
-                </value>
-              </collection>
-            </field>
-            <field name="applications">
-              <collection type="java.util.ArrayList">
-                <value>
-                  <object type="org.exoplatform.application.registry.Application">
-                    <field name="applicationName">
-                      <string>SpaceActivityStreamPortlet</string>
-                    </field>
-                    <field name="categoryName">
-                      <string>social</string>
-                    </field>
-                    <field name="displayName">
-                      <string>Space Activity Stream</string>
-                    </field>
-                    <field name="description">
-                      <string>Space Activity Stream Portlet</string>
-                    </field>
-                    <field name="type">
-                      <string>portlet</string>
-                    </field>
-                    <field name="contentId">
-                      <string>social-portlet/SpaceActivityStreamPortlet</string>
-                    </field>
-                    <field name="accessPermissions">
-                      <collection type="java.util.ArrayList" item-type="java.lang.String">
-                        <value>
-                          <string>*:/platform/users</string>
-                        </value>
-                      </collection>
-                    </field>
-                  </object>
-                </value>
-                <value>
-                  <object type="org.exoplatform.application.registry.Application">
-                    <field name="applicationName">
-                      <string>DashboardPortlet</string>
-                    </field>
-                    <field name="categoryName">
-                      <string>social</string>
-                    </field>
-                    <field name="displayName">
-                      <string>Dashboard</string>
-                    </field>
-                    <field name="description">
-                      <string>Dashboard Portlet</string>
-                    </field>
-                    <field name="type">
-                      <string>portlet</string>
-                    </field>
-                    <field name="contentId">
-                      <string>social-portlet/DashboardPortlet</string>
-                    </field>
-                    <field name="accessPermissions">
-                      <collection type="java.util.ArrayList" item-type="java.lang.String">
-                        <value>
-                          <string>*:/platform/users</string>
-                        </value>
-                      </collection>
-                    </field>
-                  </object>
-                </value>
-                <value>
-                  <object type="org.exoplatform.application.registry.Application">
-                    <field name="applicationName">
-                      <string>SpaceSettingPortlet</string>
-                    </field>
-                    <field name="categoryName">
-                      <string>social</string>
-                    </field>
-                    <field name="displayName">
-                      <string>Space Setting</string>
-                    </field>
-                    <field name="description">
-                      <string>Space Setting Portlet</string>
-                    </field>
-                    <field name="type">
-                      <string>portlet</string>
-                    </field>
-                    <field name="contentId">
-                      <string>social-portlet/SpaceSettingPortlet</string>
-                    </field>
-                    <field name="accessPermissions">
-                      <collection type="java.util.ArrayList" item-type="java.lang.String">
-                        <value>
-                          <string>*:/platform/users</string>
-                        </value>
-                      </collection>
-                    </field>
-                  </object>
-                </value>
-                <value>
-                  <object type="org.exoplatform.application.registry.Application">
-                    <field name="applicationName">
-                      <string>MembersPortlet</string>
-                    </field>
-                    <field name="categoryName">
-                      <string>social</string>
-                    </field>
-                    <field name="displayName">
-                      <string>Members</string>
-                    </field>
-                    <field name="description">
-                      <string>Members Portlet</string>
-                    </field>
-                    <field name="type">
-                      <string>portlet</string>
-                    </field>
-                    <field name="contentId">
-                      <string>social-portlet/MembersPortlet</string>
-                    </field>
-                    <field name="accessPermissions">
-                      <collection type="java.util.ArrayList" item-type="java.lang.String">
-                        <value>
-                          <string>*:/platform/users</string>
-                        </value>
-                      </collection>
-                    </field>
                   </object>
                 </value>
               </collection>

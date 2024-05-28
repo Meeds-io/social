@@ -22,20 +22,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import jakarta.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -57,7 +55,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.application.registry.Application;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
@@ -117,6 +114,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
@@ -195,9 +193,11 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "500", description = "Internal server error"),
     @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaces(@Context
-  UriInfo uriInfo, @Context
-  Request request,
+  public Response getSpaces( // NOSONAR
+                            @Context
+                            UriInfo uriInfo,
+                            @Context
+                            Request request,
                             @Parameter(description = "Space name search information", required = false)
                             @QueryParam("q")
                             String q,
@@ -317,7 +317,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
                                                                .stream()
                                                                .collect(Collectors.toMap(e -> e.getKey().toString(),
-                                                                                         e -> e.getValue())));
+                                                                                         Entry::getValue)));
         }
       }
 
@@ -861,7 +861,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       profileInfos = Arrays.stream(spaceIdentities)
                            .map(identity -> EntityBuilder.buildEntityProfile(space, identity.getProfile(), uriInfo.getPath(), expand)
                                                          .getDataEntity())
-                           .collect(Collectors.toList());
+                           .toList();
     }
 
     CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
@@ -948,257 +948,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
         }
       }
       return app.getDataEntity();
-    }).collect(Collectors.toList());
+    }).toList();
     return Response.ok(spaceNavigations, MediaType.APPLICATION_JSON).build();
-  }
-
-  @GET
-  @Path("applications")
-  @RolesAllowed("users")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-    summary = "Return list of applications that a use is allowed to add to a space",
-    method = "GET",
-    description = "Return list of applications that a use is allowed to add to a space"
-  )
-  @ApiResponses(value = {
-      @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "500", description = "Internal server error"),
-      @ApiResponse (responseCode = "401", description = "Unauthorized")
-  })
-  public Response getSpaceApplicationsChoices() {
-    try {
-      List<Application> applications = spaceService.getSpacesApplications();
-      List<DataEntity> spaceApplications = applications.stream().map(application -> {
-        application = computeApplicationAttributes(application);
-        BaseEntity app = new BaseEntity(application.getApplicationName());
-        app.setProperty(RestProperties.DISPLAY_NAME, application.getDisplayName());
-        app.setProperty("contentId", application.getContentId());
-        app.setProperty("applicationName", application.getApplicationName());
-        app.setProperty("description", application.getDescription());
-        app.setProperty("iconUrl", application.getIconURL());
-        app.setProperty("removable", true);
-        return app.getDataEntity();
-      }).collect(Collectors.toList());
-      return Response.ok(spaceApplications).build();
-    } catch (Exception e) {
-      return Response.serverError().entity(e.getMessage()).build();
-    }
-  }
-
-  @POST
-  @Path("applications")
-  @RolesAllowed("administrators")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-    summary = "Add an application into list of allowed application to instantiate in spaces",
-    method = "POST",
-    description = "Add an application into list of allowed application to instantiate in spaces"
-  )
-  @ApiResponses(value = {
-      @ApiResponse (responseCode = "204", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "500", description = "Internal server error"),
-      @ApiResponse (responseCode = "401", description = "Unauthorized")
-  })
-  public Response addSpaceApplication(Application application) {
-    if (application == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("application is mandatory").build();
-    }
-    if (application.getContentId() == null || application.getApplicationName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("application name and contentId are mandatory").build();
-    }
-
-    spaceService.addSpacesApplication(application);
-    return Response.noContent().build();
-  }
-
-  @DELETE
-  @Path("applications/{applicationName}")
-  @RolesAllowed("administrators")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-      summary = "Deletes an application from list of allowed application to instantiate in spaces",
-      method = "DELETE",
-      description = "Deletes an application from list of allowed application to instantiate in spaces"
-  )
-  @ApiResponses(value = {
-      @ApiResponse (responseCode = "204", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "500", description = "Internal server error"),
-      @ApiResponse (responseCode = "401", description = "Unauthorized")
-  })
-  public Response deleteSpaceApplication(@Parameter(description = "Application name", required = true) @PathParam("applicationName") String applicationName) {
-    if (applicationName == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("application name is mandatory").build();
-    }
-
-    spaceService.deleteSpacesApplication(applicationName);
-    return Response.noContent().build();
-  }
-
-  @GET
-  @Path("{id}/applications")
-  @RolesAllowed("users")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-    summary = "Return list of applications of a space",
-    method = "GET",
-    description = "Return list of applications of a space"
-  )
-  @ApiResponses(value = {
-      @ApiResponse (responseCode = "204", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "500", description = "Internal server error"),
-      @ApiResponse (responseCode = "401", description = "Unauthorized")
-  })
-  public Response getSpaceApplications(@Parameter(description = "Space id", required = true) @PathParam("id") String spaceId) {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Space space = spaceService.getSpaceById(spaceId);
-    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
-      return Response.status(Response.Status.UNAUTHORIZED).build();
-    }
-    
-    List<String> appList = SpaceUtils.getAppIdList(space);
-    List<String> sortedAppList = new ArrayList<>();
-    try {
-      UserNode spaceUserNode = SpaceUtils.getSpaceUserNode(space);
-      Collection<UserNode> children = spaceUserNode.getChildren();
-      for (UserNode userNode : children) {
-        if (userNode.getPageRef() != null) {
-          String appId = userNode.getPageRef().getName();
-          if (appList.contains(appId)) {
-            sortedAppList.add(appId);
-          }
-        }
-      }
-    } catch (Exception e) {
-      return Response.serverError().entity(e.getMessage()).build();
-    }
-    
-    List<DataEntity> applications = sortedAppList.stream().map(appId -> {
-      Application application = null;
-      try {
-        application = SpaceUtils.getAppFromPortalContainer(appId);
-      } catch (Exception e) {
-        return null;
-      }
-
-      if (application == null) {
-        String displayName = SpaceUtils.getAppNodeName(space, appId);
-
-        BaseEntity app = new BaseEntity(appId);
-        app.setProperty(RestProperties.DISPLAY_NAME, displayName);
-        app.setProperty("description", displayName);
-        app.setProperty("removable", SpaceUtils.isRemovableApp(space, appId));
-        app.setProperty("order", sortedAppList.indexOf(appId));
-        return app.getDataEntity();
-      } else {
-        BaseEntity app = new BaseEntity(appId);
-        app.setProperty(RestProperties.DISPLAY_NAME, application.getDisplayName());
-        app.setProperty("contentId", application.getContentId());
-        app.setProperty("applicationName", application.getApplicationName());
-        app.setProperty("description", application.getDescription());
-        app.setProperty("iconUrl", application.getIconURL());
-
-        app.setProperty("order", sortedAppList.indexOf(appId));
-        app.setProperty("removable", SpaceUtils.isRemovableApp(space, appId));
-        return app.getDataEntity();
-      }
-    }).collect(Collectors.toList());
-    return Response.ok(applications).build();
-  }
-
-  @DELETE
-  @Path("{id}/applications/{appId}")
-  @RolesAllowed("users")
-  @Operation(
-    summary = "Deletes a selected application of a space",
-    method = "DELETE",
-    description = "Deletes a selected application of a space"
-  )
-  @ApiResponses(value = {
-    @ApiResponse (responseCode = "204", description = "Request fulfilled"),
-    @ApiResponse (responseCode = "500", description = "Internal server error"),
-    @ApiResponse (responseCode = "401", description = "Unauthorized")
-  })
-  public Response deleteSpaceApplication(@Parameter(description = "Space id", required = true) @PathParam("id") String spaceId,
-                                         @Parameter(description = "Application id", required = true) @PathParam("appId") String appId) {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Space space = spaceService.getSpaceById(spaceId);
-    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
-      return Response.status(Response.Status.UNAUTHORIZED).build();
-    }
-    List<String> appPartsList = Arrays.asList(space.getApp().split(","));
-    String appPartToChange = appPartsList.stream()
-                                         .filter(appPart -> StringUtils.startsWith(appPart, appId + ":"))
-                                         .findFirst()
-                                         .orElse(null);
-    if (StringUtils.isBlank(appPartToChange)) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-    String[] appParts = appPartToChange.split(":");
-    try {
-      spaceService.removeApplication(space, appId, appParts[1]);
-    } catch (SpaceException e) {
-      return Response.serverError().entity(e.getLocalizedMessage()).build();
-    }
-    return Response.noContent().build();
-  }
-
-  @POST
-  @Path("{id}/applications")
-  @RolesAllowed("users")
-  @Operation(
-    summary = "Add a new application into space",
-    method = "POST",
-    description = "Add a new application into space"
-  )
-  @ApiResponses(value = {
-    @ApiResponse (responseCode = "204", description = "Request fulfilled"),
-    @ApiResponse (responseCode = "500", description = "Internal server error"),
-    @ApiResponse (responseCode = "401", description = "Unauthorized")
-  })
-  public Response addSpaceApplication(@Parameter(description = "Space id", required = true) @PathParam("id") String spaceId,
-                                      @Parameter(description = "Application id", required = true) @FormParam("appId") String appId) {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Space space = spaceService.getSpaceById(spaceId);
-    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    try {
-      spaceService.installApplication(space, appId);
-      spaceService.activateApplication(space, appId);
-    } catch (SpaceException e) {
-      return Response.serverError().entity(e.getLocalizedMessage()).build();
-    }
-    return Response.noContent().build();
-  }
-
-  @PUT
-  @Path("{id}/applications/{appId}")
-  @RolesAllowed("users")
-  @Operation(
-    summary = "Deletes a selected application of a space",
-    method = "PUT",
-    description = "Deletes a selected application of a space"
-  )
-  @ApiResponses(value = {
-    @ApiResponse(responseCode = "204", description = "Request fulfilled"),
-    @ApiResponse(responseCode = "500", description = "Internal server error"),
-    @ApiResponse(responseCode = "401", description = "Unauthorized")
-  })
-  public Response moveSpaceApplicationOrder(@Parameter(description = "Space id", required = true) @PathParam("id") String spaceId,
-                                            @Parameter(description = "Application id", required = true) @PathParam("appId") String appId,
-                                            @Parameter(description = "Move transition: 1 to move up, -1 to move down", required = true) @FormParam("transition") int transition) {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Space space = spaceService.getSpaceById(spaceId);
-    if (space == null || (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    try {
-      spaceService.moveApplication(spaceId, appId, transition);
-    } catch (SpaceException e) {
-      return Response.serverError().entity(e.getLocalizedMessage()).build();
-    }
-    return Response.noContent().build();
   }
 
   @PUT
@@ -1253,7 +1004,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       @Parameter(description = "Base time to load older activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("before") String before,
       @Parameter(description = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("after") String after,
       @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-      @Parameter(description = "Asking for a full representation of a specific subresource, ex: comments or likes") @QueryParam("expand") String expand) throws Exception {
+      @Parameter(description = "Asking for a full representation of a specific subresource, ex: comments or likes") @QueryParam("expand") String expand) {
     return activityRestResourcesV1.getActivities(uriInfo, id, before, after, offset, limit, returnSize, expand, null);
   }
   
@@ -1277,7 +1028,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
   public Response postActivityOnSpace(@Context UriInfo uriInfo,
                                       @Parameter(description = "Space id", required = true) @PathParam("id") String id,
                                       @Parameter(description = "Asking for a full representation of a specific subresource, ex: comments or likes", required = false) @QueryParam("expand") String expand,
-                                      @Parameter(description = "Activity object to be created", required = true) ActivityEntity model) throws Exception {
+                                      @Parameter(description = "Activity object to be created", required = true) ActivityEntity model) {
     return activityRestResourcesV1.postActivity(uriInfo, id, expand, model);
   }
 
@@ -1447,19 +1198,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       }
     }
     return Response.ok(new ByteArrayInputStream(defaultSpaceAvatar), "image/png");
-  }
-
-  private Application computeApplicationAttributes(Application application) {
-    Application applicationFromContainer = null;
-    try {
-      applicationFromContainer = SpaceUtils.getAppFromPortalContainer(application.getApplicationName());
-    } catch (Exception e) {
-      LOG.debug("Error retrieving");
-    }
-    if (applicationFromContainer != null) {
-      application = applicationFromContainer;
-    }
-    return application;
   }
 
   private Response buildSpaceResponse(Space space, String expand, UriInfo uriInfo, Request request) {

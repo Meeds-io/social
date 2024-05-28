@@ -16,17 +16,23 @@
  */
 package org.exoplatform.social.core.space;
 
-import org.exoplatform.commons.file.model.FileItem;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
-import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.gatein.pc.api.*;
+import static org.junit.Assert.assertNotEquals;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.gatein.pc.api.Portlet;
+import org.gatein.pc.api.PortletContext;
+import org.gatein.pc.api.PortletInvoker;
 import org.gatein.pc.api.info.MetaInfo;
 import org.gatein.pc.api.info.PortletInfo;
 import org.mockito.Mockito;
 
-import org.exoplatform.application.registry.Application;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageService;
@@ -37,14 +43,14 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
-
-import java.util.*;
-
-import static org.junit.Assert.assertNotEquals;
 
 /**
  * Unit Test for {@link SpaceUtilsTest}
@@ -126,35 +132,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     assertEquals("The filter should only filter special characters only","script alert 'Hello' script 100", Utils.removeSpecialCharacterInSpaceFilter("<script>alert('Hello');</script> 100"));
     assertEquals("The filter should keep wildcard *,? and %","% * '?", Utils.removeSpecialCharacterInSpaceFilter("( ) %{ } * [ ] \'? \""));
   }
-  
-  public void testGetAppFromPortalContainer() throws Exception {
-    String appId = "appId";
-    String appName = "app";
-    String contentId = appName + "/" + appId;
 
-    PortletInvoker portletInvoker = Mockito.mock(PortletInvoker.class);
-    Portlet portlet = Mockito.mock(Portlet.class);
-    PortletContext portletContext = Mockito.mock(PortletContext.class);
-    PortletInfo portletInfo = Mockito.mock(PortletInfo.class);
-    MetaInfo metaInfo = Mockito.mock(MetaInfo.class);
-
-    Mockito.when(portletContext.getId()).thenReturn(contentId);
-    Mockito.when(portletInfo.getApplicationName()).thenReturn(appName);
-    Mockito.when(portletInfo.getName()).thenReturn(contentId);
-    Mockito.when(portletInfo.getMeta()).thenReturn(metaInfo);
-    Mockito.when(portlet.getContext()).thenReturn(portletContext);
-    Mockito.when(portlet.getInfo()).thenReturn(portletInfo);
-
-    Mockito.when(portletInvoker.getPortlets()).thenReturn(Collections.singleton(portlet));
-
-    ExoContainerContext.getCurrentContainer().registerComponentInstance(PortletInvoker.class, portletInvoker);
-    Application application = SpaceUtils.getAppFromPortalContainer("appId");
-    assertNull(application);
-
-    application = SpaceUtils.getAppFromPortalContainer(contentId.replace('/', '_'));
-    assertNotNull(application);
-  }
-  
   public void testIsInstalledApp() {
     Space space = new Space();
     String apps = "ForumPortlet:Forums:true:active,WikiPortlet:Wiki:true:active,FileExplorerPortlet:Documents:true:active,"
