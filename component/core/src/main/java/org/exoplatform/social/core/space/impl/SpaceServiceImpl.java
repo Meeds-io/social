@@ -28,15 +28,11 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.application.registry.Application;
-import org.exoplatform.application.registry.ApplicationCategory;
-import org.exoplatform.application.registry.ApplicationRegistryService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -111,17 +107,12 @@ public class SpaceServiceImpl implements SpaceService {
 
   private SpaceTemplateService spaceTemplateService;
 
-  private ApplicationRegistryService applicationRegistryService;
-
-  private String spacesApplicationsCategory = DEFAULT_APP_CATEGORY;
-
   public SpaceServiceImpl(SpaceStorage spaceStorage,
                           IdentityManager identityManager,
                           UserACL userACL,
                           IdentityRegistry identityRegistry,
                           SpacesAdministrationService spacesAdministrationService,
                           SpaceTemplateService spaceTemplateService,
-                          ApplicationRegistryService applicationRegistryService,
                           InitParams params) {
     this.spaceStorage = spaceStorage;
     this.identityManager = identityManager;
@@ -129,10 +120,6 @@ public class SpaceServiceImpl implements SpaceService {
     this.userACL = userACL;
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateService = spaceTemplateService;
-    this.applicationRegistryService = applicationRegistryService;
-    if (params != null && params.containsKey("spacesApplicationsCategory")) {
-      this.spacesApplicationsCategory = params.getValueParam("spacesApplicationsCategory").getValue();
-    }
   }
 
   /**
@@ -877,36 +864,6 @@ public class SpaceServiceImpl implements SpaceService {
       spaceLifeCycle.removeInvitedUser(getSpaceById(spaceId), userId);
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.DENY_INVITED_USER);
-    }
-  }
-
-  @Override
-  public List<Application> getSpacesApplications() {
-    ApplicationCategory category = applicationRegistryService.getApplicationCategory(spacesApplicationsCategory);
-    return category == null || category.getApplications() == null ? Collections.emptyList() : category.getApplications();
-  }
-
-  @Override
-  public void addSpacesApplication(Application application) {
-    ApplicationCategory category = applicationRegistryService.getApplicationCategory(spacesApplicationsCategory);
-    if (category == null) {
-      category = new ApplicationCategory();
-      category.setName(spacesApplicationsCategory);
-      category.setDisplayName("Spaces applications");
-      applicationRegistryService.save(category);
-      category = applicationRegistryService.getApplicationCategory(spacesApplicationsCategory);
-    }
-    application.setCategoryName(spacesApplicationsCategory);
-    application.setCreatedDate(new Date());
-    application.setType(ApplicationType.PORTLET);
-    applicationRegistryService.save(category, application);
-  }
-
-  @Override
-  public void deleteSpacesApplication(String applicationName) {
-    Application application = applicationRegistryService.getApplication(spacesApplicationsCategory, applicationName);
-    if (application != null) {
-      applicationRegistryService.remove(application);
     }
   }
 
