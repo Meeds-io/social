@@ -19,6 +19,8 @@ CKEDITOR.editorConfig = function(config) {
   CKEDITOR.plugins.addExternal('hideBottomToolbar', '/commons-extension/eXoPlugins/hideBottomToolbar/', 'plugin.js');
   CKEDITOR.plugins.addExternal('autoembed', '/commons-extension/eXoPlugins/autoembed/', 'plugin.js');
   CKEDITOR.plugins.addExternal('embedsemantic', '/commons-extension/eXoPlugins/embedsemantic/', 'plugin.js');
+  CKEDITOR.plugins.addExternal('embedbaseOnlyVideo', '/commons-extension/eXoPlugins/embedbaseOnlyVideo/', 'plugin.js');
+  CKEDITOR.plugins.addExternal('embedsemanticOnlyVideo', '/commons-extension/eXoPlugins/embedsemanticOnlyVideo/', 'plugin.js');
   CKEDITOR.plugins.addExternal('tagSuggester', '/commons-extension/eXoPlugins/tagSuggester/', 'plugin.js');
   CKEDITOR.plugins.addExternal('formatOption', '/commons-extension/eXoPlugins/formatOption/', 'plugin.js');
   CKEDITOR.plugins.addExternal('googleDocPastePlugin', '/commons-extension/eXoPlugins/googleDocPastePlugin/', 'plugin.js');
