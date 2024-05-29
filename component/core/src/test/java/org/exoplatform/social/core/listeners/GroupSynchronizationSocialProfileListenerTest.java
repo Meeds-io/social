@@ -22,6 +22,7 @@ package org.exoplatform.social.core.listeners;
 
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -32,7 +33,11 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreTest {
 
@@ -41,8 +46,10 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
   private IdentityManager                identityManager;
 
   private ProfilePropertyService profilePropertyService;
+  private LifeCycleCompletionService      completionService;
 
   private Identity                       paul;
+  private Identity                       john;
 
   @Before
   public void setUp() throws Exception {
@@ -50,8 +57,10 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
+    completionService = getContainer().getComponentInstanceOfType(LifeCycleCompletionService.class);
 
     paul = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "paul", true);
+    john = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john", true);
   }
 
   @Test
@@ -74,6 +83,9 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     profile.setProperty("postalCode", "2100");
     identityManager.updateProfile(profile, true);
 
+    completionService.waitAllTaskFinished(1000); //wait 1 second for listener finish
+
+
     Group group = organizationService.getGroupHandler().findGroupById("/profile/postalcode/2100");
     assertNotNull(group);
     Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
@@ -85,7 +97,7 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     profilePropertySetting.setPropertyName(propertyName);
     profilePropertyService.createPropertySetting(profilePropertySetting);
     String groupLabel = "Test'propertytest";
-    String expectedGroupName = "testpropertytest";
+    String expectedGroupName = "test_propertytest";
     StringBuilder expectedGroupId = new StringBuilder();
     expectedGroupId.append("/profile/");
     expectedGroupId.append(propertyName);
@@ -93,6 +105,9 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     expectedGroupId.append(expectedGroupName);
     profile.setProperty("propertytest", groupLabel);
     identityManager.updateProfile(profile, true);
+
+    completionService.waitAllTaskFinished(1000); //wait 1 second for listener finish
+
     Group group2 = organizationService.getGroupHandler().findGroupById(expectedGroupId.toString());
     assertNotNull(group2);
     assertEquals(group2.getLabel(), groupLabel);
@@ -105,6 +120,65 @@ public class GroupSynchronizationSocialProfileListenerTest extends AbstractCoreT
     groups = organizationService.getGroupHandler().findGroupsOfUser(paulRemoteId);
     assertEquals(3, groups.size());
 
+
+  }
+
+  @Test
+  public void testMultivaluedProfilePropertiesGroupSynchronization() throws Exception {
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setActive(true);
+    profilePropertySetting.setEditable(true);
+    profilePropertySetting.setVisible(true);
+    profilePropertySetting.setPropertyName("multivaluedProperty");
+    profilePropertySetting.setGroupSynchronized(true);
+    profilePropertySetting.setMultiValued(true);
+    profilePropertySetting.setParentId(0L);
+    profilePropertySetting.setOrder(0L);
+    profilePropertyService.createPropertySetting(profilePropertySetting);
+
+    Profile profile = john.getProfile();
+    List<Map<String,String>> values = new ArrayList<>();
+    Map<String,String> value1 = new HashMap<>();
+    value1.put("key",null);
+    value1.put("value","multivaluedPropertyValue1");
+    values.add(value1);
+
+    Map<String,String> value2 = new HashMap<>();
+    value2.put("key",null);
+    value2.put("value","multivaluedPropertyValue2");
+    values.add(value2);
+
+    profile.setProperty("multivaluedProperty", values);
+    identityManager.updateProfile(profile, true);
+    completionService.waitAllTaskFinished(2000); //wait 2 second for listener finish
+
+    Group group1 = organizationService.getGroupHandler().findGroupById("/profile/multivaluedproperty/multivaluedpropertyvalue1");
+    assertNotNull(group1);
+    Group group2 = organizationService.getGroupHandler().findGroupById("/profile/multivaluedproperty/multivaluedpropertyvalue2");
+    assertNotNull(group2);
+    Collection<Group> groups = organizationService.getGroupHandler().findGroupsOfUser(john.getRemoteId());
+    assertTrue(groups.contains(group1));
+    assertTrue(groups.contains(group2));
+
+
+    values = new ArrayList<>();
+    Map<String,String> value3 = new HashMap<>();
+    value3.put("key",null);
+    value3.put("value","multivaluedPropertyValue3");
+    values.add(value3);
+    values.add(value2);
+
+    profile.setProperty("multivaluedProperty", values);
+    identityManager.updateProfile(profile, true);
+    completionService.waitAllTaskFinished(2000); //wait 2 second for listener finish
+    group2 = organizationService.getGroupHandler().findGroupById("/profile/multivaluedproperty/multivaluedpropertyvalue2");
+    assertNotNull(group2);
+    Group group3 = organizationService.getGroupHandler().findGroupById("/profile/multivaluedproperty/multivaluedpropertyvalue3");
+    assertNotNull(group3);
+    groups = organizationService.getGroupHandler().findGroupsOfUser(john.getRemoteId());
+    assertFalse(groups.contains(group1));
+    assertTrue(groups.contains(group2));
+    assertTrue(groups.contains(group3));
 
   }
 }
