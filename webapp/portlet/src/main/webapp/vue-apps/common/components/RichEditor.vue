@@ -113,6 +113,10 @@ export default {
       type: Boolean,
       default: false
     },
+    oembedOnlyVideo: {
+      type: Boolean,
+      default: false
+    },
     oembedMinWidth: {
       type: Number,
       default: () => 300,
@@ -223,7 +227,6 @@ export default {
     editorReady() {
       if (this.editorReady) {
         this.$emit('ready');
-        document.dispatchEvent(new CustomEvent('rich-editor-ready'));
         this.initOembedParams();
       } else {
         this.$emit('unloaded');
@@ -325,6 +328,19 @@ export default {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
+
+      if (this.supportsOembed) {
+        if (this.oembedOnlyVideo) {
+          extraPlugins = `${extraPlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+          removePlugins = `${removePlugins},embedsemantic,embedbase`;
+        } else {
+          extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
+          removePlugins = `${removePlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+        }
+      } else {
+        removePlugins = `${removePlugins},embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+      }
+
       if (this.tagEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
         toolbar[0].push('tagSuggester');
