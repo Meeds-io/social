@@ -1078,7 +1078,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
             && (profilePropertySettingEntity.getPropertyName() != null && !profilePropertySettingEntity.getPropertyName().isBlank()
             || profileProperty.isMultiValued())) {
               Map<String, String> childrenMap = new HashMap<>();
-              childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
+              if (profilePropertySettingEntity.getPropertyName()!=null) {
+                childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
+              }
               childrenMap.put("value", profilePropertySettingEntity.getValue());
               maps.add(childrenMap);
             }

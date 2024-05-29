@@ -76,7 +76,6 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   @Override
   public void contactSectionUpdated(ProfileLifeCycleEvent event) {
     profileUpdated(event);
-
   }
 
   @Override
@@ -88,7 +87,6 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   @Override
   public void createProfile(ProfileLifeCycleEvent event) {
     profileUpdated(event);
-
   }
 
   private void profileUpdated(ProfileLifeCycleEvent profileLifeCycleEvent) {
@@ -126,14 +124,14 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     if (property.getValue() instanceof String) {
       propertyValues.add((String) property.getValue());
     } else {
-      ((List<HashMap>) property.getValue()).stream().forEach(val -> propertyValues.addAll(val.values()));
+      ((List<HashMap<String,String>>) property.getValue()).stream().forEach(val -> val.entrySet().stream().filter(entry -> entry.getKey().equals("value")).forEach(entry -> propertyValues.add(entry.getValue())));
     }
     try {
       Group newPropertyNameGroup = getOrCreateGroup(propertyName, profileGroup);
+      removeUserFromExistingPropertyGroup(newPropertyNameGroup, user, propertyValues);
       for (String propValueName : propertyValues) {
         try {
           Group newPropertyValueGroup = getOrCreateGroup(propValueName, newPropertyNameGroup);
-          removeUserFromExistingPropertyGroup(newPropertyNameGroup, user);
           addUserToGroup(newPropertyValueGroup, user);
         } catch (Exception e) {
           LOG.error("Error while adding property value group {} under property Group {}",
@@ -177,14 +175,18 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     }
     try {
       MembershipType membershipType = organizationService.getMembershipTypeHandler().findMembershipType(MEMBER);
-      organizationService.getMembershipHandler().linkMembership(user, group, membershipType, true);
+      if (organizationService.getMembershipHandler().findMembershipByUserGroupAndType(user.getUserName(), group.getId(), MEMBER) == null) {
+        organizationService.getMembershipHandler().linkMembership(user, group, membershipType, true);
+      }
     } catch (Exception e) {
       LOG.error("Error while adding user {} to Group {}", user.getUserName(), group.getId(), e);
       throw e;
     }
   }
 
-  private void removeUserFromExistingPropertyGroup(Group group, User user) throws Exception {
+  private void removeUserFromExistingPropertyGroup(Group group, User user, List<String> newPropertyValues) throws Exception {
+    List<String> newCleanedPropertyValues = new ArrayList<>(newPropertyValues);
+    newCleanedPropertyValues = newCleanedPropertyValues.stream().map(Utils::cleanString).toList();
     Collection<Group> groups = organizationService.getGroupHandler().findGroups(group);
     if (!groups.isEmpty()) {
       MembershipHandler memberShipHandler = organizationService.getMembershipHandler();
@@ -192,7 +194,7 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
         Membership memberShip = memberShipHandler.findMembershipByUserGroupAndType(user.getUserName(),
                 gr.getId(),
                 MEMBER);
-        if (memberShip != null) {
+        if (memberShip != null && !newCleanedPropertyValues.contains(gr.getGroupName())) {
           memberShipHandler.removeMembership(memberShip.getId(), true);
         }
       }

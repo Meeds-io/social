@@ -22,6 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.picocontainer.Startable;
@@ -83,6 +84,7 @@ public class LifeCycleCompletionService implements Startable {
 
   public void addTask(Callable callable) {
     ecs.submit(callable);
+
   }
 
   public void waitCompletionFinished() {
@@ -98,6 +100,25 @@ public class LifeCycleCompletionService implements Startable {
 
   public boolean isAsync() {
     return this.configAsyncExecution;
+  }
+
+  public long getActiveTaskCount() {
+    if (executor instanceof ThreadPoolExecutor threadPoolExecutor) {
+      return threadPoolExecutor.getActiveCount();
+    }
+    return 0;
+  }
+
+  public void waitAllTaskFinished(long timeout) {
+    long start = System.currentTimeMillis();
+    try {
+      while (getActiveTaskCount() != 0 && System.currentTimeMillis() - start <= timeout) {
+        Thread.sleep(100);
+      }
+    }
+    catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void start() {}
