@@ -2,7 +2,7 @@
   <div
     v-if="embeddedHTML"
     :style="parentStyle"
-    class="d-flex flex-column flex activity-embedded-box mt-3 mx-auto card-border-radius overflow-hidden light-grey-background-color hover-background hover-elevation mb-4">
+    class="d-flex flex-column flex activity-embedded-box mt-3 mx-auto card-border-radius overflow-hidden light-grey-background-color hover-elevation mb-4">
     <div
       v-if="elementReady"
       v-html="embeddedHTML"
@@ -14,7 +14,7 @@
       :href="link"
       :target="linkTarget"
       :title="titleText"
-      class="pa-3 text-color z-index-one light-grey-background-color hover-background">
+      class="pa-3 text-color z-index-one light-grey-background-color">
       <div
         v-text="titleText"
         class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2"></div>
