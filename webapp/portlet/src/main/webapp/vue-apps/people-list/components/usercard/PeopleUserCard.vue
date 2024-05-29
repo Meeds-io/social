@@ -152,7 +152,8 @@
         <div
           v-if="!isSameUser"
           class="ms-auto d-flex">
-          <span v-for="extension in filteredProfileActionExtensions"
+          <span
+            v-for="extension in filteredProfileActionExtensions"
             :key="extension.id">
             <v-btn
               v-if="!extension.init"
@@ -165,7 +166,8 @@
                 {{ extension.class }}
               </v-icon>
             </v-btn>
-            <span v-else
+            <span
+              v-else
               :class="`${extension.appClass} ${extension.typeClass}`"
               :ref="extension.id">
             </span>

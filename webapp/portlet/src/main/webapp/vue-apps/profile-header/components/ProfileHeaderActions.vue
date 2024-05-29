@@ -6,7 +6,8 @@
     flat
     tile>
     <div class="d-flex justify-end flex-wrap my-auto">
-      <span v-for="(extension, i) in enabledProfileActionExtensions"
+      <span
+        v-for="(extension, i) in enabledProfileActionExtensions"
         :key="i">
         <v-btn
           class="btn ma-2 mb-0"
