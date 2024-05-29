@@ -26,12 +26,13 @@
     <template slot="content">
       <v-list dense>
         <v-list-item-group>
-          <span v-for="(extension, i) in profileActionExtensions"
+          <span
+            v-for="(extension, i) in profileActionExtensions"
             :key="i">
             <v-list-item
               v-if="!extension.init"
               @click="triggerExtension(extension)">
-                <v-list-item-title class="align-center d-flex">
+              <v-list-item-title class="align-center d-flex">
                 <v-icon
                   class="ms-4 me-2 itemIconSize"
                   size="20">
@@ -45,8 +46,7 @@
             <v-list-item
               v-else
               :class="`${extension.appClass} ${extension.typeClass}`"
-              :ref="extension.id">
-            </v-list-item>
+              :ref="extension.id" />
           </span>
         </v-list-item-group>
         <v-divider
