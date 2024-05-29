@@ -113,6 +113,10 @@ export default {
       type: Boolean,
       default: false
     },
+    oembedOnlyVideo: {
+      type: Boolean,
+      default: false
+    },
     oembedMinWidth: {
       type: Number,
       default: () => 300,
@@ -324,11 +328,19 @@ export default {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
+
       if (this.supportsOembed) {
-        extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
+        if (this.oembedOnlyVideo) {
+          extraPlugins = `${extraPlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+          removePlugins = `${removePlugins},embedsemantic,embedbase`;
+        } else {
+          extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
+          removePlugins = `${removePlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+        }
       } else {
-        removePlugins = `${removePlugins},embedsemantic,embedbase`;
+        removePlugins = `${removePlugins},embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo`;
       }
+
       if (this.tagEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
         toolbar[0].push('tagSuggester');
@@ -378,6 +390,7 @@ export default {
         startupFocus: this.autofocus && this.focusPosition,
         pasteFilter: 'p; a[!href]; strong; i', 
         toolbarLocation: this.toolbarPosition,
+        supportsOembed: this.supportsOembed,
       };
       if (!this.disableAutoGrow) {
         options.autoGrow_onStartup = false;

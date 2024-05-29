@@ -25,6 +25,7 @@
           suggestor-type-of-relation="mention_comment"
           use-extra-plugins
           autofocus
+          oembed-only-video
           @ready="handleEditorReady"
           @attachments-edited="attachmentsEdit" />
         <extension-registry-components
