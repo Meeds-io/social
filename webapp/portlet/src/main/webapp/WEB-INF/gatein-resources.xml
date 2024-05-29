@@ -2854,6 +2854,29 @@
   </module>
 
   <module>
+    <name>fontIcons</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/fontIcons.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+  </module>
+
+  <module>
     <name>organizationalChartPopoverExtension</name>
     <load-group>popoverGRP</load-group>
     <script>
