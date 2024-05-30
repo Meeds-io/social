@@ -78,7 +78,7 @@ export function getUsers(query, offset, limit, expand, signal, excludeCurrentUse
   });
 }
 
-export function getUsersByAdvancedFilter(settings, offset, limit, expand, filterType, name, excludeCurrentUser, signal) {
+export function getUsersByAdvancedFilter(settings, offset, limit, expand, filterType, name, excludeCurrentUser, signal, wildCardSearch) {
   const formData = new FormData();
   formData.append('offset', offset);
   formData.append('limit', limit);
@@ -89,6 +89,9 @@ export function getUsersByAdvancedFilter(settings, offset, limit, expand, filter
   }
   if (excludeCurrentUser) {
     formData.append('excludeCurrentUser', excludeCurrentUser);
+  }
+  if (wildCardSearch) {
+    formData.append('wildCardSearch', wildCardSearch);
   }
   const params = new URLSearchParams(formData).toString();
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/advancedfilter?${params}&returnSize=true`, {

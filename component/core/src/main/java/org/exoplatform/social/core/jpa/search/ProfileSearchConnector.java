@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.exoplatform.social.core.profileproperty.ProfileProperty;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -50,9 +53,14 @@ import org.exoplatform.social.core.storage.impl.StorageUtils;
 public class ProfileSearchConnector {
   private static final Log LOG = ExoLogger.getLogger(ProfileSearchConnector.class);
   private final ElasticSearchingClient client;
+  private final ProfilePropertyService profilePropertyService;
+
   private String index;
-  
-  public ProfileSearchConnector(InitParams initParams, ElasticSearchingClient client) {
+
+  public ProfileSearchConnector(InitParams initParams,
+                                ElasticSearchingClient client,
+                                ProfilePropertyService profilePropertyService) {
+    this.profilePropertyService = profilePropertyService;
     PropertiesParam param = initParams.getPropertiesParam("constructor.params");
     this.index = param.getProperty("index");
     this.client = client;
@@ -76,7 +84,7 @@ public class ProfileSearchConnector {
    * 
    * @param identity the Identity
    * @param filter the filter
-   * @param type type type
+   * @param type type
    * @return number of identities
    */
   public int count(Identity identity,
@@ -134,7 +142,7 @@ public class ProfileSearchConnector {
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
     String expEs = buildExpression(filter);
-    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty() ? buildAdvancedFilterExpression(filter) : null;
+    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty() ? buildAdvancedFilterExpression(filter) : "";
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     esQuery.append("   \"from\" : " + offset + ", \"size\" : " + limit + ",\n");
@@ -170,12 +178,6 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
-    //filter by profile settings
-      if (expEsForAdvancedFilter != null) {
-        esSubQuery.append(expEsForAdvancedFilter);
-        esSubQuery.append(",\n");
-
-      }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
@@ -354,21 +356,29 @@ public class ProfileSearchConnector {
       appendCommar = true;
     }
     //if the search fields are existing.
-    if (expEs != null && expEs.length() > 0) {
+    if (!expEs.isEmpty() || !expEsForAdvancedFilter.isEmpty()) {
       if(appendCommar) {
         esSubQuery.append("      ,\n");
       }
       esSubQuery.append("    \"filter\": [\n");
-      esSubQuery.append("      {");
-      esSubQuery.append("          \"query_string\": {\n");
-      if (filter.getName().startsWith("\"") && filter.getName().endsWith("\"")) {
-        esSubQuery.append("            \"query\": \"" + expEs + "\",\n");
-        esSubQuery.append("            \"default_operator\": \"" + "AND" + "\"\n");
-      } else {
-        esSubQuery.append("            \"query\": \"" + expEs + "\"\n");
+      if(!expEs.isEmpty()) {
+        esSubQuery.append("      {");
+        esSubQuery.append("          \"query_string\": {\n");
+        if (filter.getName().startsWith("\"") && filter.getName().endsWith("\"")) {
+          esSubQuery.append("            \"query\": \"" + expEs + "\",\n");
+          esSubQuery.append("            \"default_operator\": \"" + "AND" + "\"\n");
+        } else {
+          esSubQuery.append("            \"query\": \"" + expEs + "\"\n");
+        }
+        esSubQuery.append("          }\n");
+        esSubQuery.append("      }\n");
       }
-      esSubQuery.append("          }\n");
-      esSubQuery.append("      }\n");
+      if(!expEsForAdvancedFilter.isEmpty()) {
+        if(!expEs.isEmpty()) {
+          esSubQuery.append(",");
+        }
+        esSubQuery.append(expEsForAdvancedFilter);
+      }
       esSubQuery.append("    ]\n");
       subQueryEmpty = false;
     } //end if
@@ -444,36 +454,51 @@ public class ProfileSearchConnector {
     String inputName = StringUtils.isBlank(filter.getName()) ? null : filter.getName().replace(StorageUtils.ASTERISK_STR, StorageUtils.EMPTY_STR);
     if (StringUtils.isNotBlank(inputName)) {
      //
-      String newInputName = null;
-      String[] keys = new String[0];
-      newInputName = inputName.trim();
+      String newInputName = inputName.trim();
+      String[] keys;
       if (newInputName.startsWith("\"") && inputName.endsWith("\"")) {
         newInputName = inputName.replace("\"", "");
       }
       keys = newInputName.split(" ");
       if (keys.length > 1) {
+        StringBuilder nameEsExp = new StringBuilder();
         // We will not search on userName because it doesn't contain a space character
-        esExp.append("(");
         for (int i = 0; i < keys.length; i++) {
-          if (i != 0 ) {
-            esExp.append(") AND (");
-          }
-          esExp.append(" name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
-          if (filter.isSearchEmail()) {
-            esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
-          }
-          if (filter.isSearchUserName()) {
-            esExp.append(" OR userName:").append(StorageUtils.ASTERISK_STR).append(removeAccents(keys[i])).append(StorageUtils.ASTERISK_STR);
+          if(StringUtils.isNotBlank(keys[i])) {
+            if (i != 0) {
+              nameEsExp.append(") AND (");
+            }
+            String searchedWord;
+            if(filter.isWildcardSearch()) {
+              searchedWord = StorageUtils.ASTERISK_STR + removeAccents(keys[i]) + StorageUtils.ASTERISK_STR;
+            } else {
+              searchedWord = removeAccents(keys[i]);
+            }
+            nameEsExp.append(" name.whitespace:").append(searchedWord);
+            if (filter.isSearchEmail()) {
+              nameEsExp.append(" OR email:").append(searchedWord);
+            }
+            if (filter.isSearchUserName()) {
+              nameEsExp.append(" OR userName:").append(searchedWord);
+            }
           }
         }
-        esExp.append(")");
+        if(StringUtils.isNotBlank(nameEsExp.toString())) {
+          esExp.append("(").append(nameEsExp).append(")");
+        }
       } else if (StringUtils.isNotBlank(newInputName)) {
-        esExp.append("name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
+        String searchedText;
+        if(filter.isWildcardSearch()) {
+          searchedText = StorageUtils.ASTERISK_STR + removeAccents(newInputName) + StorageUtils.ASTERISK_STR;
+        } else {
+          searchedText = removeAccents(newInputName);
+        }
+        esExp.append("name.whitespace:").append(searchedText);
         if (filter.isSearchEmail()) {
-          esExp.append(" OR email:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
+          esExp.append(" OR email:").append(searchedText);
         }
         if (filter.isSearchUserName()) {
-          esExp.append(" OR userName:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
+          esExp.append(" OR userName:").append(searchedText);
         }
       } else {
         esExp.append("name.whitespace:").append(StorageUtils.ASTERISK_STR).append(removeAccents(newInputName)).append(StorageUtils.ASTERISK_STR);
@@ -485,27 +510,73 @@ public class ProfileSearchConnector {
   private String buildAdvancedFilterExpression(ProfileFilter filter) {
     StringBuilder query = new StringBuilder();
     Map<String, String> settings = filter.getProfileSettings();
-    query.append("""
-              "must": [""");
-    settings.forEach((key, value) -> query.append("""
+    int index = 0;
+    for(String key : settings.keySet()) {
+      ProfilePropertySetting property = profilePropertyService.getProfileSettingByName(key);
+      if (property != null) {
+        if (index > 0) {
+          query.append(",");
+        }
+        String value = settings.get(key);
+        value = removeESReservedChars(value);
+        if (StringUtils.isNotBlank(value)) {
+          StringBuilder expression = new StringBuilder();
+          String[] splittedValues = value.split(" ");
+          if (splittedValues.length > 1) {
+            for (int i = 0; i < splittedValues.length; i++) {
+              if (StringUtils.isNotBlank(splittedValues[i])) {
+                if (i != 0 && StringUtils.isNotBlank(String.valueOf(expression))) {
+                  expression.append(" AND ");
+                }
+                String searchedText;
+                if (filter.isWildcardSearch()) {
+                  searchedText = StorageUtils.ASTERISK_STR + removeAccents(splittedValues[i]) + StorageUtils.ASTERISK_STR;
+                } else {
+                  searchedText = removeAccents(splittedValues[i]);
+                }
+                expression.append(" ").append(key).append(":").append(searchedText);
+              }
+            }
+            query.append("""
+                        {
+                          "query_string": {
+                            "query": "%s"
+                          }
+                       }
+                      """.formatted(expression.toString()));
+          } else {
+            String searchedText;
+            if(filter.isWildcardSearch()) {
+              searchedText = StorageUtils.ASTERISK_STR + removeAccents(value) + StorageUtils.ASTERISK_STR;
+            } else {
+              searchedText = removeAccents(value);
+            }
+            query.append("""
                     {
-                    "term": {
-                       "%s.raw": "%s"
-                     }
-                   },
-                """.formatted(key, value)));
-    int lastComma = query.lastIndexOf(",");
-    query.replace(lastComma, lastComma + 1, "");
-    query.append("""
-               ]
-            """);
-
+                      "query_string": {
+                        "query": "%s:%s"
+                      }
+                   }
+                  """.formatted(property.getPropertyName(), searchedText));
+          }
+          index++;
+        }
+      }
+    }
     return query.toString();
   }
 
   private static String removeAccents(String string) {
     string = Normalizer.normalize(string, Normalizer.Form.NFD);
     string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+    return string;
+  }
+
+  public static String removeESReservedChars(String string) {
+    String [] ES_RESERVED_CHARS = new String []{"","+","-","=","&&","||",">","<","!","(",")","{","}","[","]","^","\"","~","*","?",":","\\","/"};
+    for(String c : ES_RESERVED_CHARS) {
+      string = string.replace(c, "");
+    }
     return string;
   }
 }
