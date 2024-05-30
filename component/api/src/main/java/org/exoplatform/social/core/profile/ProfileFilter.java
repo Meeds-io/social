@@ -83,6 +83,8 @@ public class ProfileFilter implements Cloneable {
   
   private boolean isEnabled = true;
 
+  private boolean wildcardSearch = true;
+
   public ProfileFilter() {
     this.name = "";
     this.position = "";
@@ -315,6 +317,14 @@ public class ProfileFilter implements Cloneable {
    */
   public void setEnabled(boolean isEnabled) {
     this.isEnabled = isEnabled;
+  }
+
+  public boolean isWildcardSearch() {
+    return wildcardSearch;
+  }
+
+  public void setWildcardSearch(boolean exactSearch) {
+    this.wildcardSearch = exactSearch;
   }
 
   public Map<String, String> getProfileSettings() {
