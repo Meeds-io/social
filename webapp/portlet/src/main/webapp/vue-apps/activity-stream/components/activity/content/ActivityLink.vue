@@ -5,7 +5,7 @@
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    :class="!useEmbeddedLinkView && 'd-flex flex-no-wrap my-4' || 'activity-thumbnail-box light-grey-background-color overflow-hidden hover-elevation card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'">
+    :class="!useEmbeddedLinkView && 'd-flex flex-no-wrap' || 'activity-thumbnail-box light-grey-background-color overflow-hidden hover-elevation card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
         <v-avatar
