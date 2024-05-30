@@ -246,7 +246,7 @@ export default {
       this.abortController = new AbortController();
       this.offset = this.users.length || 0;
       this.limit = this.limit || this.pageSize;
-      this.$userService.getUsersByAdvancedFilter(this.profileSetting, this.offset, this.limit + 1, this.fieldsToRetrieve,'all', this.keyword, false, this.abortController.signal,).then(data => {
+      this.$userService.getUsersByAdvancedFilter(this.profileSetting, this.offset, this.limit + 1, this.fieldsToRetrieve,'all', this.keyword, false, this.abortController.signal, 'false').then(data => {
         this.users.push(...data.users);
         this.hasMore = data.users?.length > this.limit;
       }).finally(() => {

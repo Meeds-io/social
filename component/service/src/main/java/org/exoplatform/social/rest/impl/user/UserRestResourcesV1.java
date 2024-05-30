@@ -451,6 +451,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
                            @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings,
                            @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
+                           @Parameter(description = "Whether to search for exact word or words containing it") @QueryParam("wildCardSearch") String wildcardSearch,
                            @Parameter(description = "Whether to exclude current user from search result") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
 
 
@@ -493,6 +494,9 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
         settings.replaceAll((key, value) -> value.trim());
       }
       filter.setProfileSettings(settings);
+      if (StringUtils.isNotBlank(wildcardSearch)) {
+        filter.setWildcardSearch(Boolean.parseBoolean(wildcardSearch));
+      }
       ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
       identities = list.load(offset, limit);
       if (returnSize) {
