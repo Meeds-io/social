@@ -1560,16 +1560,28 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
     SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardThirdFieldSetting");
 
     JSONObject userCardSettings = new JSONObject();
-    userCardSettings.put("firstField", userCardFirstFieldSetting.getValue());
-    userCardSettings.put("secondField", userCardSecondFieldSetting.getValue());
-    userCardSettings.put("thirdField", userCardThirdFieldSetting.getValue());
+    if(userCardFirstFieldSetting != null) {
+      userCardSettings.put("firstField", userCardFirstFieldSetting.getValue());
+    } else {
+      userCardSettings.put("firstField", "position");
+    }
+    if(userCardSecondFieldSetting != null) {
+      userCardSettings.put("secondField", userCardSecondFieldSetting.getValue());
+    } else {
+      userCardSettings.put("secondField", "team");
+    }
+    if(userCardThirdFieldSetting != null) {
+      userCardSettings.put("thirdField", userCardThirdFieldSetting.getValue());
+    } else {
+      userCardSettings.put("thirdField", "city");
+    }
 
-    String eTagValue = String.valueOf(Objects.hash(userCardFirstFieldSetting.getValue(), userCardSecondFieldSetting.getValue(), userCardThirdFieldSetting.getValue()));
+    String eTagValue = String.valueOf(Objects.hash(userCardSettings.get("firstField"), userCardSettings.get("secondField"), userCardSettings.get("thirdField")));
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = Response.ok(userCardSettings.toString(), MediaType.APPLICATION_JSON);
-      builder.tag(eTag);
+      builder.tag(eTag);  
       builder.cacheControl(CACHE_CONTROL);
     }
     return builder.build();
