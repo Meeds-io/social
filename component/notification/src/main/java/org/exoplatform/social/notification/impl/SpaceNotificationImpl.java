@@ -126,11 +126,17 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
     webNotificationFilter.setPluginKey(new PluginKey(pluginId));
     List<NotificationInfo> webNotifs = getWebNotificationService().getNotificationInfos(webNotificationFilter, 0, -1);
     for (NotificationInfo info : webNotifs) {
-      info.setTo(userId);
-      info.setRead(true);
-      info.setOwnerParameter(new HashMap<>(info.getOwnerParameter()));
-      info.getOwnerParameter().put("status", "accepted");
-      updateNotification(info);
+      if (!info.getTo().equals(userId) ||
+          !info.isRead() ||
+          !"accepted".equals(info.getOwnerParameter().get("status"))) {
+        //one element has changed, we need to update
+        info.setTo(userId);
+
+        info.setRead(true);
+        info.setOwnerParameter(new HashMap<>(info.getOwnerParameter()));
+        info.getOwnerParameter().put("status", "accepted");
+        updateNotification(info);
+      }
     }
   }
 
