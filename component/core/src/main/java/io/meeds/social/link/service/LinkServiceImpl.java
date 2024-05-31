@@ -18,7 +18,9 @@
  */
 package io.meeds.social.link.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -29,8 +31,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -43,18 +46,21 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityConstants;
-import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.social.cms.service.CMSService;
 import io.meeds.social.link.model.Link;
+import io.meeds.social.link.model.LinkData;
 import io.meeds.social.link.model.LinkSetting;
 import io.meeds.social.link.model.LinkWithIconAttachment;
+import io.meeds.social.link.model.LinkWithImageContent;
 import io.meeds.social.link.plugin.LinkSettingTranslationPlugin;
 import io.meeds.social.link.plugin.LinkTranslationPlugin;
 import io.meeds.social.link.storage.LinkStorage;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.service.TranslationService;
+
+import lombok.SneakyThrows;
 
 public class LinkServiceImpl implements LinkService {
 
@@ -179,16 +185,26 @@ public class LinkServiceImpl implements LinkService {
   public LinkSetting saveLinkSetting(LinkSetting linkSetting, List<Link> links, Identity identity) throws IllegalAccessException,
                                                                                                    ObjectNotFoundException {
     String linkSettingName = linkSetting.getName();
-    LinkSetting existingLinkSetting = linkStorage.getLinkSetting(linkSettingName);
-    if (existingLinkSetting == null) {
+    if (linkStorage.getLinkSetting(linkSettingName) == null) {
       throw new ObjectNotFoundException("Link setting not found");
     }
     if (!hasEditPermission(linkSettingName, identity)) {
       throw new IllegalAccessException(String.format(PAGE_NOT_EDITABLE_BY_USER,
-                                                     existingLinkSetting.getPageReference(),
+                                                     linkStorage.getLinkSetting(linkSettingName).getPageReference(),
                                                      identity == null ? IdentityConstants.ANONIM : identity.getUserId()));
     }
 
+    LinkSetting existingLinkSetting = saveLinkSetting(linkSetting, links);
+
+    existingLinkSetting.setHeader(linkSetting.getHeader());
+    broadcast(LINKS_UPDATED_EVENT, identity.getUserId(), existingLinkSetting);
+    return existingLinkSetting;
+  }
+
+  @Override
+  public LinkSetting saveLinkSetting(LinkSetting linkSetting, List<Link> links) throws ObjectNotFoundException {
+    String linkSettingName = linkSetting.getName();
+    LinkSetting existingLinkSetting = linkStorage.getLinkSetting(linkSettingName);
     existingLinkSetting.setType(linkSetting.getType());
     existingLinkSetting.setLargeIcon(linkSetting.isLargeIcon());
     existingLinkSetting.setSeeMore(linkSetting.getSeeMore());
@@ -210,10 +226,48 @@ public class LinkServiceImpl implements LinkService {
                               existingLinkSetting.getId(),
                               linkSetting.getHeader(),
                               LINK_SETTINGS_HEADER_FIELD);
-
-    existingLinkSetting.setHeader(linkSetting.getHeader());
-    broadcast(LINKS_UPDATED_EVENT, identity.getUserId(), existingLinkSetting);
     return existingLinkSetting;
+  }
+
+  @Override
+  public void saveLinkData(String linkSettingName, LinkData linkData) throws ObjectNotFoundException {
+    LinkSetting linkSetting = linkData.getLinkSetting();
+    if (linkSetting != null) {
+      LinkSetting originalLinkSetting = getLinkSetting(linkSettingName);
+      linkSetting.setId(originalLinkSetting.getId());
+      linkSetting.setName(originalLinkSetting.getName());
+      linkSetting.setLastModified(originalLinkSetting.getLastModified());
+      linkSetting.setPageReference(originalLinkSetting.getPageReference());
+      linkSetting.setSpaceId(originalLinkSetting.getSpaceId());
+      List<LinkWithImageContent> linkWithImageContents = linkData.getLinks();
+      List<Link> links = linkWithImageContents.stream().map(l -> {
+        LinkWithIconAttachment linkWithIconAttachment = new LinkWithIconAttachment(l);
+        linkWithIconAttachment.setIconFileId(0);
+        linkWithIconAttachment.setId(0);
+
+        String imageContent = l.getImageContent();
+        if (StringUtils.isNotBlank(imageContent)) {
+          try {
+            byte[] imageContentBytes = Base64.decodeBase64(imageContent);
+            linkWithIconAttachment.setInputStream(new ByteArrayInputStream(imageContentBytes));
+          } catch (Exception e) {
+            LOG.warn("Error while creating UploadId for link {} icon", l.getUrl(), e);
+          }
+        }
+        return (Link) linkWithIconAttachment;
+      }).toList();
+      saveLinkSetting(linkSetting, links);
+    }
+  }
+
+  @Override
+  public LinkData getLinkData(String linkSettingName) throws ObjectNotFoundException {
+    LinkSetting linkSetting = getLinkSetting(linkSettingName, null, true);
+    if (linkSetting == null) {
+      throw new ObjectNotFoundException(String.format("Link setting with name %s wasn't found", linkSettingName));
+    }
+    List<Link> links = getLinks(linkSettingName, null, true);
+    return new LinkData(linkSetting, links.stream().map(this::toLinkWithImageContent).toList());
   }
 
   @Override
@@ -224,7 +278,9 @@ public class LinkServiceImpl implements LinkService {
   @Override
   public List<Link> getLinks(String linkSettingName, String language, boolean includeTranslations) {
     List<Link> links = linkStorage.getLinks(linkSettingName);
-    if (CollectionUtils.isNotEmpty(links) && includeTranslations) {
+    if (CollectionUtils.isEmpty(links)) {
+      return Collections.emptyList();
+    } else if (CollectionUtils.isNotEmpty(links) && includeTranslations) {
       for (Link link : links) {
         Map<String, String> name = getTranslations(LinkTranslationPlugin.LINKS_OBJECT_TYPE,
                                                    link.getId(),
@@ -324,13 +380,12 @@ public class LinkServiceImpl implements LinkService {
     long oldFileId =
                    existingLinks.stream().filter(l -> l.getId() == link.getId()).map(Link::getIconFileId).findFirst().orElse(0l);
     if (link instanceof LinkWithIconAttachment linkWithIconAttachment
-        && StringUtils.isNotBlank(linkWithIconAttachment.getUploadId())) {
-      String uploadId = linkWithIconAttachment.getUploadId();
-      UploadResource uploadResource = uploadService.getUploadResource(uploadId);
-      try (InputStream inputStream = new FileInputStream(uploadResource.getStoreLocation())) {
+        && (StringUtils.isNotBlank(linkWithIconAttachment.getUploadId())
+            || linkWithIconAttachment.getInputStream() != null)) {
+      try (InputStream inputStream = getInputStream(linkWithIconAttachment)) {
         FileItem fileItem = new FileItem(null,
-                                         uploadResource.getFileName(),
-                                         uploadResource.getMimeType(),
+                                         "icon.png",
+                                         "image/png",
                                          FILE_API_NAMESPACE,
                                          inputStream.available(),
                                          new Date(),
@@ -350,6 +405,13 @@ public class LinkServiceImpl implements LinkService {
     } else {
       link.setIconFileId(oldFileId);
     }
+  }
+
+  private InputStream getInputStream(LinkWithIconAttachment linkWithIconAttachment) throws FileNotFoundException {
+    return linkWithIconAttachment.getInputStream() == null ?
+                                                           new FileInputStream(uploadService.getUploadResource(linkWithIconAttachment.getUploadId())
+                                                                                            .getStoreLocation()) :
+                                                           linkWithIconAttachment.getInputStream();
   }
 
   private void deleteLinkIconFile(long oldFileId) {
@@ -377,7 +439,7 @@ public class LinkServiceImpl implements LinkService {
     }
   }
 
-  private Map<String, String> getTranslations(String objectType, long objectId, String fieldName, String language) {
+  private Map<String, String> getTranslations(String objectType, long objectId, String fieldName, String language) { // NOSONAR
     if (StringUtils.isBlank(language)) {
       TranslationField translationField;
       try {
@@ -421,6 +483,17 @@ public class LinkServiceImpl implements LinkService {
     } catch (Exception e) {
       LOG.warn("Error while broadcasting event '{}' for object {}", eventName, data, e);
     }
+  }
+
+  @SneakyThrows
+  private LinkWithImageContent toLinkWithImageContent(Link link) {
+    LinkWithImageContent linkWithImageContent = new LinkWithImageContent(link);
+    long fileId = linkWithImageContent.getIconFileId();
+    if (fileId > 0) {
+      FileItem fileItem = fileService.getFile(fileId);
+      linkWithImageContent.setImageContent(Base64.encodeBase64String(fileItem.getAsByte()));
+    }
+    return linkWithImageContent;
   }
 
 }
