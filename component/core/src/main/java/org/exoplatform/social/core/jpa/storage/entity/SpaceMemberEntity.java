@@ -34,11 +34,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
 @Entity(name = "SocSpaceMember")
-@ExoEntity
 @Table(name = "SOC_SPACES_MEMBERS")
 @NamedQueries({
         @NamedQuery(name = "SpaceMember.deleteBySpace", query = "DELETE FROM SocSpaceMember mem WHERE mem.space.id = :spaceId"),

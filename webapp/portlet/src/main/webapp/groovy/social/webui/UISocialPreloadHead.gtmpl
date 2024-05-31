@@ -11,6 +11,9 @@
   import java.util.HashSet;
 
   def rcontext = _ctx.getRequestContext();
+  if (rcontext.isMaximizePortlet()) {
+    return;
+  }
 
   SkinService skinService = uicomponent.getApplicationComponent(SkinService.class);
 

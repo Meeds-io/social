@@ -21,10 +21,7 @@ import java.io.Serializable;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocGroupSpaceBindingQueue")
-@ExoEntity
 @Table(name = "SOC_GROUP_SPACE_BINDING_QUEUE")
 @NamedQueries({
     @NamedQuery(name = "SocGroupSpaceBindingQueue.findFirstGroupSpaceBindingQueue", query = "SELECT q FROM SocGroupSpaceBindingQueue q "

@@ -17,15 +17,12 @@
 
 package org.exoplatform.social.core.jpa.storage.entity;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 import jakarta.persistence.*;
 
 /**
  * Created by bdechateauvieux on 7/7/15.
  */
 @Entity(name = "SocMention")
-@ExoEntity
 @Table(name="SOC_MENTIONS")
 @NamedQueries({
         @NamedQuery(name = "SocMention.migrateMentionId",

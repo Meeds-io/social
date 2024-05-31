@@ -33,14 +33,11 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity(name = "SocLink")
-@ExoEntity
 @Table(name = "SOC_LINKS")
 @Data
 @NoArgsConstructor

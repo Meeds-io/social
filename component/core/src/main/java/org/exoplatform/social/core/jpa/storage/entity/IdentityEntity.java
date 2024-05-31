@@ -23,13 +23,10 @@ import java.util.*;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 @Entity(name = "SocIdentityEntity")
-@ExoEntity
 @Table(name = "SOC_IDENTITIES")
 @NamedQueries({
         @NamedQuery(
