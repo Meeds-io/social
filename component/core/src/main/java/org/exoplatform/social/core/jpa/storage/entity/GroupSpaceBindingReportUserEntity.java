@@ -22,10 +22,7 @@ import java.util.Date;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocGroupSpaceBindingReportUser")
-@ExoEntity
 @Table(name = "SOC_GROUP_SPACE_BINDING_REPORT_USER")
 @NamedQueries({
      @NamedQuery(name = "SocGroupSpaceBindingReportUser.findReportForCSV", query

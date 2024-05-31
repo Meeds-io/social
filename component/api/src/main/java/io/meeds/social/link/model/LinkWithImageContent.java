@@ -19,48 +19,23 @@
 
 package io.meeds.social.link.model;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Link implements Serializable, Cloneable {
+@EqualsAndHashCode(callSuper = true)
+public class LinkWithImageContent extends Link {
 
-  private static final long   serialVersionUID = -5104279089111946609L;
-
-  private long                id;
-
-  private Map<String, String> name;
-
-  private Map<String, String> description;
-
-  private String              url;
-
-  private boolean             sameTab;
-
-  private int                 order;
-
-  private long                iconFileId;
-
-  public Link(Link link) {
-    id = link.id;
-    name = new HashMap<>(link.name);
-    description = new HashMap<>(link.description);
-    url = link.url;
-    sameTab = link.sameTab;
-    order = link.order;
-    iconFileId = link.iconFileId;
+  public LinkWithImageContent(Link link) {
+    super(link);
   }
 
-  @Override
-  public Link clone() { // NOSONAR
-    return new Link(this);
-  }
+  private static final long serialVersionUID = -7248786987738475037L;
+
+  private String            imageContent;
 
 }

@@ -18,10 +18,18 @@
  */
 package io.meeds.social.portlet;
 
+import javax.portlet.PortletPreferences;
+
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.security.Identity;
 
+import io.meeds.social.link.model.LinkData;
 import io.meeds.social.link.service.LinkService;
+import io.meeds.social.util.JsonUtils;
+
+import lombok.SneakyThrows;
 
 public class LinkPortlet extends CMSPortlet {
 
@@ -30,6 +38,17 @@ public class LinkPortlet extends CMSPortlet {
   @Override
   protected void saveSettingName(String name, String pageReference, long spaceId) {
     getLinkService().initLinkSetting(name, pageReference, spaceId);
+  }
+
+  @Override
+  @SneakyThrows
+  protected void postSettingInit(PortletPreferences preferences, String name) {
+    String data = preferences.getValue(DATA_INIT_PREFERENCE_NAME, null);
+    if (StringUtils.isNotBlank(data)) {
+      LinkData linkData = JsonUtils.fromJsonString(data, LinkData.class);
+      getLinkService().saveLinkData(name, linkData);
+      savePreference(DATA_INIT_PREFERENCE_NAME, null);
+    }
   }
 
   @Override

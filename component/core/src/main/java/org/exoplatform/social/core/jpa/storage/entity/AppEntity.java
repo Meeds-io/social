@@ -25,12 +25,10 @@ import java.util.Set;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 @Embeddable
-@ExoEntity
 public class AppEntity implements Serializable {
 
   private static final long serialVersionUID = -8893364434133832686L;

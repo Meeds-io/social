@@ -23,10 +23,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocGroupSpaceBinding")
-@ExoEntity
 @Table(name = "SOC_GROUP_SPACE_BINDING")
 @NamedQueries({
     @NamedQuery(name = "SocGroupSpaceBinding.findGroupSpaceBindingsBySpace", query = "SELECT groupSpacebinding "

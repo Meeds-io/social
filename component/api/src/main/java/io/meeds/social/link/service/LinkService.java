@@ -27,6 +27,7 @@ import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.services.security.Identity;
 
 import io.meeds.social.link.model.Link;
+import io.meeds.social.link.model.LinkData;
 import io.meeds.social.link.model.LinkSetting;
 
 public interface LinkService {
@@ -69,6 +70,14 @@ public interface LinkService {
   LinkSetting getLinkSettingByLinkId(long linkSettingId);
 
   /**
+   * @param linkSettingName {@link LinkSetting} unique name
+   * @return {@link LinkData} containing {@link LinkSetting} and the
+   *         {@link List} of {@link Link}
+   * @throws ObjectNotFoundException when {@link LinkSetting} not found
+   */
+  LinkData getLinkData(String linkSettingName) throws ObjectNotFoundException;
+
+  /**
    * Creates a new Instance of {@link LinkSetting} to associate to a page
    * 
    * @param name unique {@link LinkSetting} name
@@ -89,6 +98,24 @@ public interface LinkService {
    */
   LinkSetting saveLinkSetting(LinkSetting linkSetting, List<Link> links, Identity identity) throws IllegalAccessException,
                                                                                             ObjectNotFoundException;
+
+  /**
+   * @param linkSetting {@link LinkSetting} to create/update
+   * @param links {@link List} of {@link Link} to create/update
+   * @return saved {@link LinkSetting}
+   * @throws ObjectNotFoundException when {@link LinkSetting} not found
+   */
+  LinkSetting saveLinkSetting(LinkSetting linkSetting, List<Link> links) throws ObjectNotFoundException;
+
+  /**
+   * Saves a complete configuration for Links representation
+   * 
+   * @param taregtLinkSettingName Target {@link LinkSetting} name
+   * @param linkData {@link LinkData} containing {@link LinkSetting} and the
+   *          {@link List} of {@link Link}
+   * @throws ObjectNotFoundException when target setting name doesn't exist
+   */
+  void saveLinkData(String taregtLinkSettingName, LinkData linkData) throws ObjectNotFoundException;
 
   /**
    * @param linkSettingName {@link LinkSetting} name

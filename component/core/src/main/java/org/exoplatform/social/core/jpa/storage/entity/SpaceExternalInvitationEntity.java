@@ -21,10 +21,7 @@ import java.io.Serializable;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocSpaceExternalInvitations")
-@ExoEntity
 @Table(name = "SOC_SPACES_EXTERNAL_INVITATIONS")
 @NamedQueries({
         @NamedQuery(name = "SocSpaceExternalInvitations.findSpaceExternalInvitationsBySpaceId", query = "SELECT invit FROM SocSpaceExternalInvitations invit WHERE invit.spaceId = :spaceId"),

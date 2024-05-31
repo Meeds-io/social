@@ -35,10 +35,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocMetadataItemEntity")
-@ExoEntity
 @Table(name = "SOC_METADATA_ITEMS")
 @NamedQuery(
     name = "SocMetadataItemEntity.getMetadataItemsByObject",

@@ -24,10 +24,7 @@ import java.util.Map;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocMetadataEntity")
-@ExoEntity
 @Table(name = "SOC_METADATAS")
 @NamedQueries(
   {
