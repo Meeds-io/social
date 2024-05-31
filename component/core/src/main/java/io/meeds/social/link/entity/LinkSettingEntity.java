@@ -35,8 +35,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 import io.meeds.social.link.constant.LinkDisplayType;
 
 import lombok.AllArgsConstructor;
@@ -44,7 +42,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity(name = "SocLinkSetting")
-@ExoEntity
 @Table(name = "SOC_LINK_SETTINGS")
 @Data
 @NoArgsConstructor

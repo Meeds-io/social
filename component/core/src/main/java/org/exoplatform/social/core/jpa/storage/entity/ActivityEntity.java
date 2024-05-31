@@ -25,13 +25,10 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.json.JSONObject;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 /**
  * Created by bdechateauvieux on 3/24/15.
  */
 @Entity(name = "SocActivity")
-@ExoEntity
 @DynamicUpdate
 @Table(name = "SOC_ACTIVITIES")
 @NamedQueries({

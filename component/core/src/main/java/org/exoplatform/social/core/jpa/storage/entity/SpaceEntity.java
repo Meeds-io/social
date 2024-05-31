@@ -24,10 +24,7 @@ import java.util.Set;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocSpaceEntity")
-@ExoEntity
 @Table(name = "SOC_SPACES")
 @NamedQueries({
         @NamedQuery(name = "SpaceEntity.getLastSpaces", query = "SELECT sp.id, sp.createdDate FROM SocSpaceEntity sp ORDER BY sp.createdDate DESC"),
