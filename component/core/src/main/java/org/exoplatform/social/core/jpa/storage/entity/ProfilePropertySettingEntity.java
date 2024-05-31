@@ -20,14 +20,11 @@
 
 package org.exoplatform.social.core.jpa.storage.entity;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity(name = "SocProfileSettingEntity")
-@ExoEntity
 @Table(name = "SOC_PROFILE_PROPERTY_SETTING ")
 
 @NamedQuery(name = "SocProfileSettingEntity.findProfileSettingByName", query = "SELECT c FROM SocProfileSettingEntity c WHERE propertyName = :name")
