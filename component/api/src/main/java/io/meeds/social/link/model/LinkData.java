@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,12 +16,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-
 package io.meeds.social.link.model;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,37 +27,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Link implements Serializable, Cloneable {
+public class LinkData {
 
-  private static final long   serialVersionUID = -5104279089111946609L;
+  private LinkSetting                linkSetting;
 
-  private long                id;
-
-  private Map<String, String> name;
-
-  private Map<String, String> description;
-
-  private String              url;
-
-  private boolean             sameTab;
-
-  private int                 order;
-
-  private long                iconFileId;
-
-  public Link(Link link) {
-    id = link.id;
-    name = new HashMap<>(link.name);
-    description = new HashMap<>(link.description);
-    url = link.url;
-    sameTab = link.sameTab;
-    order = link.order;
-    iconFileId = link.iconFileId;
-  }
-
-  @Override
-  public Link clone() { // NOSONAR
-    return new Link(this);
-  }
+  private List<LinkWithImageContent> links;
 
 }

@@ -21,11 +21,9 @@ import java.util.Date;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 
 @Entity(name = "SocConnection")
-@ExoEntity
 @Table(name = "SOC_CONNECTIONS",
        uniqueConstraints=@UniqueConstraint(columnNames = {"SENDER_ID", "RECEIVER_ID"}))
 @NamedQueries({

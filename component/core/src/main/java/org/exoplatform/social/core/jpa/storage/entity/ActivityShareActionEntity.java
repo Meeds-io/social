@@ -5,10 +5,7 @@ import java.util.*;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocActivityShareAction")
-@ExoEntity
 @Table(name = "SOC_ACTIVITY_SHARE_ACTIONS")
 @NamedQueries({
   @NamedQuery(
