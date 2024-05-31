@@ -64,7 +64,7 @@
             outlined
             @blur="$refs.firstField.blur();" />
         </label>
-        <label for="firstField">
+        <label for="secondField">
           {{ $t('profileSettings.userCard.settings.secondField.label') }}
           <v-select
             ref="secondField"
@@ -78,7 +78,7 @@
             outlined
             @blur="$refs.secondField.blur();" />
         </label>
-        <label for="firstField">
+        <label for="thirdField">
           {{ $t('profileSettings.userCard.settings.thirdField.label') }}
           <v-select
             ref="thirdField"
