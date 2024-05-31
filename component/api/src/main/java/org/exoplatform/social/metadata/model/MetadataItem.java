@@ -47,6 +47,10 @@ public class MetadataItem implements Cloneable {
 
   @Getter
   @Setter
+  private long                updatedDate;
+
+  @Getter
+  @Setter
   private Map<String, String> properties;
 
   public MetadataItem() {
