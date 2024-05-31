@@ -37,7 +37,8 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
     const activity = params && params.activity;
     const isComment = !!params?.activity?.activityId;
     const isActivityDetail = params && params.isActivityDetail;
-    return activityTypeExtension.getSourceLink && activityTypeExtension.getSourceLink(activity, isActivityDetail) && !isComment;
+    const showEmbeddedPreview = !!params?.activityTypeExtension?.showEmbeddedPreview || !isComment;
+    return activityTypeExtension.getSourceLink && activityTypeExtension.getSourceLink(activity, isActivityDetail) && showEmbeddedPreview;
   },
   vueComponent: Vue.options.components['activity-link'],
   rank: 5,
