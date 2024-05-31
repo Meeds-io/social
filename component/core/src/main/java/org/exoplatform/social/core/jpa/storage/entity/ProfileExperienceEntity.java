@@ -32,13 +32,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.
  */
 @Entity(name = "SocIdentityExperiences")
-@ExoEntity
 @Table(name = "SOC_IDENTITY_EXPERIENCES")
 public class ProfileExperienceEntity implements Serializable {
   private static final long serialVersionUID = -6756289453682486794L;

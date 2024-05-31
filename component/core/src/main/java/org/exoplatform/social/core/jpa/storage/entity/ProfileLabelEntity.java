@@ -19,12 +19,10 @@
  */
 
 package org.exoplatform.social.core.jpa.storage.entity;
-import org.exoplatform.commons.api.persistence.ExoEntity;
 import jakarta.persistence.*;
 import java.io.Serializable;
 
 @Entity(name = "SocProfileLabelEntity")
-@ExoEntity
 @Table(name = "SOC_LABELS ")
 
 @NamedQuery(

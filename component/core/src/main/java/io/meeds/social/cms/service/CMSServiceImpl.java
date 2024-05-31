@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -36,13 +38,15 @@ import io.meeds.social.cms.storage.CMSStorage;
 
 public class CMSServiceImpl implements CMSService {
 
-  private LayoutService layoutService;
+  private static final Log LOG = ExoLogger.getLogger(CMSServiceImpl.class);
 
-  private SpaceService  spaceService;
+  private LayoutService    layoutService;
 
-  private CMSStorage    cmsStorage;
+  private SpaceService     spaceService;
 
-  private UserACL       userACL;
+  private CMSStorage       cmsStorage;
+
+  private UserACL          userACL;
 
   public CMSServiceImpl(LayoutService layoutService,
                         SpaceService spaceService,
@@ -69,7 +73,8 @@ public class CMSServiceImpl implements CMSService {
   @Override
   public boolean hasAccessPermission(Identity identity, String pageReference, long spaceId) {
     String[] accessPermissions = getAccessPermissions(pageReference);
-    return (accessPermissions != null && accessPermissions.length > 0 && StringUtils.equals(UserACL.EVERYONE, accessPermissions[0]))
+    return (accessPermissions != null && accessPermissions.length > 0
+            && StringUtils.equals(UserACL.EVERYONE, accessPermissions[0]))
            || (identity != null && Arrays.stream(accessPermissions).anyMatch(perm -> userACL.hasPermission(identity, perm)))
            || hasEditPermission(identity, pageReference, spaceId);
   }
@@ -87,8 +92,7 @@ public class CMSServiceImpl implements CMSService {
       return false;
     }
     String editPermission = getEditPermission(pageReference);
-    boolean hasEditPermission = isContentManager(identity)
-                                || (editPermission != null && userACL.hasPermission(identity, editPermission));
+    boolean hasEditPermission = isContentManager(identity) || (editPermission != null && userACL.hasPermission(identity, editPermission));
     if (hasEditPermission || spaceId <= 0) {
       return hasEditPermission;
     } else {
@@ -133,8 +137,13 @@ public class CMSServiceImpl implements CMSService {
   }
 
   private String getEditPermission(String pageReference) {
-    Page page = layoutService.getPage(pageReference);
-    return page == null ? null : page.getEditPermission();
+    try {
+      Page page = layoutService.getPage(pageReference);
+      return page == null ? null : page.getEditPermission();
+    } catch (Exception e) {
+      LOG.warn("Error while getting page with reference {}", pageReference, e);
+      return null;
+    }
   }
 
 }

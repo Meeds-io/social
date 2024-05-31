@@ -19,6 +19,7 @@
 
 package io.meeds.social.link.model;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -32,9 +33,15 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class LinkWithIconAttachment extends Link implements Cloneable {
 
-  private static final long serialVersionUID = -5052149626047868897L;
+  private static final long     serialVersionUID = -5052149626047868897L;
 
-  private String            uploadId;
+  private String                uploadId;
+
+  private transient InputStream inputStream;
+
+  public LinkWithIconAttachment(Link link) {
+    super(link);
+  }
 
   public LinkWithIconAttachment(long id, // NOSONAR
                                 Map<String, String> name,
