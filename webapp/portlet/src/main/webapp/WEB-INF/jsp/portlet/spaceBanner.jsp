@@ -15,14 +15,15 @@
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
   int maxUploadSize = identityManager.getImageUploadLimit();
   SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-  boolean isAdmin = spaceService.isSuperManager(request.getRemoteUser())
-      || spaceService.isManager(space, request.getRemoteUser());
+  boolean isAdmin = space != null
+      && (spaceService.isSuperManager(request.getRemoteUser())
+      || spaceService.isManager(space, request.getRemoteUser()));
 %>
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application spaceMenuParent white v-application--is-ltr theme--light"
     id="SpaceHeader">
-    <v-cacheable-dom-app cache-id="SpaceHeader_<%=space.getId()%>"></v-cacheable-dom-app>
+    <v-cacheable-dom-app cache-id="SpaceHeader_<%=space == null ? "0" : space.getId()%>"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/SpaceBannerPortlet'], app => app.init(null, '<%=bannerUrl%>', <%=maxUploadSize%>, <%=isAdmin%>));
     </script>
