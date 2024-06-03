@@ -259,7 +259,7 @@ export default {
         this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
     },
     getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+      return this.$userService.getUserCardSettings().then(userCardSettings => this.savedCardSettings = userCardSettings);
     },
     saveUserCardSettings(firstField, secondField, thirdField) {
       this.isSavingCardSettings = true;
