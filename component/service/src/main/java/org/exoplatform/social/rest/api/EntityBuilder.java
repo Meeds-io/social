@@ -60,6 +60,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
+import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -123,6 +125,7 @@ import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
 import org.exoplatform.ws.frameworks.json.impl.JsonException;
 import org.exoplatform.ws.frameworks.json.impl.JsonParserImpl;
 import org.exoplatform.ws.frameworks.json.impl.ObjectBuilder;
+import org.json.JSONObject;
 
 public class EntityBuilder {
 
@@ -202,9 +205,14 @@ public class EntityBuilder {
 
   public static final String              SETTINGS                                   = "settings";
 
+  public static final String              USER_CARD_SETTINGS                         = "UserCardSettings";
+
+
   private static UserPortalConfigService  userPortalConfigService;
 
   private static LayoutService            layoutService;
+
+  private static SettingService           settingService;
 
   private static UserACL                  userACL;
   
@@ -409,6 +417,29 @@ public class EntityBuilder {
     if (expandAttributes.contains("managedUsersCount")) {
       buildManagedUsersCount(userEntity);
     }
+
+    // Get values of properties configured for the user card
+    SettingValue<?> userCardFirstFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardFirstFieldSetting");
+    SettingValue<?> userCardSecondFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardSecondFieldSetting");
+    SettingValue<?> userCardThirdFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardThirdFieldSetting");
+
+    if(userCardFirstFieldSetting != null) {
+      userEntity.setPrimaryProperty((String) profile.getProperty(String.valueOf(userCardFirstFieldSetting.getValue())));
+    } else {
+      userEntity.setPrimaryProperty(userEntity.getPosition());
+    }
+    if(userCardSecondFieldSetting != null) {
+      userEntity.setSecondaryProperty((String) profile.getProperty(String.valueOf(userCardSecondFieldSetting)));
+    } else {
+      userEntity.setSecondaryProperty(userEntity.getTeam());
+    }
+
+    if(userCardThirdFieldSetting != null) {
+      userEntity.setTertiaryProperty((String) profile.getProperty(String.valueOf(userCardThirdFieldSetting)));
+    } else {
+      userEntity.setTertiaryProperty(userEntity.getCity());
+    }
+
     return userEntity;
   }
 
@@ -2027,6 +2058,13 @@ public class EntityBuilder {
       layoutService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(LayoutService.class);
     }
     return layoutService;
+  }
+
+  private static SettingService getSettingService() {
+    if (settingService == null) {
+      settingService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SettingService.class);
+    }
+    return settingService;
   }
   
   private static TranslationService getTranslationService() {
