@@ -24,79 +24,85 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.identity.model.Profile;
 
 public class ProfileEntity extends BaseEntity {
-  public static final String IMS                 = "ims";
+  public static final String IMS                     = "ims";
 
-  public static final String EXPERIENCES         = "experiences";
+  public static final String EXPERIENCES             = "experiences";
 
-  public static final String PHONES              = "phones";
+  public static final String PHONES                  = "phones";
 
-  public static final String ABOUT_ME            = "aboutMe";
+  public static final String ABOUT_ME                = "aboutMe";
 
-  public static final String TIME_ZONE           = "timeZone";
+  public static final String TIME_ZONE               = "timeZone";
 
-  public static final String TIME_ZONE_DST       = "timeZoneDSTSavings";
+  public static final String TIME_ZONE_DST           = "timeZoneDSTSavings";
 
-  public static final String BANNER              = "banner";
+  public static final String BANNER                  = "banner";
 
-  public static final String AVATAR              = "avatar";
+  public static final String AVATAR                  = "avatar";
 
-  public static final String DEFAULT_AVATAR      = "isDefaultAvatar";
+  public static final String DEFAULT_AVATAR          = "isDefaultAvatar";
 
-  public static final String POSITION            = "position";
+  public static final String POSITION                = "position";
 
-  public static final String EMAIL               = "email";
+  public static final String EMAIL                   = "email";
 
-  public static final String GENDER              = "gender";
+  public static final String GENDER                  = "gender";
 
-  public static final String FULLNAME            = "fullname";
+  public static final String FULLNAME                = "fullname";
 
-  public static final String LASTNAME            = "lastname";
+  public static final String LASTNAME                = "lastname";
 
-  public static final String FIRSTNAME           = "firstname";
+  public static final String FIRSTNAME               = "firstname";
 
-  public static final String USERNAME            = "username";
+  public static final String USERNAME                = "username";
 
-  public static final long   serialVersionUID    = -3241490307391015454L;
+  public static final long   serialVersionUID        = -3241490307391015454L;
 
-  public static final String IDENTITY            = "identity";
+  public static final String IDENTITY                = "identity";
 
-  public static final String URLS                = "urls";
+  public static final String URLS                    = "urls";
 
-  public static final String DELETED             = "deleted";
+  public static final String DELETED                 = "deleted";
 
-  public static final String ENABLED             = "enabled";
+  public static final String ENABLED                 = "enabled";
 
-  public static final String IS_INTERNAL         = "isInternal";
+  public static final String IS_INTERNAL             = "isInternal";
 
-  public static final String COMPANY             = "company";
+  public static final String COMPANY                 = "company";
 
-  public static final String LOCATION            = "location";
+  public static final String LOCATION                = "location";
 
-  public static final String DEPARTMENT          = "department";
+  public static final String DEPARTMENT              = "department";
 
-  public static final String TEAM                = "team";
+  public static final String TEAM                    = "team";
 
-  public static final String PROFESSION          = "profession";
+  public static final String PROFESSION              = "profession";
 
-  public static final String COUNTRY             = "country";
+  public static final String COUNTRY                 = "country";
 
-  public static final String CITY                = "city";
+  public static final String CITY                    = "city";
 
-  public static final String EXTERNAL            = "external";
+  public static final String EXTERNAL                = "external";
 
-  public static final String LAST_LOGIN_TIME     = "lastLoginTime";
+  public static final String LAST_LOGIN_TIME         = "lastLoginTime";
 
-  public static final String ENROLLMENT_DATE     = "enrollmentDate";
+  public static final String ENROLLMENT_DATE         = "enrollmentDate";
 
-  public static final String SYNCHRONIZED_DATE   = "synchronizedDate";
+  public static final String SYNCHRONIZED_DATE       = "synchronizedDate";
 
-  public static final String CREATED_DATE        = "createdDate";
+  public static final String CREATED_DATE            = "createdDate";
 
-  public static final String IS_ADMIN            = "isAdmin";
+  public static final String IS_ADMIN                = "isAdmin";
 
-  public static final String MANAGERS            = "managers";
+  public static final String MANAGERS                = "managers";
 
-  public static final String MANAGED_USERS_COUNT = "managedUsersCount";
+  public static final String MANAGED_USERS_COUNT     = "managedUsersCount";
+
+  public static final String PRIMARY_PROPERTY   = "primaryProperty";
+
+  public static final String SECONDARY_PROPERTY = "secondaryProperty";
+
+  public static final String TERTIARY_PROPERTY  = "tertiaryProperty";
 
   public ProfileEntity() {
   }
@@ -560,6 +566,31 @@ public class ProfileEntity extends BaseEntity {
 
   public ProfileEntity setManagedUsersCount(int managedUsersCount) {
     setProperty(MANAGED_USERS_COUNT, managedUsersCount);
+    return this;
+  }
+
+  public String getPrimaryProperty() {
+    return getString(PRIMARY_PROPERTY);
+  }
+
+  public ProfileEntity setPrimaryProperty(String primaryProperty) {
+    setProperty(PRIMARY_PROPERTY, primaryProperty);
+    return this;
+  }
+  public String getSecondaryCardProperty() {
+    return getString(SECONDARY_PROPERTY);
+  }
+
+  public ProfileEntity setSecondaryProperty(String secondaryProperty) {
+    setProperty(SECONDARY_PROPERTY, secondaryProperty);
+    return this;
+  }
+  public String getTertiaryCardProperty() {
+    return getString(TERTIARY_PROPERTY);
+  }
+
+  public ProfileEntity setTertiaryProperty(String tertiaryProperty) {
+    setProperty(TERTIARY_PROPERTY, tertiaryProperty);
     return this;
   }
   
