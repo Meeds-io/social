@@ -36,9 +36,9 @@
             :popover="false"
             bold-title
             link-style>
-            <template v-if="position" slot="subTitle">
+            <template v-if="primaryProperty" slot="subTitle">
               <span class="caption text-bold">
-                {{ position }}
+                {{ primaryProperty }}
               </span>
             </template>
           </exo-user-avatar>
@@ -109,8 +109,8 @@ export default {
     username() {
       return this.identity?.username;
     },
-    position() {
-      return this.identity?.position;
+    primaryProperty() {
+      return this.identity?.primaryProperty;
     },
     isCurrentUser() {
       return eXo.env.portal.userName === this.username;
