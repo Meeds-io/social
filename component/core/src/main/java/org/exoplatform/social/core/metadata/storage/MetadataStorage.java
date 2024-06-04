@@ -522,7 +522,10 @@ public class MetadataStorage {
     metadataItemEntity.setObjectType(metadataItem.getObjectType());
     metadataItemEntity.setParentObjectId(metadataItem.getParentObjectId());
     metadataItemEntity.setProperties(metadataItem.getProperties());
-    if (metadataItem.getUpdatedDate() != 0 && (metadataItemEntity.getUpdatedDate() == null || metadataItem.getUpdatedDate() != metadataItemEntity.getUpdatedDate().getTime())) {
+    if (metadataItem.getCreatedDate() != 0) {
+      metadataItemEntity.setCreatedDate(new Date(metadataItem.getCreatedDate()));
+    }
+    if (metadataItem.getUpdatedDate() != 0) {
       metadataItemEntity.setUpdatedDate(new Date(metadataItem.getUpdatedDate()));
     } else {
       metadataItemEntity.setUpdatedDate(new Date());
