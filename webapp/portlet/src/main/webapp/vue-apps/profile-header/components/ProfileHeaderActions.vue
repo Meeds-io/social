@@ -150,7 +150,7 @@ export default {
   }),
   computed: {
     isMobile() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+      return this.$vuetify?.breakpoint?.mobile;
     },
     enabledProfileHeaderActionComponents() {
       return this.profileHeaderActionComponents && this.profileHeaderActionComponents.filter(act => act.enabled) || [];
