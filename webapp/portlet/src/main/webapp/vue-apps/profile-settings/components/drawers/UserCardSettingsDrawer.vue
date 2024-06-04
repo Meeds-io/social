@@ -72,7 +72,7 @@
             :items="settings"
             item-text="label"
             item-value="value"
-            name="firstField"
+            name="secondField"
             class="pt-1"
             dense
             outlined
@@ -86,7 +86,7 @@
             :items="settings"
             item-text="label"
             item-value="value"
-            name="firstField"
+            name="thirdField"
             class="pt-1"
             dense
             outlined

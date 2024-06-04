@@ -342,8 +342,8 @@ export default {
     userFullname() {
       return this.userIdentity?.fullname || this.name;
     },
-    position() {
-      return this.userIdentity?.position;
+    primaryProperty() {
+      return this.userIdentity?.primaryProperty;
     },
     userAvatarUrl() {
       return this.userIdentity?.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
@@ -389,7 +389,7 @@ export default {
         enabled: this.enabled,
         deleted: this.deleted,       
         fullName: this.userFullname,
-        position: this.position,
+        primaryProperty: this.primaryProperty,
         avatar: this.userAvatarUrl,
         external: this.isExternal,
         allowAnimation: this.compact && this.allowAnimation,
@@ -406,7 +406,7 @@ export default {
           || !this.identity.avatar
           || !this.identity.hasOwnProperty('enabled')
           || !this.identity.hasOwnProperty('deleted')
-          || !this.identity.hasOwnProperty('position')
+          || !this.identity.hasOwnProperty('primaryProperty')
           || !this.identity.hasOwnProperty('external');
     },
   },
