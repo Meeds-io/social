@@ -92,7 +92,7 @@ export default {
           username: data?.username,
           fullname: data?.fullName,
           avatar: data?.avatar,
-          position: data?.position,
+          primaryProperty: data?.primaryProperty,
           external: data?.external,
         };
         localStorage.setItem('popover-identity-type', 'USER_TIPTIP');
