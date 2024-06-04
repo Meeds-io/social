@@ -11,10 +11,10 @@
         {{ userFullname }}
       </div>
       <div
-        id="profileHeaderUserPosition"
-        v-if="userPosition"
+        id="profileHeaderUserPrimaryProperty"
+        v-if="primaryProperty"
         class="subtitle text-sub-title text-break text-wrap">
-        {{ userPosition || '' }}
+        {{ primaryProperty || '' }}
       </div>
     </div>
   </v-card>
@@ -32,8 +32,8 @@ export default {
     userFullname() {
       return this.user?.fullname && `${this.user.fullname}${this.external}${this.disabled}`;
     },
-    userPosition() {
-      return this.user?.position;
+    primaryProperty() {
+      return this.user?.primaryProperty;
     },
     external() {
       if (this.user && this.user.external === 'true') {
