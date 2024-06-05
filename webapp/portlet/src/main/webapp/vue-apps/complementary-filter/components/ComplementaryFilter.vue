@@ -43,7 +43,7 @@
         :is-selected="isSuggestionSelected(suggestion)"
         @select-suggestion="selectSuggestion" />
       <v-btn
-        v-if="suggestions.length > 3"
+        v-if="suggestions.length > elementToDisplay"
         class="ma-auto"
         :class="otherFilterItemsSelected && 'btn-primary elevation-0'
           || 'grey darken-1'"
@@ -53,7 +53,7 @@
         color="white"
         @click="openListSuggestionsDrawer">
         <span class="text-body-2">
-          +{{ suggestions.length - 3 }}
+          +{{ suggestions.length - elementToDisplay }}
         </span>
       </v-btn>
     </div>
@@ -93,6 +93,10 @@ export default {
     loadingCallBack: {
       type: Function,
       default: null
+    },
+    parentExpanded: {
+      type: Boolean,
+      default: () => false
     }
   },
   data() {
@@ -101,7 +105,8 @@ export default {
       suggestions: [],
       tempRemovedSuggestions: [],
       otherFilterItemsSelected: false,
-      isLoading: false
+      isLoading: false,
+      elementToDisplay: 0
     };
   },
   computed: {
@@ -109,7 +114,7 @@ export default {
       return this.listSuggestions.length > 0;
     },
     listSuggestions() {
-      return this.suggestions.slice(0, 3);
+      return this.suggestions.slice(0, this.elementToDisplay);
     },
     listObjectIds() {
       return this.objectIds;
@@ -121,6 +126,12 @@ export default {
   watch: {
     selections() {
       this.$emit('filter-changed', this.selections);
+    },
+    parentExpanded() {
+      setTimeout(() => {
+        console.log('Delayed for 1 second.');
+        this.displayedSuggestions();
+      }, '500');
     }
   },
   created() {
@@ -137,6 +148,21 @@ export default {
     },
     openListSuggestionsDrawer() {
       this.$refs.filterItemsDrawer.open();
+    },
+    displayedSuggestions() {
+      console.log('updated display width');
+      let totalSize = 32;
+      const elementWidth = this.$el.clientWidth;
+      for (let index = 0; index < this.suggestions.length; index ++) {
+        const suggestion = this.suggestions[index];
+        totalSize += (suggestion.value.length * 6) + (12 * 2) + (4 * 2);
+        if (totalSize < elementWidth) {
+          this.elementToDisplay = index;
+        }
+      }
+      if (totalSize < elementWidth) {
+        this.elementToDisplay = this.suggestions.length;
+      }
     },
     checkOnlyInTopThreeSelection() {
       this.otherFilterItemsSelected = false;
@@ -179,6 +205,7 @@ export default {
       return this.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
         .then(suggestions => {
           this.suggestions = suggestions?.sort((a, b) => b.count - a.count);
+          this.displayedSuggestions();
         }).finally(() => {
           this.$emit('build-suggestions-terminated', this.suggestions);
           this.loadingCallBack(false);

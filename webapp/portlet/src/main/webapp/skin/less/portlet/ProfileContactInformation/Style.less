@@ -29,24 +29,6 @@
 
 #ProfileContactInformation {
 
-  #quickSearchUsersListDrawer {
-    .quickSearchResultExpanded {
-      @import "../../common/PeopleList/Style.less";
-    }
-
-    .quickSearchResultCollapsed {
-      @import "../../common/ProfileCard/Style-mobile.less";
-    }
-
-    .filter-message {
-      top: 2px;
-    }
-
-    .suggestion-selected {
-      border: 1px solid;
-    }
-  }
-
   .list-no-selection {
     .v-list-item--active::before {
       opacity: 0;
@@ -114,5 +96,22 @@
   .identitySuggester .v-input__control .v-select__selections {
     padding: 10px !important;
     min-height: auto !important;
+  }
+}
+#quickSearchUsersListDrawer {
+  .quickSearchResultExpanded {
+    @import "../../common/PeopleList/Style.less";
+  }
+
+  .quickSearchResultCollapsed {
+    @import "../../common/ProfileCard/Style-mobile.less";
+  }
+
+  .filter-message {
+    top: 2px;
+  }
+
+  .suggestion-selected {
+    border: 1px solid;
   }
 }
