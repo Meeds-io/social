@@ -5,7 +5,7 @@
     :href="link"
     :target="linkTarget"
     :title="tooltipText"
-    class="d-flex flex-no-wrap activity-thumbnail-box">
+    :class="mainClass">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
         <v-avatar
@@ -15,14 +15,13 @@
           :min-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
           :class="thumbnailMobileNoBorder || 'border-color'"
-          rounded
           eager
           tile>
           <img
             v-if="thumbnail"
             :src="`${thumbnail}`"
             :alt="title"
-            class="object-fit-cover my-auto"
+            class="my-auto"
             loading="lazy">
           <v-icon
             v-else
@@ -50,18 +49,19 @@
         v-if="supportsThumbnail"
         :min-height="thumbnailHeight"
         :height="thumbnailHeight"
-        :min-width="thumbnailWidth"
-        :width="thumbnailWidth"
-        :class="thumbnailNoBorder || 'border-color'"
-        class="border-box-sizing align-start my-4 me-4"
-        rounded
+        :min-width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
+        :width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
+        :class="useEmbeddedLinkView && (!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')"
+        :style="`background-color: ${thumbnailBG};`"
+        class="border-box-sizing align-start me-4 rounded-l"
         eager
         tile>
         <img
           v-if="thumbnail"
           :src="thumbnail"
           :alt="title"
-          class="object-fit-cover my-auto"
+          :class="thumbnailClass"
+          class="my-auto"
           loading="lazy">
         <v-icon
           v-else
@@ -79,7 +79,6 @@
         :width="iconWidth"
         :class="iconNoBorder || 'border-color'"
         class="border-box-sizing align-start my-4 me-4"
-        rounded
         eager
         tile>
         <v-icon
@@ -89,7 +88,9 @@
           {{ defaultIconClass }}
         </v-icon>
       </v-avatar>
-      <div class="my-4">
+      <div
+        :class="isMobile && 'mx-3' || ''"
+        class="my-2 position-relative">
         <dynamic-html-element
           v-if="title"
           :child="titleElement"
@@ -100,9 +101,19 @@
           v-if="summary"
           :child="summaryElement"
           :title="summaryTooltip"
-          :class="`${useEllipsisOnSummary && 'text-light-color text-truncate-3' || 'text-color'} ${regularFontSizeOnSummary && 'text-font-size' || 'caption'}`"
+          :class="bodyClass"
           class="text-wrap text-break reset-style-box rich-editor-content"
           dir="auto" />
+        <v-btn
+          v-if="showReadMore"
+          :aria-label="$t('UIActivity.label.seeMore')"
+          class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 linear-gradient-white-background hover-underline"
+          color="blue"
+          text
+          plain
+          @click="displayFullContent">
+          <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
+        </v-btn>
       </div>
     </template>
   </dynamic-html-element>
@@ -123,6 +134,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    collapsed: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     title: null,
@@ -135,6 +150,11 @@ export default {
     regularFontSizeOnSummary: false,
     useEllipsisOnSummary: true,
     useEllipsisOnTitle: true,
+    fullContent: false,
+    displayReadMoreButton: false,
+    useEmbeddedLinkView: true,
+    summaryLinesToDisplay: 2,
+    isLandscapeThumbnail: false
   }),
   computed: {
     getTitle() {
@@ -164,6 +184,9 @@ export default {
       }
       return this.activityTypeExtension && this.activityTypeExtension.useSameViewForMobile;
     },
+    isDefaultThumbnail() {
+      return this.activityTypeExtension && this.activityTypeExtension.isDefaultThumbnail && this.activityTypeExtension.isDefaultThumbnail(this.activity);
+    },
     supportsIcon() {
       return this.supportsThumbnail || (this.activityTypeExtension && this.activityTypeExtension.supportsIcon);
     },
@@ -192,19 +215,28 @@ export default {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
     },
     thumbnailHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.height || '150px';
+      return this.thumbnailProperties && this.thumbnailProperties.height || (!this.useEmbeddedLinkView && '150px' || '100px');
     },
     thumbnailWidth() {
-      return this.thumbnailProperties && this.thumbnailProperties.width || '252px';
+      return this.thumbnailProperties && this.thumbnailProperties.width || (!this.useEmbeddedLinkView && '252px' || '150px');
+    },
+    thumbnailPreviewHeight() {
+      return this.activityTypeExtension && this.activityTypeExtension.getPreviewHeight && this.activityTypeExtension.getPreviewHeight(this.activity) || 0;
+    },
+    thumbnailPreviewWidth() {
+      return this.activityTypeExtension && this.activityTypeExtension.getPreviewWidth && this.activityTypeExtension.getPreviewWidth(this.activity) || 0;
+    },
+    thumbnailBG() {
+      return this.activityTypeExtension && this.activityTypeExtension.getPreviewWidth && this.activityTypeExtension.getThumbnailBG(this.activity) || 'rgb(231, 231, 231)';
     },
     thumbnailNoBorder() {
       return this.thumbnailProperties && this.thumbnailProperties.noBorder;
     },
     iconHeight() {
-      return this.defaultIcon && this.defaultIcon.height || '150px';
+      return this.defaultIcon && this.defaultIcon.height || '100px';
     },
     iconWidth() {
-      return this.defaultIcon && this.defaultIcon.width || '90px';
+      return this.defaultIcon && this.defaultIcon.width || '175px';
     },
     iconNoBorder() {
       return this.defaultIcon && this.defaultIcon.noBorder;
@@ -243,6 +275,30 @@ export default {
         template: ExtendedDomPurify.purify(`<div>${this.title}</div>`) || '',
       };
     },
+    bodyClass() {
+      return `${this.textTruncate || ''} ${this.useEllipsisOnSummary && 'text-light-color' || 'text-color'} ${!this.useEllipsisOnSummary && this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
+    },
+    textTruncate() {
+      return this.useEllipsisOnSummary && `text-truncate-${this.summaryLinesToDisplay}`;
+    },
+    canCollapse() {
+      return this.activityTypeExtension?.isCollapsed;
+    },
+    showReadMore() {
+      return this.collapsed && !this.fullContent && this.canCollapse && this.displayReadMoreButton;
+    },
+    isMobile() {
+      return this.$vuetify.breakpoint.smAndDown;
+    },
+    thumbnailClass() {
+      return `${this.useEmbeddedLinkView && (!this.isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')} ${this.isLandscapeThumbnail && 'object-fit-cover' || 'object-fit-contain' }`;
+    },
+    addMargin() {
+      return !!this.activityTypeExtension?.addMargin;
+    },
+    mainClass() {
+      return `${!this.useEmbeddedLinkView && 'd-flex flex-no-wrap' || 'activity-thumbnail-box light-grey-background-color overflow-hidden hover-elevation card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'} ${this.addMargin && 'my-4' || ''}`;
+    }
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
@@ -253,11 +309,20 @@ export default {
   },
   created() {
     this.retrieveActivityProperties();
+    window.addEventListener('resize', this.displayReadMore);
+  },
+  mounted() {
+    this.displayReadMore();
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.displayReadMore);
   },
   methods: {
     retrieveActivityProperties() {
       this.useEllipsisOnTitle = this.activityTypeExtension && !this.activityTypeExtension.noTitleEllipsis;
       this.useEllipsisOnSummary = this.activityTypeExtension && !this.activityTypeExtension.noSummaryEllipsis;
+      this.useEmbeddedLinkView = this.activityTypeExtension && !this.activityTypeExtension.noEmbeddedLinkView;
+      this.summaryLinesToDisplay = this.activityTypeExtension?.summaryLinesToDisplay || 2;
       this.regularFontSizeOnSummary = this.activityTypeExtension.regularFontSizeOnSummary === true;
       this.title = this.getTitle && this.getTitle(this.activity, this.isActivityDetail);
       if (this.title && this.title.key) {
@@ -272,7 +337,21 @@ export default {
       this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
       if (this.supportsThumbnail) {
         this.thumbnail = this.getThumbnail && this.getThumbnail(this.activity, this.isActivityDetail);
+        if (this.isDefaultThumbnail) {
+          this.isLandscapeThumbnail = true;
+        } else {
+          if (this.thumbnail && this.thumbnailPreviewWidth > 0 && this.thumbnailPreviewHeight > 0) {
+            this.isLandscapeThumbnail = Number(this.thumbnailPreviewWidth) > Number(this.thumbnailPreviewHeight);
+          }
+        }
       }
+    },
+    displayReadMore() {
+      const elem = this.$el?.querySelector?.('.rich-editor-content');
+      this.displayReadMoreButton = elem && elem?.scrollHeight > elem?.clientHeight;
+    },
+    displayFullContent() {
+      this.fullContent = !this.fullContent;
     },
   },
 };

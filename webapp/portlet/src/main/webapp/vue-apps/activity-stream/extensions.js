@@ -35,8 +35,10 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
   isEnabled: (params) => {
     const activityTypeExtension = params && params.activityTypeExtension;
     const activity = params && params.activity;
+    const isComment = !!params?.activity?.activityId;
     const isActivityDetail = params && params.isActivityDetail;
-    return activityTypeExtension.getSourceLink && activityTypeExtension.getSourceLink(activity, isActivityDetail);
+    const showEmbeddedPreview = !!params?.activityTypeExtension?.showEmbeddedPreview || !isComment;
+    return activityTypeExtension.getSourceLink && activityTypeExtension.getSourceLink(activity, isActivityDetail) && showEmbeddedPreview;
   },
   vueComponent: Vue.options.components['activity-link'],
   rank: 5,
@@ -62,10 +64,14 @@ const defaultActivityOptions = {
                               || activity.title
                               || '',
   getSummary: activity => activity && activity.templateParams && activity.templateParams.description || '',
-  getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '',
+  getThumbnail: activity => activity && activity.templateParams && activity.templateParams.image || '/social-portlet/images/link.jpg',
+  isDefaultThumbnail: activity => !(activity && activity.templateParams && activity.templateParams.image && activity.templateParams.image.length > 0),
+  getPreviewWidth: activity => activity && activity.templateParams && activity.templateParams.previewWidth || 0,
+  getPreviewHeight: activity => activity && activity.templateParams && activity.templateParams.previewHeight || 0,
+  getThumbnailBG: activity => activity && activity.templateParams && activity.templateParams.bgColor,
   getThumbnailProperties: activity => !(activity  && activity.templateParams && activity.templateParams.image) && {
     height: '90px',
-    width: '90px',
+    width: '140px',
     noBorder: true,
   },
   isUseSameViewForMobile: activity => !activity || !activity.templateParams || !activity.templateParams.image,
@@ -113,6 +119,31 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 extensionRegistry.registerExtension('activity', 'type', {
   type: 'default',
   options: defaultActivityOptions,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityComment',
+  rank: 5,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityReplyToComment',
+  rank: 10,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'EditComment',
+  rank: 15,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityMention',
+  rank: 20,
+});
+
+extensionRegistry.registerExtension('activity', 'expand-action-type', {
+  id: 'ActivityCommentWatch',
+  rank: 25,
 });
 
 extensionRegistry.registerExtension('activity', 'action', {
