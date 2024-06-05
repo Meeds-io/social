@@ -227,6 +227,7 @@ export default {
     document.addEventListener('activity-updated', event => {
       const activityId = event && event.detail;
       this.updateActivityDisplayById(activityId);
+
     });
     document.addEventListener('activity-stream-type-filter-applied', event => {
       this.streamFilter = event && event.detail;
@@ -240,6 +241,7 @@ export default {
         this.updateActivityDisplayById(activityId);
       }
     });
+    this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
     this.$root.$on('activities-refresh', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
@@ -254,6 +256,9 @@ export default {
         }
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       });
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
   },
   methods: {
     init() {

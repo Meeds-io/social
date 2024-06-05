@@ -113,6 +113,10 @@ export default {
       type: Boolean,
       default: false
     },
+    oembedOnlyVideo: {
+      type: Boolean,
+      default: false
+    },
     oembedMinWidth: {
       type: Number,
       default: () => 300,
@@ -324,11 +328,19 @@ export default {
         // Disable suggester on smart-phone landscape
         extraPlugins = `${extraPlugins},suggester`;
       }
+
       if (this.supportsOembed) {
-        extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
+        if (this.oembedOnlyVideo) {
+          extraPlugins = `${extraPlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+          removePlugins = `${removePlugins},embedsemantic,embedbase`;
+        } else {
+          extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
+          removePlugins = `${removePlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+        }
       } else {
-        removePlugins = `${removePlugins},embedsemantic,embedbase`;
+        removePlugins = `${removePlugins},embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo`;
       }
+
       if (this.tagEnabled) {
         extraPlugins = `${extraPlugins},tagSuggester`;
         toolbar[0].push('tagSuggester');
@@ -378,6 +390,7 @@ export default {
         startupFocus: this.autofocus && this.focusPosition,
         pasteFilter: 'p; a[!href]; strong; i', 
         toolbarLocation: this.toolbarPosition,
+        supportsOembed: this.supportsOembed,
       };
       if (!this.disableAutoGrow) {
         options.autoGrow_onStartup = false;
@@ -473,7 +486,7 @@ export default {
       const response = embedResponse?.data?.data?.response;
       if (this.supportsOembed && response) {
         const oembedUrl = response.url;
-        this.setOembedParams({
+        const oembedParams = {
           link: oembedUrl || '-',
           image: response.type !== 'video' && response.thumbnail_url || '-',
           html: response.type === 'video' && response.html || '-',
@@ -483,7 +496,21 @@ export default {
           previewWidth: response.thumbnail_width || '-',
           default_title: this.getContent(this.inputVal, false),
           comment: this.getContentNoEmbed(this.inputVal),
-        });
+        };
+        if (response.thumbnail_url 
+            && response.thumbnail_height 
+            && response.thumbnail_width 
+            && Number(response.thumbnail_height) >= Number(response.thumbnail_width)) {
+          this.getAverageColor(response.thumbnail_url).then(() => {
+            this.getAverageColor(response.thumbnail_url)
+              .then(bgColor => {
+                oembedParams.bgColor = bgColor;
+                this.setOembedParams(oembedParams);
+              });
+          });
+        } else {
+          this.setOembedParams(oembedParams);
+        }  
       } else {
         this.clearOembedParams();
       }
@@ -586,6 +613,23 @@ export default {
         const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
         content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
         content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
+      }
+      if (content.includes('<a') && content.includes('</a>')) {
+        const tempdiv = document.createElement('div');
+        tempdiv.innerHTML = content;
+        const links = tempdiv.getElementsByTagName('a');
+        for (const link of links) {
+          if (link.href.indexOf(window.location.origin) === -1) {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'nofollow noopener noreferrer');
+          }
+          if (link.text.length > 75) {
+            link.setAttribute('title', link.href);
+            link.setAttribute('Aria-label', link.href);
+            link.text = `${link.text.substring(0,75)  }...`;
+          }
+        }
+        content = tempdiv.innerHTML;
       }
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
       return content;
@@ -797,6 +841,46 @@ export default {
     },
     emitChanges(attachements, changed){
       this.$emit('attachments-edited', attachements, changed);
+    },
+    getAverageColor(imgElem) {
+      return this.loadImage(imgElem)
+        .then(data => {
+          const blockSize = 5,
+            rgb = { r: 0, g: 0, b: 0};
+          let i = -4, count = 0;
+          const length = data.data.length;
+          while ( (i += blockSize * 4) < length) {
+            ++count;
+            rgb.r += data.data[i];
+            rgb.g += data.data[i+1];
+            rgb.b += data.data[i+2];
+          }
+          // ~~ used to floor values
+          rgb.r = ~~(rgb.r/count);
+          rgb.g = ~~(rgb.g/count);
+          rgb.b = ~~(rgb.b/count);
+          return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+        })
+        .catch(e => {
+          console.debug('Error while computing image background color', e); // eslint-disable-line no-console
+          return 'rgb(231, 231, 231)';
+        });
+    },
+    loadImage(img) {
+      return new Promise(resolve => {
+        const canvas = document.createElement('canvas'),
+          height = canvas.height = 100,
+          width = canvas.width = 150,
+          context = canvas.getContext && canvas.getContext('2d');
+        context.imageSmoothingEnabled = true;
+        const imageElement = new Image();
+        imageElement.src = img;
+        imageElement.crossOrigin = 1;
+        imageElement.onload = () => {
+          context.drawImage(imageElement, 0, 0, width, height);
+          resolve(context.getImageData(0, 0, width, height));
+        };
+      });
     }
   }
 };

@@ -41,6 +41,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
+          :display-comments="showLastComments"
           class="px-4" />
       </template>
     </template>
@@ -77,6 +78,7 @@
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
+          :display-comments="showLastComments"
           class="px-4" />
       </template>
     </template>
@@ -128,6 +130,8 @@ export default {
     initialized: false,
     noExtension: false,
     unreadMetadata: null,
+    isCollapsed: false,
+    hasNewComment: false,
   }),
   computed: {
     id() {
@@ -177,6 +181,9 @@ export default {
         },
       };
     },
+    displayLastCommentsRequiredActions() {
+      return this.activityExpandActionTypes;
+    },
     extendedComponentParams() {
       return {
         activity: this.activity,
@@ -184,6 +191,7 @@ export default {
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
         loading: this.loading,
+        collapsed: !this.isCollapsed,
       };
     },
     init() {
@@ -201,6 +209,9 @@ export default {
     spaceId() {
       return this.activity?.activityStream?.space?.id || '';
     },
+    showLastComments() {
+      return this.hasNewComment || this.isActivityDetail;
+    }
   },
   watch: {
     activityLoading() {
@@ -227,12 +238,21 @@ export default {
     initialized() {
       if (this.initialized && !this.isActivityShared) {
         this.unreadMetadata = this.activity?.metadatas?.unread?.length && this.activity?.metadatas?.unread[0];
+        const isLikeAction = this.unreadMetadata && this.unreadMetadata?.properties?.actionType === 'Like'
+            || this.unreadMetadata?.properties?.actionType === 'LikeComment';
+        const actionType = this.unreadMetadata?.properties?.actionType || '';
+        const isNewActivityComment = this.$root.displayCommentActionTypes?.length
+                                     && actionType.length
+                                     && this.$root.displayCommentActionTypes.indexOf(actionType) >= 0;
+        this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityComment;
+        this.hasNewComment = isNewActivityComment;
       }
     },
   },
   created() {
     this.$root.$on('activity-extension-abort', this.abortSpecificExtension);
     this.$root.$on('activity-refresh-ui', this.retrieveActivityProperties);
+    this.$root.$on('activity-stream-activity-createComment', this.refreshActivityLastComments);
     this.retrieveActivityProperties();
   },
   mounted() {
@@ -256,6 +276,7 @@ export default {
   beforeDestroy() {
     this.$root.$off('activity-refresh-ui', this.retrieveActivityProperties);
     this.$root.$off('activity-extension-abort', this.abortSpecificExtension);
+    this.$root.$off('activity-stream-activity-createComment', this.refreshActivityLastComments);
   },
   methods: {
     retrieveActivityProperties(activityId) {
@@ -275,6 +296,7 @@ export default {
               });
           }
         }
+        this.isRead = true;
         this.loading = false;
         this.initialized = true;
       });
@@ -308,6 +330,11 @@ export default {
     abortSpecificExtension(activityId) {
       if (activityId === this.activityId) {
         this.noExtension = true;
+      }
+    },
+    refreshActivityLastComments(activityId) {
+      if (activityId === this.activityId) {
+        this.hasNewComment = true;
       }
     },
     markAsRead() {

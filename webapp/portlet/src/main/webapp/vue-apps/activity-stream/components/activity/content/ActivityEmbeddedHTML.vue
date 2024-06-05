@@ -2,7 +2,7 @@
   <div
     v-if="embeddedHTML"
     :style="parentStyle"
-    class="d-flex flex-column flex activity-embedded-box mx-auto">
+    class="d-flex flex-column flex activity-embedded-box mt-3 mx-auto card-border-radius overflow-hidden light-grey-background-color hover-elevation mb-4">
     <div
       v-if="elementReady"
       v-html="embeddedHTML"
@@ -14,7 +14,7 @@
       :href="link"
       :target="linkTarget"
       :title="titleText"
-      class="py-4 text-color">
+      class="pa-3 text-color z-index-one light-grey-background-color">
       <div
         v-text="titleText"
         class="font-weight-bold text-color ma-0 text-wrap text-break text-truncate-2"></div>
@@ -44,7 +44,8 @@ export default {
   }),
   computed: {
     embeddedHTML() {
-      return this.activity && this.activity.templateParams && this.activity.templateParams.html;
+      const htmlElement = this.activity?.templateParams?.html;
+      return this.computeEmbeddedHTML(htmlElement);
     },
     sourceLink() {
       return this.activity && this.activity.templateParams && this.activity.templateParams.link || '';
@@ -78,7 +79,6 @@ export default {
       return {
         width: `${width}px`,
         maxWidth: `${this.maxWidth}px`,
-        maxHeight: `${this.maxWidth}px`,
       };
     },
   },
@@ -86,5 +86,15 @@ export default {
     this.maxWidth = this.$el && this.$el.parentElement.offsetWidth < this.maxWidth && String(this.$el.parentElement.offsetWidth - 2) || `${this.maxWidth}`;
     this.elementReady = true;
   },
+  methods: {
+    computeEmbeddedHTML(htmlElement) {
+      const tempdiv = document.createElement('div');
+      tempdiv.innerHTML = htmlElement;
+      if (tempdiv.firstElementChild.style.maxWidth) {
+        tempdiv.firstElementChild.style.maxWidth = `${this.maxWidth}px`;
+      }
+      return tempdiv.innerHTML;
+    }
+  }
 };
 </script>
