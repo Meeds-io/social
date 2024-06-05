@@ -5,24 +5,26 @@
 <%@page import="org.exoplatform.web.application.RequestContext"%>
 <%@page import="org.json.JSONArray"%>
 <%@page import="java.util.Set"%>
-<%@page
-  import="org.exoplatform.portal.localization.LocaleContextInfoUtils"%>
+<%@page import="org.exoplatform.portal.localization.LocaleContextInfoUtils"%>
+
 <%
   Locale userLocale = RequestContext.getCurrentInstance().getLocale();
 
-			Set<Locale> locales = LocaleContextInfoUtils.getSupportedLocales();
-			List<Locale> localesList = new ArrayList(locales);
-			JSONArray localesJSON = new JSONArray();
-			for (Locale locale : localesList) {
-				JSONObject object = new JSONObject();
-				if (locale.toString().equals("ma")) {
-					continue;
-				} else {
-					object.put("value", locale.toString());
-					object.put("text", locale.getDisplayName(Locale.ENGLISH));
-				}
-				localesJSON.put(object);
-			}
+  Set<Locale> locales = LocaleContextInfoUtils.getSupportedLocales();
+  List<Locale> localesList = new ArrayList(locales);
+  JSONArray localesJSON = new JSONArray();
+  for (Locale locale : localesList) {
+    if(locale != null) {
+      JSONObject object = new JSONObject();
+      if ("ma".equals(locale.toString())) {
+          continue;
+      } else {
+        object.put("value", locale.toString());
+        object.put("text", locale.getDisplayName(Locale.ENGLISH));
+      }
+      localesJSON.put(object);
+    }
+  }
 %>
 <div class="VuetifyApp">
   <div data-app="true"
