@@ -468,12 +468,7 @@ public class ProfileSearchConnector {
             if (i != 0) {
               nameEsExp.append(") AND (");
             }
-            String searchedWord;
-            if(filter.isWildcardSearch()) {
-              searchedWord = StorageUtils.ASTERISK_STR + removeAccents(keys[i]) + StorageUtils.ASTERISK_STR;
-            } else {
-              searchedWord = removeAccents(keys[i]);
-            }
+            String searchedWord = StorageUtils.ASTERISK_STR + removeAccents(keys[i]) + StorageUtils.ASTERISK_STR;
             nameEsExp.append(" name.whitespace:").append(searchedWord);
             if (filter.isSearchEmail()) {
               nameEsExp.append(" OR email:").append(searchedWord);
@@ -487,13 +482,9 @@ public class ProfileSearchConnector {
           esExp.append("(").append(nameEsExp).append(")");
         }
       } else if (StringUtils.isNotBlank(newInputName)) {
-        String searchedText;
-        if(filter.isWildcardSearch()) {
-          searchedText = StorageUtils.ASTERISK_STR + removeAccents(newInputName) + StorageUtils.ASTERISK_STR;
-        } else {
-          searchedText = removeAccents(newInputName);
-        }
+        String searchedText = StorageUtils.ASTERISK_STR + removeAccents(newInputName) + StorageUtils.ASTERISK_STR;
         esExp.append("name.whitespace:").append(searchedText);
+
         if (filter.isSearchEmail()) {
           esExp.append(" OR email:").append(searchedText);
         }
