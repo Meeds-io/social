@@ -47,6 +47,7 @@
         :show-message="false"
         index-alias="profile_alias"
         :loading-call-back="loadingCallBack"
+        :parent-expanded="expanded"
         @build-suggestions-terminated="buildSuggestionsTerminated"
         @filter-changed="selectedSuggestionsUpdated"
         @filter-suggestion-unselected="unselectSuggestion"
@@ -115,7 +116,7 @@
         <v-btn
           :loading="isLoading"
           class="btn btn-primary width-full"
-          flat
+          text
           outlined
           @click="search(true)">
           {{ $t('Search.button.loadMore') }}
