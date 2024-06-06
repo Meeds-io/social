@@ -183,11 +183,6 @@ export default {
   data() {
     return {
       menu: false,
-      defaultPreferences: {
-        firstField: 'position',
-        secondField: 'team',
-        thirdField: 'city'
-      },
     };
   },
   props: {
@@ -211,10 +206,6 @@ export default {
       type: Array,
       default: () => []
     },
-    preferences: {
-      type: Object,
-      default: null
-    },
     isMobile: {
       type: Boolean,
       default: false
@@ -223,9 +214,6 @@ export default {
   computed: {
     showMenu() {
       return this.menu || this.isMobile;
-    },
-    preferencesObject() {
-      return this.preferences || this.defaultPreferences;
     },
     filteredUserNavigationExtensions() {
       return this.userNavigationExtensions.filter(extension => extension.enabled(this.user)
@@ -237,17 +225,14 @@ export default {
     isSameUser() {
       return this.user?.username === eXo?.env?.portal?.userName;
     },
-    fieldsToDisplay() {
-      return this.user?.properties?.filter(property => Object.values(this.preferencesObject).includes(property.propertyName));
-    },
     firstField() {
-      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferencesObject.firstField)[0]?.value;
+      return this.user?.primaryProperty;
     },
     secondField() {
-      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferencesObject.secondField)[0]?.value;
+      return this.user?.secondaryProperty;
     },
     thirdField() {
-      return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferencesObject.thirdField)[0]?.value;
+      return this.user?.tertiaryProperty;
     },
     bannerUrl() {
       return this.user?.banner;

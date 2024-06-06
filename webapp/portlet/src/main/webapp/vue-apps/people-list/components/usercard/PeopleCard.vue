@@ -6,7 +6,6 @@
       :user-navigation-extensions="userNavigationExtensions"
       :space-members-extensions="filteredSpaceMembersExtensions"
       :profile-action-extensions="profileActionExtensions"
-      :preferences="userCardSettings"
       :is-mobile="isMobile" />
     <people-user-compact-card
       v-else
@@ -43,10 +42,6 @@ export default {
     compactDisplay: {
       type: Boolean,
       default: false,
-    },
-    userCardSettings: {
-      type: Object,
-      default: () => ({}),
     },
   },
   data: () => ({
