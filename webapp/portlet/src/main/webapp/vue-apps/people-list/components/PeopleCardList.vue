@@ -25,8 +25,7 @@
                 :user="user"
                 :space-members-extensions="spaceMembersActionExtensions"
                 :user-navigation-extensions="userExtensions"
-                :profile-action-extensions="profileActionExtensions"
-                :user-card-settings="userCardSettings" />
+                :profile-action-extensions="profileActionExtensions" />
             </v-col>
           </v-row>
           <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
@@ -154,7 +153,6 @@ export default {
     },
   },
   created() {
-    this.getSavedUserCardSettings();
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
     // To refresh menu when a new extension is ready to be used
@@ -172,9 +170,6 @@ export default {
     this.refreshUserExtensions();
   },
   methods: {
-    getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
-    },
     resetFilters() {
       this.$root.$emit('reset-filter');
       this.$root.$emit('reset-advanced-filter');
