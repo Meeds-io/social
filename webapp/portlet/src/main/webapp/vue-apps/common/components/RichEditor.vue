@@ -211,7 +211,6 @@ export default {
   watch: {
     inputVal() {
       this.updateInput(this.inputVal);
-
       if (this.supportsOembed) {
         this.setOembedParams({
           default_title: this.getContentToSave(this.inputVal),
@@ -409,6 +408,7 @@ export default {
               });
 
             self.setEditorReady();
+            self.inputVal = textValue && self.getContentToSave(textValue);
             if (this.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
