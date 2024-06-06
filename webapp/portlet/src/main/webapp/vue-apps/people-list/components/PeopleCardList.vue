@@ -113,7 +113,8 @@ export default {
     originalLimitToFetch: 0,
     abortController: null,
     loadingPeople: false,
-    userCardSettings: null
+    userCardSettings: null,
+    advancedFilterSettings: null,
   }),
   computed: {
     profileActionExtensions() {
@@ -166,7 +167,7 @@ export default {
     document.dispatchEvent(new CustomEvent('profile-extension-init'));
     this.$root.$on('reset-advanced-filter', this.searchPeople);
 
-    this.$root.$on('advanced-filter', profileSettings => this.getUsersByadvancedfilter(profileSettings));
+    this.$root.$on('advanced-filter', profileSettings => this.searchPeople(profileSettings));
 
     this.refreshExtensions();
     this.refreshUserExtensions();
@@ -187,7 +188,7 @@ export default {
       this.profileExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
       this.spaceMemberExtensions = this.spaceId && extensionRegistry.loadExtensions('space-member-extension', 'action') || [];
     },
-    searchPeople() {
+    searchPeople(profileSettings) {
       this.loadingPeople = true;
       // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
       // to finally let only 'limitToFetch' users
@@ -205,6 +206,11 @@ export default {
           || this.filter === 'redactor'
           || this.filter === 'publisher') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
+      } else if (profileSettings) {
+        this.advancedFilterSettings = profileSettings;
+        searchUsersFunction = this.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
+      } else if (this.advancedFilterSettings) {
+        searchUsersFunction = this.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
       } else {
         searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       }
@@ -238,42 +244,6 @@ export default {
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
     },
-    getUsersByadvancedfilter(profileSettings) {
-
-      this.loadingPeople = true;
-      // Using 'limitToFetch + 1' to retrieve current user and then delete it from result
-      // to finally let only 'limitToFetch' users
-      if (this.abortController) {
-        this.abortController.abort();
-      }
-      this.abortController = new AbortController();
-      let filterUsersFunction;
-      if (this.filter) {
-        filterUsersFunction = this.$userService.getUsersByAdvancedFilter(profileSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
-      }
-      return filterUsersFunction.then(data => {
-        const users = data && data.users || [];
-        this.users = users.slice(0, this.limitToFetch);
-        this.peopleCount = data && data.size && data.size || 0;
-        this.hasPeople = this.hasPeople || this.peopleCount > 0;
-        this.$emit('loaded', this.peopleCount);
-        return this.$nextTick();
-      })
-        .then(() => {
-          if ( this.filteredPeople.length < this.originalLimitToFetch && this.users.length >= this.limitToFetch) {
-            this.limitToFetch += this.pageSize;
-          }
-        })
-        .finally(() => {
-          if (!this.initialized) {
-            this.$root.$applicationLoaded();
-          }
-          this.loadingPeople = false;
-          this.initialized = true;
-          this.abortController = null;
-        });
-
-    }
   }
 };
 </script>
