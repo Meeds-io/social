@@ -226,6 +226,7 @@ export default {
     editorReady() {
       if (this.editorReady) {
         this.$emit('ready');
+        this.updateInput(this.inputVal);
         this.initOembedParams();
       } else {
         this.$emit('unloaded');
@@ -408,7 +409,6 @@ export default {
               });
 
             self.setEditorReady();
-            self.inputVal = textValue && self.getContentToSave(textValue);
             if (this.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
