@@ -60,6 +60,18 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     List<String> getSpaceMembers(Long spaceId, Status status, int offset, int limit);
 
     /**
+     * Get disabled space members
+     *
+     * @param spaceId
+     * @param offset
+     * @param limit
+     * @return
+     */
+    default List<String> getDisabledSpaceMembers(Long spaceId, int offset, int limit){
+      throw new UnsupportedOperationException();
+    }
+
+    /**
      * Retrieves the list of {@link Space} technical identifiers
      * 
      * @param username user remote id
@@ -106,6 +118,16 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      * @return
      */
     int countSpaceMembers(Long spaceId, Status status);
+
+    /**
+     * Count space members switch status
+     *
+     * @param spaceId
+     * @return
+     */
+    default int countDisabledSpaceMembers(Long spaceId) {
+      throw new UnsupportedOperationException();
+    }
 
     /**
      * @param username username used to retrieve user spaces

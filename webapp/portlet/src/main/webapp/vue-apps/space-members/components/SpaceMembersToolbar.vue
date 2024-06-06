@@ -1,7 +1,7 @@
 <template>
   <application-toolbar
     id="peopleListToolbar"
-    :right-text-filter="{
+    :right-text-filter="filter !== 'disabled' && {
       minCharacters: 3,
       placeholder: $t('peopleList.label.filterPeople'),
       tooltip: $t('peopleList.label.filterPeople')
@@ -91,6 +91,9 @@ export default {
         },{
           text: this.$t('peopleList.label.filter.pending'),
           value: 'pending',
+        },{
+          text: this.$t('peopleList.label.filter.disabled'),
+          value: 'disabled',
         }];
       } else {
         return [{

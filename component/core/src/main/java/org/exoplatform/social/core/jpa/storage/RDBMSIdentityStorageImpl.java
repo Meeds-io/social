@@ -757,48 +757,53 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     String sortFieldName = sorting == null || sorting.sortBy == null ? null : sorting.sortBy.getFieldName();
     String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
     List<String> excludedMembers = new ArrayList<>();
-    if (profileFilter != null && profileFilter.getExcludedIdentityList() != null) {
+    if (profileFilter.getExcludedIdentityList() != null) {
       for (Identity identity : profileFilter.getExcludedIdentityList()) {
         excludedMembers.add(identity.getRemoteId());
       }
     }
     Status status = null;
-    switch (type) {
-    case MANAGER:
-      status = Status.MANAGER;
-      break;
-    case REDACTOR:
-      status = Status.REDACTOR;
-      break;
-    case PUBLISHER:
-      status = Status.PUBLISHER;
-      break;
-    case INVITED:
-      status = Status.INVITED;
-      break;
-    case PENDING:
-      status = Status.PENDING;
-      break;
-    default:
-      status = Status.MEMBER;
+    List<String> spaceMembers;
+    if (!SpaceMemberFilterListAccess.Type.DISABLED.equals(type)) {
+      switch (type) {
+        case MANAGER:
+          status = Status.MANAGER;
+          break;
+        case REDACTOR:
+          status = Status.REDACTOR;
+          break;
+        case PUBLISHER:
+          status = Status.PUBLISHER;
+          break;
+        case INVITED:
+          status = Status.INVITED;
+          break;
+        case PENDING:
+          status = Status.PENDING;
+          break;
+        default:
+          status = Status.MEMBER;
+      }
+      spaceMembers = getSpaceMembers(space.getId(), status);
+    } else {
+      spaceMembers = getDisabledSpaceMembers(space.getId());
     }
 
-    List<String> spaceMembers = getSpaceMembers(space.getId(), status);
-    if(spaceMembers == null || spaceMembers.isEmpty()) {
+    if(spaceMembers.isEmpty()) {
       return Collections.emptyList();
     }
 
     spaceMembers = spaceMembers.stream()
         .filter(username -> !excludedMembers.contains(username))
         .toList();
-    if (profileFilter != null && profileFilter.getExcludedIdentityList() != null) {
+    if (profileFilter.getExcludedIdentityList() != null) {
       for (Identity identity : profileFilter.getExcludedIdentityList()) {
         spaceMembers.remove(identity.getRemoteId());
       }
     }
 
-    if (profileFilter == null || profileFilter.isEmpty()) {
-      // Retrive space members from DB
+    if (profileFilter.isEmpty() || SpaceMemberFilterListAccess.Type.DISABLED.equals(type)) {
+      // Retrieve space members from DB
 
       List<Identity> identities = new ArrayList<>();
       spaceMembers = sortIdentities(spaceMembers, sortFieldName, sortDirection, false);
@@ -814,7 +819,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       }
       return identities;
     } else {
-      // Retrive space members from ES
+      // Retrieve space members from ES
 
       try {
         profileFilter = profileFilter.clone();
@@ -1119,6 +1124,24 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     int offset = 0;
     while (offset < countSpaceMembers) {
       Collection<String> spaceMembers = spaceMemberDAO.getSpaceMembers(spaceId, status, offset, BATCH_SIZE);
+      for (String username : spaceMembers) {
+        members.add(username);
+      }
+      offset += BATCH_SIZE;
+    }
+    return members;
+  }
+
+  private List<String> getDisabledSpaceMembers(String spaceIdString) {
+    long spaceId = Long.parseLong(spaceIdString);
+    int countSpaceMembers = spaceMemberDAO.countDisabledSpaceMembers(spaceId);
+    if (countSpaceMembers == 0) {
+      return Collections.emptyList();
+    }
+    List<String> members = new ArrayList<>();
+    int offset = 0;
+    while (offset < countSpaceMembers) {
+      Collection<String> spaceMembers = spaceMemberDAO.getDisabledSpaceMembers(spaceId, offset, BATCH_SIZE);
       for (String username : spaceMembers) {
         members.add(username);
       }
