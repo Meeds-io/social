@@ -211,7 +211,6 @@ export default {
   watch: {
     inputVal() {
       this.updateInput(this.inputVal);
-
       if (this.supportsOembed) {
         this.setOembedParams({
           default_title: this.getContentToSave(this.inputVal),
@@ -227,6 +226,7 @@ export default {
     editorReady() {
       if (this.editorReady) {
         this.$emit('ready');
+        this.updateInput(this.inputVal);
         this.initOembedParams();
       } else {
         this.$emit('unloaded');
