@@ -23,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -32,7 +34,10 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
 /**
  * Listens to user updating events. Created by hanh.vi@exoplatform.com Jan 17,
@@ -151,6 +156,16 @@ public class SocialUserEventListenerImpl extends UserEventListener {
     if (identity != null) {
       IdentityManager idm = container.getComponentInstanceOfType(IdentityManager.class);
       idm.processEnabledIdentity(user.getUserName(), user.isEnabled());
+
+      // clear space caches where the user is member
+      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+      CachedSpaceStorage cachedSpaceStorage = CommonsUtils.getService(CachedSpaceStorage.class);
+      ListAccess<Space> memberSpaces = spaceService.getMemberSpaces(user.getUserName());
+      Space[] memberSpacesArray = memberSpaces.load(0, memberSpaces.getSize());
+      for(Space space : memberSpacesArray) {
+        cachedSpaceStorage.clearSpaceCached(space.getId());
+      }
+
     } else {
       LOG.warn(String.format("Social's Identity(%s) not found!", user.getUserName()));
     }

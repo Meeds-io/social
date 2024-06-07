@@ -199,7 +199,8 @@ export default {
           || this.filter === 'invited'
           || this.filter === 'pending'
           || this.filter === 'redactor'
-          || this.filter === 'publisher') {
+          || this.filter === 'publisher'
+          || this.filter === 'disabled') {
         searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
       } else if (profileSettings) {
         this.advancedFilterSettings = profileSettings;

@@ -66,7 +66,9 @@ public class SpaceMemberFilterListAccess implements ListAccess<Identity> {
     /** Gets a list of identities who are invited to join the space  */
     INVITED,
     /** Gets a list of identities who are pending of membership approval  */
-    PENDING
+    PENDING,
+    /** Gets a list of identities of disabled users who are also members of this space */
+    DISABLED
   }
   
   /**

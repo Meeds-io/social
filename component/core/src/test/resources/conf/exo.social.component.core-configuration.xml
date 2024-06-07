@@ -1009,6 +1009,72 @@
                     </field>
                   </object>
                 </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$User">
+                    <field name="userName">
+                      <string>james</string>
+                    </field>
+                    <field name="password">
+                      <string>gtn</string>
+                    </field>
+                    <field name="firstName">
+                      <string>James</string>
+                    </field>
+                    <field name="lastName">
+                      <string>gtn</string>
+                    </field>
+                    <field name="email">
+                      <string>james@platform.com</string>
+                    </field>
+                    <field name="groups">
+                      <string>member:/platform/users</string>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$User">
+                    <field name="userName">
+                      <string>dragon</string>
+                    </field>
+                    <field name="password">
+                      <string>gtn</string>
+                    </field>
+                    <field name="firstName">
+                      <string>Dragon</string>
+                    </field>
+                    <field name="lastName">
+                      <string>Ball</string>
+                    </field>
+                    <field name="email">
+                      <string>dragon@platform.com</string>
+                    </field>
+                    <field name="groups">
+                      <string>member:/platform/users</string>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$User">
+                    <field name="userName">
+                      <string>tom</string>
+                    </field>
+                    <field name="password">
+                      <string>gtn</string>
+                    </field>
+                    <field name="firstName">
+                      <string>Tom</string>
+                    </field>
+                    <field name="lastName">
+                      <string>Swear</string>
+                    </field>
+                    <field name="email">
+                      <string>tom@platform.com</string>
+                    </field>
+                    <field name="groups">
+                      <string>member:/platform/users</string>
+                    </field>
+                  </object>
+                </value>
               </collection>
             </field>
           </object>
