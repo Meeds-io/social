@@ -228,6 +228,7 @@ export default {
       if (this.editorReady) {
         this.$emit('ready');
         this.initOembedParams();
+        this.updateInput(this.inputVal);
       } else {
         this.$emit('unloaded');
       }
