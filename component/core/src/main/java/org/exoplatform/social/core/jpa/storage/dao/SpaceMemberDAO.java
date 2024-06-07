@@ -62,10 +62,10 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     /**
      * Get disabled space members
      *
-     * @param spaceId
-     * @param offset
-     * @param limit
-     * @return
+     * @param spaceId the space ID
+     * @param offset offset of the page
+     * @param limit number of elements on each page
+     * @return list of user names
      */
     default List<String> getDisabledSpaceMembers(Long spaceId, int offset, int limit){
       throw new UnsupportedOperationException();
@@ -120,10 +120,10 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     int countSpaceMembers(Long spaceId, Status status);
 
     /**
-     * Count space members switch status
+     * Count disabled space members
      *
-     * @param spaceId
-     * @return
+     * @param spaceId the spaceID
+     * @return the number of disabled space members
      */
     default int countDisabledSpaceMembers(Long spaceId) {
       throw new UnsupportedOperationException();
