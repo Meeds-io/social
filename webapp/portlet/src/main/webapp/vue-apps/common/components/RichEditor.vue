@@ -226,8 +226,8 @@ export default {
     editorReady() {
       if (this.editorReady) {
         this.$emit('ready');
-        this.updateInput(this.inputVal);
         this.initOembedParams();
+        this.updateInput(this.inputVal);
       } else {
         this.$emit('unloaded');
       }
