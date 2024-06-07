@@ -56,7 +56,9 @@ import io.meeds.social.cms.service.CMSService;
 
 public class CMSPortlet extends GenericDispatchedViewPortlet {
 
-  protected static final String             NAME                 = "name";
+  public static final String                DATA_INIT_PREFERENCE_NAME = "data.init";
+
+  public static final String                NAME                      = "name";
 
   private static final String               PREFIX_UNTITLED_NAME = "Untitled";
 
@@ -173,7 +175,11 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
         savePreference(NAME, name);
       }
       preSettingInit(preferences, name);
-      saveSettingName(name, getCurrentPageReference(), getCurrentSpaceId());
+      String pageReference = getCurrentPageReference();
+      if (StringUtils.contains(pageReference, "_draft_")) {
+        pageReference = pageReference.split("_draft_")[0];
+      }
+      saveSettingName(name, pageReference, getCurrentSpaceId());
       postSettingInit(preferences, name);
     }
     return name;

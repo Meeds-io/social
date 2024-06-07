@@ -122,8 +122,5 @@
   <component>
     <type>org.exoplatform.social.core.service.GettingStartedService</type>
   </component>
-  <component>
-    <type>org.exoplatform.social.rest.impl.registry.ApplicationRegistryRest</type>
-  </component>
 <!-- Getting Started Services -->
 </configuration>

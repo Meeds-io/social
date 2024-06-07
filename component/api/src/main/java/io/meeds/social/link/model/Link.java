@@ -20,6 +20,7 @@
 package io.meeds.social.link.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -47,9 +48,19 @@ public class Link implements Serializable, Cloneable {
 
   private long                iconFileId;
 
+  public Link(Link link) {
+    id = link.id;
+    name = new HashMap<>(link.name);
+    description = new HashMap<>(link.description);
+    url = link.url;
+    sameTab = link.sameTab;
+    order = link.order;
+    iconFileId = link.iconFileId;
+  }
+
   @Override
   public Link clone() { // NOSONAR
-    return new Link(id, name, description, url, sameTab, order, iconFileId);
+    return new Link(this);
   }
 
 }

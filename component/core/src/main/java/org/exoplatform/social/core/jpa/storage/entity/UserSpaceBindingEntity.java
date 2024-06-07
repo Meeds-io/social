@@ -21,10 +21,7 @@ import java.io.Serializable;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
-
 @Entity(name = "SocUserSpaceBinding")
-@ExoEntity
 @Table(name = "SOC_USER_SPACE_BINDING")
 @NamedQueries({
     @NamedQuery(name = "SocUserSpaceBinding.findUserBindingsByGroup", query = "SELECT userSpaceBinding "

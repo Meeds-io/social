@@ -24,12 +24,9 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
-import org.exoplatform.commons.api.persistence.ExoEntity;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 
-
 @Entity(name = "SocGroupSpaceBindingReportAction")
-@ExoEntity
 @Table(name = "SOC_GROUP_SPACE_BINDING_REPORT_ACTION")
 @NamedQueries({
     @NamedQuery(name = "SocGroupSpaceBindingReportAction.findGroupSpaceBindingReportAction", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "

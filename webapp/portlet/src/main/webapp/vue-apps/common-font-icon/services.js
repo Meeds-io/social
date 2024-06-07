@@ -17,28 +17,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getApplications(expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/applications${expand ? `?expand=${expand}` : ''}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
-    }
-  });
-}
+import * as fontLibrary from './js/fontLibrary.js';
 
-export function getCategories(expand) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/applications/categories${expand ? `?expand=${expand}` : ''}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
-    }
-  });
-}
+window.Object.defineProperty(Vue.prototype, '$fontLibrary', {
+  value: fontLibrary.default,
+});
