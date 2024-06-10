@@ -425,8 +425,8 @@ public class EntityBuilder {
 
     if(userCardFirstFieldSetting != null) {
       String propertyName = String.valueOf(userCardFirstFieldSetting.getValue());
-      ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
-      if(propertySetting != null && propertySetting.isVisible() && !profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
+      ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
+      if(propertySetting != null && propertySetting.isVisible() && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
         userEntity.setPrimaryProperty((String) profile.getProperty(propertyName));
       } else {
         userEntity.setPrimaryProperty("");
@@ -436,8 +436,8 @@ public class EntityBuilder {
     }
     if(userCardSecondFieldSetting != null) {
       String propertyName = String.valueOf(userCardSecondFieldSetting.getValue());
-      ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
-      if(propertySetting != null && propertySetting.isVisible() && !profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
+      ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
+      if(propertySetting != null && propertySetting.isVisible() && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
         userEntity.setSecondaryProperty((String) profile.getProperty(propertyName));
       } else {
         userEntity.setSecondaryProperty("");
@@ -448,8 +448,8 @@ public class EntityBuilder {
 
     if(userCardThirdFieldSetting != null) {
       String propertyName = String.valueOf(userCardThirdFieldSetting.getValue());
-      ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
-      if(propertySetting != null && propertySetting.isVisible() && !profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
+      ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
+      if(propertySetting != null && propertySetting.isVisible() && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
         userEntity.setTertiaryProperty((String) profile.getProperty(propertyName));
       } else {
         userEntity.setTertiaryProperty("");
