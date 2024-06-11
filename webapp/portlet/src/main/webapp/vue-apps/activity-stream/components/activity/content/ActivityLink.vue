@@ -203,7 +203,7 @@ export default {
       return this.defaultIcon && this.defaultIcon.size || 58;
     },
     useMobileView() {
-      return this.$vuetify.breakpoint.name === 'xs' && !this.useSameViewForMobile;
+      return this.$vuetify.breakpoint.name === 'sm' && !this.useSameViewForMobile;
     },
     htmlElement() {
       return this.sourceLink && this.sourceLink !== '#' && 'a' || 'div';
