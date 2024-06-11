@@ -245,7 +245,7 @@ export default {
                                      && actionType.length
                                      && this.$root.displayCommentActionTypes.indexOf(actionType) >= 0;
         this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityComment;
-        this.hasNewComment = isNewActivityComment;
+        this.hasNewComment = isNewActivityComment || this.unreadMetadata;
       }
     },
   },
