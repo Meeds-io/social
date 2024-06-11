@@ -23,7 +23,7 @@
     <v-hover v-model="hover" :disabled="!canEdit">
       <v-card
         :color="$root.hasImages && 'transparent' || 'primary'"
-        class="card-border-radius"
+        class="card-border-radius app-background-color"
         min-width="100%"
         flat>
         <v-responsive :aspect-ratio="$root.imageAspectRatio">
