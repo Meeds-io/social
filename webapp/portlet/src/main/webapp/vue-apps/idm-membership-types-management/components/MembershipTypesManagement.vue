@@ -1,5 +1,5 @@
 <template>
-  <v-app class="white">
+  <v-app class="app-background-color">
     <v-card flat>
       <membership-types-management-toolbar />
       <membership-types-management-list />

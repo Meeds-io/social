@@ -1,7 +1,7 @@
 <template>
   <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover>
-      <div slot-scope="{ hover }" class="white overflow-hidden card-border-radius">
+      <div slot-scope="{ hover }" class="overflow-hidden card-border-radius app-background-color">
         <v-card
           height="13vw"
           max-height="175"
@@ -23,8 +23,7 @@
             @refresh="refresh" />
         </v-card>
         <v-card
-          color="white"
-          class="d-flex flex-column flex-md-row border-color px-4" 
+          class="d-flex flex-column flex-md-row border-color app-background-color px-4" 
           flat
           tile>
           <v-card
