@@ -211,14 +211,15 @@ export default {
   watch: {
     inputVal() {
       this.updateInput(this.inputVal);
-
-      if (this.supportsOembed) {
-        this.setOembedParams({
-          default_title: this.getContentToSave(this.inputVal),
-          comment: this.getContentNoEmbed(this.inputVal),
-        });
-      } else {
-        this.clearOembedParams();
+      if (this.editorReady) {
+        if (this.supportsOembed) {
+          this.setOembedParams({
+            default_title: this.getContentToSave(this.inputVal),
+            comment: this.getContentNoEmbed(this.inputVal),
+          });
+        } else {
+          this.clearOembedParams();
+        }
       }
     },
     oembedParams() {
