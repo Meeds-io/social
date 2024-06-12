@@ -6,7 +6,7 @@
         @back="closeSecurityDetail" />
       <v-card
         v-else
-        class="card-border-radius"
+        class="card-border-radius app-background-color"
         flat>
         <v-list>
           <v-list-item>

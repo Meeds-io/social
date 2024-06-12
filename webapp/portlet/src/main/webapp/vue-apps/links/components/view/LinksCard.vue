@@ -25,7 +25,7 @@
       outlined: true,
     } || {
       text: true,
-      class: 'white',
+      class: 'transparent',
     }"
     :is="isCard && 'v-card' || 'v-btn'"
     :href="url"

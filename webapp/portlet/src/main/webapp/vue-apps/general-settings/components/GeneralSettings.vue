@@ -23,7 +23,7 @@
     <v-main>
       <v-card
         min-height="calc(100vh - 160px)"
-        class="px-6 card-border-radius overflow-hidden"
+        class="px-6 card-border-radius overflow-hidden app-background-color"
         flat>
         <template v-if="intialized">
           <v-expand-transition>

@@ -1,7 +1,7 @@
 <template>
   <v-app v-if="displayed">
     <div class="card-border-radius overflow-hidden">
-      <v-list two-line>
+      <v-list class="app-background-color" two-line>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title text-color">
