@@ -19,7 +19,6 @@ package org.exoplatform.social.core.jpa.test;
 import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnectorTest;
 import org.exoplatform.social.core.listeners.ManagerPropertySettingUpdatedListenerTest;
 import org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslationTest;
-import org.exoplatform.social.core.upgrade.UserPasswordHashMigrationTest;
 import org.exoplatform.social.core.utils.MentionUtilsTest;
 
 import org.junit.AfterClass;
@@ -132,7 +131,6 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
   TranslationServiceTest.class,
-  UserPasswordHashMigrationTest.class,
   ActivityOberverPluginTest.class,
   AttachmentActivityProcessorTest.class,
   AttachmentServiceTest.class,
