@@ -267,4 +267,32 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     }
   }
 
+  @Override
+  public List<String> getDisabledSpaceMembers(Long spaceId, int offset, int limit) {
+    if (spaceId == null || spaceId == 0) {
+      throw new IllegalArgumentException("spaceId is null or equals to 0");
+    }
+    if (offset < 0) {
+      throw new IllegalArgumentException("offset must be positive");
+    }
+    if (limit <= 0) {
+      throw new IllegalArgumentException("limit must be > 0");
+    }
+    TypedQuery<String> query = getEntityManager().createNamedQuery("SpaceMember.getDisabledSpaceMembers",
+            String.class);
+    query.setParameter("spaceId", spaceId);
+    query.setFirstResult(offset);
+    query.setMaxResults(limit);
+    return query.getResultList();
+  }
+
+  @Override
+  public int countDisabledSpaceMembers(Long spaceId) {
+    if (spaceId == null || spaceId == 0) {
+      throw new IllegalArgumentException("spaceId is null or equals to 0");
+    }
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceMember.countDisabledSpaceMembers", Long.class);
+    query.setParameter("spaceId", spaceId);
+    return query.getSingleResult().intValue();
+  }
 }

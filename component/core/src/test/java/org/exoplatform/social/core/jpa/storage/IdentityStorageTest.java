@@ -40,6 +40,7 @@ import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
 import java.io.InputStream;
 import java.util.*;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
 public class IdentityStorageTest extends AbstractCoreTest {
   private IdentityStorage identityStorage;
   private SpaceStorage spaceStorage;
+  private CachedSpaceStorage cachedSpaceStorage;
   private List<Identity> tearDownIdentityList;
   private List<Space> tearDownSpaceList;
 
@@ -61,6 +63,8 @@ public class IdentityStorageTest extends AbstractCoreTest {
     super.setUp();
     identityStorage = getService(IdentityStorage.class);
     spaceStorage = getService(SpaceStorage.class);
+    cachedSpaceStorage = getService(CachedSpaceStorage.class);
+
     assertNotNull("identityStorage must not be null", identityStorage);
     tearDownIdentityList = new ArrayList<Identity>();
     tearDownSpaceList = new ArrayList<Space>();
@@ -801,7 +805,57 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertEquals(1, identities.size());
   }
 
-  public void testGetAvatarInputStreamById() throws Exception {
+  public void testGetDisabledSpaceMembers() throws Exception {
+    for(int i = 0; i < 7; i++) {
+      populateUser("username" + i);
+    }
+
+    Space space = new Space();
+    space.setApp("app");
+    space.setDisplayName("my space");
+    space.setPrettyName(space.getDisplayName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("add new space ");
+    space.setType(DefaultSpaceApplicationHandler.NAME);
+    space.setVisibility(Space.PUBLIC);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    space.setGroupId(SpaceUtils.createGroup(space.getPrettyName(), "username4"));
+    space.setUrl(space.getPrettyName());
+    String[] managers = new String[]{"username1", "username2"};
+    String[] members = new String[]{"username0", "username1", "username2", "username3", "username4"};
+    String[] invitedUsers = new String[]{"username5"};
+    String[] pendingUsers = new String[]{"username6"};
+    space.setInvitedUsers(invitedUsers);
+    space.setPendingUsers(pendingUsers);
+    space.setManagers(managers);
+    space.setMembers(members);
+
+    spaceStorage.saveSpace(space, true);
+    tearDownSpaceList.add(space);
+
+    ProfileFilter profileFilter = new ProfileFilter();
+
+    List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
+    assertEquals(5, identities.size());
+
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MANAGER, 0, 9);
+    assertEquals(2, identities.size());
+
+    identityManager.processEnabledIdentity("username2", false);
+    // Clear space cache, this is done by a listener, we simulate its behavior here
+    cachedSpaceStorage.clearSpaceCached(space.getId());
+
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);
+    assertEquals(4, identities.size());
+
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MANAGER, 0, 9);
+    assertEquals(1, identities.size());
+
+    identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.DISABLED, 0, 9);
+    assertEquals(1, identities.size());
+  }
+
+    public void testGetAvatarInputStreamById() throws Exception {
     InputStream inputStream = getClass().getResourceAsStream("/eXo-Social.png");
     AvatarAttachment avatarAttachment = new AvatarAttachment(null, "avatar", "png", inputStream, System.currentTimeMillis());
 
