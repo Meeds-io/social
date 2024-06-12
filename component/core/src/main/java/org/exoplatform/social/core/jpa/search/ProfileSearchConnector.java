@@ -557,7 +557,7 @@ public class ProfileSearchConnector {
                         "query": "%s:%s"
                       }
                    }
-                  """.formatted(property.getPropertyName(), searchedText));
+                  """.formatted(property.getClass(), searchedText));
           }
           index++;
         }
