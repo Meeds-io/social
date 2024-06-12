@@ -19,7 +19,7 @@
     </v-fab-transition>
     <v-card
       :class="!dense && 'px-0 pb-4 pt-2'"
-      class="carousel-middle-parent scrollbar-width-none d-flex overflow-x-scroll"
+      class="carousel-middle-parent scrollbar-width-none transparent d-flex overflow-x-scroll"
       flat
       @scroll="computeProperties"
       @resize="computeProperties">
