@@ -23,6 +23,7 @@
     v-model="hamburgerMenu"
     :drawer-width="drawerWidth"
     :style="hamburgerMenuStyle"
+    attached
     left
     eager>
     <template #content>

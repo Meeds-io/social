@@ -107,7 +107,7 @@ export default {
       type: Boolean,
       default: () => false,
     },
-    detached: {
+    attached: {
       type: Boolean,
       default: () => false,
     },
@@ -245,8 +245,8 @@ export default {
     document.addEventListener('close-editor-container', this.closeDisplayedDrawer);
   },
   mounted() {
-    if (this.detached || this.$el.closest('.layout-sticky-application')) {
-      document.querySelector('#vuetify-apps').appendChild(this.$el);
+    if (!this.attached) {
+      this.mountOnParent();
     }
   },
   beforeDestroy() {
@@ -261,12 +261,23 @@ export default {
   },
   methods: {
     open() {
-      if (this.$el?.closest?.('.layout-sticky-application') || eXo.openedDrawers.length) {
-        document.querySelector('#vuetify-apps').appendChild(this.$el);
+      if (!this.attached || eXo.openedDrawers.length) {
+        // Re-append the drawer to open in order
+        // to ensure to attribute an adequate z-index
+        // Which makes it displayed on top of other already
+        // opened drawers
+        this.mountOnParent();
         this.$nextTick().then(() => this.drawer = true);
       } else {
         this.drawer = true;
       }
+    },
+    mountOnParent() {
+      // Re-append the drawer to open in order
+      // to ensure to attribute an adequate z-index
+      // Which makes it displayed on top of other already
+      // opened drawers
+      document.querySelector('#vuetify-apps').appendChild(this.$el);
     },
     setModalOpened() {
       this.modalOpened = this.drawer;
