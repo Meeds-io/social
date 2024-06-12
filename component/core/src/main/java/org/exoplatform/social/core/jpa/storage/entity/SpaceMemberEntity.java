@@ -34,6 +34,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
+import org.exoplatform.commons.api.persistence.ExoEntity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
 @Entity(name = "SocSpaceMember")
@@ -57,17 +59,27 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
         ),
         @NamedQuery(name = "SpaceMember.getSpaceMembersByStatus",
                 query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember "
+                        + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
                         + " WHERE spaceMember.status = :status "
+                        + " AND identity.enabled = true"
                         + " AND   spaceMember.space.id = :spaceId "),
         @NamedQuery(name = "SpaceMember.countSpaceMembersByStatus",
-                query = "SELECT count(*) FROM SocSpaceMember AS spaceMember "
+                query = "SELECT count(*) FROM SocSpaceMember AS spaceMember"
+                        + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
                         + " WHERE spaceMember.status = :status "
+                        + " AND identity.enabled = true"
                         + " AND   spaceMember.space.id = :spaceId "),
         @NamedQuery(name = "SpaceMember.getMember", query = "SELECT mem FROM SocSpaceMember mem WHERE mem.userId = :userId AND mem.space.id = :spaceId AND mem.status = :status"),
         @NamedQuery(name = "SpaceMember.deleteByUsername", query = "DELETE FROM SocSpaceMember sm WHERE sm.userId = :username"),
         @NamedQuery(name = "SpaceMember.getSpaceMemberShip", query = "SELECT mem FROM SocSpaceMember mem WHERE mem.userId = :userId AND mem.space.id = :spaceId"),
         @NamedQuery(name = "SpaceMember.countPendingSpaceRequestsToManage", query = "SELECT count(*) FROM SocSpaceMember mem WHERE mem.status = :status AND mem.space.id in (SELECT mem_tmp.space.id FROM SocSpaceMember mem_tmp WHERE mem_tmp.userId = :userId AND mem_tmp.status = :user_status)"),
         @NamedQuery(name = "SpaceMember.getPendingSpaceRequestsToManage", query = "SELECT mem.userId, mem.space.id FROM SocSpaceMember mem WHERE mem.status = :status AND mem.space.id in (SELECT mem_tmp.space.id FROM SocSpaceMember mem_tmp WHERE mem_tmp.userId = :userId AND mem_tmp.status = :user_status)"),
+        @NamedQuery(name = "SpaceMember.getDisabledSpaceMembers",
+                query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId WHERE identity.enabled = false  AND spaceMember.space.id = :spaceId\n" +
+                        " AND identity.providerId = '" + OrganizationIdentityProvider.NAME +"'"),
+        @NamedQuery(name = "SpaceMember.countDisabledSpaceMembers",
+                query = "SELECT count(*) FROM SocSpaceMember AS spaceMember INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId WHERE identity.enabled = false  AND spaceMember.space.id = :spaceId\n" +
+                        " AND identity.providerId = '" + OrganizationIdentityProvider.NAME +"'"),
 })
 public class SpaceMemberEntity implements Serializable {
 
