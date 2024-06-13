@@ -51,7 +51,7 @@
             </v-list-item-title>
             <v-list-item-subtitle>
               <p class="mb-0 caption text-truncate">
-                {{ position }}
+                {{ primaryProperty }}
               </p>
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -84,8 +84,8 @@ export default {
     enabled() {
       return this.user?.enabled;
     },
-    position() {
-      return this.user?.properties?.filter(property => property.propertyName === 'position')[0].value;
+    primaryProperty() {
+      return this.user?.primaryProperty;
     },
     bannerUrl() {
       return this.user?.banner;
