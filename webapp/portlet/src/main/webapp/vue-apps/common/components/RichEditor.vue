@@ -499,17 +499,14 @@ export default {
           default_title: this.getContent(this.inputVal, false),
           comment: this.getContentNoEmbed(this.inputVal),
         };
-        if (response.thumbnail_url 
-            && response.thumbnail_height 
-            && response.thumbnail_width 
-            && Number(response.thumbnail_height) >= Number(response.thumbnail_width)) {
-          this.getAverageColor(response.thumbnail_url).then(() => {
-            this.getAverageColor(response.thumbnail_url)
-              .then(bgColor => {
-                oembedParams.bgColor = bgColor;
-                this.setOembedParams(oembedParams);
-              });
-          });
+        if (oembedParams.image !== '-') {
+          this.getAverageColor(oembedParams.image)
+            .then(data => {
+              oembedParams.bgColor = data?.bgColor || 'rgb(231, 231, 231)';
+              oembedParams.previewHeight = data?.height || '-';
+              oembedParams.previewWidth = data?.width || '-';
+              this.setOembedParams(oembedParams);
+            });
         } else {
           this.setOembedParams(oembedParams);
         }  
@@ -845,27 +842,40 @@ export default {
       this.$emit('attachments-edited', attachements, changed);
     },
     getAverageColor(imgElem) {
+      let imgDetail = {
+        bgColor: 'rgb(231, 231, 231)',
+        width: '-',
+        height: '-'
+      };
       return this.loadImage(imgElem)
         .then(data => {
+          const imgData = data?.imgData || '';
           const blockSize = 5,
             rgb = { r: 0, g: 0, b: 0};
-          let i = -4, count = 0;
-          const length = data.data.length;
-          while ( (i += blockSize * 4) < length) {
-            ++count;
-            rgb.r += data.data[i];
-            rgb.g += data.data[i+1];
-            rgb.b += data.data[i+2];
+          if (Object.keys(imgData).length) {
+            let i = -4, count = 0;
+            const length = imgData.data.length;
+            while ( (i += blockSize * 4) < length) {
+              ++count;
+              rgb.r += imgData.data[i];
+              rgb.g += imgData.data[i+1];
+              rgb.b += imgData.data[i+2];
+            }
+            // ~~ used to floor values
+            rgb.r = ~~(rgb.r/count);
+            rgb.g = ~~(rgb.g/count);
+            rgb.b = ~~(rgb.b/count);
           }
-          // ~~ used to floor values
-          rgb.r = ~~(rgb.r/count);
-          rgb.g = ~~(rgb.g/count);
-          rgb.b = ~~(rgb.b/count);
-          return `rgb(${rgb.r},${rgb.g},${rgb.b})`;
+          imgDetail = {
+            bgColor: `rgb(${rgb.r},${rgb.g},${rgb.b})`,
+            height: data?.height || '-',
+            width: data?.width || '-'
+          };
+          return imgDetail;
         })
         .catch(e => {
           console.debug('Error while computing image background color', e); // eslint-disable-line no-console
-          return 'rgb(231, 231, 231)';
+          return imgDetail;
         });
     },
     loadImage(img) {
@@ -880,7 +890,12 @@ export default {
         imageElement.crossOrigin = 1;
         imageElement.onload = () => {
           context.drawImage(imageElement, 0, 0, width, height);
-          resolve(context.getImageData(0, 0, width, height));
+          const imageDetail = {
+            'imgData': context.getImageData(0, 0, width, height),
+            'width': imageElement.naturalWidth,
+            'height': imageElement.naturalHeight
+          };
+          resolve(imageDetail);
         };
       });
     }
