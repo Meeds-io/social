@@ -69,7 +69,9 @@
           :alt="title"
           :class="thumbnailClass"
           class="my-auto"
-          loading="lazy">
+          loading="lazy"
+          width="auto"
+          height="auto">
         <v-icon
           v-else
           :size="defaultIconSize"
