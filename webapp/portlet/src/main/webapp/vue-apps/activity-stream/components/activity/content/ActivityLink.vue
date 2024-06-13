@@ -10,19 +10,26 @@
       <div class="border-box-sizing flex">
         <v-avatar
           v-if="supportsThumbnail"
+          :max-height="thumbnailMobileHeight"
           :min-height="thumbnailMobileHeight"
-          :height="thumbnailMobileHeight"
           :min-width="thumbnailMobileWidth"
+          :max-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
           :class="thumbnailMobileNoBorder || 'border-color'"
+          :style="`background-color: ${thumbnailBG};`"
+          class="overflow-hidden"
           eager
           tile>
           <img
             v-if="thumbnail"
             :src="`${thumbnail}`"
             :alt="title"
+            :class="thumbnailClass"
+            :style="imageMobileStyle"
             class="my-auto"
-            loading="lazy">
+            loading="lazy"
+            width="auto"
+            height="auto" >
           <v-icon
             v-else
             :size="defaultIconSize"
@@ -62,7 +69,9 @@
           :alt="title"
           :class="thumbnailClass"
           class="my-auto"
-          loading="lazy">
+          loading="lazy"
+          width="auto"
+          height="auto">
         <v-icon
           v-else
           :size="defaultIconSize"
@@ -242,7 +251,7 @@ export default {
       return this.defaultIcon && this.defaultIcon.noBorder;
     },
     thumbnailMobileHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.height || '75vw';
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.height || '120px';
     },
     thumbnailMobileWidth() {
       return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.width || '100%';
@@ -298,7 +307,14 @@ export default {
     },
     mainClass() {
       return `${!this.useEmbeddedLinkView && 'd-flex flex-no-wrap' || 'activity-thumbnail-box light-grey-background-color overflow-hidden hover-elevation card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'} ${this.addMargin && 'my-4' || ''}`;
-    }
+    },
+    imageMobileStyle() {
+      return {
+        'max-width': '100%',
+        'min-width': '100%',
+        'min-height': '100%'
+      };
+    },
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
