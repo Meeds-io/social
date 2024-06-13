@@ -25,7 +25,8 @@
             :src="`${thumbnail}`"
             :alt="title"
             :class="thumbnailClass"
-            class="my-auto full-height full-width"
+            :style="imageMobileStyle"
+            class="my-auto"
             loading="lazy"
             width="auto"
             height="auto" >
@@ -304,7 +305,14 @@ export default {
     },
     mainClass() {
       return `${!this.useEmbeddedLinkView && 'd-flex flex-no-wrap' || 'activity-thumbnail-box light-grey-background-color overflow-hidden hover-elevation card-border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'} ${this.addMargin && 'my-4' || ''}`;
-    }
+    },
+    imageMobileStyle() {
+      return {
+        'max-width': '100%',
+        'min-width': '100%',
+        'min-height': '100%'
+      };
+    },
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
