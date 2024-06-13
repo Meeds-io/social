@@ -34,7 +34,7 @@
       </v-list-item-avatar>
       <v-list-item-content class="py-0 accountTitleLabel">
         <v-list-item-title class="font-weight-bold body-2 mb-0">{{ fullName }} <span v-if="external" class="externalFlagClass">{{ $t('menu.profile.external') }}</span></v-list-item-title>
-        <v-list-item-subtitle class="font-italic caption">{{ position }}</v-list-item-subtitle>
+        <v-list-item-subtitle class="font-italic caption">{{ primaryProperty }}</v-list-item-subtitle>
       </v-list-item-content>
       <v-list-item-action v-if="stickyAllowed" class="my-auto">
         <v-btn
@@ -84,8 +84,8 @@ export default {
     fullName() {
       return this.profile && this.profile.fullname || '';
     },
-    position() {
-      return this.profile && this.profile.position || '';
+    primaryProperty() {
+      return this.profile?.primaryProperty;
     },
     external() {
       return this.profile && this.profile.dataEntity && this.profile.dataEntity.external === 'true' ;
