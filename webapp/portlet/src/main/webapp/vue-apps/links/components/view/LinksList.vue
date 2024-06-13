@@ -19,23 +19,26 @@
 
 -->
 <template>
-  <component
-    v-if="links?.length"
-    :is="isColumn && 'v-list' || 'card-carousel'"
-    :class="isColumn && 'pa-0' || 'mt-n2 mb-n4'"
-    v-bind="isColumn && {
-      dense: !largeIcon
-    }">
+  <div :class="!isColumn && 'my-auto'">
     <component
-      v-for="link in links"
-      :key="link.id"
-      :is="componentName"
-      :link="link"
-      :type="type"
-      :large-icon="largeIcon"
-      :show-name="showName"
-      :show-description="showDescription" />
-  </component>
+      v-if="links?.length"
+      :is="isColumn && 'v-list' || 'card-carousel'"
+      :class="isColumn && 'pa-0' || 'mt-n2 mb-n4'"
+      class="full-width"
+      v-bind="isColumn && {
+        dense: !largeIcon
+      }">
+      <component
+        v-for="link in links"
+        :key="link.id"
+        :is="componentName"
+        :link="link"
+        :type="type"
+        :large-icon="largeIcon"
+        :show-name="showName"
+        :show-description="showDescription" />
+    </component>
+  </div>
 </template>
 <script>
 export default {
