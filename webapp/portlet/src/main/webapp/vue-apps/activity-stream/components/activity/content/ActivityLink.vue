@@ -15,12 +15,14 @@
           :min-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
           :class="thumbnailMobileNoBorder || 'border-color'"
+          :style="`background-color: ${thumbnailBG};`"
           eager
           tile>
           <img
             v-if="thumbnail"
             :src="`${thumbnail}`"
             :alt="title"
+            :class="thumbnailClass"
             class="my-auto"
             loading="lazy">
           <v-icon
@@ -242,7 +244,7 @@ export default {
       return this.defaultIcon && this.defaultIcon.noBorder;
     },
     thumbnailMobileHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.height || '75vw';
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.height || '120px';
     },
     thumbnailMobileWidth() {
       return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.width || '100%';
