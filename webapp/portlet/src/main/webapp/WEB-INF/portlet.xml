@@ -845,6 +845,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/image.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-content-editable</name>
+      <value>true</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -861,6 +865,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/links.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-content-editable</name>
+      <value>true</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
