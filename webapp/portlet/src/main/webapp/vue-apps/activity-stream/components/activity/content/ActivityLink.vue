@@ -10,12 +10,14 @@
       <div class="border-box-sizing flex">
         <v-avatar
           v-if="supportsThumbnail"
+          :max-height="thumbnailMobileHeight"
           :min-height="thumbnailMobileHeight"
-          :height="thumbnailMobileHeight"
           :min-width="thumbnailMobileWidth"
+          :max-width="thumbnailMobileWidth"
           :width="thumbnailMobileWidth"
           :class="thumbnailMobileNoBorder || 'border-color'"
           :style="`background-color: ${thumbnailBG};`"
+          class="overflow-hidden"
           eager
           tile>
           <img
@@ -23,8 +25,10 @@
             :src="`${thumbnail}`"
             :alt="title"
             :class="thumbnailClass"
-            class="my-auto"
-            loading="lazy">
+            class="my-auto full-height full-width"
+            loading="lazy"
+            width="auto"
+            height="auto" >
           <v-icon
             v-else
             :size="defaultIconSize"
