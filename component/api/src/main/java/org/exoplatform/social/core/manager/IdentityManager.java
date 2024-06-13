@@ -602,4 +602,13 @@ public interface IdentityManager {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   *
+   * @param spaceId
+   * @return
+   */
+  default List<String> getDisabledSpaceMembers(long spaceId) {
+    throw new UnsupportedOperationException();
+  }
+
 }

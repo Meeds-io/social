@@ -43,12 +43,14 @@ import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.application.PortletPreferenceRequiredPlugin;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
+import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceException.Code;
@@ -635,8 +637,12 @@ public class SpaceServiceImpl implements SpaceService {
         return;
       }
       String[] members = space.getMembers();
+      List<String> disabledMembers = identityManager.getDisabledSpaceMembers(Long.parseLong(space.getId()));
+      if(disabledMembers != null && !disabledMembers.isEmpty()) {
+        members = (String[]) ArrayUtils.addAll(members, disabledMembers.toArray());
+      }
       if (ArrayUtils.contains(members, userId)) {
-        members = (String[]) ArrayUtils.removeElement(members, userId);
+        members = ArrayUtils.removeElement(members, userId);
         space.setMembers(members);
         this.updateSpace(space);
         SpaceUtils.removeUserFromGroupWithMemberMembership(userId, space.getGroupId());
