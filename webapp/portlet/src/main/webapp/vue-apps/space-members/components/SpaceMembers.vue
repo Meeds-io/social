@@ -71,8 +71,8 @@ export default {
         class: 'fas fa-user-minus',
         order: 2,
         enabled: (user) => {
-          return ['member', 'manager', 'redactor', 'publisher'].includes(this.filter)
-                 && user.isMember && user?.username !== eXo?.env?.portal?.userName
+          return ['member', 'manager', 'redactor', 'publisher', 'disabled'].includes(this.filter)
+                 && (user.isMember || !user.enabled) && user?.username !== eXo?.env?.portal?.userName
                  && !user.isGroupBound;
         },
         click: (user) => {

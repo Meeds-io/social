@@ -172,7 +172,15 @@ public class IdentityManagerImpl implements IdentityManager {
                                                            boolean forceLoadProfile) {
     return (new SpaceMemberFilterListAccess(identityStorage, space, profileFilter, type));
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<String> getDisabledSpaceMembers(long spaceId) {
+    return identityStorage.getDisabledSpaceMembers(spaceId);
+  }
+
   /**
    * {@inheritDoc}
    */
