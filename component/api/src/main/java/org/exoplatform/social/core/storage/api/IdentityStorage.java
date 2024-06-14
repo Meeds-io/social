@@ -410,7 +410,9 @@ public interface IdentityStorage {
    * @param spaceId the ID of the space
    * @return the list of usernames
    */
-  List<String> getDisabledSpaceMembers(Long spaceId);
+  default List<String> getDisabledSpaceMembers(Long spaceId) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Sorts a list of user identities using a field
