@@ -559,8 +559,31 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                                                                                                        Long.parseLong(identity.getId()))));
     }
 
+    // Get configured properties for cache
+    // Get values of properties configured for the user card
+    List<String> configuredCardProperties = new ArrayList<>();
+    SettingValue<?> userCardFirstFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardFirstFieldSetting");
+    SettingValue<?> userCardSecondFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardSecondFieldSetting");
+    SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardThirdFieldSetting");
+    if(userCardFirstFieldSetting != null) {
+      configuredCardProperties.add((String) userCardFirstFieldSetting.getValue());
+    } else {
+      configuredCardProperties.add("position");
+    }
+    if(userCardSecondFieldSetting != null) {
+      configuredCardProperties.add((String) userCardSecondFieldSetting.getValue());
+    } else {
+      configuredCardProperties.add("team");
+    }
+    if(userCardThirdFieldSetting != null) {
+      configuredCardProperties.add((String) userCardThirdFieldSetting.getValue());
+    } else {
+      configuredCardProperties.add("city");
+    }
+
+
     long cacheTime = identity.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expandedSettings));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expandedSettings, configuredCardProperties));
 
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
