@@ -13,8 +13,7 @@
       v-if="collapsed && !fullContent && readMore"
       :aria-label="$t('UIActivity.label.seeMore')"
       :class="!isComment && 'linear-gradient-white-background' || 'linear-gradient-comment-background'"
-      class="d-flex ms-auto mb-0 pb-2px pl-2 pr-0 height-auto position-absolute r-0 b-0 hover-underline"
-      color="blue"
+      class="d-flex ms-auto mb-0 pb-2px pl-2 pr-0 height-auto position-absolute text-light-color r-0 b-0 hover-underline hover-blue-color"
       text
       plain
       @click="displayFullContent">
