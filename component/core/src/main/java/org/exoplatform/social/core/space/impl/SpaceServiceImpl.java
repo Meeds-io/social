@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -635,8 +634,12 @@ public class SpaceServiceImpl implements SpaceService {
         return;
       }
       String[] members = space.getMembers();
+      List<String> disabledMembers = identityManager.getDisabledSpaceMembers(Long.parseLong(space.getId()));
+      if(disabledMembers != null && !disabledMembers.isEmpty()) {
+        members = (String[]) ArrayUtils.addAll(members, disabledMembers.toArray());
+      }
       if (ArrayUtils.contains(members, userId)) {
-        members = (String[]) ArrayUtils.removeElement(members, userId);
+        members = ArrayUtils.removeElement(members, userId);
         space.setMembers(members);
         this.updateSpace(space);
         SpaceUtils.removeUserFromGroupWithMemberMembership(userId, space.getGroupId());

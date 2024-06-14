@@ -406,6 +406,15 @@ public interface IdentityStorage {
   }
 
   /**
+   * Gets the list of usernames of the disabled space members
+   * @param spaceId the ID of the space
+   * @return the list of usernames
+   */
+  default List<String> getDisabledSpaceMembers(Long spaceId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Sorts a list of user identities using a field
    *
    * @param identityRemoteIds
