@@ -442,6 +442,11 @@ public class CachedIdentityStorage implements IdentityStorage {
     return cachedRelationshipStorage;
   }
 
+  @Override
+  public List<String> getDisabledSpaceMembers(Long spaceId) {
+    return storage.getDisabledSpaceMembers(spaceId);
+  }
+
   private ListIdentitiesData buildIds(List<Identity> identities) {
     return new ListIdentitiesData(identities.stream().map(IdentityKey::new).toList());
   }

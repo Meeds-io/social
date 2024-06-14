@@ -786,7 +786,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       }
       spaceMembers = getSpaceMembers(space.getId(), status);
     } else {
-      spaceMembers = getDisabledSpaceMembers(space.getId());
+      spaceMembers = getDisabledSpaceMembers(Long.parseLong(space.getId()));
     }
 
     if(spaceMembers.isEmpty()) {
@@ -1132,8 +1132,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     return members;
   }
 
-  private List<String> getDisabledSpaceMembers(String spaceIdString) {
-    long spaceId = Long.parseLong(spaceIdString);
+  @Override
+  public List<String> getDisabledSpaceMembers(Long spaceId) {
     int countSpaceMembers = spaceMemberDAO.countDisabledSpaceMembers(spaceId);
     if (countSpaceMembers == 0) {
       return Collections.emptyList();
