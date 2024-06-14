@@ -209,7 +209,11 @@ export default {
     isMobile: {
       type: Boolean,
       default: false
-    }
+    },
+    preferences: {
+      type: Object,
+      default: null
+    },
   },
   computed: {
     showMenu() {
@@ -222,17 +226,32 @@ export default {
     filteredProfileActionExtensions() {
       return this.profileActionExtensions.filter(extension => extension.enabled(this.user?.dataEntity || this.user));
     },
+    fieldsToDisplay() {
+      return this.user?.properties?.filter(property => Object.values(this.preferences).includes(property.propertyName));
+    },
     isSameUser() {
       return this.user?.username === eXo?.env?.portal?.userName;
     },
     firstField() {
-      return this.user?.primaryProperty;
+      if (this.preferences) {
+        return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.firstField)[0]?.value;
+      } else {
+        return this.user?.primaryProperty;
+      }
     },
     secondField() {
-      return this.user?.secondaryProperty;
+      if (this.preferences) {
+        return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.secondField)[0]?.value;
+      } else {
+        return this.user?.secondaryProperty;
+      }
     },
     thirdField() {
-      return this.user?.tertiaryProperty;
+      if (this.preferences) {
+        return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.thirdField)[0]?.value;
+      } else {
+        return this.user?.tertiaryProperty;
+      }
     },
     bannerUrl() {
       return this.user?.banner;

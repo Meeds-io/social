@@ -104,11 +104,10 @@ export default {
   },
   methods: {
     retrieveUserInformation() {
-      this.profile = this.$currentUserIdentity && this.$currentUserIdentity.profile;
-      if (!this.profile) {
-        return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
-          .then(data => this.profile = data && data.profile);
-      }
+      return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
+        .then(data => {
+          this.profile = data && data.profile;
+        });
     },
     changeMenuStickiness(event) {
       if (event) {
