@@ -116,8 +116,7 @@
         <v-btn
           v-if="showReadMore"
           :aria-label="$t('UIActivity.label.seeMore')"
-          class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 linear-gradient-white-background hover-underline"
-          color="blue"
+          class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 link-blue-color linear-gradient-white-background hover-underline"
           text
           plain
           @click="displayFullContent">
