@@ -30,6 +30,7 @@
     :right="$vuetify.rtl"
     :attach="!absolute"
     :absolute="absolute"
+    class="z-index-modal"
     offset-y
     bottom>
     <template #activator="{ on, attrs }">
