@@ -9,7 +9,7 @@
           slot-scope="{ hover }"
           :lazy-src="bannerUrl || ''"
           :src="bannerUrl || ''"
-          :min-height="174"
+          :min-height="minHeight"
           :max-height="height"
           :class="!bannerUrl && 'primary'"
           id="spaceAvatarImg"
@@ -121,6 +121,9 @@ export default {
     maxUploadSizeInBytes() {
       return this.maxUploadSize * ONE_KB * ONE_KB;
     },
+    minHeight() {
+      return this.isMobile && 36 || 174;
+    },
     height() {
       let height = this.hasNavigations ? 143 : 175;
       if (this.isMobile) {
@@ -132,7 +135,7 @@ export default {
       return this.navigations && this.navigations.length;
     },
     isMobile() {
-      return this.$vuetify.breakpoint.xs;
+      return this.$vuetify.breakpoint.smAndDown;
     },
   },
   watch: {
