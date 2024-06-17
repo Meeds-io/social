@@ -6,7 +6,7 @@
       <v-btn
         v-show="displayBadge"
         :style="`z-index: ${zIndex};`"
-        class="unread-activity-badge"
+        class="unread-activity-badge content-box-sizing"
         absolute
         icon
         height="20"
