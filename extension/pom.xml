@@ -23,13 +23,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
   <artifactId>social-extension</artifactId>
   <packaging>pom</packaging>
-  <name>eXo PLF:: Social Extension</name>
-  <description>eXo Social Extension</description>
+  <name>Meeds:: PLF:: Social Extension</name>
+  <description>Meeds Social Extension</description>
   <modules>
     <module>war</module>
   </modules>

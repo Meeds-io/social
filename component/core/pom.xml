@@ -22,12 +22,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social-component</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
   <artifactId>social-component-core</artifactId>
-  <name>eXo PLF:: Social Core Component</name>
-  <description>eXo Social Core Component: People and Space</description>
+  <name>Meeds:: PLF:: Social Core Component</name>
+  <description>Meeds Social Core Component: People and Space</description>
   <properties>
     <exo.test.coverage.ratio>0.68</exo.test.coverage.ratio>
   </properties>
@@ -39,7 +39,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.exoplatform.gatein.portal</groupId>
+      <groupId>io.meeds.gatein.portal</groupId>
       <artifactId>exo.portal.component.web.security</artifactId>
     </dependency>
 

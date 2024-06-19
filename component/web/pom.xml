@@ -22,28 +22,28 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social-component</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
-  <groupId>org.exoplatform.social</groupId>
+  <groupId>io.meeds.social</groupId>
   <artifactId>social-component-web</artifactId>
   <packaging>jar</packaging>
-  <name>eXo PLF:: Social Web Component</name>
-  <description>eXo Social Web Component</description>
+  <name>Meeds:: PLF:: Social Web Component</name>
+  <description>Meeds Social Web Component</description>
   <properties>
     <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-service</artifactId>
     </dependency>
   </dependencies>

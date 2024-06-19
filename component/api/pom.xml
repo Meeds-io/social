@@ -22,44 +22,44 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social-component</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
   <artifactId>social-component-api</artifactId>
-  <name>eXo PLF:: Social API</name>
-  <description>eXo Social API: People and Space</description>
+  <name>Meeds:: PLF:: Social API</name>
+  <description>Meeds Social API: People and Space</description>
   <properties>
     <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <!-- All upper layer dependencies -->
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-component-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-component-product</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-component-upgrade</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-search</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-comet-service</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-component-common</artifactId>
       <type>test-jar</type>
       <!--
@@ -68,7 +68,7 @@
       -->
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.commons</groupId>
+      <groupId>io.meeds.commons</groupId>
       <artifactId>commons-component-upgrade</artifactId>
       <type>test-jar</type>
       <!--

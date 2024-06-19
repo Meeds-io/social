@@ -22,12 +22,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social-component</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
   <artifactId>social-component-service</artifactId>
-  <name>eXo PLF:: Social Service Component</name>
-  <description>eXo Social Service Component</description>
+  <name>Meeds:: PLF:: Social Service Component</name>
+  <description>Meeds Social Service Component</description>
   <properties>
     <exo.test.coverage.ratio>0.49</exo.test.coverage.ratio>
 
@@ -38,21 +38,21 @@
   <dependencies>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-common</artifactId>
     </dependency>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-core</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-core</artifactId>
       <type>test-jar</type>
     </dependency>
@@ -80,7 +80,7 @@
         <configuration>
           <useResourcePackagesChildren>true</useResourcePackagesChildren>
           <resourcePackages>
-            <locations>org.exoplatform.social.rest.impl</locations>
+            <locations>io.meeds.social.rest.impl</locations>
           </resourcePackages>
           <swaggerConfig>
             <info>

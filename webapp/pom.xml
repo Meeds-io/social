@@ -21,13 +21,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
   <artifactId>social-webapp</artifactId>
   <packaging>pom</packaging>
-  <name>eXo PLF:: Social Web Apps</name>
-  <description>eXo Social Web Apps</description>
+  <name>Meeds:: PLF:: Social Web Apps</name>
+  <description>Meeds Social Web Apps</description>
   <modules>
     <module>portlet</module>
   </modules>

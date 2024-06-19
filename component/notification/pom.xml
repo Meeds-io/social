@@ -22,22 +22,22 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social-component</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
   <artifactId>social-component-notification</artifactId>
-  <name>eXo PLF:: Social Notification Component</name>
-  <description>eXo Social Notification Component</description>
+  <name>Meeds:: PLF:: Social Notification Component</name>
+  <description>Meeds Social Notification Component</description>
   <properties>
     <exo.test.coverage.ratio>0.70</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-service</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.exoplatform.social</groupId>
+      <groupId>io.meeds.social</groupId>
       <artifactId>social-component-service</artifactId>
       <type>test-jar</type>
       <!--
