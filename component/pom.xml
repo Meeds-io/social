@@ -21,13 +21,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>social</artifactId>
-    <groupId>org.exoplatform.social</groupId>
+    <groupId>io.meeds.social</groupId>
     <version>7.0.x-SNAPSHOT</version>
   </parent>
   <artifactId>social-component</artifactId>
   <packaging>pom</packaging>
-  <name>eXo PLF:: Social Component</name>
-  <description>eXo Social Component</description>
+  <name>Meeds:: PLF:: Social Component</name>
+  <description>Meeds Social Component</description>
   <modules>
     <module>api</module>
     <module>common</module>

@@ -25,12 +25,12 @@
     <version>27-M03</version>
     <relativePath />
   </parent>
-  <groupId>org.exoplatform.social</groupId>
+  <groupId>io.meeds.social</groupId>
   <artifactId>social</artifactId>
   <version>7.0.x-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>eXo PLF:: Social</name>
-  <description>eXo Social - Enterprise Social Networking</description>
+  <name>Meeds:: PLF:: Social</name>
+  <description>Meeds Social - Enterprise Social Networking</description>
   <modules>
     <module>extension</module>
     <module>component</module>
@@ -46,33 +46,34 @@
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
-    <org.exoplatform.commons.version>7.0.x-SNAPSHOT</org.exoplatform.commons.version>
-    <org.exoplatform.platform-ui.version>7.0.x-SNAPSHOT</org.exoplatform.platform-ui.version>
+    <io.meeds.commons.version>7.0.x-SNAPSHOT</io.meeds.commons.version>
+    <io.meeds.platform-ui.version>7.0.x-SNAPSHOT</io.meeds.platform-ui.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
+    <exo.snapshots.repo.url>https://repository.exoplatform.org/content/repositories/meeds-snapshots</exo.snapshots.repo.url>
   </properties>
   <dependencyManagement>
     <dependencies>
       <!-- Import versions from commons project -->
       <dependency>
-        <groupId>org.exoplatform.commons</groupId>
+        <groupId>io.meeds.commons</groupId>
         <artifactId>commons</artifactId>
-        <version>${org.exoplatform.commons.version}</version>
+        <version>${io.meeds.commons.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.platform-ui</groupId>
+        <groupId>io.meeds.platform-ui</groupId>
         <artifactId>platform-ui</artifactId>
-        <version>${org.exoplatform.platform-ui.version}</version>
+        <version>${io.meeds.platform-ui.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
 
       <!-- Declare our own artifacts -->
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>io.meeds.social</groupId>
         <artifactId>social</artifactId>
         <version>${project.version}</version>
         <classifier>source-release</classifier>
@@ -164,38 +165,38 @@
       </dependency>
 
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>io.meeds.social</groupId>
         <artifactId>social-extension</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>io.meeds.social</groupId>
         <artifactId>social-extension-war</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>io.meeds.social</groupId>
         <artifactId>social-extension-war</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
 
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>io.meeds.social</groupId>
         <artifactId>social-webapp</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>io.meeds.social</groupId>
         <artifactId>social-webapp-portlet</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
       <dependency>
-        <groupId>org.exoplatform.social</groupId>
+        <groupId>io.meeds.social</groupId>
         <artifactId>social-webapp-portlet</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
