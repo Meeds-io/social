@@ -46,7 +46,7 @@
             fas fa-ellipsis-v
           </v-icon>
         </div>
-        <template v-else-if="canUseActionsMenu && !isSameUser">
+        <template v-else-if="canUseActionsMenu">
           <v-menu
             ref="actionMenu"
             v-model="displayActionMenu"
@@ -207,7 +207,7 @@ export default {
       return this.user?.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
     },
     canUseActionsMenu() {
-      return this.user && this.enabledProfileActionExtensions.length;
+      return this.user && (this.enabledProfileActionExtensions.length || this.userNavigationExtensions.length);
     },
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'primary--text text-truncate-2 mt-0'}`;
