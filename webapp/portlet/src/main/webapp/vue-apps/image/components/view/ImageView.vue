@@ -21,7 +21,6 @@
 <template>
   <img
     v-if="$root.imageUrl"
-    id="spaceAvatarImg"
     :src="$root.imageUrl"
     :alt="$root.imageAltText"
     :width="$root.fixedHeight && `${width}px` || '100%'"
