@@ -1,8 +1,7 @@
 <template>
   <v-app :class="hasNavigations && 'hasNavigations' | ''">
     <v-card
-      color="transparent"
-      class="card-border-radius overflow-hidden"
+      class="application-body"
       flat>
       <v-hover>
         <v-img
@@ -15,7 +14,7 @@
           id="spaceAvatarImg"
           height="auto"
           min-width="100%"
-          class="d-flex"
+          class="d-flex application-border-radius"
           eager>
           <div
             v-if="admin"
