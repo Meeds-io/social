@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="settings"
-    class="card-border-radius overflow-hidden white">
+    class="application-body">
     <v-toolbar
       class="border-box-sizing"
       flat>

@@ -3,7 +3,7 @@
     :id="id"
     :unread-metadata="unreadMetadata"
     :space-id="spaceId"
-    class="white card-border-radius activity-detail flex flex-column"
+    class="application-background-color application-border application-border-radius activity-detail flex flex-column"
     @read="markAsRead">
     <div v-if="displayLoading" class="d-flex">
       <v-progress-circular

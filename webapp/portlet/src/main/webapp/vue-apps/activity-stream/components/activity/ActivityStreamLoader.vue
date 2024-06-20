@@ -2,7 +2,7 @@
   <div
     v-if="activityLoading"
     :key="activity.id"
-    class="white border-radius activity-detail flex d-flex flex-column mb-5 contentBox">
+    class="application-background-color application-border application-border-radius activity-detail flex d-flex flex-column mb-5 contentBox">
     <v-progress-circular
       color="primary"
       size="32"

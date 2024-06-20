@@ -2,7 +2,9 @@
   <v-app
     v-if="displayApp"
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'">
-    <widget-wrapper :title="title">
+    <widget-wrapper
+      :title="title"
+      extra-class="application-body">
       <template #action>
         <v-btn
           v-if="owner"

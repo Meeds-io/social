@@ -6,7 +6,7 @@
       @back="closeDetail" />
     <v-card
       v-else
-      class="card-border-radius app-background-color"
+      class="application-body"
       flat>
       <v-list @click="openNotificationSettingDetail">
         <v-list-item>
