@@ -20,6 +20,7 @@
     </v-footer>    
     <v-tabs
       v-else
+      ref="spaceMenuTabs"
       :value="selectedNavigationUri"
       active-class="SelectedTab"
       class="mx-auto"
@@ -30,7 +31,7 @@
         v-for="nav in navigations"
         :key="nav.id"
         :value="nav.id"
-        :href="nav.uri"
+        :href="navUri(nav.uri, nav?.target)"
         @click="openUrl(nav.uri, nav?.target)"
         class="spaceNavigationTab">
         {{ nav.label }}
@@ -121,6 +122,11 @@ export default {
       target = target === 'SAME_TAB' && '_self' || '_blank' ;
       if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/) && this.isValidUrl(url) ) {
         url = `//${url}`;
+        const internalValue = this.$refs.spaceMenuTabs.internalValue;
+        window.setTimeout(() => {
+          this.$refs.spaceMenuTabs.internalLazyValue = internalValue;
+          this.$refs.spaceMenuTabs.internalValue = internalValue;
+        },300);       
       } else if (url.match(/^(\/portal\/)/)) {
         url = `${window.location.origin}${url}`;
       }
@@ -137,6 +143,12 @@ export default {
         'i'
       );
       return pattern.test(str);
+    },
+    navUri(url,target) {
+      if (target === 'NEW_TAB') {
+        return '';
+      }
+      return url;
     }
   },
 };
