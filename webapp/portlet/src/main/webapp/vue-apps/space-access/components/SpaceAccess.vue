@@ -21,7 +21,7 @@
 <template>
   <v-app class="singlePageApplication">
     <v-card
-      class="spaceAccessInfo app-background-color py-12 text-center"
+      class="spaceAccessInfo application-body py-12 text-center"
       flat>
       <v-card-text>
         <v-icon color="primary" class="fa-7x">{{ spaceNotAccessible && 'fa-door-closed' || 'fa-door-open' }}</v-icon>

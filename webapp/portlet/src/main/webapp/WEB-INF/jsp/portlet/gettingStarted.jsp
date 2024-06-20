@@ -31,7 +31,7 @@
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light" id="app">
       <div class="v-application--wrap">
-        <div class="flex hiddenable-widget d-flex xs12 sm12">
+        <div class="flex hiddenable-widget application-body d-flex xs12 sm12">
           <div class="layout row wrap mx-0">
             <div class="flex d-flex xs12">
               <div class="flex v-card v-card--flat v-sheet card-border-radius pa-5 theme--light">
