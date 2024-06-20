@@ -19,11 +19,11 @@
 
 -->
 <template>
-  <v-app ref="app" class="overflow-hidden position-relative">
+  <v-app ref="app">
     <v-hover v-model="hover" :disabled="!canEdit">
       <v-card
         :color="$root.hasImages && 'transparent' || 'primary'"
-        class="card-border-radius app-background-color"
+        class="application-body no-border-radius"
         min-width="100%"
         flat>
         <v-responsive :aspect-ratio="$root.imageAspectRatio">

@@ -2,12 +2,11 @@
   <v-app
     class="spacesAdministration"
     flat>
-    <main>
+    <main class="application-body">
       <v-layout>
         <v-flex>
           <v-tabs
             v-model="selectedTab"
-            class="card-border-radius app-background-color overflow-hidden"
             slider-size="4">
             <v-tab key="manage" href="#manage">
               {{ $t('social.spaces.administration.manageSpaces') }}
@@ -26,7 +25,7 @@
             </v-tab>
           </v-tabs>
 
-          <v-tabs-items v-model="selectedTab" class="mt-2 card-border-radius app-background-color overflow-hidden">
+          <v-tabs-items v-model="selectedTab" class="mt-2">
             <v-tab-item
               id="manage"
               value="manage"
