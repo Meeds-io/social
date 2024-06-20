@@ -19,8 +19,7 @@
     <v-toolbar
       v-if="displayToolbar"
       id="activityComposer"
-      class="activityComposer activityComposerApp pa-0 card-border-radius"
-      color="white mb-5"
+      class="activityComposer activityComposerApp pa-0 application-background-color application-border application-border-radius mb-5"
       height="auto"
       flat
       dense>

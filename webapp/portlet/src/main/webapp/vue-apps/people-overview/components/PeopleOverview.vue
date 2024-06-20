@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <widget-wrapper :title="$t('peopleOverview.label.title')">
+    <widget-wrapper
+      :title="$t('peopleOverview.label.title')"
+      extra-class="application-body">
       <v-card flat>
         <div class="d-flex flex-row justify-space-around" v-if="invitations > 0 || pending > 0">
           <people-overview-card

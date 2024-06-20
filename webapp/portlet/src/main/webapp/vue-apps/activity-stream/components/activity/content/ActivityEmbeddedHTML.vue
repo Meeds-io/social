@@ -2,7 +2,7 @@
   <div
     v-if="embeddedHTML"
     :style="parentStyle"
-    class="d-flex flex-column flex activity-embedded-box mt-3 mx-auto card-border-radius overflow-hidden light-grey-background-color hover-elevation mb-4">
+    class="d-flex flex-column flex activity-embedded-box mt-3 mx-auto border-radius overflow-hidden light-grey-background-color hover-elevation mb-4">
     <div
       v-if="elementReady"
       v-html="embeddedHTML"

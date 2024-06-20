@@ -1,7 +1,7 @@
 <template>
   <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
     <v-hover>
-      <div slot-scope="{ hover }" class="overflow-hidden card-border-radius app-background-color">
+      <div slot-scope="{ hover }" class="application-body">
         <v-card
           height="13vw"
           max-height="175"
@@ -12,7 +12,7 @@
             alt=""
             width="100%"
             height="auto"
-            class="profileBannerImg position-absolute"
+            class="profileBannerImg position-absolute application-border-radius-top"
             lazy>
           <profile-header-banner-button
             v-if="owner"
@@ -23,7 +23,7 @@
             @refresh="refresh" />
         </v-card>
         <v-card
-          class="d-flex flex-column flex-md-row border-color app-background-color px-4" 
+          class="d-flex flex-column flex-md-row border-color px-4" 
           flat
           tile>
           <v-card

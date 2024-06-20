@@ -3,7 +3,7 @@
     <div
       v-if="breadcrumbToDisplay.length"
       id="breadcrumbParent"
-      class="white px-2 py-2 card-border-radius d-flex">
+      class="px-2 py-2 application-body d-flex">
       <div
         v-for="(breadcrumb, index) in breadcrumbToDisplay"
         :key="index"

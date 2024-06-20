@@ -3,7 +3,7 @@
     <widget-wrapper 
       v-if="display"
       :title="$t('header.label')"
-      :extra-class="'onlinePortlet'">
+      extra-class="onlinePortlet application-body">
       <div id="onlineList" class="d-flex align-center justify-center flex-wrap">
         <exo-user-avatar
           v-for="user in users"

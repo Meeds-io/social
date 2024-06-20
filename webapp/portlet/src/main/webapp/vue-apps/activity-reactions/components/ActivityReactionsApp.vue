@@ -1,11 +1,11 @@
 <template>
-  <v-app>
+  <div>
     <activity-reactions
       :activity-id="activityId"
       :likers="likers"
       :likers-number="likersNumber"
       :comment-number="commentNumber" />
-  </v-app>
+  </div>
 </template>
 <script>
 export default {

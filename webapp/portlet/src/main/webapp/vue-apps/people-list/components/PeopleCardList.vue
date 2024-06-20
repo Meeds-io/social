@@ -1,5 +1,5 @@
 <template>
-  <v-card class="app-background-color" flat>
+  <v-card flat>
     <v-progress-linear
       v-if="loadingPeople"
       indeterminate

@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main v-if="notificationSettings">
-      <v-card class="pa-5 card-border-radius app-background-color overflow-hidden" flat>
+      <v-card class="pa-5 application-body" flat>
         <h4 class="font-weight-bold my-0">
           {{ $t('NotificationAdmin.title') }}
         </h4>

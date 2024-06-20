@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <widget-wrapper :title="$t('spacesOverview.label.title')">
+    <widget-wrapper 
+      :title="$t('spacesOverview.label.title')"
+      extra-class="application-body">
       <v-card flat>
         <div
           v-if="(invitations > 0 || sentRequests > 0 || receivedRequests > 0 || managing > 0) && displayPlaceholder"

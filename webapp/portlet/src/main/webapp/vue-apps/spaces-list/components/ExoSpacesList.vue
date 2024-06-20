@@ -1,5 +1,5 @@
 <template>
-  <v-app class="transparent card-border-radius overflow-hidden" flat>
+  <v-app class="application-body" flat>
     <exo-spaces-toolbar
       :keyword="keyword"
       :filter="filter"

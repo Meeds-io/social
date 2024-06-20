@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <widget-wrapper v-if="isShown" :title="$t('externalSpacesList.title.yourSpaces')">
+    <widget-wrapper
+      v-if="isShown"
+      :title="$t('externalSpacesList.title.yourSpaces')"
+      extra-class="application-body">
       <v-list dense class="py-0 external-spaces-list">
         <template>
           <external-space-item

@@ -22,8 +22,7 @@
   <v-app>
     <v-main>
       <v-card
-        min-height="calc(100vh - 160px)"
-        class="px-6 card-border-radius overflow-hidden app-background-color"
+        class="px-6 application-body"
         flat>
         <template v-if="intialized">
           <v-expand-transition>
