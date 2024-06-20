@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <widget-wrapper :title="$t('social.space.description.title')">
+    <widget-wrapper
+      :title="$t('social.space.description.title')"
+      extra-class="application-body">
       <p 
         id="spaceDescription"
         v-sanitized-html="description"

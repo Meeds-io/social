@@ -21,14 +21,13 @@
 <template>
   <img
     v-if="$root.imageUrl"
-    id="spaceAvatarImg"
     :src="$root.imageUrl"
     :alt="$root.imageAltText"
     :width="$root.fixedHeight && `${width}px` || '100%'"
     :height="$root.fixedHeight && `${$root.fixedHeight}px` || '100%'"
     :class="cssClass"
     :style="cssStyle"
-    class="border-box-sizing">
+    class="application-border-radius border-box-sizing">
 </template>
 <script>
 export default {
