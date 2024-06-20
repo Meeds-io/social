@@ -221,6 +221,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/spaceMenu.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -270,6 +274,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/activityStream.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-border-radius no-layout-border</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
       <portlet-mode>view</portlet-mode>
@@ -291,6 +299,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/activityStream.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-background-color no-layout-border-radius no-layout-border</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -363,6 +375,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/hamburgerMenu.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -428,6 +444,10 @@
       <name>preload.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/identities/{userId}?expand=]]></value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -442,6 +462,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/topbarPreview.html</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -460,6 +484,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/topbarLogin.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -474,6 +502,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/topBarPublishSite.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -558,6 +590,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/topbarNotification.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -572,6 +608,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/topbarFavorites.html</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
@@ -743,6 +783,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/search.jsp</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -786,6 +830,10 @@
       <name>js-manager-jsModule</name>
       <value>SHARED/popover</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -805,6 +853,10 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/topBarMenu.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -840,6 +892,10 @@
     <init-param>
       <name>layout-content-editable</name>
       <value>true</value>
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>overflow-hidden</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -879,6 +935,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/drawersOverlay.html</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -916,6 +976,10 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/verticalMenu.html</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -951,7 +1015,11 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/platformSettings.jsp</value>
-    </init-param>    
+    </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
