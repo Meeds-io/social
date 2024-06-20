@@ -15,7 +15,7 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <div class="d-flex flex-column white card-border-radius">
+  <div class="d-flex flex-column application-background-color application-border application-border-radius">
     <v-flex class="d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto py-10 text-center text-sub-title">
         <v-icon

@@ -23,7 +23,7 @@
     <v-hover v-slot="{ hover }">
       <v-card
         outlined
-        class="border-radius pa-5 card-border-radius app-background-color">
+        class="pa-5 application-body">
         <div
           v-if="isLoading"
           class="width-full d-flex full-height">

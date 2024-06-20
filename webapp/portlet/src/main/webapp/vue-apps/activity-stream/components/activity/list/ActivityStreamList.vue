@@ -26,7 +26,7 @@
     </template>
     <div
       v-else-if="loading"
-      class="white border-radius activity-detail flex d-flex flex-column mb-5 contentBox">
+      class="application-background-color application-border application-border-radius activity-detail flex d-flex flex-column mb-5 contentBox">
       <v-progress-circular
         color="primary"
         size="32"
@@ -46,7 +46,7 @@
       :loading="loading"
       :disabled="loading"
       block
-      class="btn pa-0"
+      class="btn pa-0 application-background-color application-border application-border-radius"
       @click="loadMore">
       {{ $t('Search.button.loadMore') }}
     </v-btn>
