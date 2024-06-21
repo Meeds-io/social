@@ -19,8 +19,9 @@
 
 -->
 <template>
-  <div class="d-flex mt-8">
-    <v-btn 
+  <div class="d-flex mt-2">
+    <v-btn
+      class="ps-0"
       text
       small
       @click="bordeRadius = 0">
