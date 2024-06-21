@@ -27,13 +27,10 @@
     </v-col>
     <v-col
       cols="12"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
+      class="pa-0 mb-4">
+      <h4 class="mb-2 mt-4">
         {{ $t('generalSettings.companyNameTitle') }}
       </h4>
-      <h6 class="text-subtitle grey--text me-2">
-        {{ $t('generalSettings.companyNameSubtitle') }}
-      </h6>
       <v-card
         max-width="350px"
         class="me-2"
@@ -53,30 +50,69 @@
       </v-card>
     </v-col>
     <v-col
-      cols="12"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.companyLogoTitle') }}
+      cols="6"
+      class="pa-0 mb-4 d-flex flex-column">
+      <h4 class="my-4">
+        <help-label
+          label="generalSettings.companyLogo.label"
+          tooltip="generalSettings.companyLogo.tooltip"
+          label-class="text-header-color">
+          <template slot="helpContent">
+            <p>
+              {{ $t('generalSettings.companyLogo.help1') }}
+            </p>
+            <p>
+              {{ $t('generalSettings.companyLogo.help2') }}
+            </p>
+            <p>
+              {{ $t('generalSettings.companyLogo.help3') }}
+            </p>
+          </template>
+        </help-label>
       </h4>
-      <h6 class="text-subtitle grey--text me-2">
-        {{ $t('generalSettings.companyLogoSubtitle') }}
-      </h6>
       <portal-general-settings-company-logo
         ref="companyLogo"
         v-model="logoUploadId"
         :branding="branding"
-        class="mt-n2" />
+        class="my-auto" />
+    </v-col>
+    <v-col
+      cols="6"
+      class="pa-0 mb-4 d-flex flex-column">
+      <h4 class="my-4">
+        {{ $t('generalSettings.companyFaviconTitle') }}
+      </h4>
+      <portal-general-settings-company-favicon
+        ref="companyFavicon"
+        v-model="faviconUploadId"
+        :branding="branding"
+        class="my-auto" />
     </v-col>
     <v-col
       cols="12"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.themeColorsTitle') }}
+      class="pa-0 mb-4">
+      <h4 class="mt-4 mb-0">
+        <help-label
+          label="generalSettings.themeColors.label"
+          tooltip="generalSettings.themeColors.tooltip"
+          label-class="text-header-color">
+          <template slot="helpContent">
+            <p>
+              {{ $t('generalSettings.themeColors.help1') }}
+            </p>
+            <p>
+              {{ $t('generalSettings.themeColors.help2') }}
+            </p>
+            <p>
+              {{ $t('generalSettings.themeColors.help3') }}
+            </p>
+            <p>
+              {{ $t('generalSettings.themeColors.help4') }}
+            </p>
+          </template>
+        </help-label>
       </h4>
-      <h6 class="text-subtitle grey--text me-2">
-        {{ $t('generalSettings.themeColorsSubtitle') }}
-      </h6>
-      <div class="d-flex flex-wrap mt-n2">
+      <div class="d-flex flex-wrap justify-space-between pe-4">
         <div>
           <portal-general-settings-color-picker
             v-model="primaryColor"
@@ -96,27 +132,13 @@
     </v-col>
     <v-col
       cols="12"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
-        {{ $t('generalSettings.companyFaviconTitle') }}
-      </h4>
-      <h6 class="text-subtitle grey--text me-2 mb-3">
-        {{ $t('generalSettings.companyFaviconSubtitle') }}
-      </h6>
-      <portal-general-settings-company-favicon
-        ref="companyFavicon"
-        v-model="faviconUploadId"
-        :branding="branding" />
-    </v-col>
-    <v-col 
-      cols="12"
-      class="pa-0">
-      <h4 class="mb-0 mt-4">
+      class="pa-0 mb-4">
+      <h4 class="mb-0 mt-2">
         {{ $t('generalSettings.widgetAndAppStyle.title') }}
       </h4>
-      <h6 class="text-subtitle grey--text me-2 mb-3">
-        {{ $t('generalSettings.widgetAndAppStyle.subtitle') }}
-      </h6>
+      <div class="font-weight-bold my-2">
+        {{ $t('generalSettings.widgetAndAppStyle.radius') }}
+      </div>
       <portal-general-settings-border-radius
         v-model="borderRadius"
         ref="borderRadius"
