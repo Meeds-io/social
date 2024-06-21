@@ -36,12 +36,12 @@
             width="50px"
             v-on="on" />
         </v-list-item-action>
-        <v-list-item-content>
+        <v-list-item-content class="d-flex flex-column align-start me-2">
           <v-list-item-title>
             {{ label }} {{ $t('generalSettings.color.label') }}
           </v-list-item-title>
           <v-spacer class="my-1" />
-          <v-list-item-subtitle class="grey--text">
+          <v-list-item-subtitle>
             {{ value }}
           </v-list-item-subtitle>
         </v-list-item-content>
