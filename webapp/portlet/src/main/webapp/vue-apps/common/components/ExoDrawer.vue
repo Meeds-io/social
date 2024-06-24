@@ -261,7 +261,7 @@ export default {
   },
   methods: {
     open() {
-      if (!this.attached || eXo.openedDrawers.length) {
+      if (!this.attached) {
         // Re-append the drawer to open in order
         // to ensure to attribute an adequate z-index
         // Which makes it displayed on top of other already
