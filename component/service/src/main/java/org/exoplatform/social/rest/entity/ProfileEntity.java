@@ -577,7 +577,7 @@ public class ProfileEntity extends BaseEntity {
     setProperty(PRIMARY_PROPERTY, primaryProperty);
     return this;
   }
-  public String getSecondaryCardProperty() {
+  public String getSecondaryProperty() {
     return getString(SECONDARY_PROPERTY);
   }
 
@@ -585,7 +585,7 @@ public class ProfileEntity extends BaseEntity {
     setProperty(SECONDARY_PROPERTY, secondaryProperty);
     return this;
   }
-  public String getTertiaryCardProperty() {
+  public String getTertiaryProperty() {
     return getString(TERTIARY_PROPERTY);
   }
 
