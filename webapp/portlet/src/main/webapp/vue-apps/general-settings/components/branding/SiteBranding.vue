@@ -21,16 +21,16 @@
 <template>
   <v-row class="ma-0">
     <v-col cols="12" class="pa-0">
-      <h4 class="font-weight-bold mt-0">
+      <div class="text-header mt-0">
         {{ $t('generalSettings.displayCharacteristics') }}
-      </h4>
+      </div>
     </v-col>
     <v-col
       cols="12"
       class="pa-0 mb-4">
-      <h4 class="mb-2 mt-4">
+      <div class="mb-2 mt-4">
         {{ $t('generalSettings.companyNameTitle') }}
-      </h4>
+      </div>
       <v-card
         max-width="350px"
         class="me-2"
@@ -52,11 +52,10 @@
     <v-col
       cols="6"
       class="pa-0 mb-4 d-flex flex-column">
-      <h4 class="my-4">
+      <div class="my-4">
         <help-label
           label="generalSettings.companyLogo.label"
-          tooltip="generalSettings.companyLogo.tooltip"
-          label-class="text-header-color">
+          tooltip="generalSettings.companyLogo.tooltip">
           <template slot="helpContent">
             <p>
               {{ $t('generalSettings.companyLogo.help1') }}
@@ -69,7 +68,7 @@
             </p>
           </template>
         </help-label>
-      </h4>
+      </div>
       <portal-general-settings-company-logo
         ref="companyLogo"
         v-model="logoUploadId"
@@ -79,9 +78,9 @@
     <v-col
       cols="6"
       class="pa-0 mb-4 d-flex flex-column">
-      <h4 class="my-4">
+      <div class="my-4">
         {{ $t('generalSettings.companyFaviconTitle') }}
-      </h4>
+      </div>
       <portal-general-settings-company-favicon
         ref="companyFavicon"
         v-model="faviconUploadId"
@@ -91,11 +90,10 @@
     <v-col
       cols="12"
       class="pa-0 mb-4">
-      <h4 class="mt-4 mb-0">
+      <div class="mt-4 mb-0">
         <help-label
           label="generalSettings.themeColors.label"
-          tooltip="generalSettings.themeColors.tooltip"
-          label-class="text-header-color">
+          tooltip="generalSettings.themeColors.tooltip">
           <template slot="helpContent">
             <p>
               {{ $t('generalSettings.themeColors.help1') }}
@@ -111,7 +109,7 @@
             </p>
           </template>
         </help-label>
-      </h4>
+      </div>
       <div class="d-flex flex-wrap justify-space-between pe-4">
         <div>
           <portal-general-settings-color-picker
@@ -133,10 +131,30 @@
     <v-col
       cols="12"
       class="pa-0 mb-4">
-      <h4 class="mb-0 mt-2">
+      <div class="mb-0 mt-2">
+        {{ $t('generalSettings.globalPlatformDesign') }}
+      </div>
+      <portal-general-settings-background-input
+        v-if="backgroundProperties"
+        ref="backgroundInput"
+        v-model="backgroundProperties"
+        :default-background-color="defaultBackgroundColor"
+        class="mt-2 pe-4"
+        @initialized="setAsInitialized">
+        <template #title>
+          <div>
+            {{ $t('generalSettings.globalPageBackground') }}
+          </div>
+        </template>
+      </portal-general-settings-background-input>
+    </v-col>
+    <v-col
+      cols="12"
+      class="pa-0 mb-4">
+      <div class="mb-0 mt-2">
         {{ $t('generalSettings.widgetAndAppStyle.title') }}
-      </h4>
-      <div class="font-weight-bold my-2">
+      </div>
+      <div class="my-2">
         {{ $t('generalSettings.widgetAndAppStyle.radius') }}
       </div>
       <portal-general-settings-border-radius
@@ -191,6 +209,9 @@ export default {
     errorMessage: null,
     logoUploadId: null,
     faviconUploadId: null,
+    originalBackgroundProperties: null,
+    backgroundProperties: null,
+    defaultBackgroundColor: '#F2F2F2FF',
   }),
   computed: {
     defaultCompanyName() {
@@ -228,9 +249,12 @@ export default {
       if (this.logoUploadId || this.faviconUploadId) {
         return true;
       }
-      const oldBranding = JSON.parse(JSON.stringify(this.branding));
+      const oldBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
+        ...this.originalBackgroundProperties,
+      });
       const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
         companyName: this.companyName,
+        ...this.backgroundProperties,
       });
       newBranding.themeStyle.primaryColor = this.primaryColor;
       newBranding.themeStyle.secondaryColor = this.secondaryColor;
@@ -265,6 +289,12 @@ export default {
           propertyValue: this.secondaryColor
         }
       });
+    },
+    backgroundProperties: {
+      deep: true,
+      handler() {
+        this.setBackgroungPropertiesPreview();
+      },
     },
     tertiaryColor() {
       this.$root.$emit('refresh-style-property', {
@@ -301,9 +331,56 @@ export default {
       this.secondaryColor = this.defaultSecondaryColor;
       this.tertiaryColor = this.defaultTertiaryColor;
       this.borderRadius = this.defaultBorderRadius;
+      this.borderRadius = this.defaultBorderRadius;
+      this.backgroundProperties = {
+        pageBackground: this.branding?.pageBackground || null,
+        pageBackgroundSize: this.branding?.pageBackgroundSize || null,
+        pageBackgroundRepeat: this.branding?.pageBackgroundRepeat || null,
+        pageBackgroundPosition: this.branding?.pageBackgroundPosition || null,
+        pageBackgroundColor: this.branding?.pageBackgroundColor || null,
+      };
       this.logoUploadId = null;
       this.faviconUploadId = null;
       this.errorMessage = null;
+    },
+    setBackgroungPropertiesPreview() {
+      if (this.changed && this.originalBackgroundProperties) {
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundColor',
+          value: this.backgroundProperties.pageBackgroundColor || this.defaultBackgroundColor,
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundRepeat',
+          value: this.backgroundProperties.pageBackgroundRepeat || 'no-repeat',
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundSize',
+          value: this.backgroundProperties.pageBackgroundSize || 'unset',
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundPosition',
+          value: this.backgroundProperties.pageBackgroundPosition || 'unset',
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: 'background-image',
+          value: null,
+        });
+        if (this.backgroundProperties.pageBackgroundColor
+            || (!this.backgroundProperties.pageBackground?.uploadId && !this.backgroundProperties.pageBackground?.fileId)) {
+          this.$root.$emit('refresh-body-style-property', {
+            name: '--allPagesBackgroundImage',
+            value: 'none',
+          });
+        } else if (this.backgroundProperties.pageBackground?.data) {
+          this.$root.$emit('refresh-body-style-property', {
+            name: 'background-image',
+            value: `url(${this.$utils.convertImageDataAsSrc(this.backgroundProperties.pageBackground?.data)})`,
+          });
+        }
+      }
+    },
+    setAsInitialized() {
+      this.originalBackgroundProperties = JSON.parse(JSON.stringify(this.backgroundProperties));
     },
     save() {
       this.errorMessage = null;
@@ -323,6 +400,13 @@ export default {
         favicon: {
           uploadId: this.faviconUploadId,
         },
+        pageBackground: {
+          uploadId: this.backgroundProperties.pageBackground?.uploadId,
+        },
+        pageBackgroundSize: this.backgroundProperties.pageBackgroundSize || null,
+        pageBackgroundRepeat: this.backgroundProperties.pageBackgroundRepeat || null,
+        pageBackgroundPosition: this.backgroundProperties.pageBackgroundPosition || null,
+        pageBackgroundColor: this.backgroundProperties.pageBackgroundColor || null,
       });
 
       this.$root.loading = true;
