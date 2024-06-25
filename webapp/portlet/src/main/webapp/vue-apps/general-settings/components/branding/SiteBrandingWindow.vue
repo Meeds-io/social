@@ -26,6 +26,7 @@
       class="pa-0 mb-12 pb-5">
       <portal-general-settings-branding-site 
         :branding="branding"
+        :custom-css="customStylesheet"
         @changed="$emit('changed')"
         @saved="$emit('saved')"
         @close="$emit('close')" />
@@ -35,6 +36,10 @@
       lg="6"
       class="pa-0">
       <portal-general-settings-branding-site-preview />
+      <portal-general-settings-custom-style-input
+        v-if="customStylesheetEnabled"
+        v-model="customStylesheet"
+        class="mt-8" />
     </v-col>
   </v-row>
 </template>
@@ -45,6 +50,18 @@ export default {
       type: Object,
       default: null,
     },
+  },
+  data: () => ({
+    customStylesheetEnabled: eXo.env.portal.customStylesheetEnabled,
+    customStylesheet: null,
+  }),
+  watch: {
+    customStylesheet() {
+      this.$emit('changed');
+    },
+  },
+  created() {
+    this.customStylesheet = this.branding?.customCss;
   },
 };
 </script>

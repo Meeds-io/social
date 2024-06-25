@@ -25,7 +25,7 @@
       <slot name="title"></slot>
     </div>
     <v-spacer />
-    <v-tooltip bottom>
+    <v-tooltip :disabled="disableTooltip" bottom>
       <template #activator="{on, attrs}">
         <div
           v-on="on"
@@ -72,11 +72,16 @@ export default {
   data: () => ({
     changed: false,
     sendingImage: false,
+    disableTooltip: false,
     uploadId: null,
   }),
   watch: {
     uploadId() {
       this.$emit('input', this.uploadId);
+    },
+    hasFile() {
+      this.disableTooltip = true;
+      window.setTimeout(() => this.disableTooltip = false, 50);
     },
   },
   methods: {
@@ -86,15 +91,21 @@ export default {
         const thiss = this;
         return this.$uploadService.upload(file)
           .then(uploadId => {
-            this.uploadId = uploadId;
-            const reader = new FileReader();
-            reader.onload = e => thiss.$emit('image-data-updated', e?.target?.result);
-            reader.readAsDataURL(file);
-
-            this.changed = true;
-            this.sendingImage = false;
+            return new Promise(resolve => {
+              const reader = new FileReader();
+              reader.onload = e => {
+                thiss.$emit('image-data-updated', e?.target?.result);
+                resolve(uploadId);
+              };
+              reader.readAsDataURL(file);
+            });
           })
-          .then(() => this.$emit('refresh'))
+          .then(uploadId => {
+            this.changed = true;
+            this.uploadId = uploadId;
+            this.sendingImage = false;
+            this.$emit('refresh');
+          })
           .catch(() => {
             this.$root.$emit('alert-message', this.$t('generalSettings.errorUploadingPreview'), 'error');
             this.sendingImage = false;
@@ -102,8 +113,9 @@ export default {
       }
     },
     reset() {
-      this.uploadId = null;
+      this.uploadId = 0;
       this.$emit('input', 0);
+      this.$emit('reset');
       this.changed = true;
     },
   },
