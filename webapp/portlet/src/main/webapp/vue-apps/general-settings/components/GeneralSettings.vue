@@ -48,7 +48,7 @@
                     class="flex-grow-0 py-1"
                     flat
                     @click="close()">
-                    <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
+                    <div class="text-title">{{ $t('generalSettings.title') }}</div>
                   </v-card>
                 </v-list-item-title>
               </v-list-item-content>
@@ -79,10 +79,10 @@
             <div v-else>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
+                  <v-list-item-title class="text-title">
                     <h4 class="my-0">{{ $t('generalSettings.displayCharacteristics') }}</h4>
                   </v-list-item-title>
-                  <v-list-item-subtitle>
+                  <v-list-item-subtitle class="text-header">
                     {{ $t('generalSettings.subtitle.displayCharacteristics') }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
@@ -96,10 +96,10 @@
               </v-list-item>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
+                  <v-list-item-title class="text-title">
                     <h4 class="my-0">{{ $t('generalSettings.loginCharacteristics') }}</h4>
                   </v-list-item-title>
-                  <v-list-item-subtitle>
+                  <v-list-item-subtitle class="text-header">
                     {{ $t('generalSettings.subtitle.loginCharacteristics') }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
@@ -113,10 +113,10 @@
               </v-list-item>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
+                  <v-list-item-title class="text-title">
                     <h4 class="my-0">{{ $t('generalSettings.access') }}</h4>
                   </v-list-item-title>
-                  <v-list-item-subtitle>
+                  <v-list-item-subtitle class="text-header">
                     {{ $t('generalSettings.subtitle.access') }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
@@ -130,10 +130,10 @@
               </v-list-item>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
+                  <v-list-item-title class="text-title">
                     <h4 class="my-0">{{ $t('generalSettings.managePublicSite') }}</h4>
                   </v-list-item-title>
-                  <v-list-item-subtitle>
+                  <v-list-item-subtitle class="text-header">
                     {{ $t('generalSettings.subtitle.managePublicSite') }}
                   </v-list-item-subtitle>
                 </v-list-item-content>
