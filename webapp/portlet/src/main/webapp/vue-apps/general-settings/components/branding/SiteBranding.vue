@@ -206,6 +206,10 @@ export default {
       type: Object,
       default: null,
     },
+    customCss: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     companyName: null,
@@ -265,6 +269,7 @@ export default {
         companyName: this.companyName,
         ...this.backgroundProperties,
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
+        customCss: this.customCss,
       });
       newBranding.themeStyle.primaryColor = this.primaryColor;
       newBranding.themeStyle.secondaryColor = this.secondaryColor;
@@ -376,16 +381,16 @@ export default {
           name: 'background-image',
           value: null,
         });
-        if (this.backgroundProperties.pageBackgroundColor
+        if (this.backgroundProperties.pageBackground?.data) {
+          this.$root.$emit('refresh-body-style-property', {
+            name: 'background-image',
+            value: `url(${this.$utils.convertImageDataAsSrc(this.backgroundProperties.pageBackground?.data)})`,
+          });
+        } else if (this.backgroundProperties.pageBackgroundColor
             || (!this.backgroundProperties.pageBackground?.uploadId && !this.backgroundProperties.pageBackground?.fileId)) {
           this.$root.$emit('refresh-body-style-property', {
             name: '--allPagesBackgroundImage',
             value: 'none',
-          });
-        } else if (this.backgroundProperties.pageBackground?.data) {
-          this.$root.$emit('refresh-body-style-property', {
-            name: 'background-image',
-            value: `url(${this.$utils.convertImageDataAsSrc(this.backgroundProperties.pageBackground?.data)})`,
           });
         }
       }
@@ -419,6 +424,7 @@ export default {
         pageBackgroundPosition: this.backgroundProperties.pageBackgroundPosition || null,
         pageBackgroundColor: this.backgroundProperties.pageBackgroundColor || null,
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
+        customCss: this.customCss,
       });
 
       this.$root.loading = true;
