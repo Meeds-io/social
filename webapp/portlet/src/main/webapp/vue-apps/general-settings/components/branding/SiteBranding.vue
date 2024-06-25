@@ -206,6 +206,10 @@ export default {
       type: Object,
       default: null,
     },
+    customCss: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     companyName: null,
@@ -265,6 +269,7 @@ export default {
         companyName: this.companyName,
         ...this.backgroundProperties,
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
+        customCss: this.customCss,
       });
       newBranding.themeStyle.primaryColor = this.primaryColor;
       newBranding.themeStyle.secondaryColor = this.secondaryColor;
@@ -419,6 +424,7 @@ export default {
         pageBackgroundPosition: this.backgroundProperties.pageBackgroundPosition || null,
         pageBackgroundColor: this.backgroundProperties.pageBackgroundColor || null,
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
+        customCss: this.customCss,
       });
 
       this.$root.loading = true;

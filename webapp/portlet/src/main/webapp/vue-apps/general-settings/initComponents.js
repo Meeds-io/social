@@ -27,6 +27,7 @@ import LoginBackgroundSelector from './components/branding/form/LoginBackgroundS
 import BorderRadiusSelector from './components/branding/form/BorderRadiusSelector.vue';
 import BackgroundImageAttachment from './components/branding/form/BackgroundImageAttachment.vue';
 import BackgroundInput from './components/branding/form/BackgroundInput.vue';
+import CustomStyleInput from './components/branding/form/CustomStyleInput.vue';
 
 import SiteBranding from './components/branding/SiteBranding.vue';
 import SiteBrandingWindow from './components/branding/SiteBrandingWindow.vue';
@@ -49,6 +50,7 @@ const components = {
   'portal-general-settings-border-radius': BorderRadiusSelector,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
   'portal-general-settings-background-input': BackgroundInput,
+  'portal-general-settings-custom-style-input': CustomStyleInput,
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,
   'portal-general-settings-hub-access': HubAccess,
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
