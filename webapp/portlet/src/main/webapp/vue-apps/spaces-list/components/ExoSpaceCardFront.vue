@@ -185,17 +185,12 @@
         <a
           :href="url"
           :title="space.displayName"
-          :class="isMobile && 'text-truncate-2 mt-0' || 'text-truncate d-block'"
+          :class="isMobile && 'text-truncate-2 mt-0' || 'text-truncate-2'"
           class="spaceDisplayName">
           {{ space.displayName }}
         </a>
-        <a 
-          :href="url"
-          class="spaceMembersLabel py-0 my-0 my-sm-auto">
-          {{ $t('spacesList.label.members', {0: space.membersCount}) }}
-        </a>
       </v-card-text>
-      <v-card-actions v-if="!isMobile" class="spaceCardActions">
+      <v-list-item v-if="!isMobile" class="spaceCardActions pa-2">
         <exo-confirm-dialog
           ref="confirmDialog"
           :title="confirmTitle"
@@ -307,7 +302,7 @@
             </span>
           </v-btn>
         </div>
-      </v-card-actions>
+      </v-list-item>
     </v-card>
   </v-hover>
 </template>
