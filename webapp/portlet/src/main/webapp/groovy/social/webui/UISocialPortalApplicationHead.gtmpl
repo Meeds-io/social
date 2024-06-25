@@ -67,4 +67,5 @@
      eXo.env.portal.postToNetworkEnabled = <%=featureService.isFeatureActiveForUser("PostToNetwork", userName)%>;
      eXo.env.portal.editorAttachImageEnabled = <%=featureService.isFeatureActiveForUser("EditorAttachImage", userName)%>;
      eXo.env.portal.attachmentObjectTypes = ['<%=StringUtils.join(supportedAttachmentObjectTypes, "', '")%>'];
+     eXo.env.portal.customStylesheetEnabled = <%=featureService.isFeatureActiveForUser("customStylesheet", userName)%>;
 </script>
