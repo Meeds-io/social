@@ -134,6 +134,13 @@
       <div class="mb-0 mt-2">
         {{ $t('generalSettings.globalPlatformDesign') }}
       </div>
+      <v-switch
+        v-model="fullWindow"
+        class="mt-4 me-n2">
+        <template #label>
+          {{ $t('generalSettings.globalPageFullWindow') }}
+        </template>
+      </v-switch>
       <portal-general-settings-background-input
         v-if="backgroundProperties"
         ref="backgroundInput"
@@ -208,6 +215,8 @@ export default {
     borderRadius: null,
     errorMessage: null,
     logoUploadId: null,
+    fullWindowWidth: '100%',
+    fullWindow: null,
     faviconUploadId: null,
     originalBackgroundProperties: null,
     backgroundProperties: null,
@@ -255,6 +264,7 @@ export default {
       const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
         companyName: this.companyName,
         ...this.backgroundProperties,
+        pageWidth: this.fullWindow && this.fullWindowWidth || null,
       });
       newBranding.themeStyle.primaryColor = this.primaryColor;
       newBranding.themeStyle.secondaryColor = this.secondaryColor;
@@ -342,6 +352,7 @@ export default {
       this.logoUploadId = null;
       this.faviconUploadId = null;
       this.errorMessage = null;
+      this.fullWindow = !!this.branding?.pageWidth;
     },
     setBackgroungPropertiesPreview() {
       if (this.changed && this.originalBackgroundProperties) {
@@ -407,6 +418,7 @@ export default {
         pageBackgroundRepeat: this.backgroundProperties.pageBackgroundRepeat || null,
         pageBackgroundPosition: this.backgroundProperties.pageBackgroundPosition || null,
         pageBackgroundColor: this.backgroundProperties.pageBackgroundColor || null,
+        pageWidth: this.fullWindow && this.fullWindowWidth || null,
       });
 
       this.$root.loading = true;
