@@ -33,14 +33,14 @@
     <v-list-item-content v-if="showName || showDescription">
       <v-list-item-title
         v-if="showName && name"
-        class="text-color text-start text-wrap subtitle-1"
+        class="text-color text-start text-wrap"
         :class="showDescription && description && 'text-truncate' || 'text-truncate-2'">
         {{ name }}
       </v-list-item-title>
       <v-list-item-subtitle
         v-if="showDescription && description"
         :class="largeIcon && 'text-truncate-2' || 'text-truncate'"
-        class="text-start text-wrap subtitle-2">
+        class="text-start text-wrap">
         {{ description }}
       </v-list-item-subtitle>
     </v-list-item-content>
