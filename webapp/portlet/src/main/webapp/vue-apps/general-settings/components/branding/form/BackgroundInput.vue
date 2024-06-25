@@ -67,7 +67,8 @@
               ref="backgroundImage"
               :has-file="hasFile"
               class="my-auto ms-4"
-              @image-data-updated="setPageBackgroundData" />
+              @image-data-updated="setPageBackgroundData"
+              @reset="deletePageBackground" />
           </div>
         </v-radio-group>
       </v-list-item-content>
@@ -188,7 +189,7 @@ export default {
     enabled() {
       if (this.initialized) {
         this.branding.pageBackgroundColor = this.enabled && this.defaultBackgroundColor || null;
-        this.branding.pageBackground = null;
+        this.branding.pageBackground = {};
         this.backgroundImageStyle = null;
       }
     },
@@ -213,7 +214,11 @@ export default {
       if (this.initialized) {
         if (this.choice === 'color') {
           this.branding.pageBackgroundColor = this.defaultBackgroundColor;
-          this.branding.pageBackground = null;
+          this.branding.pageBackground = {
+            data: null,
+            fileId: 0,
+            uploadId: 0,
+          };
           this.backgroundImageUploadId = 0;
           this.backgroundImageStyle = null;
         } else if (this.choice === 'image') {
@@ -243,8 +248,16 @@ export default {
     this.$nextTick().then(() => this.initialized = true);
   },
   methods: {
+    deletePageBackground() {
+      this.branding.pageBackground = {
+        data: null,
+        fileId: 0,
+        uploadId: 0,
+      };
+    },
     setPageBackgroundData(data) {
       this.branding.pageBackground.data = data;
+      this.$emit('input', this.branding);
     },
   },
 };
