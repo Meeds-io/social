@@ -10,7 +10,7 @@
       </v-icon>
     </v-list-item-icon>
     <v-list-item-content>
-      <v-list-item-title class="subtitle-2">
+      <v-list-item-title>
         {{ label }}
       </v-list-item-title>
     </v-list-item-content>

@@ -30,7 +30,7 @@
           <a
             :href="portalPath"
             :class="'ps-2 align-self-center brandingContainer space'">
-            <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
+            <div class="logoTitle font-weight-bold text-truncate">
               {{ logoTitle }}
             </div>
           </a>

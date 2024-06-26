@@ -132,7 +132,7 @@
           <% } %>
           <a href="<%=portalPath%>" title="<%=logoTitle%>"
              class="ps-2 align-self-center brandingContainer <%=titleClass%>">
-            <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
+            <div class="logoTitle font-weight-bold text-truncate">
               <%= logoTitle%>
             </div>
           </a>

@@ -27,7 +27,7 @@ body {
   background: @welcomePagesBackground;
   color: @textColor;
   font-family: @fontFamily;
-  font-size: @fontSize;
+  font-size: @textFontSize;
   overflow: auto;
 	height: 0;
 	display: flex;
@@ -38,7 +38,7 @@ body {
 }
 
 h5 {
-    font-size: @fontSizeXlarge;
+    font-size: @textHeaderFontSize;
     font-weight: bold;
     margin: 20px 0 10px;
     padding: 0;
@@ -62,11 +62,11 @@ a {
   		border-radius: 4px 4px 0 0;
   		width: 512px;
   		line-height: 22px;
-        padding: 10px 0;
+      padding: 10px 0;
   		text-align: center;
-  		font-size: 18px;
+  		font-size: @textHeaderFontSize;
   		font-weight: bold;
-        color: #61676e;
+      color: #61676e;
 	  }
   	.content {
   		background-color: @baseBackground;
@@ -121,7 +121,7 @@ a {
         margin: auto 0;
         display: flex;
         line-height: 28px;
-        font-size: 14px;
+        font-size: @textFontSize;
       }
       input + input {
         margin-top: 8px;
@@ -152,7 +152,7 @@ a {
         padding: 0 10px 0 5px;
     }
     .desc {
-        font-size: 12px;
+        font-size: @textSubtitleFontSize;
         color: @baseColorLight;
         margin: 10px 0 15px;
     }

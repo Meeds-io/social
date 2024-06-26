@@ -36,7 +36,7 @@
             avatar />
           <v-btn
             v-if="userCanPost"
-            class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto subtitle-2"
+            class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto"
             text
             @click="openComposerDrawer(true)">
             <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>

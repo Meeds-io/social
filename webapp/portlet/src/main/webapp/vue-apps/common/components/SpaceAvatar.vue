@@ -24,7 +24,7 @@
         :class="subtitleNewLineClass"
         class="pull-left text-truncate ms-2">
         <p
-          class="text-truncate subtitle-2 my-auto hidden-space">
+          class="text-truncate my-auto hidden-space">
           {{ $t('spacesList.label.hiddenSpace') }}
         </p>
       </div>
@@ -64,7 +64,7 @@
         <p
           v-if="displayName"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 my-auto">
+          class="text-truncate my-auto">
           {{ displayName }}
         </p>
         <p v-if="$slots.subTitle" class="text-sub-title my-auto">
@@ -100,7 +100,7 @@
         <p
           v-if="displayName"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 my-auto">
+          class="text-truncate my-auto">
           {{ displayName }}
         </p>
         <p v-if="$slots.subTitle" class="text-sub-title my-auto">

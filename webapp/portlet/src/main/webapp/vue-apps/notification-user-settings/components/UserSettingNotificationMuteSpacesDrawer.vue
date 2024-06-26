@@ -70,7 +70,7 @@
                 role="presentation" />
             </v-list-item-avatar>
             <v-list-item-content class="pa-0">
-              <v-list-item-title class="subtitle-2">
+              <v-list-item-title>
                 {{ space.displayName }}
               </v-list-item-title>
               <v-list-item-subtitle

@@ -40,12 +40,12 @@
                 mandatory>
                 <v-radio value="yourNetwork">
                   <template #label>
-                    <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.yourNetwork') }}</span>
+                    <span class="ms-1"> {{ $t('activity.composer.content.yourNetwork') }}</span>
                   </template>
                 </v-radio>
                 <v-radio value="oneOfYourSpaces">
                   <template #label>
-                    <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.oneOfYourSpaces') }}</span>
+                    <span class="ms-1"> {{ $t('activity.composer.content.oneOfYourSpaces') }}</span>
                   </template>
                 </v-radio>
               </v-radio-group>

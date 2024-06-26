@@ -39,14 +39,14 @@
       <span
         v-if="userFullname"
         :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-        class="text-truncate subtitle-2 my-auto">
+        class="text-truncate my-auto">
         {{ userFullname }}
         <span
           v-if="!enabled"
           :title="$t('label.disabled')"
           class="muted font-weight-regular">
           <v-icon
-            class="primary--text mb-1 subtitle-2">
+            class="primary--text mb-1">
             fas fa-user-slash
           </v-icon>
         </span>
@@ -81,14 +81,14 @@
         <p
           v-if="userFullname"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 text-left mb-0">
+          class="text-truncate ext-left mb-0">
           {{ userFullname }}
           <span
             v-if="!enabled"
             :title="$t('label.disabled')"
             class="muted font-weight-regular">
             <v-icon
-              class="primary--text mb-1 subtitle-2">
+              class="primary--text mb-1">
               fas fa-user-slash
             </v-icon>
           </span>
@@ -142,14 +142,14 @@
       <span
         v-if="userFullname"
         :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-        class="text-truncate subtitle-2 my-auto">
+        class="text-truncate my-auto">
         {{ userFullname }}
         <span
           v-if="!enabled"
           :title="$t('label.disabled')"
           class="muted font-weight-regular">
           <v-icon
-            class="primary--text mb-1 subtitle-2">
+            class="primary--text mb-1">
             fas fa-user-slash
           </v-icon>
         </span>
@@ -184,14 +184,14 @@
         <p
           v-if="userFullname"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 text-left mb-0">
+          class="text-truncate text-left mb-0">
           {{ userFullname }}
           <span
             v-if="!enabled"
             :title="$t('label.disabled')"
             class="muted font-weight-regular">
             <v-icon
-              class="primary--text mb-1 subtitle-2">
+              class="primary--text mb-1">
               fas fa-user-slash
             </v-icon>
           </span>

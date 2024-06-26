@@ -45,7 +45,7 @@
       <v-card-title :title="site?.displayName" class="text-capitalize font-weight-bold text-subtitle-1">
         {{ site?.displayName }}
       </v-card-title>
-      <v-card-subtitle v-sanitized-html="site?.description" class="text-subtitle-2 py-2 text-color rich-editor-content" />
+      <v-card-subtitle v-sanitized-html="site?.description" class="py-2 text-color rich-editor-content" />
       <site-navigation-tree
         v-if="site?.siteNavigations?.length"
         :navigations="site.siteNavigations"

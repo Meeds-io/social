@@ -52,7 +52,6 @@
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title
-                class="subtitle-2"
                 v-text="nav.label" />
             </v-list-item-content>
             <v-list-item-action class="my-auto">
