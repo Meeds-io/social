@@ -56,6 +56,7 @@
     :href="spaceLink"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
+    :title="spaceDisplayName"
     class="px-2 spaceItem"
     role="link"
     @mouseover="showItemActions = true"
