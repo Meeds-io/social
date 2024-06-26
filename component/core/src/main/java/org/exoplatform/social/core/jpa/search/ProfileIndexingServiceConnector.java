@@ -250,7 +250,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     Date createdDate = new Date(profile.getCreatedTime());
 
     for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
-      if (profilePropertySetting.isVisible() && profilePropertySetting.isEditable() && !fields.containsKey(profilePropertySetting.getPropertyName())) {
+      if (profilePropertySetting.isVisible() && !fields.containsKey(profilePropertySetting.getPropertyName())) {
         // Avoid indexing invisible and not editable properties
         if (profile.getProperty(profilePropertySetting.getPropertyName()) != null && profile.getProperty(profilePropertySetting.getPropertyName()) instanceof String value) {
           if (StringUtils.isNotEmpty(value)) {
