@@ -30,7 +30,7 @@
     </div>
     <div
       v-else-if="hasValues"
-      class="px-3 my-auto">
+      class="px-4 my-auto">
       <p
         v-if="showMessage"
         class="text-color subtitle-1">
