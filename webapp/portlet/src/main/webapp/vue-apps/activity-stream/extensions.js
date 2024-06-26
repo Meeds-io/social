@@ -150,7 +150,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   id: 'pin',
   rank: 10,
   labelKey: 'UIActivity.label.pin',
-  icon: 'mdi-pin',
+  icon: 'fa-thumbtack',
   isEnabled: (activity, activityTypeExtension) => {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;
@@ -169,7 +169,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   id: 'unpin',
   rank: 10,
   labelKey: 'UIActivity.label.unpin',
-  icon: 'mdi-pin-off',
+  icon: 'fa-thumbtack',
   isEnabled: (activity, activityTypeExtension) => {
     if (activityTypeExtension.canPin && !activityTypeExtension.canPin(activity)) {
       return false;

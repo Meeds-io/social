@@ -11,12 +11,12 @@
     </v-list-item-avatar>
     <v-list-item-content class="pb-3">
       <v-list-item-title
-        class="body-2 font-weight-bold suggestions-list-item-title">
+        class="suggestions-list-item-title">
         <a :href="url" class="text-color">
           {{ space.displayName }}
         </a>
       </v-list-item-title>
-      <v-list-item-subtitle class="caption text-sub-title suggestions-list-item-subtitle">
+      <v-list-item-subtitle class="suggestions-list-item-subtitle">
         {{ space.members }} {{ $t('spacemember.Label') }}
       </v-list-item-subtitle>
     </v-list-item-content>

@@ -11,7 +11,7 @@
           class="pb-1 pe-2 yellow--text text--darken-2">
           fas fa-star
         </v-icon>
-        <span class="subtitle-1">{{ $t('search.connector.label.favorites') }}</span>
+        <span class="text-header">{{ $t('search.connector.label.favorites') }}</span>
       </v-chip>
       <search-tag-selector @tags-changed="selectTags" />
       <v-menu
@@ -25,7 +25,7 @@
           <v-chip
             :outlined="!allEnabled"
             :color="allEnabled ? 'primary' : ''"
-            class="border-color mx-1 subtitle-1"
+            class="border-color mx-1"
             v-bind="attrs"
             v-on="on">
             <span class="me-8">{{ $t('search.connector.label.all') }}</span>
@@ -41,7 +41,7 @@
                 readonly
                 dense
                 class="ma-0" />
-              <span class="subtitle-1">{{ $t('search.connector.label.all') }}</span>
+              <span>{{ $t('search.connector.label.all') }}</span>
             </v-list-item-title>
           </v-list-item>
           <v-list-item
@@ -56,7 +56,7 @@
                 :ripple="false"
                 dense
                 class="ma-0" />
-              <span class="subtitle-1">{{ connector.label }}</span>
+              <span>{{ connector.label }}</span>
             </v-list-item-title>
           </v-list-item>
         </v-list>
@@ -67,7 +67,7 @@
           :key="connector.name"
           color="primary"
           class="mx-1 border-color">
-          <span class="text-capitalize-first-letter subtitle-1">{{ connector.label }}</span>
+          <span class="text-capitalize-first-letter">{{ connector.label }}</span>
           <v-icon
             size="10"
             class="ms-2"
@@ -91,10 +91,10 @@
       </v-col>
     </v-row>
     <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
-      <div class="d-flex flex-column ma-auto text-center text-sub-title">
+      <div class="d-flex flex-column ma-auto text-center text-subtitle">
         <div class="position-relative">
-          <i class="uiIconSearchLight text-sub-title my-auto position-relative">
-            <i class="uiIconCloseLight text-sub-title"></i>
+          <i class="uiIconSearchLight icon-default-color my-auto position-relative">
+            <i class="uiIconCloseLight icon-default-color"></i>
           </i>
         </div>
         <span class="headline">{{ $t('Search.noResults') }}</span>

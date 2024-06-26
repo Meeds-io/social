@@ -13,7 +13,7 @@
           {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
         </v-icon>
       </v-btn>
-      <v-toolbar-title class="ps-0">
+      <v-toolbar-title class="ps-0 text-title">
         {{ $t('UserSettings.security') }}
       </v-toolbar-title>
       <v-spacer />
@@ -30,7 +30,7 @@
         class="hidden">
 
       <v-card flat>
-        <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pt-0 pb-2">
+        <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left pt-0 px-0 text-header">
           {{ $t('UserSettings.label.currentPassword') }}*
         </v-card-text>
         <v-card-text class="d-flex pa-0">
@@ -42,7 +42,7 @@
             class="ignore-vuetify-classes flex-grow-1"
             required>
         </v-card-text>
-        <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left px-0 text-header">
           {{ $t('UserSettings.label.newPassword') }}*
         </v-card-text>
         <v-card-text class="d-flex pa-0">
@@ -54,7 +54,7 @@
             class="ignore-vuetify-classes flex-grow-1"
             required>
         </v-card-text>
-        <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left px-0 text-header">
           {{ $t('UserSettings.label.confirmNewPassword') }}*
         </v-card-text>
         <v-card-text class="d-flex pa-0">
@@ -67,7 +67,7 @@
             required>
         </v-card-text>
 
-        <v-card-actions class="my-6">
+        <v-card-actions class="my-6 pa-0">
           <v-spacer />
           <v-btn
             :disabled="saving"

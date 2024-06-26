@@ -41,13 +41,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="me-2 spacesOverviewCheck"
+          class="me-2 spacesOverviewCheck success-color-background"
           fab
           dark
           depressed
           @click="acceptUserRequest">
-          <v-icon dark>
-            mdi-check
+          <v-icon size="18" dark>
+            fa-check
           </v-icon>
         </v-btn>
         <v-btn
@@ -55,13 +55,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="spacesOverviewClose"
+          class="spacesOverviewClose error-color-background"
           fab
           dark
           depressed
           @click="refuseUserRequest">
-          <v-icon dark>
-            mdi-close
+          <v-icon size="18" dark>
+            fa-times
           </v-icon>
         </v-btn>
       </template>
@@ -71,13 +71,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="me-2 spacesOverviewCheck"
+          class="me-2 spacesOverviewCheck success-color-background"
           fab
           dark
           depressed
           @click="acceptToJoin">
-          <v-icon dark>
-            mdi-check
+          <v-icon size="18" dark>
+            fa-check
           </v-icon>
         </v-btn>
         <v-btn
@@ -85,13 +85,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="spacesOverviewClose"
+          class="spacesOverviewClose error-color-background"
           fab
           dark
           depressed
           @click="refuseToJoin">
-          <v-icon dark>
-            mdi-close
+          <v-icon size="18" dark>
+            fa-times
           </v-icon>
         </v-btn>
       </template>
@@ -116,13 +116,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="spacesOverviewClose"
+          class="spacesOverviewClose error-color-background"
           fab
           dark
           depressed
           @click="cancelRequest">
-          <v-icon dark>
-            mdi-close
+          <v-icon size="18" dark>
+            fa-times
           </v-icon>
         </v-btn>
       </template>

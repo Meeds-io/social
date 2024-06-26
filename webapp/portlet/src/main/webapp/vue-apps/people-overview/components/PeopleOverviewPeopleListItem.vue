@@ -39,13 +39,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="me-2 peopleOverviewCheck"
+          class="me-2 success-color-background peopleOverviewCheck"
           fab
           dark
           depressed
           @click="acceptToConnect">
-          <v-icon dark>
-            mdi-check
+          <v-icon size="18" dark>
+            fa-check
           </v-icon>
         </v-btn>
         <v-btn
@@ -53,13 +53,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="peopleOverviewClose"
+          class="error-color-background peopleOverviewClose"
           fab
           dark
           depressed
           @click="refuseToConnect">
-          <v-icon dark>
-            mdi-close
+          <v-icon size="18" dark>
+            fa-times
           </v-icon>
         </v-btn>
       </template>
@@ -69,13 +69,13 @@
           :height="actionIconSize"
           :loading="sendingAction"
           :disabled="sendingAction"
-          class="peopleOverviewClose"
+          class="error-color-background peopleOverviewClose"
           fab
           dark
           depressed
           @click="cancelRequest">
-          <v-icon dark>
-            mdi-close
+          <v-icon size="18" dark>
+            fa-times
           </v-icon>
         </v-btn>
       </template>

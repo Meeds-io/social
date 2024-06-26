@@ -27,7 +27,7 @@
           avatar />
         <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
           <div class="px-2 py-1 flex-grow-1 activity-comment-background border-box-sizing rounded-lg">
-            <v-list-item-title class="pt-1 font-weight-bold subtitle-2 d-flex justify-space-between">
+            <v-list-item-title class="pt-1 font-weight-bold d-flex justify-space-between">
               <exo-user-avatar
                 :identity="posterIdentity"
                 fullname
@@ -67,7 +67,7 @@
           </div>
           <div v-if="hasMoreRepliesToDisplay" class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
             <v-btn
-              class="primary--text font-weight-bold mb-1 subtitle-2 pa-0"
+              class="primary--text font-weight-bold mb-1 pa-0"
               small
               link
               text

@@ -40,7 +40,7 @@
           <div v-if="displayPlaceholder" class="d-flex align-center justify-center mx-lg-6">
             <v-icon size="24" class="tertiary--text me-3">fas fa-user-cog</v-icon>
             <div class="d-flex flex-column">
-              <span class="subtitle-1 text-color text-left">{{ $t('spacesOverview.label.emptyMessage') }}</span>
+              <span class="text-left">{{ $t('spacesOverview.label.emptyMessage') }}</span>
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@
             {{ $t('peopleList.button.inviteUsers') }}
           </span>
         </v-btn>
-        <div class="showingPeopleText text-sub-title d-none my-auto d-sm-flex">
+        <div class="showingPeopleText text-subtitle d-none my-auto d-sm-flex">
           {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
         </div>
       </div>

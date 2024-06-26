@@ -32,7 +32,7 @@
             v-on="on">
             <v-icon
               :size="isMobile ? 14 : 18"
-              class="clickable text-sub-title button-settings-action"
+              class="clickable icon-default-color button-settings-action"
               @click="displayActionMenu()">
               mdi-dots-vertical
             </v-icon>

@@ -9,7 +9,7 @@
         <v-icon size="22" class="tertiary--text me-2">{{ icon }}</v-icon>
         <span class="text-h5 font-weight-bold text-color">{{ count }}</span>
       </div>
-      <div class="peopleOverviewTitle text-center text-truncate subtitle-1 pt-3 text-color d-none d-md-block">
+      <div class="peopleOverviewTitle text-center text-truncate pt-3 text-body d-none d-md-block">
         {{ title }}
       </div>
     </div>

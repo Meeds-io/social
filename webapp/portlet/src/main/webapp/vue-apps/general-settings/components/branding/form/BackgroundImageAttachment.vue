@@ -21,9 +21,7 @@
 -->
 <template>
   <div class="d-flex">
-    <div class="text-subtitle-1">
-      <slot name="title"></slot>
-    </div>
+    <slot name="title"></slot>
     <v-spacer />
     <v-tooltip :disabled="disableTooltip" bottom>
       <template #activator="{on, attrs}">

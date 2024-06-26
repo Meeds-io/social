@@ -18,7 +18,7 @@
         popover
         avatar />
       <v-list-item-content class="py-0 accountTitleLabel">
-        <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
+        <v-list-item-title class="d-flex align-center mb-0">
           <exo-user-avatar
             :identity="posterIdentity"
             fullname

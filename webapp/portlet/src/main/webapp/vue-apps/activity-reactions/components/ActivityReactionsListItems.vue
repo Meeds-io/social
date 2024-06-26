@@ -4,7 +4,7 @@
       <v-img :src="avatar" class="likerAvatar" />
     </v-list-item-avatar>
     <v-list-item-content class="pb-3">
-      <v-list-item-title class="body-2 font-weight-bold text-color">
+      <v-list-item-title>
         <a
           :id="cmpId"
           :href="profileUrl"
