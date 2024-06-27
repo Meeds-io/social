@@ -21,7 +21,7 @@
       :size="42"
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel ms-2">
-      <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
+      <v-list-item-title class="font-weight-bold d-flex mb-0">
         <exo-user-avatar
           :identity="posterIdentity"
           extra-class="me-5 text-truncate"
@@ -52,7 +52,7 @@
       extra-class="ms-n4 mt-6"
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel text-truncate">
-      <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
+      <v-list-item-title class="font-weight-bold d-flex mb-0">
         <exo-space-avatar
           :space="space"
           extra-class="text-truncate"

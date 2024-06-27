@@ -49,7 +49,7 @@
             class="mailBadge"
             offset-x="8"
             offset-y="12">
-            <span slot="badge"><v-icon class="successColor mt-n1 me-0" size="14">mdi-check-circle</v-icon></span>
+            <span slot="badge"><v-icon class="successColor mt-n1 me-0" size="16">mdi-check-circle</v-icon></span>
             <v-icon size="22" color="primary">mdi-email</v-icon>
           </v-badge>
         </div>
@@ -64,7 +64,7 @@
             class="mailBadge"
             offset-x="15"
             offset-y="19">
-            <span slot="badge"><v-icon class="errorColor mt-n1 me-0" size="14">mdi-help-circle</v-icon></span>
+            <span slot="badge"><v-icon class="errorColor mt-n1 me-0" size="16">mdi-help-circle</v-icon></span>
             <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
           </v-badge>
         </div>

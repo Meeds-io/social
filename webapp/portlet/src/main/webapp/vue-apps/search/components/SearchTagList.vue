@@ -14,7 +14,7 @@
         class="border-color mx-1"
         v-bind="attrs"
         v-on="on">
-        <span class="subtitle-1"><span class="text-sub-title">#</span> {{ $t('Tag.search.button') }}</span>
+        <span><span class="text-header">#</span> {{ $t('Tag.search.button') }}</span>
       </v-chip>
     </template>
     <v-card>
@@ -24,7 +24,7 @@
         :placeholder="$t('Tag.search.placeholder')"
         class="px-4" />
       <div class="pa-3">
-        <span v-if="!searching" class="text-sm-body-2 font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
+        <span v-if="!searching" class="font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
           v-model="value"
           active-class="primary--text"

@@ -105,7 +105,7 @@
           <v-list-item-content class="py-0 pe-5 text-color">
             <v-list-item-title
               v-sanitized-html="message"
-              class="subtitle-2 text-wrap text-truncate-2" />
+              class="text-wrap text-truncate-2" />
             <v-list-item-subtitle class="d-flex flex-column justify-center">
               <div
                 :class="actionsClass"

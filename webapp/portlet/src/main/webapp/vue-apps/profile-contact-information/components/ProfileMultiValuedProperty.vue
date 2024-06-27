@@ -67,19 +67,19 @@
                 {{ $t('profileContactInformation.property.hidden.label') }}
               </span>
               <v-icon
-                class="icon-default-color me-2 text-subtitle-2">
+                class="icon-default-color me-2">
                 fas fa-eye-slash
               </v-icon>
             </div>
             <span
               v-if="childProperty.propertyName"
-              class="pe-1 font-weight-regular text-subtitle-2 text-capitalize">
+              class="pe-1 font-weight-regular text-capitalize">
               {{ getResolvedName(childProperty) }}:
             </span>
             <v-btn
               v-if="searchable"
               v-autolinker="childProperty.value"
-              class="primary--text font-weight-regular text-subtitle-2 pa-0 ma-auto"
+              class="primary--text font-weight-regular pa-0 ma-auto"
               min-width="auto"
               text
               @click="quickSearch(childProperty)" />

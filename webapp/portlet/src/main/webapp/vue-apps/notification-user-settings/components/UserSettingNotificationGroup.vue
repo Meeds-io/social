@@ -2,7 +2,7 @@
   <div v-if="manageNotification && isEnabledNotificationGroup" class="border-radius border-color ma-4">
     <v-list-item dense>
       <v-list-item-content>
-        <v-list-item-title class="text-color font-weight-bold subtitle-1">
+        <v-list-item-title class="text-header">
           {{ label }}
         </v-list-item-title>
       </v-list-item-content>

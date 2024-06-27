@@ -7,7 +7,7 @@
       width="500"
       @click:outside="dialog = false">
       <v-card class="pb-4">
-        <v-card-title class="text-h5 font-weight-bold dark-grey-color pb-6">
+        <v-card-title class="text-title pb-6">
           {{ $t('changes.reminder.WhatNew') }}
           <v-spacer />
           <v-tooltip bottom>
@@ -29,7 +29,7 @@
           </v-tooltip>
         </v-card-title>
         <v-card-text><img :src="reminder.img" alt=""></v-card-text>
-        <v-card-text class="text-subtitle-1 font-weight-bold dark-grey-color">{{ reminder.title }}</v-card-text>
+        <v-card-text class="text-header">{{ reminder.title }}</v-card-text>
         <v-card-text v-if="$slots.default">
           <slot></slot>
         </v-card-text>
@@ -41,7 +41,7 @@
           <v-btn
             :loading="loading"
             text
-            class="primary--text text-subtitle-1 font-weight-bold"
+            class="primary--text"
             @click="doNotRemindMe">
             {{ $t('changes.reminder.doNotRemind') }}
           </v-btn>

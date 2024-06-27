@@ -9,7 +9,7 @@
         primary
         absolute
         @click="displayNewActivities">
-        <v-icon size="14px" class="me-1">fa-arrow-up</v-icon>
+        <v-icon size="16px" class="me-1">fa-arrow-up</v-icon>
         <span>{{ $t('activity.button.newPosts') }}</span>
       </v-btn>
     </div>

@@ -21,7 +21,7 @@
     </v-list-item-icon>
 
     <v-list-item-content>
-      <v-list-item-title class="text-color body-2">
+      <v-list-item-title>
         <p
           class="ma-auto text-truncate"
           v-sanitized-html="activityTitle"></p>

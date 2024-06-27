@@ -22,26 +22,18 @@
 @import "../../mixins.less";
 
 .spaceMenuParent {
-  height: 56px;
+  height: 57px;
 
   .v-slide-group__wrapper {
     height: 57px;
-
-    .v-tab:not(.v-tab--active) {
-      color: @textColor !important;
-    }
   }
 
   .v-slide-group__prev--disabled, .v-slide-group__next--disabled {
     display: none !important;
   }
 
-  .spaceNavigationTab {
-    font-size: 12px !important;
-  }
-
   .v-tabs-bar {
-    min-height: 56px;
+    min-height: 57px;
   }
 }
 .hide-scroll .spaceButtomNavigation {
@@ -80,10 +72,10 @@
       }
 
       &.v-btn--active{
-        color: @tertiaryColor;
+        color: @secondaryColor;
 
         i {
-          color: @tertiaryColor;
+          color: @secondaryColor;
         }
       }
     }

@@ -29,7 +29,7 @@
             :href="productLink"
             :aria-label="$t('menu.productName.seeProduct')"
             target="_blank"
-            class="body-2 text-sub-title my-auto"
+            class="text-body font-weight-bold my-auto"
             role="link"
             v-bind="attrs"
             v-on="on">

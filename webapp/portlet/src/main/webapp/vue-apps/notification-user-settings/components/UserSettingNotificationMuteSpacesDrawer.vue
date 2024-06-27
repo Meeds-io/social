@@ -30,7 +30,7 @@
     </template>
     <template #content>
       <v-flex class="pa-4">
-        <span class="subtitle-1">
+        <span>
           {{ $t('UserSettings.drawer.description.muteSpacesNotifications') }}
         </span>
         <exo-identity-suggester
@@ -44,7 +44,7 @@
           name="spacesSuggester"
           class="user-suggester mt-n2"
           include-spaces />
-        <span class="subtitle-1">
+        <span class="text-header">
           {{ $t('UserSettings.drawer.label.mutedSpaces') }}
         </span>
         <v-hover
@@ -70,7 +70,7 @@
                 role="presentation" />
             </v-list-item-avatar>
             <v-list-item-content class="pa-0">
-              <v-list-item-title class="subtitle-2">
+              <v-list-item-title>
                 {{ space.displayName }}
               </v-list-item-title>
               <v-list-item-subtitle
