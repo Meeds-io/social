@@ -57,7 +57,7 @@
                         <i class="UICheckIcon white--text"></i>
                       </div>
                       <div class="v-list-item__content pb-3">
-                        <div class="v-list-item__title body-2">
+                        <div class="v-list-item__title">
                           <span><%=stepTitle%> </span>
                         </div>
                       </div>
@@ -70,7 +70,7 @@
                           class="step-number font-weight-bold text-center white--text"><span><%=i + 1%></span></span>
                       </div>
                       <div class="v-list-item__content pb-3 inactiveStep">
-                        <div class="v-list-item__title body-2">
+                        <div class="v-list-item__title">
                           <span><%=stepTitle%> </span>
                         </div>
                       </div>

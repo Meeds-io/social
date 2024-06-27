@@ -33,7 +33,7 @@
               @mouseover="showAvatarAnimation = true"
               @mouseleave="showAvatarAnimation = false">
               <span
-                class="position-absolute subtitle-2 white--text font-weight-bold z-index-one text-center">
+                class="position-absolute white--text font-weight-bold z-index-one text-center">
                 +{{ showMoreLikersNumber }}
               </span>
             </div>

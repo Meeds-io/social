@@ -1,6 +1,6 @@
 <template>
   <v-timeline-item
-    color="tertiary"
+    color="secondary"
     class="workExperienceTimeLineItem">
     <v-row class="ma-0">
       <v-col
@@ -13,10 +13,10 @@
         <div>
           {{ experience.company }}
         </div>
-        <div v-if="displayedFromDate" class="workExperienceTimeLineItemTime text-sub-title">
+        <div v-if="displayedFromDate" class="workExperienceTimeLineItemTime text-subtitle">
           {{ displayedFromDate }}
         </div>
-        <div v-if="displayedToDate" class="workExperienceTimeLineItemTime text-sub-title">
+        <div v-if="displayedToDate" class="workExperienceTimeLineItemTime text-subtitle">
           {{ displayedToDate }}
         </div>
       </v-col>

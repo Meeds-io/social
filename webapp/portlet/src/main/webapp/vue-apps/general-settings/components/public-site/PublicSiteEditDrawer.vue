@@ -30,7 +30,7 @@
     </template>
     <template #content>
       <v-card class="pa-4" flat>
-        <div class="text-color text-subtitle-1">
+        <div class="text-header">
           {{ $t('generalSettings.enablePublicSiteDescription') }}
         </div>
         <v-list-item class="px-0" two-line>

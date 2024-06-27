@@ -39,7 +39,7 @@
     </v-flex>
     <v-list-item v-else dense>
       <v-list-item-content class="pa-0">
-        <v-list-item-subtitle class="text-sub-title font-italic">
+        <v-list-item-subtitle>
           {{ $t('UINotification.label.NoNotifications') }}
         </v-list-item-subtitle>
       </v-list-item-content>

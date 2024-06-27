@@ -12,10 +12,10 @@
     </template>
     <template v-if="drawer" #content>
       <v-form ref="form" class="pa-4">
-        <div class="subtitle-1 pb-8">
+        <div class="pb-8">
           {{ $t('NotificationAdmin.sender.drawer.message') }}
         </div>
-        <div class="subtitle-1">
+        <div>
           {{ $t('NotificationAdmin.sender.drawer.name') }}
         </div>
         <v-text-field
@@ -30,7 +30,7 @@
           autocomplete="off"
           outlined
           dense />
-        <div class="subtitle-1">
+        <div>
           {{ $t('NotificationAdmin.sender.drawer.address') }}
         </div>
         <v-text-field

@@ -38,21 +38,21 @@
       @click="clickable && $emit('avatar-click', $event)">
       <span
         v-if="userFullname"
-        :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-        class="text-truncate subtitle-2 my-auto">
+        :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+        class="text-truncate my-auto">
         {{ userFullname }}
         <span
           v-if="!enabled"
           :title="$t('label.disabled')"
           class="muted font-weight-regular">
           <v-icon
-            class="primary--text mb-1 subtitle-2">
+            class="primary--text mb-1">
             fas fa-user-slash
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
       </span>
-      <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
+      <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
     </component>
@@ -80,21 +80,21 @@
       <div v-if="userFullname || $slots.subTitle" class="ms-2 my-auto overflow-hidden">
         <p
           v-if="userFullname"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 text-left mb-0">
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+          class="text-truncate text-left mb-0">
           {{ userFullname }}
           <span
             v-if="!enabled"
             :title="$t('label.disabled')"
             class="muted font-weight-regular">
             <v-icon
-              class="primary--text mb-1 subtitle-2">
+              class="primary--text mb-1">
               fas fa-user-slash
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
         </p>
-        <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
+        <p v-if="$slots.subTitle" class="text-subtitle  text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
         </p>
       </div>
@@ -141,21 +141,21 @@
       @click="clickable && $emit('avatar-click', $event)">
       <span
         v-if="userFullname"
-        :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-        class="text-truncate subtitle-2 my-auto">
+        :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+        class="text-truncate my-auto">
         {{ userFullname }}
         <span
           v-if="!enabled"
           :title="$t('label.disabled')"
           class="muted font-weight-regular">
           <v-icon
-            class="primary--text mb-1 subtitle-2">
+            class="primary--text mb-1">
             fas fa-user-slash
           </v-icon>
         </span>
         <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
       </span>
-      <span v-if="$slots.subTitle" class="text-sub-title text-truncate my-auto text-left">
+      <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
     </component>
@@ -183,21 +183,21 @@
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
           v-if="userFullname"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate subtitle-2 text-left mb-0">
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+          class="text-truncate text-left mb-0">
           {{ userFullname }}
           <span
             v-if="!enabled"
             :title="$t('label.disabled')"
             class="muted font-weight-regular">
             <v-icon
-              class="primary--text mb-1 subtitle-2">
+              class="primary--text mb-1">
               fas fa-user-slash
             </v-icon>
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
         </p>
-        <p v-if="$slots.subTitle" class="text-sub-title  text-truncate text-left mb-0">
+        <p v-if="$slots.subTitle" class="text-subtitle  text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
         </p>
       </div>
@@ -246,6 +246,10 @@ export default {
       default: () => false,
     },
     linkStyle: {
+      type: Boolean,
+      default: () => false,
+    },
+    textStyle: {
       type: Boolean,
       default: () => false,
     },

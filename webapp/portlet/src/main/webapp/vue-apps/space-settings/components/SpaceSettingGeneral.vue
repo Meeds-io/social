@@ -4,7 +4,7 @@
       <v-list two-line class="transparent">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="title text-color">
+            <v-list-item-title class="text-title">
               {{ $t('SpaceSettings.general') }}
             </v-list-item-title>
           </v-list-item-content>

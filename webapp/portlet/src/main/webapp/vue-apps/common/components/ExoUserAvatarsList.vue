@@ -56,7 +56,7 @@
         :size="iconSize"
         :class="{ 'border-white content-box-sizing ': compact }"
         class="notDisplayedIdentitiesOverlay">
-        <div class="notDisplayedIdentities d-flex align-center justify-center subtitle-2 white--text font-weight-bold z-index-one text-center">
+        <div class="notDisplayedIdentities d-flex align-center justify-center white--text font-weight-bold z-index-one text-center">
           +{{ showMoreAvatarsNumber }}
         </div>
       </v-avatar>

@@ -37,7 +37,7 @@
         :hide-right-filter-button="true"
         :compact="true"
         :filter-message="filterMessage"
-        filter-message-class="position-absolute filter-message subtitle-1 text-color ps-1"
+        filter-message-class="position-absolute filter-message ps-1"
         class="transparent"
         @keyword-changed="keyword = $event" />
       <complementary-filter

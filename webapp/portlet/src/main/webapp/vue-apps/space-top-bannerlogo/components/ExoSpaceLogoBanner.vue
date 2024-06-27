@@ -30,7 +30,7 @@
           <a
             :href="portalPath"
             :class="'ps-2 align-self-center brandingContainer space'">
-            <div class="logoTitle subtitle-2 font-weight-bold text-truncate">
+            <div class="logoTitle text-body menu-text-color font-weight-bold text-truncate">
               {{ logoTitle }}
             </div>
           </a>
@@ -76,7 +76,7 @@
                 <v-row no-gutters class="align-center">
                   <v-col
                     cols="6"
-                    class="body-2 grey--text text-truncate text--darken-1 text-left">
+                    class="text-truncate text-left">
                     {{ $t('space.logo.banner.popover.managers') }}
                   </v-col>
                   <v-col

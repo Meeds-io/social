@@ -52,8 +52,8 @@
             </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title
-                class="subtitle-2"
-                v-text="nav.label" />
+                v-text="nav.label"
+                class="menu-text-color" />
             </v-list-item-content>
             <v-list-item-action class="my-auto">
               <v-tooltip bottom>

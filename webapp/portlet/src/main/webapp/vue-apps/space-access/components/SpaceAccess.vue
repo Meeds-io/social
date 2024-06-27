@@ -28,11 +28,11 @@
       </v-card-text>
       <v-card-text
         v-if="firstLabel"
-        class="text-h5 text-color"
+        class="text-color"
         v-sanitized-html="firstLabel" />
       <v-card-text
         v-if="secondLabel"
-        class="text-h5 text-sub-title"
+        class="text-subtitle"
         v-sanitized-html="secondLabel" />
       <v-card-actions class="justify-center py-5">
         <template v-if="spaceAccessTypeLabel === 'INVITED_SPACE'">

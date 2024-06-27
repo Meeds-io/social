@@ -29,6 +29,7 @@
       <v-tabs
         class="navigation-mobile-menu"
         v-model="tab"
+        color="none"
         optional
         height="56"
         slider-size="4">
@@ -43,6 +44,7 @@
     <v-tabs
       v-else
       v-model="tab"
+      color="none"
       show-arrows
       center-active
       optional

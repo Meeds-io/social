@@ -6,7 +6,7 @@
       :key="selectedTag"
       color="primary"
       class="border-color mx-1">
-      <span class="subtitle-1">#{{ selectedTag }}</span>
+      <span class="text-header">#{{ selectedTag }}</span>
       <v-icon
         size="10"
         class="ms-2"

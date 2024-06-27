@@ -20,10 +20,10 @@
 -->
 <template>
   <v-card flat>
-    <v-card-title class="primary--text text-break title px-0">
+    <v-card-title class="primary--text text-break text-header px-0">
       {{ $t('onboarding.summary1') }}
     </v-card-title>
-    <v-card-title class="primary--text text-break title pa-0">
+    <v-card-title class="primary--text text-break text-header pa-0">
       {{ $t('onboarding.summary2') }}
     </v-card-title>
 
@@ -37,7 +37,7 @@
         name="action"
         value="resetPassword">
       <div>
-        <v-card-title class="px-0 mt-4 text-break title font-weight-bold">
+        <v-card-title class="px-0 mt-4 text-break text-header">
           {{ $t('onboarding.yourPasswordTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
@@ -64,7 +64,7 @@
               :title="$t('onboarding.NewPassword')"
               :placeholder="$t('onboarding.NewPassword')"
               :type="passwordType"
-              :append-icon="showPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"
+              :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
               prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
               class="login-password border-box-sizing"
               name="password"
@@ -84,7 +84,7 @@
               :title="$t('onboarding.ConfirmNewPassword')"
               :placeholder="$t('onboarding.ConfirmNewPassword')"
               :type="passwordConfirmType"
-              :append-icon="showConfirmPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"
+              :append-icon="showConfirmPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
               prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
               class="login-password border-box-sizing pt-2"
               name="password2"
