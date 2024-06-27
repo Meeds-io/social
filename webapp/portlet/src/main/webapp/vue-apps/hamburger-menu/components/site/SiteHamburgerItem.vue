@@ -30,8 +30,8 @@
     </v-list-item-icon>
     <v-list-item-content>
       <v-list-item-title
-        class="subtitle-2"
-        v-text="site.displayName" />
+        v-text="site.displayName"
+        class="menu-text-color" />
     </v-list-item-content>
   </v-list-item>
   <v-list-item
@@ -48,8 +48,8 @@
     </v-list-item-icon>
     <v-list-item-content>
       <v-list-item-title
-        class="subtitle-2"
-        v-text="site.displayName" />
+        v-text="site.displayName"
+        class="menu-text-color" />
     </v-list-item-content>
     <v-list-item-action
       v-if="toggleArrow"

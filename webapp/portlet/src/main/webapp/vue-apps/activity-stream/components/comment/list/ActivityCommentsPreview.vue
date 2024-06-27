@@ -18,8 +18,7 @@
     <v-btn
       v-if="commentsSize > 0"
       :disabled="loading"
-      class="primary--text font-weight-bold mb-1 subtitle-2 px-0"
-      small
+      class="primary--text font-weight-bold mb-1 px-0"
       link
       text
       @click="openCommentsDrawer">

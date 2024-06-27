@@ -30,12 +30,12 @@
                 <v-icon>fa-chevron-right</v-icon>
               </p>
               <template v-if="hasSpaces">
-                <p class="title font-weight-bold">
+                <p class="text-title">
                   {{ $t('spacesOverview.label.noResults') }}
                 </p>
               </template>
               <template v-else>
-                <p class="title font-weight-bold">
+                <p class="text-title">
                   {{ $t('spacesList.label.noSpacesYet') }}
                 </p>
                 <div>

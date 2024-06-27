@@ -25,25 +25,25 @@
       offset-y>
       <v-list class="pa-0" dense>
         <v-list-item @click="emitEvent($event, 'editGroup')">
-          <v-list-item-title class="subtitle-2">
+          <v-list-item-title>
             <i class="uiIcon uiIconEdit"></i>
             {{ $t('GroupsManagement.edit') }}
           </v-list-item-title>
         </v-list-item>
         <v-list-item @click="emitEvent($event, 'addNewGroup')">
-          <v-list-item-title class="subtitle-2">
+          <v-list-item-title>
             <i class="uiIcon uiIconGroup"></i>
             {{ $t('GroupsManagement.addSubGroup') }}
           </v-list-item-title>
         </v-list-item>
         <v-list-item @click="emitEvent($event, 'addNewMembership')">
-          <v-list-item-title class="subtitle-2">
+          <v-list-item-title>
             <i class="uiIcon uiIconSocConnectUser"></i>
             {{ $t('GroupsManagement.addMember') }}
           </v-list-item-title>
         </v-list-item>
         <v-list-item @click="deleteGroup">
-          <v-list-item-title class="subtitle-2">
+          <v-list-item-title>
             <i class="uiIcon uiIconTrash"></i>
             {{ $t('GroupsManagement.delete') }}
           </v-list-item-title>

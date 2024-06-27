@@ -49,7 +49,7 @@
       <v-btn
         v-else-if="searchable"
         v-autolinker="property.value"
-        class="primary--text text-subtitle-2 pa-0 font-weight-regular"
+        class="primary--text pa-0 font-weight-regular"
         min-width="auto"
         text
         @click="quickSearch">
@@ -57,7 +57,7 @@
       </v-btn>
       <span
         v-else
-        class="font-weight-regular text-subtitle-2"
+        class="font-weight-regular"
         v-autolinker="property.value">
         {{ property.value }}
       </span>

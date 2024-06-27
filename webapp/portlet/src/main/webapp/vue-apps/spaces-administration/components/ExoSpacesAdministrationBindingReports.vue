@@ -24,7 +24,7 @@
             xs2>
             <select
               v-model="action"
-              class="selectSpacesFilter my-auto width-auto me-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+              class="selectSpacesFilter my-auto width-auto me-2 ignore-vuetify-classes d-none d-sm-inline">
               <option
                 v-for="operationType in operationTypes"
                 :key="operationType"

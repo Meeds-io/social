@@ -38,7 +38,7 @@
           :min-width="expanded && '500'">
           <label
             for="chartCenterUser">
-            <span class="subtitle-2">
+            <span>
               {{ $t('organizationalChart.settings.centerUser.label') }}
             </span>
             <p class="caption grey--text">

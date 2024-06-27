@@ -3,16 +3,16 @@
     <v-hover>
       <div slot-scope="{ hover }" class="application-body">
         <v-card
-          height="13vw"
           max-height="175"
           class="d-flex position-relative overflow-hidden"
-          tile>
+          tile
+          flat>
           <img
             :src="user && user.banner"
             alt=""
             width="100%"
             height="auto"
-            class="profileBannerImg position-absolute application-border-radius-top"
+            class="profileBannerImg application-border-radius-top"
             lazy>
           <profile-header-banner-button
             v-if="owner"

@@ -27,7 +27,7 @@
                 class="pa-0"
                 text>
                 <span
-                  :class="index < (breadcrumbToDisplay.length - 1) && 'text-sub-title' || 'text-color'"
+                  :class="index < (breadcrumbToDisplay.length - 1) && 'text-subtitle' || 'text-title'"
                   class="text-truncate text-none">
                   {{ breadcrumb.label }}
                 </span>
@@ -44,13 +44,11 @@
           min-width="45px"
           class="pa-0 flex-shrink-1"
           text>
-          <span class="text-sub-title">
-            {{ breadcrumb.label }}
-          </span>
+          {{ breadcrumb.label }}
         </v-btn>
         <v-icon
           v-if="index < breadcrumbToDisplay.length-1"
-          size="14"
+          size="16"
           class="px-2">
           fa-chevron-right
         </v-icon>

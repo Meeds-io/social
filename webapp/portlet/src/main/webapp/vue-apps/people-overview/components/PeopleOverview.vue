@@ -10,22 +10,22 @@
             :title="$t('peopleOverview.label.invitations')"
             :count="invitations"
             icon="fas fa-user-plus"
-            :class="invitations === '-' && 'text-sub-title'"
+            :class="invitations === '-' && 'text-subtitle'"
             @click="$refs.peopleDrawer.open('invitations', $t('peopleOverview.label.invitations'))" />
           <people-overview-card
             id="peoplePendingOverview"
             :title="$t('peopleOverview.label.pending')"
             :count="pending"
             icon="fas fa-user-clock"
-            :class="pending === '-' && 'text-sub-title'"
+            :class="pending === '-' && 'text-subtitle'"
             @click="$refs.peopleDrawer.open('pending', $t('peopleOverview.label.pending'))" />
         </div>
         <div v-else>
           <div v-if="displayPlaceholder" class="d-flex align-center justify-center">
             <v-icon size="24" class="tertiary--text me-3">fas fa-user-plus</v-icon>
-            <div class="d-flex flex-column">
-              <span class="subtitle-1 text-color text-left">{{ $t('peopleOverview.label.network') }}</span>
-              <span class="subtitle-1 text-color text-left">{{ $t('peopleOverview.label.connect') }}</span>
+            <div class="d-flex flex-nowrap">
+              {{ $t('peopleOverview.label.network') }}
+              {{ $t('peopleOverview.label.connect') }}
             </div>
           </div>
         </div>

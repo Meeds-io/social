@@ -20,7 +20,7 @@
 -->
 <template>
   <v-card flat>
-    <v-card-title class="primary--text subtitle-1 px-0">
+    <v-card-title class="primary--text text-body px-0">
       <span class="mx-auto text-center">{{ $t('onboarding.linkExpired') }}</span>
     </v-card-title>
     <div class="d-flex ma-0 flex-column">

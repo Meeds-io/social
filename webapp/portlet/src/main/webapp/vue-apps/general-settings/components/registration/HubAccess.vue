@@ -50,7 +50,7 @@
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.open') }}
         </v-list-item-title>
         <v-list-item-subtitle>
@@ -82,7 +82,7 @@
         </v-tooltip>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.open.enableExternalUsers"
             tooltip="generalSettings.access.whatIsExternalUser">
@@ -119,13 +119,13 @@
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.restricted') }}
         </v-list-item-title>
         <v-list-item-subtitle>
           <help-label
             label="generalSettings.access.restricted.subtitle"
-            label-class="text-sub-title"
+            label-class="text-subtitle"
             tooltip="generalSettings.access.whatIsRegisteredUser">
             <template slot="helpContent">
               <p>
@@ -169,7 +169,7 @@
         </v-tooltip>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.restricted.enableExternalUsers"
             tooltip="generalSettings.access.whatIsExternalUser">
@@ -189,7 +189,7 @@
         <v-list-item-subtitle>
           <help-label
             label="generalSettings.access.restricted.enableExternalUsers.subtitle"
-            label-class="text-sub-title"
+            label-class="text-subtitle"
             tooltip="generalSettings.access.whatIsSpaceHost">
             <template slot="helpContent">
               <p>
@@ -216,7 +216,7 @@
     </v-list-item>
     <v-list-item dense>
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.passwordAuthentication') }}
         </v-list-item-title>
         <v-list-item-subtitle>
@@ -231,7 +231,7 @@
     </v-list-item>
     <v-list-item dense>
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.additionalAuthentication') }}
         </v-list-item-title>
         <v-list-item-subtitle>
@@ -247,14 +247,14 @@
 
     <v-list-item dense class="px-0 mt-4 mb-2">
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <h4 class="text-color my-0 py-2">{{ $t('generalSettings.access.startSettingPlatform') }}</h4>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
     <v-list-item dense class="my-0">
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.startSettingPlatform.spaces"
             tooltip="generalSettings.access.whatIsDefaultSpace">
@@ -283,7 +283,7 @@
     </v-list-item>
     <v-list-item dense class="my-0">
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.startSettingPlatform.mandatorySpaces"
             tooltip="generalSettings.access.whatIsMandatorySpace">
@@ -311,7 +311,7 @@
     </v-list-item>
     <v-list-item dense class="my-0">
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1 text-color">
+        <v-list-item-title>
           {{ $t('generalSettings.access.startSettingPlatform.createUsers') }}
         </v-list-item-title>
       </v-list-item-content>

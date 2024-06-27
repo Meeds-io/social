@@ -51,11 +51,16 @@
         </v-list-item-content>
       </v-list-item>
     </v-flex>
-    <p v-sanitized-html="description" class="text-truncate-4 text-caption text--primary font-weight-medium pt-3 px-4"></p>
+    <p
+      v-if="description?.length"
+      v-sanitized-html="description"
+      class="text-subtitle text-truncate-4 mb-0 pt-3 px-4"></p>
     <v-flex>
       <v-list-item>
-        <v-list-item-content class="body-2 grey--text text-truncate text--darken-1">
-          {{ $t('space.logo.banner.popover.managers') }}
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ $t('space.logo.banner.popover.managers') }}
+          </v-list-item-title>
         </v-list-item-content>
         <v-list-item-action>
           <exo-user-avatars-list

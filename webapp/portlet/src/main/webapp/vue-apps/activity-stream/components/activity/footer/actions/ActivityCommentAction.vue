@@ -17,10 +17,10 @@
             <v-icon
               :class="commentColorClass"
               class="baseline-vertical-align mx-auto"
-              :size="isMobile && '20' || '14'">
+              :size="isMobile && '20' || '16'">
               fa-comment
             </v-icon>
-            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-1">
+            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
               {{ $t('UIActivity.label.Comment') }}
             </span>
           </div>

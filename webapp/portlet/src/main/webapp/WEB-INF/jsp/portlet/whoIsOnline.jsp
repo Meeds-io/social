@@ -53,7 +53,7 @@ if (profileInfos.size() > 0) {
     <div class="v-application--wrap">
       <div class="onlinePortlet">
         <div id="onlineContent" class="white">
-          <div class="v-card__title title center"><%=title%></div>
+          <div class="v-card__title text-header center"><%=title%></div>
           <ul id="onlineList" class="gallery uiContentBox">
             <% for (DataEntity profileInfo : profileInfos) { %>
             <li>

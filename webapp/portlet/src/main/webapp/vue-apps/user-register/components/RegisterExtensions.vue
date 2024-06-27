@@ -29,10 +29,10 @@
       <v-icon size="80" color="primary">
         fa-envelope
       </v-icon>
-      <span class="subtitle-1 mt-8 text-color">
+      <span class="mt-8">
         {{ $t('UILoginForm.label.confirmationEmailSentPart1') }}
       </span>
-      <span class="subtitle-1 mt-3 text-color">
+      <span class="mt-3">
         {{ $t('UILoginForm.label.confirmationEmailSentPart2') }}
       </span>
     </div>

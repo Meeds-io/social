@@ -14,7 +14,7 @@
       </tr>
       <tr>
         <td>
-          <h5 class="title">{{ $t('social.spaces.administration.permissions.createSpace') }}</h5>
+          <h5 class="text-title">{{ $t('social.spaces.administration.permissions.createSpace') }}</h5>
           <h5>{{ $t('social.spaces.administration.permissions.descriptionCreateSpace') }}</h5>
         </td>
         <td>
@@ -55,7 +55,7 @@
       </tr>
       <tr>
         <td>
-          <h5 class="title">{{ $t('social.spaces.administration.permissions.manageSpaces') }}</h5>
+          <h5 class="text-title">{{ $t('social.spaces.administration.permissions.manageSpaces') }}</h5>
           <h5>{{ $t('social.spaces.administration.permissions.descriptionManageSpaces') }}</h5>
         </td>
         <td>
