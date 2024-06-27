@@ -210,7 +210,7 @@ export default {
       return this.user && (this.enabledProfileActionExtensions.length || this.userNavigationExtensions.length);
     },
     usernameClass() {
-      return `${(!this.user.enabled || this.user.deleted) && 'text-sub-title' || 'primary--text text-truncate-2 mt-0'}`;
+      return `${(!this.user.enabled || this.user.deleted) && 'text-subtitle' || 'primary--text text-truncate-2 mt-0'}`;
     },
     userPosition() {
       return this.user?.position || '';

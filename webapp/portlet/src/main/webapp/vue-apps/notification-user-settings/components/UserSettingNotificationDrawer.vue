@@ -37,7 +37,7 @@
                 v-model="digest"
                 :disabled="!pluginOption.channelActive"
                 name="EMAIL_DIGEST"
-                class="col-auto me-2 my-auto px-3 py-0 subtitle-1 ignore-vuetify-classes">
+                class="col-auto me-2 my-auto px-3 py-0 ignore-vuetify-classes">
                 <option
                   v-for="digestOption in digestOptions"
                   :key="digestOption.value"

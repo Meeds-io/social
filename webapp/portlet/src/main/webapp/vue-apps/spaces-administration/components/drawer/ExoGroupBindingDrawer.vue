@@ -39,7 +39,7 @@
         </div>
         <v-layout v-if="groupSpaceBindings.length > 0 && !boundGroupsLoading" column>
           <v-flex>
-            <span class="subtitle-1">
+            <span>
               {{ $t('social.spaces.administration.manageSpaces.spaceBindingForm.boundGroups') }}
             </span>
           </v-flex>

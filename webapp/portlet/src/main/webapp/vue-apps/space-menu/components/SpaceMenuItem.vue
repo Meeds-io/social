@@ -18,7 +18,7 @@
   <v-btn
     :value="uri"
     :href="uri"
-    class="subtitle-2 spaceButtomNavigationItem">
+    class="spaceButtomNavigationItem">
     <span>{{ label }}</span>
     <i aria-hidden="true" :class="icon"> </i>
   </v-btn>

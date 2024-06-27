@@ -25,7 +25,7 @@
         <i class="uiIconMessageLength"></i>
       </div>
     </div>
-    <div v-if="containInvalidUsers" class="mt-4 text-sub-title">{{ $t('activity.composer.invalidUsers.message') }}</div>
+    <div v-if="containInvalidUsers" class="mt-4 text-subtitle">{{ $t('activity.composer.invalidUsers.message') }}</div>
     <attachments-image-input
       v-if="attachmentEnabled"
       v-show="displayAttachmentEditor"
@@ -704,7 +704,7 @@ export default {
           $(this).replaceWith(function() {
             return $('<span/>', {
               class: 'atwho-inserted',
-              html: `<span class="exo-mention"><i aria-hidden="true" class="v-icon fa ${icon}" style="font-size: 14px;"></i>${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
+              html: `<span class="exo-mention"><i aria-hidden="true" class="v-icon fa ${icon}" style="font-size: 16px;"></i>${$(this).text()}<a data-cke-survive href="#" class="remove"><i data-cke-survive class="uiIconClose uiIconLightGray"></i></a></span>`
             }).attr('data-atwho-at-query', '@')
               .attr('data-atwho-at-value',`${role}:${identityId}`)
               .attr('contenteditable','false');

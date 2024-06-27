@@ -30,7 +30,7 @@
     </v-list-item-icon>
     <v-list-item-content class="d-flex">
       <div class="d-flex align-center justify-space-between my-auto">
-        <span class="text-truncate" :style="navigationLabelStyle">{{ navigationLabel }}</span>
+        <span class="text-truncate menu-text-color" :style="navigationLabelStyle">{{ navigationLabel }}</span>
         <v-chip
           v-if="unreadBadge"
           color="error-color-background"

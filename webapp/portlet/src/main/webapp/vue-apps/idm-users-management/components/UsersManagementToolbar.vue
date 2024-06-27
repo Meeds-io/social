@@ -62,7 +62,7 @@
     <v-scale-transition>
       <select
         v-model="filter"
-        class="selectUsersFilter width-auto my-auto me-2 pe-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+        class="selectUsersFilter width-auto my-auto me-2 pe-2 ignore-vuetify-classes d-none d-sm-inline">
         <option value="ENABLED">
           {{ $t('UsersManagement.status.enabled') }}
         </option>

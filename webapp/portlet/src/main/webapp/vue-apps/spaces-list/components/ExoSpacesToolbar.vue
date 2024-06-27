@@ -13,16 +13,15 @@
         id="addNewSpaceButton"
         class="btn btn-primary mx-2 mx-md-0 px-md-2 px-0 addNewSpaceButton"
         :small="isMobile"
-        :large="!isMobile"
         @click="$root.$emit('addNewSpace')">
-        <v-icon dark>mdi-plus</v-icon>
-        <span class="d-none d-lg-inline">
+        <v-icon size="18" dark>fa-plus</v-icon>
+        <span class="ms-2 d-none d-lg-inline">
           {{ $t('spacesList.label.addNewSpace') }}
         </span>
       </v-btn>
     </v-toolbar-title>
     <div
-      class="text-sub-title ms-3 d-none d-sm-flex">
+      class="text-subtitle ms-3 d-none d-sm-flex">
       {{ $t('spacesList.label.spacesSize', {0: spacesSize}) }}
     </div>
     <v-spacer v-if="!isMobile" />
@@ -45,7 +44,7 @@
     <v-scale-transition>
       <select
         v-model="filter"
-        class="selectSpacesFilter my-auto me-2 subtitle-1 ignore-vuetify-classes d-none d-sm-inline">
+        class="selectSpacesFilter my-auto me-2 ignore-vuetify-classes d-none d-sm-inline">
         <option
           v-for="spaceFilter in spaceFilters"
           :key="spaceFilter.value"

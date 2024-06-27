@@ -20,7 +20,7 @@
 -->
 <template>
   <v-card flat>
-    <v-card-title class="primary--text subtitle-1 px-0">
+    <v-card-title class="primary--text text-body px-0">
       <span class="mx-auto text-center">{{ $t('onboarding.alreadyLoggedInPart1') }}</span>
       <span class="mx-auto text-center mt-4">{{ $t('onboarding.alreadyLoggedInPart2') }}</span>
     </v-card-title>

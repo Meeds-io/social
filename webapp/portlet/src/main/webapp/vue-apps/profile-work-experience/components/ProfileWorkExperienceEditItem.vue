@@ -5,7 +5,7 @@
     <v-expansion-panel-header>
       <div v-if="experience.id" class="truncate-text">
         <div>{{ position }}</div>
-        <div class="text-sub-title">{{ company }}</div>
+        <div class="text-subtitle">{{ company }}</div>
       </div>
     </v-expansion-panel-header>
     <v-expansion-panel-content>

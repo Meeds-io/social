@@ -31,7 +31,7 @@
     <template #activator="{ on, attrs }">
       <v-tab
         v-if="hasPage || hasChildren && childrenHasPage"
-        :class="`mx-auto text-caption text-break ${extraClass} ${notClickable}`"
+        :class="`mx-auto text-break ${notClickable}`"
         v-on="on"
         v-bind="attrs"
         :href="navigationNodeUri"
@@ -98,9 +98,6 @@ export default {
   computed: {
     notClickable() {
       return `${this.hasPage ? ' ' : ' not-clickable ' }`;
-    },
-    extraClass() {
-      return `${this.showMenu ? ' light-grey-background ' : ' ' }`;
     },
     hasChildren() {
       return this.navigation?.children?.length;

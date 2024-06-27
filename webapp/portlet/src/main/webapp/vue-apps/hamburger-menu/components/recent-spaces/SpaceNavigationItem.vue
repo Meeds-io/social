@@ -36,7 +36,7 @@
         height="28">
     </v-list-item-avatar>
     <v-list-item-content>
-      <v-list-item-title class="body-2" v-text="spaceDisplayName" />
+      <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
     </v-list-item-content>
     <v-list-item-action
       v-if="spaceUnreadCount"
@@ -73,7 +73,7 @@
         height="28">
     </v-list-item-avatar>
     <v-list-item-content>
-      <v-list-item-title class="body-2" v-text="spaceDisplayName" />
+      <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
     </v-list-item-content>
     <v-list-item-action
       v-if="toggleArrow"

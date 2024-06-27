@@ -32,7 +32,7 @@
         <div v-if="!activityId">
           <div v-if="audienceTypesDisplay" class="mt-1 px-4 pt-4">
             <div v-if="postVisibility">
-              <span class="subtitle-1 text-color"> {{ $t('activity.composer.content.title') }} </span>
+              <div class="mb-2"> {{ $t('activity.composer.content.title') }} </div>
               <v-radio-group
                 v-if="postToNetwork"
                 v-model="audienceChoice"
@@ -40,12 +40,12 @@
                 mandatory>
                 <v-radio value="yourNetwork">
                   <template #label>
-                    <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.yourNetwork') }}</span>
+                    <span class="ms-1"> {{ $t('activity.composer.content.yourNetwork') }}</span>
                   </template>
                 </v-radio>
                 <v-radio value="oneOfYourSpaces">
                   <template #label>
-                    <span class="text-color text-subtitle-2 ms-1"> {{ $t('activity.composer.content.oneOfYourSpaces') }}</span>
+                    <span class="ms-1"> {{ $t('activity.composer.content.oneOfYourSpaces') }}</span>
                   </template>
                 </v-radio>
               </v-radio-group>
@@ -73,7 +73,7 @@
                 :extra-class="spaceId && 'ms-n4 mt-6' || ''"
                 avatar />
               <v-list-item-content class="py-0 accountTitleLabel text-truncate">
-                <v-list-item-title class="font-weight-bold d-flex body-2 mb-0">
+                <v-list-item-title class="font-weight-bold d-flex mb-0">
                   <exo-space-avatar
                     :space-id="spaceId"
                     extra-class="text-truncate"
@@ -100,7 +100,7 @@
                       v-bind="attrs"
                       v-on="on"
                       @click="resetAudienceChoice()">
-                      <v-icon size="14">
+                      <v-icon size="16">
                         fas fa-redo
                       </v-icon>
                     </v-btn>

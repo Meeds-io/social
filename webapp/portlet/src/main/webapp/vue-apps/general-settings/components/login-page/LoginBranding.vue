@@ -76,10 +76,10 @@
             <nav class="fill-height flex-grow-1">
               <portal-login-introduction :color="hasImage && 'transparent' || 'primary'">
                 <template #title>
-                  <span :style="hasImage && `color: ${loginBackgroundTextColor};`" class="subtitle-3">{{ $t(title) }}</span>
+                  <span :style="`color: ${hasImage && loginBackgroundTextColor || '#ffffff'};`" class="text-title">{{ $t(title) }}</span>
                 </template>
                 <template #subtitle>
-                  <span :style="hasImage && `color: ${loginBackgroundTextColor};`" class="subtitle-1">{{ $t(subtitle) }}</span>
+                  <span :style="`color: ${hasImage && loginBackgroundTextColor || '#ffffff'};`" class="text-body">{{ $t(subtitle) }}</span>
                 </template>
               </portal-login-introduction>
             </nav>

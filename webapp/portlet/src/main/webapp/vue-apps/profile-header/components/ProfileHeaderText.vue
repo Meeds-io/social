@@ -7,13 +7,13 @@
     flat
     tile>
     <div class="d-flex flex-column my-auto">
-      <div id="profileHeaderUserFullname" class="title text-break text-wrap">
+      <div id="profileHeaderUserFullname" class="text-title text-break text-wrap">
         {{ userFullname }}
       </div>
       <div
         id="profileHeaderUserPrimaryProperty"
         v-if="primaryProperty"
-        class="subtitle text-sub-title text-break text-wrap">
+        class="subtitle text-subtitle text-break text-wrap">
         {{ primaryProperty || '' }}
       </div>
     </div>

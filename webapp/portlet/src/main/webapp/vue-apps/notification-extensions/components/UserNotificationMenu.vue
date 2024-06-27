@@ -53,7 +53,7 @@
           dense
           @mousedown="$emit('read-differ')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="13" class="dark-grey-color">fa-external-link-alt</v-icon>
+            <v-icon size="14" class="icon-default-color">fa-external-link-alt</v-icon>
           </v-list-item-icon>
           <v-list-item-title class="pl-0">{{ $t('Notification.openInNewWindow') }}</v-list-item-title>
         </v-list-item>
@@ -62,7 +62,7 @@
           dense
           @click="$emit('read')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="13" class="dark-grey-color">fa-envelope-open-text</v-icon>
+            <v-icon size="14" class="icon-default-color">fa-envelope-open-text</v-icon>
           </v-list-item-icon>
           <v-list-item-title class="pl-0">{{ $t('Notification.markRead') }}</v-list-item-title>
         </v-list-item>
@@ -70,7 +70,7 @@
           dense
           @click="$emit('remove')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="13" class="dark-grey-color">fa-trash</v-icon>
+            <v-icon size="14" class="icon-default-color">fa-trash</v-icon>
           </v-list-item-icon>
           <v-list-item-title class="pl-0">{{ $t('Notification.deleteNotification') }}</v-list-item-title>
         </v-list-item>
@@ -79,7 +79,7 @@
           dense
           @click="$emit('mute')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="13" class="dark-grey-color">fa-bell-slash</v-icon>
+            <v-icon size="14" class="icon-default-color">fa-bell-slash</v-icon>
           </v-list-item-icon>
           <v-list-item-title class="pl-0">{{ $t('Notification.muteSpaceNotification') }}</v-list-item-title>
         </v-list-item>
