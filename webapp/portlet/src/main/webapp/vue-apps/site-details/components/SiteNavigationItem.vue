@@ -28,7 +28,7 @@
         {{ icon }}
       </v-icon>
     </v-list-item-icon>
-    <v-list-item-title class="font-weight-normal text-font-size text-color">
+    <v-list-item-title class="menu-text-color">
       {{ navigation.label }}
     </v-list-item-title>
     <v-list-item-action

@@ -33,8 +33,11 @@
           height="44">
       </v-list-item-avatar>
       <v-list-item-content class="py-0 accountTitleLabel">
-        <v-list-item-title class="font-weight-bold body-2 mb-0">{{ fullName }} <span v-if="external" class="externalFlagClass">{{ $t('menu.profile.external') }}</span></v-list-item-title>
-        <v-list-item-subtitle class="font-italic caption">{{ primaryProperty }}</v-list-item-subtitle>
+        <v-list-item-title class="mb-0">
+          <span class="font-weight-bold menu-text-color">{{ fullName }}</span>
+          <span v-if="external" class="externalFlagClass">({{ $t('menu.profile.external') }})</span>
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ primaryProperty }}</v-list-item-subtitle>
       </v-list-item-content>
       <v-list-item-action v-if="stickyAllowed" class="my-auto">
         <v-btn

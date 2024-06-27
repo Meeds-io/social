@@ -11,7 +11,7 @@
       <v-list @click="openNotificationSettingDetail">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="title text-color">
+            <v-list-item-title class="text-title">
               {{ $t('UserSettings.notifications') }}
             </v-list-item-title>
           </v-list-item-content>
@@ -28,7 +28,7 @@
 
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="title text-color">
+            <v-list-item-title>
               {{ $t('UserSettings.manageNotifications') }}
             </v-list-item-title>
           </v-list-item-content>
@@ -37,7 +37,7 @@
               small
               icon
               @click="openDetail">
-              <v-icon size="24" class="text-sub-title">
+              <v-icon size="24" class="icon-default-color">
                 {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
               </v-icon>
             </v-btn>
@@ -47,7 +47,7 @@
 
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="title text-color">
+            <v-list-item-title>
               {{ $t('UserSettings.title.muteSpacesNotifications') }}
             </v-list-item-title>
           </v-list-item-content>

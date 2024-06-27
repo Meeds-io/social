@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="pt-8 subtitle-1">{{ $t('NotificationAdmin.allowedNotificationChannels.title') }}</div>
+    <div class="pt-8 text-header">{{ $t('NotificationAdmin.allowedNotificationChannels.title') }}</div>
     <notification-administration-plugin-group
       v-for="group in settings.groups"
       :settings="settings"

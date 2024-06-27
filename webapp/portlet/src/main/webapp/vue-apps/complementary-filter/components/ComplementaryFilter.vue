@@ -31,9 +31,7 @@
     <div
       v-else-if="hasValues"
       class="px-3 my-auto">
-      <p
-        v-if="showMessage"
-        class="text-color subtitle-1">
+      <p v-if="showMessage">
         {{ $t('complementaryFilter.suggestions.message') }}
       </p>
       <complementary-filter-item
@@ -52,7 +50,7 @@
         fab
         color="white"
         @click="openListSuggestionsDrawer">
-        <span class="text-body-2">
+        <span>
           +{{ suggestions.length - elementToDisplay }}
         </span>
       </v-btn>

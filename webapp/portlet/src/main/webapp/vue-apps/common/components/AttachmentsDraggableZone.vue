@@ -19,7 +19,7 @@
     <div v-if="displayDropZone" class="grey-background opacity-8 full-height full-width position-absolute t-0 d-flex align-center justify-center z-index-one pa-4">
       <div class="full-height full-width border-primary-dashed ma-4 rounded-lg d-flex align-center justify-center flex-column">
         <v-icon size="40" class="primary--text pb-4">fas fa-file-import</v-icon>
-        <p class="title">{{ $t('attachment.dropZoneLabel') }}</p>
+        <p class="text-title">{{ $t('attachment.dropZoneLabel') }}</p>
       </div>
     </div>
   </v-fade-transition>

@@ -23,7 +23,7 @@
     v-if="isHidden"
     class="d-inline-block">
     <v-icon
-      class="text-color ms-2 text-subtitle-2">
+      class="text-color ms-2">
       fas fa-eye-slash
     </v-icon>
     <span

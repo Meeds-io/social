@@ -40,7 +40,7 @@
           <v-list-item-content class="pb-0 pt-1">
             <v-list-item-title
               class="text-wrap userCardTitle mb-0">
-              <p class="text-truncate-2 text-subtitle-2 text-break font-weight-bold mb-0">
+              <p class="text-truncate-2 text-break font-weight-bold mb-0">
                 {{ fullName }}
                 <span
                   v-if="externalUser"

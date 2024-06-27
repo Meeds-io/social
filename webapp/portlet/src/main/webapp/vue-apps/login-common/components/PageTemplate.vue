@@ -44,10 +44,10 @@
           <nav class="fill-height flex-grow-1">
             <portal-login-introduction :color="background && 'transparent' || 'primary'">
               <template #title>
-                <span :style="background && `color: ${backgroundTextColor};`">{{ title }}</span>
+                <span :style="`color: ${background && backgroundTextColor || '#ffffff'};`">{{ title }}</span>
               </template>
               <template #subtitle>
-                <span :style="background && `color: ${backgroundTextColor};`">{{ subtitle }}</span>
+                <span :style="`color: ${background && backgroundTextColor || '#ffffff'};`">{{ subtitle }}</span>
               </template>
             </portal-login-introduction>
           </nav>
