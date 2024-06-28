@@ -20,7 +20,7 @@
 -->
 <template>
   <div class="d-none d-lg-block">
-    <div class="text-header mt-0">
+    <div class="text-header">
       {{ $t('generalSettings.preview.title') }}
     </div>
     <div class="mt-4 position-relative border-color full-width overflow-hidden border-radius" style="height:470px;">

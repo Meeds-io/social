@@ -13,7 +13,7 @@
         class="form-horizontal pt-0 pb-4"
         flat
         @submit="saveUser">
-        <v-card-text class="d-flex userNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex userNameLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('UsersManagement.userName') }}<template v-if="newUser">*</template>
         </v-card-text>
         <v-card-text class="d-flex userNameField py-0">
@@ -28,7 +28,7 @@
             required>
         </v-card-text>
 
-        <v-card-text class="d-flex firstNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex firstNameLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('UsersManagement.firstName') }}*
         </v-card-text>
         <v-card-text class="d-flex firstNameField py-0">
@@ -42,7 +42,7 @@
             required>
         </v-card-text>
 
-        <v-card-text class="d-flex lastNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex lastNameLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('UsersManagement.lastName') }}*
         </v-card-text>
         <v-card-text class="d-flex lastNameField py-0">
@@ -56,7 +56,7 @@
             required>
         </v-card-text>
 
-        <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex emailLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('UsersManagement.email') }}*
         </v-card-text>
         <v-card-text class="d-flex emailField py-0">
@@ -70,7 +70,7 @@
             required>
         </v-card-text>
 
-        <v-card-text class="d-flex newPasswordLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex newPasswordLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('UsersManagement.password') }}<template v-if="newUser">*</template>
         </v-card-text>
         <v-card-text class="d-flex newPasswordField py-0">
@@ -84,7 +84,7 @@
             class="ignore-vuetify-classes flex-grow-1">
         </v-card-text>
 
-        <v-card-text class="d-flex confirmPasswordLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex confirmPasswordLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('UsersManagement.confirmPassword') }}<template v-if="newUser">*</template>
         </v-card-text>
         <v-card-text class="d-flex confirmPasswordField py-0">

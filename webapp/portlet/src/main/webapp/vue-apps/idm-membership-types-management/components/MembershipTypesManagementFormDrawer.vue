@@ -13,7 +13,7 @@
         class="form-horizontal pt-0 pb-4"
         flat
         @submit="saveMembershipType">
-        <v-card-text class="d-flex membershipTypeNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex membershipTypeNameLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('MembershipTypesManagement.name') }}<template v-if="newMembershipType">*</template>
         </v-card-text>
         <v-card-text class="d-flex membershipTypeNameField py-0">
@@ -29,7 +29,7 @@
             required>
         </v-card-text>
 
-        <v-card-text class="d-flex descriptionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex descriptionLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('MembershipTypesManagement.description') }}
         </v-card-text>
         <v-card-text class="d-flex descriptionField py-0">

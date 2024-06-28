@@ -26,9 +26,7 @@
                 max-width="250px"
                 class="pa-0"
                 text>
-                <span
-                  :class="index < (breadcrumbToDisplay.length - 1) && 'text-subtitle' || 'text-title'"
-                  class="text-truncate text-none">
+                <span class="text-truncate text-none">
                   {{ breadcrumb.label }}
                 </span>
               </v-btn>

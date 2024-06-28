@@ -76,7 +76,7 @@
               </v-card-title>
               <v-card-title
                 v-else
-                class="display-1 primary--text px-0 d-none d-sm-flex text-break text-center justify-center mx-n12">
+                class="text-title text-h4 primary--text px-0 d-none d-sm-flex text-break text-center justify-center mx-n12">
                 {{ companyName }}
               </v-card-title>
               <div :class="center && 'd-block' || 'd-sm-flex flex mx-0'">

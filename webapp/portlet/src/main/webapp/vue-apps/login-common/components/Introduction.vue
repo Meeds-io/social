@@ -41,7 +41,7 @@
           <v-card-title class="d-flex flex-column">
             <span
               v-if="$slots.title"
-              class="text-title mx-auto text-wrap text-break">
+              class="text-title text-h4 mx-auto text-wrap text-break">
               <slot name="title"></slot>
             </span>
             <span

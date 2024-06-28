@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  -->
-
-
 <template>
   <exo-drawer
     id="profileSettingFormDrawer"
@@ -39,9 +37,7 @@
           <label
             for="settingNameInput"
             class="mx-4">
-            <span class="font-weight-bold">
-              {{ $t('profileSettings.label.name') }}
-            </span>
+            {{ $t('profileSettings.label.name') }}
             <v-text-field
               ref="settingNameInput"
               v-model="setting.propertyName"
@@ -58,9 +54,7 @@
           <label
             for="labelsInput"
             class="mx-4 mt-2">
-            <span class="font-weight-bold">
-              {{ $t('profileSettings.label.labels') }}
-            </span>
+            {{ $t('profileSettings.label.labels') }}
             <profile-property-labels
               :propertylabels="labels"
               :languages="languages"
@@ -71,9 +65,7 @@
           <label
             for="propertyType"
             class="mx-4">
-            <span class="font-weight-bold">
-              {{ $t('profileSettings.label.propertyType') }}
-            </span>
+            {{ $t('profileSettings.label.propertyType') }}
             <v-tooltip
               bottom
               :disabled="newSetting">
@@ -103,9 +95,7 @@
           <label
             for="settingParentField"
             class="mx-4 mt-2">
-            <span class="font-weight-bold">
-              {{ $t('profileSettings.label.parent') }}
-            </span>
+            {{ $t('profileSettings.label.parent') }}
             <v-autocomplete
               ref="settingParentField"
               id="settingParentField"
@@ -123,7 +113,7 @@
           </label>
           <v-list-item class="pt-4">
             <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
-              <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.visible') }}
                 </div>
@@ -141,7 +131,7 @@
 
           <v-list-item>
             <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
-              <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.editable') }}
                 </div>
@@ -159,7 +149,7 @@
 
           <v-list-item>
             <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
-              <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.required') }}
                 </div>
@@ -176,7 +166,7 @@
           </v-list-item>
           <v-list-item>
             <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
-              <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.multiValued') }}
                 </div>
@@ -197,7 +187,7 @@
 
           <v-list-item>
             <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
-              <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.groupSynchronized') }}
                 </div>
@@ -215,7 +205,7 @@
 
           <v-list-item>
             <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
-              <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+              <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.active') }}
                 </div>
@@ -235,7 +225,7 @@
               transition="fade-transition"
               class="d-flex activeLabel py-0">
               <v-list-item-title
-                class="d-flex activedLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+                class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.hiddenable') }}
                 </div>
