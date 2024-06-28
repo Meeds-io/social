@@ -35,7 +35,7 @@
         </div>
         <v-list-item class="px-0" two-line>
           <v-list-item-content>
-            <v-list-item-title class="text-header">
+            <v-list-item-title class="font-weight-bold">
               {{ $t('generalSettings.makePublicSiteVisible') }}
             </v-list-item-title>
             <v-list-item-subtitle>
@@ -62,7 +62,7 @@
         </v-list-item>
         <v-list-item class="px-0" two-line>
           <v-list-item-content>
-            <v-list-item-title class="text-header">
+            <v-list-item-title class="font-weight-bold">
               {{ $t('generalSettings.editPublicSite') }}
             </v-list-item-title>
             <v-list-item-subtitle>
