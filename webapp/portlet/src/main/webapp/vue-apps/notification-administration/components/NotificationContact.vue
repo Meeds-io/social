@@ -1,7 +1,7 @@
 <template>
-  <v-card class="d-flex justify-center pt-8" flat>
+  <v-card class="d-flex justify-center" flat>
     <div class="d-flex flex-column flex-grow-1 flex-shrink-1">
-      <div class="text-header">{{ $t('NotificationAdmin.sender.title') }}</div>
+      <div class="text-title">{{ $t('NotificationAdmin.sender.title') }}</div>
       <div>
         <!-- eslint-disable-next-line -->
         <v-chip small>{{ settings.senderName }} <{{ settings.senderEmail }}> </v-chip>

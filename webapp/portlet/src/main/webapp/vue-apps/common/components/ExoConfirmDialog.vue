@@ -13,7 +13,7 @@
           aria-hidden="true"
           @click="close"></a>
         <!-- eslint-disable-next-line vue/no-v-html -->
-        <span class="ignore-vuetify-classes PopupTitle popupTitle text-truncate" v-html="title"></span>
+        <span class="ignore-vuetify-classes text-title" v-html="title"></span>
       </div>
       <!-- eslint-disable-next-line vue/no-v-html -->
       <v-card-text v-html="message" />

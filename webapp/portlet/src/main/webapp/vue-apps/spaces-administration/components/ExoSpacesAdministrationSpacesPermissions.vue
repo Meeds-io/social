@@ -14,17 +14,17 @@
       </tr>
       <tr>
         <td>
-          <h5 class="text-title">{{ $t('social.spaces.administration.permissions.createSpace') }}</h5>
-          <h5>{{ $t('social.spaces.administration.permissions.descriptionCreateSpace') }}</h5>
+          <div>{{ $t('social.spaces.administration.permissions.createSpace') }}</div>
+          <div class="text-subtitle">{{ $t('social.spaces.administration.permissions.descriptionCreateSpace') }}</div>
         </td>
         <td>
           <div v-show="!spacesCreatorsEditMode">
             <div v-if="creators.length > 0">
               <div v-for="creator in creators" :key="creator">
-                <h5>{{ creator }}</h5>
+                <div>{{ creator }}</div>
               </div>
             </div>
-            <h5 v-if="creators.length === 0 && displayNoAssignmentCreators">{{ $t('social.spaces.administration.permissions.noAssignment') }}</h5>
+            <div v-if="creators.length === 0 && displayNoAssignmentCreators">{{ $t('social.spaces.administration.permissions.noAssignment') }}</div>
           </div>
           <div v-show="spacesCreatorsEditMode" class="inputUser">
             <input id="add-creators-suggester" type="text">
@@ -55,17 +55,17 @@
       </tr>
       <tr>
         <td>
-          <h5 class="text-title">{{ $t('social.spaces.administration.permissions.manageSpaces') }}</h5>
-          <h5>{{ $t('social.spaces.administration.permissions.descriptionManageSpaces') }}</h5>
+          <div>{{ $t('social.spaces.administration.permissions.manageSpaces') }}</div>
+          <div class="text-subtitle">{{ $t('social.spaces.administration.permissions.descriptionManageSpaces') }}</div>
         </td>
         <td>
           <div v-show="!spacesAdministratorsEditMode">
             <div v-if="administrators.length > 0">
               <div v-for="administrator in administrators" :key="administrator">
-                <h5>{{ administrator }}</h5>
+                {{ administrator }}
               </div>
             </div>
-            <h5 v-if="administrators.length === 0 && displayNoAssignmentAdministrators">{{ $t('social.spaces.administration.permissions.noAssignment') }}</h5>
+            <div v-if="administrators.length === 0 && displayNoAssignmentAdministrators" class="text-subtitle">{{ $t('social.spaces.administration.permissions.noAssignment') }}</div>
           </div>
           <div v-show="spacesAdministratorsEditMode" class="inputUser">
             <input id="add-administrators-suggester" type="text">

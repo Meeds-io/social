@@ -20,15 +20,10 @@
 -->
 <template>
   <v-row class="ma-0">
-    <v-col cols="12" class="pa-0">
-      <div class="text-header mt-0">
-        {{ $t('generalSettings.displayCharacteristics') }}
-      </div>
-    </v-col>
     <v-col
       cols="12"
       class="pa-0 mb-4">
-      <div class="mb-2 mt-4">
+      <div class="text-header mb-2">
         {{ $t('generalSettings.companyNameTitle') }}
       </div>
       <v-card
@@ -52,9 +47,10 @@
     <v-col
       cols="6"
       class="pa-0 mb-4 d-flex flex-column">
-      <div class="my-4">
+      <div class="my-4 text-header">
         <help-label
           label="generalSettings.companyLogo.label"
+          label-class="text-header"
           tooltip="generalSettings.companyLogo.tooltip">
           <template slot="helpContent">
             <p>
@@ -78,7 +74,7 @@
     <v-col
       cols="6"
       class="pa-0 mb-4 d-flex flex-column">
-      <div class="my-4">
+      <div class="my-4 text-header">
         {{ $t('generalSettings.companyFaviconTitle') }}
       </div>
       <portal-general-settings-company-favicon
@@ -90,9 +86,10 @@
     <v-col
       cols="12"
       class="pa-0 mb-4">
-      <div class="mt-4 mb-0">
+      <div class="mt-4 mb-0 text-header">
         <help-label
           label="generalSettings.themeColors.label"
+          label-class="text-header"
           tooltip="generalSettings.themeColors.tooltip">
           <template slot="helpContent">
             <p>
@@ -131,7 +128,7 @@
     <v-col
       cols="12"
       class="pa-0 mb-4">
-      <div class="mb-0 mt-2">
+      <div class="mb-0 mt-2 text-header">
         {{ $t('generalSettings.globalPlatformDesign') }}
       </div>
       <v-switch
@@ -149,16 +146,14 @@
         class="mt-2 pe-4"
         @initialized="setAsInitialized">
         <template #title>
-          <div>
-            {{ $t('generalSettings.globalPageBackground') }}
-          </div>
+          {{ $t('generalSettings.globalPageBackground') }}
         </template>
       </portal-general-settings-background-input>
     </v-col>
     <v-col
       cols="12"
       class="pa-0 mb-4">
-      <div class="mb-0 mt-2">
+      <div class="mb-0 mt-2 text-header">
         {{ $t('generalSettings.widgetAndAppStyle.title') }}
       </div>
       <div class="my-2">

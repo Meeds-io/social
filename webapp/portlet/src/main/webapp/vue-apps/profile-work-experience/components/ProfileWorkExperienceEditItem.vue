@@ -9,7 +9,7 @@
       </div>
     </v-expansion-panel-header>
     <v-expansion-panel-content>
-      <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pt-0 pb-2">
+      <v-card-text class="d-flex flex-grow-1 text-no-wrap pt-0 pb-2">
         {{ $t('profileWorkExperiences.company') }} *
       </v-card-text>
       <v-card-text class="d-flex py-0">
@@ -22,7 +22,7 @@
           autofocus="autofocus"
           required>
       </v-card-text>
-      <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+      <v-card-text class="d-flex flex-grow-1 text-no-wrap pb-2">
         {{ $t('profileWorkExperiences.jobTitle') }} *
       </v-card-text>
       <v-card-text class="d-flex py-0">
@@ -34,7 +34,7 @@
           maxlength="250"
           required>
       </v-card-text>
-      <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+      <v-card-text class="d-flex flex-grow-1 text-no-wrap pb-2">
         {{ $t('profileWorkExperiences.jobDetails') }}
       </v-card-text>
       <v-card-text class="d-flex py-0">
@@ -44,7 +44,7 @@
           class="ignore-vuetify-classes flex-grow-1"
           maxlength="1500"></textarea>
       </v-card-text>
-      <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+      <v-card-text class="d-flex flex-grow-1 text-no-wrap pb-2">
         {{ $t('profileWorkExperiences.usedSkills') }}
       </v-card-text>
       <v-card-text class="d-flex py-0">
@@ -56,15 +56,15 @@
           maxlength="2000">
       </v-card-text>
       <v-card-text class="d-flex text-color pb-2">
-        <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold me-3">
+        <div class="align-start flex-grow-1 text-no-wrap me-3">
           {{ $t('profileWorkExperiences.startDate') }}
         </div>
-        <div v-if="!isCurrent" class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold px-3">
+        <div v-if="!isCurrent" class="align-start flex-grow-1 text-no-wrap px-3">
           {{ $t('profileWorkExperiences.endDate') }}
         </div>
       </v-card-text>
       <v-card-text class="d-flex flex-row full-width py-0 profileWorkExperiencesDates">
-        <div class="align-start flex-grow-0 col-6 pa-0 text-no-wrap text-left font-weight-bold half-width me-3">
+        <div class="align-start flex-grow-0 col-6 pa-0 text-no-wrap half-width me-3">
           <date-picker
             v-model="experience.startDate"
             :left="$vuetify.rtl"
@@ -73,7 +73,7 @@
             return-iso
             required />
         </div>
-        <div v-if="!isCurrent" class="align-end flex-grow-0 col-6 pa-0 text-no-wrap text-left font-weight-bold half-width">
+        <div v-if="!isCurrent" class="align-end flex-grow-0 col-6 pa-0 text-no-wrap half-width">
           <date-picker
             v-model="endDate"
             :disabled="isCurrent"

@@ -38,7 +38,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <span
         v-if="userFullname"
-        :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+        :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle && 'text-color' || '']"
         class="text-truncate my-auto">
         {{ userFullname }}
         <span
@@ -80,7 +80,7 @@
       <div v-if="userFullname || $slots.subTitle" class="ms-2 my-auto overflow-hidden">
         <p
           v-if="userFullname"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle && 'text-color' || '']"
           class="text-truncate text-left mb-0">
           {{ userFullname }}
           <span
@@ -141,7 +141,7 @@
       @click="clickable && $emit('avatar-click', $event)">
       <span
         v-if="userFullname"
-        :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+        :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle && 'text-color' || '']"
         class="text-truncate my-auto">
         {{ userFullname }}
         <span
@@ -183,7 +183,7 @@
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
           v-if="userFullname"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle  && 'text-color' || '']"
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textStyle && 'text-color' || '']"
           class="text-truncate text-left mb-0">
           {{ userFullname }}
           <span

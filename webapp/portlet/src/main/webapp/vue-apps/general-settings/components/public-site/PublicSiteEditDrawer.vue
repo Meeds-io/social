@@ -30,15 +30,15 @@
     </template>
     <template #content>
       <v-card class="pa-4" flat>
-        <div class="text-header">
+        <div>
           {{ $t('generalSettings.enablePublicSiteDescription') }}
         </div>
         <v-list-item class="px-0" two-line>
           <v-list-item-content>
-            <v-list-item-title>
-              <h4 class="my-0 text-font-size text-color">{{ $t('generalSettings.makePublicSiteVisible') }}</h4>
+            <v-list-item-title class="text-header">
+              {{ $t('generalSettings.makePublicSiteVisible') }}
             </v-list-item-title>
-            <v-list-item-subtitle class="caption">
+            <v-list-item-subtitle>
               {{ $t('generalSettings.subtitle.makePublicSiteVisible') }}
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -62,10 +62,10 @@
         </v-list-item>
         <v-list-item class="px-0" two-line>
           <v-list-item-content>
-            <v-list-item-title>
-              <h4 class="my-0 text-font-size text-color">{{ $t('generalSettings.editPublicSite') }}</h4>
+            <v-list-item-title class="text-header">
+              {{ $t('generalSettings.editPublicSite') }}
             </v-list-item-title>
-            <v-list-item-subtitle class="caption">
+            <v-list-item-subtitle>
               {{ $t('generalSettings.subtitle.editPublicSite') }}
             </v-list-item-subtitle>
           </v-list-item-content>
