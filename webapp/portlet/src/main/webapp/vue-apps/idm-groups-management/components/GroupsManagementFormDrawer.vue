@@ -13,7 +13,7 @@
         class="form-horizontal pt-0 pb-4"
         flat
         @submit="saveGroup">
-        <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('GroupsManagement.name') }}<template v-if="newGroup">*</template>
         </v-card-text>
         <v-card-text class="d-flex groupNameField py-0">
@@ -29,7 +29,7 @@
             required>
         </v-card-text>
 
-        <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex groupNameLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('GroupsManagement.label') }}*
         </v-card-text>
         <v-card-text class="d-flex groupNameField py-0">
@@ -44,7 +44,7 @@
             required>
         </v-card-text>
 
-        <v-card-text class="d-flex descriptionLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex descriptionLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('GroupsManagement.description') }}
         </v-card-text>
         <v-card-text class="d-flex descriptionField py-0">

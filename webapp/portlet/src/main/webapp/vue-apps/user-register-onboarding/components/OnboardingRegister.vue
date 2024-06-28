@@ -25,7 +25,7 @@
     autocomplete="off"
     class="d-flex ma-0 flex-column">
     <div class="d-flex flex-column">
-      <div class="mb-5 mx-auto primary--text font-weight-bold">{{ $t('onboarding.emailSummary') }}</div>
+      <div class="mb-5 mx-auto text-header primary--text">{{ $t('onboarding.emailSummary') }}</div>
       <v-row class="ma-0 pa-0">
         <v-text-field
           id="email"

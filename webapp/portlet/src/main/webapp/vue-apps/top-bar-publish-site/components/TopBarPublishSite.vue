@@ -31,7 +31,7 @@
           class="ms-5"
           icon
           @click="switchSiteMode">
-          <v-icon size="16">{{ publicMode && 'fa-globe' || 'fa-user-lock' }}</v-icon>
+          <v-icon size="20">{{ publicMode && 'fa-globe' || 'fa-user-lock' }}</v-icon>
         </v-btn>
       </template>
       <span>{{ publicMode && $t('publicAccess.siteIsVisibleTooltip') || $t('publicAccess.siteIsNotVisibleTooltip') }}</span>

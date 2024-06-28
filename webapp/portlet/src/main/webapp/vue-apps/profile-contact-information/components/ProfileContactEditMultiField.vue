@@ -1,7 +1,7 @@
 <template>
   <v-card-text class="text-color pb-2">
     <div class="d-flex">
-      <div class="align-start flex-grow-1 text-no-wrap text-left font-weight-bold d-flex align-center">
+      <div class="align-start flex-grow-1 text-no-wrap d-flex align-center">
         <span>
           {{ getResolvedName(property) }}
         </span>

@@ -2,9 +2,6 @@
   <v-app>
     <v-main v-if="notificationSettings">
       <v-card class="pa-5 application-body" flat>
-        <h4 class="font-weight-bold my-0">
-          {{ $t('NotificationAdmin.title') }}
-        </h4>
         <notification-administration-contact
           :settings="notificationSettings" />
         <notification-administration-channels

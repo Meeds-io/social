@@ -1,10 +1,10 @@
 <template>
   <div
     :class="truncateText"
-    class="text-light-color">
+    class="text-subtitle">
     <v-icon
       v-if="!noIcon"
-      class="text-light-color me-1"
+      class="icon-default-color me-1"
       x-small>
       far fa-clock
     </v-icon>

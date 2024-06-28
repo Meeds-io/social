@@ -68,11 +68,11 @@
           class="position-absolute t-0 l-0 r-0 mt-n1" />
         <span
           v-if="useHtml"
-          class="text--lighten-1 flex-grow-1 me-4"
+          class="text-body flex-grow-1 me-4"
           v-sanitized-html="alertMessage"
           @click="handleAlertClicked">
         </span>
-        <span v-else class="text--lighten-1 flex-grow-1 me-4">
+        <span v-else class="text-body flex-grow-1 me-4">
           {{ alertMessage }}
         </span>
         <v-btn

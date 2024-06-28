@@ -30,7 +30,7 @@
           class="ms-5"
           icon
           @click="previewMode = !previewMode">
-          <v-icon size="16">{{ previewMode && 'fa-eye-slash' || 'fa-eye' }}</v-icon>
+          <v-icon size="20">{{ previewMode && 'fa-eye-slash' || 'fa-eye' }}</v-icon>
         </v-btn>
       </template>
       <span>{{ previewMode && $t('publicAccess.editModeTooltip') || $t('publicAccess.previewModeTooltip') }}</span>

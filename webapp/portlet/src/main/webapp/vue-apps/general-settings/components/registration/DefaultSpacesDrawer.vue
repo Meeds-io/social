@@ -32,7 +32,7 @@
     </template>
     <template #content>
       <v-card class="pa-4" flat>
-        <div class="text-header">
+        <div>
           {{ $t('generalSettings.access.defaultSpacesTitle') }}
         </div>
         <div class="text-subtitle">
