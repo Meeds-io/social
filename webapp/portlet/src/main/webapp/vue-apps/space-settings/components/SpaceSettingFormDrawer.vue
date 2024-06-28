@@ -63,7 +63,7 @@
               {{ item.resolvedLabel || item.name }}
             </option>
           </select>
-          <div class="caption font-italic font-weight-light ps-1 muted">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
+          <div class="text-subtitle ps-1">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
           <div class="d-flex flex-wrap pt-2">
             <label for="hidden" class="v-label theme--light my-auto float-left">
               {{ $t('SpaceSettings.label.hidden') }}
@@ -74,7 +74,7 @@
               false-value="private"
               class="float-left my-0 ms-4" />
           </div>
-          <div class="caption font-italic font-weight-light ps-1 muted mb-2 mt-1">
+          <div class="text-subtitle mb-2 mt-1">
             {{ $t(`SpaceSettings.description.${space.visibility || 'hidden'}`) }}
           </div>
           <div class="d-flex flex-wrap pt-2">
@@ -101,7 +101,7 @@
                 class="my-0" />
             </v-radio-group>
           </div>
-          <div class="caption font-italic font-weight-light ps-1 muted">{{ $t(`SpaceSettings.description.${space.subscription || 'open'}`) }}</div>
+          <div class="text-subtitle ps-1">{{ $t(`SpaceSettings.description.${space.subscription || 'open'}`) }}</div>
         </form>
       </template>
       <template slot="footer">

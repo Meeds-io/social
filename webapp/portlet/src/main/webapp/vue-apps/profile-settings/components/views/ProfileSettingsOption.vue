@@ -1,7 +1,7 @@
 <!--
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2024 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
-
 <template>
   <v-list-item class="px-0" two-line>
     <v-list-item-content>
-      <v-list-item-title>
-        <h4 class="my-0">
-          {{ optionLabel }}
-        </h4>
+      <v-list-item-title class="text-title">
+        {{ optionLabel }}
       </v-list-item-title>
-      <v-list-item-subtitle>
+      <v-list-item-subtitle class="text-subtitle">
         {{ description }}
       </v-list-item-subtitle>
     </v-list-item-content>

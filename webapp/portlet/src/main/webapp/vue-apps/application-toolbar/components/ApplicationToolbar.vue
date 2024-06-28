@@ -172,10 +172,10 @@
             </v-icon>
             <span
               v-if="!isCompact"
-              class="ms-2 caption">
+              class="ms-2">
               {{ rightFilterButton.text }}
             </span>
-            <span v-if="filtersCount" class="caption">
+            <span v-if="filtersCount" class="ps-1">
               ({{ filtersCount }})
             </span>
           </v-btn>
@@ -392,7 +392,7 @@ export default {
       return this.hasButtonFilter && !this.hideRightInputs;
     },
     filterButtonClass() {
-      return `${this.isCompact && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || 'text-color'} ${!this.isCompact && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
+      return `${this.isCompact && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || ''} ${!this.isCompact && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
     },
     hasRightContent() {
       return this.rightInputsCount > 0;

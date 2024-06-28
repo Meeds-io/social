@@ -18,7 +18,7 @@
 -->
 <template>
   <div>
-    <div class="text-header mb-2">{{ label || $t('nodeIconPickerDrawer.label') }}</div>
+    <div class="mb-2">{{ label || $t('nodeIconPickerDrawer.label') }}</div>
     <div class="d-flex align-center">
       <v-icon size="40" class="icon-default-color">{{ value }}</v-icon>
       <v-btn
