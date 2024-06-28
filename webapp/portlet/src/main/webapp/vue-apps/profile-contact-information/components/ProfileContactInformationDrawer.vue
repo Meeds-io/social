@@ -22,7 +22,7 @@
             :property="property"
             @propertyUpdated="propertyUpdated" />
           <div v-else>
-            <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+            <v-card-text class="d-flex flex-grow-1 text-no-wrap pb-2">
               {{ getResolvedName(property) }}
               <span v-if="property.required">*</span>
             </v-card-text>

@@ -1,5 +1,5 @@
 <template>
-  <div class="caption text-light-color text-truncate">
+  <div class="text-subtitle text-truncate">
     <v-tooltip bottom>
       <template #activator="{ on, attrs }">
         <v-btn
@@ -17,12 +17,12 @@
             v-if="isActivityEdited"
             :value="comment.updateDate"
             label="TimeConvert.label.Short.Edited"
-            class="text-capitalize-first-letter text-light-color text-truncate ps-1"
+            class="text-capitalize-first-letter text-subtitle text-truncate ps-1"
             short />
           <relative-date-format
             v-else
             :value="comment.createDate"
-            class="text-capitalize-first-letter text-light-color text-truncate ps-1"
+            class="text-capitalize-first-letter text-subtitle text-truncate ps-1"
             short />
         </v-btn>
       </template>

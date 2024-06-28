@@ -13,7 +13,7 @@
         class="form-horizontal pt-0 pb-4"
         flat
         @submit="saveMembership">
-        <v-card-text class="d-flex membershipNameLabel flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex membershipNameLabel flex-grow-1 text-no-wrap pb-2">
           {{ $t('UsersManagement.membershipType') }} *
         </v-card-text>
         <v-card-text class="d-flex membershipNameField py-0">
@@ -49,7 +49,7 @@
           </template>
         </v-card-text>
 
-        <v-card-text class="d-flex membershipUser flex-grow-1 text-no-wrap text-left font-weight-bold pb-2">
+        <v-card-text class="d-flex membershipUser flex-grow-1 text-no-wrap pb-2">
           {{ $t('GroupsManagement.user') }} *
         </v-card-text>
         <v-card-text class="d-flex membershipUserField py-0">

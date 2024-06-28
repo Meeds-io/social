@@ -78,7 +78,9 @@
       <v-divider />
     </v-flex>
     <v-flex>
-      <v-list-item-action class="my-0 py-3 d-flex flex-row align-center justify-space-around me-0">
+      <v-list-item-action
+        id="HamburgerMenuSpaceLeftNavigationActions"
+        class="my-0 py-3 d-flex flex-row align-center justify-space-around me-0">
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn

@@ -31,7 +31,7 @@
         v-model="tab"
         color="none"
         optional
-        height="56"
+        height="57"
         slider-size="4">
         <navigation-mobile-menu-item
           v-for="(navigation, index) in mobileNavigations"
@@ -48,7 +48,7 @@
       show-arrows
       center-active
       optional
-      height="56"
+      height="57"
       slider-size="4">
       <navigation-menu-item
         v-for="(navigation, index) in navigations"

@@ -38,7 +38,7 @@
         </v-list-item-action>
         <v-list-item-content class="d-flex flex-column align-start me-2">
           <template v-if="label">
-            <v-list-item-title>
+            <v-list-item-title class="me-auto">
               {{ label }} {{ $t('generalSettings.color.label') }}
             </v-list-item-title>
             <v-spacer class="my-1" />
