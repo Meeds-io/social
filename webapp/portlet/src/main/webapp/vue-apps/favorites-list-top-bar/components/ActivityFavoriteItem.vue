@@ -15,18 +15,18 @@
       <v-icon
         v-else
         size="24" 
-        class="primary--text">
+        class="text-primary">
         fas fa-stream
       </v-icon> 
     </v-list-item-icon>
 
-    <v-list-item-content>
-      <v-list-item-title>
-        <p
-          class="ma-auto text-truncate"
-          v-sanitized-html="activityTitle"></p>
-      </v-list-item-title>
-    </v-list-item-content>
+    
+    <v-list-item-title>
+      <p
+        class="ma-auto text-truncate"
+        v-sanitized-html="activityTitle"></p>
+    </v-list-item-title>
+    
 
     <v-list-item-action>
       <favorite-button

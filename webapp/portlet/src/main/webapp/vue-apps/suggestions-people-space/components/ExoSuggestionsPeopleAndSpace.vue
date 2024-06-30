@@ -6,7 +6,7 @@
       extra-class="suggestions-wrapper application-body">
       <v-list
         v-if="peopleSuggestionsList.length > 0 && suggestionsType !== 'space'"
-        dense
+        density="compact"
         class="suggestions-list people-list pa-0">
         <exo-suggestions-people-list-item
           v-for="people in peoplesToDisplay"
@@ -19,7 +19,7 @@
         class="my-2" />
       <v-list
         v-if="spacesSuggestionsList.length > 0 && suggestionsType !== 'people'"
-        dense
+        density="compact"
         class="suggestions-list space-list pa-0">
         <exo-suggestions-space-list-item
           v-for="space in spacesToDisplay"

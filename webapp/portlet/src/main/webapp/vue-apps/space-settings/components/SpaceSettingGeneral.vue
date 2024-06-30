@@ -1,16 +1,15 @@
 <template>
   <div v-if="displayed">
     <v-card class="card-border-radius" flat>
-      <v-list two-line class="transparent">
+      <v-list lines="two" class="bg-transparent">
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="text-title">
-              {{ $t('SpaceSettings.general') }}
-            </v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title class="text-title">
+            {{ $t('SpaceSettings.general') }}
+          </v-list-item-title>
+          
           <v-list-item-action>
             <v-btn
-              small
+              size="small"
               icon
               @click="openDrawer">
               <v-icon size="18" class="icon-default-color">fa-edit</v-icon>

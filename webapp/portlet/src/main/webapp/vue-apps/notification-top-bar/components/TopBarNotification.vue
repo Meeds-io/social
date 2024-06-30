@@ -24,11 +24,11 @@
       <v-layout>
         <v-btn
           icon
-          class="text-xs-center"
+          class="text-center"
           :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
           @click="openDrawer">
           <v-badge
-            :value="badge > 0"
+            :model-value="badge > 0"
             :content="badge"
             flat
             color="var(--allPagesBadgePrimaryColor, #d32a2a)"

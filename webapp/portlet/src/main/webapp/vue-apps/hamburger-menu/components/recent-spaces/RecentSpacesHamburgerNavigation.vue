@@ -28,11 +28,11 @@
         <v-icon
           v-if="$root.ltr"
           class="fas fa-arrow-left"
-          small />
+          size="small" />
         <v-icon
           v-else
           class="fas fa-arrow-right"
-          small />
+          size="small" />
       </v-list-item-icon>
       <v-list-item class="recentSpacesTitle px-2">
         <v-list-item-icon 
@@ -59,9 +59,9 @@
         </v-list-item-content>
         <v-list-item-action v-if="showFilter" class="recentSpacesTitleIcon position-absolute r-3">
           <v-btn
-            text
+            variant="text"
             icon
-            color="blue-grey darken-1"
+            color="blue-grey-darken-1"
             size="22"
             @click="closeFilter()">
             <v-icon size="18">mdi-close</v-icon>

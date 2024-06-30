@@ -23,7 +23,7 @@
   <v-app :class="componentId" class="topBarMenu">
     <v-footer
       v-if="isMobile && mobileNavigations.length"
-      class="white pt-0 pr-0 pl-0 elevation-2"
+      class="bg-white pt-0 pr-0 pl-0 elevation-2"
       inset
       fixed>
       <v-tabs

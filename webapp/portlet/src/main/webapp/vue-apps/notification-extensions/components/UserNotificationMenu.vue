@@ -26,31 +26,31 @@
       'position-x': x,
       'position-y': y,
     }"
-    :left="!$vuetify.rtl"
-    :right="$vuetify.rtl"
+    :location="!$vuetify.rtl ? 'left' : undefined"
+    :location="$vuetify.rtl ? 'right' : undefined"
     :attach="!absolute"
     :absolute="absolute"
     class="z-index-modal"
     offset-y
-    bottom>
-    <template #activator="{ on, attrs }">
+    location="bottom">
+    <template #activator="{ props }">
       <v-btn
         v-show="hoverMenuOrCard"
-        v-bind="attrs"
-        v-on="on"
-        small
+       
+        v-bind="props"
+        size="small"
         icon
         @mousedown="showMenuNonAbsolute">
         <v-icon size="16" class="icon-default-color">fas fa-ellipsis-v</v-icon>
       </v-btn>
     </template>
-    <v-hover v-if="menu" @input="hoverMenu = $event">
-      <v-list dense class="white pa-0">
+    <v-hover v-if="menu" @update:model-value="hoverMenu = $event">
+      <v-list density="compact" class="bg-white pa-0">
         <v-list-item
           v-if="url"
           :href="url"
           target="_blank"
-          dense
+          density="compact"
           @mousedown="$emit('read-differ')">
           <v-list-item-icon class="mx-1 justify-center">
             <v-icon size="14" class="icon-default-color">fa-external-link-alt</v-icon>
@@ -59,7 +59,7 @@
         </v-list-item>
         <v-list-item
           v-if="unread"
-          dense
+          density="compact"
           @click="$emit('read')">
           <v-list-item-icon class="mx-1 justify-center">
             <v-icon size="14" class="icon-default-color">fa-envelope-open-text</v-icon>
@@ -67,7 +67,7 @@
           <v-list-item-title class="pl-0">{{ $t('Notification.markRead') }}</v-list-item-title>
         </v-list-item>
         <v-list-item
-          dense
+          density="compact"
           @click="$emit('remove')">
           <v-list-item-icon class="mx-1 justify-center">
             <v-icon size="14" class="icon-default-color">fa-trash</v-icon>
@@ -76,7 +76,7 @@
         </v-list-item>
         <v-list-item
           v-if="canMute"
-          dense
+          density="compact"
           @click="$emit('mute')">
           <v-list-item-icon class="mx-1 justify-center">
             <v-icon size="14" class="icon-default-color">fa-bell-slash</v-icon>

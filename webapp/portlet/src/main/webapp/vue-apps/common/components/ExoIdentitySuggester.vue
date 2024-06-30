@@ -12,7 +12,7 @@
       :required="required && !value"
       :items="items"
       :height="height"
-      :filter="filterIgnoredItems"
+      :custom-filter="filterIgnoredItems"
       :hide-no-data="hideNoData"
       :class="autocompleteClass"
       :prepend-inner-icon="prependInnerIcon"
@@ -22,16 +22,16 @@
       content-class="identitySuggesterContent"
       width="100%"
       max-width="100%"
-      :item-text="itemText"
+      :item-title="itemText"
       item-value="id"
       return-object
       persistent-hint
       hide-selected
       chips
       cache-items
-      dense
+      density="compact"
       flat
-      @update:search-input="searchTerm = $event">
+      @update:search="searchTerm = $event">
       <template slot="no-data">
         <v-list-item class="pa-0">
           <v-list-item-title
@@ -58,11 +58,11 @@
       <template slot="selection" slot-scope="{item, selected}">
         <v-chip
           v-if="item.profile"
-          :input-value="selected"
-          :close="!disabled"
+          :model-value="selected"
+          :closable="!disabled"
           class="identitySuggesterItem"
           @click:close="remove(item)">
-          <v-avatar left>
+          <v-avatar start>
             <v-img :src="item.profile.avatarUrl" role="presentation" />
           </v-avatar>
           <span class="text-truncate">

@@ -24,24 +24,24 @@
     v-model="showMenu"
     rounded
     offset-y>
-    <template #activator="{ attrs, on }">
+    <template #activator="{ props }">
       <v-tab
         class="mx-auto pa-1 text-break navigation-mobile-menu-tab"
-        v-bind="attrs"
+       
         :href="`${baseSiteUri}${navigation.uri}`"
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         :aria-label="navigation.label"
         role="tab"
         @click.stop="checkLink(navigation, $event)"
-        @change="updateNavigationState(navigation.uri)">
+        @group:selected="updateNavigationState(navigation.uri)">
         <span
           class="text-truncate-3 pt-2">
           {{ navigation.label }}
         </span>
         <v-btn
           v-if="hasPage && hasChildren"
-          v-on="hasChildren && on"
+          v-on="v-bind=&quot;props&quot;"
           class="mt-2"
           icon
           @click.stop.prevent="openDropMenu">

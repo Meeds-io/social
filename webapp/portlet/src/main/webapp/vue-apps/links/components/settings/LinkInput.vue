@@ -34,7 +34,7 @@
         v-if="!first"
         :title="$t('links.label.moveUp')"
         icon
-        small
+        size="small"
         @click="moveTop">
         <v-icon size="16">fa-arrow-up</v-icon>
       </v-btn>
@@ -42,20 +42,20 @@
         v-if="!last"
         :title="$t('links.label.moveDown')"
         icon
-        small
+        size="small"
         @click="moveDown">
         <v-icon size="16">fa-arrow-down</v-icon>
       </v-btn>
       <v-btn
         :title="$t('links.label.editLink')"
         icon
-        small
+        size="small"
         @click="edit">
         <v-icon size="16">fa-edit</v-icon>
       </v-btn>
       <v-btn
         :title="$t('links.label.removeLink')"
-        small
+        size="small"
         icon
         @click="remove">
         <v-icon size="16">fa-trash</v-icon>

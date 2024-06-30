@@ -1,7 +1,7 @@
 <template>
   <v-list
     v-if="spaces && spaces.length"
-    two-line
+    lines="two"
     subheader>
     <spaces-overview-spaces-list-item
       v-for="space in spaces"

@@ -1,11 +1,11 @@
 <template>
-  <v-app v-if="displaySpaceNavigations" class="spaceMenuParent white">
+  <v-app v-if="displaySpaceNavigations" class="spaceMenuParent bg-white">
     <v-footer 
       v-if="isMobile" 
-      class="spaceButtomNavigation white">
+      class="spaceButtomNavigation bg-white">
       <v-slide-group>
         <v-bottom-navigation
-          :value="selectedNavigationUri"
+          :model-value="selectedNavigationUri"
           grow
           color="tertiary"
           background-color="transparent"
@@ -21,7 +21,7 @@
     <v-tabs
       v-else
       ref="spaceMenuTabs"
-      :value="selectedNavigationUri"
+      :model-value="selectedNavigationUri"
       active-class="SelectedTab"
       class="mx-auto"
       show-arrows

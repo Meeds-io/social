@@ -20,7 +20,7 @@
 -->
 <template>
   <v-card flat>
-    <v-card-title class="primary--text px-0">
+    <v-card-title class="text-primary px-0">
       {{ $t('forgotpassword.resetPassword') }}
     </v-card-title>
 
@@ -54,8 +54,8 @@
             type="text"
             required="required"
             readonly
-            outlined
-            dense />
+            variant="outlined"
+            density="compact" />
           <v-text-field
             id="password"
             v-model="password"
@@ -70,8 +70,8 @@
             autofocus="autofocus"
             tabindex="0"
             required="required"
-            outlined
-            dense
+            variant="outlined"
+            density="compact"
             @click:append="toggleShow" />
           <v-text-field
             id="password2"
@@ -85,8 +85,8 @@
             name="password2"
             autocomplete="new-password"
             required="required"
-            outlined
-            dense
+            variant="outlined"
+            density="compact"
             @click:append="toggleConfirmShow" />
         </v-row>
         <v-row class="mx-0 mt-8 pa-0">
@@ -110,7 +110,7 @@
             max-width="100%"
             class="mx-auto login-button text-none"
             elevation="0"
-            outlined>
+            variant="outlined">
             <span>
               <v-icon size="16" class="position-absolute mt-n2">fas fa-arrow-left</v-icon>
             </span>

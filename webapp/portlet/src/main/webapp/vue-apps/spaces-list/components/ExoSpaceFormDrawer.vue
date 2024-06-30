@@ -70,7 +70,7 @@
                 <v-spacer />
                 <v-btn
                   class="btn btn-primary"
-                  outlined
+                  variant="outlined"
                   @click="nextStep">
                   {{ $t('spacesList.button.continue') }}
                   <v-icon size="18" class="ms-2">
@@ -110,7 +110,7 @@
                   v-model="space.subscription"
                   class="mt-2 ms-2"
                   mandatory
-                  row
+                  inline
                   inset>
                   <v-radio
                     :label="$t('spacesList.label.open')"
@@ -137,7 +137,7 @@
                 <v-spacer />
                 <v-btn
                   class="btn btn-primary"
-                  outlined
+                  variant="outlined"
                   @click="nextStep">
                   {{ $t('spacesList.button.continue') }}
                   <v-icon size="18" class="ms-2">

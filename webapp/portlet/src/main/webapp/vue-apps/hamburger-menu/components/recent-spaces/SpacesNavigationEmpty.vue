@@ -36,7 +36,7 @@
       :href="spacesLink"
       :title="$t('menu.spaces.exploreSpaces')"
       :class="keyword && 'mb-6' || 'my-6'"
-      class="btn primary">
+      class="btn bg-primary">
       <span class="text-none">
         {{ $t('menu.spaces.exploreSpaces') }}
       </span>

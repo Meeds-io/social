@@ -1,8 +1,8 @@
 <template>
   <div
     :class="!displayLabel && 'd-inline-flex'">
-    <v-tooltip bottom>
-      <template v-if="!displayLabel" #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template v-if="!displayLabel" #activator="{ props }">
         <v-btn
           :id="`FavoriteLink_${type}_${id}`"
           :style="buttonStyle"
@@ -12,8 +12,8 @@
           class="pa-0 mt-0"
           icon
           :small="small"
-          v-bind="attrs"
-          v-on="on"
+         
+          v-bind="props"
           @click="changeFavorite">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
@@ -25,10 +25,10 @@
           </div>
         </v-btn>
       </template>
-      <template v-else #activator="{ on, attrs }">
+      <template v-else #activator="{ props }">
         <v-list-item 
-          v-bind="attrs" 
-          v-on="on" 
+          
+          v-bind="props" 
           :aria-label="favoriteTooltip"
           @click="changeFavorite">
           <v-icon 

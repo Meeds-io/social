@@ -7,7 +7,7 @@
       v-model="channelStatus[channelId]"
       :key="channelId"
       hide-details
-      @change="saveChannelStatus(channelId, $event)">
+      @update:model-value="saveChannelStatus(channelId, $event)">
       <template #label>
         <span class="text-color">{{ channelLabels[channelId] }}</span>
       </template>

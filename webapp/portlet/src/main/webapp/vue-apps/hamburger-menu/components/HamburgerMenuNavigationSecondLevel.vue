@@ -25,10 +25,10 @@
     v-model="drawer"
     :width="drawerWidth"
     :style="drawerOffsetStyle"
-    :right="$root.rtl"
+    :location="$root.rtl ? 'right' : undefined"
     class="HamburgerMenuSecondLevelParent border-box-sizing"
     max-width="100%"
-    hide-overlay>
+    :scrim="false">
     <template v-if="drawer">
       <recent-spaces-hamburger-navigation
         v-if="secondLevel === 'recentSpaces'"

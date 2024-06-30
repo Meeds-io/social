@@ -60,7 +60,7 @@
         :width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
         :class="useEmbeddedLinkView && (!isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')"
         :style="`background-color: ${thumbnailBG};`"
-        class="border-box-sizing align-start me-4 rounded-l"
+        class="border-box-sizing align-start me-4 rounded-s"
         eager
         tile>
         <img
@@ -117,8 +117,8 @@
           v-if="showReadMore"
           :aria-label="$t('UIActivity.label.seeMore')"
           class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 text-light-color linear-gradient-white-background hover-underline hover-blue-color"
-          text
-          plain
+          variant="text"
+          variant="plain"
           @click="displayFullContent">
           <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
         </v-btn>

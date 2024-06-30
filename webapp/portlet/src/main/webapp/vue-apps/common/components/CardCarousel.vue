@@ -11,15 +11,15 @@
         fab
         dark
         absolute
-        left
-        x-small
+        location="left"
+        size="x-small"
         @click="moveLeft">
         <v-icon size="25">fa-arrow-circle-left</v-icon>
       </v-btn>
     </v-fab-transition>
     <v-card
       :class="!dense && 'px-0 pb-4 pt-2'"
-      class="carousel-middle-parent scrollbar-width-none transparent d-flex overflow-x-scroll"
+      class="carousel-middle-parent scrollbar-width-none bg-transparent d-flex overflow-x-scroll"
       flat
       @scroll="computeProperties"
       @resize="computeProperties">
@@ -38,8 +38,8 @@
         fab
         dark
         absolute
-        right
-        x-small
+        location="right"
+        size="x-small"
         @click="moveRight">
         <v-icon size="25">fa-arrow-circle-right</v-icon>
       </v-btn>

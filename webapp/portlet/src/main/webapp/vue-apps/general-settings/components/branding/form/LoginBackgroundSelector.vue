@@ -23,7 +23,7 @@
     <div>
       <v-btn
         class="btn btn-primary"
-        outlined
+        variant="outlined"
         @click="$refs.imageCropDrawer.open()">
         {{ hasImage && $t('generalSettings.changeLoginBackground.button') || $t('generalSettings.addLoginBackground.button') }}
       </v-btn>

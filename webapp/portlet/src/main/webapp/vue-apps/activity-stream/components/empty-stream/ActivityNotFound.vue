@@ -6,7 +6,7 @@
     <v-icon size="100" color="primary">
       far fa-question-circle
     </v-icon>
-    <div class="text-color headline mt-6">
+    <div class="text-color text-h5 mt-6">
       {{ $t('UIUserActivitiesDisplay.label.activityNotFound') }}
     </div>
     <v-card
@@ -19,7 +19,7 @@
     <v-btn
       :href="activityStreamUrl"
       class="btn btn-primary mt-6"
-      large>
+      size="large">
       <span class="text-none text-title">
         {{ $t('activity.notFound.button.exploreActivities') }}
       </span>

@@ -1,14 +1,14 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    :right="rightDrawer"
+    :location="rightDrawer ? 'right' : undefined"
     :left="leftDrawer"
-    :bottom="bottomDrawer"
+    :location="bottomDrawer ? 'bottom' : undefined"
     :class="[!drawer && 'd-none d-sm-flex', bottom && 'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5']"
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
-    :hide-overlay="!showOverlay"
+    :scrim="false"
     :temporary="!showOverlay"
     touchless
     stateless

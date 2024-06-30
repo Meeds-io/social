@@ -24,8 +24,8 @@
     class="d-flex">
     <v-btn
       class="btn ma-auto btn-primary"
-      flat
-      outlined
+      variant="flat"
+      variant="outlined"
       @click="openChartSettingsDrawer">
       <v-icon
         class="me-1"
@@ -52,7 +52,7 @@
           class="ms-auto my-0 icon-default-color me-5"
           :loading="isPrintingPdf"
           :title="$t('organizationalChart.download.label')"
-          small
+          size="small"
           icon
           @click="downloadChart">
           <v-icon
@@ -65,7 +65,7 @@
         <v-btn
           v-if="hover || isMobile"
           class="ms-auto my-0 icon-default-color"
-          small
+          size="small"
           icon
           @click="openChartSettingsDrawer">
           <v-icon

@@ -1,5 +1,5 @@
 <template>
-  <v-app class="border-box-sizing transparent" flat>
+  <v-app class="border-box-sizing bg-transparent" flat>
     <v-dialog
       v-model="dialog"
       content-class="rounded-lg"
@@ -10,11 +10,11 @@
         <v-card-title class="text-title pb-6">
           {{ $t('changes.reminder.WhatNew') }}
           <v-spacer />
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
               <div
-                v-bind="attrs"
-                v-on="on">
+               
+                v-bind="props">
                 <v-btn
                   class="me-n3"
                   icon
@@ -40,8 +40,8 @@
           <v-spacer />
           <v-btn
             :loading="loading"
-            text
-            class="primary--text"
+            variant="text"
+            class="text-primary"
             @click="doNotRemindMe">
             {{ $t('changes.reminder.doNotRemind') }}
           </v-btn>

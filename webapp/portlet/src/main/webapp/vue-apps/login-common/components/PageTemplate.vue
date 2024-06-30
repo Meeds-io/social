@@ -40,7 +40,7 @@
           height="100%"
           tile
           flat
-          class="fill-height width-min-content flex-shrink-1 transparent">
+          class="fill-height width-min-content flex-shrink-1 bg-transparent">
           <nav class="fill-height flex-grow-1">
             <portal-login-introduction :color="background && 'transparent' || 'primary'">
               <template #title>
@@ -71,12 +71,12 @@
               </template>
             </portal-login-introduction>
             <div :class="center && 'd-block' || 'd-sm-flex flex-column flex-grow-1 px-sm-8'" class="px-4 px-sm-0">
-              <v-card-title v-if="$slots.title" class="display-1 primary--text px-0 d-none d-sm-flex text-wrap">
+              <v-card-title v-if="$slots.title" class="text-h4 text-primary px-0 d-none d-sm-flex text-wrap">
                 <slot name="title"></slot>
               </v-card-title>
               <v-card-title
                 v-else
-                class="text-title text-h4 primary--text px-0 d-none d-sm-flex text-break text-center justify-center mx-n12">
+                class="text-title text-h4 text-primary px-0 d-none d-sm-flex text-break text-center justify-center mx-n12">
                 {{ companyName }}
               </v-card-title>
               <div :class="center && 'd-block' || 'd-sm-flex flex mx-0'">

@@ -1,7 +1,7 @@
 <template>
   <v-list-item
     class="activity-head"
-    dense>
+    density="compact">
     <template v-if="isMobile">
       <activity-mobile-head
         :activity="activity"

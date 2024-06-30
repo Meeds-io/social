@@ -36,10 +36,10 @@
             :title="$t('generalSettings.loginBackgroundCancelImageChoice')"
             :loading="deleting"
             color="primary"
-            class="position-absolute r-3 mt-2 z-index-two white"
+            class="position-absolute r-3 mt-2 z-index-two bg-white"
             icon
             border
-            outlined
+            variant="outlined"
             @click="deleteBackground">
             <v-icon size="18">fas fa-undo</v-icon>
           </v-btn>
@@ -48,10 +48,10 @@
             :title="$t('generalSettings.loginBackgroundRestoreDefaultBackground')"
             :loading="deleting"
             color="error"
-            class="position-absolute r-3 mt-2 z-index-two white"
+            class="position-absolute r-3 mt-2 z-index-two bg-white"
             icon
             border
-            outlined
+            variant="outlined"
             @click="deleteDefaultBackground">
             <v-icon size="22">fas fa-trash</v-icon>
           </v-btn>
@@ -67,7 +67,7 @@
             height="100%"
             tile
             flat
-            class="fill-height width-min-content flex-shrink-1 transparent">
+            class="fill-height width-min-content flex-shrink-1 bg-transparent">
             <nav class="fill-height flex-grow-1">
               <portal-login-introduction :color="hasImage && 'transparent' || 'primary'">
                 <template #title>

@@ -31,12 +31,12 @@
     <v-list-item class="px-2">
       <v-btn
         class="border-color grey-background"
-        outlined
+        variant="outlined"
         width="120"
         min-height="120"
         max-height="120"
         @click="openFileExplorer">
-        <v-icon class="primary--text">fa-plus</v-icon>
+        <v-icon class="text-primary">fa-plus</v-icon>
       </v-btn>
     </v-list-item>
   </card-carousel>

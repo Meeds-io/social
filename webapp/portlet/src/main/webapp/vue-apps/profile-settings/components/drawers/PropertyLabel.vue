@@ -43,8 +43,8 @@
           type="text"
           class="flex-grow-1 pa-3 ms-1"
           maxlength="2000"
-          outlined
-          dense
+          variant="outlined"
+          density="compact"
           :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
         <div class="flex-grow-0 mt-3">
           <v-btn icon @click="deleteLabel">

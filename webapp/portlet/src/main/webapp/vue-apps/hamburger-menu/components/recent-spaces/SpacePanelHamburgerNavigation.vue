@@ -28,11 +28,11 @@
         <v-icon
           v-if="$root.ltr"
           class="fas fa-arrow-left"
-          small />
+          size="small" />
         <v-icon
           v-else
           class="fas fa-arrow-right"
-          small />
+          size="small" />
       </v-list-item-icon>
       <v-list-item class="width-min-content text-truncate pt-3">
         <v-list-item-avatar
@@ -44,7 +44,7 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <a :href="spaceURL" class="font-weight-bold text-truncate primary--text mb-2">{{ spaceDisplayName }}</a>
+          <a :href="spaceURL" class="font-weight-bold text-truncate text-primary mb-2">{{ spaceDisplayName }}</a>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
@@ -57,11 +57,10 @@
       class="text-subtitle text-truncate-4 mb-0 pt-3 px-4"></p>
     <v-flex>
       <v-list-item>
-        <v-list-item-content>
-          <v-list-item-title>
-            {{ $t('space.logo.banner.popover.managers') }}
-          </v-list-item-title>
-        </v-list-item-content>
+        <v-list-item-title>
+          {{ $t('space.logo.banner.popover.managers') }}
+        </v-list-item-title>
+        
         <v-list-item-action>
           <exo-user-avatars-list
             :users="managersToDisplay"
@@ -81,20 +80,20 @@
       <v-list-item-action
         id="HamburgerMenuSpaceLeftNavigationActions"
         class="my-0 py-3 d-flex flex-row align-center justify-space-around me-0">
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
+        <v-tooltip location="bottom">
+          <template #activator="{ props }">
             <v-btn
               :aria-label="$t('menu.spaces.makeAsHomePage')"
               role="button"
               link
               icon
-              v-bind="attrs"
-              v-on="on"
+             
+              v-bind="props"
               @click="$root.$emit('change-home-link-space', space)">
               <v-icon 
                 :class="isHomeLink && 'primary--text' || 'icon-default-color'" 
                 class="me-0 pa-2" 
-                small>
+                size="small">
                 fa-house-user
               </v-icon>
             </v-btn>
@@ -103,15 +102,15 @@
             {{ $t('menu.spaces.makeAsHomePage') }}
           </span>
         </v-tooltip>
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
+        <v-tooltip location="bottom">
+          <template #activator="{ props }">
             <v-btn
               :disabled="markAsReadDisabled"
-              v-bind="attrs" 
-              v-on="on" 
+              
+              v-bind="props" 
               icon
               @click="markAsAllRead">
-              <v-icon class="me-0 pa-2" small>
+              <v-icon class="me-0 pa-2" size="small">
                 fa-envelope-open-text
               </v-icon>
             </v-btn>

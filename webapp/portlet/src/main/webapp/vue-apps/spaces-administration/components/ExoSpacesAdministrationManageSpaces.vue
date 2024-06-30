@@ -56,50 +56,50 @@
         <td class="center"> {{ $t('social.spaces.administration.manageSpaces.registration.'+space.subscription) }} </td>
         <td class="center"> {{ space.totalBoundUsers }}/{{ space.membersCount }} </td>
         <td class="center actionContainer d-flex align-center justify-center">
-          <v-tooltip v-if="canBindGroupsAndSpaces" bottom>
-            <template #activator="{ on, attrs }">
+          <v-tooltip v-if="canBindGroupsAndSpaces" location="bottom">
+            <template #activator="{ props }">
               <v-btn
                 icon
-                v-bind="attrs"
-                v-on="on"
+               
+                v-bind="props"
                 @click="openSpaceBindingDrawer(space, index)">
                 <v-icon :class="space.hasBindings && 'primary--text' || 'icon-default-color'" size="18">fa-users</v-icon>
               </v-btn>
             </template>
             <span>{{ $t('social.spaces.administration.manageSpaces.actions.bind') }}</span>
           </v-tooltip>
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
               <v-btn
                 :href="getSpaceLinkSetting(space.displayName,space.groupId)"
                 target="_blank"
                 icon
-                v-bind="attrs"
-                v-on="on">
+               
+                v-bind="props">
                 <v-icon color="primary" size="18">fa-edit</v-icon>
               </v-btn>
             </template>
             <span>{{ $t('social.spaces.administration.manageSpaces.actions.edit') }}</span>
           </v-tooltip>
-          <v-tooltip v-if="resetSpaceHomeLayoutEnabled" bottom>
-            <template #activator="{ on, attrs }">
+          <v-tooltip v-if="resetSpaceHomeLayoutEnabled" location="bottom">
+            <template #activator="{ props }">
               <v-btn
                 :loading="restoringHomeLayout === space.id"
                 icon
-                v-bind="attrs"
-                v-on="on"
+               
+                v-bind="props"
                 @click="openRestoreLayoutConfirm(space)">
                 <v-icon color="primary" size="18">fa-undo</v-icon>
               </v-btn>
             </template>
             <span>{{ $t('social.spaces.administration.manageSpaces.actions.resetHomeLayout') }}</span>
           </v-tooltip>
-          <v-tooltip bottom>
-            <template #activator="{ on, attrs }">
+          <v-tooltip location="bottom">
+            <template #activator="{ props }">
               <v-btn
                 icon
-                v-bind="attrs"
-                v-on="on"
+               
+                v-bind="props"
                 @click="deleteSpaceById(space.id, index)">
                 <v-icon color="primary" size="18">fa-trash</v-icon>
               </v-btn>

@@ -25,7 +25,7 @@
         class="primary-border-color ms-4"
         color="primary"
         elevation="0"
-        outlined
+        variant="outlined"
         @click="edit">
         {{ $t('nodeIconPickerDrawer.edit') }}
       </v-btn>

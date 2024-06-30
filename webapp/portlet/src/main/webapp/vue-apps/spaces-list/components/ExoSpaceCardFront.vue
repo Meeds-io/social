@@ -4,7 +4,7 @@
       :id="spaceMenuParentId"
       :elevation="hover && !isMobile && 4 || 0"
       class="spaceCardItem d-block d-sm-flex mx-2"
-      :outlined="!isMobile">
+      :border="!isMobile">
       <v-img
         :src="spaceBannerUrl"
         transition="none"
@@ -12,14 +12,14 @@
         min-height="80px"
         max-height="80px"
         min-width="100%"
-        class="white--text align-start d-block spaceBannerImg"
+        class="text-white align-start d-block spaceBannerImg"
         eager />
 
       <div class="spaceToolbarIcons px-2">
         <v-btn
           :title="$t('spaceList.label.openSpaceInfo')"
           icon
-          small
+          size="small"
           class="spaceInfoIcon d-flex"
           @click="$emit('flip')">
           <v-icon size="12">fa-info</v-icon>
@@ -38,7 +38,7 @@
           </v-icon>
           <v-bottom-sheet v-model="bottomMenu" class="pa-0">
             <v-sheet class="text-center" height="150px">
-              <v-list dense>
+              <v-list density="compact">
                 <v-list-item 
                   v-if="space.isMember"
                   @click="leave">
@@ -125,7 +125,7 @@
           <v-btn
             :title="$t('spaceList.label.openSpaceMenu')"
             icon
-            text
+            variant="text"
             class="spaceMenuIcon d-block"
             @click="displayActionMenu = true">
             <v-icon size="21">mdi-dots-vertical</v-icon>
@@ -137,7 +137,7 @@
             transition="slide-x-reverse-transition"
             content-class="spaceActionMenu"
             offset-y>
-            <v-list class="pa-0" dense>
+            <v-list class="pa-0" density="compact">
               <template v-if="space.canEdit">
                 <v-list-item @click="editSpace">
                   <v-list-item-title>
@@ -204,7 +204,7 @@
           :loading="sendingAction"
           :disabled="sendingAction || space.isUserBound"
           class="btn mx-auto spaceMembershipButton leaveSpaceButton"
-          depressed
+          variant="flat"
           block
           @click="leaveConfirm">
           <v-icon>mdi-minus</v-icon>
@@ -218,7 +218,7 @@
               :loading="sendingAction"
               :disabled="sendingAction"
               class="btn mx-auto spaceMembershipButton acceptToJoinSpaceButton"
-              depressed
+              variant="flat"
               @click="acceptToJoin">
               <v-icon>mdi-check</v-icon>
               <span class="d-flex">
@@ -227,8 +227,8 @@
             </v-btn>
             <v-btn
               class="btn spaceButtonMenu d-inline"
-              depressed
-              x-small
+              variant="flat"
+              size="x-small"
               @click="displaySecondButton = !displaySecondButton">
               <v-icon>mdi-menu-down</v-icon>
             </v-btn>
@@ -238,7 +238,7 @@
             :loading="sendingSecondAction"
             :disabled="sendingSecondAction"
             class="btn mx-auto spaceMembershipButton refuseToJoinSpaceButton"
-            depressed
+            variant="flat"
             block
             @click="refuseToJoin">
             <v-icon>mdi-close</v-icon>
@@ -252,7 +252,7 @@
           :loading="sendingAction"
           :disabled="sendingAction"
           class="btn mx-auto spaceMembershipButton cancelRequestToJoinSpaceButton"
-          depressed
+          variant="flat"
           block
           @click="cancelRequest">
           <v-icon>mdi-close</v-icon>
@@ -265,7 +265,7 @@
           :loading="sendingAction"
           :disabled="sendingAction"
           class="btn mx-auto spaceMembershipButton joinSpaceButton"
-          depressed
+          variant="flat"
           block
           @click="join">
           <v-icon>mdi-plus</v-icon>
@@ -278,7 +278,7 @@
           :loading="sendingAction"
           :disabled="sendingAction"
           class="btn mx-auto spaceMembershipButton joinSpaceButton"
-          depressed
+          variant="flat"
           block
           @click="requestJoin">
           <v-icon>mdi-plus</v-icon>
@@ -293,7 +293,7 @@
           <v-btn
             disabled
             class="btn mx-auto spaceMembershipButton joinSpaceButton"
-            depressed
+            variant="flat"
             block
             @click="join">
             <v-icon>mdi-plus</v-icon>

@@ -77,11 +77,11 @@
                     {{ icon.value }}
                   </v-icon>
                 </div>
-                <v-tooltip bottom>
-                  <template #activator="{ on, attrs }">
+                <v-tooltip location="bottom">
+                  <template #activator="{ props }">
                     <p                 
-                      v-on="on"
-                      v-bind="attrs"
+                      v-bind="props"
+                     
                       class="align-center text-truncate text-caption text--primary font-weight-medium pb-2 mx-1">
                       {{ icon.name }}
                     </p>

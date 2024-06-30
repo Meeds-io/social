@@ -20,10 +20,10 @@
 -->
 <template>
   <v-tooltip
-    :value="true"
+    :model-value="true"
     :position-x="positionX"
     :position-y="positionY"
-    bottom>
+    location="bottom">
     <div class="d-flex flex-no-wrap align-center">
       <v-icon
         size="18"

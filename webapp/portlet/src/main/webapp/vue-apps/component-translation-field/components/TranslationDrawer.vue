@@ -58,15 +58,15 @@
             <v-text-field
               v-else
               :name="`${language}-translation-value`"
-              :value="translations[language]"
+              :model-value="translations[language]"
               :autofocus="language === defaultLanguage && 'autofocus'"
               :disabled="loading"
               :rules="rules || []"
               class="border-box-sizing pt-0"
               type="text"
-              outlined
-              dense
-              @input="updateValue(language, $event)" />
+              variant="outlined"
+              density="compact"
+              @update:model-value="updateValue(language, $event)" />
           </v-col>
           <v-col cols="4">
             <div class="d-flex max-width-fit">

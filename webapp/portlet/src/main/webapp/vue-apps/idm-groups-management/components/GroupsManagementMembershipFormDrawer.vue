@@ -61,7 +61,7 @@
               :disabled="saving || !newMembership"
               :loading="loadingSuggestions > 0"
               :items="users"
-              :search-input.sync="searchTerm"
+              :search.sync="searchTerm"
               :placeholder="$t('GroupsManagement.addMemberInGroup')"
               :required="!selectedUsers.length"
               :return-object="false"
@@ -73,17 +73,17 @@
               content-class="identitySuggesterContent"
               width="100%"
               max-width="100%"
-              item-text="fullName"
+              item-title="fullName"
               item-value="userName"
               persistent-hint
               hide-selected
               chips
               cache-items
-              dense
+              density="compact"
               flat
               multiple
-              @change="clearSearch"
-              @update:search-input="searchTerm = $event">
+              @update:model-value="clearSearch"
+              @update:search="searchTerm = $event">
               <template slot="no-data">
                 <v-list-item class="pa-0">
                   <v-list-item-title class="px-2">
@@ -93,8 +93,8 @@
               </template>
               <template slot="selection" slot-scope="{item, selected}">
                 <v-chip
-                  :input-value="selected"
-                  :close="newMembership"
+                  :model-value="selected"
+                  :closable="newMembership"
                   class="identitySuggesterItem"
                   @click:close="removeMemberShip(item)">
                   <span class="text-truncate">
@@ -115,7 +115,7 @@
               :disabled="saving || !newMembership"
               :loading="loadingSuggestions > 0"
               :items="users"
-              :search-input.sync="searchTerm"
+              :search.sync="searchTerm"
               :placeholder="$t('GroupsManagement.addMemberInGroup')"
               :required="!membership.userName"
               :return-object="false"
@@ -127,16 +127,16 @@
               content-class="identitySuggesterContent"
               width="100%"
               max-width="100%"
-              item-text="fullName"
+              item-title="fullName"
               item-value="userName"
               persistent-hint
               hide-selected
               chips
               cache-items
-              dense
+              density="compact"
               flat
               single-line
-              @update:search-input="searchTerm = $event">
+              @update:search="searchTerm = $event">
               <template slot="no-data">
                 <v-list-item class="pa-0">
                   <v-list-item-title class="px-2">
@@ -146,8 +146,8 @@
               </template>
               <template slot="selection" slot-scope="{item, selected}">
                 <v-chip
-                  :input-value="selected"
-                  :close="newMembership"
+                  :model-value="selected"
+                  :closable="newMembership"
                   class="identitySuggesterItem"
                   @click:close="membership.userName = null">
                   <span class="text-truncate">

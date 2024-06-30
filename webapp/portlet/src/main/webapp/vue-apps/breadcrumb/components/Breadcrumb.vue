@@ -12,12 +12,12 @@
         <v-tooltip
           v-if="breadcrumb.label != ellipsis"
           max-width="300"
-          bottom>
-          <template #activator="{ on, attrs }">
+          location="bottom">
+          <template #activator="{ props }">
             <div
               class="text-truncate d-inline not-clickable"
-              v-bind="attrs"
-              v-on="on">
+             
+              v-bind="props">
               <v-btn
                 :href="breadcrumb.uri"
                 :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'"
@@ -25,14 +25,14 @@
                 min-width="45px"
                 max-width="250px"
                 class="pa-0"
-                text>
+                variant="text">
                 <span class="text-truncate text-none">
                   {{ breadcrumb.label }}
                 </span>
               </v-btn>
             </div>
           </template>
-          <span class="caption">
+          <span class="text-caption">
             {{ breadcrumb.label }}
           </span>
         </v-tooltip>
@@ -41,7 +41,7 @@
           disabled
           min-width="45px"
           class="pa-0 flex-shrink-1"
-          text>
+          variant="text">
           {{ breadcrumb.label }}
         </v-btn>
         <v-icon

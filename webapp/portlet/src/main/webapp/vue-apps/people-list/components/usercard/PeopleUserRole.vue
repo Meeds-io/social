@@ -27,7 +27,7 @@
     icon
     @click.stop.prevent>
     <v-icon
-      class="primary--text"
+      class="text-primary"
       size="12">
       {{ icon }}
     </v-icon>

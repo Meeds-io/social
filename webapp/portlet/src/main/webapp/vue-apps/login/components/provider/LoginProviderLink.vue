@@ -20,8 +20,8 @@
 -->
 <template>
   <div>
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           :id="id"
           :href="link"
@@ -30,10 +30,10 @@
           min-width="auto"
           color="primary"
           class="pa-4 text-none"
-          outlined
-          large
-          v-bind="attrs"
-          v-on="on"
+          variant="outlined"
+          size="large"
+         
+          v-bind="props"
           @click="clickOnProviderButton">
           <v-img
             v-if="providerImage"

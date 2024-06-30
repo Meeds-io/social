@@ -5,22 +5,22 @@
     <v-icon
       v-if="!noIcon"
       class="icon-default-color me-1"
-      x-small>
+      size="x-small">
       far fa-clock
     </v-icon>
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           :href="activityLink"
           :height="btnHeight"
-          :x-small="btnXSmall"
+          :size="btnXSmall ? 'x-small' : undefined"
           :class="btnClass"
           class="hover-underline width-auto text-capitalize-first-letter px-0 "
           link
-          text
-          plain
-          v-bind="attrs"
-          v-on="on">
+          variant="text"
+          variant="plain"
+         
+          v-bind="props">
           <relative-date-format
             v-if="isActivityEdited"
             :value="activity.updateDate"

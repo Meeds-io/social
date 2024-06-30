@@ -3,27 +3,27 @@
     <v-menu
       v-model="menu"
       content-class="white"
-      :left="!$vuetify.rtl"
-      :right="$vuetify.rtl"
+      :location="!$vuetify.rtl ? 'left' : undefined"
+      :location="$vuetify.rtl ? 'right' : undefined"
       :nudge-left="!$vuetify.rtl && '12'"
       :nudge-right="!$vuetify.rtl && '12'"
-      bottom
+      location="bottom"
       offset-y
       attach>
-      <template #activator="{ on, attrs }">
+      <template #activator="{ props }">
         <v-btn
           icon
-          small
-          v-bind="attrs"
-          v-on="on">
-          <v-icon size="18" class="primary--text">mdi-dots-vertical</v-icon>
+          size="small"
+         
+          v-bind="props">
+          <v-icon size="18" class="text-primary">mdi-dots-vertical</v-icon>
         </v-btn>
       </template>
-      <v-list dense class="pa-0">
+      <v-list density="compact" class="pa-0">
         <v-list-item
           v-for="action of enabledActions"
           :key="action.id"
-          dense
+          density="compact"
           @click="clickOnAction(action)">
           <v-icon size="16" class="icon-default-color">{{ $t(action.icon) }}</v-icon>
           <v-list-item-title class="pl-3">{{ $t(action.labelKey) }}</v-list-item-title>

@@ -67,10 +67,10 @@
           </div>
           <div v-if="hasMoreRepliesToDisplay" class="py-0 my-1 align-start d-flex flex-row border-box-sizing">
             <v-btn
-              class="primary--text font-weight-bold mb-1 pa-0"
-              small
+              class="text-primary font-weight-bold mb-1 pa-0"
+              size="small"
               link
-              text
+              variant="text"
               @click="openReplies">
               <v-icon size="12" class="me-1 fa-flip-horizontal">fa-reply</v-icon>
               {{ $t('UIActivity.label.ViewAllReplies', {0: subCommentsSize}) }}

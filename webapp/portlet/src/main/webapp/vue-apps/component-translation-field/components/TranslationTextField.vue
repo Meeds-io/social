@@ -40,14 +40,14 @@
       :name="id"
       :placeholder="placeholder"
       :rules="rules || []"
-      :value="$t(defaultLanguageValue)"
+      :model-value="$t(defaultLanguageValue)"
       :autofocus="autofocus"
       :hide-details="noRulesValidation"
       class="border-box-sizing width-auto pt-0"
       type="text"
-      outlined
+      variant="outlined"
       readonly
-      dense>
+      density="compact">
       <template v-if="!$slots.title" #append>
         <div class="mt-n2">
           <v-btn
@@ -74,8 +74,8 @@
       :hide-details="noRulesValidation"
       class="border-box-sizing width-auto pt-0"
       type="text"
-      outlined
-      dense>
+      variant="outlined"
+      density="compact">
       <template #append>
         <div v-if="!$slots.title" class="mt-n2">
           <v-btn

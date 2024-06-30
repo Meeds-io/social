@@ -1,18 +1,18 @@
 <template>
   <div class="d-inline-flex ms-xl-4 ms-lg-3">
     <!-- Added for mobile -->
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           :id="`LikeLink${activityId}`"
           :loading="changingLike"
           :class="likeTextColorClass"
           class="pa-0 mt-0"
-          text
+          variant="text"
           link
-          small
-          v-bind="attrs"
-          v-on="on"
+          size="small"
+         
+          v-bind="props"
           @click="changeLike">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon

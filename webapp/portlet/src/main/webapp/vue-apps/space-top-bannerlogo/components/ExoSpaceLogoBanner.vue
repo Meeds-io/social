@@ -12,10 +12,10 @@
       min-width="300"
       content-class="no-box-shadow full-height pa-1 mt-6 "
       offset-y>
-      <template #activator="{ on, attrs }">
+      <template #activator="{ props }">
         <div
-          v-on="on"
-          v-bind="attrs"
+          v-bind="props"
+         
           class="d-inline-flex">
           <a :href="portalPath" :aria-label="$t('space.avatar.href.title',{0:logoTitle})">
             <v-list-item-avatar 
@@ -50,12 +50,12 @@
             </v-list-item-avatar>
             <v-list-item-content class="pb-0 pt-0">
               <v-list-item-title>
-                <v-tooltip bottom>
-                  <template #activator="{ on, attrs }">
+                <v-tooltip location="bottom">
+                  <template #activator="{ props }">
                     <span
-                      v-on="on"
-                      v-bind="attrs"
-                      class="primary--text text--darken-3 font-weight-bold">
+                      v-bind="props"
+                     
+                      class="text-primary-darken-3 font-weight-bold">
                       {{ logoTitle }}
                     </span>
                   </template>
@@ -71,32 +71,30 @@
         </v-list>
         <v-list class="pa-0 mt-0 mb-0">
           <v-list-item class="pt-0 pb-0">
-            <v-list-item-content>
-              <v-container class="pa-0">
-                <v-row no-gutters class="align-center">
-                  <v-col
-                    cols="6"
-                    class="text-truncate text-left">
-                    {{ $t('space.logo.banner.popover.managers') }}
-                  </v-col>
-                  <v-col
-                    cols="6"
-                    class="d-flex flex-nowrap justify-end pa-0">
-                    <exo-user-avatars-list
-                      :users="mangersToDisplay"
-                      :icon-size="30"
-                      :popover="false"
-                      :margin-left="mangersToDisplay.length > 1 && 'ml-n4' || ''"
-                      :compact="mangersToDisplay.length > 1"
-                      clickable="'false'"
-                      max="3"
-                      retrieve-extra-information
-                      avatar-overlay-position
-                      @open-detail="openDetails()" />
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-list-item-content>
+            <v-container class="pa-0">
+              <v-row no-gutters class="align-center">
+                <v-col
+                  cols="6"
+                  class="text-truncate text-left">
+                  {{ $t('space.logo.banner.popover.managers') }}
+                </v-col>
+                <v-col
+                  cols="6"
+                  class="d-flex flex-nowrap justify-end pa-0">
+                  <exo-user-avatars-list
+                    :users="mangersToDisplay"
+                    :icon-size="30"
+                    :popover="false"
+                    :margin-left="mangersToDisplay.length > 1 && 'ml-n4' || ''"
+                    :compact="mangersToDisplay.length > 1"
+                    clickable="'false'"
+                    max="3"
+                    retrieve-extra-information
+                    avatar-overlay-position
+                    @open-detail="openDetails()" />
+                </v-col>
+              </v-row>
+            </v-container>
           </v-list-item>
         </v-list>
         <v-divider />
@@ -109,12 +107,12 @@
                 <v-btn
                   :href="homePath"
                   color="primary"
-                  text
+                  variant="text"
                   class="pa-0 pe-2"
                   @click="popoverActionEvent('backToHome')">
                   <v-icon
-                    dense
-                    right
+                    size="small"
+                    end
                     class="me-1 ms-0">
                     mdi-home
                   </v-icon>

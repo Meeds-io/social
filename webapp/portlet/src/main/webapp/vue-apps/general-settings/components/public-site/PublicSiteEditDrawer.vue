@@ -33,20 +33,19 @@
         <div>
           {{ $t('generalSettings.enablePublicSiteDescription') }}
         </div>
-        <v-list-item class="px-0" two-line>
-          <v-list-item-content>
-            <v-list-item-title class="font-weight-bold">
-              {{ $t('generalSettings.makePublicSiteVisible') }}
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ $t('generalSettings.subtitle.makePublicSiteVisible') }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
+        <v-list-item class="px-0" lines="two">
+          <v-list-item-title class="font-weight-bold">
+            {{ $t('generalSettings.makePublicSiteVisible') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.subtitle.makePublicSiteVisible') }}
+          </v-list-item-subtitle>
+          
           <v-list-item-action>
-            <v-tooltip :disabled="$root.isMobile" bottom>
-              <template #activator="{on, bind}">
+            <v-tooltip :disabled="$root.isMobile" location="bottom">
+              <template #activator="{props, bind}">
                 <div
-                  v-on="on"
+                  v-bind="props"
                   v-bind="bind">
                   <v-switch
                     v-model="publicSiteVisible"
@@ -60,20 +59,19 @@
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>
-        <v-list-item class="px-0" two-line>
-          <v-list-item-content>
-            <v-list-item-title class="font-weight-bold">
-              {{ $t('generalSettings.editPublicSite') }}
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ $t('generalSettings.subtitle.editPublicSite') }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
+        <v-list-item class="px-0" lines="two">
+          <v-list-item-title class="font-weight-bold">
+            {{ $t('generalSettings.editPublicSite') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.subtitle.editPublicSite') }}
+          </v-list-item-subtitle>
+          
           <v-list-item-action>
-            <v-tooltip :disabled="$root.isMobile" bottom>
-              <template #activator="{on, bind}">
+            <v-tooltip :disabled="$root.isMobile" location="bottom">
+              <template #activator="{props, bind}">
                 <v-btn
-                  v-on="on"
+                  v-bind="props"
                   v-bind="bind"
                   icon
                   @click="copyAddress">
@@ -84,10 +82,10 @@
             </v-tooltip>
           </v-list-item-action>
           <v-list-item-action class="ms-2">
-            <v-tooltip :disabled="$root.isMobile" bottom>
-              <template #activator="{on, bind}">
+            <v-tooltip :disabled="$root.isMobile" location="bottom">
+              <template #activator="{props, bind}">
                 <v-btn
-                  v-on="on"
+                  v-bind="props"
                   v-bind="bind"
                   :href="publicSiteLink"
                   target="_blank"

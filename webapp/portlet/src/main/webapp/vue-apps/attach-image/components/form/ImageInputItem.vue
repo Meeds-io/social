@@ -28,7 +28,7 @@
       :rotate="-90"
       :size="40"
       :width="4"
-      :value="imageUploadProgress"
+      :model-value="imageUploadProgress"
       color="primary">
       {{ imageUploadProgress }}%
     </v-progress-circular>
@@ -36,9 +36,9 @@
       <v-btn
         class="ml-0"
         fab
-        x-small
+        size="x-small"
         @click="deleteFile">
-        <v-icon class="error-color" small>fa-trash</v-icon>
+        <v-icon class="error-color" size="small">fa-trash</v-icon>
       </v-btn>
     </v-card-actions>
   </v-card> 
@@ -48,7 +48,7 @@
     flat>
     <v-img
       :src="imageItem.src"
-      class="white--text align-end"
+      class="text-white align-end"
       width="120"
       min-height="120"
       max-height="120" />
@@ -56,16 +56,16 @@
       <v-btn 
         class="mr-1" 
         fab 
-        x-small
+        size="x-small"
         @click="openImageCropDrawer">
-        <v-icon class="icon-default-color" small>fa-edit</v-icon>
+        <v-icon class="icon-default-color" size="small">fa-edit</v-icon>
       </v-btn>
       <v-btn 
         class="ml-0" 
         fab 
-        x-small
+        size="x-small"
         @click.prevent.stop="deleteFile">
-        <v-icon class="error-color" small>fa-trash</v-icon>
+        <v-icon class="error-color" size="small">fa-trash</v-icon>
       </v-btn>
     </v-card-actions>
   </v-card>

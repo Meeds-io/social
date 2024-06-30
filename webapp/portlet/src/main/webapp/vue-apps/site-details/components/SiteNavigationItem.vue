@@ -39,7 +39,7 @@
         @click="selectHome($event)">
         <v-icon
           :class="isHomeLink && 'primary--text' || 'icon-default-color'"
-          small>
+          size="small">
           fa-house-user
         </v-icon>
       </v-btn>

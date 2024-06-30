@@ -21,11 +21,11 @@
 -->
 <template>
   <v-app v-show="canView">
-    <v-tooltip bottom>
-      <template #activator="{on, bind}">
+    <v-tooltip location="bottom">
+      <template #activator="{props, bind}">
         <v-btn
           id="topBarPublishSiteButton"
-          v-on="on"
+          v-bind="props"
           v-bind="bind"
           :loading="loading"
           class="ms-5"

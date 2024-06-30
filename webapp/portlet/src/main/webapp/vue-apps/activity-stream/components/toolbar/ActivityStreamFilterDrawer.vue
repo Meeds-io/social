@@ -39,8 +39,8 @@
     <template slot="footer">
       <div class="VuetifyApp flex d-flex">
         <v-btn
-          class="dark-grey-color px-1 hidden-xs-only"
-          text
+          class="dark-grey-color px-1 hidden-xs"
+          variant="text"
           @click="resetFilter()">
           <template>
             <i class="fas fa-redo me-3"></i>

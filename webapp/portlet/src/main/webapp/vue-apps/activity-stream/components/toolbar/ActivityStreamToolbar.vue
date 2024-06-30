@@ -37,7 +37,7 @@
           <v-btn
             v-if="userCanPost"
             class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto"
-            text
+            variant="text"
             @click="openComposerDrawer(true)">
             <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
           </v-btn>
@@ -45,8 +45,8 @@
             {{ $t('activity.toolbar.title') }}
           </span>
           <div class="my-auto ms-auto d-flex flex-row">
-            <v-tooltip v-if="markAllReadEnabled" bottom>
-              <template #activator="{ on, attrs }">
+            <v-tooltip v-if="markAllReadEnabled" location="bottom">
+              <template #activator="{ props }">
                 <v-btn
                   id="toolbarMarkAllReadButton"
                   :loading="resetting"
@@ -54,8 +54,8 @@
                   height="36px"
                   width="36px"
                   icon
-                  v-bind="attrs"
-                  v-on="on"
+                 
+                  v-bind="props"
                   @click="markAllAsRead">
                   <v-icon
                     size="20px">
@@ -72,9 +72,9 @@
               :params="extensionParams"
               name="ActivityToolbarAction"
               type="activity-toolbar-action"
-              class="hidden-xs-only" />
-            <v-tooltip bottom>
-              <template #activator="{ on, attrs }">
+              class="hidden-xs" />
+            <v-tooltip location="bottom">
+              <template #activator="{ props }">
                 <v-btn
                   v-if="streamFilterEnabled"
                   id="toolbarFilterButton"
@@ -82,8 +82,8 @@
                   height="36px"
                   width="36px"
                   icon
-                  v-bind="attrs"
-                  v-on="on"
+                 
+                  v-bind="props"
                   @click="openStreamFilterDrawer">
                   <v-icon
                     :color="filterIconColor"
@@ -98,7 +98,7 @@
             </v-tooltip>
           </div>
         </div>
-        <div v-if="spaceId && userCanPost" class="hidden-xs-only">
+        <div v-if="spaceId && userCanPost" class="hidden-xs">
           <v-divider />
           <extension-registry-components
             :params="extensionParams"

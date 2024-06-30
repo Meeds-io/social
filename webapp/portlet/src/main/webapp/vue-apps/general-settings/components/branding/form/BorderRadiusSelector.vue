@@ -22,8 +22,8 @@
   <div class="d-flex mt-2">
     <v-btn
       class="ps-0"
-      text
-      small
+      variant="text"
+      size="small"
       @click="bordeRadius = 0">
       {{ $t('generalSettings.widgetAndAppStyle.square') }}
     </v-btn>
@@ -38,8 +38,8 @@
       step="4"
       color="primary" />
     <v-btn
-      text
-      small
+      variant="text"
+      size="small"
       @click="bordeRadius = maxBorderRadius"> 
       {{ $t('generalSettings.widgetAndAppStyle.rounded') }} 
     </v-btn>

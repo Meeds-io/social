@@ -10,7 +10,7 @@
       <v-icon
         size="10"
         class="ms-2"
-        right
+        end
         @click="deleteTag(index)">
         fas fa-times
       </v-icon>

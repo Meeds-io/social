@@ -35,7 +35,7 @@
       <links-list
         :settings="settings"
         :links="linksToDisplay"
-        class="mx-auto full-width white" />
+        class="mx-auto full-width bg-white" />
     </v-card>
   </v-card>
 </template>

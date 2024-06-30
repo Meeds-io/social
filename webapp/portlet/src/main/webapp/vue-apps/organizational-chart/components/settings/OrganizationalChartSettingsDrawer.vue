@@ -41,7 +41,7 @@
             <span>
               {{ $t('organizationalChart.settings.centerUser.label') }}
             </span>
-            <p class="caption grey--text">
+            <p class="text-caption text-grey">
               {{ $t('organizationalChart.settings.centerUser.info') }}
             </p>
             <div v-if="canUpdateCenterUser">
@@ -70,10 +70,10 @@
                 @input="selectUser" />
               <v-chip
                 v-else-if="showSelected"
-                class="primary white--text"
-                close
+                class="bg-primary text-white"
+                closable
                 @click:close="removeSelectedUser">
-                <v-avatar left>
+                <v-avatar start>
                   <v-img :src="avatarUrl" />
                 </v-avatar>
                 {{ userFullName }}
@@ -81,19 +81,19 @@
             </div>
             <div v-else>
               <v-chip
-                class="grey lighten-1"
+                class="bg-grey-lighten-1"
                 :title="$t('organizationalChart.displayedUser.settings.disabled')">
                 {{ $t('organizationalChart.displayedUser.disabled.message') }}
               </v-chip>
             </div>
           </label>
           <v-card
-            class="grey pa-1 mt-2 lighten-2 overflow-hidden"
+            class="bg-grey-lighten-2 pa-1 mt-2 overflow-hidden"
             height="306"
-            outlined>
+            border>
             <organizational-chart-app
               v-if="initialUserId"
-              class="white position-relative chartPreview"
+              class="bg-white position-relative chartPreview"
               :initial-user-id="initialUserId"
               :preview-count="previewCount"
               :preview="true" />

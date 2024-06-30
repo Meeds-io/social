@@ -23,7 +23,7 @@
     :title="description || name"
     :href="url"
     :target="target"
-    :dense="!largeIcon"
+    :density="!largeIcon ? 'compact' : undefined"
     class="px-0"
     flat>
     <links-icon

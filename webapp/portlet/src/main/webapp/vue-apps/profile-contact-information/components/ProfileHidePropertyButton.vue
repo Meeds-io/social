@@ -20,11 +20,11 @@
 
 <template>
   <v-tooltip
-    bottom>
-    <template #activator="{ on, attrs }">
+    location="bottom">
+    <template #activator="{ props }">
       <div
-        v-bind="attrs"
-        v-on="on"
+       
+        v-bind="props"
         class="d-inline-block">
         <v-btn
           v-if="!isHidden"

@@ -39,9 +39,9 @@
         <div class="overflow-hidden position-relative">
           <div v-if="isImageGif" class="d-flex position-absolute full-width full-height mask-color z-index-one rounded">
             <div class="d-flex flex-column align-center flex ma-auto">
-              <v-icon size="52" class="white--text mb-4">fa-ban</v-icon>
-              <div class="white--text text-wrap">{{ $t('imageCropDrawer.gitImage.label.option') }}</div>
-              <div class="white--text text-wrap">{{ $t('imageCropDrawer.gitImage.label.gif') }}</div>
+              <v-icon size="52" class="text-white mb-4">fa-ban</v-icon>
+              <div class="text-white text-wrap">{{ $t('imageCropDrawer.gitImage.label.option') }}</div>
+              <div class="text-white text-wrap">{{ $t('imageCropDrawer.gitImage.label.gif') }}</div>
             </div>
           </div>
           <div :class="isImageGif && 'filter-blur-3' || ''">
@@ -51,7 +51,7 @@
               :max-height="height"
               :max-width="maxWidth"
               :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
-              class="border-color mx-auto primary position-relative"
+              class="border-color mx-auto bg-primary position-relative"
               flat>
               <img
                 v-if="imageData && !isImageGif"
@@ -73,13 +73,13 @@
                   class="file-selector pa-0 ma-0"
                   rounded
                   clearable
-                  dense
+                  density="compact"
                   @change="uploadFile" />
                 <v-btn
                   :title="$t('imageCropDrawer.resetCropper')"
                   id="cancelChanges"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="resetCropperData()">
                   <v-icon size="18" class="fa-flip-horizontal">fas fa-ban</v-icon>
                 </v-btn>
@@ -89,7 +89,7 @@
                   :title="$t('imageCropDrawer.moveRight')"
                   id="resetCropper"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="move(-10, 0)">
                   <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-right</v-icon>
                 </v-btn>
@@ -97,7 +97,7 @@
                   :title="$t('imageCropDrawer.moveLeft')"
                   id="moveImageToLeft"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="move(10, 0)">
                   <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-left</v-icon>
                 </v-btn>
@@ -105,7 +105,7 @@
                   :title="$t('imageCropDrawer.moveUp')"
                   id="moveImageToUp"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="move(0, -10)">
                   <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-up</v-icon>
                 </v-btn>
@@ -113,7 +113,7 @@
                   :title="$t('imageCropDrawer.moveDown')"
                   id="moveImageToBottom"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="move(0, 10)">
                   <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-down</v-icon>
                 </v-btn>
@@ -121,7 +121,7 @@
                   :title="$t('imageCropDrawer.rotateRight')"
                   id="rotateImageToRight"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="rotateRight">
                   <v-icon size="18" class="fa-flip-horizontal">fas fa-undo</v-icon>
                 </v-btn>
@@ -129,7 +129,7 @@
                   :title="$t('imageCropDrawer.rotateLeft')"
                   id="rotateImageToLeft"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="rotateLeft">
                   <v-icon size="18">fas fa-undo</v-icon>
                 </v-btn>
@@ -144,7 +144,7 @@
                   :title="$t('imageCropDrawer.zoomOut')"
                   id="zoomImageOut"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="zoom -= stepZoom">
                   <v-icon size="18">fas fa-isImageGifsearch-minus</v-icon>
                 </v-btn>
@@ -158,7 +158,7 @@
                   :title="$t('imageCropDrawer.zoomIn')"
                   id="zoomImageIn"
                   icon
-                  outlined
+                  variant="outlined"
                   @click="zoom += stepZoom">
                   <v-icon size="18">fas fa-search-plus</v-icon>
                 </v-btn>
@@ -174,7 +174,7 @@
             <v-card
               v-for="item in imageDisplayFormat"
               :key="item.value"
-              :outlined="format !== item.value"
+              :border="format !== item.value"
               :class="format === item.value && 'primary-border-color'"
               class="col-4 pa-0 flex-grow-1 flex-shrink-1 mx-2 border-box-sizing"
               flat
@@ -186,7 +186,7 @@
                       :width="item.width"
                       :height="item.height"
                       max-width="100%"
-                      color="grey lighten-2"
+                      color="grey-lighten-2"
                       flat />
                   </div>
                   <div>{{ item.text }}</div>

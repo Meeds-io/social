@@ -22,7 +22,7 @@
   <v-list-item
     :href="navigationUri"
     :target="target"
-    dense>
+    density="compact">
     <v-list-item-icon class="my-auto d-flex">
       <v-icon class="icon-default-color icon-default-size ma-auto">
         {{ navigationIcon }}

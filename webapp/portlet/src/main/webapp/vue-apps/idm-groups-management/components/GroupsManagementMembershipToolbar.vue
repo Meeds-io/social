@@ -2,7 +2,7 @@
   <v-toolbar 
     id="groupsManagementToolbar" 
     flat
-    class="transparent">
+    class="bg-transparent">
     <v-toolbar-title>
       <v-btn
         :disabled="!group"

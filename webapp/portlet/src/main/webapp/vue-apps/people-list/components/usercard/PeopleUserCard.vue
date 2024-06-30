@@ -27,7 +27,7 @@
       :min-width="$attrs.minWidth"
       height="227"
       :href="profileUrl"
-      outlined>
+      border>
       <v-img
         :lazy-src="bannerUrl"
         :src="bannerUrl"
@@ -41,27 +41,27 @@
             v-model="menu"
             transition="slide-x-reverse-transition"
             content-class="mt-6 ms-5"
-            left
+            location="left"
             offset-x>
-            <template #activator="{ on, attrs }">
+            <template #activator="{ props }">
               <v-btn
-                v-bind="attrs"
-                v-on="on"
+               
+                v-bind="props"
                 :title="$t('peopleList.label.openUserMenu')"
-                class="d-block grey darken-1 mt-2 ms-auto me-2"
+                class="d-block bg-grey-darken-1 mt-2 ms-auto me-2"
                 width="24"
                 height="24"
                 icon
-                text
+                variant="text"
                 @click.prevent>
                 <v-icon
-                  class="white--text"
+                  class="text-white"
                   size="12">
                   fas fa-ellipsis-v
                 </v-icon>
               </v-btn>
             </template>
-            <v-list class="pa-0 white" dense>
+            <v-list class="pa-0 bg-white" density="compact">
               <v-list-item
                 v-for="(extension, i) in spaceMembersExtensions"
                 :key="i"
@@ -114,7 +114,7 @@
             {{ fullName }}
             <span
               v-if="externalUser"
-              class="grey--text">
+              class="text-grey">
               {{ $t('peopleList.label.external') }}
             </span>
           </p>

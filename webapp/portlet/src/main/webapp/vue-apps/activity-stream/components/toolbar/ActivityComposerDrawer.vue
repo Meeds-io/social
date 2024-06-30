@@ -93,12 +93,12 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action class="my-0">
-                <v-tooltip bottom>
-                  <template #activator="{ on, attrs }">
+                <v-tooltip location="bottom">
+                  <template #activator="{ props }">
                     <v-btn
                       icon
-                      v-bind="attrs"
-                      v-on="on"
+                     
+                      v-bind="props"
                       @click="resetAudienceChoice()">
                       <v-icon size="16">
                         fas fa-redo
@@ -161,7 +161,7 @@
           :loading="loading"
           :aria-label="$t(`activity.composer.${composerAction}`)"
           type="button"
-          class="primary btn no-box-shadow ms-auto"
+          class="bg-primary btn no-box-shadow ms-auto"
           @click="postMessage()">
           {{ composerActionLabel }}
         </v-btn>

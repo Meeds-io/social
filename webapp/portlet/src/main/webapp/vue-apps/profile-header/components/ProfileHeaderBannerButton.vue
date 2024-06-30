@@ -7,7 +7,7 @@
         :title="$t('UIPopupBannerUploader.title.deleteBanner')"
         id="profileBannerDeleteButton"
         class="border-color"
-        outlined
+        variant="outlined"
         icon
         dark
         @click="removeBanner">
@@ -21,7 +21,7 @@
         :title="$t('UIPopupBannerUploader.title.ChangeBanner')"
         id="profileBannerEditButton"
         class="border-color"
-        outlined
+        variant="outlined"
         icon
         dark
         @click="$emit('edit')">

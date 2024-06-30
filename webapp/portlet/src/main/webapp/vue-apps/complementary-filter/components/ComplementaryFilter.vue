@@ -45,8 +45,8 @@
         class="ma-auto"
         :class="otherFilterItemsSelected && 'btn-primary elevation-0'
           || 'grey darken-1'"
-        :outlined="!otherFilterItemsSelected"
-        x-small
+        :variant="!otherFilterItemsSelected ? 'outlined' : undefined"
+        size="x-small"
         fab
         color="white"
         @click="openListSuggestionsDrawer">

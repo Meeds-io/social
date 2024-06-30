@@ -48,7 +48,7 @@
       :width="iconSize"
       :class="{ 'mt-n1 z-index-two': compact && showAnimation, 'ml-n4': compact }"
       fab
-      depressed
+      variant="flat"
       @click="$emit('open-detail')"
       @mouseover="showAnimation = true"
       @mouseleave="showAnimation = false">
@@ -56,7 +56,7 @@
         :size="iconSize"
         :class="{ 'border-white content-box-sizing ': compact }"
         class="notDisplayedIdentitiesOverlay">
-        <div class="notDisplayedIdentities d-flex align-center justify-center white--text font-weight-bold z-index-one text-center">
+        <div class="notDisplayedIdentities d-flex align-center justify-center text-white font-weight-bold z-index-one text-center">
           +{{ showMoreAvatarsNumber }}
         </div>
       </v-avatar>

@@ -28,7 +28,7 @@
         id="profileAvatarEditButton"
         class="changeAvatarButton"
         icon
-        outlined
+        variant="outlined"
         dark
         @click="$emit('edit')">
         <v-icon size="18">fas fa-camera</v-icon>

@@ -2,7 +2,7 @@
   <v-app
     v-if="displayed"
     id="SpaceSettings"
-    class="transparent"
+    class="bg-transparent"
     flat>
     <div class="application-body">
       <space-setting-general :space-id="spaceId" />

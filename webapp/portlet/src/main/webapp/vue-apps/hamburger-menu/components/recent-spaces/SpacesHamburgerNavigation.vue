@@ -31,11 +31,11 @@
         <v-list-item-icon class="mb-2 mt-3 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title class="menu-text-color">
-            {{ $t('menu.spaces.lastVisitedSpaces') }}
-          </v-list-item-title>
-        </v-list-item-content>
+        
+        <v-list-item-title class="menu-text-color">
+          {{ $t('menu.spaces.lastVisitedSpaces') }}
+        </v-list-item-title>
+        
         <v-list-item-action class="my-0 d-flex flex-row align-center">
           <v-btn 
             v-if="canAddSpaces"
@@ -43,7 +43,7 @@
             link
             :href="allSpacesLink" 
             @click="leftNavigationActionEvent($event,'addNewSpace')">
-            <v-icon class="me-0 pa-2 icon-default-color" small>
+            <v-icon class="me-0 pa-2 icon-default-color" size="small">
               fa-plus
             </v-icon>
           </v-btn>
@@ -57,11 +57,11 @@
         <v-list-item-icon class="mb-2 mt-3 titleIcon">
           <i class="uiIcon uiIconToolbarNavItem spacesIcon"></i>
         </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title class="menu-text-color">
-            {{ $t('menu.spaces.lastVisitedSpaces') }}
-          </v-list-item-title>
-        </v-list-item-content>
+        
+        <v-list-item-title class="menu-text-color">
+          {{ $t('menu.spaces.lastVisitedSpaces') }}
+        </v-list-item-title>
+        
         <v-list-item-action v-if="toggleArrow" class="my-0 d-flex flex-row align-center">
           <v-btn
             v-if="canAddSpaces"
@@ -70,14 +70,14 @@
             icon 
             :href="allSpacesLink" 
             @click="leftNavigationActionEvent($event,'addNewSpace')">
-            <v-icon class="me-0 pa-2 icon-default-color" small>
+            <v-icon class="me-0 pa-2 icon-default-color" size="small">
               fa-plus
             </v-icon>
           </v-btn>
           <ripple-hover-button
             icon
             @ripple-hover="$root.$emit('change-recent-spaces-menu')">
-            <v-icon class="me-0 pa-2 icon-default-color" small>
+            <v-icon class="me-0 pa-2 icon-default-color" size="small">
               {{ arrowIconClass }} 
             </v-icon>
           </ripple-hover-button>

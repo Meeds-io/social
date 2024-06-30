@@ -32,14 +32,14 @@
           :download="attachmentFilename"
           :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
           icon
-          class="white--text"
+          class="text-white"
           aria-hidden="true">
           <i class="fas fa-download"></i>
         </v-btn>
         <v-btn
           id="preview-attachment-close"
           icon
-          class="white--text ml-4"
+          class="text-white ml-4"
           :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
           aria-hidden="true"
           @click="close">
@@ -49,16 +49,16 @@
       <v-card 
         flat
         :max-height="!isMobile && '80vh' || '75vh'"
-        class="transparent">
+        class="bg-transparent">
         <v-carousel
           :id="`previewCarousel-${objectType}`"
           ref="attachmentsCarousel"
           v-model="currentAttachmentId"
-          :show-arrows-on-hover="!isMobile"
+          :show-arrows="!isMobile ? 'hover' : undefined"
           :show-arrows="attachments.length > 1"                         
           :height="!isMobile && '80vh' || '75vh'"
           hide-delimiters   
-          class="AttachmentCarouselPreview white border-radius">
+          class="AttachmentCarouselPreview bg-white border-radius">
           <v-carousel-item
             v-for="attachment in sortedAttachments"
             :key="attachment.id"

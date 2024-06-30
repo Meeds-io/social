@@ -2,13 +2,13 @@
   <v-expansion-panel
     v-if="experience"
     class="profileWorkExperiencesEditItem border-color border-radius my-3 mx-2">
-    <v-expansion-panel-header>
+    <v-expansion-panel-title>
       <div v-if="experience.id" class="truncate-text">
         <div>{{ position }}</div>
         <div class="text-subtitle">{{ company }}</div>
       </div>
-    </v-expansion-panel-header>
-    <v-expansion-panel-content>
+    </v-expansion-panel-title>
+    <v-expansion-panel-text>
       <v-card-text class="d-flex flex-grow-1 text-no-wrap pt-0 pb-2">
         {{ $t('profileWorkExperiences.company') }} *
       </v-card-text>
@@ -95,13 +95,13 @@
         <v-btn
           color="error"
           class="pa-0"
-          outlined
+          variant="outlined"
           @click="$emit('remove')">
           <i class="uiIconTrash pb-1 pe-2"></i>
           {{ $t('profileWorkExperiences.removeExperience') }}
         </v-btn>
       </v-card-text>
-    </v-expansion-panel-content>
+    </v-expansion-panel-text>
   </v-expansion-panel>
 </template>
 

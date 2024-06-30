@@ -37,10 +37,10 @@
           <v-btn
             v-if="hover && !isDefaultSrc"
             color="error"
-            class="absolute-all-center z-index-two white error"
+            class="absolute-all-center z-index-two bg-white bg-error"
             icon
             border
-            outlined
+            variant="outlined"
             @click="resetFavicon">
             <v-icon>fas fa-trash</v-icon>
           </v-btn>

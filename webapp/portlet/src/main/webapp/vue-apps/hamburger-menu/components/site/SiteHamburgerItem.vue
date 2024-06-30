@@ -28,11 +28,10 @@
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
     </v-list-item-icon>
-    <v-list-item-content>
-      <v-list-item-title
-        v-text="site.displayName"
-        class="menu-text-color" />
-    </v-list-item-content>
+    
+    <v-list-item-title
+      v-text="site.displayName"
+      class="menu-text-color" />
   </v-list-item>
   <v-list-item
     v-else
@@ -46,11 +45,11 @@
       <v-icon v-if="siteRootNode.icon"> {{ icon }}</v-icon>
       <i v-else :class="iconClass"></i>
     </v-list-item-icon>
-    <v-list-item-content>
-      <v-list-item-title
-        v-text="site.displayName"
-        class="menu-text-color" />
-    </v-list-item-content>
+    
+    <v-list-item-title
+      v-text="site.displayName"
+      class="menu-text-color" />
+    
     <v-list-item-action
       v-if="toggleArrow"
       class="my-auto align-center">
@@ -61,7 +60,7 @@
         @ripple-hover="openOrCloseDrawer()">
         <v-icon
           class="me-0 pa-2 icon-default-color"
-          small>
+          size="small">
           {{ arrowIcon }}
         </v-icon>
       </ripple-hover-button>

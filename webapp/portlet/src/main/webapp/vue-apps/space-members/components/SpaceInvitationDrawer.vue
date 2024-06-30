@@ -33,7 +33,7 @@
           v-for="user in externalInvitedUsers"
           :key="user">
           <v-badge
-            bottom
+            location="bottom"
             color="white"
             bordered
             offset-x="33"
@@ -45,10 +45,10 @@
                 :src="defaultAvatar" />
             </v-list-item-avatar>
           </v-badge>
-          <v-list-item-content>
-            <v-list-item-title class="externalUserEmail" v-text="user" />
-            <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.pending') }}</v-list-item-subtitle>
-          </v-list-item-content>
+          
+          <v-list-item-title class="externalUserEmail" v-text="user" />
+          <v-list-item-subtitle class="subEmail">{{ $t('peopleList.label.pending') }}</v-list-item-subtitle>
+          
           <v-btn
             :title="$t('peopleList.label.clickToDecline')"
             icon
@@ -67,7 +67,7 @@
           v-for="invitation in externalInvitationsSent"
           :key="invitation">
           <v-badge
-            bottom
+            location="bottom"
             bordered
             color="white"
             offset-x="33"
@@ -79,16 +79,16 @@
                 :src="defaultAvatar" />
             </v-list-item-avatar>
           </v-badge>
-          <v-list-item-content>
-            <v-list-item-title class="externalUserEmail" v-text="invitation.userEmail" />
-            <v-list-item-subtitle v-if="!invitation.expired" class="subEmail">{{ $t('peopleList.label.invitationSent') }}</v-list-item-subtitle>
-            <v-list-item-subtitle
-              :title="$t('peopleList.label.invitationExpiredToolTip')"
-              v-else
-              class="subExpired">
-              {{ $t('peopleList.label.invitationExpired') }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
+          
+          <v-list-item-title class="externalUserEmail" v-text="invitation.userEmail" />
+          <v-list-item-subtitle v-if="!invitation.expired" class="subEmail">{{ $t('peopleList.label.invitationSent') }}</v-list-item-subtitle>
+          <v-list-item-subtitle
+            :title="$t('peopleList.label.invitationExpiredToolTip')"
+            v-else
+            class="subExpired">
+            {{ $t('peopleList.label.invitationExpired') }}
+          </v-list-item-subtitle>
+          
           <v-btn
             :title="$t('peopleList.label.clickToDecline')"
             icon

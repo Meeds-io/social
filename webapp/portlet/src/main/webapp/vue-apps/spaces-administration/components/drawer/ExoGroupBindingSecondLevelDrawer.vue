@@ -22,7 +22,7 @@
             icon
             class="leftIcon"
             @click="searchMode = false">
-            <v-icon small>arrow_back</v-icon>
+            <v-icon size="small">arrow_back</v-icon>
           </v-btn>
         </v-flex>
         <v-flex ps-4>
@@ -32,7 +32,7 @@
             class="treeGroupSearch"
             single-line
             clearable
-            solo
+            variant="solo"
             flat
             hide-details />
         </v-flex>

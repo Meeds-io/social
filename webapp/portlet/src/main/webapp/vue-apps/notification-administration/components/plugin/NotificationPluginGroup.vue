@@ -1,11 +1,9 @@
 <template>
   <div v-if="hasPlugins" class="border-radius border-color my-4">
-    <v-list-item dense>
-      <v-list-item-content>
-        <v-list-item-title class="text-header">
-          {{ label }}
-        </v-list-item-title>
-      </v-list-item-content>
+    <v-list-item density="compact">
+      <v-list-item-title class="text-header">
+        {{ label }}
+      </v-list-item-title>
     </v-list-item>
 
     <notification-administration-plugin

@@ -57,7 +57,7 @@
         <v-btn
           class="ps-0"
           color="primary"
-          text
+          variant="text"
           @click="resetFilter">
           <v-icon class="pe-1">mdi-reload</v-icon>
           {{ $t('UsersManagement.filter.reset') }}

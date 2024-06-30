@@ -20,7 +20,7 @@
 <template>
   <div id="settingsHeader" class="d-flex flex-row">
     <button
-      class="btn btn-primary primary px-2 py-0"
+      class="btn btn-primary bg-primary px-2 py-0"
       @click="openCreateDrawer()">
       <v-icon
         dark>

@@ -12,7 +12,7 @@
         v-else
         id="addNewSpaceButton"
         class="btn btn-primary mx-2 mx-md-0 px-md-2 px-0 addNewSpaceButton"
-        :small="isMobile"
+        :size="isMobile ? 'small' : undefined"
         @click="$root.$emit('addNewSpace')">
         <v-icon size="18" dark>fa-plus</v-icon>
         <span class="ms-2 d-none d-lg-inline">
@@ -71,7 +71,7 @@
           color="primary"
           dark
           class="border-box-sizing">
-          <v-btn text @click="bottomMenu = false">
+          <v-btn variant="text" @click="bottomMenu = false">
             {{ $t('spacesList.button.cancel') }}
           </v-btn>
           <v-spacer />
@@ -80,7 +80,7 @@
             {{ $t('spacesList.label.filter') }}
           </v-toolbar-title>
           <v-spacer />
-          <v-btn text @click="changeFilterSelection">
+          <v-btn variant="text" @click="changeFilterSelection">
             {{ $t('spacesList.button.confirm') }}
           </v-btn>
         </v-toolbar>

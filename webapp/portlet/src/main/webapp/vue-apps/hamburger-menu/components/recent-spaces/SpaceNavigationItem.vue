@@ -35,9 +35,9 @@
         width="28"
         height="28">
     </v-list-item-avatar>
-    <v-list-item-content>
-      <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
-    </v-list-item-content>
+    
+    <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
+    
     <v-list-item-action
       v-if="spaceUnreadCount"
       class="me-2 my-auto align-center">
@@ -72,9 +72,9 @@
         width="28"
         height="28">
     </v-list-item-avatar>
-    <v-list-item-content>
-      <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
-    </v-list-item-content>
+    
+    <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
+    
     <v-list-item-action
       v-if="toggleArrow"
       :disabled="loading"
@@ -87,7 +87,7 @@
         <v-icon
           :id="space.id"
           class="me-0 pa-2 icon-default-color"
-          small>
+          size="small">
           {{ arrowIcon }} 
         </v-icon>
       </ripple-hover-button>

@@ -2,7 +2,7 @@
   <div>
     <v-divider />
 
-    <v-list-item dense>
+    <v-list-item density="compact">
       <v-list-item-content class="px-0 pb-0 pt-2 mt-auto mb-2">
         <v-list-item-title class="text-color text-wrap">
           {{ label }}

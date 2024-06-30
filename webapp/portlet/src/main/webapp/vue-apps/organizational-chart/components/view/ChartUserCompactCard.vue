@@ -26,7 +26,7 @@
       class="mx-auto d-flex flex-column border-box-sizing card-border-radius chartCompactUserCard"
       width="268"
       height="85"
-      outlined
+      border
       @click="$emit('click')">
       <div>
         <v-list-item class="px-2">
@@ -44,13 +44,13 @@
                 {{ fullName }}
                 <span
                   v-if="externalUser"
-                  class="grey--text">
+                  class="text-grey">
                   {{ $t('peopleList.label.external') }}
                 </span>
               </p>
             </v-list-item-title>
             <v-list-item-subtitle>
-              <p class="mb-0 caption text-truncate">
+              <p class="mb-0 text-caption text-truncate">
                 {{ primaryProperty }}
               </p>
             </v-list-item-subtitle>

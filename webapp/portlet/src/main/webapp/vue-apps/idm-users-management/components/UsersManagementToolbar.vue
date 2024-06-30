@@ -24,7 +24,7 @@
       </div>
       <v-btn
         :disabled="!usersSelected"
-        outlined
+        variant="outlined"
         color="primary"
         class="mx-1 multiSelect"
         @click="multiSelectAction('onboard')">
@@ -33,7 +33,7 @@
       </v-btn>
       <v-btn
         :disabled="!usersSelected"
-        outlined
+        variant="outlined"
         color="primary"
         class="multiSelect"
         @click="multiSelectAction('enable')">
@@ -42,7 +42,7 @@
       </v-btn>
       <v-btn
         :disabled="!usersSelected"
-        outlined
+        variant="outlined"
         color="primary"
         class="multiSelect"
         @click="multiSelectAction('disable')">
@@ -74,7 +74,7 @@
     <v-btn
       v-if="filter === 'ENABLED' && !isDelegatedAdministrator"
       min-width="auto"
-      outlined
+      variant="outlined"
       @click="$root.$emit('advancedFilter', selectedFiler)">
       <i class="uiSettingsIcon"></i>
       <div v-if="numberOfFilters > 0" class="pb-1">

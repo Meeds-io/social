@@ -2,13 +2,13 @@
   <v-flex>
     <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
       <v-chip
-        :outlined="!favorites"
+        :variant="!favorites ? 'outlined' : undefined"
         :color="favorites ? 'primary' : ''"
         class="ms-1 me-2 border-color"
         @click="selectFavorites">
         <v-icon
           size="16"
-          class="pb-1 pe-2 yellow--text text--darken-2">
+          class="pb-1 pe-2 text-yellow-darken-2">
           fas fa-star
         </v-icon>
         <span class="text-header">{{ $t('search.connector.label.favorites') }}</span>
@@ -18,25 +18,25 @@
         v-model="connectorsListOpened"
         :close-on-content-click="false"
         content-class="connectors-list"
-        bottom
-        right
+        location="bottom right"
+        
         offset-y>
-        <template #activator="{ on, attrs }">
+        <template #activator="{ props }">
           <v-chip
-            :outlined="!allEnabled"
+            :variant="!allEnabled ? 'outlined' : undefined"
             :color="allEnabled ? 'primary' : ''"
             class="border-color mx-1"
-            v-bind="attrs"
-            v-on="on">
+           
+            v-bind="props">
             <span class="me-8">{{ $t('search.connector.label.all') }}</span>
             <i class="fas fa-chevron-down"></i>
           </v-chip>
         </template>
-        <v-list dense class="pa-0">
+        <v-list density="compact" class="pa-0">
           <v-list-item @click="selectAllConnector()">
             <v-list-item-title class="d-flex align-center">
               <v-checkbox
-                :input-value="allEnabled"
+                :model-value="allEnabled"
                 :ripple="false"
                 readonly
                 dense
@@ -48,11 +48,11 @@
             v-for="connector in sortedConnectors"
             :key="connector.name"
             class="clickable"
-            dense
+            density="compact"
             @click="selectConnector(connector)">
             <v-list-item-title class="d-flex align-center">
               <v-checkbox
-                :input-value="!allEnabled && connector.enabled"
+                :model-value="!allEnabled && connector.enabled"
                 :ripple="false"
                 dense
                 class="ma-0" />
@@ -71,7 +71,7 @@
           <v-icon
             size="10"
             class="ms-2"
-            right
+            end
             @click="selectConnector(connector)">
             fas fa-times
           </v-icon>
@@ -97,8 +97,8 @@
             <i class="uiIconCloseLight icon-default-color"></i>
           </i>
         </div>
-        <span class="headline">{{ $t('Search.noResults') }}</span>
-        <span class="caption">{{ $t('Search.noResultsMessage') }}</span>
+        <span class="text-h5">{{ $t('Search.noResults') }}</span>
+        <span class="text-caption">{{ $t('Search.noResultsMessage') }}</span>
       </div>
     </v-flex>
     <v-flex v-if="hasMore" class="searchLoadMoreParent d-flex my-4 border-box-sizing">

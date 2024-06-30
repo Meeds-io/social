@@ -4,7 +4,7 @@
       v-if="isShown"
       :title="$t('externalSpacesList.title.yourSpaces')"
       extra-class="application-body">
-      <v-list dense class="py-0 external-spaces-list">
+      <v-list density="compact" class="py-0 external-spaces-list">
         <template>
           <external-space-item
             v-for="space in spacesList"
@@ -16,7 +16,7 @@
         :loading="loading"
         :disabled="!hasMore"
         class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
-        outlined
+        variant="outlined"
         @click="loadMore()">
         {{ $t('button.loadMore') }}
       </v-btn> 

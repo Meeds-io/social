@@ -22,7 +22,7 @@
         <v-chip
           class="ma-0 px-2 font-weight-bold"
           color="primary"
-          x-small
+          size="x-small"
           label>
           V{{ versionObject.versionNumber }}
         </v-chip>
@@ -30,7 +30,7 @@
       </div>
       <div class="version-update-date">
         <date-format
-          class="text-light-color text-truncate caption"
+          class="text-light-color text-truncate text-caption"
           :value="versionDate"
           :format="dateTimeFormat" />
       </div>
@@ -52,18 +52,18 @@
           indeterminate />
         <v-tooltip
           v-else-if="descriptionInputHidden"
-          bottom>
-          <template #activator="{ on, attrs }">
+          location="bottom">
+          <template #activator="{ props }">
             <p
-              v-bind="attrs"
-              v-on="on"
+             
+              v-bind="props"
               class="descriptionContent pa-0 text-truncate position-relative dark-grey-color"
               @click.stop.prevent="showInput">
               {{ versionObject.summary }}
             </p>
           </template>
           <div
-            class="caption tooltip-version text-break">
+            class="text-caption tooltip-version text-break">
             {{ versionObject.summary }}
           </div>
         </v-tooltip>
@@ -74,8 +74,8 @@
           v-model="newDescription"
           :placeholder="$t('versionHistory.description.placeholder')"
           class="description pa-0 dark-grey-color"
-          outlined
-          dense
+          variant="outlined"
+          density="compact"
           autofocus
           @click.stop.prevent
           @keyup.enter="updateDescription">
@@ -83,25 +83,25 @@
             <v-btn
               class="mt-n1 me-n2 pb-1"
               icon
-              small
+              size="small"
               :disabled="descriptionMaxLengthReached"
               @click.stop.prevent="updateDescription">
               <v-icon
                 :class="descriptionMaxLengthReached && 'not-allowed' || 'clickable'"
                 :color="descriptionMaxLengthReached && 'grey--text' || 'primary'"
                 class="px-1 ma-0"
-                small>
+                size="small">
                 fa-check
               </v-icon>
             </v-btn>
             <v-btn
               class="mt-n1 me-n2 pb-1"
-              small
+              size="small"
               icon>
               <v-icon
                 class="clickable px-0 ma-0"
                 color="red"
-                small
+                size="small"
                 @click.stop.prevent="resetInput">
                 fa-times
               </v-icon>
@@ -114,24 +114,24 @@
         v-show="descriptionInputHidden"
         class="item-version-restore">
         <v-tooltip
-          bottom>
-          <template #activator="{ on, attrs }">
+          location="bottom">
+          <template #activator="{ props }">
             <v-btn
               icon
-              v-bind="attrs"
-              v-on="on"
+             
+              v-bind="props"
               :loading="isRestoringVersion"
-              small
+              size="small"
               color="primary"
               @click.stop.prevent="restoreVersion">
               <v-icon
                 size="22"
-                class="primary--text clickable pa-0 mt-1">
+                class="text-primary clickable pa-0 mt-1">
                 mdi-restart
               </v-icon>
             </v-btn>
           </template>
-          <span class="caption">{{ $t('versionHistory.label.restore') }}</span>
+          <span class="text-caption">{{ $t('versionHistory.label.restore') }}</span>
         </v-tooltip>
       </div>
     </div>

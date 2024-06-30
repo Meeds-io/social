@@ -42,7 +42,7 @@
           class="me-2 success-color-background peopleOverviewCheck"
           fab
           dark
-          depressed
+          variant="flat"
           @click="acceptToConnect">
           <v-icon size="18" dark>
             fa-check
@@ -56,7 +56,7 @@
           class="error-color-background peopleOverviewClose"
           fab
           dark
-          depressed
+          variant="flat"
           @click="refuseToConnect">
           <v-icon size="18" dark>
             fa-times
@@ -72,7 +72,7 @@
           class="error-color-background peopleOverviewClose"
           fab
           dark
-          depressed
+          variant="flat"
           @click="cancelRequest">
           <v-icon size="18" dark>
             fa-times

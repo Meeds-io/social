@@ -13,7 +13,7 @@
     <v-list-item-action class="align-end d-flex flex-row ms-0 me-4">
       <v-btn
         v-if="term"
-        text
+        variant="text"
         color="error"
         @click="clearSearchTerm">
         {{ $t('search.connector.label.clear') }}
@@ -22,7 +22,7 @@
         v-if="!standalone"
         :aria-label="$t('Search.button.close.label')"
         icon
-        class="searchCloseIcon transparent"
+        class="searchCloseIcon bg-transparent"
         @click="$emit('close-search')">
         <v-icon>mdi-close</v-icon>
       </v-btn>

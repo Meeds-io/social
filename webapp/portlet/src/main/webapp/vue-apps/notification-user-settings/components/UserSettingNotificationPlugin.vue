@@ -2,7 +2,7 @@
   <div v-if="isEnabledNotifications.length">
     <v-divider />
 
-    <v-list-item dense>
+    <v-list-item density="compact">
       <v-list-item-content class="px-0 pb-0 pt-2 mt-auto mb-2">
         <v-list-item-title class="text-color text-wrap">
           {{ label }}
@@ -10,7 +10,7 @@
       </v-list-item-content>
       <v-list-item-action class="ma-auto">
         <v-btn
-          small
+          size="small"
           icon
           @click="$emit('edit')">
           <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
@@ -37,7 +37,7 @@
         </v-chip>
       </template>
     </v-flex>
-    <v-list-item v-else dense>
+    <v-list-item v-else density="compact">
       <v-list-item-content class="pa-0">
         <v-list-item-subtitle>
           {{ $t('UINotification.label.NoNotifications') }}

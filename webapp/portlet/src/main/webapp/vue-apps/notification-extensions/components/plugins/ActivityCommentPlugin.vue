@@ -13,8 +13,8 @@
         class="primary-border-color px-2 position-relative z-index-one"
         color="primary"
         elevation="0"
-        small
-        outlined
+        size="small"
+        variant="outlined"
         @click.stop.prevent="unwatch">
         <v-hover v-slot="{hover}">
           <div>

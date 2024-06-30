@@ -3,9 +3,9 @@
     <div class="mx-auto">
       <v-btn
         v-show="hasNewActivity"
-        class="btn primary rounded-xl newActivitiesButton"
+        class="btn bg-primary rounded-xl newActivitiesButton"
         height="24px"
-        small
+        size="small"
         primary
         absolute
         @click="displayNewActivities">

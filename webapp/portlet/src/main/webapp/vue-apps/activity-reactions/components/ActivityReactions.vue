@@ -22,18 +22,18 @@
     </div>
     <div class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5">
       <div v-if="seeMoreLikerToDisplay" class="seeMoreReactionsContainer">
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
+        <v-tooltip location="bottom">
+          <template #activator="{ props }">
             <div
-              v-bind="attrs"
-              v-on="on"
+             
+              v-bind="props"
               :class="displayAnimation && 'mt-n1 transition-2s'"
               class="seeMoreLikers border-white d-flex align-center justify-center clickable"
               @click="openDrawer"
               @mouseover="showAvatarAnimation = true"
               @mouseleave="showAvatarAnimation = false">
               <span
-                class="position-absolute white--text font-weight-bold z-index-one text-center">
+                class="position-absolute text-white font-weight-bold z-index-one text-center">
                 +{{ showMoreLikersNumber }}
               </span>
             </div>

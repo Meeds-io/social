@@ -19,7 +19,7 @@
       </v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action class="suggestions-list-item-actions">
-      <v-btn-toggle class="transparent">
+      <v-btn-toggle class="bg-transparent">
         <a
           text
           icon

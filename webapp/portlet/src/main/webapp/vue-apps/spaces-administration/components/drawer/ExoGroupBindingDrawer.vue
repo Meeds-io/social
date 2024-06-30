@@ -47,16 +47,15 @@
             <v-list
               flat
               subheader
-              dense>
+              density="compact">
               <v-list-item-group>
                 <div v-for="(binding, index) in groupSpaceBindings" :key="index">
                   <v-list-item>
-                    <v-list-item-content>
-                      {{ renderGroupName(binding.group) }}
-                    </v-list-item-content>
+                    {{ renderGroupName(binding.group) }}
+                    
                     <v-list-item-action class="delete">
                       <v-btn
-                        small
+                        size="small"
                         icon
                         class="rightIcon"
                         @click="$emit('openRemoveBindingModal', binding)">

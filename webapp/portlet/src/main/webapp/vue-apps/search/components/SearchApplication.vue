@@ -3,7 +3,7 @@
     <v-btn
       :title="buttonTooltip"
       icon
-      class="transparent"
+      class="bg-transparent"
       @click="dialog = !dialog">
       <i class="v-icon fas fa-search icon-medium-size icon-default-color position-static d-flex"></i>
     </v-btn>

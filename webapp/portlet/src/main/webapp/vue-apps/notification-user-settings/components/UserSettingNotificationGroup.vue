@@ -1,11 +1,9 @@
 <template>
   <div v-if="manageNotification && isEnabledNotificationGroup" class="border-radius border-color ma-4">
-    <v-list-item dense>
-      <v-list-item-content>
-        <v-list-item-title class="text-header">
-          {{ label }}
-        </v-list-item-title>
-      </v-list-item-content>
+    <v-list-item density="compact">
+      <v-list-item-title class="text-header">
+        {{ label }}
+      </v-list-item-title>
     </v-list-item>
 
     <user-setting-notification-plugin

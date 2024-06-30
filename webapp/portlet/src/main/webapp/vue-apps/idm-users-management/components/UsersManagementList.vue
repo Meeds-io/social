@@ -31,9 +31,9 @@
           <date-format
             :value="item.lastLoginTime"
             :format="fullDateFormat"
-            class="grey--text me-1" />
+            class="text-grey me-1" />
         </div>
-        <div v-else class="grey--text">
+        <div v-else class="text-grey">
           {{ item.connectionStatus }}
         </div>
       </template>
@@ -43,7 +43,7 @@
           v-if="item.enrollmentStatus === 'invitationAccepted'"
           class="d-inline">
           <v-badge
-            bottom
+            location="bottom"
             color="white"
             flat
             class="mailBadge"
@@ -58,7 +58,7 @@
           v-else-if="item.enrollmentStatus === 'reInviteToJoin'"
           class="d-inline">
           <v-badge
-            bottom
+            location="bottom"
             color="white"
             flat
             class="mailBadge"
@@ -88,7 +88,7 @@
           <v-switch
             v-model="item.enabled"
             class="my-0 mx-auto"
-            @change="saveUserStatus(item)" />
+            @update:model-value="saveUserStatus(item)" />
         </div>
       </template>
       <template slot="item.isInternal" slot-scope="{ item }">
@@ -97,7 +97,7 @@
             :title="createdTitle(item.createdDate)"
             primary
             icon
-            text>
+            variant="text">
             <i class="uiIconSoupCan"></i>
           </v-btn>
         </div>
@@ -106,7 +106,7 @@
             :title="synchronizedTitle(item.synchronizedDate)"
             primary
             icon
-            text>
+            variant="text">
             <i class="uiIconManageApplication"><span class="synchronizedIconClass">SYNC</span></i>
           </v-btn>
         </div>
@@ -119,7 +119,7 @@
           :title="$t('UsersManagement.button.membership')"
           primary
           icon
-          text
+          variant="text"
           @click="$root.$emit('openUserMemberships', item)">
           <i class="uiIconGroup"></i>
         </v-btn>
@@ -129,7 +129,7 @@
           <v-btn
             :disabled="!item.isInternal"
             icon
-            text
+            variant="text"
             @click="$root.$emit('editUser', item)">
             <i :class="!item.isInternal ? 'uiDiseabledIconEdit' : 'uiIconEdit'" class="uiIconEdit"></i>
           </v-btn>
@@ -140,7 +140,7 @@
           :title="$t('UsersManagement.button.deleteUser')"
           primary
           icon
-          text
+          variant="text"
           @click="deleteUser(item)">
           <i class="uiIconTrash trashIconColor"></i>
         </v-btn>

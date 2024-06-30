@@ -7,13 +7,13 @@
     :nudge-bottom="30"
     content-class="tag-search-content"
     offset-x>
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props }">
       <v-chip
-        :outlined="!open"
+        :variant="!open ? 'outlined' : undefined"
         :color="open && 'primary' || ''"
         class="border-color mx-1"
-        v-bind="attrs"
-        v-on="on">
+       
+        v-bind="props">
         <span><span class="text-header">#</span> {{ $t('Tag.search.button') }}</span>
       </v-chip>
     </template>
@@ -27,7 +27,7 @@
         <span v-if="!searching" class="font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
           v-model="value"
-          active-class="primary--text"
+          selected-class="primary--text"
           class="pt-2"
           multiple>
           <v-chip

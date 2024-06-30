@@ -3,12 +3,12 @@
     v-model="displayAlert"
     :type="alertType"
     :max-width="maxWidth"
-    border="left"
-    class="white"
+    border="start"
+    class="bg-white"
     elevation="2"
-    dismissible
+    closable
     colored-border
-    outlined>
+    variant="outlined">
     <span v-sanitized-html="alertMessage" class="text-color"></span>
     <slot name="actions">
     </slot>
@@ -18,14 +18,14 @@
       :class="alert.linkClass"
       target="_blank"
       rel="nofollow noreferrer noopener"
-      class="primary--text"
-      text>
+      class="text-primary"
+      variant="text">
       {{ alert.linkMessage }}
     </v-btn>
     <v-btn
       v-if="alert && alert.click"
-      class="primary--text"
-      text
+      class="text-primary"
+      variant="text"
       @click="alert.click">
       {{ alert.clickMessage }}
     </v-btn>

@@ -22,7 +22,7 @@
   <v-chip
     class="ma-1 transition-2s"
     color="primary"
-    :outlined="!isSelected"
+    :variant="!isSelected ? 'outlined' : undefined"
     :class="isSelected && 'suggestion-selected'"
     @click="selectSuggestion">
     <span
