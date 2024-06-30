@@ -28,7 +28,7 @@
           <v-expand-transition>
             <v-list-item
               v-if="$root.selectedTab"
-              dense
+              density="compact"
               class="px-0 mb-4">
               <v-list-item-action class="my-auto me-0 ms-n2">
                 <v-btn
@@ -41,27 +41,26 @@
                   </v-icon>
                 </v-btn>
               </v-list-item-action>
-              <v-list-item-content>
-                <v-list-item-title class="d-flex">
-                  <v-card
-                    :title="$t('generalSettings.access.backToMain')"
-                    class="flex-grow-0 py-1"
-                    flat
-                    @click="close()">
-                    <div class="text-title">
-                      <template v-if="$root.selectedTab === 'branding'">
-                        {{ $t('generalSettings.displayCharacteristics') }}
-                      </template>
-                      <template v-else-if="$root.selectedTab === 'login'">
-                        {{ $t('generalSettings.loginCharacteristics') }}
-                      </template>
-                      <template v-else-if="$root.selectedTab === 'access'">
-                        {{ $t('generalSettings.access') }}
-                      </template>
-                    </div>
-                  </v-card>
-                </v-list-item-title>
-              </v-list-item-content>
+              
+              <v-list-item-title class="d-flex">
+                <v-card
+                  :title="$t('generalSettings.access.backToMain')"
+                  class="flex-grow-0 py-1"
+                  flat
+                  @click="close()">
+                  <div class="text-title">
+                    <template v-if="$root.selectedTab === 'branding'">
+                      {{ $t('generalSettings.displayCharacteristics') }}
+                    </template>
+                    <template v-else-if="$root.selectedTab === 'login'">
+                      {{ $t('generalSettings.loginCharacteristics') }}
+                    </template>
+                    <template v-else-if="$root.selectedTab === 'access'">
+                      {{ $t('generalSettings.access') }}
+                    </template>
+                  </div>
+                </v-card>
+              </v-list-item-title>
             </v-list-item>
           </v-expand-transition>
           <v-expand-transition>
@@ -87,15 +86,14 @@
               @changed="changed = $event"
               @close="close" />
             <div v-else>
-              <v-list-item class="px-0" two-line>
-                <v-list-item-content>
-                  <v-list-item-title class="text-title">
-                    {{ $t('generalSettings.displayCharacteristics') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ $t('generalSettings.subtitle.displayCharacteristics') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+              <v-list-item class="px-0" lines="two">
+                <v-list-item-title class="text-title">
+                  {{ $t('generalSettings.displayCharacteristics') }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $t('generalSettings.subtitle.displayCharacteristics') }}
+                </v-list-item-subtitle>
+                
                 <v-list-item-action>
                   <v-btn
                     icon
@@ -104,15 +102,14 @@
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
-              <v-list-item class="px-0" two-line>
-                <v-list-item-content>
-                  <v-list-item-title class="text-title">
-                    {{ $t('generalSettings.loginCharacteristics') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ $t('generalSettings.subtitle.loginCharacteristics') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+              <v-list-item class="px-0" lines="two">
+                <v-list-item-title class="text-title">
+                  {{ $t('generalSettings.loginCharacteristics') }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $t('generalSettings.subtitle.loginCharacteristics') }}
+                </v-list-item-subtitle>
+                
                 <v-list-item-action>
                   <v-btn
                     icon
@@ -121,15 +118,14 @@
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
-              <v-list-item class="px-0" two-line>
-                <v-list-item-content>
-                  <v-list-item-title class="text-title">
-                    {{ $t('generalSettings.access') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ $t('generalSettings.subtitle.access') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+              <v-list-item class="px-0" lines="two">
+                <v-list-item-title class="text-title">
+                  {{ $t('generalSettings.access') }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $t('generalSettings.subtitle.access') }}
+                </v-list-item-subtitle>
+                
                 <v-list-item-action>
                   <v-btn
                     icon
@@ -138,15 +134,14 @@
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
-              <v-list-item class="px-0" two-line>
-                <v-list-item-content>
-                  <v-list-item-title class="text-title">
-                    {{ $t('generalSettings.managePublicSite') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ $t('generalSettings.subtitle.managePublicSite') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+              <v-list-item class="px-0" lines="two">
+                <v-list-item-title class="text-title">
+                  {{ $t('generalSettings.managePublicSite') }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ $t('generalSettings.subtitle.managePublicSite') }}
+                </v-list-item-subtitle>
+                
                 <v-list-item-action>
                   <v-btn
                     icon

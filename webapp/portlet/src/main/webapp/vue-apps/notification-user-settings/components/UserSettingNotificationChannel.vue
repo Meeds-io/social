@@ -1,19 +1,18 @@
 <template>
   <div>
-    <v-list-item two-line>
-      <v-list-item-content>
-        <v-list-item-title class="text-color">
-          {{ label }}
-        </v-list-item-title>
-        <v-list-item-subtitle v-if="description">
-          {{ description }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
+    <v-list-item lines="two">
+      <v-list-item-title class="text-color">
+        {{ label }}
+      </v-list-item-title>
+      <v-list-item-subtitle v-if="description">
+        {{ description }}
+      </v-list-item-subtitle>
+      
       <v-list-item-action>
         <v-switch
           v-model="active"
           :loading="saving"
-          @change="save" />
+          @update:model-value="save" />
       </v-list-item-action>
     </v-list-item>
     <v-divider class="mx-4" />

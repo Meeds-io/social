@@ -28,7 +28,7 @@
             <v-btn
               :disabled="loading"
               :loading="loading"
-              class="white no-border-radius success--text"
+              class="bg-white no-border-radius text-success"
               block
               @click="acceptToConnect">
               {{ $t('profileHeader.button.acceptToConnect') }}
@@ -36,9 +36,9 @@
             <v-btn
               :disabled="loading"
               :loading="loading"
-              class="white no-border-radius error--text"
+              class="bg-white no-border-radius text-error"
               block
-              outlined
+              variant="outlined"
               @click="refuseToConnect">
               {{ $t('profileHeader.button.refuseToConnect') }}
             </v-btn>

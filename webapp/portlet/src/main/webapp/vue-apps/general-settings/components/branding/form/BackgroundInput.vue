@@ -33,7 +33,7 @@
     <v-list-item
       v-if="enabled"
       class="pa-0"
-      dense>
+      density="compact">
       <v-list-item-content class="my-auto">
         <v-radio-group
           v-model="choice"

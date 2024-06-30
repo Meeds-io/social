@@ -45,8 +45,8 @@
                   {{ $t('spacesList.label.noSpacesYetDescription2') }}
                   <v-btn
                     link
-                    text
-                    class="primary--text px-0 addNewSpaceLink"
+                    variant="text"
+                    class="text-primary px-0 addNewSpaceLink"
                     @click="$root.$emit('addNewSpace')">
                     {{ $t('spacesList.label.noSpacesLink') }}
                   </v-btn>

@@ -21,7 +21,7 @@
 <template>
   <v-container
     id="SiteHamburgerNavigation"
-    class="px-0 py-0 white">
+    class="px-0 py-0 bg-white">
     <div
       v-if="navigations"
       :role="null"
@@ -31,7 +31,7 @@
         :role="null"
         min-width="90%"
         class="pb-0"
-        dense>
+        density="compact">
         <v-list-item-group
           v-model="selectedNavigationIndex"
           :aria-label="navigationsLabel"
@@ -50,26 +50,26 @@
             <v-list-item-icon class="flex align-center flex-grow-0 my-2">
               <v-icon> {{ nav.icon || defaultIcon }}</v-icon>
             </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title
-                v-text="nav.label"
-                class="menu-text-color" />
-            </v-list-item-content>
+            
+            <v-list-item-title
+              v-text="nav.label"
+              class="menu-text-color" />
+            
             <v-list-item-action class="my-auto">
-              <v-tooltip bottom>
-                <template #activator="{ on, attrs }">
+              <v-tooltip location="bottom">
+                <template #activator="{ props }">
                   <v-btn
                     :aria-label="$t('menu.spaces.makeAsHomePage')"
                     role="button"
                     link
                     icon
-                    v-bind="attrs"
-                    v-on="on"
+                   
+                    v-bind="props"
                     @click="selectHome($event, nav)">
                     <v-icon 
                       :class="homeLink === nav.fullUri && 'primary--text' || 'icon-default-color'" 
                       class="homePage" 
-                      small>
+                      size="small">
                       fa-house-user
                     </v-icon>
                   </v-btn>

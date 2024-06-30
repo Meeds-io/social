@@ -79,9 +79,9 @@
             <v-btn
               v-if="searchable"
               v-autolinker="childProperty.value"
-              class="primary--text font-weight-regular pa-0 ma-auto"
+              class="text-primary font-weight-regular pa-0 ma-auto"
               min-width="auto"
-              text
+              variant="text"
               @click="quickSearch(childProperty)" />
             <span
               v-else

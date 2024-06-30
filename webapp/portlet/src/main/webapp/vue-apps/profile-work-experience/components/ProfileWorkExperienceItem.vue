@@ -1,6 +1,6 @@
 <template>
   <v-timeline-item
-    color="secondary"
+    dot-color="secondary"
     class="workExperienceTimeLineItem">
     <v-row class="ma-0">
       <v-col

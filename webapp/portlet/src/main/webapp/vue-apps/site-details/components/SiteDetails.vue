@@ -25,12 +25,12 @@
         v-if="!displaySequentially"
         class="px-4 pt-3 position-absolute z-index-one">
         <v-btn
-          class="white"
+          class="bg-white"
           elevation="2"
           icon
-          small
+          size="small"
           @click="$emit('close')">
-          <v-icon small>
+          <v-icon size="small">
             {{ $root.ltr && 'fa-arrow-left' || 'fa-arrow-right' }}
           </v-icon>
         </v-btn>

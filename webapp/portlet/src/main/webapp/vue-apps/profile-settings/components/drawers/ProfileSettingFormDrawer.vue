@@ -47,8 +47,8 @@
               class="pt-3"
               :placeholder="$t('profileSettings.placeholder.name')"
               maxlength="2000"
-              outlined
-              dense
+              variant="outlined"
+              density="compact"
               :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
           </label>
           <label
@@ -67,12 +67,12 @@
             class="mx-4">
             {{ $t('profileSettings.label.propertyType') }}
             <v-tooltip
-              bottom
+              location="bottom"
               :disabled="newSetting">
-              <template #activator="{ on, attrs }">
+              <template #activator="{ props }">
                 <div
-                  v-bind="attrs"
-                  v-on="on">
+                 
+                  v-bind="props">
                   <v-select
                     ref="propertyType"
                     v-model="setting.propertyType"
@@ -82,10 +82,10 @@
                     :rules="[v => !!v || $t('profileSettings.message.field.required')]"
                     name="propertyType"
                     class="pt-3"
-                    item-text="label"
+                    item-title="label"
                     item-value="value"
-                    dense
-                    outlined
+                    density="compact"
+                    variant="outlined"
                     @blur="$refs.propertyType.blur();" />
                 </div>
               </template>
@@ -103,11 +103,11 @@
               :items="parents"
               :placeholder="$t('profileSettings.placeholder.parent')"
               class="py-4"
-              outlined
-              dense
+              variant="outlined"
+              density="compact"
               width="100%"
               max-width="100%"
-              item-text="resolvedLabel"
+              item-title="resolvedLabel"
               item-value="id"
               @blur="blurAutocomplete()" />
           </label>
@@ -172,7 +172,7 @@
                 </div>
               </v-list-item-title>
               <v-list-item-subtitle v-if="setting.default" class="mt-n3">
-                <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
+                <span class="text-caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
@@ -234,24 +234,24 @@
                 class="mt-n3">
                 <span
                   v-if="setting.hiddenable"
-                  class="caption">
+                  class="text-caption">
                   {{ $t('profileSettings.label.hiddenable.enabled') }}
                 </span>
                 <span
                   v-else
-                  class="caption">
+                  class="text-caption">
                   {{ $t('profileSettings.label.hiddenable.disabled') }}
                 </span>
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
               <v-tooltip
-                bottom
+                location="bottom"
                 :disabled="!unHiddenableSetting">
-                <template #activator="{ on, attrs }">
+                <template #activator="{ props }">
                   <div
-                    v-bind="attrs"
-                    v-on="on">
+                   
+                    v-bind="props">
                     <v-switch
                       v-model="setting.hiddenable"
                       :disabled="saving || unHiddenableSetting"

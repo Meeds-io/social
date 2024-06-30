@@ -27,7 +27,7 @@
     </div>
     <div class="d-flex pt-2">
       <v-spacer />
-      <div @click="addNewLabel" class="addLabelBtn primary--text">
+      <div @click="addNewLabel" class="addLabelBtn text-primary">
         <v-icon color="primary">
           mdi-plus
         </v-icon>

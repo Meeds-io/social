@@ -23,13 +23,13 @@
     class="d-flex flex-nowrap">
     <div
       :id="`setting-action-menu-cel-${setting.id}`">
-      <v-tooltip bottom>
-        <template #activator="{ on, attrs }">
+      <v-tooltip location="bottom">
+        <template #activator="{ props }">
           <v-btn
             icon
-            small
-            v-bind="attrs"
-            v-on="on">
+            size="small"
+           
+            v-bind="props">
             <v-icon
               :size="isMobile ? 14 : 18"
               class="clickable icon-default-color button-settings-action"
@@ -44,7 +44,7 @@
             :content-class="isMobile ? 'settingsActionMenuMobile' : 'settingsActionMenu'"
             offset-y
             offset-x
-            close-on-click
+            :persistent="false"
             absolute>
             <profile-settings-action-menu
               :setting="setting"

@@ -22,7 +22,7 @@
   <v-menu
     v-model="menu"
     :absolute="false"
-    :close-on-click="false"
+    persistent
     :close-on-content-click="false"
     :content-class="`overflow-hidden elevation-0 fill-height application-menu ${extraClass} ${componentId}`"
     :min-width="drawerWidth"

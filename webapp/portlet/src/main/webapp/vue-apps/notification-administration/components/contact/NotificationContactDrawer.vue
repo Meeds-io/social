@@ -28,8 +28,8 @@
           aria-required="true"
           required="required"
           autocomplete="off"
-          outlined
-          dense />
+          variant="outlined"
+          density="compact" />
         <div>
           {{ $t('NotificationAdmin.sender.drawer.address') }}
         </div>
@@ -43,8 +43,8 @@
           aria-required="true"
           required="required"
           autocomplete="off"
-          outlined
-          dense />
+          variant="outlined"
+          density="compact" />
       </v-form>
     </template>
     <template #footer>

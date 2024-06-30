@@ -35,9 +35,9 @@
           class="flex-shrink-0 px-0" 
           :href="actionUrl"
           :target="externalLink && '_blank' || '_self'"
-          text
-          small> 
-          <span class="text-font-size primary--text text-capitalize-first-letter"> 
+          variant="text"
+          size="small"> 
+          <span class="text-font-size text-primary text-capitalize-first-letter"> 
             {{ actionText }} 
           </span>
         </v-btn>

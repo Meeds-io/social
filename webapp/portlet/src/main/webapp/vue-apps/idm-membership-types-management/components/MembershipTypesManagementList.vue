@@ -29,7 +29,7 @@
           :title="$t('MembershipTypesManagement.editMembershipType')"
           primary
           icon
-          text
+          variant="text"
           @click="$root.$emit('editMembershipType', item)">
           <i class="uiIconEdit"></i>
         </v-btn>
@@ -37,7 +37,7 @@
           :title="$t('MembershipTypesManagement.button.delete')"
           primary
           icon
-          text
+          variant="text"
           @click="deleteMembershipType(item)">
           <i class="uiIconTrash"></i>
         </v-btn>

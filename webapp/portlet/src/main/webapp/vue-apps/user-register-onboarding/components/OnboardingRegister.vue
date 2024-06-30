@@ -25,7 +25,7 @@
     autocomplete="off"
     class="d-flex ma-0 flex-column">
     <div class="d-flex flex-column">
-      <div class="mb-5 mx-auto text-header primary--text">{{ $t('onboarding.emailSummary') }}</div>
+      <div class="mb-5 mx-auto text-header text-primary">{{ $t('onboarding.emailSummary') }}</div>
       <v-row class="ma-0 pa-0">
         <v-text-field
           id="email"
@@ -40,8 +40,8 @@
           type="email"
           tabindex="0"
           required="required"
-          outlined
-          dense />
+          variant="outlined"
+          density="compact" />
         <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
         <v-card
           class="d-flex mt-4"
@@ -51,7 +51,7 @@
             src="/portal/register?serveCaptcha=true"
             width="150"
             heigh="40"
-            class="primary me-2 rounded-lg"
+            class="bg-primary me-2 rounded-lg"
             eager
             contain />
           <v-text-field
@@ -64,8 +64,8 @@
             aria-required="true"
             type="text"
             required="required"
-            outlined
-            dense />
+            variant="outlined"
+            density="compact" />
         </v-card>
       </v-row>
       <v-row class="mx-0 mt-4 pa-0">
@@ -89,7 +89,7 @@
           max-width="100%"
           class="mx-auto login-button text-none"
           elevation="0"
-          outlined>
+          variant="outlined">
           <span>
             <v-icon size="16" class="position-absolute mt-n2">fas fa-arrow-left</v-icon>
           </span>

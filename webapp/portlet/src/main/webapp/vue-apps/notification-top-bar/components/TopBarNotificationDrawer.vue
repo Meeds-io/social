@@ -32,9 +32,9 @@
       {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
     </template>
     <template #titleIcons>
-      <v-tooltip bottom>
-        <template #activator="{on, bind}">
-          <div v-on="on" v-bind="bind">
+      <v-tooltip location="bottom">
+        <template #activator="{props, bind}">
+          <div v-bind="props" v-bind="bind">
             <v-btn
               :disabled="markingAsReadDisabled"
               :loading="markingAllAsRead"
@@ -46,12 +46,12 @@
         </template>
         <span>{{ markingAsReadDisabled && $t('Notification.label.NoMarkAllAsRead') || $t('Notification.label.MarkAsRead', {0: $t(`Notification.label.types.${groupName}`)}) }}</span>
       </v-tooltip>
-      <v-tooltip bottom>
-        <template #activator="{on, bind}">
+      <v-tooltip location="bottom">
+        <template #activator="{props, bind}">
           <v-btn
             :href="settingsLink"
             icon
-            v-on="on"
+            v-bind="props"
             v-bind="bind"
             @click="openSettings">
             <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
@@ -89,7 +89,7 @@
           </v-expand-x-transition>
           <v-card
             :max-height="expanded && '100%' || 'auto'"
-            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent no-border-radius overflow-hidden"
+            class="d-flex flex-column flex-grow-1 flex-shrink-1 bg-transparent no-border-radius overflow-hidden"
             flat>
             <v-card
               :max-height="expanded && '100%' || 'auto'"
@@ -115,7 +115,7 @@
               v-if="expanded && hasMore && $root.initialized"
               :loading="loading > 0"
               class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
-              outlined
+              variant="outlined"
               @click="$refs.notifications.loadMore()">
               {{ $t('button.loadMore') }}
             </v-btn>
@@ -128,7 +128,7 @@
         <v-btn
           :loading="loading > 0"
           class="btn"
-          outlined
+          variant="outlined"
           block
           @click="$refs.notifications.loadMore()">
           {{ $t('button.loadMore') }}

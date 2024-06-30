@@ -24,7 +24,7 @@
       :key="property.value"
       class="elevation-0 py-1 px-1 d-flex mb-1"
       :disabled="disabled"
-      outlined>
+      border>
       <exo-user-avatar
         :profile-id="property.value"
         :size="28"
@@ -37,8 +37,8 @@
         :aria-label="$t('label.remove')"
         icon>
         <v-icon
-          small
-          class="red--text"
+          size="small"
+          class="text-red"
           @click="removeUser(property.value)">
           fa-minus
         </v-icon>

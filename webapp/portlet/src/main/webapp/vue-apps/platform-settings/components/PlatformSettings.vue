@@ -1,15 +1,14 @@
 <template>
   <v-app>
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           :href="$root.url"
           :aria-label="$t('platformSettings.label.openAdministration')"
           target="_blank"
           class="mx-2 d-none d-sm-block"
           icon
-          v-on="on"
-          v-bind="attrs">
+          v-bind="props">
           <v-icon
             class="icon-default-color"
             size="22">

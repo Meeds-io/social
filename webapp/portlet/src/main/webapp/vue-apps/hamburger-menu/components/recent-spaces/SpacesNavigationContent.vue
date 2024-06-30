@@ -25,7 +25,7 @@
     flat>
     <v-list
       :role="null"
-      dense>
+      density="compact">
       <v-list-item-group
         :value="selectedSpaceIndex"
         :role="null">
@@ -43,7 +43,7 @@
     <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
       <v-btn
         class="btn"
-        small
+        size="small"
         @click="loadNextPage()">
         {{ $t('menu.spaces.showMore') }}
       </v-btn>

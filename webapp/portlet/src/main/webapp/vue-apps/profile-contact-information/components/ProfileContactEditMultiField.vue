@@ -13,9 +13,9 @@
         <v-btn
           color="primary"
           class="px-0"
-          outlined
+          variant="outlined"
           link
-          text
+          variant="text"
           @click="addNewItem">
           + {{ $t('profileContactInformation.addNew') }}
         </v-btn>

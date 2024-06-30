@@ -26,10 +26,8 @@
           {{ item.membershipType }}
         </template>
         <template slot="item.groupId" slot-scope="{ item }">
-          <v-list-item-content>
-            <v-list-item-title>{{ item.groupLabel }}</v-list-item-title>
-            <v-list-item-subtitle>{{ item.groupId }}</v-list-item-subtitle>
-          </v-list-item-content>
+          <v-list-item-title>{{ item.groupLabel }}</v-list-item-title>
+          <v-list-item-subtitle>{{ item.groupId }}</v-list-item-subtitle>
         </template>
       </v-data-table>
     </template>
@@ -38,10 +36,10 @@
         <v-pagination
           v-model="page"
           :length="pagesCount"
-          circle
+          rounded
           light
           flat
-          @input="changePage" />
+          @update:model-value="changePage" />
       </div>
     </template>
   </exo-drawer>

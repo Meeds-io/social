@@ -55,7 +55,7 @@
             :href="space.url"
             :key="space.id"
             class="pa-1 pb-1"
-            dense>
+            density="compact">
             <v-list-item-avatar
               :size="avatarSize"
               class="me-2"
@@ -76,20 +76,20 @@
               <v-list-item-subtitle
                 v-if="space.description"
                 v-sanitized-html="space.description"
-                class="caption text-truncate" />
+                class="text-caption text-truncate" />
             </v-list-item-content>
             <v-list-item-action class="pa-0 my-auto">
               <v-tooltip
                 v-if="isMobile || hover"
                 :disabled="isMobile"
-                bottom>
-                <template #activator="{on, bind}">
+                location="bottom">
+                <template #activator="{props, bind}">
                   <v-btn
                     icon
                     @click.stop.prevent="muteSpace(space, true)"
-                    v-on="on"
+                    v-bind="props"
                     v-bind="bind">
-                    <v-icon class="icon-default-color" small>fa-bell-slash</v-icon>
+                    <v-icon class="icon-default-color" size="small">fa-bell-slash</v-icon>
                   </v-btn>
                 </template>
                 <span>{{ $t('UserSettings.button.tooltip.unmute') }}</span>

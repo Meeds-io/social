@@ -1,17 +1,17 @@
 <template>
   <div class="d-inline-flex pe-1">
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           :id="`LikeLink${commentId}`"
           :loading="changingLike"
           :class="likeTextColorClass"
           class="px-0 width-auto"
-          text
+          variant="text"
           link
-          x-small
-          v-bind="attrs"
-          v-on="on"
+          size="x-small"
+         
+          v-bind="props"
           @click="changeLike">
           {{ $t('UIActivity.msg.LikeActivity') }}
         </v-btn>
@@ -20,16 +20,16 @@
         {{ likeButtonTitle }}
       </span>
     </v-tooltip>
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           v-show="likesCount"
           :id="`LikersListLink${commentId}`"
-          class="primary--text font-weight-bold"
-          x-small
+          class="text-primary font-weight-bold"
+          size="x-small"
           icon
-          v-bind="attrs"
-          v-on="on"
+         
+          v-bind="props"
           @click="openLikesList">
           ({{ likesCount }})
         </v-btn>

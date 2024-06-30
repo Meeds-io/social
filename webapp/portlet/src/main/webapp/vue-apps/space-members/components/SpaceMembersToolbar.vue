@@ -22,7 +22,7 @@
           @click="$emit('invite-users')">
           <v-icon
             size="18"
-            class="primary--text ms-2 me-1">
+            class="text-primary ms-2 me-1">
             fas fa-user-plus
           </v-icon>
           <span class="d-none d-sm-inline">

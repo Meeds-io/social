@@ -26,7 +26,7 @@
         v-if="$root.canRegister"
         id="topBarRegisterButton"
         :href="authenticated && '#' || '/portal/register'"
-        class="primary me-5"
+        class="bg-primary me-5"
         elevation="0">
         <span class="text-none">{{ $t('publicAccess.register') }}</span>
       </v-btn>
@@ -35,8 +35,8 @@
         :icon="$vuetify.breakpoint.mobile"
         :href="authenticated && '#' || '/portal/login'"
         :class="$vuetify.breakpoint.mobile && 'rounded'"
-        class="primary me-1"
-        outlined>
+        class="bg-primary me-1"
+        variant="outlined">
         <span v-if="!$vuetify.breakpoint.mobile" class="text-none">{{ $t('publicAccess.login') }}</span>
         <v-icon v-else size="16">fa-sign-in-alt</v-icon>
       </v-btn>
@@ -46,8 +46,8 @@
       id="topBarAccessButton"
       href="/portal"
       target="_blank"
-      class="primary"
-      outlined>
+      class="bg-primary"
+      variant="outlined">
       <v-avatar size="20" class="me-2">
         <v-img :src="$root.avatarUrl" eager />
       </v-avatar>

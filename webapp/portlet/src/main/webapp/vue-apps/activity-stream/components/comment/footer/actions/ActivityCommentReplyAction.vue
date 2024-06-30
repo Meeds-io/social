@@ -1,16 +1,16 @@
 <template>
   <div class="d-inline-flex pe-1">
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           :id="`CommentLink${activityId}`"
           :class="commentTextColorClass"
           class="pa-0 me-0"
-          text
+          variant="text"
           link
-          x-small
-          v-bind="attrs"
-          v-on="on"
+          size="x-small"
+         
+          v-bind="props"
           @click="openCommentsDrawer">
           <span>
             {{ $t('UIActivity.label.Reply') }}
@@ -21,17 +21,17 @@
         {{ $t('UIActivity.label.Comment') }}
       </span>
     </v-tooltip>
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           v-show="subCommentsSize"
           :id="`RepliesListLink${commentId}`"
           :title="$t('UIActivity.label.ViewAllReplies', {0: subCommentsSize})"
-          class="primary--text font-weight-bold"
-          x-small
+          class="text-primary font-weight-bold"
+          size="x-small"
           icon
-          v-bind="attrs"
-          v-on="on"
+         
+          v-bind="props"
           @click="openReplies">
           ({{ subCommentsSize }})
         </v-btn>

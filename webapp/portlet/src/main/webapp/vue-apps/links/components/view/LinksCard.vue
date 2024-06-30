@@ -39,7 +39,7 @@
       :max-width="itemWidth"
       :min-height="itemHeight"
       :max-height="itemHeight"
-      class="d-flex flex-column full-height full-width transparent border-box-sizing align-center justify-start overflow-hidden text-none"
+      class="d-flex flex-column full-height full-width bg-transparent border-box-sizing align-center justify-start overflow-hidden text-none"
       flat>
       <links-icon
         :icon-size="iconSize"

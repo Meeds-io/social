@@ -1,18 +1,18 @@
 <template>
   <div class="text-subtitle text-truncate">
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip location="bottom">
+      <template #activator="{ props }">
         <v-btn
           :height="20"
           :href="commentLink"
           class="d-flex hover-underline width-auto text-capitalize-first-letter d-inline px-0"
-          x-small
+          size="x-small"
           link
-          text
-          plain
+          variant="text"
+          variant="plain"
           @click="openCommentsDrawer"
-          v-bind="attrs"
-          v-on="on">
+         
+          v-bind="props">
           <relative-date-format
             v-if="isActivityEdited"
             :value="comment.updateDate"

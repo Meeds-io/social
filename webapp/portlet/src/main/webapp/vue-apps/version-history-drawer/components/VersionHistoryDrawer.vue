@@ -28,7 +28,7 @@
       <div
         v-if="!isLoading && versions.length === 0"
         class="text-center mt-5">
-        <p class="grey--text darken-1">
+        <p class="text-grey darken-1">
           {{ $t('versionHistory.label.empty') }}
         </p>
       </div>
@@ -61,8 +61,8 @@
         <v-btn
           :loading="isLoading"
           @click="loadMore"
-          class="primary--text mx-auto"
-          text>
+          class="text-primary mx-auto"
+          variant="text">
           {{ $t('versionHistory.button.loadMore') }}
         </v-btn>
       </div>

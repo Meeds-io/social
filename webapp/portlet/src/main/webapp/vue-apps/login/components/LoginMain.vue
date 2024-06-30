@@ -71,8 +71,8 @@
             type="text"
             tabindex="0"
             required="required"
-            outlined
-            dense />
+            variant="outlined"
+            density="compact" />
         </v-row>
         <v-row class="ma-0 pa-0">
           <v-text-field
@@ -87,8 +87,8 @@
             class="login-password border-box-sizing"
             name="password"
             required="required"
-            outlined
-            dense
+            variant="outlined"
+            density="compact"
             @click:append="toggleShow" />
         </v-row>
         <v-row class="d-flex flex-column flex-sm-row ma-0 py-0 px-3 px-sm-0" flat>
@@ -98,7 +98,7 @@
             :label="$t('portal.login.RememberOnComputer')"
             :value="rememberme"
             name="rememberme"
-            on-icon="fas fa-check-square"
+            true-icon="fas fa-check-square"
             class="mx-0 my-3 my-sm-0"
             dense />
           <v-spacer />

@@ -21,18 +21,18 @@
 <template>
   <div
     id="UserHamburgerNavigation"
-    class="white full-width">
+    class="bg-white full-width">
     <div class="d-flex flex-row">
-      <v-tooltip top>
-        <template #activator="{ on, attrs }">
+      <v-tooltip location="top">
+        <template #activator="{ props }">
           <a
             :href="productLink"
             :aria-label="$t('menu.productName.seeProduct')"
             target="_blank"
             class="text-body font-weight-bold my-auto"
             role="link"
-            v-bind="attrs"
-            v-on="on">
+           
+            v-bind="props">
             {{ productName }}
           </a>
         </template>
@@ -42,15 +42,15 @@
       </v-tooltip>
       <v-spacer />
       <div class="settingsTitle">
-        <v-tooltip top>
-          <template #activator="{ on, attrs }">
+        <v-tooltip location="top">
+          <template #activator="{ props }">
             <v-btn
               :href="settingsUrl"
               :aria-label="$t('menu.settings')"
               height="50px"
               min-width="40px"
-              v-bind="attrs"
-              v-on="on"
+             
+              v-bind="props"
               icon>
               <v-icon size="22">
                 fa-sliders-h
@@ -63,15 +63,15 @@
         </v-tooltip>
       </div>
       <div class="logoutLinks me-n3">
-        <v-tooltip top>
-          <template #activator="{ on, attrs }">
+        <v-tooltip location="top">
+          <template #activator="{ props }">
             <v-btn
               :href="logoutUrl"
               :aria-label="$t('menu.logout')"
               height="50px"
               min-width="40px"
-              v-bind="attrs"
-              v-on="on"
+             
+              v-bind="props"
               icon>
               <v-icon size="22">
                 fa-power-off

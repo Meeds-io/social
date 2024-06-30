@@ -21,11 +21,11 @@
 -->
 <template>
   <v-app>
-    <v-tooltip bottom>
-      <template #activator="{on, bind}">
+    <v-tooltip location="bottom">
+      <template #activator="{props, bind}">
         <v-btn
           id="topBarPreviewButton"
-          v-on="on"
+          v-bind="props"
           v-bind="bind"
           class="ms-5"
           icon

@@ -55,12 +55,12 @@
             ref="firstField"
             v-model="firstField"
             :items="settings"
-            item-text="label"
+            item-title="label"
             item-value="value"
             name="firstField"
             class="pt-1"
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
             @blur="$refs.firstField.blur();" />
         </label>
         <label for="secondField">
@@ -69,12 +69,12 @@
             ref="secondField"
             v-model="secondField"
             :items="settings"
-            item-text="label"
+            item-title="label"
             item-value="value"
             name="secondField"
             class="pt-1"
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
             @blur="$refs.secondField.blur();" />
         </label>
         <label for="thirdField">
@@ -83,12 +83,12 @@
             ref="thirdField"
             v-model="thirdField"
             :items="settings"
-            item-text="label"
+            item-title="label"
             item-value="value"
             name="thirdField"
             class="pt-1"
-            dense
-            outlined
+            density="compact"
+            variant="outlined"
             @blur="$refs.thirdField.blur();" />
         </label>
       </div>

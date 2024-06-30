@@ -9,7 +9,7 @@
       @ok="deleteConfirm()" />
     <v-btn
       icon
-      text
+      variant="text"
       class="groupMenuIcon"
       @click="openMenu">
       <v-icon size="21">mdi-dots-vertical</v-icon>
@@ -20,10 +20,10 @@
       :attach="`#${groupMenuParentId}`"
       transition="slide-x-reverse-transition"
       content-class="groupActionMenu"
-      right
+      location="right"
       offset-x
       offset-y>
-      <v-list class="pa-0" dense>
+      <v-list class="pa-0" density="compact">
         <v-list-item @click="emitEvent($event, 'editGroup')">
           <v-list-item-title>
             <i class="uiIcon uiIconEdit"></i>

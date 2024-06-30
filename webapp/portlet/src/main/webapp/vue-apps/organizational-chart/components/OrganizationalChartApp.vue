@@ -22,7 +22,7 @@
   <v-app v-if="showApplication">
     <v-hover v-slot="{ hover }">
       <v-card
-        outlined
+        border
         class="pa-5 application-body">
         <div
           v-if="isLoading"

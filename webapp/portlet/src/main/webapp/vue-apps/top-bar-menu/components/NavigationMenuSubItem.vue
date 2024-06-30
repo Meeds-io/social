@@ -22,7 +22,7 @@
 <template>
   <v-list
     class="pa-0"
-    dense>
+    density="compact">
     <v-list-item
       v-if="hasPage || hasChildren && childrenHasPage"
       class="pt-0 pb-0"
@@ -37,13 +37,13 @@
         :position-y="positionY"
         transition="slide-x-reverse-transition"
         absolute
-        :left="$vuetify.rtl"
+        :location="$vuetify.rtl ? 'left' : undefined"
         :open-on-hover="isOpenedOnHover"
         offset-x>
-        <template #activator="{ attrs, on }">
+        <template #activator="{ props }">
           <v-list-item-title
             v-on="on"
-            v-bind="attrs"
+           
             class="pt-5 pb-5"
             :class="hasPage && ' ' || ' not-clickable '"
             v-text="navigation.label"
@@ -54,7 +54,7 @@
             class="ms-0 me-n2 ma-auto full-height"
             @mouseover="showMenu = true">
             <v-btn
-              v-on="on"
+              v-bind="props"
               icon
               @click.stop.prevent="showMenu = !showMenu">
               <v-icon

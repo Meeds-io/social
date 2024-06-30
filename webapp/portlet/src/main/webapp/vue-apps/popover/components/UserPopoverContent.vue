@@ -37,7 +37,7 @@
             bold-title
             link-style>
             <template v-if="primaryProperty" slot="subTitle">
-              <span class="caption text-bold">
+              <span class="text-caption text-bold">
                 {{ primaryProperty }}
               </span>
             </template>
@@ -53,7 +53,7 @@
           icon
           @click.prevent="extension.click(identity)">
           <v-icon
-            class="primary--text"
+            class="text-primary"
             :title="extension.title || $t(extension.titleKey)"
             size="14">
             {{ extension.class }}

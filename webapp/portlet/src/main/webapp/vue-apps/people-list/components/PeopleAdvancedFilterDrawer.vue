@@ -44,10 +44,10 @@
         <v-btn
           color="primary"
           elevation="0"
-          text
+          variant="text"
           link
           @click="reset">
-          <v-icon x-small class="pr-1">fas fa-redo</v-icon>
+          <v-icon size="x-small" class="pr-1">fas fa-redo</v-icon>
           {{ $t('pepole.advanced.filter.button.reset') }}
         </v-btn>
         <v-spacer />

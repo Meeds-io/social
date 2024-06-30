@@ -8,8 +8,8 @@
       <template v-if="owner" #action>
         <v-btn
           icon
-          outlined
-          small
+          variant="outlined"
+          size="small"
           @click="addWorkExperience">
           <v-icon size="18">fas fa-plus</v-icon>
         </v-btn>
@@ -17,8 +17,8 @@
           v-if="hasExperiences"
           class="ms-2"
           icon
-          outlined
-          small
+          variant="outlined"
+          size="small"
           @click="editWorkExperiences">
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>
@@ -26,8 +26,8 @@
       <v-timeline
         v-if="hasExperiences"
         class="workExperienceTimeLine"
-        align-top
-        dense>
+        align="top"
+        density="compact">
         <profile-work-experience-item
           v-for="experience in experiences"
           :key="experience.id"

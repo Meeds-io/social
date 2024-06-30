@@ -28,17 +28,17 @@
             </v-list-item-avatar>
             <v-list-item-content class="py-0">
               <v-list-item-title class="text-color text-truncate requestSpaceName" v-text="item.displayName" />
-              <v-list-item-subtitle class="caption grey-color" v-sanitized-html="item.description" />
+              <v-list-item-subtitle class="text-caption grey-color" v-sanitized-html="item.description" />
             </v-list-item-content>
             <v-list-item-action>
               <v-btn-toggle
-                class="transparent"
+                class="bg-transparent"
                 dark>
                 <v-btn
                   :title="$t('externalSpacesList.tooltip.AcceptToJoin')"
-                  text
+                  variant="text"
                   icon
-                  small
+                  size="small"
                   min-width="auto"
                   class="px-0"
                   @click="replyInvitationToJoinSpace(item.id, 'approved')">
@@ -46,9 +46,9 @@
                 </v-btn>
                 <v-btn
                   :title="$t('externalSpacesList.tooltip.DeclineInvitation')"
-                  text
+                  variant="text"
                   icon
-                  small
+                  size="small"
                   min-width="auto"
                   class="px-0"
                   @click="replyInvitationToJoinSpace(item.id, 'ignored')">

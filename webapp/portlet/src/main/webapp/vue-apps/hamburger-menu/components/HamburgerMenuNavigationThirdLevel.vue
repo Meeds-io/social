@@ -24,10 +24,10 @@
     v-model="drawer"
     :width="drawerWidth"
     :style="drawerOffsetStyle"
-    :right="$root.rtl"
+    :location="$root.rtl ? 'right' : undefined"
     class="HamburgerMenuThirdLevelParent border-box-sizing"
     max-width="100%"
-    hide-overlay>
+    :scrim="false">
     <template v-if="drawer">
       <space-panel-hamburger-navigation
         :display-sequentially="displaySequentially"

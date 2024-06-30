@@ -19,13 +19,13 @@
 
 -->
 <template>
-  <v-tooltip bottom>
-    <template #activator="{ on, attrs }">
+  <v-tooltip location="bottom">
+    <template #activator="{ props }">
       <v-btn
         :loading="saving"
         icon
-        v-bind="attrs"
-        v-on="on"
+       
+        v-bind="props"
         @click="muteSpace">
         <v-icon size="16" class="icon-default-color">{{ spaceMuted && 'fa-bell-slash' || 'far fa-bell-slash' }}</v-icon>
       </v-btn>

@@ -1,5 +1,5 @@
 <template>
-  <v-list class="px-4 pt-0 pb-4" dense>
+  <v-list class="px-4 pt-0 pb-4" density="compact">
     <h4>{{ $t('Notification.label.types') }}</h4>
     <v-list-item-group
       v-model="selectedGroupIndex"

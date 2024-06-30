@@ -29,8 +29,8 @@
           v-if="owner"
           id="profileContactEditButton"
           icon
-          outlined
-          small
+          variant="outlined"
+          size="small"
           @click="editContactInformation">
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>

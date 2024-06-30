@@ -8,7 +8,7 @@
       popover
       bold-title>
       <template slot="subTitle">
-        <span v-if="!sameUser" class="caption text-bold">
+        <span v-if="!sameUser" class="text-caption text-bold">
           {{ inCommonConnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
         </span>
       </template>

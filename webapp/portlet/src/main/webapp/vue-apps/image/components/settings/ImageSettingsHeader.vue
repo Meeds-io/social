@@ -29,13 +29,13 @@
           'l-0': $vuetify.rtl,
         }"
         class="position-absolute z-index-two t-0 ma-2">
-        <v-tooltip v-if="$root.hasImages" bottom>
-          <template #activator="{on, bind}">
+        <v-tooltip v-if="$root.hasImages" location="bottom">
+          <template #activator="{props, bind}">
             <v-btn
-              v-on="on"
+              v-bind="props"
               v-bind="bind"
-              class="me-2 white elevation-1"
-              small
+              class="me-2 bg-white elevation-1"
+              size="small"
               icon
               @click="$emit('remove')">
               <v-icon size="18">fa-trash</v-icon>
@@ -43,14 +43,14 @@
           </template>
           <span>{{ $t('image.label.removeImage') }}</span>
         </v-tooltip>
-        <v-tooltip bottom>
-          <template #activator="{on, bind}">
+        <v-tooltip location="bottom">
+          <template #activator="{props, bind}">
             <v-btn
-              v-on="on"
+              v-bind="props"
               v-bind="bind"
               :loading="loading"
-              class="white elevation-1"
-              small
+              class="bg-white elevation-1"
+              size="small"
               icon
               @click="$emit('edit')">
               <v-icon size="18">fa-camera</v-icon>

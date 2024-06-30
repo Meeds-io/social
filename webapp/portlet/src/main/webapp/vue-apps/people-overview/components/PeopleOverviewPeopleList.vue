@@ -1,7 +1,7 @@
 <template>
   <v-list
     v-if="users && users.length"
-    two-line
+    lines="two"
     subheader>
     <people-overview-people-list-item
       v-for="user in users"

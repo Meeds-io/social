@@ -21,7 +21,7 @@
 <template>
   <v-list
     :role="null"
-    dense
+    density="compact"
     min-width="90%"
     class="pb-0">
     <v-list-item-group

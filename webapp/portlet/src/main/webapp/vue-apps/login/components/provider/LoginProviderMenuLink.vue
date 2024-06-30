@@ -27,7 +27,7 @@
     rel="nofollow noreferrer noopener"
     color="primary"
     outlined
-    dense
+    density="compact"
     @click="clickOnProviderButton">
     <v-list-item-icon class="me-2">
       <v-img
@@ -39,9 +39,8 @@
         eager />
       <v-icon v-else :class="providerIcon" />
     </v-list-item-icon>
-    <v-list-item-content>
-      <v-list-item-title class="text-truncate">{{ providerButtonLabel }}</v-list-item-title>
-    </v-list-item-content>
+    
+    <v-list-item-title class="text-truncate">{{ providerButtonLabel }}</v-list-item-title>
   </v-list-item>
 </template>
 <script>

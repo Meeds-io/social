@@ -41,7 +41,7 @@
       </div>
       <v-list
         class="mt-n3"
-        dense>
+        density="compact">
         <v-list-item-group>
           <v-list-item
             v-for="children in navigationObject"
@@ -50,9 +50,8 @@
             :disabled="!children.pageKey && !children.children?.length"
             :link="!!children.pageKey"
             @click.stop="checkLink(children, $event)">
-            <v-list-item-content>
-              <v-list-item-title v-text="children.label" />
-            </v-list-item-content>
+            <v-list-item-title v-text="children.label" />
+            
             <v-list-item-icon
               v-if="children.children?.length"
               class="full-height">

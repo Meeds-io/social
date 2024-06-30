@@ -34,7 +34,7 @@
           color="grey"
           class="peopleGroupMemberBindingIcon d-flex not-clickable ms-1"
           icon
-          small>
+          size="small">
           <span class="d-flex uiIconGroup"></span>
         </v-btn>
         <v-spacer />
@@ -54,21 +54,21 @@
             transition="slide-x-reverse-transition"
             content-class="peopleActionMenu mt-n6 me-4"
             offset-y>
-            <template #activator="{ on, attrs }">
+            <template #activator="{ props }">
               <v-btn
-                v-bind="attrs"
-                v-on="on"
+               
+                v-bind="props"
                 :title="$t('peopleList.label.openUserMenu')"
                 class="d-block"
                 icon
-                text>
+                variant="text">
                 <v-icon
                   class="icon-default-size icon-default-color">
                   mdi-dots-vertical
                 </v-icon>
               </v-btn>
             </template>
-            <v-list class="pa-0 white" dense>
+            <v-list class="pa-0 bg-white" density="compact">
               <v-list-item
                 v-for="(extension, i) in enabledProfileActionExtensions"
                 :key="i"
@@ -132,7 +132,7 @@
             class="userPositionLabel text-truncate pa-0 mt-0 mt-sm-auto">
             <a
               :href="url"
-              class="grey--text text--darken-1">
+              class="text-grey-darken-1">
               {{ userPosition }}
             </a>
           </v-card-subtitle>

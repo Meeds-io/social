@@ -10,8 +10,8 @@
           v-if="owner"
           id="aboutMeEditButton"
           icon
-          outlined
-          small
+          variant="outlined"
+          size="small"
           @click="editAboutMe">
           <v-icon size="18">fas fa-edit</v-icon>
         </v-btn>

@@ -10,17 +10,16 @@
         flat>
         <v-list>
           <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title class="text-title">
-                {{ $t('UserSettings.security') }}
-              </v-list-item-title>
-            </v-list-item-content>
+            <v-list-item-title class="text-title">
+              {{ $t('UserSettings.security') }}
+            </v-list-item-title>
+            
             <v-list-item-action>
               <span
                 :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
                 <v-btn
                   :disabled="!allowedToChangePassword"
-                  small
+                  size="small"
                   icon
                   @click="openSecurityDetail">
                   <v-icon size="24" class="icon-default-color">

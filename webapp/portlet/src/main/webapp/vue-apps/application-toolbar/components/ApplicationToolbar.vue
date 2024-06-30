@@ -68,19 +68,19 @@
           color="primary"
           mandatory
           outlined
-          dense>
+          density="compact">
           <v-btn
             v-for="buttonToggle in centerButtonToggle.buttons"
             :key="buttonToggle.value"
             :id="`applicationToolbar-${buttonToggle.value}`"
             :value="buttonToggle.value"
             :class="isCompact && 'width-auto px-4'"
-            text
+            variant="text"
             @click="emitToggle(buttonToggle.value)">
             <v-icon
               v-if="buttonToggle.icon"
               :class="buttonToggle.value === toggle && 'primary--text' || 'icon-default-color'"
-              small>
+              size="small">
               {{ buttonToggle.icon }}
             </v-icon>
             <span v-if="!isCompact && buttonToggle.icon && buttonToggle.text" class="ms-2"></span>
@@ -106,7 +106,7 @@
             v-if="expandFilter"
             id="applicationToolbarBackButton"
             class="px-0 me-auto"
-            small
+            size="small"
             icon
             @click="expandFilter = false">
             <v-icon size="26" class="icon-default-color">fa-arrow-left</v-icon>
@@ -125,8 +125,8 @@
             :max-width="rightTextFilter.maxWidth"
             :class="expandFilter && 'flex-grow-1'"
             flat>
-            <v-tooltip :value="showTextTooltip" bottom>
-              <template #activator="{on}">
+            <v-tooltip :model-value="showTextTooltip" location="bottom">
+              <template #activator="{props}">
                 <v-text-field
                   id="applicationToolbarFilterInput"
                   ref="applicationToolbarFilterInput"
@@ -140,7 +140,7 @@
                   autocomplete="off"
                   hide-details
                   clearable
-                  v-on="on" />
+                  v-bind="props" />
               </template>
               <span>{{ rightTextFilter.tooltip }}</span>
             </v-tooltip>
@@ -162,8 +162,8 @@
             v-if="showFilterButton"
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
-            :small="isCompact"
-            text
+            :size="isCompact ? 'small' : undefined"
+            variant="text"
             @click="$emit('filter-button-click', $event)">
             <v-icon
               :size="isCompact && 24 || 16"
@@ -183,7 +183,7 @@
             v-if="showConeButton"
             id="applicationToolbarConeButton"
             class="px-0 ms-4"
-            small
+            size="small"
             icon
             @click="expandFilter = true">
             <v-icon :class="coneColor" size="20">

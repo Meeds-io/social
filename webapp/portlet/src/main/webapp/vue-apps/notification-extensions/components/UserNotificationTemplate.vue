@@ -35,7 +35,7 @@
         :class="movingLeft && 'r-0' || 'l-0'"
         class="position-absolute my-auto t-0 b-0 full-height d-flex flex-column align-center justify-center">
         <v-card
-          class="transparent d-flex flex-column align-center justify-center"
+          class="bg-transparent d-flex flex-column align-center justify-center"
           :width="gapSize"
           min-width="85"
           dark
@@ -55,7 +55,7 @@
           :unread="unread"
           :can-mute="canMute"
           :url="url"
-          class="white"
+          class="bg-white"
           @remove="hideNotification"
           @mute="muteSpace()"
           @read="markAsRead()"
@@ -118,7 +118,7 @@
                   class="d-flex flex-wrap"
                   strict-type />
               </div>
-              <div class="flex-grow-0 flex-shrink-0 caption me-1">
+              <div class="flex-grow-0 flex-shrink-0 text-caption me-1">
                 {{ relativeDateLabel }}
               </div>
             </v-list-item-subtitle>

@@ -24,16 +24,16 @@
     v-model="showMenu"
     rounded
     content-class="topBar-navigation-drop-menu"
-    :left="$vuetify.rtl"
+    :location="$vuetify.rtl ? 'left' : undefined"
     :open-on-hover="isOpenedOnHover"
-    bottom
+    location="bottom"
     offset-y>
-    <template #activator="{ on, attrs }">
+    <template #activator="{ props }">
       <v-tab
         v-if="hasPage || hasChildren && childrenHasPage"
         :class="`mx-auto text-break ${notClickable}`"
-        v-on="on"
-        v-bind="attrs"
+        v-bind="props"
+       
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :link="hasPage"
@@ -41,7 +41,7 @@
         role="tab"
         @click.stop="checkLink(navigation, $event)"
         @click="openUrl(navigationNodeUri, navigationNodeTarget)"
-        @change="updateNavigationState(navigation.uri)">
+        @group:selected="updateNavigationState(navigation.uri)">
         <span
           class="text-truncate-3">
           {{ navigation.label }}

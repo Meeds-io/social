@@ -18,9 +18,9 @@
     <v-btn
       v-if="commentsSize > 0"
       :disabled="loading"
-      class="primary--text font-weight-bold mb-1 px-0"
+      class="text-primary font-weight-bold mb-1 px-0"
       link
-      text
+      variant="text"
       @click="openCommentsDrawer">
       {{ $t('UIActivity.label.Show_All_Comments', {0: commentsSize}) }}
     </v-btn>

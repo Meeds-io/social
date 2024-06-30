@@ -13,7 +13,7 @@
           class="closeBindingModal"
           @click="closeModal">
           <v-icon
-            large
+            size="large"
             color="#5f708a"
             class="closeIcon">
             close

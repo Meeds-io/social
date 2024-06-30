@@ -24,7 +24,7 @@
     ref="userOptionsDrawer"
     :bottom="true">
     <template slot="content">
-      <v-list dense>
+      <v-list density="compact">
         <v-list-item-group>
           <span
             v-for="(extension, i) in profileActionExtensions"

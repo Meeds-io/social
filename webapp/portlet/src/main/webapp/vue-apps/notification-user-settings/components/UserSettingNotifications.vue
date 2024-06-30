@@ -10,11 +10,9 @@
       flat>
       <v-list @click="openNotificationSettingDetail">
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="text-title">
-              {{ $t('UserSettings.notifications') }}
-            </v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title class="text-title">
+            {{ $t('UserSettings.notifications') }}
+          </v-list-item-title>
         </v-list-item>
 
         <template v-if="notificationSettings && notificationSettings.channels">
@@ -27,14 +25,13 @@
         </template>
 
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ $t('UserSettings.manageNotifications') }}
-            </v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>
+            {{ $t('UserSettings.manageNotifications') }}
+          </v-list-item-title>
+          
           <v-list-item-action>
             <v-btn
-              small
+              size="small"
               icon
               @click="openDetail">
               <v-icon size="24" class="icon-default-color">
@@ -46,18 +43,17 @@
         <v-divider class="mx-4" />
 
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ $t('UserSettings.title.muteSpacesNotifications') }}
-            </v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>
+            {{ $t('UserSettings.title.muteSpacesNotifications') }}
+          </v-list-item-title>
+          
           <v-list-item-action>
-            <v-tooltip bottom>
-              <template #activator="{on, bind}">
+            <v-tooltip location="bottom">
+              <template #activator="{props, bind}">
                 <v-btn
-                  v-on="on"
+                  v-bind="props"
                   v-bind="bind"
-                  small
+                  size="small"
                   icon
                   @click="$refs.muteSpacesDrawer.open()">
                   <v-icon size="18" class="icon-default-color">fa-edit</v-icon>

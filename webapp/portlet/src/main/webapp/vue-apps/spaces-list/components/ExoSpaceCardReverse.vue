@@ -4,10 +4,10 @@
       :id="spaceMenuParentId"
       :elevation="hover && 4 || 0"
       class="spaceCardItem d-flex flex-column"
-      outlined>
+      border>
       <v-btn
         absolute
-        small
+        size="small"
         icon
         class="spaceInfoIcon ma-2"
         @click="$emit('flip')">

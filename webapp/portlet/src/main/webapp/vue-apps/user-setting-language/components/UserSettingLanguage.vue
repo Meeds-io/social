@@ -1,19 +1,18 @@
 <template>
   <v-app v-if="displayed">
     <div class="application-body">
-      <v-list two-line>
+      <v-list lines="two">
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="text-title">
-              {{ $t('UserSettings.language') }}
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{ languageLabel }}
-            </v-list-item-subtitle>
-          </v-list-item-content>
+          <v-list-item-title class="text-title">
+            {{ $t('UserSettings.language') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ languageLabel }}
+          </v-list-item-subtitle>
+          
           <v-list-item-action>
             <v-btn
-              small
+              size="small"
               icon
               @click="openDrawer">
               <v-icon size="18" class="icon-default-color">fa-edit</v-icon>

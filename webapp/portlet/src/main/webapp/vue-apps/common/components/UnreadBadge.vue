@@ -11,13 +11,13 @@
         icon
         height="20"
         width="20"
-        text>
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
+        variant="text">
+        <v-tooltip location="bottom">
+          <template #activator="{ props }">
             <div
               class="unread-activity-badge"
-              v-bind="attrs"
-              v-on="on"></div>
+             
+              v-bind="props"></div>
           </template>
           <span>{{ $t('Unread.clickTooltip') }}</span>
         </v-tooltip>

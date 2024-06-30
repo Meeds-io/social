@@ -18,7 +18,7 @@
   <v-btn
     id="verticalMenuBotton"
     size="22"
-    outlined
+    variant="outlined"
     icon
     class="ma-2 d-none"
     @click="$root.$emit('open-vertical-menu-drawer')">

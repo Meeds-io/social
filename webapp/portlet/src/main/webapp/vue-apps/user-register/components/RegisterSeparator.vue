@@ -20,10 +20,10 @@
 -->
 <template>
   <div class="d-flex">
-    <v-divider class="my-auto secondary login-separator" />
+    <v-divider class="my-auto bg-secondary login-separator" />
     <span class="mx-3 text-uppercase">
       {{ $t('UILoginForm.label.or') }}
     </span>
-    <v-divider class="my-auto secondary login-separator" />
+    <v-divider class="my-auto bg-secondary login-separator" />
   </div>
 </template>

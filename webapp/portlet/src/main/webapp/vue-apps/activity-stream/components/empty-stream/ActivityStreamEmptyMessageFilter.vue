@@ -26,8 +26,8 @@
         <span class="my-7">{{ emptyStreamLabel }}</span>
         <div v-if="streamFilter !== 'all_stream'">
           <v-btn
-            class="primary"
-            outlined
+            class="bg-primary"
+            variant="outlined"
             border
             @click="$root.$emit('activity-stream-reset-filter', false)">
             {{ $t('activity.filter.button.resetFilter') }}

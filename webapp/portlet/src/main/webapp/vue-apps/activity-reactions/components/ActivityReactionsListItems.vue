@@ -13,12 +13,12 @@
           v-html="name">
         </a>
       </v-list-item-title>
-      <v-list-item-subtitle v-if="attributesLoaded && !sameUser" class="caption text-bold">
+      <v-list-item-subtitle v-if="attributesLoaded && !sameUser" class="text-caption text-bold">
         {{ inCommonConnections }} {{ $t('UIActivity.label.Reactions_in_Common') }}
       </v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action v-if="notConnected">
-      <v-btn-toggle class="transparent">
+      <v-btn-toggle class="bg-transparent">
         <a
           text
           icon

@@ -37,17 +37,17 @@
         :href="seeMoreUrl"
         :title="$t('links.label.seeMore')"
         target="_blank"
-        :outlined="hoverEdit"
+        :variant="hoverEdit ? 'outlined' : undefined"
         :icon="hoverEdit"
         :class="!hoverEdit && 'pa-0'"
         :color="!hoverEdit && 'primary'"
-        :text="!hoverEdit"
+        :variant="!hoverEdit ? 'text' : undefined"
         rel="nofollow noreferrer noopener"
-        small>
+        size="small">
         <v-icon
           v-if="hoverEdit"
           size="18"
-          class="primary--text">
+          class="text-primary">
           fa-external-link-alt
         </v-icon>
         <span
@@ -66,7 +66,7 @@
             'l-0': $vuetify.rtl,
             'ma-1': !showHeader,
           }"
-          small
+          size="small"
           icon
           @click="$emit('edit')">
           <v-icon size="18">fa-cog</v-icon>
@@ -76,9 +76,9 @@
   </div>
   <div v-else-if="!hasLinks && canEdit" class="d-flex align-center justify-center">
     <v-btn
-      class="primary"
+      class="bg-primary"
       elevation="0"
-      outlined
+      variant="outlined"
       border
       @click="$emit('add')">
       <v-icon size="18" class="me-2">fa-link</v-icon>

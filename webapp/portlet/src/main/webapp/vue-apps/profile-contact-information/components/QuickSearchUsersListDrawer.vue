@@ -38,7 +38,7 @@
         :compact="true"
         :filter-message="filterMessage"
         filter-message-class="position-absolute filter-message ps-1"
-        class="transparent"
+        class="bg-transparent"
         @keyword-changed="keyword = $event" />
       <complementary-filter
         class="mt-n1 z-index-two position-relative"
@@ -116,8 +116,8 @@
         <v-btn
           :loading="isLoading"
           class="btn btn-primary width-full"
-          text
-          outlined
+          variant="text"
+          variant="outlined"
           @click="search(true)">
           {{ $t('Search.button.loadMore') }}
         </v-btn>

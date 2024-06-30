@@ -24,17 +24,17 @@
     v-model="modal"
     color="white"
     width="290px">
-    <template #activator="{ on }">
+    <template #activator="{ props }">
       <v-list-item
-        two-line
+        lines="two"
         class="px-0"
-        dense>
+        density="compact">
         <v-list-item-action class="me-2 my-0">
           <v-card
             :color="value"
             height="50px"
             width="50px"
-            v-on="on" />
+            v-bind="props" />
         </v-list-item-action>
         <v-list-item-content class="d-flex flex-column align-start me-2">
           <template v-if="label">
@@ -57,10 +57,10 @@
       :swatches="swatches"
       mode="hexa"
       show-swatches />
-    <v-row class="mx-0 white">
+    <v-row class="mx-0 bg-white">
       <v-col class="center">
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="cancel">
           {{ $t('generalSettings.cancel') }}
@@ -68,7 +68,7 @@
       </v-col>
       <v-col class="center">
         <v-btn
-          text
+          variant="text"
           color="primary"
           @click="save">
           {{ $t('generalSettings.ok') }}

@@ -65,7 +65,7 @@
         scroll-target="#StickyHamburgerMenu"
         height="50px"
         absolute
-        elevate-on-scroll
+        scroll-behavior="elevate"
         bottom>
         <user-hamburger-navigation />
       </v-app-bar>

@@ -81,8 +81,8 @@
           :rules="rules.url"
           class="border-box-sizing width-auto pt-0 mb-4"
           type="text"
-          outlined
-          dense
+          variant="outlined"
+          density="compact"
           mandatory />
 
         <div class="d-flex mb-4">
@@ -92,7 +92,7 @@
           <v-switch
             v-model="link.sameTab"
             class="my-0 me-n2"
-            dense
+            density="compact"
             hide-details />
         </div>
 
@@ -118,7 +118,7 @@
         </v-btn>
         <v-btn
           :disabled="disabled"
-          class="btn primary"
+          class="btn bg-primary"
           @click="apply">
           {{ edit && $t('links.label.update') || $t('links.label.add') }}
         </v-btn>

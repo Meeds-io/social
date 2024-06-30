@@ -23,7 +23,7 @@
               :disabled="!pluginOption.channelActive"
               :id="pluginOption.channelId"
               hide-details
-              dense
+              density="compact"
               class="mt-0" />
           </v-col>
         </v-row>

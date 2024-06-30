@@ -37,9 +37,9 @@
         @change="uploadFile" />
       <v-btn
         :loading="sending"
-        class="position-relative z-index-two btn primary"
+        class="position-relative z-index-two btn bg-primary"
         border
-        outlined
+        variant="outlined"
         @click="openFileUpload">
         {{ $t('links.upload') }}
       </v-btn>

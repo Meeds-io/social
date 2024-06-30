@@ -25,8 +25,8 @@
           :href="replyUrl"
           color="primary"
           elevation="0"
-          small
-          outlined>
+          size="small"
+          variant="outlined">
           <v-icon size="14" class="me-1">{{ replyIcon }}</v-icon>
           <span class="text-none">
             {{ $t(replyKey) }}

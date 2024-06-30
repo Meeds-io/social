@@ -23,11 +23,10 @@
   <div class="d-flex">
     <slot name="title"></slot>
     <v-spacer />
-    <v-tooltip :disabled="disableTooltip" bottom>
-      <template #activator="{on, attrs}">
+    <v-tooltip :disabled="disableTooltip" location="bottom">
+      <template #activator="{props}">
         <div
-          v-on="on"
-          v-bind="attrs">
+          v-bind="props">
           <v-btn
             v-if="hasFile"
             id="deleteImageFileInput"
@@ -35,7 +34,7 @@
             icon
             dense
             @click="reset">
-            <v-icon color="error" dense>fa-trash</v-icon>
+            <v-icon color="error" size="small">fa-trash</v-icon>
           </v-btn>
           <v-file-input
             v-else
@@ -47,7 +46,7 @@
             class="file-selector pa-0 ma-0"
             rounded
             clearable
-            dense
+            density="compact"
             @change="uploadFile" />
         </div>
       </template>

@@ -1,18 +1,18 @@
 <template>
   <div class="d-inline-flex ms-xl-4 ms-lg-3">
     <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile" bottom>
-      <template #activator="{ on, attrs }">
+    <v-tooltip :disabled="isMobile" location="bottom">
+      <template #activator="{ props }">
         <v-btn
           v-if="isShareable"
           :id="`ShareActivity${activityId}`"
           :class="shareTextColorClass"
           class="pa-0 mt-0"
-          text
+          variant="text"
           link
-          small
-          v-bind="attrs"
-          v-on="on"
+          size="small"
+         
+          v-bind="props"
           @click="openShareDrawer()">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon

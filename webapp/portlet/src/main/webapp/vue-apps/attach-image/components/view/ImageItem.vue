@@ -37,11 +37,11 @@
         :alt="attachmentAlt"
         class="ma-auto full-width">
     </v-card-text>
-    <div v-if="isGifImage" class="position-absolute white border-radius r-3 mt-2">
+    <div v-if="isGifImage" class="position-absolute bg-white border-radius r-3 mt-2">
       <v-chip
-        outlined
+        variant="outlined"
         label
-        small>
+        size="small">
         GIF
       </v-chip>
     </div>
@@ -62,7 +62,7 @@
         </v-card-text>
         <v-card-actions class="pt-0">
           <v-btn
-            text
+            variant="text"
             color="primary"
             @click="closeErrorBox">
             {{ $t('attachments.close') }}

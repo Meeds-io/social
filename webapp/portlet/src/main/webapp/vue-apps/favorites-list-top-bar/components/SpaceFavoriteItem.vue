@@ -23,13 +23,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         avatar />
     </v-list-item-icon>
 
-    <v-list-item-content>
-      <v-list-item-title>
-        <p
-          class="ma-auto text-truncate"
-          v-sanitized-html="spaceName"></p>
-      </v-list-item-title>
-    </v-list-item-content>
+    
+    <v-list-item-title>
+      <p
+        class="ma-auto text-truncate"
+        v-sanitized-html="spaceName"></p>
+    </v-list-item-title>
+    
 
     <v-list-item-action>
       <favorite-button

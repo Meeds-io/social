@@ -40,8 +40,8 @@
           autofocus="autofocus"
           aria-required="true"
           required="required"
-          outlined
-          dense />
+          variant="outlined"
+          density="compact" />
       </v-card>
     </v-col>
     <v-col

@@ -25,7 +25,7 @@
             :title="$t('GroupsManagement.editMembership')"
             primary
             icon
-            text
+            variant="text"
             @click="$root.$emit('editMembership', item, group)">
             <i class="uiIconEdit"></i>
           </v-btn>
@@ -33,7 +33,7 @@
             :title="$t('GroupsManagement.button.delete')"
             primary
             icon
-            text
+            variant="text"
             @click="deleteMembership(item)">
             <i class="uiIconTrash"></i>
           </v-btn>

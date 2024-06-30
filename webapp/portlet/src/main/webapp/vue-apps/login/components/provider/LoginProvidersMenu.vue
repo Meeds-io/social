@@ -23,21 +23,21 @@
     id="login-providers-menu"
     flat>
     <v-menu offset-x offset-y>
-      <template #activator="{on, attrs}">
+      <template #activator="{props}">
         <v-btn
           :title="$t('UILoginForm.label.moreProviders')"
           :aria-label="$t('UILoginForm.label.moreProviders')"
           min-width="auto"
           color="primary"
           class="pa-4"
-          large
-          outlined
-          v-bind="attrs"
-          v-on="on">
+          size="large"
+          variant="outlined"
+         
+          v-bind="props">
           <v-icon size="20">fas fa-ellipsis-h</v-icon>
         </v-btn>
       </template>
-      <v-list dense>
+      <v-list density="compact">
         <component
           v-for="provider in providers"
           :key="provider.key"

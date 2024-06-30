@@ -12,8 +12,8 @@
         class="ignore-vuetify-classes me-2"
         color="success"
         elevation="0"
-        small
-        outlined
+        size="small"
+        variant="outlined"
         @click.stop.prevent="acceptToJoin">
         <v-icon size="14" class="me-2 pt-2px">fa-check</v-icon>
         <span class="text-none">{{ $t('Notification.label.Accept') }}</span>
@@ -23,8 +23,8 @@
         class="ignore-vuetify-classes"
         color="error"
         elevation="0"
-        small
-        outlined
+        size="small"
+        variant="outlined"
         dark
         @click.stop.prevent="refuseToJoin">
         <v-icon size="14" class="me-2 pt-2px">fa-times</v-icon>

@@ -44,7 +44,7 @@
           class="me-2 spacesOverviewCheck success-color-background"
           fab
           dark
-          depressed
+          variant="flat"
           @click="acceptUserRequest">
           <v-icon size="18" dark>
             fa-check
@@ -58,7 +58,7 @@
           class="spacesOverviewClose error-color-background"
           fab
           dark
-          depressed
+          variant="flat"
           @click="refuseUserRequest">
           <v-icon size="18" dark>
             fa-times
@@ -74,7 +74,7 @@
           class="me-2 spacesOverviewCheck success-color-background"
           fab
           dark
-          depressed
+          variant="flat"
           @click="acceptToJoin">
           <v-icon size="18" dark>
             fa-check
@@ -88,7 +88,7 @@
           class="spacesOverviewClose error-color-background"
           fab
           dark
-          depressed
+          variant="flat"
           @click="refuseToJoin">
           <v-icon size="18" dark>
             fa-times
@@ -105,7 +105,7 @@
           icon
           fab
           dark
-          depressed
+          variant="flat"
           @click="$emit('edit')">
           <i class="uiIcon uiIconEdit"></i>
         </v-btn>
@@ -119,7 +119,7 @@
           class="spacesOverviewClose error-color-background"
           fab
           dark
-          depressed
+          variant="flat"
           @click="cancelRequest">
           <v-icon size="18" dark>
             fa-times

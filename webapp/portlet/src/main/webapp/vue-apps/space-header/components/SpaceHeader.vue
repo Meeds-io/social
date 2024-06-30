@@ -26,7 +26,7 @@
                 :title="$t('UIPopupBannerUploader.title.deleteBanner')"
                 id="spaceBannerDeleteButton"
                 class="changeBannerButton border-color"
-                outlined
+                variant="outlined"
                 icon
                 dark
                 @click="removeBanner">
@@ -38,7 +38,7 @@
                 id="spaceBannerEditButton"
                 class="changeBannerButton border-color"
                 icon
-                outlined
+                variant="outlined"
                 dark
                 @click="$refs.imageCropDrawer.open()">
                 <v-icon size="18">fas fa-file-image</v-icon>
@@ -58,13 +58,13 @@
         @input="uploadBanner" />
       <v-tabs
         v-if="hasNavigations"
-        :value="selectedNavigationUri"
+        :model-value="selectedNavigationUri"
         active-class="SelectedTab"
         class="mx-auto"
         show-arrows
         center-active
         slider-size="4"
-        @change="$root.$emit('application-cache')">
+        @update:model-value="$root.$emit('application-cache')">
         <v-tab
           v-for="nav in navigations"
           :key="nav.id"

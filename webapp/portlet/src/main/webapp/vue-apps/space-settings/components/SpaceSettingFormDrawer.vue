@@ -85,7 +85,7 @@
               v-model="space.subscription"
               class="mt-2 ms-2"
               mandatory
-              row
+              inline
               inset>
               <v-radio
                 :label="$t('SpaceSettings.label.open')"

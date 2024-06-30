@@ -85,7 +85,7 @@
                 class="rightIcon"
                 @click="uploadCSVFile(props.item.space.id, props.item.operationType, props.item.group.id, props.item.bindingId)">
                 <v-icon
-                  medium
+                  size="medium"
                   class="uploadFile">
                   mdi-download
                 </v-icon>

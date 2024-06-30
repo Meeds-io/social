@@ -27,8 +27,8 @@
       @change="$emit('propertyUpdated')"
       @input="$emit('propertyUpdated')">
     <v-icon
-      small
-      class="removeMultiFieldValue  error--text"
+      size="small"
+      class="removeMultiFieldValue text-error"
       :class="hasParent && 'hasParent' ||'noParent'"
       @click="$emit('remove')">
       fa-minus

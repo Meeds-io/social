@@ -86,8 +86,8 @@
       <v-btn
         :loading="isLoading"
         class="btn"
-        flat
-        outlined
+        variant="flat"
+        variant="outlined"
         @click="loadMoreMangedUsers">
         {{ $t('Search.button.loadMore') }}
       </v-btn>

@@ -29,7 +29,7 @@
     hide-default-footer
     disable-pagination
     disable-filtering
-    class="settings-table data-table-light-border py-6 transparent">
+    class="settings-table data-table-light-border py-6 bg-transparent">
     <template slot="item.propertyName" slot-scope="{ item }">
       {{ getResolvedName(item) }}
     </template>
@@ -42,7 +42,7 @@
         <v-btn
           :loading="loading"
           :disabled="loading"
-          class="white mx-auto no-border primary--text no-box-shadow"
+          class="bg-white mx-auto no-border text-primary no-box-shadow"
           @click="$root.$emit('document-load-more')">
           {{ $t('profileSettings.loadMore') }}
         </v-btn>

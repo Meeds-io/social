@@ -3,7 +3,7 @@
     <v-list-item
       :class="selectedClass"
       selectable
-      dense
+      density="compact"
       @click="$root.$emit('selectGroup', group)">
       <v-list-item-action class="me-4">
         <v-btn
@@ -18,18 +18,18 @@
         </v-btn>
         <div v-else class="ms-5 me-4"></div>
       </v-list-item-action>
-      <v-list-item-content>
-        <v-list-item-title
-          :title="group.label"
-          class="font-weight-bold text-truncate">
-          {{ group.label }}
-        </v-list-item-title>
-        <v-list-item-subtitle
-          :title="group.id"
-          class="caption text-truncate">
-          {{ group.id }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
+      
+      <v-list-item-title
+        :title="group.label"
+        class="font-weight-bold text-truncate">
+        {{ group.label }}
+      </v-list-item-title>
+      <v-list-item-subtitle
+        :title="group.id"
+        class="text-caption text-truncate">
+        {{ group.id }}
+      </v-list-item-subtitle>
+      
       <v-list-item-action>
         <groups-management-tree-group-menu :group="group" />
       </v-list-item-action>

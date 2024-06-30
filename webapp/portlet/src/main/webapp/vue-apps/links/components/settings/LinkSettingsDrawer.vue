@@ -96,9 +96,9 @@
               <div v-else class="d-flex flex-grow-1 full-height full-width align-center justify-center">
                 <v-btn
                   :title="$t('links.label.addLinksButton')"
-                  outlined
+                  variant="outlined"
                   border
-                  class="flex-grow-0 flex-shrink-0 mx-auto my-8 primary"
+                  class="flex-grow-0 flex-shrink-0 mx-auto my-8 bg-primary"
                   @click="$root.$emit('links-form-drawer')">
                   {{ $t('links.label.add') }}
                 </v-btn>
@@ -151,7 +151,7 @@
                         <v-switch
                           v-model="showHeader"
                           class="my-0 me-n2"
-                          dense
+                          density="compact"
                           hide-details />
                       </div>
                       <div v-if="showHeader && settings?.header" class="d-flex mb-2">
@@ -177,7 +177,7 @@
                       <v-switch
                         v-model="settings.largeIcon"
                         class="my-0 me-n2"
-                        dense
+                        density="compact"
                         hide-details />
                     </div>
                     <div class="d-flex mb-4">
@@ -187,7 +187,7 @@
                       <v-switch
                         v-model="settings.showName"
                         class="my-0 me-n2"
-                        dense
+                        density="compact"
                         hide-details />
                     </div>
                     <div
@@ -199,7 +199,7 @@
                       <v-switch
                         v-model="settings.showDescription"
                         class="my-0 me-n2"
-                        dense
+                        density="compact"
                         hide-details />
                     </div>
                     <div class="mb-2">
@@ -210,7 +210,7 @@
                         <v-switch
                           v-model="seeMore"
                           class="my-0 me-n2"
-                          dense
+                          density="compact"
                           hide-details />
                       </div>
                       <div v-if="seeMore" class="mb-2">
@@ -223,8 +223,8 @@
                           :rules="rules.seeMore"
                           class="border-box-sizing width-auto pt-0"
                           type="text"
-                          outlined
-                          dense />
+                          variant="outlined"
+                          density="compact" />
                       </div>
                     </div>
                   </div>
@@ -245,7 +245,7 @@
           v-if="!expanded && stepper > 1"
           :title="$t('links.label.previous')"
           :disabled="saving"
-          class="btn me-2 hidden-xs-only"
+          class="btn me-2 hidden-xs"
           @click="stepper--">
           {{ $t('links.label.previous') }}
         </v-btn>
@@ -259,7 +259,7 @@
           v-if="!expanded && stepper === 1"
           :disabled="disabledSecondStep"
           :loading="saving"
-          class="btn primary"
+          class="btn bg-primary"
           @click="stepper++">
           {{ $t('links.label.next') }}
         </v-btn>
@@ -267,7 +267,7 @@
           v-else-if="expanded || stepper > 1"
           :disabled="disabled"
           :loading="saving"
-          class="btn primary"
+          class="btn bg-primary"
           @click="save()">
           {{ $t('links.label.confirm') }}
         </v-btn>

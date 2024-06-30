@@ -20,10 +20,10 @@
 -->
 <template>
   <v-card flat>
-    <v-card-title class="primary--text text-break text-header px-0">
+    <v-card-title class="text-primary text-break text-header px-0">
       {{ $t('onboarding.summary1') }}
     </v-card-title>
-    <v-card-title class="primary--text text-break text-header pa-0">
+    <v-card-title class="text-primary text-break text-header pa-0">
       {{ $t('onboarding.summary2') }}
     </v-card-title>
 
@@ -54,8 +54,8 @@
               type="text"
               required="required"
               readonly
-              outlined
-              dense />
+              variant="outlined"
+              density="compact" />
           </v-card>
           <v-card width="350" flat>
             <v-text-field
@@ -72,11 +72,11 @@
               autofocus="autofocus"
               tabindex="0"
               required="required"
-              outlined
-              dense
+              variant="outlined"
+              density="compact"
               @click:append="toggleShow" />
           </v-card>
-          <span class="caption">{{ $t('onboarding.passwordCondition') }}</span>
+          <span class="text-caption">{{ $t('onboarding.passwordCondition') }}</span>
           <v-card width="350" flat>
             <v-text-field
               id="password2"
@@ -90,8 +90,8 @@
               name="password2"
               autocomplete="new-password"
               required="required"
-              outlined
-              dense
+              variant="outlined"
+              density="compact"
               @click:append="toggleConfirmShow" />
           </v-card>
           <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
@@ -103,7 +103,7 @@
               src="/portal/on-boarding?serveCaptcha=true"
               width="150"
               heigh="40"
-              class="primary me-2 rounded-lg"
+              class="bg-primary me-2 rounded-lg"
               eager
               contain />
             <v-text-field
@@ -116,8 +116,8 @@
               aria-required="true"
               type="text"
               required="required"
-              outlined
-              dense />
+              variant="outlined"
+              density="compact" />
           </v-card>
         </v-row>
         <v-row class="mx-0 my-8 pa-0">

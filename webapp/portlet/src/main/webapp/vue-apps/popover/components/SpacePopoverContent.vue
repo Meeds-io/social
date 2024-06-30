@@ -37,7 +37,7 @@
             link-style
             subtitle-new-line>
             <template slot="subTitle">
-              <span v-if="spaceMembersCount" class="caption text-bold">
+              <span v-if="spaceMembersCount" class="text-caption text-bold">
                 {{ spaceMembersCount }} {{ $t('UIActivity.label.Members') }}
               </span>
             </template>

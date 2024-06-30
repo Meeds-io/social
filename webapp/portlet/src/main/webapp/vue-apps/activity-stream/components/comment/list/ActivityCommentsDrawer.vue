@@ -18,7 +18,7 @@
         class="my-auto"
         elevation="0"
         icon
-        plain
+        variant="plain"
         @click="displayCommentRichEditor()">
         <v-icon color="primary">mdi-chat-plus</v-icon>
       </v-btn>
@@ -46,10 +46,10 @@
         <v-pagination
           v-model="page"
           :length="pagesCount"
-          circle
+          rounded
           light
           flat
-          @input="changePage" />
+          @update:model-value="changePage" />
       </div>
     </template>
   </exo-drawer>

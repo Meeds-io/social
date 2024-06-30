@@ -20,14 +20,14 @@
   <v-snackbar
     v-if="snackbar"
     v-model="snackbar"
-    :left="!$vuetify.rtl"
-    :right="$vuetify.rtl"
+    :location="!$vuetify.rtl ? 'left' : undefined"
+    :location="$vuetify.rtl ? 'right' : undefined"
     :timeout="timeout"
     :content-class="isMobile && 'pa-0 ma-0'"
     :class="isMobile && 'full-height'"
     class="z-index-snackbar"
     color="transparent ma-0"
-    elevation="0"
+    class="elevation-0"
     app>
     <confeti-animation
       v-if="confeti"
@@ -37,8 +37,8 @@
       :min-width="minWidth"
       :max-width="maxWidth"
       :min-height="minHeight"
-      :dense="isMobile"
-      :dismissible="!isMobile"
+      :density="isMobile ? 'compact' : undefined"
+      :closable="!isMobile"
       :icon="false"
       :border="!isMobile && 'left' || false"
       :class="isMobile && 'no-border-radius b-0 mb-0' || 'mb-5'"
@@ -51,19 +51,19 @@
         end: moveEnd,
         move: moveSwipe,
       }"
-      class="d-flex flex-column justify-center white mt-0 mx-0 py-2 px-4 border-box-sizing"
+      class="d-flex flex-column justify-center bg-white mt-0 mx-0 py-2 px-4 border-box-sizing"
       elevation="2"
       light
-      outlined
+      variant="outlined"
       colored-border
-      @input="closeAlertIfDismissed">
+      @update:model-value="closeAlertIfDismissed">
       <div
         :class="isMobile && 'mt-2'"
         class="d-flex flex-nowrap text-start align-center justify-center full-width">
         <v-progress-linear
           v-if="isMobile"
           :color="`${alertType}-color-background`"
-          :value="progression"
+          :model-value="progression"
           height="6"
           class="position-absolute t-0 l-0 r-0 mt-n1" />
         <span
