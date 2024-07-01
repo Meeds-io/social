@@ -81,7 +81,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private final String                accessType;
 
-  private final String                wellKnownConfigurationUrl;
+  private final String  wellKnownConfigurationUrl;
+  private       boolean wellKnownConfigurationLoaded;
 
   private final String                applicationName;
 
@@ -98,6 +99,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     this.clientSecret = params.getValueParam("clientSecret").getValue();
     String redirectURLParam = params.getValueParam("redirectURL").getValue();
     this.wellKnownConfigurationUrl = params.getValueParam("wellKnownConfigurationUrl").getValue();
+    this.wellKnownConfigurationLoaded = false;
     String scope = params.getValueParam("scope").getValue();
     this.accessType = params.getValueParam("accessType").getValue();
     ValueParam appNameParam = params.getValueParam("applicationName");
@@ -183,6 +185,10 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   //
   protected InteractionState<OpenIdAccessTokenContext> initialInteraction(HttpServletRequest request,
                                                                           HttpServletResponse response) throws IOException {
+
+    if (!this.wellKnownConfigurationLoaded) {
+      readWellKnownConfiguration();
+    }
     String verificationState = String.valueOf(secureRandomService.getSecureRandom().nextLong());
     String authorizeUrl = this.authenticationURL + "?" + "response_type=code" + "&client_id=" + this.clientID + "&scope="
         + this.scopes.stream().collect(Collectors.joining(" ")) + "&redirect_uri=" + this.redirectURL + "&state="
@@ -449,20 +455,25 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
         return;
       }
       try {
-        String wellKnownConfigurationContent = readUrl(new URL(this.wellKnownConfigurationUrl));
-        if (wellKnownConfigurationContent != null) {
-          JSONObject json = new JSONObject(wellKnownConfigurationContent);
-          this.authenticationURL = json.getString("authorization_endpoint");
-          this.accessTokenURL = json.getString("token_endpoint");
-          this.userInfoURL = json.getString("userinfo_endpoint");
-          this.issuer = json.getString("issuer");
-          this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl);
-        }
+        readWellKnownConfiguration();
       } catch (JSONException e) {
         log.error("Unable to read webKnownUrl content : " + this.wellKnownConfigurationUrl, e);
       } catch (MalformedURLException e) {
         log.error("WellKnowConfigurationUrl malformed : url" + this.wellKnownConfigurationUrl, e);
       }
+    }
+  }
+
+  private void readWellKnownConfiguration() throws MalformedURLException {
+    String wellKnownConfigurationContent = readUrl(new URL(this.wellKnownConfigurationUrl));
+    if (wellKnownConfigurationContent != null) {
+      JSONObject json = new JSONObject(wellKnownConfigurationContent);
+      this.authenticationURL = json.getString("authorization_endpoint");
+      this.accessTokenURL = json.getString("token_endpoint");
+      this.userInfoURL = json.getString("userinfo_endpoint");
+      this.issuer = json.getString("issuer");
+      this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl);
+      this.wellKnownConfigurationLoaded = true;
     }
   }
 
@@ -481,7 +492,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
       return buffer.toString();
     } catch (IOException e) {
-      log.error(e.getMessage());
+      log.error("Unable to read url {}",url,e);
     }
     return null;
   }
