@@ -38,7 +38,15 @@ export default {
   computed: {
     isShown() {
       return this.spacesList && this.spacesList.length > 0 || this.spacesRequestsSize > 0;
-    }
+    },
+  },
+  watch: {
+    isShown: {
+      immediate: true,
+      handler() {
+        this.$root.$updateApplicationVisibility(this.isShown, this.$el);
+      },
+    },
   },
   created() {
     this.getExternalSpacesList();
