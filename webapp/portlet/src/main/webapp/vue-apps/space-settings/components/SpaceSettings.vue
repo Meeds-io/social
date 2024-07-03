@@ -13,9 +13,7 @@
           name="SpaceSettings"
           type="space-settings-components"
           parent-element="div"
-          element="div"
-          class="my-6"
-          element-class="mb-6" />
+          element="div" />
       </template>
     </div>
   </v-app>
