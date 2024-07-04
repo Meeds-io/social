@@ -78,7 +78,7 @@
           :ok-label="confirmCloseLabels.ok"
           :cancel-label="confirmCloseLabels.cancel"
           persistent
-          @ok="closeEffectively" />
+          @ok="confirmCloseDrawer" />
       </v-layout>
     </div>
   </v-navigation-drawer>
@@ -317,6 +317,10 @@ export default {
     },
     closeEffectively() {
       this.drawer = false;
+    },
+    confirmCloseDrawer() {
+      this.closeEffectively();
+      this.$emit('confirm-close');
     },
     startLoading() {
       this.drawerLoading = true;
