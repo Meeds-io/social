@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-card class="d-flex flex py-2 card-border-radius app-background-color" flat>
+    <v-card class="d-flex flex py-5 application-body" flat>
       <v-flex class="sm12 md4" flat>
         <groups-management-tree-toolbar />
         <groups-management-tree />

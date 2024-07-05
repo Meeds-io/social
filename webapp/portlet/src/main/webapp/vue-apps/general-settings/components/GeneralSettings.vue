@@ -22,8 +22,7 @@
   <v-app>
     <v-main>
       <v-card
-        min-height="calc(100vh - 160px)"
-        class="px-6 card-border-radius overflow-hidden app-background-color"
+        class="px-6 application-body"
         flat>
         <template v-if="intialized">
           <v-expand-transition>
@@ -49,7 +48,17 @@
                     class="flex-grow-0 py-1"
                     flat
                     @click="close()">
-                    <h4 class="font-weight-bold">{{ $t('generalSettings.title') }}</h4>
+                    <div class="text-title">
+                      <template v-if="$root.selectedTab === 'branding'">
+                        {{ $t('generalSettings.displayCharacteristics') }}
+                      </template>
+                      <template v-else-if="$root.selectedTab === 'login'">
+                        {{ $t('generalSettings.loginCharacteristics') }}
+                      </template>
+                      <template v-else-if="$root.selectedTab === 'access'">
+                        {{ $t('generalSettings.access') }}
+                      </template>
+                    </div>
                   </v-card>
                 </v-list-item-title>
               </v-list-item-content>
@@ -80,8 +89,8 @@
             <div v-else>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
-                    <h4 class="my-0">{{ $t('generalSettings.displayCharacteristics') }}</h4>
+                  <v-list-item-title class="text-title">
+                    {{ $t('generalSettings.displayCharacteristics') }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ $t('generalSettings.subtitle.displayCharacteristics') }}
@@ -97,8 +106,8 @@
               </v-list-item>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
-                    <h4 class="my-0">{{ $t('generalSettings.loginCharacteristics') }}</h4>
+                  <v-list-item-title class="text-title">
+                    {{ $t('generalSettings.loginCharacteristics') }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ $t('generalSettings.subtitle.loginCharacteristics') }}
@@ -114,8 +123,8 @@
               </v-list-item>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
-                    <h4 class="my-0">{{ $t('generalSettings.access') }}</h4>
+                  <v-list-item-title class="text-title">
+                    {{ $t('generalSettings.access') }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ $t('generalSettings.subtitle.access') }}
@@ -131,8 +140,8 @@
               </v-list-item>
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
-                  <v-list-item-title>
-                    <h4 class="my-0">{{ $t('generalSettings.managePublicSite') }}</h4>
+                  <v-list-item-title class="text-title">
+                    {{ $t('generalSettings.managePublicSite') }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     {{ $t('generalSettings.subtitle.managePublicSite') }}

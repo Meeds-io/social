@@ -55,7 +55,7 @@
             width="100%"
             class="ma-0 pa-0 position-relative">
             <div class="d-flex">
-              <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate font-weight-bold dark-grey-color text-subtitle-1">
+              <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-header">
                 {{ $t('links.label.addLinks') }}
               </div>
               <v-btn
@@ -117,7 +117,7 @@
             :step="2"
             :editable="!expanded && !disabledSecondStep"
             class="ma-0 pa-0 position-relative">
-            <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate font-weight-bold dark-grey-color text-subtitle-1">
+            <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-header">
               {{ $t('links.label.configureDisplay') }}
             </div>
           </v-stepper-step>

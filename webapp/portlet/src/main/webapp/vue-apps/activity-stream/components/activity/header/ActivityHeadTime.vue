@@ -1,10 +1,10 @@
 <template>
   <div
     :class="truncateText"
-    class="text-light-color">
+    class="text-subtitle">
     <v-icon
       v-if="!noIcon"
-      class="text-light-color me-1"
+      class="icon-default-color me-1"
       x-small>
       far fa-clock
     </v-icon>
@@ -27,13 +27,13 @@
             :short="isMobile"
             :class="truncateText"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-light-color relativeDateFormatClass" />
+            class="text-capitalize-first-letter text-subtitle relativeDateFormatClass" />
           <relative-date-format
             v-else
             :value="activity.createDate"
             :short="isMobile"
             :class="truncateText"
-            class="text-capitalize-first-letter text-light-color relativeDateFormatClass" />
+            class="text-capitalize-first-letter text-subtitle relativeDateFormatClass" />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />

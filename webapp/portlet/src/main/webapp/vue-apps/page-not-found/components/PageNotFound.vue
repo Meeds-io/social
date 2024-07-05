@@ -28,10 +28,10 @@
           fa-question-circle
         </v-icon>
       </v-card-text>
-      <v-card-text class="text-h5 text-color">
+      <v-card-text class="text-h5 text-title">
         {{ $t('siteAccess.pageNotFoundTitle') }}
       </v-card-text>
-      <v-card-text class="text-h5 text-sub-title">
+      <v-card-text class="text-h5 text-subtitle">
         {{ $t('siteAccess.pageNotFoundSubTitle') }}
       </v-card-text>
       <v-card-actions class="justify-center py-5">

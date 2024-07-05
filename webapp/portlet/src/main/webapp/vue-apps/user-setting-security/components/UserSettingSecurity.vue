@@ -6,12 +6,12 @@
         @back="closeSecurityDetail" />
       <v-card
         v-else
-        class="card-border-radius app-background-color"
+        class="application-body"
         flat>
         <v-list>
           <v-list-item>
             <v-list-item-content>
-              <v-list-item-title class="title text-color">
+              <v-list-item-title class="text-title">
                 {{ $t('UserSettings.security') }}
               </v-list-item-title>
             </v-list-item-content>
@@ -23,7 +23,7 @@
                   small
                   icon
                   @click="openSecurityDetail">
-                  <v-icon size="24" class="text-sub-title">
+                  <v-icon size="24" class="icon-default-color">
                     {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
                   </v-icon>
                 </v-btn>

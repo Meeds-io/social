@@ -25,7 +25,7 @@
         class="d-flex flex-wrap-reverse flex-row justify-center">
         <span
           v-if="!listManagers?.length"
-          class="text-subtitle-1 text-color">
+          class="text-header">
           <v-icon>
             fas fa-user-friends
           </v-icon>
@@ -64,7 +64,7 @@
       <div
         class="d-flex flex-wrap justify-center">
         <span
-          class="text-subtitle-1 text-color"
+          class="text-header"
           v-if="!managedUsers?.length">
           <v-icon>
             fas fa-user-friends

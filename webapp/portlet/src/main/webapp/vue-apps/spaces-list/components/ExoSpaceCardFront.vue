@@ -140,13 +140,13 @@
             <v-list class="pa-0" dense>
               <template v-if="space.canEdit">
                 <v-list-item @click="editSpace">
-                  <v-list-item-title class="subtitle-2">
+                  <v-list-item-title>
                     <i class="uiIcon uiIconEdit"></i>
                     {{ $t('spacesList.button.edit') }}
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="removeSpaceConfirm">
-                  <v-list-item-title class="subtitle-2">
+                  <v-list-item-title>
                     <i class="uiIcon uiIconTrash"></i>
                     {{ $t('spacesList.button.remove') }}
                   </v-list-item-title>
@@ -186,7 +186,7 @@
           :href="url"
           :title="space.displayName"
           :class="isMobile && 'text-truncate-2 mt-0' || 'text-truncate-2'"
-          class="spaceDisplayName">
+          class="spaceDisplayName font-weight-bold">
           {{ space.displayName }}
         </a>
       </v-card-text>

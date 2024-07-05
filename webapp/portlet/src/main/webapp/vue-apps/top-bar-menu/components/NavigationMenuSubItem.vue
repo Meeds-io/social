@@ -28,7 +28,6 @@
       class="pt-0 pb-0"
       :href="navigationNodeUri"
       :target="navigationNodeTarget"
-      :class="extraClass"
       @click.stop="checkLink(navigation, $event)"
       :link="!!hasPage">
       <v-menu
@@ -45,7 +44,7 @@
           <v-list-item-title
             v-on="on"
             v-bind="attrs"
-            class="pt-5 pb-5 text-caption"
+            class="pt-5 pb-5"
             :class="hasPage && ' ' || ' not-clickable '"
             v-text="navigation.label"
             @mouseleave="showMenu = false"
@@ -128,9 +127,6 @@ export default {
     },
     navigationNodeTarget() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
-    },
-    extraClass() {
-      return `${this.showMenu ? ' light-grey-background ' : ' ' }`;
     },
   },
   methods: {

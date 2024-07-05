@@ -1,21 +1,21 @@
 <template>
   <v-app
+    v-if="displayed"
     id="SpaceSettings"
     class="transparent"
-    flat
-    v-if="displayed">
-    <space-setting-general :space-id="spaceId" class="mb-5" />
-    <template>
-      <extension-registry-components
-        :key="spaceApplications"
-        :params="extensionParams"
-        name="SpaceSettings"
-        type="space-settings-components"
-        parent-element="div"
-        element="div"
-        class="mb-6"
-        element-class="mb-6" />
-    </template>
+    flat>
+    <div class="application-body">
+      <space-setting-general :space-id="spaceId" />
+      <template>
+        <extension-registry-components
+          :key="spaceApplications"
+          :params="extensionParams"
+          name="SpaceSettings"
+          type="space-settings-components"
+          parent-element="div"
+          element="div" />
+      </template>
+    </div>
   </v-app>
 </template>
 

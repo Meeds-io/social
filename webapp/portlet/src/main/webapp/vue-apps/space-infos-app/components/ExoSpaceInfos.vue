@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <widget-wrapper :title="$t('social.space.description.title')">
+    <widget-wrapper
+      :title="$t('social.space.description.title')"
+      extra-class="application-body">
       <p 
         id="spaceDescription"
         v-sanitized-html="description"
@@ -9,7 +11,7 @@
       <div id="spaceManagersList">
         <div class="d-flex align-center mb-4">
           <v-icon size="16" class="me-2 icon-default-color">fa-user-cog</v-icon>
-          <span class="me-2 subtitle-1 text-color">{{ $t("social.space.description.managers") }}</span>
+          <span class="me-2">{{ $t("social.space.description.managers") }}</span>
           <v-divider />
         </div>
         <div id="spaceManagers">
@@ -31,7 +33,7 @@
         id="spaceRedactorsList">
         <div class="d-flex align-center mb-4 mt-5">
           <v-icon size="16" class="me-2 icon-default-color">fa-user-edit</v-icon>
-          <span class="me-2 subtitle-1 text-color">{{ $t("social.space.description.redactors") }}</span>
+          <span class="me-2">{{ $t("social.space.description.redactors") }}</span>
           <v-divider />
         </div>
         <div id="spaceRedactors">

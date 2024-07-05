@@ -81,7 +81,7 @@
             :title="$t('portal.login.Password')"
             :placeholder="$t('portal.login.Password')"
             :type="passwordType"
-            :append-icon="showPassword ? 'fas fa-eye-slash subtitle-1 mt-0' : 'fas fa-eye subtitle-1 mt-0'"
+            :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
             :readonly="disabled"
             prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
             class="login-password border-box-sizing"

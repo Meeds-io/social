@@ -21,7 +21,9 @@
 <template>
   <v-app
     :class="owner && 'profileContactInformation' || 'profileContactInformationOther'">
-    <widget-wrapper :title="title">
+    <widget-wrapper
+      :title="title"
+      extra-class="application-body">
       <template #action>
         <v-btn
           v-if="owner"

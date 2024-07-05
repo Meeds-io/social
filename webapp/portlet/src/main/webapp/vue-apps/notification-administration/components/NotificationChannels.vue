@@ -1,7 +1,7 @@
 <template>
   <v-card flat>
-    <div class="pt-8 subtitle-1">{{ $t('NotificationAdmin.allowedNotifications.title') }}</div>
-    <div class="caption">{{ $t('NotificationAdmin.allowedNotifications.subtitle') }}</div>
+    <div class="pt-8 text-title">{{ $t('NotificationAdmin.allowedNotifications.title') }}</div>
+    <div class="text-subtitle">{{ $t('NotificationAdmin.allowedNotifications.subtitle') }}</div>
     <v-switch
       v-for="channelId in channelIds"
       v-model="channelStatus[channelId]"

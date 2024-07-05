@@ -19,8 +19,7 @@
     <v-toolbar
       v-if="displayToolbar"
       id="activityComposer"
-      class="activityComposer activityComposerApp pa-0 card-border-radius"
-      color="white mb-5"
+      class="activityComposer activityComposerApp pa-0 application-background-color application-border application-border-radius mb-5"
       height="auto"
       flat
       dense>
@@ -37,12 +36,12 @@
             avatar />
           <v-btn
             v-if="userCanPost"
-            class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto subtitle-2"
+            class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto"
             text
             @click="openComposerDrawer(true)">
             <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
           </v-btn>
-          <span v-else class="text-sub-title text-body-1 my-auto">
+          <span v-else class="text-subtitle my-auto">
             {{ $t('activity.toolbar.title') }}
           </span>
           <div class="my-auto ms-auto d-flex flex-row">

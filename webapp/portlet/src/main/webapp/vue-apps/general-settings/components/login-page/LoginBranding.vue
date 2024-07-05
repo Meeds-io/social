@@ -21,11 +21,6 @@
 <template>
   <v-row class="ma-0">
     <v-col cols="12" class="pa-0">
-      <h4 class="font-weight-bold mt-0">
-        {{ $t('generalSettings.loginCharacteristics') }}
-      </h4>
-    </v-col>
-    <v-col cols="12" class="pa-0">
       <div class="d-flex flex-wrap-reverse">
         <v-card
           color="transparent"
@@ -76,10 +71,10 @@
             <nav class="fill-height flex-grow-1">
               <portal-login-introduction :color="hasImage && 'transparent' || 'primary'">
                 <template #title>
-                  <span :style="hasImage && `color: ${loginBackgroundTextColor};`" class="subtitle-3">{{ $t(title) }}</span>
+                  <span :style="`color: ${hasImage && loginBackgroundTextColor || '#ffffff'} !important;`" class="text-title">{{ $t(title) }}</span>
                 </template>
                 <template #subtitle>
-                  <span :style="hasImage && `color: ${loginBackgroundTextColor};`" class="subtitle-1">{{ $t(subtitle) }}</span>
+                  <span :style="`color: ${hasImage && loginBackgroundTextColor || '#ffffff'} !important;`" class="text-body">{{ $t(subtitle) }}</span>
                 </template>
               </portal-login-introduction>
             </nav>
@@ -88,12 +83,12 @@
         <v-card
           class="flex-grow-1 flex-shrink-0"
           flat>
-          <h4 class="my-0">
+          <div class="text-header my-0">
             {{ $t('generalSettings.loginTitle.title') }}
-          </h4>
-          <h6 class="text-subtitle grey--text me-2">
+          </div>
+          <div class="text-subtitle me-2">
             {{ $t('generalSettings.loginTitle.subtitle') }}
-          </h6>
+          </div>
           <v-card max-width="350px" flat>
             <translation-text-field
               v-model="loginTitle"
@@ -103,12 +98,12 @@
               :supported-languages="supportedLanguages"
               drawer-title="generalSettings.translateTitle" />
           </v-card>
-          <h4 class="mb-0 mt-4">
+          <div class="text-header mb-0 mt-4">
             {{ $t('generalSettings.loginSubtitle.title') }}
-          </h4>
-          <h6 class="text-subtitle grey--text me-2">
+          </div>
+          <div class="text-subtitle me-2">
             {{ $t('generalSettings.loginSubtitle.subtitle') }}
-          </h6>
+          </div>
           <v-card max-width="350px" flat>
             <translation-text-field
               v-model="loginSubtitle"
@@ -118,12 +113,12 @@
               :supported-languages="supportedLanguages"
               drawer-title="generalSettings.translateSubtitle" />
           </v-card>
-          <h4 class="mb-0 mt-4">
+          <div class="text-header mb-0 mt-4">
             {{ $t('generalSettings.loginBackground.title') }}
-          </h4>
-          <h6 class="text-subtitle grey--text me-2">
+          </div>
+          <div class="text-subtitle me-2">
             {{ $t('generalSettings.loginBackground.subtitle') }}
-          </h6>
+          </div>
           <portal-general-settings-login-background-selector
             ref="loginBackground"
             v-model="loginBackgroundUploadId"

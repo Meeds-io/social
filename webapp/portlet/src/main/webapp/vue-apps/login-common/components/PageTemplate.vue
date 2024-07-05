@@ -44,10 +44,10 @@
           <nav class="fill-height flex-grow-1">
             <portal-login-introduction :color="background && 'transparent' || 'primary'">
               <template #title>
-                <span :style="background && `color: ${backgroundTextColor};`">{{ title }}</span>
+                <span :style="`color: ${background && backgroundTextColor || '#ffffff'};`">{{ title }}</span>
               </template>
               <template #subtitle>
-                <span :style="background && `color: ${backgroundTextColor};`">{{ subtitle }}</span>
+                <span :style="`color: ${background && backgroundTextColor || '#ffffff'};`">{{ subtitle }}</span>
               </template>
             </portal-login-introduction>
           </nav>
@@ -76,7 +76,7 @@
               </v-card-title>
               <v-card-title
                 v-else
-                class="display-1 primary--text px-0 d-none d-sm-flex text-break text-center justify-center mx-n12">
+                class="text-title text-h4 primary--text px-0 d-none d-sm-flex text-break text-center justify-center mx-n12">
                 {{ companyName }}
               </v-card-title>
               <div :class="center && 'd-block' || 'd-sm-flex flex mx-0'">

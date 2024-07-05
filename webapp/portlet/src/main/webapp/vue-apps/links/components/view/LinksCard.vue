@@ -45,10 +45,10 @@
         :icon-size="iconSize"
         :icon-url="iconUrl"
         :class="showName && 'pb-0 col-6 align-end' || 'col-12 align-center'"
-        class="justify-center subtitle-1" />
+        class="justify-center" />
       <div
         v-if="showName && name"
-        class="pt-3 px-1 full-width text-truncate-2 text-color subtitle-2">
+        class="pt-3 px-1 full-width text-truncate-2 text-body">
         {{ showName && name || '' }}
       </div>
     </v-card>

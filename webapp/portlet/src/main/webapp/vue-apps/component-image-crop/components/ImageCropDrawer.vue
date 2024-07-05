@@ -40,8 +40,8 @@
           <div v-if="isImageGif" class="d-flex position-absolute full-width full-height mask-color z-index-one rounded">
             <div class="d-flex flex-column align-center flex ma-auto">
               <v-icon size="52" class="white--text mb-4">fa-ban</v-icon>
-              <div class="white--text text-wrap subtitle-1">{{ $t('imageCropDrawer.gitImage.label.option') }}</div>
-              <div class="white--text text-wrap subtitle-1">{{ $t('imageCropDrawer.gitImage.label.gif') }}</div>
+              <div class="white--text text-wrap">{{ $t('imageCropDrawer.gitImage.label.option') }}</div>
+              <div class="white--text text-wrap">{{ $t('imageCropDrawer.gitImage.label.gif') }}</div>
             </div>
           </div>
           <div :class="isImageGif && 'filter-blur-3' || ''">
@@ -167,7 +167,7 @@
           </div>
         </div>
         <div v-if="useFormat" class="d-flex flex-column mt-4">
-          <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
+          <div class="flex-grow-0 pt-1 pe-2">
             {{ $t('imageCropDrawer.format') }}
           </div>
           <div class="flex-grow-1 d-flex mx-n2">
@@ -196,7 +196,7 @@
           </div>
         </div>
         <div v-if="alt" class="d-flex flex-column mt-4">
-          <div class="flex-grow-0 subtitle-1 pt-1 pe-2">
+          <div class="flex-grow-0 pt-1 pe-2">
             {{ $t('imageCropDrawer.altText.title') }}
           </div>
           <div class="flex-grow-1 d-flex">

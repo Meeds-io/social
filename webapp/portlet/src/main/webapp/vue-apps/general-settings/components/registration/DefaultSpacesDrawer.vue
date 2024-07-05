@@ -32,14 +32,14 @@
     </template>
     <template #content>
       <v-card class="pa-4" flat>
-        <div class="font-weight-bold dark-grey-color text-subtitle-1">
+        <div>
           {{ $t('generalSettings.access.defaultSpacesTitle') }}
         </div>
-        <div class="caption text-light-color">
+        <div class="text-subtitle">
           {{ $t('generalSettings.access.defaultSpacesSubTitle') }}
         </div>
 
-        <div class="font-weight-bold dark-grey-color text-subtitle-1 mt-4">
+        <div class="text-header mt-4">
           {{ $t('generalSettings.access.selectDefaultSpaces') }}
         </div>
         <exo-identity-suggester

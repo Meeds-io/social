@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="settings"
-    class="card-border-radius overflow-hidden white">
+    class="application-body">
     <v-toolbar
       class="border-box-sizing"
       flat>
@@ -15,7 +15,7 @@
           {{ $vuetify.rtl && 'mdi-arrow-right' || 'mdi-arrow-left' }}
         </v-icon>
       </v-btn>
-      <v-toolbar-title class="ps-0">
+      <v-toolbar-title class="ps-0 text-title">
         {{ $t('UserSettings.manageNotifications') }}
       </v-toolbar-title>
       <v-spacer />

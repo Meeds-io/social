@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <widget-wrapper :title="$t('spacesOverview.label.title')">
+    <widget-wrapper 
+      :title="$t('spacesOverview.label.title')"
+      extra-class="application-body">
       <v-card flat>
         <div
           v-if="(invitations > 0 || sentRequests > 0 || receivedRequests > 0 || managing > 0) && displayPlaceholder"
@@ -38,7 +40,7 @@
           <div v-if="displayPlaceholder" class="d-flex align-center justify-center mx-lg-6">
             <v-icon size="24" class="tertiary--text me-3">fas fa-user-cog</v-icon>
             <div class="d-flex flex-column">
-              <span class="subtitle-1 text-color text-left">{{ $t('spacesOverview.label.emptyMessage') }}</span>
+              <span class="text-left">{{ $t('spacesOverview.label.emptyMessage') }}</span>
             </div>
           </div>
         </div>

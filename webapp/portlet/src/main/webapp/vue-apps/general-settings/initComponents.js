@@ -25,6 +25,10 @@ import CompanyLogo from './components/branding/form/CompanyLogo.vue';
 import CompanyFavicon from './components/branding/form/CompanyFavicon.vue';
 import LoginBackgroundSelector from './components/branding/form/LoginBackgroundSelector.vue';
 import BorderRadiusSelector from './components/branding/form/BorderRadiusSelector.vue';
+import BackgroundImageAttachment from './components/branding/form/BackgroundImageAttachment.vue';
+import BackgroundInput from './components/branding/form/BackgroundInput.vue';
+import CustomStyleInput from './components/branding/form/CustomStyleInput.vue';
+
 import SiteBranding from './components/branding/SiteBranding.vue';
 import SiteBrandingWindow from './components/branding/SiteBrandingWindow.vue';
 import SiteBrandingPreview from './components/branding/preview/SiteBrandingPreview.vue';
@@ -44,6 +48,9 @@ const components = {
   'portal-general-settings-company-logo': CompanyLogo,
   'portal-general-settings-company-favicon': CompanyFavicon,
   'portal-general-settings-border-radius': BorderRadiusSelector,
+  'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
+  'portal-general-settings-background-input': BackgroundInput,
+  'portal-general-settings-custom-style-input': CustomStyleInput,
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,
   'portal-general-settings-hub-access': HubAccess,
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,

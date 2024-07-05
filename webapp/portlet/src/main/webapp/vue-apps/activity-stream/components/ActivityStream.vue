@@ -1,20 +1,22 @@
 <template>
-  <v-app v-if="loaded" role="main">
-    <activity-stream-toolbar
-      v-if="canPostInitialized"
-      :can-post="canPost"
-      :can-filter="canFilter"
-      :filter="filter"
-      :has-activities="hasActivities" />
-    <activity-stream-list
-      :activity-id="activityId"
-      :activity-types="activityTypes"
-      :activity-actions="activityActions"
-      :comment-types="commentTypes"
-      :comment-actions="commentActions"
-      @has-activities="hasActivities = $event"
-      @activity-select="displayActivityDetail"
-      @can-post-loaded="canPostLoaded($event)" />
+  <v-app v-if="loaded">
+    <v-main class="application-body">
+      <activity-stream-toolbar
+        v-if="canPostInitialized"
+        :can-post="canPost"
+        :can-filter="canFilter"
+        :filter="filter"
+        :has-activities="hasActivities" />
+      <activity-stream-list
+        :activity-id="activityId"
+        :activity-types="activityTypes"
+        :activity-actions="activityActions"
+        :comment-types="commentTypes"
+        :comment-actions="commentActions"
+        @has-activities="hasActivities = $event"
+        @activity-select="displayActivityDetail"
+        @can-post-loaded="canPostLoaded($event)" />
+    </v-main>
     <extension-registry-components
       :params="drawerParams"
       name="ActivityStream"

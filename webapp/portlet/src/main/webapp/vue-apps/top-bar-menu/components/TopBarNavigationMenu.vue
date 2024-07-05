@@ -29,8 +29,9 @@
       <v-tabs
         class="navigation-mobile-menu"
         v-model="tab"
+        color="none"
         optional
-        height="56"
+        height="57"
         slider-size="4">
         <navigation-mobile-menu-item
           v-for="(navigation, index) in mobileNavigations"
@@ -43,10 +44,11 @@
     <v-tabs
       v-else
       v-model="tab"
+      color="none"
       show-arrows
       center-active
       optional
-      height="56"
+      height="57"
       slider-size="4">
       <navigation-menu-item
         v-for="(navigation, index) in navigations"

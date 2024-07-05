@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <widget-wrapper v-if="isShown" :title="$t('externalSpacesList.title.yourSpaces')">
+    <widget-wrapper
+      v-if="isShown"
+      :title="$t('externalSpacesList.title.yourSpaces')"
+      extra-class="application-body">
       <v-list dense class="py-0 external-spaces-list">
         <template>
           <external-space-item
@@ -35,7 +38,15 @@ export default {
   computed: {
     isShown() {
       return this.spacesList && this.spacesList.length > 0 || this.spacesRequestsSize > 0;
-    }
+    },
+  },
+  watch: {
+    isShown: {
+      immediate: true,
+      handler() {
+        this.$root.$updateApplicationVisibility(this.isShown, this.$el);
+      },
+    },
   },
   created() {
     this.getExternalSpacesList();

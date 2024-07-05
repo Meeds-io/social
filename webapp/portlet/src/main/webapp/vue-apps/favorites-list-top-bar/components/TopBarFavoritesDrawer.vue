@@ -33,7 +33,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <div v-else-if="!loading" class="d-flex full-height disabled-background align-center justify-center">
         <div class="noFavoritesContent">
           <v-icon class="mx-auto disabled--text mb-3" size="100">fas fa-star </v-icon>
-          <p class="text-sub-title font-weight-bold">{{ $t('UITopBarFavoritesPortlet.label.NoFavorites') }}</p>
+          <p class="text-subtitle">{{ $t('UITopBarFavoritesPortlet.label.NoFavorites') }}</p>
         </div>
       </div>
     </template>

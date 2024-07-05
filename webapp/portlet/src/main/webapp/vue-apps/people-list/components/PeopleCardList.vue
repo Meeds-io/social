@@ -1,5 +1,5 @@
 <template>
-  <v-card class="app-background-color" flat>
+  <v-card flat>
     <v-progress-linear
       v-if="loadingPeople"
       indeterminate
@@ -34,17 +34,17 @@
                 <v-icon>fa-users</v-icon>
               </p>
               <template v-if="filter === 'connections'">
-                <p class="title font-weight-bold">
+                <p class="text-title">
                   {{ $t('peopleList.label.noConnection') }}
                 </p>
               </template>
               <template v-else-if="hasPeople">
-                <p class="title font-weight-bold">
+                <p class="text-title">
                   {{ $t('peopleList.label.noResults') }}
                 </p>
               </template>
               <template v-else>
-                <p class="title font-weight-bold">
+                <p class="text-title">
                   {{ $t('peopleList.label.noPeopleYet') }}
                 </p>
               </template>

@@ -28,7 +28,7 @@
         <template slot="item.groupId" slot-scope="{ item }">
           <v-list-item-content>
             <v-list-item-title>{{ item.groupLabel }}</v-list-item-title>
-            <v-list-item-subtitle class="caption text-sub-title">{{ item.groupId }}</v-list-item-subtitle>
+            <v-list-item-subtitle>{{ item.groupId }}</v-list-item-subtitle>
           </v-list-item-content>
         </template>
       </v-data-table>

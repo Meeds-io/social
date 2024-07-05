@@ -20,10 +20,8 @@
 -->
 <template>
   <div class="d-none d-lg-block">
-    <div>
-      <h4 class="font-weight-bold mt-0">
-        {{ $t('generalSettings.preview.title') }}
-      </h4>
+    <div class="text-header">
+      {{ $t('generalSettings.preview.title') }}
     </div>
     <div class="mt-4 position-relative border-color full-width overflow-hidden border-radius" style="height:470px;">
       <iframe 
@@ -47,12 +45,14 @@ export default {
   }),
   mounted() {
     this.$root.$on('refresh-style-property', this.setStyleProperty);
+    this.$root.$on('refresh-body-style-property', this.setBodyStyleProperty);
     this.$root.$on('refresh-iframe', this.reloadURL);
     this.$root.$on('refresh-company-name', this.refreshCompanyName);
     this.$root.$on('refresh-company-logo', this.refreshCompanyLogo);
   },
   beforeDestroy() {
     this.$root.$off('refresh-style-property', this.setStyleProperty);
+    this.$root.$off('refresh-body-style-property', this.setBodyStyleProperty);
     this.$root.$off('refresh-iframe', this.reloadURL);
     this.$root.$off('refresh-company-name', this.refreshCompanyName);
     this.$root.$off('refresh-company-logo', this.refreshCompanyLogo);
@@ -68,6 +68,12 @@ export default {
         const iframeDoc = document.getElementById('previewIframe').contentWindow.document.documentElement;
         iframeDoc.style.setProperty(propertyName, propertyValue);
       }
+    },
+    setBodyStyleProperty(property) {
+      const propertyName = property.name;
+      const propertyValue = property.value;
+      const iframeDoc = document.getElementById('previewIframe').contentWindow.document.body;
+      iframeDoc.style.setProperty(propertyName, propertyValue);
     },
     refreshCompanyName(event) {
       if (event) {

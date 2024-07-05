@@ -22,16 +22,11 @@
   <div class="pb-1">
     <v-list-item class="px-0 mb-2" three-line>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="my-0">
-          <h4 class="font-weight-bold mt-0">
-            {{ $t('generalSettings.access') }}
-          </h4>
-        </v-list-item-title>
-        <v-list-item-subtitle class="pt-2">
-          <h4 class="my-0 text-color">{{ $t('generalSettings.access.summary1') }}</h4>
+        <v-list-item-subtitle class="text-header pt-2">
+          {{ $t('generalSettings.access.summary1') }}
         </v-list-item-subtitle>
-        <v-list-item-subtitle class="py-2">
-          <h5 class="my-0 text-color">{{ $t('generalSettings.access.summary2') }}</h5>
+        <v-list-item-subtitle class="text-body py-2">
+          {{ $t('generalSettings.access.summary2') }}
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -50,7 +45,7 @@
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.open') }}
         </v-list-item-title>
         <v-list-item-subtitle>
@@ -59,7 +54,7 @@
       </v-list-item-content>
     </v-list-item>
     <v-list-item
-      class="mt-2 mb-4"
+      class="mb-4"
       dense
       v-on="accessType === 'OPEN' && {
         click: () => externalUserOpenRegistration = !externalUserOpenRegistration,
@@ -82,7 +77,7 @@
         </v-tooltip>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.open.enableExternalUsers"
             tooltip="generalSettings.access.whatIsExternalUser">
@@ -119,13 +114,13 @@
         </v-radio-group>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.restricted') }}
         </v-list-item-title>
         <v-list-item-subtitle>
           <help-label
             label="generalSettings.access.restricted.subtitle"
-            label-class="text-sub-title"
+            label-class="text-subtitle"
             tooltip="generalSettings.access.whatIsRegisteredUser">
             <template slot="helpContent">
               <p>
@@ -146,7 +141,7 @@
       </v-list-item-content>
     </v-list-item>
     <v-list-item
-      class="mt-2 mb-4"
+      class="mb-4"
       dense
       v-on="accessType === 'RESTRICTED' && {
         click: () => externalUserRestrictedRegistration = !externalUserRestrictedRegistration,
@@ -169,7 +164,7 @@
         </v-tooltip>
       </v-list-item-action>
       <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.restricted.enableExternalUsers"
             tooltip="generalSettings.access.whatIsExternalUser">
@@ -189,7 +184,7 @@
         <v-list-item-subtitle>
           <help-label
             label="generalSettings.access.restricted.enableExternalUsers.subtitle"
-            label-class="text-sub-title"
+            label-class="text-subtitle"
             tooltip="generalSettings.access.whatIsSpaceHost">
             <template slot="helpContent">
               <p>
@@ -207,16 +202,16 @@
       </v-list-item-content>
     </v-list-item>
 
-    <v-list-item dense class="px-0 mt-4 mb-2">
-      <v-list-item-content class="py-0">
-        <v-list-item-title>
-          <h4 class="text-color my-0 py-2">{{ $t('generalSettings.access.platformAuthentication') }}</h4>
+    <v-list-item class="pa-0 mt-4 mb-2">
+      <v-list-item-content class="py-2 px-0">
+        <v-list-item-title class="text-header">
+          {{ $t('generalSettings.access.platformAuthentication') }}
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item dense>
+    <v-list-item class="px-0" dense>
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.passwordAuthentication') }}
         </v-list-item-title>
         <v-list-item-subtitle>
@@ -229,9 +224,9 @@
         </v-chip>
       </v-list-item-action>
     </v-list-item>
-    <v-list-item dense>
+    <v-list-item class="px-0" dense>
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           {{ $t('generalSettings.access.additionalAuthentication') }}
         </v-list-item-title>
         <v-list-item-subtitle>
@@ -245,16 +240,16 @@
       </v-list-item-action>
     </v-list-item>
 
-    <v-list-item dense class="px-0 mt-4 mb-2">
-      <v-list-item-content class="py-0">
-        <v-list-item-title class="subtitle-1">
-          <h4 class="text-color my-0 py-2">{{ $t('generalSettings.access.startSettingPlatform') }}</h4>
+    <v-list-item class="pa-0 mt-4 mb-2">
+      <v-list-item-content class="py-2 px-0">
+        <v-list-item-title class="text-header">
+          {{ $t('generalSettings.access.startSettingPlatform') }}
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item dense class="my-0">
+    <v-list-item class="my-0 px-0" dense>
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.startSettingPlatform.spaces"
             tooltip="generalSettings.access.whatIsDefaultSpace">
@@ -281,9 +276,9 @@
         </v-btn>
       </v-list-item-action>
     </v-list-item>
-    <v-list-item dense class="my-0">
+    <v-list-item class="my-0 px-0" dense>
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1">
+        <v-list-item-title>
           <help-label
             label="generalSettings.access.startSettingPlatform.mandatorySpaces"
             tooltip="generalSettings.access.whatIsMandatorySpace">
@@ -309,9 +304,9 @@
         </v-btn>
       </v-list-item-action>
     </v-list-item>
-    <v-list-item dense class="my-0">
+    <v-list-item class="px-0 my-0" dense>
       <v-list-item-content>
-        <v-list-item-title class="subtitle-1 text-color">
+        <v-list-item-title>
           {{ $t('generalSettings.access.startSettingPlatform.createUsers') }}
         </v-list-item-title>
       </v-list-item-content>

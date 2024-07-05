@@ -10,7 +10,7 @@
       {{ $t('UIUserActivitiesDisplay.label.activityNotFound') }}
     </div>
     <v-card
-      class="text-color mt-6 mx-2 d-none d-sm-inline title"
+      class="text-title mt-6 mx-2 d-none d-sm-inline"
       max-width="80%"
       width="80%"
       flat>
@@ -20,7 +20,7 @@
       :href="activityStreamUrl"
       class="btn btn-primary mt-6"
       large>
-      <span class="text-none title">
+      <span class="text-none text-title">
         {{ $t('activity.notFound.button.exploreActivities') }}
       </span>
     </v-btn>

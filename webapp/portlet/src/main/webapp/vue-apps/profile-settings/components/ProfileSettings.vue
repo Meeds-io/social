@@ -22,7 +22,7 @@
   <v-app>
     <v-main>
       <v-card
-        class="px-4 py-6 mb-12 mb-sm-0 card-border-radius app-background-color"
+        class="px-4 mb-12 mb-sm-0 application-body"
         flat>
         <v-list
           v-if="mainPageSelected">

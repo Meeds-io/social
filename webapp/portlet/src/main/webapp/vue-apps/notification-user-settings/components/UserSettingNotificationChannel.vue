@@ -5,7 +5,7 @@
         <v-list-item-title class="text-color">
           {{ label }}
         </v-list-item-title>
-        <v-list-item-subtitle v-if="description" class="text-sub-title font-italic">
+        <v-list-item-subtitle v-if="description">
           {{ description }}
         </v-list-item-subtitle>
       </v-list-item-content>

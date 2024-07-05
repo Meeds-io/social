@@ -3,7 +3,7 @@
     <div
       v-if="breadcrumbToDisplay.length"
       id="breadcrumbParent"
-      class="white px-2 py-2 card-border-radius d-flex">
+      class="px-2 py-2 application-body d-flex">
       <div
         v-for="(breadcrumb, index) in breadcrumbToDisplay"
         :key="index"
@@ -26,9 +26,7 @@
                 max-width="250px"
                 class="pa-0"
                 text>
-                <span
-                  :class="index < (breadcrumbToDisplay.length - 1) && 'text-sub-title' || 'text-color'"
-                  class="text-truncate text-none">
+                <span class="text-truncate text-none">
                   {{ breadcrumb.label }}
                 </span>
               </v-btn>
@@ -44,13 +42,11 @@
           min-width="45px"
           class="pa-0 flex-shrink-1"
           text>
-          <span class="text-sub-title">
-            {{ breadcrumb.label }}
-          </span>
+          {{ breadcrumb.label }}
         </v-btn>
         <v-icon
           v-if="index < breadcrumbToDisplay.length-1"
-          size="14"
+          size="16"
           class="px-2">
           fa-chevron-right
         </v-icon>
