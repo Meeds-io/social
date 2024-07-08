@@ -2,7 +2,7 @@
   <exo-drawer
     ref="userLanguageDrawer"
     class="userLanguageDrawer"
-    body-classes="hide-scroll decrease-z-index-more"
+    allow-expand
     right>
     <template slot="title">
       {{ $t('UserSettings.language') }}
