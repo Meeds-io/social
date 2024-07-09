@@ -141,6 +141,23 @@
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-title">
+                    {{ $t('generalSettings.manageDefaultLanguage') }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.manageDefaultLanguage') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.$emit('default-language-edit')">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title class="text-title">
                     {{ $t('generalSettings.managePublicSite') }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
@@ -168,6 +185,9 @@
         persistent
         @ok="closeEffectively" />
       <portal-general-settings-public-site-drawer />
+      <portal-general-settings-default-language-drawer
+        :branding="branding"
+        @refresh="initBranding" />
     </v-main>
   </v-app>
 </template>
@@ -209,11 +229,17 @@ export default {
   methods: {
     init() {
       this.$root.loading = true;
-      return this.$brandingService.getBrandingInformation()
-        .then(data => this.branding = data)
-        .then(() => this.$registrationService.getRegistrationSettings())
-        .then(data => this.registrationSettings = data)
+      return this.initBranding()
+        .then(this.initRegistration)
         .finally(() => this.$root.loading = false);
+    },
+    initBranding() {
+      return this.$brandingService.getBrandingInformation()
+        .then(data => this.branding = data);
+    },
+    initRegistration() {
+      return this.$registrationService.getRegistrationSettings()
+        .then(data => this.registrationSettings = data);
     },
     close() {
       if (this.changed) {
