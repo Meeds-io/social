@@ -27,8 +27,7 @@
     <application-name>social-portlet</application-name>
     <portlet-name>GeneralSettings</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/GeneralSettings/Style.css</css-path>
-    <css-priority>1</css-priority>
+    <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -61,6 +60,7 @@
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/SpaceSettings/Style.css</css-path>
     <css-priority>1</css-priority>
+    <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -101,6 +101,7 @@
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/SpaceHeader/Style.css</css-path>
     <css-priority>1</css-priority>
+    <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -125,6 +126,7 @@
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/ProfileHeader/Style.css</css-path>
     <css-priority>1</css-priority>
+    <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -141,6 +143,7 @@
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/ProfileContactInformation/Style.css</css-path>
     <css-priority>1</css-priority>
+    <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -308,7 +311,6 @@
     <portlet-name>VerticalMenu</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/VerticalMenu/Style.css</css-path>
-    <css-priority>1</css-priority>
   </portlet-skin>
 
   <portlet-skin>
@@ -318,13 +320,6 @@
     <css-path>/skin/css/portlet/organizational-chart/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
-  
-  <portal-skin>
-    <skin-name>Enterprise</skin-name>
-    <skin-module>administrationSite</skin-module>
-    <css-path>/skin/css/common/AdministrationSite/Style.css</css-path>
-    <css-priority>11</css-priority>
-  </portal-skin>
 
   <!-- ATTENTION ! <End> DO NOT DELETE -->
 
