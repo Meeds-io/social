@@ -37,6 +37,7 @@ import HubAccess from './components/registration/HubAccess.vue';
 import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.vue';
 
 import PublicSiteEditDrawer from './components/public-site/PublicSiteEditDrawer.vue';
+import DefaultLanguageDrawer from './components/language/DefaultLanguageDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -55,6 +56,7 @@ const components = {
   'portal-general-settings-hub-access': HubAccess,
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
   'portal-general-settings-public-site-drawer': PublicSiteEditDrawer,
+  'portal-general-settings-default-language-drawer': DefaultLanguageDrawer,
 };
 
 for (const key in components) {

@@ -65,21 +65,6 @@ export function saveTranslations(objectType, objectId, fieldName, labels) {
   });
 }
 
-export function saveDefaultLanguage(lang) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/configuration/defaultLanguage`, {
-    method: 'PUT',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: `lang=${lang}`,
-  }).then((resp) => {
-    if (!resp?.ok) {
-      throw new Error(`Error when saving default language '${lang}' configuration`);
-    }
-  });
-}
-
 export function deleteTranslations(objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/${objectType}/${objectId}`, {
     method: 'DELETE',
