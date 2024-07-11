@@ -29,7 +29,7 @@ if (extensionRegistry) {
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 const vuetify = Vue.prototype.vuetifyOptions;
 

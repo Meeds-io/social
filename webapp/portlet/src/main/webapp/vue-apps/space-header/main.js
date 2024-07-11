@@ -17,7 +17,7 @@ const cacheId = `${appId}_${eXo.env.portal.spaceId}`;
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 export function init(settings, bannerUrl, maxUploadSize, isAdmin) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
