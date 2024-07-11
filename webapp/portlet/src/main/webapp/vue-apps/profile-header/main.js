@@ -17,8 +17,8 @@ const lang = eXo && eXo.env.portal.language || 'en';
 
 //should expose the locale ressources as REST API 
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.ProfileHeader-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`
+  `/social-portlet/i18n/locale.portlet.social.ProfileHeader?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`
 ];
 
 const appId = 'ProfileHeader';

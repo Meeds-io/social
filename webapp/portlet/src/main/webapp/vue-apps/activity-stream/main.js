@@ -47,9 +47,9 @@ const appId = 'ActivityStream';
 // Attention!!! when changing this, the list of preloaded
 // URLs has to change in JSP as well
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.commons.Commons-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`,
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social-portlet/i18n/locale.commons.Commons?lang=${lang}`,
+  `/social-portlet/i18n/locale.social.Webui?lang=${lang}`,
 ];
 
 export function init(maxFileSize) {

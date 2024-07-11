@@ -30,7 +30,7 @@ if (extensionRegistry) {
 }
 
 const lang = eXo.env.portal.language;
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Links-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.Links?lang=${lang}`;
 
 export function init(appId, name, canEdit) {
   exoi18n.loadLanguageAsync(lang, url)

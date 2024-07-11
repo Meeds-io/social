@@ -34,7 +34,7 @@ const appId = 'SpaceAccess';
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`;
+const url = `/social-portlet/i18n/locale.social.Webui?lang=${lang}`;
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
