@@ -6,8 +6,8 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 // should expose the locale ressources as REST API 
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.SpacesAdministrationPortlet-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portal.webui-${lang}.json`,
+  `/social-portlet/i18n/locale.portlet.social.SpacesAdministrationPortlet?lang=${lang}`,
+  `/social-portlet/i18n/locale.portal.webui?lang=${lang}`,
 ];
 
 // get overrided components if exists

@@ -20,9 +20,9 @@ const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
 //should expose the locale ressources as REST API 
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.ProfileContactInformation-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.ComplementaryFilter-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`
+  `/social-portlet/i18n/locale.portlet.social.ProfileContactInformation?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.social.ComplementaryFilter?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`
 ];
 
 export function init(uploadLimit, imTypes) {

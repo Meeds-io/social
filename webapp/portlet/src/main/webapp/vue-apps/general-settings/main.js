@@ -32,10 +32,10 @@ const lang = window.eXo?.env?.portal?.language || 'en';
 
 // Should expose the locale ressources as REST API 
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Login-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portal.login-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.GeneralSettings-${lang}.json`,
+  `/social-portlet/i18n/locale.portlet.Login?lang=${lang}`,
+  `/social-portlet/i18n/locale.portal.login?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.GeneralSettings?lang=${lang}`,
 ];
 
 export function init(publicSiteVisible, publicSiteId) {

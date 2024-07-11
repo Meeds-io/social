@@ -2,7 +2,7 @@ import {registerExtension} from './extensions.js';
 
 const lang = eXo?.env?.portal?.language || 'en';
 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`;
 export function init() {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings/manager`, {
     method: 'GET',

@@ -32,9 +32,9 @@ if (extensionRegistry) {
 const appId = 'NotificationPopoverPortlet';
 const lang = eXo.env.portal.language;
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.notification.template.Notification-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.commons.Commons-${lang}.json`,
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social-portlet/i18n/locale.notification.template.Notification?lang=${lang}`,
+  `/social-portlet/i18n/locale.commons.Commons?lang=${lang}`,
 ];
 
 //getting locale ressources
