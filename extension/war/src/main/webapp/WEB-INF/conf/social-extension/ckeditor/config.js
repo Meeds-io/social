@@ -108,10 +108,10 @@ CKEDITOR.editorConfig = function(config) {
   };
 
   let space = null;
-  const membersLabel = eXo.i18n.I18NMessage.getMessage('members');
-  const managersLabel = eXo.i18n.I18NMessage.getMessage('managers');
-  const publishersLabel = eXo.i18n.I18NMessage.getMessage('publishers');
-  const redactorsLabel = eXo.i18n.I18NMessage.getMessage('redactors');
+  const membersLabel = window.vueI18nMessages['members'];
+  const managersLabel = window.vueI18nMessages['managers'];
+  const publishersLabel = window.vueI18nMessages['publishers'];
+  const redactorsLabel = window.vueI18nMessages['redactors'];
 
   const getSpace = async function(spaceURL, spacePrettyName, spaceId) {
     if (!spacePrettyName && !spaceId && !spaceURL) {
