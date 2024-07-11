@@ -1121,7 +1121,7 @@ View = (function() {
   };
 
   View.prototype.showLabel = function (key) {
-    const label = eXo.i18n.I18NMessage[key];
+    const label = window.vueI18nMessages[key];
     const data = `<div style='padding: 5px 10px;'>${label}</div>`;
     this.$el.find('ul').empty();
     this.$el.find('ul').append(data);
