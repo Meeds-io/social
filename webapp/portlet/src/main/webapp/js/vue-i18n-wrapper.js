@@ -20,7 +20,7 @@
 (function () {
 
   const i18NFetchedURLsKey = `${window.location.pathname}_${eXo.env.portal.language}_${eXo.env.client.assetsVersion}_URLs`;
-  const i18NFetchedURLsValue = sessionStorage && sessionStorage.getItem(i18NFetchedURLsKey);
+  const i18NFetchedURLsValue = !eXo.developing && sessionStorage && sessionStorage.getItem(i18NFetchedURLsKey);
   const i18NFetchedURLs = i18NFetchedURLsValue && JSON.parse(i18NFetchedURLsValue) || [];
   window.eXoI18N = {
     executingFetches: {},
@@ -108,6 +108,7 @@
           } catch (e) {
             // QuotaExceededError can be thrown, thus nothing to do here
           }
+          window.vueI18nMessages = i18n.messages[eXo.env.portal.language];
           return i18n;
         });
     }

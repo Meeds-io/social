@@ -2709,9 +2709,6 @@
     <depends>
       <module>jqueryCaret</module>
     </depends>
-    <depends>
-      <module>I18NMessage</module>
-    </depends>
   </module>
 
   <module>
@@ -2881,45 +2878,6 @@
     <depends>
       <module>extensionRegistry</module>
     </depends>
-  </module>
-
-  <!-- Base Javascripts for anonymous mode -->
-  <module>
-    <name>I18NMessage</name>
-    <as>msg</as>
-    <load-group>suggesterGRP</load-group>
-    <supported-locale>de</supported-locale>
-    <supported-locale>en</supported-locale>
-    <supported-locale>fr</supported-locale>
-    <supported-locale>ru</supported-locale>
-    <supported-locale>vi</supported-locale>
-    <supported-locale>es-ES</supported-locale>
-    <supported-locale>sv-SE</supported-locale>
-    <supported-locale>ja</supported-locale>
-    <supported-locale>ar</supported-locale>
-    <supported-locale>ar-OM</supported-locale>
-    <supported-locale>pt-BR</supported-locale>
-    <supported-locale>pt-PT</supported-locale>
-    <supported-locale>it</supported-locale>
-    <supported-locale>tr</supported-locale>
-    <supported-locale>zh-CN</supported-locale>
-    <supported-locale>fi</supported-locale>
-    <supported-locale>lt</supported-locale>
-    <supported-locale>no</supported-locale>
-    <supported-locale>zh-TW</supported-locale>
-    <supported-locale>cs</supported-locale>
-    <supported-locale>uk</supported-locale>
-    <supported-locale>fa</supported-locale>
-    <supported-locale>el</supported-locale>
-    <supported-locale>ro</supported-locale>
-    <supported-locale>pl</supported-locale>
-    <supported-locale>ca</supported-locale>
-    <supported-locale>in</supported-locale>
-    <supported-locale>fil</supported-locale>
-    <script>
-      <path>/js/I18NMessage.js</path>
-      <resource-bundle>locale.portal</resource-bundle>
-    </script>
   </module>
 
 </gatein-resources>
