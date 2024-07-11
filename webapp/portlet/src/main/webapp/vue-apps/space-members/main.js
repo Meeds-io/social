@@ -16,7 +16,7 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 const lang = eXo && eXo.env.portal.language || 'en';
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.PeopleListApplication-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`;
 
 const appId = 'spaceMembersApplication';
 
