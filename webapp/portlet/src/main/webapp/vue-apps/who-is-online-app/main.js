@@ -4,7 +4,7 @@ import './components/initComponents.js';
 const lang = `${Vue.prototype.$spacesConstants.LANG}`;
 
 // should expose the locale ressources as REST API
-const url = `${Vue.prototype.$spacesConstants.PORTAL}/${Vue.prototype.$spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.whoisonline.whoisonline-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.whoisonline.whoisonline?lang=${lang}`;
 
 // get overrided components if exists
 if (extensionRegistry) {
