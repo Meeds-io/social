@@ -116,12 +116,12 @@ if (eXo.env.portal.userIdentityId) {
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.social.Webui-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.commons.Commons-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.UserPopup-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.SpacesListApplication-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portal-${lang}.json`,
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social-portlet/i18n/locale.social.Webui?lang=${lang}`,
+  `/social-portlet/i18n/locale.commons.Commons?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.social.UserPopup?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`,
+  `/social-portlet/i18n/locale.portal?lang=${lang}`,
 ];
 
 if (!window.drawersOverlayInitialized) {

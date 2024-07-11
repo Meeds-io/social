@@ -36,8 +36,8 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 //getting language of user
 const lang = eXo?.env?.portal?.language || 'en';
 const urls = [
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`,
-  `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.PeopleListApplication-${lang}.json`
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`
 ];
 
 export function init(applicationId, settings) {

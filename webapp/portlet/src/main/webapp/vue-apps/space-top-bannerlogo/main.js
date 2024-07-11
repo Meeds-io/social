@@ -11,7 +11,7 @@ if (extensionRegistry) {
 const vuetify = Vue.prototype.vuetifyOptions;
 
 const lang = eXo && eXo.env.portal.language || 'en';
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 let popover;
 export function init(params) {
