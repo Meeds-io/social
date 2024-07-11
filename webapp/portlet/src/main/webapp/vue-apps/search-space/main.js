@@ -10,7 +10,7 @@ const appId = 'SpaceSearchDrawers';
 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
-const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`];
+const urls = [`/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`];
 exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
   Vue.createApp({
     template: '<space-search-drawers />',
