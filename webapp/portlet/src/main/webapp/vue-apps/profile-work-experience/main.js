@@ -19,7 +19,7 @@ const appId = 'ProfileWorkExperience';
 const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
 //should expose the locale ressources as REST API 
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.social.ProfileWorkExperience-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.social.ProfileWorkExperience?lang=${lang}`;
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {

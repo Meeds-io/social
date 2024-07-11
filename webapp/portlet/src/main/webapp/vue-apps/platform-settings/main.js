@@ -31,7 +31,7 @@ if (extensionRegistry) {
 
 const appId = 'platformSettings';
 const lang = window?.eXo?.env?.portal?.language || 'en';
-const i18NUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.PlatformSettings-${lang}.json`;
+const i18NUrl = `/social-portlet/i18n/locale.portlet.PlatformSettings?lang=${lang}`;
 
 export function init(url) {
   exoi18n.loadLanguageAsync(lang, i18NUrl).then(i18n => {

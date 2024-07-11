@@ -31,7 +31,7 @@ if (extensionRegistry) {
 Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
 
 const lang = eXo && eXo.env && eXo.env.portal && eXo.env.portal.language || 'en';
-const url = `${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portal.HamburgerMenu-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portal.HamburgerMenu?lang=${lang}`;
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
