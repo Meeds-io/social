@@ -108,7 +108,7 @@ export default {
 
     const lang = eXo.env.portal.language;
     const basePath = `${eXo.env.portal.context}/${eXo.env.portal.rest}`;
-    const urls = [`${eXo.env.portal.context}/${eXo.env.portal.rest}/i18n/bundle/locale.portlet.Portlets-${lang}.json`];
+    const urls = [`/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`];
     if (this.connectors && this.connectors.length) {
       this.connectors.forEach(connector => {
         if (connector.i18nBundle) {
