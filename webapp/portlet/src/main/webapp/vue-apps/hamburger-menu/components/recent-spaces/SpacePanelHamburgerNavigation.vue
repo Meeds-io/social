@@ -34,7 +34,7 @@
           class="fas fa-arrow-right"
           small />
       </v-list-item-icon>
-      <v-list-item class="width-min-content text-truncate pt-3">
+      <v-list-item class="width-min-content pt-3">
         <v-list-item-avatar
           class="spaceAvatar mt-0 mb-0 align-self-start"
           :width="avatarWidth"
@@ -44,7 +44,7 @@
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <a :href="spaceURL" class="font-weight-bold text-truncate primary--text mb-2">{{ spaceDisplayName }}</a>
+          <a :href="spaceURL" class="font-weight-bold text-truncate-2 primary--text mb-2">{{ spaceDisplayName }}</a>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
