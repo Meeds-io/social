@@ -16,11 +16,6 @@
  */
 package org.exoplatform.social.core.jpa.test;
 
-import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnectorTest;
-import org.exoplatform.social.core.listeners.ManagerPropertySettingUpdatedListenerTest;
-import org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslationTest;
-import org.exoplatform.social.core.utils.MentionUtilsTest;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -31,6 +26,9 @@ import org.exoplatform.social.attachment.AttachmentServiceTest;
 import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
 import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
+import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnectorTest;
+import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnectorTest;
+import org.exoplatform.social.core.jpa.search.ProfileSearchConnectorTest;
 import org.exoplatform.social.core.jpa.storage.ActivityManagerRDBMSTest;
 import org.exoplatform.social.core.jpa.storage.IdentityStorageTest;
 import org.exoplatform.social.core.jpa.storage.ProfileLabelStorageTest;
@@ -49,10 +47,11 @@ import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAOTest;
 import org.exoplatform.social.core.listeners.ActivityMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ActivityTagMetadataListenerTest;
+import org.exoplatform.social.core.listeners.ManagerPropertySettingUpdatedListenerTest;
 import org.exoplatform.social.core.manager.ActivityManagerTest;
 import org.exoplatform.social.core.manager.IdentityManagerTest;
 import org.exoplatform.social.core.manager.RelationshipManagerTest;
-import org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImplTest;
+import org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslationTest;
 import org.exoplatform.social.core.processor.AttachmentActivityProcessorTest;
 import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
 import org.exoplatform.social.core.processor.MetadataActivityProcessorTest;
@@ -67,11 +66,11 @@ import org.exoplatform.social.core.space.SpaceLifeCycleTest;
 import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
 import org.exoplatform.social.core.space.spi.SpaceTemplateServiceTest;
+import org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImplTest;
+import org.exoplatform.social.core.utils.MentionUtilsTest;
 import org.exoplatform.social.metadata.MetadataServiceTest;
 import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
-import org.exoplatform.social.core.jpa.search.ProfileSearchConnectorTest;
-import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnectorTest;
 
 import io.meeds.social.cms.service.CMSServiceTest;
 import io.meeds.social.core.richeditor.RichEditorConfigurationServiceTest;

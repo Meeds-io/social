@@ -29,11 +29,10 @@ import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.file.services.FileStorageException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.attachment.model.ObjectAttachmentId;
 import org.exoplatform.social.common.Utils;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 
 public class FileAttachmentStorage {
 
@@ -94,9 +93,7 @@ public class FileAttachmentStorage {
     return null;
   }
 
-  public InputStream getAttachmentInputStream(ObjectAttachmentId attachmentId,
-                                              String imageDimensions,
-                                              Identity userIdentity) throws IOException {
+  public InputStream getAttachmentInputStream(ObjectAttachmentId attachmentId, String imageDimensions) throws IOException {
     long fileId = Long.parseLong(attachmentId.getFileId());
     FileInfo fileInfo = fileService.getFileInfo(fileId);
     if (fileInfo == null) {
@@ -112,7 +109,6 @@ public class FileAttachmentStorage {
       int[] dimension = Utils.parseDimension(imageDimensions);
       try {
         FileItem imageFileItem = imageThumbnailService.getOrCreateThumbnail(fileItem,
-                                                                            userIdentity,
                                                                             dimension[0],
                                                                             dimension[1]);
         return imageFileItem.getAsStream();
