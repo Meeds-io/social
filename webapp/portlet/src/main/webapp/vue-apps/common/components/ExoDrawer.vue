@@ -32,7 +32,7 @@
                   </v-icon>
                 </v-btn>
               </v-list-item-action>
-              <v-list-item-content class="drawerTitle d-inline align-start text-header-title text-truncate">
+              <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
                 <slot name="title"></slot>
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end d-flex flex-row">
