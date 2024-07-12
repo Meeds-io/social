@@ -68,6 +68,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -87,7 +88,6 @@ import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestProperties;
@@ -581,7 +581,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
           byte[] avatarContent = null;
           if(identityManager.getAvatarFile(identity) != null) {
             avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                                                                       identity,
                                                                        dimension[0],
                                                                        dimension[1])
                                                  .getAsByte();
