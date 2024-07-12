@@ -45,6 +45,7 @@
     fallbackLocale: 'en',
     messages: i18nMessages,
   });
+  window.vueI18nMessages = i18n.messages?.[eXo.env.portal.language];
 
   /**
    * Load translated strings from the given URLs and for the given language

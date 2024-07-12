@@ -40,8 +40,8 @@
   </component>
 
   <component>
-    <key>org.exoplatform.social.metadata.thumbnail.ImageThumbnailService</key>
-    <type>org.exoplatform.social.core.metadata.thumbnail.ImageThumbnailServiceImpl</type>
+    <key>org.exoplatform.services.thumbnail.ImageThumbnailService</key>
+    <type>org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImpl</type>
   </component>
 
   <component>

@@ -49,17 +49,17 @@
                 :src="`${logoPath}&size=60x60`" />
             </v-list-item-avatar>
             <v-list-item-content class="pb-0 pt-0">
-                <v-tooltip bottom>
-                  <template #activator="{ on, attrs }">
-                    <span
-                      v-on="on"
-                      v-bind="attrs"
-                      class="primary--text text--darken-3 font-weight-bold text-truncate-2">
-                      {{ logoTitle }}
-                    </span>
-                  </template>
-                  <span>{{ logoTitle }}</span>
-                </v-tooltip>
+              <v-tooltip bottom>
+                <template #activator="{ on, attrs }">
+                  <span
+                    v-on="on"
+                    v-bind="attrs"
+                    class="primary--text text--darken-3 font-weight-bold text-truncate-2">
+                    {{ logoTitle }}
+                  </span>
+                </template>
+                <span>{{ logoTitle }}</span>
+              </v-tooltip>
               <v-list-item-subtitle>
                 {{ membersNumber }} {{ $t('space.logo.banner.popover.members') }}
               </v-list-item-subtitle>
