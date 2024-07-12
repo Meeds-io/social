@@ -16,8 +16,9 @@ export function getUploadProgress(uploadId) {
         throw new Error('Upload error');
       }
       return data[uploadId].percent;
+    } else {
+      throw new Error('Uploaded resource not found');
     }
-    return 0;
   });
 }
 

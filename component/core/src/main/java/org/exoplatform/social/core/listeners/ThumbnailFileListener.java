@@ -18,7 +18,7 @@ package org.exoplatform.social.core.listeners;
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.Listener;
-import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
 
 public class ThumbnailFileListener extends Listener<FileInfo, Object> {
 
