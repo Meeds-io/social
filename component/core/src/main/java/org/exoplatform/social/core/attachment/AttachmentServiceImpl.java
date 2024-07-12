@@ -115,8 +115,9 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                                                                    metadataObject);
     ObjectAttachmentOperationReport report = null;
     List<FileAttachmentObject> remainingFiles =
-                                              CollectionUtils.isEmpty(attachmentList.getAttachedFiles()) ? Collections.emptyList()
-                                                                                                         : attachmentList.getAttachedFiles();
+                                              CollectionUtils.isEmpty(attachmentList.getAttachedFiles()) ?
+                                                                                                         Collections.emptyList() :
+                                                                                                         attachmentList.getAttachedFiles();
     if (CollectionUtils.isNotEmpty(existingAttachments)) {
 
       List<String> remainingFileIds = remainingFiles.stream().map(file -> file.getId()).distinct().toList();
@@ -281,15 +282,26 @@ public class AttachmentServiceImpl implements AttachmentService {
                                               String objectId,
                                               String fileId,
                                               String imageDimensions,
-                                              Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException,
+                                              Identity userAclIdentity) throws ObjectNotFoundException,
+                                                                        IllegalAccessException,
                                                                         IOException {
-    org.exoplatform.social.core.identity.model.Identity userIdentity = checkAccessPermission(objectType,
-                                                                                             objectId,
-                                                                                             fileId,
-                                                                                             userAclIdentity);
+    if (objectType == null) {
+      throw new IllegalArgumentException("objectType is mandatory");
+    }
+    if (objectId == null) {
+      throw new IllegalArgumentException("objectId is mandatory");
+    }
+    if (fileId == null) {
+      throw new IllegalArgumentException("fileId is mandatory");
+    }
+    if (!hasAccessPermission(userAclIdentity, objectType, objectId)) {
+      throw new IllegalAccessException(String.format("User %s doesn't have enough permissions to get attached files on object %s/%s",
+                                                     userAclIdentity.getUserId(),
+                                                     objectType,
+                                                     objectId));
+    }
     return attachmentStorage.getAttachmentInputStream(new ObjectAttachmentId(fileId, objectType, objectId),
-                                                      imageDimensions,
-                                                      userIdentity);
+                                                      imageDimensions);
   }
 
   @Override
@@ -316,7 +328,8 @@ public class AttachmentServiceImpl implements AttachmentService {
     return checkAccessPermission(objectType, objectId, userAclIdentity);
   }
 
-  private org.exoplatform.social.core.identity.model.Identity checkAccessPermission(String objectType, String objectId,
+  private org.exoplatform.social.core.identity.model.Identity checkAccessPermission(String objectType,
+                                                                                    String objectId,
                                                                                     Identity userAclIdentity) throws ObjectNotFoundException,
                                                                                                               IllegalAccessException {
     if (StringUtils.isBlank(objectType)) {
@@ -367,8 +380,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     if (!hasEditPermission(userAclIdentity, objectType, objectId)) {
-      throw new IllegalAccessException("User " + userAclIdentity.getUserId()
-          + " doesn't have enough permissions to update file attachments of object " + objectType + "/" + objectId);
+      throw new IllegalAccessException(String.format("User %s doesn't have enough permissions to update file attachments of object %s/%s",
+                                                     userAclIdentity.getUserId(),
+                                                     objectType,
+                                                     objectId));
     }
   }
 
@@ -436,7 +451,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                 String objectId,
                                 String parentObjectId,
                                 long userIdentityId,
-                                Map<String, String> properties) throws ObjectNotFoundException, ObjectAlreadyExistsException  {
+                                Map<String, String> properties) throws ObjectNotFoundException, ObjectAlreadyExistsException {
     MetadataKey metadataKey = null;
     metadataKey = new MetadataKey(METADATA_TYPE.getName(), fileId, getAudienceId(objectType, objectId));
     MetadataObject object = new MetadataObject(objectType,
@@ -535,8 +550,10 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   private String getUserName(long userIdentityId) {
     org.exoplatform.social.core.identity.model.Identity identity =
-                                                                 userIdentityId > 0 ? identityManager.getIdentity(String.valueOf(userIdentityId))
-                                                                                    : null;
+                                                                 userIdentityId
+                                                                     > 0 ?
+                                                                         identityManager.getIdentity(String.valueOf(userIdentityId)) :
+                                                                         null;
     return identity == null ? null : identity.getRemoteId();
   }
 

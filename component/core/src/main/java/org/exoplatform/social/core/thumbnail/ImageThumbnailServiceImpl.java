@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.core.metadata.thumbnail;
+package org.exoplatform.social.core.thumbnail;
 
 import org.apache.commons.io.IOUtils;
 import org.exoplatform.commons.file.model.FileInfo;
@@ -23,12 +23,11 @@ import org.exoplatform.commons.file.services.FileStorageException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.thumbnail.ImageResizeService;
-import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataType;
-import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
 
 import java.io.ByteArrayInputStream;
@@ -69,36 +68,50 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
    * {@inheritDoc}
    */
   @Override
-  public FileItem getOrCreateThumbnail(FileItem file, Identity identity, int width, int height) throws Exception {
+  public FileItem getOrCreateThumbnail(FileItem file, int width, int height) throws Exception {
+    return getOrCreateThumbnail(null, file, width, height);
+  }
+
+  @Override
+  public FileItem getOrCreateThumbnail(ImageResizeService resizeSupplier,
+                                       FileItem file,
+                                       int width,
+                                       int height) throws Exception {
     if (file == null) {
       throw new IllegalArgumentException("file argument is mandatory");
     }
     if (width == 0 && height == 0) {
       return file;
     }
+    if (resizeSupplier == null) {
+      resizeSupplier = imageResizeService;
+    }
     FileInfo fileInfo = file.getFileInfo();
     ThumbnailObject thumbnailObject = new ThumbnailObject(THUMBNAIL_OBJECT_TYPE, Long.toString(fileInfo.getId()));
-    List<MetadataItem> metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(THUMBNAIL_METADATA_TYPE.getName(),
+    List<MetadataItem> metadataItemList =
+                                        metadataService.getMetadataItemsByMetadataTypeAndObject(THUMBNAIL_METADATA_TYPE.getName(),
                                                                                                 thumbnailObject);
     List<MetadataItem> items = metadataItemList.stream()
                                                .filter(metadataItem -> metadataItem.getProperties() != null
-                                                   && metadataItem.getProperties()
-                                                                  .get(THUMBNAIL_WIDTH_PROPERTY)
-                                                                  .equals(String.valueOf(width))
-                                                   && metadataItem.getProperties()
-                                                                  .get(THUMBNAIL_HEIGHT_PROPERTY)
-                                                                  .equals(String.valueOf(height)))
+                                                                       && metadataItem.getProperties()
+                                                                                      .get(THUMBNAIL_WIDTH_PROPERTY)
+                                                                                      .equals(String.valueOf(width))
+                                                                       && metadataItem.getProperties()
+                                                                                      .get(THUMBNAIL_HEIGHT_PROPERTY)
+                                                                                      .equals(String.valueOf(height)))
                                                .toList();
     if (!items.isEmpty()) {
       long fileId = Long.parseLong(items.get(0).getParentObjectId());
       try {
         return fileService.getFile(fileId);
       } catch (FileStorageException e) {
-        LOG.warn("Error while getting thumbnail for image of identity {}, original Image will be returned", identity.getId(), e.getMessage());
+        LOG.warn("Error while getting thumbnail for image with file Id {}, original Image will be returned",
+                 fileId,
+                 e.getMessage());
         return file;
       }
     } else {
-      byte[] imageContent = imageResizeService.scaleImage(IOUtils.toByteArray(file.getAsStream()), width, height, false, false);
+      byte[] imageContent = resizeSupplier.scaleImage(IOUtils.toByteArray(file.getAsStream()), width, height, false, false);
       FileItem thumbnail = new FileItem(null,
                                         fileInfo.getName(),
                                         fileInfo.getMimetype(),
@@ -117,7 +130,7 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
       Map<String, String> properties = new HashMap<>();
       properties.put(THUMBNAIL_WIDTH_PROPERTY, String.valueOf(width));
       properties.put(THUMBNAIL_HEIGHT_PROPERTY, String.valueOf(height));
-      metadataService.createMetadataItem(thumbnailMetadataObject, metadataKey, properties, Long.parseLong(identity.getId()));
+      metadataService.createMetadataItem(thumbnailMetadataObject, metadataKey, properties);
       return thumbnailFileItem;
     }
   }
