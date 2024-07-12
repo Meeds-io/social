@@ -298,26 +298,24 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
   public void testGetAttachmentInputStream() throws Exception { // NOSONAR
     String fileId = createAttachment(USERNAME);
-    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+    Identity userAclIdentity = startSessionAndRegisterAs(USERNAME);
 
-    assertThrows(IllegalArgumentException.class,
-                 () -> attachmentService.getAttachmentInputStream(null, objectId, fileId, "0x0", userAcl));
-    assertThrows(IllegalArgumentException.class,
-                 () -> attachmentService.getAttachmentInputStream(OBJECT_TYPE, null, fileId, "0x0", userAcl));
-    assertThrows(IllegalArgumentException.class,
-                 () -> attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, fileId, "0x0", null));
-    assertThrows(IllegalArgumentException.class,
-                 () -> attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, null, "0x0", userAcl));
-    hasEditPermission.set(true);
     assertThrows(IllegalAccessException.class,
-                 () -> attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, fileId, null, userAcl));
+                 () -> attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, fileId, "0x0", userAclIdentity));
+    hasViewPermission.set(true);
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.getAttachmentInputStream(null, objectId, fileId, "0x0", userAclIdentity));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.getAttachmentInputStream(OBJECT_TYPE, null, fileId, "0x0", userAclIdentity));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, null, "0x0", userAclIdentity));
     hasEditPermission.set(false);
     hasViewPermission.set(true);
 
-    try (InputStream inputStream = attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, fileId, "0x0", userAcl)) {
+    try (InputStream inputStream = attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, fileId, "0x0", userAclIdentity)) {
       assertNotNull(inputStream);
     }
-    try (InputStream inputStream = attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, fileId, null, userAcl)) {
+    try (InputStream inputStream = attachmentService.getAttachmentInputStream(OBJECT_TYPE, objectId, fileId, null, userAclIdentity)) {
       assertNotNull(inputStream);
     }
   }

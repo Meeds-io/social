@@ -58,6 +58,7 @@ import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -78,7 +79,6 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.IdentityStorageException;
-import org.exoplatform.social.metadata.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.rest.api.*;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
@@ -704,7 +704,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           try {
             if(identityManager.getAvatarFile(identity) != null) {
               avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                              identity,
                               dimension[0],
                               dimension[1])
                       .getAsByte();
