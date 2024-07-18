@@ -93,7 +93,7 @@
       <template v-if="!isMobile" #close="{toggle}">
         <v-btn
           icon
-          @click="toggle">
+          @click="dismiss(toggle)">
           <v-icon size="16" class="icon-default-color">fa-times</v-icon>
         </v-btn>
       </template>
@@ -111,6 +111,7 @@ export default {
     alertType: null,
     alertLink: null,
     alertLinkCallback: null,
+    alertDismissCallback: null,
     alertLinkIcon: null,
     alertLinkText: null,
     alertLinkTarget: null,
@@ -188,16 +189,19 @@ export default {
       this.closeAlert();
     });
 
-    this.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip) => {
+    this.$root.$on('alert-message-object', alertObj => this.openAlert(alertObj));
+
+    this.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
       this.openAlert({
         alertType: type,
         alertMessage: message,
         alertLinkCallback: linkCallback,
         alertLinkIcon: linkIcon,
         alertLinkTooltip: linkTooltip,
+        alertDismissCallback: dismissCallback,
       });
     });
-    this.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip) => {
+    this.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
       this.openAlert({
         useHtml: true,
         alertType: type,
@@ -205,9 +209,10 @@ export default {
         alertLinkCallback: linkCallback,
         alertLinkIcon: linkIcon,
         alertLinkTooltip: linkTooltip,
+        alertDismissCallback: dismissCallback,
       });
     });
-    this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip) => {
+    this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
       this.openAlert({
         confeti: true,
         useHtml: true,
@@ -216,6 +221,7 @@ export default {
         alertLinkCallback: linkCallback,
         alertLinkIcon: linkIcon,
         alertLinkTooltip: linkTooltip,
+        alertDismissCallback: dismissCallback,
       });
     });
     this.$root.$on('close-alert-message', this.closeAlert);
@@ -247,6 +253,7 @@ export default {
         this.alertType = params.alertType || 'info';
         this.alertLinkTooltip = params.alertLinkTooltip || null;
         this.alertLinkCallback = params.alertLinkCallback || null;
+        this.alertDismissCallback = params.alertDismissCallback || null;
         this.timeoutInstance = window.setTimeout(() => this.snackbar = true, 500);
       });
     },
@@ -298,10 +305,17 @@ export default {
     moveEnd() {
       const confirm = Math.abs(this.left) > (window.innerWidth / 4);
       if (confirm) {
-        this.snackbar = false;
+        this.dismiss();
       } else {
         this.reset();
       }
+    },
+    dismiss(toogle) {
+      this.alertDismissCallback?.();
+      if (toogle) {
+        toogle();
+      }
+      this.snackbar = false;
     },
     moveSwipe(event) {
       if (!this.absolute) {
