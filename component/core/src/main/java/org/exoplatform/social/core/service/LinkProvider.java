@@ -51,6 +51,12 @@ import org.exoplatform.web.security.security.TokenServiceInitializationException
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
+import io.meeds.portal.permlink.model.PermanentLinkObject;
+import io.meeds.portal.permlink.service.PermanentLinkService;
+import io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin;
+
+import lombok.SneakyThrows;
+
 /**
  * Builds and provides default links and links of users, spaces and activities.
  * Links are built basing on provided information as name or Id of the target user or space.
@@ -206,7 +212,7 @@ public class LinkProvider {
                .append(">")
                .append(StringEscapeUtils.escapeHtml4(identity.getProfile().getFullName()));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
-      profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(new Locale(lang), "external.label.tag")).append(")").append("</span>");
+      profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
     }
     return profileLink.append("</a>").toString();
   }
@@ -650,39 +656,36 @@ public class LinkProvider {
       return null;
     }
     boolean isDefault = bannerFileId == 0 ;
-    String BannerParam = !isDefault ? "&bannerId=" + bannerFileId : " ";
+    String bannerParam = isDefault ? " " : "&bannerId=" + bannerFileId;
     return new StringBuilder(getBaseURLSiteRest()).append("/")
                                                   .append(siteName)
                                                   .append("/")
                                                   .append(ATTACHMENT_BANNER_TYPE)
                                                   .append("?isDefault=")
                                                   .append(isDefault)
-                                                  .append(BannerParam)
+                                                  .append(bannerParam)
                                                   .toString();
 
   }
 
+  @SneakyThrows
   private static String getGroupUrl(Identity identity, String role) {
     if (!identity.isSpace()) {
       return "#";
+    } else {
+      String configuredDomainUrl;
+      try {
+        configuredDomainUrl = CommonsUtils.getCurrentDomain();
+      } catch (Exception e) {
+        configuredDomainUrl = "";
+      }
+
+      PermanentLinkObject object = new PermanentLinkObject(SpacePermanentLinkPlugin.OBJECT_TYPE, identity.getRemoteId());
+      object.addParameter(SpacePermanentLinkPlugin.APPLICATION_URI, "members");
+      object.addParameter(SpacePermanentLinkPlugin.URI_HASH, role);
+      PermanentLinkService permanentLinkService = ExoContainerContext.getService(PermanentLinkService.class);
+      return configuredDomainUrl + permanentLinkService.getLink(object);
     }
-    Space space = getSpaceService().getSpaceByPrettyName(identity.getRemoteId());
-    String configuredDomainUrl;
-    try {
-      configuredDomainUrl = CommonsUtils.getCurrentDomain();
-    } catch (Exception e) {
-      configuredDomainUrl = null;
-    }
-    return new StringBuilder().append((configuredDomainUrl != null) ? configuredDomainUrl : "")
-                              .append("/")
-                              .append(getPortalName(null))
-                              .append("/g/")
-                              .append(space.getGroupId().replace("/", ":"))
-                              .append("/")
-                              .append(space.getPrettyName())
-                              .append("/members#")
-                              .append(role)
-                              .toString();
   }
 
   private static String getRoleIcon(String role) {

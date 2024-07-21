@@ -40,6 +40,7 @@
   <import>war:/conf/social-extension/social/websocket-configuration.xml</import>
   <import>war:/conf/social-extension/social/metadata-plugins-configuration.xml</import>
   <import>war:/conf/social-extension/social/ckeditor-configuration.xml</import>
+  <import>war:/conf/social-extension/social/permlink-configuration.xml</import>
 
   <import>war:/conf/social-extension/social/notification-configuration.xml</import>
   <import>war:/conf/social-extension/social/notification-plugins-configuration.xml</import>
