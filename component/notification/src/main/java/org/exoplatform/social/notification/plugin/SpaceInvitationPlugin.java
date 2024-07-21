@@ -20,6 +20,7 @@ import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.space.model.Space;
 
 public class SpaceInvitationPlugin extends BaseNotificationPlugin {
@@ -40,10 +41,12 @@ public class SpaceInvitationPlugin extends BaseNotificationPlugin {
 
     Space space = ctx.value(SocialNotificationUtils.SPACE);
     String userId = ctx.value(SocialNotificationUtils.REMOTE_ID);
+    Profile senderProfile = ctx.value(SocialNotificationUtils.PROFILE);
     String senderName = ctx.value(SocialNotificationUtils.SENDER);
     return NotificationInfo.instance()
                            .key(getId())
                            .setSpaceId(Long.parseLong(space.getId()))
+                           .with(SocialNotificationUtils.PROFILE.getKey(), senderProfile.getIdentity().getRemoteId())
                            .with(SocialNotificationUtils.SENDER.getKey(), senderName)
                            .with(SocialNotificationUtils.PRETTY_NAME.getKey(), space.getPrettyName())
                            .with(SocialNotificationUtils.SPACE_ID.getKey(), space.getId())
