@@ -148,7 +148,6 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
         notification.setRead(false);
         notification.setOnPopOver(true);
         getWebNotificationService().save(notification);
-        WebNotificationSender.sendJsonMessage(notification.getTo(), new MessageInfo());
       } catch (Exception e) {
         LOG.error("Can not update space invitation notification.", e.getMessage());
       }
