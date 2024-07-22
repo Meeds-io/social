@@ -129,7 +129,6 @@ public class RelationshipNotificationImpl extends RelationshipListenerPlugin {
         notification.setRead(false);
         notification.setOnPopOver(true);
         getWebNotificationService().save(notification);
-        WebNotificationSender.sendJsonMessage(notification.getTo(), new MessageInfo());
       } catch (Exception e) {
         LOG.error("Can not update relationship notification.", e.getMessage());
       }
