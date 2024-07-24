@@ -1,38 +1,36 @@
 <template>
   <v-app>
-    <template v-if="displayed">
-      <user-setting-security-window
-        v-if="displayDetails"
-        @back="closeSecurityDetail" />
-      <v-card
-        v-else
-        class="application-body"
-        flat>
-        <v-list>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title class="text-title">
-                {{ $t('UserSettings.security') }}
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <span
-                :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
-                <v-btn
-                  :disabled="!allowedToChangePassword"
-                  small
-                  icon
-                  @click="openSecurityDetail">
-                  <v-icon size="24" class="icon-default-color">
-                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
-                  </v-icon>
-                </v-btn>
-              </span>
-            </v-list-item-action>
-          </v-list-item>
-        </v-list>
-      </v-card>
-    </template>
+    <user-setting-security-window
+      v-if="displayDetails"
+      @back="closeSecurityDetail" />
+    <v-card
+      v-else
+      class="application-body"
+      flat>
+      <v-list>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title class="text-title">
+              {{ $t('UserSettings.security') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <span
+              :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
+              <v-btn
+                :disabled="!allowedToChangePassword"
+                small
+                icon
+                @click="openSecurityDetail">
+                <v-icon size="24" class="icon-default-color">
+                  {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                </v-icon>
+              </v-btn>
+            </span>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+    </v-card>
   </v-app>
 </template>
 
@@ -48,7 +46,10 @@ export default {
   }),
   watch: {
     displayed() {
-      this.$nextTick().then(() => this.$root.$emit('application-cache'));
+      if (this.displayed) {
+        this.$nextTick().then(() => this.$root.$emit('application-cache'));
+      }
+      this.$root.$updateApplicationVisibility(this.displayed);
     },
   },
   created() {
@@ -65,6 +66,7 @@ export default {
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$applicationLoaded());
+    this.$root.$updateApplicationVisibility(this.displayed);
   },
   methods: {
     openSecurityDetail() {
