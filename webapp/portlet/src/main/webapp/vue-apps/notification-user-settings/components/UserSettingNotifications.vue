@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="displayed">
+  <v-app>
     <user-setting-notifications-window
       v-if="displayDetails"
       :settings="notificationSettings"
@@ -85,6 +85,14 @@ export default {
     displayDetails: false,
     displayed: true,
   }),
+  watch: {
+    displayed() {
+      if (this.displayed) {
+        this.$nextTick().then(() => this.$root.$emit('application-cache'));
+      }
+      this.$root.$updateApplicationVisibility(this.displayed);
+    },
+  },
   created() {
     document.addEventListener('hideSettingsApps', (event) => {
       if (event && event.detail && this.id !== event.detail) {

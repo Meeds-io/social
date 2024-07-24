@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="displayed">
+  <v-app>
     <div class="application-body">
       <v-list two-line>
         <v-list-item>
@@ -48,6 +48,14 @@ export default {
     languageLabel() {
       const language = this.languages.find(lang => lang.value === this.language);
       return language && language.text;
+    },
+  },
+  watch: {
+    displayed() {
+      if (this.displayed) {
+        this.$nextTick().then(() => this.$root.$emit('application-cache'));
+      }
+      this.$root.$updateApplicationVisibility(this.displayed);
     },
   },
   created() {
