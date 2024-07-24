@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="displayed">
+  <v-app>
     <div class="application-body">
       <v-list two-line>
         <v-list-item>
@@ -50,6 +50,14 @@ export default {
       return language && language.text;
     },
   },
+  watch: {
+    displayed() {
+      if (this.displayed) {
+        this.$nextTick().then(() => this.$root.$emit('application-cache'));
+      }
+      this.$root.$updateApplicationVisibility(this.displayed);
+    },
+  },
   created() {
     this.languages = this.languages.sort((a, b) => a.text.localeCompare(b.text));
     document.addEventListener('hideSettingsApps', (event) => {
@@ -61,6 +69,7 @@ export default {
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$applicationLoaded());
+    this.$root.$updateApplicationVisibility(this.displayed);
   },
   methods: {
     openDrawer() {
