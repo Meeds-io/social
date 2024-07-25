@@ -54,7 +54,7 @@
             :title="iconTitle"
             class="my-auto pt-2px"
             icon
-            @click="defaultLanguageValue = null">
+            @click="isI18N = false">
             <v-icon :color="iconColor">far fa-times-circle</v-icon>
           </v-btn>
         </div>
@@ -185,16 +185,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    verifyI18n: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     defaultLanguageValue: null,
     valuesPerLanguage: {},
     translationConfiguration: null,
+    isI18N: false,
   }),
   computed: {
-    isI18N() {
-      return this.$te(this.defaultLanguageValue);
-    },
     noRulesValidation() {
       return !this.defaultLanguageValue || !this.rules?.length;
     },
@@ -233,6 +235,11 @@ export default {
         this.defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale] || '';
       },
     },
+    isI18N(newVal, oldVal) {
+      if (oldVal && !newVal) {
+        this.defaultLanguageValue = null;
+      }
+    },
     defaultLanguageValue() {
       if (this.defaultLocale && (!this.defaultLanguageValue || this.defaultLanguageValue !== this.valuesPerLanguage[this.defaultLocale])) {
         this.updateTranslationMap();
@@ -261,6 +268,7 @@ export default {
       } else {
         this.defaultLanguageValue = this.fieldValue || this.valuesPerLanguage[this.defaultLocale] || '';
       }
+      this.isI18N = this.verifyI18n && this.defaultLanguageValue && this.$te(this.defaultLanguageValue) || false;
       this.updateTranslationMap();
     },
     updateTranslationMap() {
