@@ -185,16 +185,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    verifyI18n: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     defaultLanguageValue: null,
     valuesPerLanguage: {},
     translationConfiguration: null,
+    isI18N: false,
   }),
   computed: {
-    isI18N() {
-      return this.$te(this.defaultLanguageValue);
-    },
     noRulesValidation() {
       return !this.defaultLanguageValue || !this.rules?.length;
     },
@@ -261,6 +263,7 @@ export default {
       } else {
         this.defaultLanguageValue = this.fieldValue || this.valuesPerLanguage[this.defaultLocale] || '';
       }
+      this.isI18N = this.verifyI18n && this.defaultLanguageValue && this.$te(this.defaultLanguageValue);
       this.updateTranslationMap();
     },
     updateTranslationMap() {
