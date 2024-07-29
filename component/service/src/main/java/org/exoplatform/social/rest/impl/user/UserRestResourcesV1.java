@@ -451,8 +451,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
                            @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
                            @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings,
                            @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
-                           @Parameter(description = "Whether to search for exact word or words containing it") @QueryParam("wildCardSearch") String wildcardSearch,
-                           @Parameter(description = "Whether to exclude current user from search result") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
+                           @Parameter(description = "Whether to search for exact word or words containing it") @QueryParam("wildCardSearch") String wildcardSearch) throws Exception {
 
 
     String userId;
@@ -487,10 +486,8 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
           filter.setUserType(userType);
         }
       }
-      if (excludeCurrentUser) {
-        filter.setExcludedIdentityList(Collections.singletonList(target));
-      }
       if (settings != null) {
+        filter.setExcludedIdentityList(Collections.singletonList(target));
         settings.replaceAll((key, value) -> value.trim());
       }
       filter.setProfileSettings(settings);
@@ -521,43 +518,6 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       return Response.status(HTTPStatus.INTERNAL_ERROR).entity(e.getMessage()).build();
     }
 
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
-      throw new WebApplicationException(Response.Status.FORBIDDEN);
-    }
-
-    offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
-    limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
-    Identity[] identities;
-    int totalSize = 0;
-    ProfileFilter filter = new ProfileFilter();
-    if (filterType.equals("all")) {
-      filter.setEnabled(!isDisabled);
-      if (!isDisabled) {
-        filter.setUserType(userType);
-      }
-    }
-    if (settings != null) {
-      filter.setExcludedIdentityList(Collections.singletonList(target));
-      settings.replaceAll((key, value) -> value.trim());
-    }
-    filter.setProfileSettings(settings);
-    ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
-    identities = list.load(offset, limit);
-    if (returnSize) {
-      totalSize = list.getSize();
-    }
-    List<DataEntity> profileInfos = new ArrayList<>();
-    for (Identity identity : identities) {
-      ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
-      //
-      profileInfos.add(profileInfo.getDataEntity());
-    }
-    CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
-    if (returnSize) {
-      collectionUser.setSize(totalSize);
-    }
-
-    return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
   @POST
