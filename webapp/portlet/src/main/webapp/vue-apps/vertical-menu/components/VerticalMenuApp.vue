@@ -16,7 +16,7 @@
 -->
 <template>
   <v-app>
-    <vertical-menu-content v-if="fullDisplayAllowed" extra-class="VerticalMenu" />
+    <vertical-menu-content v-if="fullDisplayAllowed" :extra-class="extraClass" />
     <template v-else>
       <vertical-menu-button />
       <vertical-menu-drawer />
@@ -28,6 +28,9 @@ export default {
   computed: {
     fullDisplayAllowed() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+    },
+    extraClass() {
+      return eXo.env.portal.orientation === 'rtl' ? 'VerticalMenu right-0' : 'VerticalMenu';
     },
   }
 };
