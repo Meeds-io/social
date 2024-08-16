@@ -505,6 +505,8 @@ export default {
               oembedParams.bgColor = data?.bgColor || 'rgb(231, 231, 231)';
               oembedParams.previewHeight = data?.height || '-';
               oembedParams.previewWidth = data?.width || '-';
+            })
+            .finally(() => {
               this.setOembedParams(oembedParams);
             });
         } else {
@@ -879,24 +881,30 @@ export default {
         });
     },
     loadImage(img) {
-      return new Promise(resolve => {
-        const canvas = document.createElement('canvas'),
-          height = canvas.height = 100,
-          width = canvas.width = 150,
-          context = canvas.getContext && canvas.getContext('2d');
-        context.imageSmoothingEnabled = true;
-        const imageElement = new Image();
-        imageElement.src = img;
-        imageElement.crossOrigin = 1;
-        imageElement.onload = () => {
-          context.drawImage(imageElement, 0, 0, width, height);
-          const imageDetail = {
-            'imgData': context.getImageData(0, 0, width, height),
-            'width': imageElement.naturalWidth,
-            'height': imageElement.naturalHeight
+      return new Promise((resolve, reject) => {
+        const height = 100;
+        const width = 150;
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.height = height;
+          canvas.width = width;
+          const context = canvas.getContext && canvas.getContext('2d');
+          context.imageSmoothingEnabled = true;
+          const imageElement = new Image();
+          imageElement.src = img;
+          imageElement.crossOrigin = 1;
+          imageElement.onload = () => {
+            context.drawImage(imageElement, 0, 0, width, height);
+            resolve({
+              'imgData': context.getImageData(0, 0, width, height),
+              'width': imageElement.naturalWidth,
+              'height': imageElement.naturalHeight
+            });
           };
-          resolve(imageDetail);
-        };
+          imageElement.onerror = e => reject(e);
+        } catch (e) {
+          reject(e);
+        }
       });
     }
   }
