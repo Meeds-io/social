@@ -73,7 +73,7 @@
             'min-width': `${minWidth}px`,
             'padding-bottom': '9px !important',
           }"
-          class="d-flex pa-2"
+          class="d-flex border-box-sizing pa-2"
           v-touch="{
             start: moveStart,
             end: moveEnd,
