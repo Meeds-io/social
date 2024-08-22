@@ -95,7 +95,6 @@
               <includes>
                 <include>portlet/ActivitySearch/Style.less</include>
                 <include>portlet/ActivityStream/Style.less</include>
-                <include>portlet/GeneralSettings/Style.less</include>
                 <include>portlet/GettingStarted/Style.less</include>
                 <include>portlet/HamburgerMenu/Style.less</include>
                 <include>portlet/IDMGroupsManagement/Style.less</include>

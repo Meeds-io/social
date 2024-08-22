@@ -13,7 +13,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.core.metadata.thumbnail;
+package org.exoplatform.social.core.thumbnail;
 
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
@@ -40,11 +40,7 @@ public class ImageThumbnailServiceImplTest extends AbstractCoreTest {
 
   private FileService               fileService;
 
-  private ImageResizeService        imageResizeService;
-
   private ImageThumbnailServiceImpl imageThumbnailService;
-
-  private IdentityManager           identityManager;
 
   private Identity                  userIdentity;
 
@@ -52,9 +48,10 @@ public class ImageThumbnailServiceImplTest extends AbstractCoreTest {
     super.setUp();
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     fileService = getContainer().getComponentInstanceOfType(FileService.class);
-    imageResizeService = getContainer().getComponentInstanceOfType(ImageResizeService.class);
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
-    imageThumbnailService = new ImageThumbnailServiceImpl(metadataService, fileService, imageResizeService);
+    imageThumbnailService = new ImageThumbnailServiceImpl(metadataService,
+                                                          fileService,
+                                                          getContainer().getComponentInstanceOfType(ImageResizeService.class));
     userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
   }
 
@@ -77,14 +74,14 @@ public class ImageThumbnailServiceImplTest extends AbstractCoreTest {
     List<MetadataItem> metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
                                                                                                   thumbnailObject);
     assertEquals(0, metadataItemList.size());
-    FileItem thumbnail = imageThumbnailService.getOrCreateThumbnail(fileThumbnail, userIdentity, 45, 45);
+    FileItem thumbnail = imageThumbnailService.getOrCreateThumbnail(fileThumbnail, 45, 45);
     assertNotNull(thumbnail);
 
     metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
             thumbnailObject);
     assertEquals(1, metadataItemList.size());
 
-    thumbnail = imageThumbnailService.getOrCreateThumbnail(fileThumbnail, userIdentity, 45, 45);
+    thumbnail = imageThumbnailService.getOrCreateThumbnail(fileThumbnail, 45, 45);
     assertNotNull(thumbnail);
     metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
             thumbnailObject);

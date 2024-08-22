@@ -12,7 +12,7 @@ if (extensionRegistry) {
 
 const appId = 'favoritesListPortlet';
 const lang = eXo.env.portal.language;
-const url = `${Vue.prototype.$spacesConstants.PORTAL}/${Vue.prototype.$spacesConstants.PORTAL_REST}/i18n/bundle/locale.portlet.Portlets-${lang}.json`;
+const url = `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 //getting locale ressources
 export function init() {
