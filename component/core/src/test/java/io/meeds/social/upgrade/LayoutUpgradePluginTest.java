@@ -31,6 +31,7 @@ import org.exoplatform.portal.config.model.Container;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.service.LayoutService;
@@ -228,4 +229,64 @@ public class LayoutUpgradePluginTest extends AbstractCoreTest {// NOSONAR
     assertEquals("test2", navNode.getState().getPageRef().getName());
   }
 
+  public void testDeleteNavigation() {
+    String navigationNodeToDelete = "node_name4";
+
+    InitParams initParams = new InitParams();
+    LayoutUpgrade layoutUpgrade = new LayoutUpgrade();
+    layoutUpgrade.setPortalType(PORTAL_TYPE);
+    layoutUpgrade.setPortalName(PORTAL_NAME);
+    layoutUpgrade.setUpdateNavigation(true);
+    layoutUpgrade.setDeleteNavigations(Collections.singletonList(navigationNodeToDelete));
+    ObjectParameter objectParam = new ObjectParameter();
+    objectParam.setObject(layoutUpgrade);
+    initParams.addParameter(objectParam);
+
+    NavigationService navigationService = getService(NavigationService.class);
+
+    NodeContext<NodeContext<Object>> navNode = navigationService.loadNode(new SiteKey(PORTAL_TYPE, PORTAL_NAME), navigationNodeToDelete);
+    assertNotNull(navNode);
+
+    LayoutUpgradePlugin layoutUpgradePlugin = new LayoutUpgradePlugin(getService(LayoutService.class),
+                                                                      getService(SettingService.class),
+                                                                      getService(UserPortalConfigService.class),
+                                                                      navigationService,
+                                                                      getService(DescriptionStorage.class),
+                                                                      initParams);
+    layoutUpgradePlugin.processUpgrade(null, null);
+
+    navNode = navigationService.loadNode(new SiteKey(PORTAL_TYPE, PORTAL_NAME), navigationNodeToDelete);
+    assertNull(navNode);
+  }
+
+  public void testHideNavigation() {
+    String navigationNodeToDelete = "node_name3";
+
+    InitParams initParams = new InitParams();
+    LayoutUpgrade layoutUpgrade = new LayoutUpgrade();
+    layoutUpgrade.setPortalType(PORTAL_TYPE);
+    layoutUpgrade.setPortalName(PORTAL_NAME);
+    layoutUpgrade.setUpdateNavigation(true);
+    layoutUpgrade.setHideNavigations(Collections.singletonList(navigationNodeToDelete));
+    ObjectParameter objectParam = new ObjectParameter();
+    objectParam.setObject(layoutUpgrade);
+    initParams.addParameter(objectParam);
+
+    NavigationService navigationService = getService(NavigationService.class);
+
+    NodeContext<NodeContext<Object>> navNode = navigationService.loadNode(new SiteKey(PORTAL_TYPE, PORTAL_NAME), navigationNodeToDelete);
+    assertNotNull(navNode);
+
+    LayoutUpgradePlugin layoutUpgradePlugin = new LayoutUpgradePlugin(getService(LayoutService.class),
+                                                                      getService(SettingService.class),
+                                                                      getService(UserPortalConfigService.class),
+                                                                      navigationService,
+                                                                      getService(DescriptionStorage.class),
+                                                                      initParams);
+    layoutUpgradePlugin.processUpgrade(null, null);
+
+    navNode = navigationService.loadNode(new SiteKey(PORTAL_TYPE, PORTAL_NAME), navigationNodeToDelete);
+    assertNotNull(navNode);
+    assertEquals(Visibility.HIDDEN, navNode.getState().getVisibility());
+  }
 }

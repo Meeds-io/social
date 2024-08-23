@@ -34,16 +34,21 @@ import org.exoplatform.portal.config.model.Page.PageSet;
 import org.exoplatform.portal.config.model.PageNavigation;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.importer.ImportMode;
 import org.exoplatform.portal.mop.importer.NavigationImporter;
 import org.exoplatform.portal.mop.importer.PageImporter;
 import org.exoplatform.portal.mop.importer.PortalConfigImporter;
+import org.exoplatform.portal.mop.navigation.NodeContext;
+import org.exoplatform.portal.mop.navigation.NodeState.Builder;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.portal.mop.storage.DescriptionStorage;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.social.upgrade.model.LayoutUpgrade;
 
 public class LayoutUpgradePlugin extends UpgradeProductPlugin {
@@ -200,34 +205,69 @@ public class LayoutUpgradePlugin extends UpgradeProductPlugin {
                                           String portalType,
                                           String portalName,
                                           PortalConfig portalConfig) {
-    String location = upgrade.getConfigPath();
-    PageNavigation pageNavigation = portalConfigService.getConfig(portalType, portalName, PageNavigation.class, location);
-    if (pageNavigation == null) {
-      LOG.info("IGNORE:: Portal navigation {}/{} wasn't found in path {}. The layout upgrade will be ignored",
-               portalType,
-               portalName,
-               location);
-      return false;
-    }
     LOG.info("Process:: Upgrade Portal navigation {}/{}", portalType, portalName);
-    Locale locale;
-    if (portalConfig.getLocale() != null) {
-      locale = new Locale(portalConfig.getLocale());
-    } else {
-      locale = Locale.ENGLISH;
-    }
-    NavigationImporter navigationImporter = new NavigationImporter(locale,
-                                                                   getImportMode(upgrade),
-                                                                   pageNavigation,
-                                                                   navigationService,
-                                                                   descriptionStorage);
     try {
-      navigationImporter.perform();
+      if (!CollectionUtils.isEmpty(upgrade.getDeleteNavigations())) {
+        upgrade.getDeleteNavigations().forEach(nodeUri -> {
+          SiteKey siteKey = new SiteKey(SiteType.valueOf(portalType.toUpperCase()), portalName);
+          NodeContext<NodeContext<Object>> node = navigationService.loadNode(siteKey, nodeUri);
+          if (node == null) {
+            LOG.warn("Node with uri '{}' in site '{}' wasn't found", nodeUri, siteKey);
+          } else {
+            LOG.info("Deleting Node with uri '{}' from site '{}'", nodeUri, siteKey);
+            deleteNavigationNode(Long.parseLong(node.getId()));
+          }
+        });
+      } else if (!CollectionUtils.isEmpty(upgrade.getHideNavigations())) {
+        upgrade.getHideNavigations().forEach(nodeUri -> {
+          SiteKey siteKey = new SiteKey(SiteType.valueOf(portalType.toUpperCase()), portalName);
+          NodeContext<NodeContext<Object>> node = navigationService.loadNode(siteKey, nodeUri);
+          if (node == null) {
+            LOG.warn("Node with uri '{}' in site '{}' wasn't found", nodeUri, siteKey);
+          } else {
+            LOG.info("Hiding Node with uri '{}' from site '{}'", nodeUri, siteKey);
+            hideNavigationNode(node);
+          }
+        });
+      } else {
+        String location = upgrade.getConfigPath();
+        PageNavigation pageNavigation = portalConfigService.getConfig(portalType, portalName, PageNavigation.class, location);
+        if (pageNavigation == null) {
+          LOG.info("IGNORE:: Portal navigation {}/{} wasn't found in path {}. The layout upgrade will be ignored",
+                   portalType,
+                   portalName,
+                   location);
+          return false;
+        }
+        Locale locale;
+        if (portalConfig.getLocale() != null) {
+          locale = Locale.forLanguageTag(portalConfig.getLocale());
+        } else {
+          locale = Locale.ENGLISH;
+        }
+        NavigationImporter navigationImporter = new NavigationImporter(locale,
+                                                                       getImportMode(upgrade),
+                                                                       pageNavigation,
+                                                                       navigationService,
+                                                                       descriptionStorage);
+        navigationImporter.perform();
+      }
       return true;
     } catch (Exception e) {
       LOG.warn("ERROR:: Upgrade Portal navigation {}/{} error. The layout upgrade will be ignored", portalType, portalName, e);
       return false;
     }
+  }
+
+  @ContainerTransactional
+  protected void hideNavigationNode(NodeContext<NodeContext<Object>> node) {
+    navigationService.updateNode(Long.parseLong(node.getId()),
+                                 new Builder(node.getState()).visibility(Visibility.HIDDEN).build());
+  }
+
+  @ContainerTransactional
+  protected void deleteNavigationNode(long nodeId) {
+    navigationService.deleteNode(nodeId);
   }
 
   private ImportMode getImportMode(LayoutUpgrade upgrade) {

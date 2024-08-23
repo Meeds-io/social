@@ -37,7 +37,7 @@
       <page-reference>portal::meeds::test1</page-reference>
     </node>
     <node>
-      <uri>node_uri</uri>
+      <uri>node_uri1</uri>
       <name>node_name1</name>
       <label>node_label</label>
       <icon>node_icon</icon>
@@ -47,7 +47,7 @@
       <page-reference>portal::meeds::test1</page-reference>
     </node>
     <node>
-      <uri>node_uri</uri>
+      <uri>node_uri2</uri>
       <name>node_name2</name>
       <label>node_label</label>
       <icon>node_icon</icon>
@@ -56,7 +56,7 @@
       <page-reference>portal::meeds::test1</page-reference>
     </node>
     <node>
-      <uri>node_uri</uri>
+      <uri>node_uri3</uri>
       <name>node_name3</name>
       <label>node_label</label>
       <icon>node_icon</icon>
@@ -65,7 +65,7 @@
       <page-reference>portal::meeds::test1</page-reference>
     </node>
     <node>
-      <uri>node_uri</uri>
+      <uri>node_uri4</uri>
       <name>node_name4</name>
       <label>node_label4</label>
       <page-reference>portal::meeds::test1</page-reference>
