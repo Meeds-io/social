@@ -45,4 +45,8 @@ public class LayoutUpgrade {
 
   private List<String> pageNames;
 
+  private List<String> deleteNavigations;
+
+  private List<String> hideNavigations;
+
 }
