@@ -64,12 +64,10 @@
           <slot name="content"></slot>
           <attachments-draggable-zone />    
         </v-flex>
-        <template v-if="$slots.footer">
-          <v-divider class="my-0" />
-          <v-flex v-if="$slots.footer" class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
-            <slot name="footer"></slot>
-          </v-flex>
-        </template>
+        <v-divider v-show="$slots.footer" class="my-0" />
+        <v-flex v-show="$slots.footer" class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
+          <slot v-if="$slots.footer" name="footer"></slot>
+        </v-flex>
         <exo-confirm-dialog
           v-if="confirmClose"
           ref="closeConfirmDialog"
