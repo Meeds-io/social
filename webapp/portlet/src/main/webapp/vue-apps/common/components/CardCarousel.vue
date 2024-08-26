@@ -66,6 +66,7 @@ export default {
     childScrollIndex: 0,
     visibleChildrenPerPage: 1,
     computing: false,
+    initialized: false,
   }),
   mounted() {
     this.scrollElement = this.$el && this.$el.children && this.$el.children.length > 1 && this.$el.children[1];
@@ -113,6 +114,10 @@ export default {
           this.visibleChildrenPerPage = parseInt(parentWidth * childrenCount / contentWidth);
           this.displayLeftArrow = this.scrollElement && childrenCount && this.scrollElement.scrollLeft > children[0].offsetLeft;
           this.displayRightArrow = this.scrollElement && (this.scrollElement.scrollWidth - this.scrollElement.offsetWidth - this.scrollElement.scrollLeft) > 5;
+          if (!this.initialized && childrenCount) {
+            this.childScrollIndex = this.visibleChildrenPerPage >= children.length ? (children.length - 1) : this.visibleChildrenPerPage;
+            this.initialized = true;
+          }
           this.computing = false;
         }, 200);
       }
