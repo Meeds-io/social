@@ -29,6 +29,7 @@ import WidgetWrapper from './components/Widget.vue';
 import HelpDrawer from './components/HelpDrawer.vue';
 import HelpLabel from './components/HelpLabel.vue';
 import HelpTooltip from './components/HelpTooltip.vue';
+import NumberInput from './components/NumberInput.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -68,6 +69,7 @@ const components = {
   'help-drawer': HelpDrawer,
   'help-label': HelpLabel,
   'help-tooltip': HelpTooltip,
+  'number-input': NumberInput,
 };
 
 for (const key in components) {
