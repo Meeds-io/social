@@ -254,10 +254,6 @@ export default {
           Object.assign(this.spaceToUpdate, space, {managers: this.spaceToUpdate.managers});
           this.spaceSaved = true;
 
-          document.dispatchEvent(new CustomEvent('spaceDetailUpdated', {
-            detail: this.spaceToUpdate,
-          }));
-
           window.setTimeout(() => {
             this.$refs.spaceFormDrawer.close();
           }, 200);
