@@ -14,13 +14,14 @@
       responseWrapper.addHeader("Link", "</portal/rest/v1/navigations/PORTAL?siteName=" + rcontext.getPortalOwner() + "&scope=children&visibility=displayed&visibility=temporal&exclude=global&expand=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
     %>
     <script type="text/javascript">
-      const topBarMenuHtml = sessionStorage.getItem('topBarMenu');
-      if (topBarMenuHtml) {
-        document.querySelector('#topBarMenu').innerHTML = topBarMenuHtml;
+      if (!window.topBarMenuLoaded) {
+        window.topBarMenuLoaded = true;
+        window.topBarMenuHtml = sessionStorage.getItem('topBarMenu');
+        if (window.topBarMenuHtml) {
+          document.querySelector('#topBarMenu').innerHTML = window.topBarMenuHtml;
+        }
+        require(['PORTLET/social-portlet/TopBarMenu'], app => app.init());
       }
-      require(['PORTLET/social-portlet/TopBarMenu'], app => {
-        app.init()
-      });
     </script>
     <% } %>
   </div>
