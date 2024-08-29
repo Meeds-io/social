@@ -35,6 +35,7 @@
           class="flex-shrink-0 px-0" 
           :href="actionUrl"
           :target="externalLink && '_blank' || '_self'"
+          height="27"
           text
           small> 
           <span class="text-font-size primary--text text-capitalize-first-letter"> 
