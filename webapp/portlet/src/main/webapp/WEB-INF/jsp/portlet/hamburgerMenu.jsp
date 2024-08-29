@@ -23,20 +23,23 @@
     <div class="v-application--wrap">
       <% if (sticky) { %>
       <script type="text/javascript">
-        if (window.innerWidth >= 1280) {
-          const siteStickyMenuHtml = sessionStorage.getItem('ParentSiteStickyMenu');
-          if (siteStickyMenuHtml) {
-            document.querySelector('#ParentSiteStickyMenu').innerHTML = siteStickyMenuHtml;
+        if (!window.siteStickyMenuLoaded) {
+          window.siteStickyMenuLoaded = true;
+          if (window.innerWidth >= 1280) {
+            window.siteStickyMenuHtml = sessionStorage.getItem('ParentSiteStickyMenu');
+            if (window.siteStickyMenuHtml) {
+              document.querySelector('#ParentSiteStickyMenu').innerHTML = window.siteStickyMenuHtml;
+            }
+          } else {
+            document.querySelector('#HamburgerNavigationMenu > .v-application--wrap').innerHTML = `
+            <a class="HamburgerNavigationMenuLink">
+              <div class="px-5 py-3">
+                <i aria-hidden="true"
+                  class="v-icon notranslate fa fa-bars theme--light"
+                  style="font-size: 24px;"></i>
+              </div>
+            </a>`;
           }
-        } else {
-          document.querySelector('#HamburgerNavigationMenu > .v-application--wrap').innerHTML = `
-          <a class="HamburgerNavigationMenuLink">
-            <div class="px-5 py-3">
-              <i aria-hidden="true"
-                class="v-icon notranslate fa fa-bars theme--light"
-                style="font-size: 24px;"></i>
-            </div>
-          </a>`;
         }
       </script>
       <% } else { %>
@@ -50,7 +53,10 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
+      if (!window.siteStickyMenuInitialized) {
+        window.siteStickyMenuInitialized = true;
+        require(['PORTLET/social-portlet/HamburgerMenu'], app => app.init(<%=canCreateSpace%>));
+      }
     </script>
   </div>
 </div>
