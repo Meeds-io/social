@@ -81,24 +81,8 @@ export function init(appId, name, canEdit, files) {
           imageFormat() {
             return this.imageDisplayFormats[this.imageFormatName];
           },
-          isXSmall() {
-            return this.$vuetify?.breakpoint?.xsOnly;
-          },
-          isSmall() {
-            return !this.isXSmall && this.$vuetify?.breakpoint?.sm;
-          },
-          fixedHeight() {
-            if (this.imageFormatName === 'landscape') {
-              return (this.isSmall && 90) || (this.isXSmall && 60) || 0;
-            }
-            return 0;
-          },
           imageWidth() {
-            if (this.fixedHeight) {
-              return this.offsetWidth || this.$el?.offsetWidth;
-            } else {
-              return this.imageFormat?.width;
-            }
+            return this.imageFormat?.width;
           },
           imageHeight() {
             return this.fixedHeight || this.imageFormat?.height;
