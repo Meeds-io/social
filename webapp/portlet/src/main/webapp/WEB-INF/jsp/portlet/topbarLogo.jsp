@@ -85,38 +85,6 @@
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
 %>
-<script type="text/javascript" defer="defer">
-  let topbarLogoManagers = new Array();
-  <%
-   for (int i =0 ; i < managers.size(); i++) { %>
-   topbarLogoManagers.push({
-    id: `<%=managers.get(i).getId()%>`,
-    userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
-    fullName: `<%=managers.get(i).getFullName()%>`,
-    avatar: `<%=managers.get(i).getAvatarUrl()%>`,
-  });
-  <%} %>
-  let params = {
-    id: `<%=spaceId%>`,
-    isFavorite: `<%=isFavorite%>`,
-    muted: `<%=muted%>`,
-    isMember: `<%=isMember%>`,
-    logoPath: `<%=logoPath%>`,
-    portalPath: `<%=portalPath%>`,
-    logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
-    membersNumber: `<%=membersNumber%>`,
-    spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
-    managers: topbarLogoManagers,
-    homePath: `<%=homePath%>`
-  };
-  document.addEventListener('spaceDetailUpdated', event => {
-    const space = event && event.detail;
-    if (space && space.displayName) {
-      document.querySelector('.logoTitle').innerText = space.displayName;
-      document.querySelector('.logoContainer .spaceAvatar').src = space.avatarUrl;
-    }
-  });
-</script>
 <div class="VuetifyApp">
   <div data-app="true"
        class="v-application border-box-sizing <%= directionVuetifyClass %> theme--light"
@@ -139,7 +107,29 @@
           <% } else { %>
           <div app-data="true" id="SpaceTopBannerLogo">
             <script type="text/javascript">
-              require(["SHARED/spaceBannerLogoPopover"], app => app.init(params));
+              window.topbarLogoManagers = new Array();
+              <%
+               for (int i =0 ; i < managers.size(); i++) { %>
+               window.topbarLogoManagers.push({
+                id: `<%=managers.get(i).getId()%>`,
+                userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
+                fullName: `<%=managers.get(i).getFullName()%>`,
+                avatar: `<%=managers.get(i).getAvatarUrl()%>`,
+              });
+              <%} %>
+              require(["SHARED/spaceBannerLogoPopover"], app => app.init({
+                id: `<%=spaceId%>`,
+                isFavorite: `<%=isFavorite%>`,
+                muted: `<%=muted%>`,
+                isMember: `<%=isMember%>`,
+                logoPath: `<%=logoPath%>`,
+                portalPath: `<%=portalPath%>`,
+                logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
+                membersNumber: `<%=membersNumber%>`,
+                spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
+                managers: window.topbarLogoManagers,
+                homePath: `<%=homePath%>`
+              }));
             </script>
           </div>
           <% } %>
