@@ -23,17 +23,19 @@
     <v-hover v-model="hover" :disabled="!canEdit">
       <v-card
         :color="$root.hasImages && 'transparent' || 'primary'"
-        class="application-body no-border-radius"
+        class="application-body application-dimension overflow-hidden no-border-radius"
         min-width="100%"
         flat>
-        <v-responsive :aspect-ratio="$root.imageAspectRatio">
+        <v-responsive :aspect-ratio="$root.imageAspectRatio" class="application-dimension overflow-hidden">
           <image-settings-header
             v-if="canEdit"
             :hover="hover || loading"
             :loading="loading"
             @edit="editSettings"
             @remove="removeImage" />
-          <image-view />
+          <div class="d-flex">
+            <image-view />
+          </div>
         </v-responsive>
       </v-card>
     </v-hover>
@@ -80,6 +82,9 @@ export default {
   created() {
     document.addEventListener('cms-preview-mode', this.switchToPreview);
     document.addEventListener('cms-edit-mode', this.switchToEdit);
+  },
+  mounted() {
+    this.$root.$applicationLoaded();
   },
   methods: {
     editSettings() {

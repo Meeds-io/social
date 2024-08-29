@@ -62,6 +62,14 @@
 
   <portlet-skin>
     <application-name>social-portlet</application-name>
+    <portlet-name>Image</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-priority>1</css-priority>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
     <portlet-name>SpaceActivityStreamPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/ActivityStream/Style.css</css-path>
