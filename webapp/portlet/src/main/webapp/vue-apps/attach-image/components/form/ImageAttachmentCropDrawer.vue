@@ -26,6 +26,7 @@
     :can-upload="canUpload"
     :back-icon="backIcon"
     :use-format="useFormat"
+    :custom-format="!useFormat"
     alt
     @input="uploadId = $event"
     @data="imageData = $event"
