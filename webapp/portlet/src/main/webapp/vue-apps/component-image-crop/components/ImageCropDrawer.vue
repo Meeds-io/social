@@ -57,8 +57,8 @@
                 v-if="imageData && !isImageGif"
                 ref="imageCrop"
                 :src="imageData"
-                :width="`${width}px`"
-                :height="`${height}px`"
+                :width="format === 'custom' && 'auto' || `${width}px`"
+                :height="format === 'custom' && 'auto' || `${height}px`"
                 alt="Picture to crop">
             </v-card>
             <div class="d-flex mt-4">
@@ -170,24 +170,30 @@
           <div class="flex-grow-0 pt-1 pe-2">
             {{ $t('imageCropDrawer.format') }}
           </div>
-          <div class="flex-grow-1 d-flex mx-n2">
+          <div class="flex-grow-1 d-flex flex-wrap mt-2 mx-n2">
             <v-card
-              v-for="item in imageDisplayFormat"
+              v-for="item in imageDisplayFormats"
               :key="item.value"
               :outlined="format !== item.value"
               :class="format === item.value && 'primary-border-color'"
-              class="col-4 pa-0 flex-grow-1 flex-shrink-1 mx-2 border-box-sizing"
+              min-width="150"
+              width="calc(50% - 16px)"
+              class="flex-grow-1 flex-shrink-1 border-box-sizing mx-2 mb-5"
               flat
               @click="selectFormat(item.value)">
-              <v-responsive :aspect-ratio="110 / 70">
+              <v-responsive :aspect-ratio="160 / 80" class="fill-height">
                 <div class="d-flex flex-column align-center justify-center fill-height">
-                  <div class="d-flex flex-grow-1 align-center justify-center">
-                    <v-card
-                      :width="item.width"
-                      :height="item.height"
-                      max-width="100%"
-                      color="grey lighten-2"
-                      flat />
+                  <div class="d-flex flex-column flex-grow-1 align-center justify-center ms-n3">
+                    <div class="mx-auto mt-auto ps-2 text-subtitle">{{ item.widthLabel }}</div>
+                    <div class="d-flex mb-auto">
+                      <div class="my-auto me-2 text-subtitle">{{ item.heightLabel }}</div>
+                      <v-card
+                        :width="item.width"
+                        :height="item.height"
+                        max-width="100%"
+                        color="grey lighten-2"
+                        flat />
+                    </div>
                   </div>
                   <div>{{ item.text }}</div>
                 </div>
@@ -252,6 +258,10 @@ export default {
       default: () => 1000,
     },
     useFormat: {
+      type: Boolean,
+      default: false,
+    },
+    customFormat: {
       type: Boolean,
       default: false,
     },
@@ -335,32 +345,48 @@ export default {
     isImageGif() {
       return this.mimetype && this.mimetype === 'image/gif';
     },
-    imageDisplayFormat() {
+    imageDisplayFormats() {
       return [{
+        value: 'custom',
+        text: this.$t('imageCropDrawer.custom'),
+        width: 50,
+        height: 20,
+        widthLabel: 'X',
+        heightLabel: 'Y',
+      },{
         value: 'landscape',
         text: this.$t('imageCropDrawer.landscape'),
-        width: 100,
-        height: (100 / 1280 * 175),
+        width: 80,
+        widthLabel: '8',
+        height: 10,
+        heightLabel: '1',
       },{
         value: 'portrait',
         text: this.$t('imageCropDrawer.portrait'),
-        width: 25,
-        height: 35,
+        width: 30,
+        widthLabel: '3',
+        height: 40,
+        heightLabel: '4',
       },{
         value: 'square',
         text: this.$t('imageCropDrawer.square'),
         width: 35,
+        widthLabel: '1',
         height: 35,
+        heightLabel: '1',
       }];
     },
     selectedFormat() {
-      return this.useFormat && this.imageDisplayFormat.find(f => f.value === this.format);
+      return this.useFormat && this.imageDisplayFormats.find(f => f.value === this.format);
     },
     formatCropOptions() {
-      return this.selectedFormat && {
+      return this.selectedFormat
+      && this.selectedFormat !== 'custom'
+      && {
         ...this.cropOptions,
         aspectRatio: this.selectedFormat.width / this.selectedFormat.height,
-      } || this.cropOptions;
+      }
+      || this.cropOptions;
     },
   },
   watch: {
@@ -403,17 +429,6 @@ export default {
         this.imageAspectRatio = this.cropper?.getImageData?.()?.aspectRatio;
       }
     },
-    imageAspectRatio() {
-      if (this.imageAspectRatio && this.useFormat && !this.specificFormatSelected) {
-        if (this.imageAspectRatio < 0.9) {
-          this.format = 'portrait';
-        } else if (this.imageAspectRatio > 1.5) {
-          this.format = 'landscape';
-        } else {
-          this.format = 'square';
-        }
-      }
-    },
   },
   methods: {
     open(imageItem) {
@@ -421,7 +436,7 @@ export default {
       this.imageData = imageItem?.src || this.src || null;
       this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
       this.alternativeText = imageItem?.altText || null;
-      this.format = imageItem?.format || 'landscape';
+      this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
       this.specificFormatSelected = !!imageItem?.format;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
@@ -448,22 +463,35 @@ export default {
         this.$nextTick()
           .then(() => {
             if (this.cropper) {
-              this.cropper.minCropBoxWidth = this.width;
-              this.cropper.minCropBoxHeight = this.height;
+              if (this.format === 'custom') {
+                this.cropper.minCropBoxWidth = null;
+                this.cropper.minCropBoxHeight = null;
+              } else {
+                this.cropper.minCropBoxWidth = this.width;
+                this.cropper.minCropBoxHeight = this.height;
+              }
+              this.cropper.aspectRatio = this.formatCropOptions?.aspectRatio || null;
               if (this.cropper.onResize) {
                 this.cropper.onResize();
               }
               this.cropperReady = true;
             } else {
-              this.zoom = 1;
-              this.cropper = new Cropper(this.$refs.imageCrop, Object.assign({
+              const cropperOptions = {
+                autoCropArea: 1,
                 minCropBoxWidth: this.width,
                 minCropBoxHeight: this.height,
-                autoCropArea: 1,
+                ...this.formatCropOptions,
                 ready: () => {
                   this.cropperReady = true;
                 },
-              }, this.formatCropOptions));
+              };
+              if (this.format === 'custom') {
+                cropperOptions.minCropBoxWidth = null;
+                cropperOptions.minCropBoxHeight = null;
+                cropperOptions.aspectRatio = null;
+              }
+              this.zoom = 1;
+              this.cropper = new Cropper(this.$refs.imageCrop, cropperOptions);
             }
           });
       } else {
