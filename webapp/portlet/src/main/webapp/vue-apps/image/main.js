@@ -37,14 +37,18 @@ export function init(appId, name, canEdit, files) {
       Vue.createApp({
         data: {
           objectType: 'imagePortlet',
-          imageDisplayFormat: {
+          imageDisplayFormats: {
+            custom: {
+              width: 0,
+              height: 0,
+            },
             landscape: {
               width: 1280,
-              height: 175,
+              height: 160,
             },
             portrait: {
-              width: 1280,
-              height: 425,
+              width: 960,
+              height: 1280,
             },
             square: {
               width: 1280,
@@ -75,35 +79,32 @@ export function init(appId, name, canEdit, files) {
             return this.files?.[0]?.altText || '';
           },
           imageFormat() {
-            return this.imageDisplayFormat[this.imageFormatName];
-          },
-          isSmall() {
-            return !this.isXSmall && this.$vuetify?.breakpoint?.sm;
+            return this.imageDisplayFormats[this.imageFormatName];
           },
           isXSmall() {
             return this.$vuetify?.breakpoint?.xsOnly;
           },
+          isSmall() {
+            return !this.isXSmall && this.$vuetify?.breakpoint?.sm;
+          },
           fixedHeight() {
-            if (this.imageFormatName === 'landscape' && this.isSmall) {
-              return 90;
-            } else if (this.imageFormatName === 'landscape' && this.isXSmall) {
-              return 60;
-            } else {
-              return 0;
+            if (this.imageFormatName === 'landscape') {
+              return (this.isSmall && 90) || (this.isXSmall && 60) || 0;
             }
+            return 0;
           },
           imageWidth() {
             if (this.fixedHeight) {
               return this.offsetWidth || this.$el?.offsetWidth;
             } else {
-              return this.imageFormat.width;
+              return this.imageFormat?.width;
             }
           },
           imageHeight() {
-            return this.fixedHeight || this.imageFormat.height;
+            return this.fixedHeight || this.imageFormat?.height;
           },
           imageAspectRatio() {
-            return this.imageWidth / this.imageHeight;
+            return this.imageWidth && this.imageWidth / this.imageHeight || 0;
           },
           formatAspectRatio() {
             return this.imageFormat && (this.imageFormat.width / this.imageFormat.height);
