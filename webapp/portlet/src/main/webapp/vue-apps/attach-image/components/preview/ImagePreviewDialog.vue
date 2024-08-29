@@ -31,17 +31,17 @@
           :href="downloadURL"
           :download="attachmentFilename"
           :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
+          :title="$t('attachment.imageDownload')"
           icon
-          class="white--text"
-          aria-hidden="true">
+          class="white--text">
           <i class="fas fa-download"></i>
         </v-btn>
         <v-btn
           id="preview-attachment-close"
+          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
+          :title="$t('attachment.closePreview')"
           icon
           class="white--text ml-4"
-          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
-          aria-hidden="true"
           @click="close">
           <i class="fas fa-times"></i>
         </v-btn>

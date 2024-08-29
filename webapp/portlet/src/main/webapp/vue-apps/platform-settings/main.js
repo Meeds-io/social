@@ -37,7 +37,10 @@ export function init(url) {
   exoi18n.loadLanguageAsync(lang, i18NUrl).then(i18n => {
     Vue.createApp({
       data: {
-        url: url
+        url,
+      },
+      mounted() {
+        this.$root.$applicationLoaded();
       },
       template: `<platform-settings id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
