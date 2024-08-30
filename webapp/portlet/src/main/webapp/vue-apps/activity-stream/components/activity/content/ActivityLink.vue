@@ -223,7 +223,7 @@ export default {
       return this.sourceLink && (this.sourceLink.indexOf('/') === 0 || this.sourceLink.indexOf('#') === 0) && '_self' || (this.sourceLink && '_blank') || '';
     },
     thumbnailHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.height || (!this.useEmbeddedLinkView && '150px' || '100px');
+      return this.thumbnailProperties && this.thumbnailProperties.height || (!this.useEmbeddedLinkView && '150px' || '120px');
     },
     thumbnailWidth() {
       return this.thumbnailProperties && this.thumbnailProperties.width || (!this.useEmbeddedLinkView && '252px' || '150px');
@@ -241,7 +241,7 @@ export default {
       return this.thumbnailProperties && this.thumbnailProperties.noBorder;
     },
     iconHeight() {
-      return this.defaultIcon && this.defaultIcon.height || '100px';
+      return this.defaultIcon && this.defaultIcon.height || '120px';
     },
     iconWidth() {
       return this.defaultIcon && this.defaultIcon.width || '175px';
