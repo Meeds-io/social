@@ -73,7 +73,7 @@ export default {
     this.refreshActivityTypes();
     this.refreshActivityActions();
     this.refreshCommentActions();
-    if (window.location.pathname.indexOf(this.$root.activityBaseLink) === 0) {
+    if (window.location.pathname.endsWith('/activity')) {
       this.$root.selectedActivityId = this.getQueryParam('id');
       if (window.location.hash) {
         this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
