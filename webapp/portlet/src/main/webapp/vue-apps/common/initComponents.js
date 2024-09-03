@@ -119,7 +119,9 @@ Vue.prototype.$updateApplicationVisibility = function(visible, element) {
 };
 
 Vue.createApp = function(params, el, appName) {
-  const element = typeof el === 'string' ? document.querySelector(el) : el;
+  const element = typeof el === 'string' ?
+    (document.querySelector(`body ${el}`) || document.querySelector(el))
+    : el;
   if (element) {
     if (!params.data) {
       params.data = {};
