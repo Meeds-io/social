@@ -38,7 +38,7 @@
       <template v-else-if="!error">
         <activity-stream-empty-message-filter v-if="streamFilter && streamFilter !== 'all_stream'" :stream-filter="streamFilter" />
         <activity-stream-empty-message-space v-else-if="spaceId" />
-        <activity-stream-empty-message-user v-else />
+        <activity-stream-empty-message v-else />
       </template>
     </template>
     <v-btn
