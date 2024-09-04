@@ -20,8 +20,8 @@
 -->
 <template>
   <v-card
+    :max-width="unit && 'auto' || maxWidth"
     class="d-flex flex-row align-center justify-center"
-    max-width="88"
     flat>
     <v-btn
       icon
@@ -39,6 +39,7 @@
       type="text"
       class="layout-number-input pa-0 text-center">
     <div v-else>{{ num }}</div>
+    <div v-if="unit" class="px-1">{{ unit }}</div>
     <v-btn
       icon
       @click="incrementNumber">
@@ -76,6 +77,14 @@ export default {
     diff: {
       type: Number,
       default: () => 0,
+    },
+    unit: {
+      type: String,
+      default: null,
+    },
+    maxWidth: {
+      type: Number,
+      default: () => 88,
     },
   },
   data: () => ({
