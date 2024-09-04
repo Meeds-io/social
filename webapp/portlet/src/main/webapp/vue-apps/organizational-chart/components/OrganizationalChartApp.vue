@@ -21,9 +21,7 @@
 <template>
   <v-app v-if="showApplication">
     <v-hover v-slot="{ hover }">
-      <v-card
-        outlined
-        class="pa-5 application-body">
+      <div class="pa-5 application-body">
         <div
           v-if="isLoading"
           class="width-full d-flex full-height">
@@ -58,7 +56,7 @@
             @update-chart="updateChart"
             @load-more-managed-users="getManagedUsers" />
         </div>
-      </v-card>
+      </div>
     </v-hover>
     <organizational-chart-settings-drawer
       v-if="!preview"
