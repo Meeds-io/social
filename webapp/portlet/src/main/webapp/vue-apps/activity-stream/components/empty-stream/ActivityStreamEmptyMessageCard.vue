@@ -17,24 +17,25 @@
 <template>
   <v-card
     :href="link"
-    class="d-flex flex-column align-center mx-3 py-3"
-    min-height="125"
-    width="115"
+    :width="$root.isMobile && 250 || 115"
+    :min-height="$root.isMobile && 'auto' || 125"
+    max-width="100%"
+    class="d-flex flex-row flex-sm-column align-center mb-3 mb-sm-0 mx-sm-3 py-3"
     outlined
     hover
     v-on="!link && {
       click: () => $emit('apply'),
     }">
     <v-img
-      class="mx-auto flex-grow-0" 
       :src="`/social-portlet/images/emptyCol${iconIndex}.webp`"
       :height="iconSize"
       :width="iconSize"
+      class="flex-grow-0 mx-sm-auto px-3 px-sm-0"
       contain
       eager />
     <v-card
       max-width="150"
-      class="px-2 pt-3"
+      class="pe-3 ps-0 px-sm-3 pt-sm-3 text-start text-sm-center flex-grow-1"
       flat>
       {{ infoMessage }}
     </v-card>

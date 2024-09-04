@@ -24,32 +24,35 @@
     <div class="d-flex flex-column align-center justify-center pa-5">
       <p v-sanitized-html="welcomeTitle" class="text-title"></p>
       <p v-sanitized-html="welcomeSubTitle" class="text-body"></p>
-      <div class="d-flex flex-wrap align-center justify-center my-6">
-        <activity-stream-empty-message-column
+      <v-card
+        :max-width="$root.isMobile && 250 || 'auto'"
+        class="d-flex flex-column flex-sm-row flex-wrap align-center justify-center my-6"
+        flat>
+        <activity-stream-empty-message-card
           :info-message="$t('UIActivity.label.empty_stream_write_post')"
           icon-index="1"
           @apply="openComposer" />
-        <activity-stream-empty-message-column
+        <activity-stream-empty-message-card
           v-if="spaceId"
           :info-message="$t('UIActivity.label.empty_stream_start_poll')"
           icon-index="2"
           @apply="writePoll" />
-        <activity-stream-empty-message-column
+        <activity-stream-empty-message-card
           v-else
           :info-message="$t('UIActivity.label.empty_stream_send_kudos')"
           icon-index="2"
           @apply="sendKudos" />
-        <activity-stream-empty-message-column
+        <activity-stream-empty-message-card
           v-if="spaceId"
           :info-message="$t('UIActivity.label.empty_stream_write_article')"
           icon-index="3"
           @apply="writeArticle" />
-        <activity-stream-empty-message-column
+        <activity-stream-empty-message-card
           v-else
           :info-message="$t('UIActivity.label.empty_stream_join_spaces')"
           :link="spacesLink"
           icon-index="3" />
-      </div>
+      </v-card>
     </div>
   </div>
 </template>
@@ -58,11 +61,11 @@ export default {
   props: {
     title: {
       type: String,
-      value: null,
+      default: null,
     },
     subtitle: {
       type: String,
-      value: null,
+      default: null,
     },
   },
   data: () => ({
