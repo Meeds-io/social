@@ -53,6 +53,7 @@
        rtl: eXo.env.portal.orientation === 'rtl',
        theme: { disable: true },
        breakpoint: {
+         mobileBreakpoint: 600,
          thresholds: {
            xs: 0,
            sm: 600,
