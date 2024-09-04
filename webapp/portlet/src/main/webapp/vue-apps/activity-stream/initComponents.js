@@ -1,6 +1,7 @@
 import ActivityStream from './components/ActivityStream.vue';
 import ActivityStreamEmptyMessageSpace from './components/empty-stream/ActivityStreamEmptyMessageSpace.vue';
 import ActivityStreamEmptyMessage from './components/empty-stream/ActivityStreamEmptyMessage.vue';
+import ActivityStreamEmptyMessageCard from './components/empty-stream/ActivityStreamEmptyMessageCard.vue';
 import ActivityStreamEmptyMessageFilter from './components/empty-stream/ActivityStreamEmptyMessageFilter.vue';
 import ActivityNotFound from './components/empty-stream/ActivityNotFound.vue';
 import ActivityStreamUpdater from './components/common/ActivityStreamUpdater.vue';
@@ -39,7 +40,6 @@ import ActivityCommentReplyAction from './components/comment/footer/actions/Acti
 import ActivityCommentLikeAction from './components/comment/footer/actions/ActivityCommentLikeAction.vue';
 import ActivityStreamToolbar from './components/toolbar/ActivityStreamToolbar.vue';
 import ActivityComposerDrawer from './components/toolbar/ActivityComposerDrawer.vue';
-import ActivityStreamEmptyMessageColumn from './components/empty-stream/ActivityStreamEmptyMessageColumn.vue';
 
 const components = {
   'activity-stream': ActivityStream,
@@ -47,7 +47,7 @@ const components = {
   'activity-stream-toolbar': ActivityStreamToolbar,
   'activity-composer-drawer': ActivityComposerDrawer,
   'activity-stream-empty-message': ActivityStreamEmptyMessage,
-  'activity-stream-empty-message-column': ActivityStreamEmptyMessageColumn,
+  'activity-stream-empty-message-card': ActivityStreamEmptyMessageCard,
   'activity-stream-empty-message-space': ActivityStreamEmptyMessageSpace,
   'activity-stream-empty-message-filter': ActivityStreamEmptyMessageFilter,
   'activity-not-found': ActivityNotFound,

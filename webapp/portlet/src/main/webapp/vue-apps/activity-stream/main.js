@@ -64,6 +64,11 @@ export function init(maxFileSize) {
           replyToComment: false,
           displayCommentActionTypes: []
         },
+        computed: {
+          isMobile() {
+            return this.$vuetify?.breakpoint?.mobile;
+          },
+        },
         created() {
           this.replyToComment = window.location.hash.includes('#comment-reply');
         },
