@@ -27,7 +27,7 @@
   </parent>
   <groupId>io.meeds.social</groupId>
   <artifactId>social</artifactId>
-  <version>7.0.x-exo-SNAPSHOT</version>
+  <version>7.0.0-exo-20240904</version>
   <packaging>pom</packaging>
   <name>Meeds:: PLF:: Social</name>
   <description>Meeds Social - Enterprise Social Networking</description>
@@ -39,7 +39,7 @@
   <scm>
     <connection>scm:git:git://github.com/exoplatform/social.git</connection>
     <developerConnection>scm:git:git@github.com:exoplatform/social.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>7.0.0-exo-20240904</tag>
     <url>http://fisheye.exoplatform.org/browse/social</url>
   </scm>
   <properties>
