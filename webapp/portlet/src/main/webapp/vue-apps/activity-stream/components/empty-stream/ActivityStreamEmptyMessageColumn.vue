@@ -20,7 +20,8 @@
     class="d-flex flex-column align-center mx-3 py-3"
     min-height="125"
     width="115"
-    elevation="3"
+    outlined
+    hover
     v-on="!link && {
       click: () => $emit('apply'),
     }">
