@@ -20,8 +20,8 @@
 -->
 <template>
   <v-card
+    :max-width="unit && 'auto' || maxWidth"
     class="d-flex flex-row align-center justify-center"
-    max-width="88"
     flat>
     <v-btn
       icon
@@ -39,6 +39,7 @@
       type="text"
       class="layout-number-input pa-0 text-center">
     <div v-else>{{ num }}</div>
+    <div v-if="unit" class="ps-1">{{ unit }}</div>
     <v-btn
       icon
       @click="incrementNumber">
@@ -50,8 +51,8 @@
 export default {
   props: {
     value: {
-      type: String,
-      default: null,
+      type: Number,
+      default: () => 0,
     },
     label: {
       type: String,
@@ -77,26 +78,34 @@ export default {
       type: Number,
       default: () => 0,
     },
+    unit: {
+      type: String,
+      default: null,
+    },
+    maxWidth: {
+      type: Number,
+      default: () => 88,
+    },
   },
   data: () => ({
     num: 20,
     valid: false,
+    initialized: false,
   }),
   watch: {
-    num: {
-      immediate: true,
-      handler() {
-        if (this.min && Number(this.num) < Number(this.min)) {
-          this.$emit('input', Number(this.min) + this.diff);
-          this.valid = false;
-        } else if (this.max && Number(this.num) > Number(this.max)) {
-          this.$emit('input', Number(this.max) + this.diff);
-          this.valid = false;
-        } else {
-          this.$emit('input', Number(this.num) + this.diff);
-          this.valid = true;
-        }
-      },
+    num() {
+      if (!this.initialized) {
+        return;
+      } else if (this.min && Number(this.num) < Number(this.min)) {
+        this.$emit('input', Number(this.min) + this.diff);
+        this.valid = false;
+      } else if (this.max && Number(this.num) > Number(this.max)) {
+        this.$emit('input', Number(this.max) + this.diff);
+        this.valid = false;
+      } else {
+        this.$emit('input', Number(this.num) + this.diff);
+        this.valid = true;
+      }
     },
     valid: {
       immediate: true,
@@ -107,6 +116,10 @@ export default {
   },
   created() {
     this.num = (this.value || 0) - this.diff;
+    this.adjust();
+  },
+  mounted() {
+    this.initialized = true;
   },
   methods: {
     adjust() {
