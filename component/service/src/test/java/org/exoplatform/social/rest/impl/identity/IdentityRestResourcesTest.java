@@ -1,26 +1,30 @@
 package org.exoplatform.social.rest.impl.identity;
 
+import java.util.List;
+
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MultivaluedMap;
+
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
-import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.IdentityEntity;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.social.service.test.AbstractResourceTest;
-
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MultivaluedMap;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class IdentityRestResourcesTest extends AbstractResourceTest {
   private IdentityManager identityManager;
@@ -126,9 +130,114 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
   }
 
+  public void testGetIdentityByIdWhenHiddenProperties() throws Exception {
+    ProfilePropertyService profileSettingsService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
+
+    Identity johnIdentity = identityManager.getOrCreateUserIdentity("john");
+
+    startSessionAs("mary");
+    ContainerResponse response = service("GET",
+                                         "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId() +
+                                             "?expand=settings",
+                                         "",
+                                         null,
+                                         null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    IdentityEntity identityEntity = (IdentityEntity) response.getEntity();
+    assertNotNull(identityEntity.getProfile().getFullname());
+    assertNotNull(identityEntity.getProfile().getFirstname());
+    assertNotNull(identityEntity.getProfile().getLastname());
+    assertNull(identityEntity.getProfile().getCreatedDate());
+    assertNotNull(identityEntity.getProfile().getEmail());
+
+    List<ProfilePropertySettingEntity> properties = identityEntity.getProfile().getProperties();
+    assertTrue(properties.stream().anyMatch(p -> StringUtils.equals(Profile.EMAIL, p.getPropertyName())));
+
+    ProfilePropertySetting emailPropertySetting = profileSettingsService.getProfileSettingByName(Profile.EMAIL);
+
+    // Hide email property setting for user
+    profileSettingsService.hidePropertySetting(Long.parseLong(identityEntity.getId()),
+                                               emailPropertySetting.getId());
+    response = service("GET",
+                       "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId() + "?expand=settings",
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    identityEntity = (IdentityEntity) response.getEntity();
+    properties = identityEntity.getProfile().getProperties();
+    assertTrue(properties.stream().noneMatch(p -> StringUtils.equals(Profile.EMAIL, p.getPropertyName())));
+
+    // Show email property setting for user
+    profileSettingsService.showPropertySetting(Long.parseLong(identityEntity.getId()),
+                                               emailPropertySetting.getId());
+    response = service("GET",
+                       "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId() + "?expand=settings",
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    identityEntity = (IdentityEntity) response.getEntity();
+    properties = identityEntity.getProfile().getProperties();
+    assertTrue(properties.stream().anyMatch(p -> StringUtils.equals(Profile.EMAIL, p.getPropertyName())));
+
+    // Hide email property setting globally
+    emailPropertySetting.setVisible(false);
+    profileSettingsService.updatePropertySetting(emailPropertySetting);
+
+    ProfilePropertySetting profilePropertySetting = profileSettingsService.getProfileSettingByName(Profile.LAST_NAME);
+    profilePropertySetting.setVisible(false); // Not hiddenable
+    profileSettingsService.updatePropertySetting(profilePropertySetting);
+    try {
+      response = service("GET",
+                         "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId() + "?expand=settings",
+                         "",
+                         null,
+                         null);
+      assertNotNull(response);
+      assertEquals(200, response.getStatus());
+      identityEntity = (IdentityEntity) response.getEntity();
+      assertNotNull(identityEntity.getProfile().getFullname());
+      assertNotNull(identityEntity.getProfile().getFirstname());
+      assertNotNull(identityEntity.getProfile().getLastname());
+      assertNull(identityEntity.getProfile().getCreatedDate());
+      assertNull(identityEntity.getProfile().getEmail());
+      properties = identityEntity.getProfile().getProperties();
+      assertTrue(properties.stream().noneMatch(p -> StringUtils.equals(Profile.EMAIL, p.getPropertyName())));
+
+      // Access email with an administrator even when 'email' field is hidden
+      startSessionAs("root");
+      response = service("GET",
+                         "/" + VersionResources.VERSION_ONE + "/social/identities/" + johnIdentity.getId() + "?expand=settings",
+                         "",
+                         null,
+                         null);
+      assertNotNull(response);
+      assertEquals(200, response.getStatus());
+      identityEntity = (IdentityEntity) response.getEntity();
+      assertNotNull(identityEntity.getProfile().getFullname());
+      assertNotNull(identityEntity.getProfile().getFirstname());
+      assertNotNull(identityEntity.getProfile().getLastname());
+      assertNotNull(identityEntity.getProfile().getCreatedDate());
+      assertNotNull(identityEntity.getProfile().getEmail());
+
+      properties = identityEntity.getProfile().getProperties();
+      assertTrue(properties.stream().anyMatch(p -> StringUtils.equals(Profile.EMAIL, p.getPropertyName())));
+    } finally {
+      profilePropertySetting = profileSettingsService.getProfileSettingByName(Profile.EMAIL);
+      profilePropertySetting.setVisible(true);
+      profileSettingsService.updatePropertySetting(profilePropertySetting);
+      profilePropertySetting = profileSettingsService.getProfileSettingByName(Profile.LAST_NAME);
+      profilePropertySetting.setVisible(true);
+      profileSettingsService.updatePropertySetting(profilePropertySetting);
+    }
+  }
+
   public void testGetIdentityCache() throws Exception {
     startSessionAs("root");
-    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
 
     ContainerResponse response = service("GET",

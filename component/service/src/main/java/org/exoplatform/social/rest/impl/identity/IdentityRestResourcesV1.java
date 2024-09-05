@@ -132,7 +132,7 @@ public class IdentityRestResourcesV1 implements IdentityRestResources {
     String authenticatedUser = authenticatedUserIdentity.getUserId();
 
     String expandedSettings = expand;
-    if (expand != null && expand.contains("settings") && OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
+    if (expand != null && expand.contains("settings") && identity.isUser()) {
       expandedSettings =
              String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings(),
                                                                                              profilePropertyService,

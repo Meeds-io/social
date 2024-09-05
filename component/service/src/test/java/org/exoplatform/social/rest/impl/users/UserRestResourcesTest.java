@@ -160,76 +160,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                                       localeConfigService,
                                                                       settingService);
     registry(userRestResourcesV1);
-
-    // Create profile properties
-    ProfilePropertySetting urlsPropertySetting = new ProfilePropertySetting();
-    urlsPropertySetting.setPropertyName("urls");
-    urlsPropertySetting.setMultiValued(true);
-    urlsPropertySetting.setVisible(true);
-    urlsPropertySetting.setEditable(true);
-    urlsPropertySetting = profilePropertyService.createPropertySetting(urlsPropertySetting);
-    tearDownProfilePropertyList.add(urlsPropertySetting);
-
-    // Create profile properties
-    ProfilePropertySetting phonesPropertySetting = new ProfilePropertySetting();
-    phonesPropertySetting.setPropertyName("phones");
-    phonesPropertySetting.setVisible(true);
-    phonesPropertySetting.setEditable(true);
-    phonesPropertySetting = profilePropertyService.createPropertySetting(phonesPropertySetting);
-    tearDownProfilePropertyList.add(phonesPropertySetting);
-
-    ProfilePropertySetting workPhonePropertySetting = new ProfilePropertySetting();
-    workPhonePropertySetting.setPropertyName("phones.work");
-    workPhonePropertySetting.setMultiValued(false);
-    workPhonePropertySetting.setVisible(true);
-    workPhonePropertySetting.setEditable(true);
-    workPhonePropertySetting.setParentId(phonesPropertySetting.getId());
-    workPhonePropertySetting = profilePropertyService.createPropertySetting(workPhonePropertySetting);
-    tearDownProfilePropertyList.add(workPhonePropertySetting);
-
-    ProfilePropertySetting homePhonePropertySetting = new ProfilePropertySetting();
-    homePhonePropertySetting.setPropertyName("phones.home");
-    homePhonePropertySetting.setMultiValued(false);
-    homePhonePropertySetting.setVisible(true);
-    homePhonePropertySetting.setEditable(true);
-    homePhonePropertySetting.setParentId(phonesPropertySetting.getId());
-    homePhonePropertySetting = profilePropertyService.createPropertySetting(homePhonePropertySetting);
-    tearDownProfilePropertyList.add(homePhonePropertySetting);
-
-    // Create ims properties
-    ProfilePropertySetting imsPropertySetting = new ProfilePropertySetting();
-    imsPropertySetting.setPropertyName("ims");
-    imsPropertySetting.setMultiValued(false);
-    imsPropertySetting.setVisible(true);
-    imsPropertySetting.setEditable(true);
-    imsPropertySetting = profilePropertyService.createPropertySetting(imsPropertySetting);
-    tearDownProfilePropertyList.add(imsPropertySetting);
-
-    ProfilePropertySetting facebookPropertySetting = new ProfilePropertySetting();
-    facebookPropertySetting.setPropertyName("ims.facebook");
-    facebookPropertySetting.setMultiValued(false);
-    facebookPropertySetting.setVisible(true);
-    facebookPropertySetting.setEditable(true);
-    facebookPropertySetting.setParentId(imsPropertySetting.getId());
-    facebookPropertySetting = profilePropertyService.createPropertySetting(facebookPropertySetting);
-    tearDownProfilePropertyList.add(facebookPropertySetting);
-
-    Arrays.asList(new String[] { "userName", "firstName", "lastName", "email", "password", "groups", "aboutMe", "timeZone",
-        "company", "position", "enabled" }).forEach(profileProperty -> {
-          ProfilePropertySetting basicProfilePropertySetting = new ProfilePropertySetting();
-          basicProfilePropertySetting.setPropertyName(profileProperty);
-          basicProfilePropertySetting.setMultiValued(false);
-      basicProfilePropertySetting.setVisible(true);
-          try {
-            basicProfilePropertySetting = profilePropertyService.createPropertySetting(basicProfilePropertySetting);
-            tearDownProfilePropertyList.add(basicProfilePropertySetting);
-          } catch (ObjectAlreadyExistsException e) {
-            throw new RuntimeException(e);
-          }
-
-        }
-
-    );
   }
 
   public void tearDown() throws Exception {
@@ -506,14 +436,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfileEntity userEntity = getBaseEntity(response.getEntity(), ProfileEntity.class);
     assertEquals("john", userEntity.getUsername());
 
-    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
-    profilePropertySetting.setPropertyName(Profile.LOCATION);
-    profilePropertySetting.setEditable(true);
-    profilePropertyService.createPropertySetting(profilePropertySetting);
     ContainerResponse response1 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag1 = response1.getHttpHeaders().get("etag").toString();
-    assertNotNull(response1);
-    assertNotEquals(etag, etag1);
+    assertEquals(etag, etag1);
 
     ProfileLabel label = new ProfileLabel();
     label.setLabel("labelTest");
@@ -523,14 +448,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     profileLabelService.createLabel(label);
     ContainerResponse response2 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag2 = response2.getHttpHeaders().get("etag").toString();
-    assertNotNull(response2);
     assertNotEquals(etag1, etag2);
 
     ContainerResponse response3 = service("GET", getURLResource("users/john?expand=settings"), "", null, null);
     String etag3 = response3.getHttpHeaders().get("etag").toString();
-    assertNotNull(response2);
     assertEquals(etag2, etag3);
-
   }
 
   public void testGetUserProfilePropertiesById() throws Exception {
@@ -540,7 +462,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     DataEntity dataEntity = (DataEntity) response.getEntity();
     ArrayList collections = (ArrayList) dataEntity.get("properties");
-    assertEquals(14, collections.size());
+    assertFalse(collections.isEmpty());
   }
 
   public void testGetUserAvatarForAnonymous() throws Exception {

@@ -47,6 +47,7 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.rest.api.EntityBuilder;
 
 public class RestUtils {
 
@@ -88,36 +89,16 @@ public class RestUtils {
    * @param identity the provided identity
    * @return a hash map
    */
-  public static Map<String, Object> buildEntityFromIdentity(Identity identity, String restPath, String expand) {
+  public static Map<String, Object> buildSpaceIdentity(Identity identity, String restPath, String expand) {
     Map<String, Object> map = new LinkedHashMap<String, Object>();
     Profile profile = identity.getProfile();
     map.put(RestProperties.ID, identity.getId());
     map.put(RestProperties.USER_NAME, identity.getRemoteId());
-    if (OrganizationIdentityProvider.NAME.equals(identity.getProviderId())) {
-      map.put(RestProperties.FIRST_NAME, profile.getProperty(Profile.FIRST_NAME) != null ? profile.getProperty(Profile.FIRST_NAME).toString() : "");
-      map.put(RestProperties.LAST_NAME, profile.getProperty(Profile.LAST_NAME) != null ? profile.getProperty(Profile.LAST_NAME).toString() : "");
-      map.put(RestProperties.GENDER, profile.getGender());
-      map.put(RestProperties.POSITION, profile.getPosition());
-      map.put(RestProperties.FULL_NAME, profile.getFullName());
-      map.put(RestProperties.EMAIL, profile.getEmail());
-      map.put(RestProperties.HREF, (expand != null && RestProperties.HREF.equals(expand)) ? buildEntityFromIdentity(identity, restPath, null) : Util.getRestUrl(USERS_TYPE, identity.getRemoteId(), restPath));
-      map.put(RestProperties.PHONES, getSubListByProperties(profile.getPhones(), getPhoneProperties()));
-      map.put(RestProperties.EXPERIENCES, getSubListByProperties((List)(List<Map<String, Object>>)profile.getProperty(Profile.EXPERIENCES), getExperiencesProperties()));
-      map.put(RestProperties.IMS, getSubListByProperties((List<Map<String, String>>) profile.getProperty(Profile.CONTACT_IMS), getImsProperties()));
-      map.put(RestProperties.URLS, getSubListByProperties((List<Map<String, String>>) profile.getProperty(Profile.CONTACT_URLS), getUrlProperties()));
-      map.put(RestProperties.AVATAR, profile.getAvatarUrl());
-    }
-    map.put(RestProperties.DELETED, identity.isDeleted());
     map.put(RestProperties.IDENTITY, Util.getRestUrl(IDENTITIES_TYPE, identity.getId(), restPath));
-    
+
     updateCachedEtagValue(getEtagValue(
         profile.getFullName(),
-        profile.getGender(),
-        profile.getPosition(),
-        profile.getEmail(),
-        profile.getAvatarUrl()
-        // tmpPropertyValues {phones, experience, ims, urls}
-        ));
+        profile.getAvatarUrl()));
     return map;
   }
   
@@ -134,7 +115,7 @@ public class RestUtils {
       map.put(RestProperties.ID, space.getId());
       map.put(RestProperties.HREF, (expand != null && RestProperties.HREF.equals(expand)) ? buildEntityFromSpace(space, userId, restPath, null) : Util.getRestUrl(SPACES_TYPE, space.getId(), restPath));
       Identity spaceIdentity = CommonsUtils.getService(IdentityManager.class).getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
-      map.put(RestProperties.IDENTITY, (expand != null && RestProperties.IDENTITY.equals(expand)) ? buildEntityFromIdentity(spaceIdentity, restPath, null) : Util.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
+      map.put(RestProperties.IDENTITY, (expand != null && RestProperties.IDENTITY.equals(expand)) ? buildSpaceIdentity(spaceIdentity, restPath, null) : Util.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
       map.put(RestProperties.GROUP_ID, space.getGroupId());
       map.put(RestProperties.AVATAR_URL, space.getAvatarUrl());
       map.put(RestProperties.APPLICATIONS, getSpaceApplications(space));
@@ -186,7 +167,7 @@ public class RestUtils {
     Map<String, Object> map = new LinkedHashMap<String, Object>();
     map.put(RestProperties.ID, activity.getId());
     map.put(RestProperties.HREF, (expand != null && RestProperties.HREF.equals(expand)) ? buildEntityFromActivity(activity, restPath, null) : Util.getRestUrl(ACTIVITIES_TYPE, activity.getId(), restPath));
-    map.put(RestProperties.IDENTITY, (expand != null && RestProperties.IDENTITY.equals(expand)) ? buildEntityFromIdentity(poster, restPath, null) : Util.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
+    map.put(RestProperties.IDENTITY, (expand != null && RestProperties.IDENTITY.equals(expand)) ? EntityBuilder.buildEntityProfile(poster.getProfile(), restPath, null) : Util.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
     map.put(RestProperties.MENTIONS, getActivityMentions(activity, restPath));
     if (activity.isComment()) {
       map.put(RestProperties.BODY, activity.getTitle());
@@ -220,8 +201,8 @@ public class RestUtils {
     map.put(RestProperties.ID, relationship.getId());
     map.put(RestProperties.HREF, (expand != null && RestProperties.HREF.equals(expand)) ? buildEntityFromRelationship(relationship, restPath, null, isSymetric) : Util.getRestUrl(USERS_RELATIONSHIP_TYPE, relationship.getId(), restPath));
     map.put(RestProperties.STATUS, relationship.getStatus().name());
-    map.put(RestProperties.SENDER, (expand != null && RestProperties.SENDER.equals(expand)) ? buildEntityFromIdentity(relationship.getSender(), restPath, null) : Util.getRestUrl(USERS_TYPE, relationship.getSender().getRemoteId(), restPath));
-    map.put(RestProperties.RECEIVER, (expand != null && RestProperties.RECEIVER.equals(expand)) ? buildEntityFromIdentity(relationship.getReceiver(), restPath, null) : Util.getRestUrl(USERS_TYPE, relationship.getReceiver().getRemoteId(), restPath));
+    map.put(RestProperties.SENDER, (expand != null && RestProperties.SENDER.equals(expand)) ? EntityBuilder.buildEntityProfile(relationship.getSender().getProfile(), restPath, null) : Util.getRestUrl(USERS_TYPE, relationship.getSender().getRemoteId(), restPath));
+    map.put(RestProperties.RECEIVER, (expand != null && RestProperties.RECEIVER.equals(expand)) ? EntityBuilder.buildEntityProfile(relationship.getReceiver().getProfile(), restPath, null) : Util.getRestUrl(USERS_TYPE, relationship.getReceiver().getRemoteId(), restPath));
     if (isSymetric) {
       map.put(RestProperties.SYMETRIC, relationship.isSymetric());
     }

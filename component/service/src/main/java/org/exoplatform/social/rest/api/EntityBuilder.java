@@ -125,7 +125,6 @@ import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
 import org.exoplatform.ws.frameworks.json.impl.JsonException;
 import org.exoplatform.ws.frameworks.json.impl.JsonParserImpl;
 import org.exoplatform.ws.frameworks.json.impl.ObjectBuilder;
-import org.json.JSONObject;
 
 public class EntityBuilder {
 
@@ -207,7 +206,6 @@ public class EntityBuilder {
 
   public static final String              USER_CARD_SETTINGS                         = "UserCardSettings";
 
-
   private static UserPortalConfigService  userPortalConfigService;
 
   private static LayoutService            layoutService;
@@ -215,7 +213,7 @@ public class EntityBuilder {
   private static SettingService           settingService;
 
   private static UserACL                  userACL;
-  
+
   private static ProfilePropertyService   profilePropertyService;
 
   static {
@@ -256,10 +254,8 @@ public class EntityBuilder {
     identityEntity.setRemoteId(identity.getRemoteId());
     identityEntity.setDeleted(identity.isDeleted());
     if (SpaceIdentityProvider.NAME.equals(identity.getProviderId())) {
-      ConversationState conversationState = ConversationState.getCurrent();
-      String currentUserId = conversationState.getIdentity().getUserId();
       Space space = getSpaceService().getSpaceByPrettyName(identity.getRemoteId());
-      identityEntity.setSpace(buildEntityFromSpace(space, currentUserId, restPath, expand));
+      identityEntity.setSpace(buildEntityFromSpace(space, getCurrentUserName(), restPath, expand));
     } else {
       identityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, expand));
     }
@@ -301,54 +297,101 @@ public class EntityBuilder {
     userEntity.setHref(RestUtils.getRestUrl(USERS_TYPE, profile.getIdentity().getRemoteId(), restPath));
     userEntity.setIdentity(RestUtils.getRestUrl(IDENTITIES_TYPE, profile.getIdentity().getId(), restPath));
     userEntity.setUsername(profile.getIdentity().getRemoteId());
-    userEntity.setFirstname((String) profile.getProperty(Profile.FIRST_NAME));
-    userEntity.setLastname((String) profile.getProperty(Profile.LAST_NAME));
-    userEntity.setFullname(profile.getFullName());
-    userEntity.setGender(profile.getGender());
-    userEntity.setPosition(profile.getPosition());
-    userEntity.setEmail(profile.getEmail());
-    userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
+    // Kept for backward compatibility with deleted builder method
+    userEntity.getDataEntity().put(RestProperties.USER_NAME, profile.getIdentity().getRemoteId());
+
+    boolean isAdmin = getUserACL().isSuperUser()
+        || getUserACL().isUserInGroup(getUserACL().getAdminGroups());
+    boolean isCurrentUser = StringUtils.equals(getCurrentUserName(), profile.getIdentity().getRemoteId());
+    boolean canViewProperties = isAdmin || isCurrentUser;
+
+    if (canViewProperties || isProfilePropertyVisible(Profile.FIRST_NAME)) {
+      userEntity.setFirstname((String) profile.getProperty(Profile.FIRST_NAME));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.LAST_NAME)) {
+      userEntity.setLastname((String) profile.getProperty(Profile.LAST_NAME));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.FULL_NAME)) {
+      userEntity.setFullname(profile.getFullName());
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.GENDER)) {
+      userEntity.setGender(profile.getGender());
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.POSITION)) {
+      userEntity.setPosition(profile.getPosition());
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.EMAIL)) {
+      userEntity.setEmail(profile.getEmail());
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.ABOUT_ME)) {
+      userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
+    }
+
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
     userEntity.setDefaultAvatar(profile.isDefaultAvatar());
-    userEntity.setIsAdmin(getUserACL().isSuperUser() || getUserACL().isUserInGroup(getUserACL().getAdminGroups()));
-    if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
-      userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
-    }
-    if (profile.getProperty(Profile.SYNCHRONIZED_DATE) != null) {
-      userEntity.setSynchronizedDate((String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
-    }
-    try {
-      OrganizationService organizationService = getOrganizationService();
-      User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername(), UserStatus.ANY);
-      if (user != null) {
-        userEntity.setIsInternal(user.isInternalStore());
-        if (user.getCreatedDate() != null) {
-          userEntity.setCreatedDate(String.valueOf(user.getCreatedDate().getTime()));
-        }
-        if (user.getLastLoginTime() != null && !user.getCreatedDate().equals(user.getLastLoginTime())) {
-          userEntity.setLastLoginTime(String.valueOf(user.getLastLoginTime().getTime()));
-        }
+    userEntity.setIsAdmin(isAdmin);
+    if (isAdmin) {
+      if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
+        userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
       }
-    } catch (Exception e) {
-      LOG.warn("Error when searching user {}", userEntity.getUsername(), e);
+      if (profile.getProperty(Profile.SYNCHRONIZED_DATE) != null) {
+        userEntity.setSynchronizedDate((String) profile.getProperty(Profile.SYNCHRONIZED_DATE));
+      }
+      try {
+        OrganizationService organizationService = getOrganizationService();
+        User user = organizationService.getUserHandler().findUserByName(userEntity.getUsername(), UserStatus.ANY);
+        if (user != null) {
+          userEntity.setIsInternal(user.isInternalStore());
+          if (user.getCreatedDate() != null) {
+            userEntity.setCreatedDate(String.valueOf(user.getCreatedDate().getTime()));
+          }
+          if (user.getLastLoginTime() != null && !user.getCreatedDate().equals(user.getLastLoginTime())) {
+            userEntity.setLastLoginTime(String.valueOf(user.getLastLoginTime().getTime()));
+          }
+        }
+      } catch (Exception e) {
+        LOG.warn("Error when searching user {}", userEntity.getUsername(), e);
+      }
     }
-    buildPhoneEntities(profile, userEntity);
-    buildImEntities(profile, userEntity);
-    buildUrlEntities(profile, userEntity);
-    buildExperienceEntities(profile, userEntity);
+    if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_PHONES)) {
+      buildPhoneEntities(profile, userEntity, canViewProperties);
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_IMS)) {
+      buildImEntities(profile, userEntity, canViewProperties);
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_URLS)) {
+      buildUrlEntities(profile, userEntity);
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.EXPERIENCES)) {
+      buildExperienceEntities(profile, userEntity);
+    }
     userEntity.setDeleted(profile.getIdentity().isDeleted());
     userEntity.setEnabled(profile.getIdentity().isEnable());
     if (profile.getProperty(Profile.EXTERNAL) != null) {
       userEntity.setIsExternal((String) profile.getProperty(Profile.EXTERNAL));
     }
-    userEntity.setCompany((String) profile.getProperty(Profile.COMPANY));
-    userEntity.setLocation((String) profile.getProperty(Profile.LOCATION));
-    userEntity.setDepartment((String) profile.getProperty(Profile.DEPARTMENT));
-    userEntity.setTeam((String) profile.getProperty(Profile.TEAM));
-    userEntity.setProfession((String) profile.getProperty(Profile.PROFESSION));
-    userEntity.setCountry((String) profile.getProperty(Profile.COUNTRY));
-    userEntity.setCity((String) profile.getProperty(Profile.CITY));
+    if (canViewProperties || isProfilePropertyVisible(Profile.COMPANY)) {
+      userEntity.setCompany((String) profile.getProperty(Profile.COMPANY));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.LOCATION)) {
+      userEntity.setLocation((String) profile.getProperty(Profile.LOCATION));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.DEPARTMENT)) {
+      userEntity.setDepartment((String) profile.getProperty(Profile.DEPARTMENT));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.TEAM)) {
+      userEntity.setTeam((String) profile.getProperty(Profile.TEAM));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.PROFESSION)) {
+      userEntity.setProfession((String) profile.getProperty(Profile.PROFESSION));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.COUNTRY)) {
+      userEntity.setCountry((String) profile.getProperty(Profile.COUNTRY));
+    }
+    if (canViewProperties || isProfilePropertyVisible(Profile.CITY)) {
+      userEntity.setCity((String) profile.getProperty(Profile.CITY));
+    }
 
     String[] expandArray = StringUtils.split(expand, ",");
     List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);
@@ -393,8 +436,8 @@ public class EntityBuilder {
           if (relationship != null) {
             Type status = relationship.getStatus();
             if (status == Type.PENDING) {
-              Type relationshipStatus = StringUtils.equals(relationship.getSender().getRemoteId(), currentUser) ? Type.OUTGOING
-                                                                                                                : Type.INCOMING;
+              Type relationshipStatus = StringUtils.equals(relationship.getSender().getRemoteId(), currentUser) ? Type.OUTGOING :
+                                                                                                                Type.INCOMING;
               userEntity.setRelationshipStatus(relationshipStatus.name());
             } else {
               userEntity.setRelationshipStatus(relationship.getStatus().name());
@@ -406,10 +449,7 @@ public class EntityBuilder {
       }
     }
     if (expandAttributes.contains(SETTINGS)) {
-      List<Long> hiddenProfileProperties =
-                                         getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(profile.getIdentity()
-                                                                                                                       .getId()));
-      userEntity.setProperties(EntityBuilder.buildProperties(profile, hiddenProfileProperties));
+      userEntity.setProperties(EntityBuilder.buildProperties(profile, canViewProperties));
     }
     if (expandAttributes.contains(MANAGER) && profile.getProperty(MANAGER) != null) {
       buildListManagers(userEntity, profile, restPath);
@@ -419,14 +459,28 @@ public class EntityBuilder {
     }
 
     // Get values of properties configured for the user card
-    SettingValue<?> userCardFirstFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardFirstFieldSetting");
-    SettingValue<?> userCardSecondFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardSecondFieldSetting");
-    SettingValue<?> userCardThirdFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardThirdFieldSetting");
+    SettingValue<?> userCardFirstFieldSetting =
+                                              getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                      new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
+                                                                                                                          USER_CARD_SETTINGS),
+                                                                      "UserCardFirstFieldSetting");
+    SettingValue<?> userCardSecondFieldSetting =
+                                               getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                       new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
+                                                                                                                           USER_CARD_SETTINGS),
+                                                                       "UserCardSecondFieldSetting");
+    SettingValue<?> userCardThirdFieldSetting =
+                                              getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                      new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
+                                                                                                                          USER_CARD_SETTINGS),
+                                                                      "UserCardThirdFieldSetting");
 
-    if(userCardFirstFieldSetting != null) {
+    if (userCardFirstFieldSetting != null) {
       String propertyName = String.valueOf(userCardFirstFieldSetting.getValue());
       ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-      if(propertySetting != null && propertySetting.isVisible() && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
+      if (propertySetting != null && propertySetting.isVisible()
+          && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
+                                         .contains(propertySetting.getId())) {
         userEntity.setPrimaryProperty((String) profile.getProperty(propertyName));
       } else {
         userEntity.setPrimaryProperty("");
@@ -434,10 +488,12 @@ public class EntityBuilder {
     } else {
       userEntity.setPrimaryProperty(userEntity.getPosition());
     }
-    if(userCardSecondFieldSetting != null) {
+    if (userCardSecondFieldSetting != null) {
       String propertyName = String.valueOf(userCardSecondFieldSetting.getValue());
       ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-      if(propertySetting != null && propertySetting.isVisible() && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
+      if (propertySetting != null && propertySetting.isVisible()
+          && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
+                                         .contains(propertySetting.getId())) {
         userEntity.setSecondaryProperty((String) profile.getProperty(propertyName));
       } else {
         userEntity.setSecondaryProperty("");
@@ -446,10 +502,12 @@ public class EntityBuilder {
       userEntity.setSecondaryProperty(userEntity.getTeam());
     }
 
-    if(userCardThirdFieldSetting != null) {
+    if (userCardThirdFieldSetting != null) {
       String propertyName = String.valueOf(userCardThirdFieldSetting.getValue());
       ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-      if(propertySetting != null && propertySetting.isVisible() && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId())).contains(propertySetting.getId())) {
+      if (propertySetting != null && propertySetting.isVisible()
+          && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
+                                         .contains(propertySetting.getId())) {
         userEntity.setTertiaryProperty((String) profile.getProperty(propertyName));
       } else {
         userEntity.setTertiaryProperty("");
@@ -475,11 +533,11 @@ public class EntityBuilder {
       LOG.error("Error while building managed users count for user: {}", userEntity.getUsername(), e);
     }
   }
-  
+
   private static void buildListManagers(ProfileEntity userEntity, Profile profile, String restPath) {
     @SuppressWarnings("unchecked")
     ArrayList<Map<String, String>> userNames = new ArrayList<>();
-    if(profile.getProperty(MANAGER) instanceof List<?>) {
+    if (profile.getProperty(MANAGER) instanceof List<?>) {
       userNames = (ArrayList<Map<String, String>>) profile.getProperty(MANAGER);
     } else {
       // In case of AD, the manager is a single value property
@@ -506,11 +564,16 @@ public class EntityBuilder {
     return profilePropertyService;
   }
 
-  public static List<ProfilePropertySettingEntity> buildProperties(Profile profile, List<Long> hiddenProfileProperties) {
+  public static List<ProfilePropertySettingEntity> buildProperties(Profile profile, boolean canViewProperties) {
+    ProfilePropertyService profilePropertyService = getProfilePropertyService();
+    List<Long> hiddenProfileProperties = profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(profile.getIdentity()
+                                                                                                                  .getId()));
 
     Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
-    ProfilePropertyService profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
-    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings().stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
+    List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings()
+                                                                  .stream()
+                                                                  .filter(prop -> prop.isVisible() || (prop.isEditable() && canViewProperties))
+                                                                  .toList();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
     boolean internal = false;
@@ -527,11 +590,14 @@ public class EntityBuilder {
       if (property.getParentId() != null && property.getParentId() != 0L) {
         subProperties.add(property);
       } else {
-        ProfilePropertySettingEntity profilePropertySettingEntity =
-                                                                  buildEntityProfilePropertySetting(property,
-                                                                                                    profilePropertyService,
-                                                                                                    ProfilePropertyService.LABELS_OBJECT_TYPE);
-        profilePropertySettingEntity.setHidden(hiddenProfileProperties.contains(profilePropertySettingEntity.getId()));
+        ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(property,
+                                                                                                      profilePropertyService,
+                                                                                                      ProfilePropertyService.LABELS_OBJECT_TYPE);
+        boolean isHidden = hiddenProfileProperties.contains(profilePropertySettingEntity.getId());
+        if (isHidden && !canViewProperties) {
+          continue;
+        }
+        profilePropertySettingEntity.setHidden(isHidden);
         if (profile.getProperty(property.getPropertyName()) != null) {
           if (profile.getProperty(property.getPropertyName()) instanceof String propertyValue) {
             if (StringUtils.isNotEmpty(propertyValue)) {
@@ -557,8 +623,8 @@ public class EntityBuilder {
                   ProfilePropertySettingEntity subProfilePropertySettingEntity = new ProfilePropertySettingEntity();
                   if (StringUtils.isNotEmpty(subProperty.get("key"))) {
                     ProfilePropertySetting propertySetting =
-                                                           profilePropertyService.getProfileSettingByName(property.getPropertyName()
-                                                               + "." + subProperty.get("key"));
+                                                           profilePropertyService.getProfileSettingByName(property.getPropertyName() +
+                                                               "." + subProperty.get("key"));
                     if (propertySetting == null) {
                       propertySetting = profilePropertyService.getProfileSettingByName(subProperty.get("key"));
                     }
@@ -567,8 +633,11 @@ public class EntityBuilder {
                                                       buildEntityProfilePropertySetting(propertySetting,
                                                                                         profilePropertyService,
                                                                                         ProfilePropertyService.LABELS_OBJECT_TYPE);
+                      isHidden = hiddenProfileProperties.contains(profilePropertySettingEntity.getId());
+                      if (isHidden && !canViewProperties) {
+                        continue;
+                      }
                       subProfilePropertySettingEntity.setHidden(hiddenProfileProperties.contains(subProfilePropertySettingEntity.getId()));
-
                     } else {
                       subProfilePropertySettingEntity.setPropertyName(subProperty.get("key"));
                     }
@@ -595,10 +664,14 @@ public class EntityBuilder {
         profilePropertySettingEntity.setValue((String) profile.getProperty(property.getPropertyName()));
         profilePropertySettingEntity.setInternal(internal);
         ProfilePropertySettingEntity parentProperty = properties.get(property.getParentId());
-        List<ProfilePropertySettingEntity> children = parentProperty.getChildren();
-        children.add(profilePropertySettingEntity);
-        parentProperty.setChildren(children);
-        properties.put(parentProperty.getId(), parentProperty);
+        if (parentProperty != null) {
+          List<ProfilePropertySettingEntity> children = parentProperty.getChildren();
+          if (children != null) {
+            children.add(profilePropertySettingEntity);
+            parentProperty.setChildren(children);
+            properties.put(parentProperty.getId(), parentProperty);
+          }
+        }
       } else {
         ProfilePropertySettingEntity parent = properties.get(property.getParentId());
         ProfilePropertySettingEntity profilePropertySettingEntity =
@@ -608,7 +681,7 @@ public class EntityBuilder {
                                                                                                  .equals(child.getPropertyName()))
                                                                         .findAny()
                                                                         .orElse(null);
-        if (profilePropertySettingEntity == null) {
+        if (profilePropertySettingEntity == null && parent != null) {
           profilePropertySettingEntity = buildEntityProfilePropertySetting(property,
                                                                            profilePropertyService,
                                                                            ProfilePropertyService.LABELS_OBJECT_TYPE);
@@ -624,24 +697,30 @@ public class EntityBuilder {
     return new ArrayList<>(properties.values());
   }
 
-  public static void buildPhoneEntities(Profile profile, ProfileEntity userEntity) {
+  public static void buildPhoneEntities(Profile profile, ProfileEntity userEntity, boolean canViewProperties) {
     List<Map<String, String>> phones = profile.getPhones();
     if (phones != null && !phones.isEmpty()) {
       List<PhoneEntity> phoneEntities = new ArrayList<>();
       for (Map<String, String> phone : phones) {
-        phoneEntities.add(new PhoneEntity(phone.get("key"), phone.get("value")));
+        String phoneType = phone.get("key");
+        if (canViewProperties || isProfilePropertyVisible(phoneType)) {
+          phoneEntities.add(new PhoneEntity(phoneType, phone.get("value")));
+        }
       }
       userEntity.setPhones(phoneEntities);
     }
   }
 
-  public static void buildImEntities(Profile profile, ProfileEntity userEntity) {
+  public static void buildImEntities(Profile profile, ProfileEntity userEntity, boolean canViewProperties) {
     @SuppressWarnings("unchecked")
     List<Map<String, String>> ims = (List<Map<String, String>>) profile.getProperty(Profile.CONTACT_IMS);
     if (ims != null && !ims.isEmpty()) {
       List<IMEntity> imEntities = new ArrayList<>();
       for (Map<String, String> im : ims) {
-        imEntities.add(new IMEntity(im.get("key"), im.get("value")));
+        String imType = im.get("key");
+        if (canViewProperties || isProfilePropertyVisible(imType)) {
+          imEntities.add(new IMEntity(imType, im.get("value")));
+        }
       }
       userEntity.setIms(imEntities);
     }
@@ -797,10 +876,10 @@ public class EntityBuilder {
         if (expandFields.contains(RestProperties.UNREAD)) {
           Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
           SpaceWebNotificationService spaceWebNotificationService =
-              ExoContainerContext.getService(SpaceWebNotificationService.class);
+                                                                  ExoContainerContext.getService(SpaceWebNotificationService.class);
           Map<String, Long> unreadItems =
-              spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
-                                                                        Long.parseLong(space.getId()));
+                                        spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
+                                                                                                  Long.parseLong(space.getId()));
           if (MapUtils.isNotEmpty(unreadItems)) {
             spaceEntity.setUnreadItems(unreadItems);
           }
@@ -811,11 +890,12 @@ public class EntityBuilder {
           UserSetting userSetting = userSettingService.get(userId);
           spaceEntity.setIsMuted(String.valueOf(userSetting.isSpaceMuted(Long.parseLong(space.getId()))));
         }
-        
+
         if (expandFields.contains(RestProperties.NAVIGATIONS_PERMISSION)) {
           UserPortalConfigService service =
-                  ExoContainerContext.getService(UserPortalConfigService.class);
-          PortalConfig sitePortalConfig = service.getDataStorage().getPortalConfig(new SiteKey(SiteType.GROUP, space.getGroupId()));
+                                          ExoContainerContext.getService(UserPortalConfigService.class);
+          PortalConfig sitePortalConfig =
+                                        service.getDataStorage().getPortalConfig(new SiteKey(SiteType.GROUP, space.getGroupId()));
           spaceEntity.setCanEditNavigations(service.getUserACL().hasPermission(sitePortalConfig));
         }
       }
@@ -1061,11 +1141,14 @@ public class EntityBuilder {
         List<MetadataItemEntity> activityMetadataEntities =
                                                           metadataItems.stream()
                                                                        .filter(metadataItem -> metadataItem.getMetadata()
-                                                                                                           .getAudienceId() == 0
-                                                                           || metadataItem.getMetadata()
-                                                                                          .getAudienceId() == streamOwnerId
-                                                                           || metadataItem.getMetadata()
-                                                                                          .getAudienceId() == authentiatedUserId)
+                                                                                                           .getAudienceId()
+                                                                           == 0
+                                                                                               || metadataItem.getMetadata()
+                                                                                                              .getAudienceId()
+                                                                                                   == streamOwnerId
+                                                                                               || metadataItem.getMetadata()
+                                                                                                              .getAudienceId()
+                                                                                                   == authentiatedUserId)
                                                                        .map(metadataItem -> new MetadataItemEntity(metadataItem.getId(),
                                                                                                                    metadataItem.getMetadata()
                                                                                                                                .getName(),
@@ -1102,8 +1185,8 @@ public class EntityBuilder {
 
   public static void buildActivityParamsFromEntity(ExoSocialActivity activity, Map<String, ?> templateParams) {
     Map<String, String> currentTemplateParams =
-                                              activity.getTemplateParams() == null ? new HashMap<>()
-                                                                                   : new HashMap<>(activity.getTemplateParams());
+                                              activity.getTemplateParams() == null ? new HashMap<>() :
+                                                                                   new HashMap<>(activity.getTemplateParams());
     if (templateParams != null) {
       templateParams.forEach((name, value) -> currentTemplateParams.put(name, (String) value));
     }
@@ -1170,8 +1253,8 @@ public class EntityBuilder {
                                                                 RestUtils.DEFAULT_OFFSET,
                                                                 RestUtils.HARD_LIMIT)));
     } else {
-      commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE + "/social/comments/"
-          + comment.getId() + "/likes"));
+      commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE +
+          "/social/comments/" + comment.getId() + "/likes"));
     }
     commentEntity.setCreateDate(RestUtils.formatISO8601(new Date(comment.getPostedTime())));
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));
@@ -1428,7 +1511,11 @@ public class EntityBuilder {
         as.put(RestProperties.TYPE, SPACE_ACTIVITY_TYPE);
 
         Space space = getSpaceService().getSpaceByPrettyName(owner.getRemoteId());
-        as.put(RestProperties.SPACE, buildEntityFromSpace(space, authentiatedUser.getRemoteId(), restPath, RestProperties.FAVORITE + "," + RestProperties.MUTED));
+        as.put(RestProperties.SPACE,
+               buildEntityFromSpace(space,
+                                    authentiatedUser.getRemoteId(),
+                                    restPath,
+                                    RestProperties.FAVORITE + "," + RestProperties.MUTED));
       }
       as.put(RestProperties.ID, owner.getRemoteId());
     }
@@ -1777,7 +1864,7 @@ public class EntityBuilder {
                                                                                          long userIdentityId) {
     if (profilePropertySettingList.isEmpty())
       return new ArrayList<>();
-    
+
     List<Long> hiddenPropertyIds = profilePropertyService.getHiddenProfilePropertyIds(userIdentityId);
     List<ProfilePropertySettingEntity> profilePropertySettingsList = new ArrayList<>();
     for (ProfilePropertySetting propertySetting : profilePropertySettingList) {
@@ -1791,7 +1878,7 @@ public class EntityBuilder {
       ProfilePropertySettingEntity entity = profilePropertySettingsList.get(i);
       entity.setChildren(profilePropertySettingsList.stream()
                                                     .filter(element -> element.getParentId() != null
-                                                        && element.getParentId().equals(entity.getId()))
+                                                                       && element.getParentId().equals(entity.getId()))
                                                     .toList());
       profilePropertySettingsList.set(i, entity);
     }
@@ -1890,14 +1977,13 @@ public class EntityBuilder {
     return organizationService;
   }
 
-
   public static RelationshipManager getRelationshipManager() {
     if (relationshipManager == null) {
       relationshipManager = CommonsUtils.getService(RelationshipManager.class);
     }
     return relationshipManager;
   }
-  
+
   public static List<SiteEntity> buildSiteEntities(List<PortalConfig> sites,
                                                    HttpServletRequest request,
                                                    boolean expandNavigations,
@@ -1924,11 +2010,11 @@ public class EntityBuilder {
                                        locale));
     }
     siteEntities = siteEntities.stream().filter(Objects::nonNull).toList();
-    return sortByDisplayOrder ? siteEntities
-                              : siteEntities.stream()
-                                            .sorted(Comparator.comparing(SiteEntity::getDisplayName,
-                                                                         String.CASE_INSENSITIVE_ORDER))
-                                            .toList();
+    return sortByDisplayOrder ? siteEntities :
+                              siteEntities.stream()
+                                          .sorted(Comparator.comparing(SiteEntity::getDisplayName,
+                                                                       String.CASE_INSENSITIVE_ORDER))
+                                          .toList();
   }
 
   public static SiteEntity buildSiteEntity(PortalConfig site,
@@ -1951,8 +2037,8 @@ public class EntityBuilder {
     try {
       HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
       UserPortalConfig userPortalConfig =
-                                        getUserPortalConfigService().getUserPortalConfig(siteType != SiteType.PORTAL ? getUserPortalConfigService().getMetaPortal()
-                                                                                                                     : site.getName(),
+                                        getUserPortalConfigService().getUserPortalConfig(siteType
+                                            != SiteType.PORTAL ? getUserPortalConfigService().getMetaPortal() : site.getName(),
                                                                                          currentUser,
                                                                                          userPortalContext);
 
@@ -1969,7 +2055,7 @@ public class EntityBuilder {
         }
       }
     } catch (Exception e) {
-      throw new Exception("Error while getting site " +  site.getName() + " navigations for user " + currentUser);
+      throw new Exception("Error while getting site " + site.getName() + " navigations for user " + currentUser);
     }
 
     if (excludeEmptyNavigationSites && (rootNode == null || rootNode.getChildren().isEmpty())) {
@@ -2004,7 +2090,7 @@ public class EntityBuilder {
     Map<String, Object> editPermission = computePermission(site.getEditPermission());
     long siteId = Long.parseLong((site.getStorageId().split("_"))[1]);
     String translatedSiteLabel = getTranslatedLabel(SITE_LABEL_FIELD_NAME, siteId, locale);
-    String translateSiteDescription= getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
+    String translateSiteDescription = getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
     displayName = StringUtils.isNotBlank(translatedSiteLabel) ? translatedSiteLabel : displayName;
     return new SiteEntity(siteId,
                           siteType,
@@ -2024,7 +2110,8 @@ public class EntityBuilder {
   }
 
   private static List<Map<String, Object>> computePermissions(String[] permissions) {
-    return permissions != null ? Arrays.stream(permissions).map(EntityBuilder::computePermission).toList() : new ArrayList<Map<String,Object>>();
+    return permissions != null ? Arrays.stream(permissions).map(EntityBuilder::computePermission).toList() :
+                               new ArrayList<Map<String, Object>>();
   }
 
   private static Map<String, Object> computePermission(String permission) {
@@ -2034,7 +2121,7 @@ public class EntityBuilder {
         String[] permissionParts = permission.split(":");
         String sitePermissionGroupId;
         if (permissionParts.length == 1) {
-          if (permission.equals("Everyone")){
+          if (permission.equals("Everyone")) {
             sitePermission.put("membershipType", permission);
             return sitePermission;
           }
@@ -2084,7 +2171,7 @@ public class EntityBuilder {
     }
     return settingService;
   }
-  
+
   private static TranslationService getTranslationService() {
     if (translationService == null) {
       translationService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(TranslationService.class);
@@ -2095,21 +2182,23 @@ public class EntityBuilder {
   private static boolean isMetaSite(String siteName) {
     return getUserPortalConfigService().getMetaPortal().equals(siteName);
   }
+
   public static String getTranslatedLabel(String fieldName, long siteId, Locale locale) {
     return getTranslationService().getTranslationLabel(SITE_OBJECT_TYPE,
-            siteId,
-            fieldName,
-            locale);
+                                                       siteId,
+                                                       fieldName,
+                                                       locale);
 
   }
+
   private static Visibility[] convertVisibilities(List<String> visibilityNames) {
     if (visibilityNames == null) {
       return Visibility.DEFAULT_VISIBILITIES;
     }
     return visibilityNames.stream()
-            .map(visibilityName -> Visibility.valueOf(StringUtils.upperCase(visibilityName)))
-            .toList()
-            .toArray(new Visibility[0]);
+                          .map(visibilityName -> Visibility.valueOf(StringUtils.upperCase(visibilityName)))
+                          .toList()
+                          .toArray(new Visibility[0]);
   }
 
   /**
@@ -2145,4 +2234,18 @@ public class EntityBuilder {
     }
     return hasPageChildNode;
   }
+
+  private static boolean isProfilePropertyVisible(String propertyName) {
+    ProfilePropertySetting profilePropertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
+    return profilePropertySetting != null
+           && (profilePropertySetting.isVisible()
+               || !getProfilePropertyService().isPropertySettingHiddenable(profilePropertySetting));
+  }
+
+  private static String getCurrentUserName() {
+    ConversationState conversationState = ConversationState.getCurrent();
+    return conversationState == null || conversationState.getIdentity() == null ? null :
+                                                                                conversationState.getIdentity().getUserId();
+  }
+
 }
