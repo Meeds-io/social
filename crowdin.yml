@@ -560,7 +560,7 @@ files: [
     "escape_quotes": 0,
   },
   {
-    "source": "/webapp/portlet/src/main/resources/locale/portlet/hubSettings_en.properties",
+    "source": "/webapp/portlet/src/main/resources/locale/portlet/PlatformSettings_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
     "translation_replace": {
@@ -572,7 +572,7 @@ files: [
       "sv_SE": "sv_SE","th_TH": "th","tl_PH": "tl","tr_TR": "tr","uk_UA": "uk","ur_IN": "ur_IN","vi_VN": "vi",
       "zh_CN": "zh_CN","zh_TW": "zh_TW",
     },
-    "dest": "hub/social/webapp/hubSettings.properties",
+    "dest": "hub/social/webapp/PlatformSettings.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
     "escape_quotes": 0,
