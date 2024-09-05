@@ -73,5 +73,8 @@ public class RestProperties {
 
   public static final String MUTED                  = "muted";
 
+  /* Kept for backward compatibility */
+  public static final String USER_NAME              = "userName";
+
   public static final String NAVIGATIONS_PERMISSION = "navigations_permission";
 }

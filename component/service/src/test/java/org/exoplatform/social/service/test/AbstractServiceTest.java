@@ -255,7 +255,7 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
 
   protected org.exoplatform.social.core.identity.model.Identity createIdentity(String username) {
     org.exoplatform.social.core.identity.model.Identity identity = identityManager.getOrCreateUserIdentity(username);
-    Profile profile = new Profile(identity);
+    Profile profile = identity.getProfile();
     profile.setProperty(Profile.FIRST_NAME, username);
     profile.setProperty(Profile.LAST_NAME, username);
     identity.setProfile(profile);
