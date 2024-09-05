@@ -15,40 +15,48 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-col class="mx-3">
-    <v-row>
-      <v-icon
-        class="uiIcon fa mx-auto" 
-        :size="iconSize"
-        :color="iconColor"
-        :class="iconRef && iconRef || ''" />
-    </v-row>
-    <v-row class="text-center mt-1">
-      <v-card
-        flat
-        max-width="150"
-        class="mx-auto">
-        {{ infoMessage }}
-      </v-card>
-    </v-row>
-  </v-col>
+  <v-card
+    :href="link"
+    :width="$root.isMobile && 250 || 115"
+    :min-height="$root.isMobile && 'auto' || 125"
+    max-width="100%"
+    class="d-flex flex-row flex-sm-column align-center mb-3 mb-sm-0 mx-sm-3 py-3"
+    outlined
+    hover
+    v-on="!link && {
+      click: () => $emit('apply'),
+    }">
+    <v-img
+      :src="`/social-portlet/images/emptyCol${iconIndex}.webp`"
+      :height="iconSize"
+      :width="iconSize"
+      class="flex-grow-0 mx-sm-auto px-3 px-sm-0"
+      contain
+      eager />
+    <v-card
+      max-width="150"
+      class="pe-3 ps-0 px-sm-3 pt-sm-3 text-start text-sm-center flex-grow-1"
+      flat>
+      {{ infoMessage }}
+    </v-card>
+  </v-card>
 </template>
 <script>
 export default {
   props: {
-    iconRef: {
-      type: String,
-      default: 'fa-exclamation-circle'
-    },
     iconSize: {
-      type: String,
-      default: '50'
+      type: Number,
+      default: () => 60,
     },
-    iconColor: {
-      type: String,
-      default: 'primary'
+    iconIndex: {
+      type: Number,
+      default: () => 0,
     },
     infoMessage: {
+      type: String,
+      default: null
+    },
+    link: {
       type: String,
       default: null
     },
