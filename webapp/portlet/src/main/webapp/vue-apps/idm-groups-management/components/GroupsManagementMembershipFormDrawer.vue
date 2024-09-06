@@ -1,13 +1,14 @@
 <template>
   <exo-drawer
     id="membershipFormDrawer"
-    ref="membershipFormDrawer"
-    right
-    @closed="drawer = false">
+    ref="drawer"
+    v-model="drawer"
+    :loading="saving"
+    right>
     <template slot="title">
       {{ title }}
     </template>
-    <template slot="content">
+    <template v-if="drawer" #content>
       <v-form
         ref="membershipForm"
         class="form-horizontal pt-0 pb-4"
@@ -129,7 +130,6 @@
               max-width="100%"
               item-text="fullName"
               item-value="userName"
-              persistent-hint
               hide-selected
               chips
               cache-items
@@ -214,7 +214,8 @@ export default {
   },
   watch: {
     searchTerm(value) {
-      if (value && value.length) {
+      if (value?.length) {
+        this.$refs.userNameInput.isFocused = true;
         window.setTimeout(() => {
           if (this.previousSearchTerm === this.searchTerm) {
             this.users = [];
@@ -232,16 +233,9 @@ export default {
         this.users = [];
       }
     },
-    saving() {
-      if (this.saving) {
-        this.$refs.membershipFormDrawer.startLoading();
-      } else {
-        this.$refs.membershipFormDrawer.endLoading();
-      }
-    },
     drawer() {
       if (this.drawer) {
-        this.$refs.membershipFormDrawer.open();
+        this.$refs.drawer.open();
         window.setTimeout(() => {
           this.$refs.membershipTypeInput.focus();
           $('#membershipFormDrawer #userNameInput').on('blur', () => {
@@ -252,7 +246,7 @@ export default {
 
         }, 200);
       } else {
-        this.$refs.membershipFormDrawer.close();
+        this.$refs.drawer.close();
       }
     },
     selectedUsers() {
@@ -345,7 +339,7 @@ export default {
           }
         }
       }).then(() => this.$root.$emit('refreshGroupMemberships'))
-        .then(() => this.$refs.membershipFormDrawer.close())
+        .then(() => this.$refs.drawer.close())
         .catch(this.handleError)
         .finally(() => {
           this.memberships = [];
