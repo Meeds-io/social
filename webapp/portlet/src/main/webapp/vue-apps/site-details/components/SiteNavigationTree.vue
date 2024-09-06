@@ -57,6 +57,10 @@ export default {
       type: Object,
       default: null
     },
+    selectedName: {
+      type: String,
+      default: null
+    },
   },
   data: () => ({
     selectedNodeUri: eXo.env.portal.selectedNodeUri,
@@ -64,16 +68,23 @@ export default {
   }),
   computed: {
     openLevel() {
-      const ids = [];
-      if (this.navigations?.length) {
-        this.navigations.forEach(nav => {
-          ids.push(nav.name);
-          ids.push(...nav.children?.length && nav.children?.map(nav => nav.name) || []);
-        });
+      if (this.selectedName) {
+        const ids = [this.selectedName];
+        const splittedCurrentUri = this.selectedNodeUri.split('/');
+        ids.push (...splittedCurrentUri);
+        return ids;
+      } else {
+        const ids = [];
+        if (this.navigations?.length) {
+          this.navigations.forEach(nav => {
+            ids.push(nav.name);
+            ids.push(...nav.children?.length && nav.children?.map(nav => nav.name) || []);
+          });
+        }
+        const splittedCurrentUri = this.selectedNodeUri.split('/');
+        ids.push (...splittedCurrentUri);
+        return ids;
       }
-      const splittedCurrentUri = this.selectedNodeUri.split('/');
-      ids.push (...splittedCurrentUri);
-      return ids;
     },
     firstNavigationId() {
       return this.navigations?.[0]?.id;
