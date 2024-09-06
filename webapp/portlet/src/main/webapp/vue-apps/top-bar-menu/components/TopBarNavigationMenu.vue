@@ -55,6 +55,7 @@
         :key="navigation.id"
         :navigation="navigation"
         :base-site-uri="getNavigationBaseUri(index)"
+        :selected-path="selectedPath"
         @update-navigation-state="updateNavigationState" />
     </v-tabs>
   </v-app>
@@ -96,6 +97,15 @@ export default {
     siteUri() {
       return this.siteType === 'GROUP' ? `g/${this.siteName?.replaceAll('/', ':')}` : this.siteName;
     },
+    selectedPath() {
+      const pathname = window.location.pathname;
+      if (pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}/`.toLowerCase()
+          || pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}`.toLowerCase()) {
+        return `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
+      } else {
+        return pathname;
+      }
+    },
     baseSiteUri() {
       return `${eXo.env.portal.context}/${this.siteUri}/`;
     },
@@ -128,7 +138,6 @@ export default {
   methods: {
     init() {
       return this.getNavigations()
-        .then(() => this.getActiveTab())
         .finally(() => this.initialized = true);
     },
     cacheMenuContent() {
@@ -162,6 +171,7 @@ export default {
     },
     updateNavigationState(value) {
       sessionStorage.setItem(this.navigationTabState,  value);
+      this.tab = value;
     },
     constructNavigations() {
       if (this.navigations.length && this.navigations[0].children?.length) {
@@ -189,17 +199,6 @@ export default {
         this.mobileNavigations = this.navigations;
       }
       this.computeSiteBodyMargin();
-    },
-    getActiveTab() {
-      let pathname = location.pathname;
-      if (pathname === `${eXo.env.portal.context}/${this.siteUri}/`) {
-        pathname = `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
-        this.updateNavigationState(pathname);
-      }
-      this.tab = sessionStorage.getItem(this.navigationTabState);
-      if (pathname !== this.tab && !pathname.startsWith(this.tab)) {
-        this.tab = pathname;
-      }
     },
     computeSiteBodyMargin() {
       if (this.isMobile && this.navigationsLength > 0) {

@@ -17,9 +17,10 @@
 
 <template>
   <v-treeview
+    v-if="navigationTree"
     id="siteNavigationTree"
     :open.sync="openLevel"
-    :items="navigations"
+    :items="navigationTree"
     :active="active"
     active-class="v-item--active v-list-item--active"
     class="treeView-item my-2"
@@ -53,6 +54,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    collapsed: {
+      type: Boolean,
+      default: false,
+    },
     spaceUnreadItems: {
       type: Object,
       default: null
@@ -64,15 +69,17 @@ export default {
   },
   data: () => ({
     selectedNodeUri: eXo.env.portal.selectedNodeUri,
-    currentSite: eXo.env.portal.portalName,
+    currentSite: eXo.env.portal.siteKeyName,
   }),
   computed: {
     openLevel() {
       if (this.selectedName) {
         const ids = [this.selectedName];
         const splittedCurrentUri = this.selectedNodeUri.split('/');
-        ids.push (...splittedCurrentUri);
+        ids.push (...splittedCurrentUri.slice(1));
         return ids;
+      } else if (this.collapsed) {
+        return [];
       } else {
         const ids = [];
         if (this.navigations?.length) {
@@ -86,6 +93,17 @@ export default {
         return ids;
       }
     },
+    navigationTree() {
+      if (this.navigations?.length === 1) {
+        const navigations = JSON.parse(JSON.stringify(this.navigations));
+        const rootNavigation = navigations[0];
+        const rootNavigationChildren = navigations[0]?.children || [];
+        rootNavigation.children = [];
+        return this.filterNodes([rootNavigation, ...rootNavigationChildren]);
+      } else {
+        return this.navigations;
+      }
+    },
     firstNavigationId() {
       return this.navigations?.[0]?.id;
     },
@@ -95,6 +113,24 @@ export default {
       }
       const splittedCurrentUri = this.selectedNodeUri.split('/');
       return [splittedCurrentUri[splittedCurrentUri.length -1]];
+    },
+  },
+  methods: {
+    filterNodes(navigations) {
+      if (navigations?.length) {
+        return navigations.map(n => {
+          n.children = this.filterNodes(n.children);
+          if (n.children?.length
+              || n.pageLink
+              || n.pageKey) {
+            return n;
+          } else {
+            return [];
+          }
+        }).filter(n => n.children?.length || n.pageLink || n.pageKey);
+      } else {
+        return [];
+      }
     },
   },
 };
