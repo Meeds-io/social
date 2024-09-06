@@ -35,7 +35,7 @@ const vuetify = Vue.prototype.vuetifyOptions;
 
 const appId = 'topBarMenu';
 
-export function init() {
+export function init(cacheId) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
   const appElement = document.createElement('div');
@@ -43,6 +43,9 @@ export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n =>
     // init Vue app when locale resources are ready
     Vue.createApp({
+      data: {
+        cacheId,
+      },
       template: `<top-bar-navigation-menu v-cacheable id="${appId}" />`,
       vuetify,
       i18n

@@ -220,6 +220,68 @@ public class SiteRest implements ResourceContainer {
   }
 
   @GET
+  @Path("{siteType}/{siteName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Gets a specific site by type and name", description = "Gets site by type and name", method = "GET")
+  @ApiResponses(value = {
+                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+                          @ApiResponse(responseCode = "304", description = "Not modified"),
+                          @ApiResponse(responseCode = "401", description = "Not authorized"),
+                          @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public Response getSite(
+                          @Context
+                          HttpServletRequest httpServletRequest,
+                          @Context
+                          Request request,
+                          @Parameter(description = "site type", required = true)
+                          @PathParam("siteType")
+                          String siteType,
+                          @Parameter(description = "site name", required = true)
+                          @PathParam("siteName")
+                          String siteName,
+                          @Parameter(description = "to expand site navigations nodes")
+                          @DefaultValue("false")
+                          @QueryParam("expandNavigations")
+                          boolean expandNavigations,
+                          @Parameter(description = "Multivalued visibilities of navigation nodes to retrieve, possible values: DISPLAYED, HIDDEN, SYSTEM or TEMPORAL. If empty, all visibilities will be used.",
+                                     required = false)
+                          @Schema(defaultValue = "All possible values combined")
+                          @QueryParam("visibility")
+                          List<String> visibilityNames,
+                          @Parameter(description = "to check, in expandNavigations case, the navigation nodes scheduling start and end dates")
+                          @DefaultValue("false")
+                          @QueryParam("temporalCheck")
+                          boolean temporalCheck,
+                          @Parameter(description = "to exclude group nodes without page child nodes")
+                          @DefaultValue("false")
+                          @QueryParam("excludeGroupNodesWithoutPageChildNodes")
+                          boolean excludeGroupNodesWithoutPageChildNodes,
+                          @Parameter(description = "to exclude sites with empty navigation")
+                          @DefaultValue("false")
+                          @QueryParam("excludeEmptyNavigationSites")
+                          boolean excludeEmptyNavigationSites,
+                          @Parameter(description = "Used to retrieve the site label and description in the requested language")
+                          @QueryParam("lang")
+                          String lang) {
+    siteName = siteName.replace(":", "/");
+    PortalConfig site = layoutService.getPortalConfig(siteType, siteName);
+    if (site == null) {
+      return Response.status(Status.NOT_FOUND).build();
+    } else {
+      return getSiteById(httpServletRequest,
+                         request,
+                         site.getStorageId().replace("site_", ""),
+                         expandNavigations,
+                         visibilityNames,
+                         temporalCheck,
+                         excludeGroupNodesWithoutPageChildNodes,
+                         excludeEmptyNavigationSites,
+                         lang);
+    }
+  }
+
+  @GET
   @Path("{siteId}")
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Gets a specific site by id", description = "Gets site by id", method = "GET")

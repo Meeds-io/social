@@ -30,7 +30,10 @@
     transition
     dense>
     <template #label="{ item }">
-      <site-navigation-item :navigation="item" :enable-change-home="enableChangeHome" />
+      <site-navigation-item
+        :navigation="item"
+        :enable-change-home="enableChangeHome"
+        :space-unread-items="spaceUnreadItems && item.id === firstNavigationId && spaceUnreadItems" />
     </template>
   </v-treeview>
 </template>
@@ -50,6 +53,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    spaceUnreadItems: {
+      type: Object,
+      default: null
+    },
   },
   data: () => ({
     selectedNodeUri: eXo.env.portal.selectedNodeUri,
@@ -67,6 +74,9 @@ export default {
       const splittedCurrentUri = this.selectedNodeUri.split('/');
       ids.push (...splittedCurrentUri);
       return ids;
+    },
+    firstNavigationId() {
+      return this.navigations?.[0]?.id;
     },
     active() {
       if (this.siteName !== this.currentSite) {
