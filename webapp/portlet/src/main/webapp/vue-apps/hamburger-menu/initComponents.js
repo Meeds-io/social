@@ -27,7 +27,6 @@ import ProfileHamburgerNavigation from './components/profile/ProfileHamburgerNav
 import RecentSpacesHamburgerNavigation from './components/recent-spaces/RecentSpacesHamburgerNavigation.vue';
 import SpaceNavigationItem from './components/recent-spaces/SpaceNavigationItem.vue';
 import SpacePanelHamburgerNavigation from './components/recent-spaces/SpacePanelHamburgerNavigation.vue';
-import SpacePanelHamburgerNavigationItem from './components/recent-spaces/SpacePanelHamburgerNavigationItem.vue';
 import SpacesHamburgerNavigation from './components/recent-spaces/SpacesHamburgerNavigation.vue';
 import SpacesNavigationContent from './components/recent-spaces/SpacesNavigationContent.vue';
 import SpacesNavigationEmpty from './components/recent-spaces/SpacesNavigationEmpty.vue';
@@ -49,7 +48,6 @@ const components = {
   'recent-spaces-hamburger-navigation': RecentSpacesHamburgerNavigation,
   'space-navigation-item': SpaceNavigationItem,
   'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation,
-  'space-panel-hamburger-navigation-item': SpacePanelHamburgerNavigationItem,
   'spaces-navigation-content': SpacesNavigationContent,
   'spaces-navigation-empty': SpacesNavigationEmpty,
   'site-hamburger-navigation': SiteHamburgerNavigation,
