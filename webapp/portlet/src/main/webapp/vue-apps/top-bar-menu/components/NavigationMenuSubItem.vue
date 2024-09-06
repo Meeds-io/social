@@ -25,20 +25,21 @@
     dense>
     <v-list-item
       v-if="hasPage || hasChildren && childrenHasPage"
-      class="pt-0 pb-0"
       :href="navigationNodeUri"
       :target="navigationNodeTarget"
-      @click.stop="checkLink(navigation, $event)"
-      :link="!!hasPage">
+      :link="!!hasPage"
+      class="pt-0 pb-0"
+      @click.stop="checkLink(navigation, $event)">
       <v-menu
         v-model="showMenu"
         rounded
         :position-x="positionX"
         :position-y="positionY"
         transition="slide-x-reverse-transition"
-        absolute
         :left="$vuetify.rtl"
         :open-on-hover="isOpenedOnHover"
+        absolute
+        eager
         offset-x>
         <template #activator="{ attrs, on }">
           <v-list-item-title
@@ -70,7 +71,9 @@
           :navigation="children"
           :parent-navigation-uri="parentNavigationUri"
           :base-site-uri="baseSiteUri"
-          @update-navigation-state="updateNavigationState" />
+          :selected-path="selectedPath"
+          @update-navigation-state="updateNavigationState"
+          @select="$emit('select')" />
       </v-menu>
     </v-list-item>
   </v-list>
@@ -78,14 +81,6 @@
 
 <script>
 export default {
-  data() {
-    return {
-      isOpenedOnHover: true,
-      showMenu: false,
-      positionX: 0,
-      positionY: 0,
-    };
-  },
   props: {
     navigation: {
       type: Object,
@@ -98,19 +93,19 @@ export default {
     parentNavigationUri: {
       type: String,
       default: null
-    }
+    },
+    selectedPath: {
+      type: String,
+      default: null
+    },
   },
-  watch: {
-    showMenu() {
-      this.isOpenedOnHover = !this.showMenu;
-      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
-      this.positionY = this.$el.getBoundingClientRect().top;
-      this.$root.$emit('close-sibling-drop-menus-children', this);
-    }
-  },
-  created() {
-    window.addEventListener('resize', this.updateSize);
-    this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
+  data() {
+    return {
+      isOpenedOnHover: true,
+      showMenu: false,
+      positionX: 0,
+      positionY: 0,
+    };
   },
   computed: {
     hasChildren() {
@@ -123,11 +118,36 @@ export default {
       return this.checkChildrenHasPage(this.navigation);
     },
     navigationNodeUri() {
-      return this.navigation?.pageLink && this.urlVerify(this.navigation?.pageLink) || `${this.baseSiteUri}${this.navigation.uri}`;
+      return this.navigation?.pageLink
+        && this.urlVerify(this.navigation?.pageLink)
+        || `${this.baseSiteUri}${this.navigation.uri}`;
+    },
+    isSelected() {
+      return this.navigationNodeUri === this.selectedPath;
     },
     navigationNodeTarget() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
+  },
+  watch: {
+    isSelected: {
+      immediate: true,
+      handler() {
+        if (this.isSelected) {
+          this.$emit('select');
+        }
+      }
+    },
+    showMenu() {
+      this.isOpenedOnHover = !this.showMenu;
+      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
+      this.positionY = this.$el.getBoundingClientRect().top;
+      this.$root.$emit('close-sibling-drop-menus-children', this);
+    },
+  },
+  created() {
+    window.addEventListener('resize', this.updateSize);
+    this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
   },
   methods: {
     checkLink(navigation, e) {
