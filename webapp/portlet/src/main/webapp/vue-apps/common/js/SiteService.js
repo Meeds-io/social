@@ -61,6 +61,33 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
   });
 }
 
+export function getSite(siteType, siteName, params) {
+  const formData = new FormData();
+  formData.append('lang', params.lang);
+  formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
+  formData.append('expandNavigations', params.expandNavigations);
+  formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
+  formData.append('excludeGroupNodesWithoutPageChildNodes', params.excludeGroupNodesWithoutPageChildNodes);
+  formData.append('temporalCheck', params.temporalCheck);
+  if (params.visibility) {
+    params.visibility.forEach(visibility => {
+      formData.append('visibility', visibility);
+    });
+  }
+  const dataParams = new URLSearchParams(formData).toString();
+
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${siteType}/${siteName}?${dataParams}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error while getting site by type and name');
+    }
+  });
+}
+
 export function getSiteById(siteId, params) {
   const formData = new FormData();
   formData.append('lang', params.lang);

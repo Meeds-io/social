@@ -146,10 +146,9 @@
     </v-flex>
     <v-flex>
       <v-list>
-        <space-panel-hamburger-navigation-item
-          v-for="navigation in spaceNavigations"
-          :key="navigation.id"
-          :navigation="navigation"
+        <site-navigation-tree
+          :navigations="spaceNavigations"
+          :site-name="spaceGroupId"
           :space-unread-items="spaceUnreadItems" />
       </v-list>
     </v-flex>
@@ -175,6 +174,7 @@ export default {
     spaceNavigations: [],
     externalExtensions: [],
     spaceUnreadItems: null,
+    loading: false,
   }),
   computed: {
     spaceId() {
@@ -216,10 +216,15 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
+    spaceGroupId() {
+      return this.space?.groupId;
+    },
+    spaceUri() {
+      return this.spaceGroupId?.replace?.(/\//g, ':');
+    },
     spaceURL() {
-      if (this.space && this.space.groupId) {
-        const uriPart = this.space.groupId.replace(/\//g, ':');
-        return `${eXo.env.portal.context}/g/${uriPart}/`;
+      if (this.spaceUri) {
+        return `${eXo.env.portal.context}/g/${this.spaceUri}/`;
       } else {
         return '#';
       }
@@ -244,7 +249,7 @@ export default {
         if (newVal !== oldVal) {
           if (this.spaceId) {
             this.spaceNavigations = [];
-            this.retrieveSpaceNavigations(this.spaceId)
+            this.retrieveSpaceNavigations()
               .then(() => this.refreshExtensions());
           }
         }
@@ -272,18 +277,21 @@ export default {
         this.spaceUnreadItems = unread;
       }
     },
-    retrieveSpaceNavigations(spaceId) {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/navigations`, {
-        method: 'GET',
-        credentials: 'include',
+    retrieveSpaceNavigations() {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
+      return this.$siteService.getSite('GROUP', this.spaceUri, {
+        expandNavigations: true,
+        excludeEmptyNavigationSites: true,
+        lang: eXo.env.portal.language,
+        visibility: ['displayed', 'temporal'],
+        excludeGroupNodesWithoutPageChildNodes: true,
+        temporalCheck: true,
       })
-        .then(resp => resp && resp.ok && resp.json())
-        .then(data => {
-          data.forEach(navigation => {
-            navigation.uri = `${this.spaceURL}${navigation.uri}`;
-          });
-          this.spaceNavigations = data || [];
-        });
+        .then(data => this.spaceNavigations = data?.siteNavigations || [])
+        .finally(() => this.loading = false);
     },
     markAsAllRead() {
       this.$spaceService.markAllAsRead(this.spaceId);
