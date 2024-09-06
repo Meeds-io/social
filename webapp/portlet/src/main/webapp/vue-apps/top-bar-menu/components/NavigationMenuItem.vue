@@ -27,21 +27,23 @@
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     bottom
-    offset-y>
+    offset-y
+    eager>
     <template #activator="{ on, attrs }">
       <v-tab
         v-if="hasPage || hasChildren && childrenHasPage"
-        :class="`mx-auto text-break ${notClickable}`"
-        v-on="on"
-        v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
         :link="hasPage"
         :aria-label="navigation.label"
+        :class="`mx-auto text-break ${notClickable}`"
+        :value="navigationNodeUri"
+        v-on="on"
+        v-bind="attrs"
         role="tab"
         @click.stop="checkLink(navigation, $event)"
         @click="openUrl(navigationNodeUri, navigationNodeTarget)"
-        @change="updateNavigationState(navigation.uri)">
+        @change="updateNavigationState">
         <span
           class="text-truncate-3">
           {{ navigation.label }}
@@ -63,18 +65,14 @@
       :navigation="children"
       :base-site-uri="baseSiteUri"
       :parent-navigation-uri="navigation.uri"
-      @update-navigation-state="updateNavigationState" />
+      :selected-path="selectedPath"
+      @update-navigation-state="updateNavigationState"
+      @select="updateNavigationState" />
   </v-menu>
 </template>
 
 <script>
 export default {
-  data () {
-    return {
-      showMenu: false,
-      isOpenedOnHover: true,
-    };
-  },
   props: {
     navigation: {
       type: Object,
@@ -83,19 +81,22 @@ export default {
     baseSiteUri: {
       type: String,
       default: null
-    }
+    },
+    selectedPath: {
+      type: String,
+      default: null
+    },
   },
-  watch: {
-    showMenu() {
-      this.isOpenedOnHover = !this.showMenu;
-      this.$root.$emit('close-sibling-drop-menus', this); 
-    }
-  },
-  created() {
-    document.addEventListener('click', this.handleCloseMenu);
-    this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
+  data () {
+    return {
+      showMenu: false,
+      isOpenedOnHover: true,
+    };
   },
   computed: {
+    isSelected() {
+      return this.selectedPath === this.navigationNodeUri;
+    },
     notClickable() {
       return `${this.hasPage ? ' ' : ' not-clickable ' }`;
     },
@@ -113,11 +114,29 @@ export default {
     },
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
-    }
+    },
+  },
+  watch: {
+    showMenu() {
+      this.isOpenedOnHover = !this.showMenu;
+      this.$root.$emit('close-sibling-drop-menus', this); 
+    },
+    isSelected: {
+      immediate: true,
+      handler() {
+        if (this.isSelected) {
+          this.updateNavigationState();
+        }
+      }
+    },
+  },
+  created() {
+    document.addEventListener('click', this.handleCloseMenu);
+    this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
   },
   methods: {
-    updateNavigationState(value) {
-      this.$emit('update-navigation-state', `${this.baseSiteUri}${value}`);
+    updateNavigationState() {
+      this.$emit('update-navigation-state', this.navigationNodeUri);
     },
     checkLink(navigation, e) {
       if (!navigation.pageKey) {
