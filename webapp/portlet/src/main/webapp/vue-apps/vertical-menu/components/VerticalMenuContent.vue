@@ -25,7 +25,8 @@
       v-if="site"
       :site="site"
       extra-class=" px-0 py-0 "
-      display-sequentially />
+      display-sequentially
+      expand-selection-only />
   </v-card>
 </template>
 <script>
