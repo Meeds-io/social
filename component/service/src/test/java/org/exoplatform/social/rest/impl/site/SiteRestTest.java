@@ -143,6 +143,32 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
   }
 
   @Test
+  public void testGetSite() throws Exception {
+    HashSet<MembershipEntry> ms = new HashSet<>();
+    ms.add(new MembershipEntry("/platform/users"));
+    startSessionAs("john", ms);
+
+    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().stream().filter(siteEntity -> siteEntity.getSiteType() == SiteType.PORTAL).findFirst().get();
+    String path = getBaseUrl() + site.getSiteType().name() + "/NotExisting";
+    ContainerResponse resp = getResponse("GET", path, "");
+    assertEquals(404, resp.getStatus());
+    Object entity = resp.getEntity();
+    assertNull(entity);
+
+    path = getBaseUrl() + site.getSiteType().name() + "/" + site.getName();
+    resp = getResponse("GET", path, "");
+    assertEquals(200, resp.getStatus());
+    entity = resp.getEntity();
+    assertNotNull(entity);
+    SiteEntity siteEntity = (SiteEntity) entity;
+    assertEquals(siteEntity.getName(), site.getName());
+    assertEquals(siteEntity.getDescription(), site.getDescription());
+    assertEquals(siteEntity.getBannerFileId(), site.getBannerFileId());
+    assertNotNull(siteEntity.getRootNode());
+    assertNotNull(siteEntity.getBannerUrl());
+  }
+
+  @Test
   public void testUpdateSiteById() {
     PortalConfig portalConfig = layoutService.getPortalConfig("classic");
     portalConfig.setAccessPermissions(new String[] { PLATFORM_USERS });
