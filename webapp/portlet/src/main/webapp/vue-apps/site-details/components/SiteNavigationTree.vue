@@ -19,7 +19,7 @@
   <v-treeview
     id="siteNavigationTree"
     :open.sync="openLevel"
-    :items="navigations"
+    :items="navigationTree"
     :active="active"
     active-class="v-item--active v-list-item--active"
     class="treeView-item my-2"
@@ -53,6 +53,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    collapsed: {
+      type: Boolean,
+      default: false,
+    },
     spaceUnreadItems: {
       type: Object,
       default: null
@@ -64,15 +68,17 @@ export default {
   },
   data: () => ({
     selectedNodeUri: eXo.env.portal.selectedNodeUri,
-    currentSite: eXo.env.portal.portalName,
+    currentSite: eXo.env.portal.siteKeyName,
   }),
   computed: {
     openLevel() {
       if (this.selectedName) {
         const ids = [this.selectedName];
         const splittedCurrentUri = this.selectedNodeUri.split('/');
-        ids.push (...splittedCurrentUri);
+        ids.push (...splittedCurrentUri.slice(1));
         return ids;
+      } else if (this.collapsed) {
+        return [];
       } else {
         const ids = [];
         if (this.navigations?.length) {
@@ -84,6 +90,16 @@ export default {
         const splittedCurrentUri = this.selectedNodeUri.split('/');
         ids.push (...splittedCurrentUri);
         return ids;
+      }
+    },
+    navigationTree() {
+      if (this.navigations?.length === 1) {
+        const rootNavigation = this.navigations[0];
+        const rootNavigationChildren = this.navigations[0]?.children || [];
+        rootNavigation.children = [];
+        return [rootNavigation, ...rootNavigationChildren];
+      } else {
+        return this.navigations;
       }
     },
     firstNavigationId() {
