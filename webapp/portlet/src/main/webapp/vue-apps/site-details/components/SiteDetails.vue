@@ -52,7 +52,8 @@
         v-if="site?.siteNavigations?.length"
         :navigations="site.siteNavigations"
         :site-name="site?.name"
-        :enable-change-home="enableChangeHome" />
+        :enable-change-home="enableChangeHome"
+        :selected-name="expandSelectionOnly && selectedNavigationName" />
     </v-card>
     <exo-confirm-dialog
       ref="confirmDialog"
@@ -81,6 +82,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    expandSelectionOnly: {
+      type: Boolean,
+      default: false,
+    },
     extraClass: {
       type: String,
       default: '',
@@ -88,6 +93,7 @@ export default {
   },
   data: () => ({
     selectedNavigation: null,
+    selectedNavigationName: null,
     homeLink: eXo.env.portal.homeLink,
   }),
   computed: {
@@ -100,6 +106,7 @@ export default {
   created() {
     this.$root.$on('update-home-link', this.selectHome);
     document.addEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
+    this.selectedNavigationName = eXo.env.portal.selectedNodeUri?.split?.('/')?.reverse?.()?.[0];
   },
   methods: {
     navigationUri(navigation) {
