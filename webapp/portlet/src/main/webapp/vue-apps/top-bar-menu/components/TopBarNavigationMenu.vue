@@ -64,7 +64,6 @@
 export default {
   data: () => ({
     componentId: `top-bar-menu-${parseInt(Math.random() * 65536)}`,
-    BASE_SITE_URI: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/`,
     initialized: false,
     mounted: false,
     navigations: [],
@@ -72,7 +71,11 @@ export default {
     scope: 'ALL',
     globalScope: 'children',
     visibility: ['displayed', 'temporal'],
-    siteType: 'PORTAL',
+    siteType: eXo.env.portal.siteKeyType?.toUpperCase(),
+    siteName: eXo.env.portal.siteKeyType === 'portal'
+      || eXo.env.portal.siteKeyName === 'global'
+      ? eXo.env.portal.portalName
+      : eXo.env.portal.siteKeyName,
     exclude: 'global',
     tab: null,
     navigationTabState: 'topNavigationTabState',
@@ -89,6 +92,12 @@ export default {
     },
     parentScrollableSelector() {
       return document.querySelector('.site-scroll-parent .UIPageBody') ? '.site-scroll-parent' : '.site-scroll-parent .UIPage';
+    },
+    siteUri() {
+      return this.siteType === 'GROUP' ? `g/${this.siteName?.replaceAll('/', ':')}` : this.siteName;
+    },
+    baseSiteUri() {
+      return `${eXo.env.portal.context}/${this.siteUri}/`;
     },
   },
   watch: {
@@ -123,7 +132,7 @@ export default {
         .finally(() => this.initialized = true);
     },
     cacheMenuContent() {
-      sessionStorage.setItem('topBarMenu', document.querySelector('#topBarMenu').innerHTML);
+      sessionStorage.setItem(`topBarMenu-${this.$root.cacheId}`, document.querySelector('#topBarMenu').innerHTML);
     },
     hideCachedMenu() {
       this.refreshWindowSize();
@@ -135,16 +144,15 @@ export default {
       }
     },
     getNavigationBaseUri(index) {
-      const navigationBaseUri = `${this.BASE_SITE_URI}${this.navigations[0].name}`;
+      const navigationBaseUri = `${this.baseSiteUri}${this.navigations[0].name}`;
       return index && `${navigationBaseUri}/` || navigationBaseUri;
     },
     getNavigations() {
-      const siteName = eXo.env.portal.portalName;
-      return this.$navigationService.getNavigations(siteName, this.siteType, this.globalScope, this.visibility, this.exclude, null, null, true)
+      return this.$navigationService.getNavigations(this.siteName, this.siteType, this.globalScope, this.visibility, this.exclude, null, null, true)
         .then(navs => {
           if (navs.length) {
             const homeNavigation = navs[0];
-            return this.$navigationService.getNavigations(siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id, null, true)
+            return this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id, null, true)
               .then(navigations => {
                 this.navigations = navigations || [];
                 this.constructNavigations();
@@ -183,10 +191,9 @@ export default {
       this.computeSiteBodyMargin();
     },
     getActiveTab() {
-      const siteName = eXo.env.portal.portalName;
       let pathname = location.pathname;
-      if (pathname === `${eXo.env.portal.context}/${siteName}/`) {
-        pathname = `${eXo.env.portal.context}/${siteName}/${eXo.env.portal.selectedNodeUri}`;
+      if (pathname === `${eXo.env.portal.context}/${this.siteUri}/`) {
+        pathname = `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
         this.updateNavigationState(pathname);
       }
       this.tab = sessionStorage.getItem(this.navigationTabState);
