@@ -117,6 +117,35 @@ public interface MetadataService {
   MetadataItem createMetadataItem(MetadataObject metadataObject,
                                   MetadataKey metadataKey,
                                   long userIdentityId) throws ObjectAlreadyExistsException;
+  
+  /**
+   * Creates a new Metadata Item. When the metadata with the designated key
+   * doesn't exists, it will create a new one
+   *
+   * @param  metadataObject               object to store
+   * @param  metadataKey                  {@link MetadataKey} that contains
+   *                                        {@link MetadataType} name
+   *                                        {@link Metadata} name and
+   *                                        {@link Metadata} audience
+   * @param  properties                   {@link Map} properties of
+   *                                        {@link MetadataItem}
+   * @param  userIdentityId               {@link Identity} technical identifier
+   *                                        designating the user making the
+   *                                        operation
+   * @param  broadcast                    whether broadcast event after creating or
+   *                                        not
+   * @return                              Created {@link MetadataItem}
+   * @throws ObjectAlreadyExistsException when the {@link MetadataTypePlugin}
+   *                                        doesn't allow multiple objects per
+   *                                        {@link Metadata} and an object is
+   *                                        already associated to the designated
+   *                                        {@link Metadata}
+   */
+  MetadataItem createMetadataItem(MetadataObject metadataObject,
+                                  MetadataKey metadataKey,
+                                  Map<String, String> properties,
+                                  long userIdentityId,
+                                  boolean broadcast) throws ObjectAlreadyExistsException;
 
   /**
    * Creates a new Metadata Item. When the metadata with the designated key
@@ -143,6 +172,31 @@ public interface MetadataService {
                                   MetadataKey metadataKey,
                                   Map<String, String> properties,
                                   long userIdentityId) throws ObjectAlreadyExistsException;
+  
+  /**
+   * Creates a new Metadata Item. When the metadata with the designated key
+   * doesn't exists, it will create a new one
+   *
+   * @param  metadataObject               object to store
+   * @param  metadataKey                  {@link MetadataKey} that contains
+   *                                        {@link MetadataType} name
+   *                                        {@link Metadata} name and
+   *                                        {@link Metadata} audience
+   * @param  properties                   {@link Map} properties of
+   *                                        {@link MetadataItem}
+   * @param  broadcast                    whether broadcast event after creating or
+   *                                        not                                        
+   * @return                              Created {@link MetadataItem}
+   * @throws ObjectAlreadyExistsException when the {@link MetadataTypePlugin}
+   *                                        doesn't allow multiple objects per
+   *                                        {@link Metadata} and an object is
+   *                                        already associated to the designated
+   *                                        {@link Metadata}
+   */
+  MetadataItem createMetadataItem(MetadataObject metadataObject,
+                                  MetadataKey metadataKey,
+                                  Map<String, String> properties,
+                                  boolean broadcast) throws ObjectAlreadyExistsException;
 
   /**
    * Creates a new Metadata Item. When the metadata with the designated key
@@ -170,7 +224,17 @@ public interface MetadataService {
    * @param metadataItem   {@link MetadataItem}
    * @param userIdentityId {@link Identity} technical identifier designating the
    *                       user making the operation
-   * @return               Deleted {@link MetadataItem}
+   * @param broadcast      whether broadcast event after updating or
+   *                         not
+   * @return               Updated {@link MetadataItem}
+   */
+  MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId, boolean broadcast);
+  
+  /**
+   * @param metadataItem   {@link MetadataItem}
+   * @param userIdentityId {@link Identity} technical identifier designating the
+   *                       user making the operation
+   * @return               Updated {@link MetadataItem}
    */
   MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId);
 
