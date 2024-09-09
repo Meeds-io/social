@@ -1092,7 +1092,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
       }
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
-          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false);
+          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), true);
           updateProfilePropertyVisibility(profileProperty);
           if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME) || profileProperty.getPropertyName().equals(Profile.LAST_NAME) ) {
             profile = getUserIdentity(username).getProfile();
@@ -1111,7 +1111,7 @@ public class UserRestResourcesV1 implements UserRestResources, Startable {
               maps.add(childrenMap);
             }
           });
-          updateProfileField(profile, profileProperty.getPropertyName(), maps, false);
+          updateProfileField(profile, profileProperty.getPropertyName(), maps, true);
           updateProfilePropertyVisibility(profileProperty);
         }
       } catch (IllegalAccessException e) {
