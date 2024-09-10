@@ -21,7 +21,9 @@
     :min-width="minWidth"
     class="d-flex flex-column"
     flat>
-    <div class="d-flex flex-column flex-grow-1 pa-5">
+    <div
+      :class="!noMargin && 'pa-5'"
+      class="d-flex flex-column flex-grow-1">
       <div 
         v-if="hasHeader"
         :class="headerPadding"
@@ -99,6 +101,10 @@ export default {
     minWidth: {
       type: String,
       default: () => '',
+    },
+    noMargin: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {
