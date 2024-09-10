@@ -63,7 +63,7 @@
               :placeholder="$t('SpaceSettings.label.displayName')"
               name="name"
               maxlength="200"
-              class="input-block-level ignore-vuetify-classes mb-2"
+              class="input-block-level border-color ignore-vuetify-classes mb-2"
               required>
             <div class="my-4 text-header">
               {{ $t('SpaceSettings.label.description') }}
