@@ -21,7 +21,19 @@
 <template>
   <div class="full-width border-box-sizing pe-0 pe-sm-8">
     <div class="text-header d-flex position-relative my-4">
-      <div class="flex-grow-0">{{ $t('SpaceSettings.label.banner') }}</div>
+      <help-label
+        label="SpaceSettings.label.banner"
+        label-class="text-header"
+        tooltip="SpaceSettings.label.bannerTooltip">
+        <template #helpContent>
+          <p>
+            {{ $t('SpaceSettings.label.bannerHelp1') }}
+          </p>
+          <p>
+            {{ $t('SpaceSettings.label.bannerHelp2') }}
+          </p>
+        </template>
+      </help-label>
       <div class="flex-grow-1 ms-2 position-relative">
         <div class="absolute-vertical-center">
           <v-btn
