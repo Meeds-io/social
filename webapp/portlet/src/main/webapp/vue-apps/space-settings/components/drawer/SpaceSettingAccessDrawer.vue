@@ -23,55 +23,110 @@
     ref="drawer"
     v-model="drawer"
     :loading="savingSpace"
+    allow-expand
     right
     class="spaceFormDrawer">
     <template slot="title">
-      {{ $t('SpaceSettings.general') }}
+      {{ $t('SpaceSettings.accessAndVisibility.drawer') }}
     </template>
     <template v-if="drawer" slot="content">
       <form
         ref="form"
         :disabled="savingSpace"
-        class="ma-4 d-flex flex-column"
+        class="my-4 d-flex flex-column"
         @submit.prevent.stop="saveSpace">
-        <div class="d-flex flex-wrap pt-2">
-          <div class="text-header">
-            {{ $t('SpaceSettings.label.hidden') }}
-          </div>
-          <v-switch
-            v-model="visibility"
-            true-value="hidden"
-            false-value="private"
-            class="float-left my-0 ms-4" />
-        </div>
-        <div class="text-subtitle mb-2 mt-1">
-          {{ $t(`SpaceSettings.description.${visibility || 'hidden'}`) }}
-        </div>
-        <div class="d-flex flex-wrap pt-2">
-          <div class="text-header">
-            {{ $t('SpaceSettings.label.registration') }}
+        <div class="d-flex flex-column">
+          <div class="text-header mx-4">
+            {{ $t('SpaceSettings.label.access') }}
           </div>
           <v-radio-group
             v-model="subscription"
-            class="mt-2 ms-2"
+            class="mt-2 ms-3"
             mandatory
-            row
             inset>
             <v-radio
-              :label="$t('SpaceSettings.label.open')"
               value="open"
-              class="my-0" />
+              class="mt-0 mb-8">
+              <template #label>
+                <div class="d-flex flex-column">
+                  <div class="text-body">
+                    {{ $t('SpaceSettings.label.open') }}
+                  </div>
+                  <div class="text-subtitle position-absolute line-height-normal mt-5">
+                    {{ $t('SpaceSettings.description.open') }}
+                  </div>
+                </div>
+              </template>
+            </v-radio>
             <v-radio
-              :label="$t('SpaceSettings.label.validation')"
               value="validation"
-              class="my-0" />
+              class="mt-0 mb-8">
+              <template #label>
+                <div class="d-flex flex-column">
+                  <div class="text-body">
+                    {{ $t('SpaceSettings.label.validation') }}
+                  </div>
+                  <div class="text-subtitle position-absolute line-height-normal mt-5">
+                    {{ $t('SpaceSettings.description.validation') }}
+                  </div>
+                </div>
+              </template>
+            </v-radio>
             <v-radio
-              :label="$t('SpaceSettings.label.closed')"
               value="closed"
-              class="my-0" />
+              class="mt-0 mb-6">
+              <template #label>
+                <div class="d-flex flex-column">
+                  <div class="text-body">
+                    {{ $t('SpaceSettings.label.closed') }}
+                  </div>
+                  <div class="text-subtitle position-absolute line-height-normal mt-5">
+                    {{ $t('SpaceSettings.description.closed') }}
+                  </div>
+                </div>
+              </template>
+            </v-radio>
           </v-radio-group>
         </div>
-        <div class="text-subtitle ps-1">{{ $t(`SpaceSettings.description.${subscription || 'open'}`) }}</div>
+        <div class="d-flex flex-column mt-4">
+          <div class="text-header mx-4">
+            {{ $t('SpaceSettings.label.visibility') }}
+          </div>
+          <v-radio-group
+            v-model="visibility"
+            class="mt-2 ms-3"
+            mandatory
+            inset>
+            <v-radio
+              value="private"
+              class="mb-6">
+              <template #label>
+                <div class="d-flex flex-column">
+                  <div class="text-body">
+                    {{ $t('SpaceSettings.label.private') }}
+                  </div>
+                  <div class="text-subtitle position-absolute line-height-normal mt-5">
+                    {{ $t(`SpaceSettings.description.private`) }}
+                  </div>
+                </div>
+              </template>
+            </v-radio>
+            <v-radio
+              value="hidden"
+              class="mt-0 mb-8">
+              <template #label>
+                <div class="d-flex flex-column">
+                  <div class="text-body">
+                    {{ $t('SpaceSettings.label.hidden') }}
+                  </div>
+                  <div class="text-subtitle position-absolute line-height-normal mt-5">
+                    {{ $t(`SpaceSettings.description.hidden`) }}
+                  </div>
+                </div>
+              </template>
+            </v-radio>
+          </v-radio-group>
+        </div>
       </form>
     </template>
     <template slot="footer">

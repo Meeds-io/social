@@ -20,7 +20,7 @@
 -->
 <template>
   <v-app class="application-body">
-    <v-main v-if="$root.space" class="pa-5 border-box-sizing">
+    <v-main v-if="$root.space" class="px-5 py-1 border-box-sizing">
       <space-setting-overview />
       <space-setting-roles />
       <space-setting-access />
