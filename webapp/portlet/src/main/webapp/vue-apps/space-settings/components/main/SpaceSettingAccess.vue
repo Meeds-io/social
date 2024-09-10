@@ -19,29 +19,34 @@
 
 -->
 <template>
-  <v-app class="application-body">
-    <v-main v-if="$root.space" class="pa-5 border-box-sizing">
-      <space-setting-overview />
-      <space-setting-roles />
-      <space-setting-access />
-      <template>
-        <extension-registry-components
-          :params="extensionParams"
-          name="SpaceSettings"
-          type="space-settings-components"
-          parent-element="div"
-          element="div" />
-      </template>
-    </v-main>
-  </v-app>
+  <div v-if="$root.isAllSections">
+    <v-card flat>
+      <v-list class="py-0" dense>
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title class="text-title">
+              {{ $t('SpaceSettings.accessAndVisibility') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-btn
+              small
+              icon
+              @click="openDrawer">
+              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+            </v-btn>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+    </v-card>
+    <space-setting-access-drawer ref="accessSettingDrawer" />
+  </div>
 </template>
 <script>
 export default {
-  computed: {
-    extensionParams() {
-      return {
-        spaceId: this.$root.spaceId,
-      };
+  methods: {
+    openDrawer() {
+      this.$refs.accessSettingDrawer.open();
     },
   },
 };
