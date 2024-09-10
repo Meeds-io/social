@@ -29,7 +29,7 @@
     <template #title>
       {{ $t(title) }}
     </template>
-    <template #content>
+    <template v-if="drawer" #content>
       <v-card
         ref="imageCropperCanvasParent"
         v-resize="onCanvasResize"
