@@ -122,7 +122,9 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     String propertyName = property.getKey();
     List<String> propertyValues = new ArrayList<>();
     if (property.getValue() instanceof String) {
-      propertyValues.add((String) property.getValue());
+      if (!((String) property.getValue()).isEmpty()) {
+        propertyValues.add((String) property.getValue());
+      }
     } else {
       ((List<HashMap<String,String>>) property.getValue()).stream().forEach(val -> val.entrySet().stream().filter(entry -> entry.getKey().equals("value")).forEach(entry -> propertyValues.add(entry.getValue())));
     }
