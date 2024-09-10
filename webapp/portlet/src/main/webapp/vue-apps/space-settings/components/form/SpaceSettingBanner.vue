@@ -25,7 +25,7 @@
         label="SpaceSettings.label.banner"
         label-class="text-header"
         tooltip="SpaceSettings.label.bannerTooltip">
-        <template slot="helpContent">
+        <template #helpContent>
           <p>
             {{ $t('SpaceSettings.label.bannerHelp1') }}
           </p>
