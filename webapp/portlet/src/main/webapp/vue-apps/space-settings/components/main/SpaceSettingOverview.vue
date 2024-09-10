@@ -25,10 +25,10 @@
     <v-card
       v-else
       flat>
-      <v-list class="py-0" dense>
-        <v-list-item>
+      <v-list class="pa-0" dense>
+        <v-list-item class="pa-0">
           <v-list-item-content>
-            <v-list-item-title class="text-title">
+            <v-list-item-title class="text-title py-1">
               {{ $t('SpaceSettings.overview') }}
             </v-list-item-title>
           </v-list-item-content>
