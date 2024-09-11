@@ -1165,6 +1165,8 @@
     </component-plugin>
   </external-component-plugins>
 
+  <import>jar:/conf/exo.portal.component.portal-configuration-local.xml</import>
+
   <remove-configuration>org.exoplatform.portal.resource.SkinResourceRequestHandler</remove-configuration>
   <remove-configuration>org.exoplatform.web.WebAppController</remove-configuration>
 </configuration>
