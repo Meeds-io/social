@@ -25,6 +25,7 @@ import org.exoplatform.commons.testing.ConfigTestCase;
 
 @SuiteClasses({
   LayoutUpgradePluginTest.class,
+  SpaceSettingPermissionUpgradePluginTest.class,
 })
 @ConfigTestCase(LayoutUpgradePluginTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

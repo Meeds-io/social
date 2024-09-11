@@ -166,15 +166,17 @@ public class SpaceUtilsTest extends AbstractCoreTest {
 
     for (UserNode childNode : childNodes)
     {
-      pc = pageService.loadPage(childNode.getPageRef());
-      AppName = pc.getState().getDisplayName().split("-")[0].trim();
+      if (childNode.getPageRef() != null) {
+        pc = pageService.loadPage(childNode.getPageRef());
+        AppName = pc.getState().getDisplayName().split("-")[0].trim();
 
-      assertEquals("Space1", AppName);
-      SpaceUtils.changeAppPageTitle(childNode,"newspacetitle");
-      pc = pageService.loadPage(childNode.getPageRef());
-      AppName = pc.getState().getDisplayName().split("-")[0].trim();
+        assertEquals("Space1", AppName);
+        SpaceUtils.changeAppPageTitle(childNode,"newspacetitle");
+        pc = pageService.loadPage(childNode.getPageRef());
+        AppName = pc.getState().getDisplayName().split("-")[0].trim();
 
-      assertEquals("newspacetitle", AppName);
+        assertEquals("newspacetitle", AppName);
+      }
     }
 
   }

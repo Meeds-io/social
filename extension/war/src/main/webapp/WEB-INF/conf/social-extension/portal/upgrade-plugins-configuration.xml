@@ -21,9 +21,37 @@
   <external-component-plugins>
     <target-component>org.exoplatform.commons.upgrade.UpgradeProductService</target-component>
     <component-plugin>
+      <name>SpaceSettingPermissionUpgradePlugin</name>
+      <set-method>addUpgradePlugin</set-method>
+      <type>io.meeds.social.upgrade.SpaceSettingPermissionUpgradePlugin</type>
+      <description>Upgrade Space 'Settings' page access permission to be 'manager:/spaces/...' instead of '*:/spaces/...'</description>
+      <init-params>
+        <value-param>
+          <name>product.group.id</name>
+          <value>org.exoplatform.platform</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.target.version</name>
+          <value>7.0.0</value>
+        </value-param>
+        <value-param>
+          <name>plugin.execution.order</name>
+          <value>85</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.execute.once</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>plugin.upgrade.async.execution</name>
+          <value>true</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
       <name>SpaceNavigationIconMigration</name>
       <set-method>addUpgradePlugin</set-method>
-      <type>io.meeds.social.core.upgrade.SpaceNavigationIconUpgradePlugin</type>
+      <type>io.meeds.social.upgrade.SpaceNavigationIconUpgradePlugin</type>
       <description>Configure space node icons</description>
       <init-params>
         <value-param>
@@ -34,7 +62,7 @@
         <value-param>
           <name>plugin.upgrade.target.version</name>
           <description>The plugin target version (will not be executed if previous version is equal or higher than 6.5.0)</description>
-          <value>6.6.0</value>
+          <value>7.0.0</value>
         </value-param>
         <value-param>
           <name>space.node.names</name>
