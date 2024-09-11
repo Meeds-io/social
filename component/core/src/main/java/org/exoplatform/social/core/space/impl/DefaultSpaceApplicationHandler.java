@@ -38,6 +38,7 @@ import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.config.model.TransientApplicationState;
 import org.exoplatform.portal.module.ModuleRegistry;
+import org.exoplatform.portal.mop.PageType;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
@@ -536,17 +537,22 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
         page.setAccessPermissions(new String[] { "*:" + space.getGroupId() });
       }
       page.setEditPermission("manager:" + space.getGroupId());
+      page.setProfiles(spaceApplication.getProfiles());
 
       SiteKey siteKey = navContext.getKey();
       PageKey pageKey = new PageKey(siteKey, page.getName());
       PageState pageState = new PageState(page.getTitle(),
                                           page.getDescription(),
                                           page.isShowMaxWindow(),
+                                          page.isHideSharedLayout(),
                                           page.getFactoryId(),
+                                          page.getProfiles(),
                                           Arrays.asList(page.getAccessPermissions()),
                                           page.getEditPermission(),
                                           Arrays.asList(page.getMoveAppsPermissions()),
-                                          Arrays.asList(page.getMoveContainersPermissions()));
+                                          Arrays.asList(page.getMoveContainersPermissions()),
+                                          PageType.PAGE.name(),
+                                          null);
 
       pageStorage.savePage(new PageContext(pageKey, pageState));
       layoutService.save(page);

@@ -5,7 +5,6 @@ import java.util.*;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.*;
 import org.exoplatform.portal.config.model.Page;
-import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -66,7 +65,7 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     assertTrue(Collections.unmodifiableList(Collections.EMPTY_LIST).getClass().isInstance(templates));
   }
 
-  public void testCreateSpaceWithRolesInApplication() {
+  public void testCreateSpaceWithRolesAndProfilesInApplication() {
     Space space = createSpace("Space Settings Test", "root");
     assertNotNull(space);
 
@@ -76,12 +75,14 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     assertNotNull(page.getAccessPermissions());
     assertEquals(1, page.getAccessPermissions().length);
     assertEquals("manager:" + space.getGroupId(), page.getAccessPermissions()[0]);
+    assertEquals("test", page.getProfiles());
 
     page = layoutService.getPage("group::" + space.getGroupId() + "::MembersPortlet");
     assertNotNull(page);
     assertNotNull(page.getAccessPermissions());
     assertEquals(1, page.getAccessPermissions().length);
     assertEquals("*:" + space.getGroupId(), page.getAccessPermissions()[0]);
+    assertNull(page.getProfiles());
   }
 
   /**

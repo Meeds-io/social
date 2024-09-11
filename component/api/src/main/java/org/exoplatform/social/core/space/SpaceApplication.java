@@ -53,6 +53,8 @@ public class SpaceApplication implements Cloneable {
 
   private List<String>        roles;
 
+  private String              profiles;
+
   @Override
   public SpaceApplication clone() {
     return new SpaceApplication(portletApp,
@@ -63,7 +65,8 @@ public class SpaceApplication implements Cloneable {
                                 uri,
                                 icon,
                                 preferences == null ? null : new HashMap<>(preferences),
-                                roles == null ? null : new ArrayList<String>(roles));
+                                roles == null ? null : new ArrayList<String>(roles),
+                                profiles);
   }
 
 }

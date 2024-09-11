@@ -1360,6 +1360,9 @@
                     <field name="uri">
                       <string>settings</string>
                     </field>
+                    <field name="profiles">
+                      <string>test</string>
+                    </field>
                     <field name="roles">
                       <collection type="java.util.ArrayList">
                         <value>
