@@ -27,7 +27,7 @@
       <div class="flex-grow-1 ms-2 position-relative">
         <div class="absolute-vertical-center">
           <v-btn
-            ref="bannerInput"
+            ref="avatarInput"
             id="spaceAvatarEditButton"
             icon
             outlined
