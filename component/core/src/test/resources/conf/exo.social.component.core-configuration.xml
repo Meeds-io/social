@@ -1360,6 +1360,13 @@
                     <field name="uri">
                       <string>settings</string>
                     </field>
+                    <field name="roles">
+                      <collection type="java.util.ArrayList">
+                        <value>
+                          <string>manager</string>
+                        </value>
+                      </collection>
+                    </field>
                     <!--<field name="icon"><string>SpaceSettingsIcon</string></field>-->
                   </object>
                 </value>

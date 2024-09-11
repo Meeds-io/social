@@ -4,6 +4,9 @@ import java.util.*;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.*;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.space.*;
@@ -63,17 +66,23 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     assertTrue(Collections.unmodifiableList(Collections.EMPTY_LIST).getClass().isInstance(templates));
   }
 
-  /**
-   * Test {@link SpaceTemplateService#getSpaceTemplates(String)} ()}
-   */
-//FIXME regression JCR to RDBMS migration
-//  public void testGetAllSpaceTemplates() throws Exception {
-//    // When
-//    List<SpaceTemplate> templates = spaceTemplateService.getSpaceTemplates("root");
-//    // Then
-//    assertEquals(1, templates.size());
-//    assertEquals("classic", templates.get(0).getName());
-//  }
+  public void testCreateSpaceWithRolesInApplication() {
+    Space space = createSpace("Space Settings Test", "root");
+    assertNotNull(space);
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    Page page = layoutService.getPage("group::" + space.getGroupId() + "::SpaceSettingPortlet");
+    assertNotNull(page);
+    assertNotNull(page.getAccessPermissions());
+    assertEquals(1, page.getAccessPermissions().length);
+    assertEquals("manager:" + space.getGroupId(), page.getAccessPermissions()[0]);
+
+    page = layoutService.getPage("group::" + space.getGroupId() + "::MembersPortlet");
+    assertNotNull(page);
+    assertNotNull(page.getAccessPermissions());
+    assertEquals(1, page.getAccessPermissions().length);
+    assertEquals("*:" + space.getGroupId(), page.getAccessPermissions()[0]);
+  }
 
   /**
    * Test {@link SpaceTemplateService#getSpaceTemplates(String)} ()}
@@ -180,8 +189,7 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     objParam.setName("template");
     objParam.setObject(spaceTemplate);
     params.addParameter(objParam);
-    SpaceTemplateConfigPlugin spaceTemplateConfigPlugin = new SpaceTemplateConfigPlugin(params);
-    return spaceTemplateConfigPlugin;
+    return new SpaceTemplateConfigPlugin(params);
   }
 
   /**
@@ -222,49 +230,14 @@ public class SpaceTemplateServiceTest extends AbstractCoreTest {
     assertEquals("classic", spaceTemplateService.getDefaultSpaceTemplate());
   }
 
-  /**
-   * Test
-   * {@link SpaceTemplateService#initSpaceApplications(Space, SpaceApplicationHandler)}
-   */
-  public void testInitSpaceApplications() throws Exception {
-    // TODO
-  }
-
-  /**
-   * Test
-   * {@link SpaceTemplateService#setApp(Space, String, String, boolean, String)}
-   */
-//FIXME regression JCR to RDBMS migration
-//  public void testSetApp() throws Exception {
-//    startSessionAs("root");
-//    Space space = createSpace("mySpace", "root");
-//    assertNull(space.getApp());
-//    // when
-//    spaceTemplateService.setApp(space, "appId", "appName", true, Space.ACTIVE_STATUS);
-//    // then
-//    assertEquals("appId:appName:true:active", space.getApp());
-//  }
-
-  /**
-   * Test {@link SpaceTemplateService#getLabelledSpaceTemplates(String, String)}
-   */
-//FIXME regression JCR to RDBMS migration
-//  public void testGetLabelledSpaceTemplates() throws Exception {
-//    // when
-//    List<SpaceTemplate> list = spaceTemplateService.getLabelledSpaceTemplates("root", "en");
-//    // then
-//    assertEquals(1, list.size());
-//    assertEquals("Any in Administrators ", list.get(0).getPermissionsLabels());
-//  }
-
-  private Space createSpace(String spaceName, String creator) throws Exception {
+  private Space createSpace(String spaceName, String creator) {
     Space space = new Space();
     space.setDisplayName(spaceName);
     space.setPrettyName(spaceName);
     space.setGroupId("/spaces/" + space.getPrettyName());
     space.setRegistration(Space.OPEN);
     space.setDescription("description of space" + spaceName);
-    space.setTemplate(DefaultSpaceApplicationHandler.NAME);
+    space.setTemplate("template");
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
