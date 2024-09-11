@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.test;
 
-import io.meeds.social.core.upgrade.SpaceNavigationIconUpgradePluginTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -36,6 +35,7 @@ import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 
 import io.meeds.social.image.plugin.ImageAttachmentPluginTest;
+import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({

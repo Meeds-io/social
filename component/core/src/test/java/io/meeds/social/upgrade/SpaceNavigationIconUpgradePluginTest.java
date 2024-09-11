@@ -1,8 +1,9 @@
-package io.meeds.social.core.upgrade;
+package io.meeds.social.upgrade;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
