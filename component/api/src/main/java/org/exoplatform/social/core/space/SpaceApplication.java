@@ -17,7 +17,9 @@
 
 package org.exoplatform.social.core.space;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 /**
  * Definition of space application model.
  *
@@ -25,162 +27,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpaceApplication implements Cloneable {
-  private String portletApp;
-  private String portletName;
-  private String appTitle;
-  private boolean removable;
-  private int order;
-  private String uri;
-  private String icon;
+
+  private String              portletApp;
+
+  private String              portletName;
+
+  private String              appTitle;
+
+  private boolean             removable;
+
+  private int                 order;
+
+  private String              uri;
+
+  private String              icon;
+
   private Map<String, String> preferences;
 
-  /**
-   * Sets the portletApp - the war name file which has that portlet.
-   *
-   * @param portletApp
-   */
-  public void setPortletApp(String portletApp) {
-    this.portletApp = portletApp;
-  }
+  private List<String>        roles;
 
-  /**
-   * Gets the portletApp.
-   *
-   * @return
-   */
-  public String getPortletApp() {
-    return portletApp;
-  }
-
-  /**
-   * Sets portletName.
-   *
-   * @param portletName
-   */
-  public void setPortletName(String portletName) {
-    this.portletName = portletName;
-  }
-
-  /**
-   * Gets portletName.
-   *
-   * @return
-   */
-  public String getPortletName() {
-    return portletName;
-  }
-
-  /**
-   * Sets appTitle to be displayed on space's navigation.
-   *
-   * @param appTitle
-   */
-  public void setAppTitle(String appTitle) {
-    this.appTitle = appTitle;
-  }
-
-  /**
-   * Gets appTitle to be displayed on space's navigation.
-   *
-   * @return
-   */
-  public String getAppTitle() {
-    return appTitle;
-  }
-
-  /**
-   * Indicates if this application is removable or not.
-   *
-   * @param isRemovable
-   */
-  public void setRemovable(boolean isRemovable) {
-    this.removable = isRemovable;
-  }
-
-  /**
-   * Checks if this application is removable for not.
-   *
-   * @return
-   */
-  public boolean isRemovable() {
-    return removable;
-  }
-
-  /**
-   * Sets the order in the space's navigation.
-   *
-   * @param order
-   */
-  public void setOrder(int order) {
-    this.order = order;
-  }
-
-  /**
-   * Gets the order in the space's navigation.
-   *
-   * @return
-   */
-  public int getOrder() {
-    return order;
-  }
-
-  /**
-   * Sets the uri of this application page node.
-   *
-   * @param uri
-   */
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
-
-  /**
-   * Gets the uri of the application page node.
-   *
-   * @return
-   */
-  public String getUri() {
-    return uri;
-  }
-
-  /**
-   * Sets the icon class for the application page node.
-   *
-   * @param icon
-   */
-  public void setIcon(String icon) {
-    this.icon = icon;
-  }
-
-  /**
-   * Gets the icon class for the application page node.
-   * @return
-   */
-  public String getIcon() {
-    return icon;
-  }
-
-  /**
-   * Sets preferences for this application when installed.
-   *
-   * @param preferences
-   */
-  public void setPreferences(Map<String, String> preferences) {
-    this.preferences = preferences;
-  }
-
-  /**
-   * Gets preferences for this application when installed.
-   *
-   * @return
-   */
-  public Map<String, String> getPreferences() {
-    return this.preferences;
-  }
+  private String              profiles;
 
   @Override
   public SpaceApplication clone() {
@@ -191,6 +64,9 @@ public class SpaceApplication implements Cloneable {
                                 order,
                                 uri,
                                 icon,
-                                preferences == null ? null : new HashMap<>(preferences));
+                                preferences == null ? null : new HashMap<>(preferences),
+                                roles == null ? null : new ArrayList<String>(roles),
+                                profiles);
   }
+
 }
