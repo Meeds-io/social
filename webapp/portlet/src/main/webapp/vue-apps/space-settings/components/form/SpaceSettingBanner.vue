@@ -40,10 +40,19 @@
             ref="bannerInput"
             id="spaceBannerEditButton"
             :title="$t('UIPopupBannerUploader.title.ChangeBanner')"
-            icon
             outlined
+            icon
             @click="$refs.imageCropDrawer.open()">
             <v-icon size="18">fa-camera</v-icon>
+          </v-btn>
+          <v-btn
+            v-show="!isDefaultBanner"
+            :title="$t('UIPopupBannerUploader.title.deleteBanner')"
+            id="spaceBannerDeleteButton"
+            outlined
+            icon
+            @click="removeBanner">
+            <v-icon size="18">fa-undo</v-icon>
           </v-btn>
         </div>
       </div>
@@ -71,7 +80,7 @@
       max-image-width="1280"
       drawer-title="UIPopupBannerUploader.title.ChangeBanner"
       @data="imageData = $event"
-      @input="$emit('input', $event)" />
+      @input="updateBanner" />
   </div>
 </template>
 <script>
@@ -84,6 +93,7 @@ export default {
   },
   data: () => ({
     imageData: null,
+    useDefaultBanner: false,
     cropOptions: {
       aspectRatio: 1280 / 175,
       viewMode: 1,
@@ -91,10 +101,14 @@ export default {
   }),
   computed: {
     bannerUrl() {
-      return this.$root.space?.bannerUrl;
+      if (this.useDefaultBanner) {
+        return this.$root.space?.template ? `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/${this.$root.space?.template}/banner?lastModified=${Date.now()}` : '';
+      } else {
+        return this.imageData || this.$root.space?.bannerUrl;
+      }
     },
     isDefaultBanner() {
-      return !this.bannerUrl || this.bannerUrl.includes('/spaceTemplates/');
+      return this.useDefaultBanner || !this.bannerUrl || this.bannerUrl.includes('/spaceTemplates/');
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * 1024 * 1024;
@@ -108,6 +122,17 @@ export default {
     },
     isMobile() {
       return this.$vuetify.breakpoint.mobile;
+    },
+  },
+  methods: {
+    removeBanner() {
+      this.useDefaultBanner = true;
+      this.imageData = null;
+      this.$emit('input', 'DEFAULT_BANNER');
+    },
+    updateBanner(uploadId) {
+      this.useDefaultBanner = false;
+      this.$emit('input', uploadId);
     },
   },
 };
