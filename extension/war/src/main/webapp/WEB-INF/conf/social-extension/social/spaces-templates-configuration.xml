@@ -102,6 +102,13 @@
                     <field name="icon">
                       <string>fas fa-cog</string>
                     </field>
+                    <field name="roles">
+                      <collection type="java.util.ArrayList">
+                        <value>
+                          <string>manager</string>
+                        </value>
+                      </collection>
+                    </field>
                   </object>
                 </value>
                 <value>
@@ -230,6 +237,13 @@
                     <field name="icon">
                       <string>fas fa-cog</string>
                     </field>
+                    <field name="roles">
+                      <collection type="java.util.ArrayList">
+                        <value>
+                          <string>manager</string>
+                        </value>
+                      </collection>
+                    </field>
                   </object>
                 </value>
 
@@ -334,6 +348,13 @@
                     <field name="icon">
                       <string>fas fa-cog</string>
                     </field>
+                    <field name="roles">
+                      <collection type="java.util.ArrayList">
+                        <value>
+                          <string>manager</string>
+                        </value>
+                      </collection>
+                    </field>
                   </object>
                 </value>
 
@@ -437,6 +458,13 @@
                     </field>
                     <field name="icon">
                       <string>fas fa-cog</string>
+                    </field>
+                    <field name="roles">
+                      <collection type="java.util.ArrayList">
+                        <value>
+                          <string>manager</string>
+                        </value>
+                      </collection>
                     </field>
                   </object>
                 </value>

@@ -253,6 +253,13 @@
                     <field name="uri">
                       <string>settings</string>
                     </field>
+                    <field name="roles">
+                      <collection type="java.util.ArrayList">
+                        <value>
+                          <string>manager</string>
+                        </value>
+                      </collection>
+                    </field>
                   </object>
                 </value>
                 <value>
@@ -1157,6 +1164,8 @@
       </init-params>
     </component-plugin>
   </external-component-plugins>
+
+  <import>jar:/conf/exo.portal.component.portal-configuration-local.xml</import>
 
   <remove-configuration>org.exoplatform.portal.resource.SkinResourceRequestHandler</remove-configuration>
   <remove-configuration>org.exoplatform.web.WebAppController</remove-configuration>
