@@ -100,6 +100,8 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   }
 
   private void synchronizePropertyGroups(Profile profile, User user) {
+    long startTimeUser = System.currentTimeMillis();
+
     try {
       Group profileGroup = getOrCreateGroup(PROFILE_GROUP_NAME, null);
       List<String> synchronizedProperties = profilePropertyService.getSynchronizedPropertySettings()
@@ -116,9 +118,12 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     } catch (Exception e) {
       LOG.error("Error while trying to add / create profile group {} for user ", PROFILE_GROUP_NAME, user.getUserName(), e);
     }
+    LOG.debug("User {} groups synchronized from profile in {} ms",user.getUserName(), System.currentTimeMillis() - startTimeUser);
+
   }
 
   private void synchronizeProperty(Map.Entry<String, Object> property, Group profileGroup, User user) {
+    LOG.debug("Syncrhonize property {} for user {}", property.getKey(), user.getUserName());
     String propertyName = property.getKey();
     List<String> propertyValues = new ArrayList<>();
     if (property.getValue() instanceof String) {
@@ -130,11 +135,16 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     }
     try {
       Group newPropertyNameGroup = getOrCreateGroup(propertyName, profileGroup);
+      long startTimeRemoveUserFromGroups = System.currentTimeMillis();
       removeUserFromExistingPropertyGroup(newPropertyNameGroup, user, propertyValues);
+      LOG.debug("User {} check-remove from groups ({}) in {} ms", user.getUserName(), newPropertyNameGroup.getId(), System.currentTimeMillis() - startTimeRemoveUserFromGroups);
+
       for (String propValueName : propertyValues) {
         try {
           Group newPropertyValueGroup = getOrCreateGroup(propValueName, newPropertyNameGroup);
+          long startTimeAddUserInGroups = System.currentTimeMillis();
           addUserToGroup(newPropertyValueGroup, user);
+          LOG.debug("User {} check-add in group ({}/{}) in {} ms", user.getUserName(), newPropertyNameGroup.getId(),propValueName, System.currentTimeMillis() - startTimeAddUserInGroups);
         } catch (Exception e) {
           LOG.error("Error while adding property value group {} under property Group {}",
                     propValueName,
@@ -179,6 +189,8 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
       MembershipType membershipType = organizationService.getMembershipTypeHandler().findMembershipType(MEMBER);
       if (organizationService.getMembershipHandler().findMembershipByUserGroupAndType(user.getUserName(), group.getId(), MEMBER) == null) {
         organizationService.getMembershipHandler().linkMembership(user, group, membershipType, true);
+        LOG.debug("Add user {} in group {}", user.getUserName(), group.getId());
+
       }
     } catch (Exception e) {
       LOG.error("Error while adding user {} to Group {}", user.getUserName(), group.getId(), e);
@@ -189,17 +201,27 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
   private void removeUserFromExistingPropertyGroup(Group group, User user, List<String> newPropertyValues) throws Exception {
     List<String> newCleanedPropertyValues = new ArrayList<>(newPropertyValues);
     newCleanedPropertyValues = newCleanedPropertyValues.stream().map(Utils::cleanString).toList();
-    Collection<Group> groups = organizationService.getGroupHandler().findGroups(group);
-    if (!groups.isEmpty()) {
-      MembershipHandler memberShipHandler = organizationService.getMembershipHandler();
-      for (Group gr : groups){
-        Membership memberShip = memberShipHandler.findMembershipByUserGroupAndType(user.getUserName(),
-                gr.getId(),
-                MEMBER);
-        if (memberShip != null && !newCleanedPropertyValues.contains(gr.getGroupName())) {
-          memberShipHandler.removeMembership(memberShip.getId(), true);
+    MembershipHandler memberShipHandler = organizationService.getMembershipHandler();
+    long startTimeGetMemberships = System.currentTimeMillis();
+    Collection<Membership> memberships = memberShipHandler.findMembershipsByUser(user.getUserName());
+    LOG.debug("Find {} memberships for user {} in {} ms", memberships.size(), user.getUserName(), System.currentTimeMillis() - startTimeGetMemberships);
+
+    for (Membership membership : memberships) {
+      if (membership.getGroupId().startsWith(group.getId())) {
+        String[] splittedMembership = membership.getGroupId().split("/");
+        String groupName = splittedMembership[splittedMembership.length-1];
+        if (!newCleanedPropertyValues.contains(groupName)) {
+          long startTimeRemoveGroup = System.currentTimeMillis();
+
+          memberShipHandler.removeMembership(membership.getId(), true);
+          LOG.debug("Remove user {} from group {} in {} ms",user.getUserName(),membership.getGroupId(), System.currentTimeMillis() - startTimeRemoveGroup);
+
+        } else {
+          LOG.debug("User {} is already in group {}, do nothing", user.getUserName(), membership.getGroupId());
         }
       }
+
+
     }
   }
   private String buildGroupId(Group parentGroup, String groupName) {
