@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -524,7 +525,12 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
 
       // set permission for page
       String visibility = space.getVisibility();
-      if (StringUtils.equals(visibility, Space.PUBLIC)) {
+      if (CollectionUtils.isNotEmpty(spaceApplication.getRoles())) {
+        page.setAccessPermissions(spaceApplication.getRoles()
+                                                  .stream()
+                                                  .map(r -> r + ":" + space.getGroupId())
+                                                  .toArray(String[]::new));
+      } else if (StringUtils.equals(visibility, Space.PUBLIC)) {
         page.setAccessPermissions(new String[] { UserACL.EVERYONE });
       } else {
         page.setAccessPermissions(new String[] { "*:" + space.getGroupId() });
@@ -537,7 +543,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
                                           page.getDescription(),
                                           page.isShowMaxWindow(),
                                           page.getFactoryId(),
-                                          page.getAccessPermissions() != null ? Arrays.asList(page.getAccessPermissions()) : null,
+                                          Arrays.asList(page.getAccessPermissions()),
                                           page.getEditPermission(),
                                           Arrays.asList(page.getMoveAppsPermissions()),
                                           Arrays.asList(page.getMoveContainersPermissions()));
@@ -545,7 +551,10 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
       pageStorage.savePage(new PageContext(pageKey, pageState));
       layoutService.save(page);
     } catch (Exception e) {
-      LOG.warn(e.getMessage(), e);
+      LOG.warn("Error while creating the Page '{}' for space '{}'",
+               pageTitle,
+               space.getDisplayName(),
+               e);
     }
 
     if (isRoot) {

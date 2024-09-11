@@ -27,6 +27,7 @@ import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.resources.ResourceBundleService;
+import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
@@ -82,7 +83,7 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
       String perms = spaceTemplate.getPermissions();
       if (perms != null) {
         Pattern pattern = Pattern.compile(";");
-        List<String> permissions = pattern.splitAsStream(perms).collect(Collectors.toList());
+        List<String> permissions = pattern.splitAsStream(perms).toList();
         for (String perm : permissions) {
           UserACL.Permission permission = new UserACL.Permission();
           permission.setPermissionExpression(perm);
@@ -292,17 +293,14 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
 
   private Identity getIdentity(String userId) throws Exception {
     IdentityRegistry identityRegistry = CommonsUtils.getService(IdentityRegistry.class);
-    OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
     Identity identity = identityRegistry.getIdentity(userId);
     if (identity == null) {
-      Collection<Membership> memberships = new ArrayList<>();
-      memberships = organizationService.getMembershipHandler().findMembershipsByUser(userId);
-      List<MembershipEntry> entries = new ArrayList<>();
-      for (Membership membership : memberships) {
-        entries.add(new MembershipEntry(membership.getGroupId(), membership.getMembershipType()));
-      }
-      identity = new Identity(userId, entries);
+      Authenticator authenticator = CommonsUtils.getService(Authenticator.class);
+      identity = authenticator.createIdentity(userId);
+      identityRegistry.register(identity);
+      return identity;
+    } else {
+      return identity;
     }
-    return identity;
   }
 }
