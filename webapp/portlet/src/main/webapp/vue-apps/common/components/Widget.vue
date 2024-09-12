@@ -26,8 +26,8 @@
       class="d-flex flex-column flex-grow-1">
       <div 
         v-if="hasHeader"
-        :class="headerPadding" 
-        class="d-flex align-center">
+        :class="headerPadding"
+        class="d-flex align-center text-header">
         <slot v-if="$slots.title" name="title"></slot>
         <div v-else-if="title" class="widget-text-header text-truncate">{{ title }}</div> 
         <v-spacer />
