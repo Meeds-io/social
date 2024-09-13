@@ -287,14 +287,14 @@ export default {
     },
     removeValue(language) {
       delete this.translations[language];
-      this.refreshExistingLanguages();
+      this.refreshExistingLanguages(true);
     },
     changeLanguage(language, event) {
       const newLanguage = event?.target?.value;
       if (newLanguage && this.supportedLanguages[newLanguage]) {
         this.translations[newLanguage] = this.translations[language];
         delete this.translations[language];
-        this.refreshExistingLanguages();
+        this.refreshExistingLanguages(true);
       }
     },
     updateValue(language, value) {

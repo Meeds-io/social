@@ -195,7 +195,7 @@ public class SiteRest implements ResourceContainer {
                                                                       excludeGroupNodesWithoutPageChildNodes,
                                                                       filterByPermission,
                                                                       sortByDisplayOrder,
-                                                                      getLocale(lang));
+                                                                      getLocale(httpServletRequest, lang));
       EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(siteEntities,
                                                                  siteFilter,
                                                                  expandNavigations,
@@ -205,7 +205,7 @@ public class SiteRest implements ResourceContainer {
                                                                  excludeGroupNodesWithoutPageChildNodes,
                                                                  filterByPermission,
                                                                  sortByDisplayOrder,
-                                                                 getLocale(lang))));
+                                                                 getLocale(httpServletRequest, lang))));
       Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
       if (builder == null) {
         builder = Response.ok(siteEntities);
@@ -333,7 +333,7 @@ public class SiteRest implements ResourceContainer {
                                                             excludeEmptyNavigationSites,
                                                             temporalCheck,
                                                             excludeGroupNodesWithoutPageChildNodes,
-                                                            getLocale(lang));
+                                                            getLocale(httpServletRequest, lang));
       EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(siteId,
                                                                  siteEntity,
                                                                  expandNavigations,
@@ -341,7 +341,7 @@ public class SiteRest implements ResourceContainer {
                                                                  excludeEmptyNavigationSites,
                                                                  temporalCheck,
                                                                  excludeGroupNodesWithoutPageChildNodes,
-                                                                 getLocale(lang))));
+                                                                 getLocale(httpServletRequest, lang))));
       Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
       if (builder == null) {
         builder = Response.ok(siteEntity);
@@ -441,7 +441,7 @@ public class SiteRest implements ResourceContainer {
     }
   }
 
-  private Locale getLocale(String lang) {
-    return StringUtils.isBlank(lang) ? null : Locale.forLanguageTag(lang);
+  private Locale getLocale(HttpServletRequest httpServletRequest, String lang) {
+    return StringUtils.isBlank(lang) ? httpServletRequest.getLocale() : Locale.forLanguageTag(lang);
   }
 }
