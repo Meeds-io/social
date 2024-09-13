@@ -82,7 +82,6 @@ import org.exoplatform.portal.mop.user.UserNavigation;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.portal.mop.user.UserNodeFilterConfig;
 import org.exoplatform.portal.mop.user.UserPortal;
-import org.exoplatform.portal.mop.user.UserPortalContext;
 import org.exoplatform.portal.webui.portal.UIPortal;
 import org.exoplatform.portal.webui.util.NavigationURLUtils;
 import org.exoplatform.portal.webui.util.Util;
@@ -1132,16 +1131,6 @@ public class SpaceUtils {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
     UserPortalConfigService userPortalConfigSer = container.getComponentInstanceOfType(UserPortalConfigService.class);
 
-    UserPortalContext NULL_CONTEXT = new UserPortalContext() {
-      public ResourceBundle getBundle(UserNavigation navigation) {
-        return null;
-      }
-
-      public Locale getUserLocale() {
-        return Locale.ENGLISH;
-      }
-    };
-
     ConversationState conversationState = ConversationState.getCurrent();
     String remoteId;
     if (conversationState == null) {
@@ -1149,9 +1138,7 @@ public class SpaceUtils {
     } else {
       remoteId = conversationState.getIdentity().getUserId();
     }
-    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getMetaPortal(),
-                                                   remoteId,
-                                                   NULL_CONTEXT);
+    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getMetaPortal(), remoteId);
   }
 
   /**
