@@ -36,8 +36,9 @@
       :min="min"
       :max="max"
       :class="valid && 'text-color' || 'error-color'"
+      :style="inputStyle"
       type="text"
-      class="layout-number-input pa-0 text-center">
+      class="pa-0 ma-0 text-center">
     <div v-else>{{ num }}</div>
     <div v-if="unit" class="ps-1">{{ unit }}</div>
     <v-btn
@@ -86,12 +87,21 @@ export default {
       type: Number,
       default: () => 88,
     },
+    inputWidth: {
+      type: Number,
+      default: () => 36,
+    },
   },
   data: () => ({
     num: 20,
     valid: false,
     initialized: false,
   }),
+  computed: {
+    inputStyle() {
+      return `width: ${this.inputWidth}px;`
+    },
+  },
   watch: {
     num() {
       if (!this.initialized) {
