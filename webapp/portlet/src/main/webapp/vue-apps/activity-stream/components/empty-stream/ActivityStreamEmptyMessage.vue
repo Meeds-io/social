@@ -25,6 +25,7 @@
       <p v-sanitized-html="welcomeTitle" class="text-title"></p>
       <p v-sanitized-html="welcomeSubTitle" class="text-body"></p>
       <v-card
+        v-if="$root.canPost == true"
         :max-width="$root.isMobile && 250 || 'auto'"
         class="d-flex flex-column flex-sm-row flex-wrap align-center justify-center my-6"
         flat>
@@ -53,6 +54,10 @@
           :link="spacesLink"
           icon-index="3" />
       </v-card>
+      <p
+        v-else-if="spaceId && $root.canPost === false"
+        v-sanitized-html="$t('UIActivity.label.empty_stream_only_admins_can_post')"
+        class="text-body"></p>
     </div>
   </div>
 </template>
