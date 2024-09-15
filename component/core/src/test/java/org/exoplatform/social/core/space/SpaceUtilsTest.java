@@ -211,7 +211,7 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     // Rename space
     String JOHN = "john";
     String newSpaceName = "newname";
-    spaceService.renameSpace(JOHN, space, newSpaceName);
+    spaceService.renameSpace(space, newSpaceName, JOHN);
     space = spaceService.getSpaceById(space.getId());
     assertEquals(newSpaceName, space.getDisplayName());
 
@@ -240,42 +240,5 @@ public class SpaceUtilsTest extends AbstractCoreTest {
     assertTrue(profile.isDefaultAvatar());
 
     assertEquals("Avatar File shouldn't change if User not renamed", avatarFileId, avatarFile.getFileInfo().getId());
-  }
-
-  public void testIsRedactor() throws Exception {
-    String JOHN = "john";
-    String DEMO = "demo";
-    Space space = tearDown.get(0);
-    // No redactor in /spaces/space1 -> john is redactor
-    try {
-      assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
-    } catch (Exception e) {
-      LOG.error("Problem executing Test", e);
-      fail();
-    }
-    // Add another redactor in group -> john is no more redactor
-    spaceService.addRedactor(space, DEMO);
-    assertFalse(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
-
-    // add the user with membership redactor -> john is redactor
-    spaceService.addRedactor(space, JOHN);
-    assertTrue(SpaceUtils.isRedactor(JOHN, space.getGroupId()));
-  }
-
-  public void testIsSpaceManagerOrSuperManager() throws Exception {
-    String JOHN = "john";
-    Space space = tearDown.get(0);
-    spaceService.setManager(space, JOHN, true);
-    try {
-      assertTrue(SpaceUtils.isSpaceManagerOrSuperManager(JOHN, space.getGroupId()));
-    } catch (Exception e) {
-      LOG.error("Problem executing Test", e);
-      fail();
-    }
-    // john is no more manager
-    spaceService.setManager(space, JOHN, false);
-    assertFalse(SpaceUtils.isSpaceManagerOrSuperManager(JOHN, space.getGroupId()));
-    // root is super manager
-    assertTrue(SpaceUtils.isSpaceManagerOrSuperManager("root", space.getGroupId()));
   }
 }

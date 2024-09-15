@@ -48,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -107,15 +106,17 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
       user = authenticatedUser;
     }
 
-    if(!spaceService.isSuperManager(authenticatedUser)) {
-      if (StringUtils.isNotEmpty(spaceDisplayName)) {
-        Space space = spaceService.getSpaceByDisplayName(spaceDisplayName);
-        if(space == null || !spaceService.isManager(space, authenticatedUser)) {
-          throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-        }
-      } else if (!user.equals(authenticatedUser)) {
+    if (StringUtils.isNotEmpty(spaceDisplayName)) {
+      Space space = spaceService.getSpaceByDisplayName(spaceDisplayName);
+      if (space == null
+          || (!spaceService.canViewSpace(space, authenticatedUser)
+              && !spaceService.isInvitedUser(space, authenticatedUser)
+              && !spaceService.isPendingUser(space, authenticatedUser))) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
+    } else if (!user.equals(authenticatedUser)
+               && !spaceService.isSuperManager(authenticatedUser)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
@@ -194,46 +195,62 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
                                                                                                "<br />}" 
                                                  , required = true) SpaceMembershipEntity model) throws Exception {
 
-    if (model == null || model.getUser() == null || model.getSpace() == null) {
+    if (model == null || model.getSpace() == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    String user = StringUtils.firstNonBlank(model.getUser(), authenticatedUser);
+    String space = model.getSpace();
+    String status = StringUtils.lowerCase(model.getStatus());
+    String role = StringUtils.lowerCase(model.getRole());
+    //
+    if (spaceService.getSpaceByDisplayName(space) == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-    Response response;
-    String user = model.getUser();
-    String space = model.getSpace();
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    //
-    if (space == null || spaceService.getSpaceByDisplayName(space) == null) {
+    if (user == null || identityManager.getOrCreateUserIdentity(user) == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     Space givenSpace = spaceService.getSpaceByDisplayName(space);
-    if (!(MembershipType.IGNORED.name().equals(model.getStatus()))) {
-      if (user == null || identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user, true) == null) {
+    if (MembershipType.IGNORED.name().equalsIgnoreCase(status)) {
+      if (!authenticatedUser.equals(user)) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+      } else if (spaceService.isMember(givenSpace, user)) {
+        throw new WebApplicationException(Response.Status.CONFLICT);
+      } else {
+        spaceService.setIgnored(givenSpace.getId(), user);
+        SpaceMembershipEntity membershipEntity = EntityBuilder.createSpaceMembershipForIgnoredStatus(givenSpace, user, "", uriInfo.getPath(), expand);
+        return EntityBuilder.getResponse(membershipEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
       }
-
-      if (spaceService.isSuperManager(authenticatedUser) || spaceService.isManager(givenSpace, authenticatedUser)
-          || (authenticatedUser.equals(user) && givenSpace.getRegistration().equals(Space.OPEN))) {
+    } else if (StringUtils.isNotBlank(status)) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    } else {
+      if (SpaceUtils.MEMBER.equalsIgnoreCase(role)
+          && authenticatedUser.equals(user)
+          && (givenSpace.getRegistration().equals(Space.OPEN)
+              || spaceService.isInvitedUser(givenSpace, user))) {
         spaceService.addMember(givenSpace, user);
-        if ("manager".equalsIgnoreCase(model.getRole())) {
+      } else if (spaceService.canManageSpace(givenSpace, authenticatedUser)) {
+        if (SpaceUtils.MANAGER.equalsIgnoreCase(role)) {
+          spaceService.addMember(givenSpace, user);
           spaceService.setManager(givenSpace, user, true);
-        }
-        if ("redactor".equalsIgnoreCase(model.getRole())) {
+        } else if (SpaceUtils.REDACTOR.equalsIgnoreCase(role)) {
+          spaceService.addMember(givenSpace, user);
           spaceService.addRedactor(givenSpace, user);
-        }
-        if (SpaceUtils.PUBLISHER.equalsIgnoreCase(model.getRole())) {
+        } else if (SpaceUtils.PUBLISHER.equalsIgnoreCase(role)) {
+          spaceService.addMember(givenSpace, user);
           spaceService.addPublisher(givenSpace, user);
+        } else if (SpaceUtils.MEMBER.equalsIgnoreCase(role)
+            || StringUtils.isBlank(role)) {
+          spaceService.addMember(givenSpace, user);
+        } else {
+          throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
       } else {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
       SpaceMembershipEntity membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(givenSpace, user, "", uriInfo.getPath(), expand);
-      response = EntityBuilder.getResponse(membershipEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-    } else {
-      SpaceMembershipEntity membershipEntity = EntityBuilder.createSpaceMembershipForIgnoredStatus(givenSpace, user, "", uriInfo.getPath(), expand);
-      spaceService.setIgnored(givenSpace.getId(), user);
-      response = EntityBuilder.getResponse(membershipEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+      return EntityBuilder.getResponse(membershipEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
     }
-    return response;
   }
   
   @GET
@@ -255,7 +272,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //
-    if (identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, idParams[1], true) == null) {
+    if (identityManager.getOrCreateUserIdentity(idParams[1]) == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //
@@ -266,12 +283,11 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     }
     //
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (! authenticatedUser.equals(idParams[1]) && ! spaceService.isSuperManager(authenticatedUser) && ! spaceService.isManager(space, authenticatedUser)) {
+    if (!spaceService.canViewSpace(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //
-    SpaceMembershipEntity membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, idParams[1], idParams[2], uriInfo.getPath(),
-                                                                                          expand);
+    SpaceMembershipEntity membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, idParams[1], idParams[2], uriInfo.getPath(), expand);
     return EntityBuilder.getResponse(membershipEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
   
@@ -295,7 +311,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     }
     //
     String targetUser = idParams[1];
-    if (identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, targetUser, true) == null) {
+    if (identityManager.getOrCreateUserIdentity(targetUser) == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //
@@ -307,15 +323,16 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     //
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (model.getRole() != null) {
-      if (!spaceService.isSuperManager(authenticatedUser) && ! spaceService.isManager(space, authenticatedUser)) {
+      if (spaceService.canManageSpace(space, authenticatedUser)) {
+        space.setEditor(authenticatedUser);
+        if (model.getRole().equalsIgnoreCase(SpaceUtils.MANAGER) && !spaceService.isManager(space, targetUser)) {
+          spaceService.setManager(space, targetUser, true);
+        }
+        if (model.getRole().equalsIgnoreCase(SpaceUtils.MEMBER) && spaceService.isManager(space, targetUser)) {
+          spaceService.setManager(space, targetUser, false);
+        }
+      } else {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-      }
-      space.setEditor(authenticatedUser);
-      if (model.getRole().equalsIgnoreCase("manager") && ! spaceService.isManager(space, targetUser)) {
-        spaceService.setManager(space, targetUser, true);
-      }
-      if (model.getRole().equalsIgnoreCase("member") && spaceService.isManager(space, targetUser)) {
-        spaceService.setManager(space, targetUser, false);
       }
     }
     String role = idParams[2];
@@ -330,8 +347,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
           spaceService.addMember(space, targetUser);
           role = MembershipType.APPROVED.name();
           LogUtils.logInfo("spaceMembership", "approve-space-invitation", "space_name:" + spacePrettyName + ",receiver:" + targetUser, this.getClass());
-        }
-        else if (model.getStatus().equalsIgnoreCase(MembershipType.IGNORED.name())) {
+        } else if (model.getStatus().equalsIgnoreCase(MembershipType.IGNORED.name())) {
           spaceService.removeInvitedUser(space, targetUser);
           role = MembershipType.IGNORED.name();
           LogUtils.logInfo("spaceMembership", "ignore-space-invitation", "space_name:" + spacePrettyName + ",receiver:" + targetUser, this.getClass());
@@ -366,7 +382,7 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     }
     //
     String targetUser = idParams[1];
-    if (identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, targetUser, true) == null) {
+    if (identityManager.getOrCreateUserIdentity(targetUser) == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     //
@@ -377,26 +393,28 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
     }
     //
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (! authenticatedUser.equals(targetUser) && ! spaceService.isSuperManager(authenticatedUser) && ! spaceService.isManager(space, authenticatedUser)) {
+    boolean canManageSpace = spaceService.canManageSpace(space, authenticatedUser);
+    if (!authenticatedUser.equals(targetUser) && !canManageSpace) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     String role = idParams[2];
-    if (role != null && !role.equals("redactor") && !role.equals(SpaceUtils.PUBLISHER) && spaceService.isOnlyManager(space, targetUser)) {
+    if (role != null && !role.equals(SpaceUtils.REDACTOR)
+        && !role.equals(SpaceUtils.PUBLISHER)
+        && spaceService.isOnlyManager(space, targetUser)) {
       throw new WebApplicationException(Response.Status.PRECONDITION_FAILED);
     }
-    //
-    
+
     space.setEditor(authenticatedUser);
-    if (role != null && role.equals("redactor")) {
+    if (role != null && role.equals(SpaceUtils.REDACTOR)) {
       spaceService.removeRedactor(space, targetUser);
     }
     if (role != null && role.equals(SpaceUtils.PUBLISHER)) {
       spaceService.removePublisher(space, targetUser);
     }
-    if (role != null && role.equals("manager")) {
+    if (role != null && role.equals(SpaceUtils.MANAGER)) {
       spaceService.setManager(space, targetUser, false);
     }
-    if (role != null && role.equals("member")) {
+    if (role != null && role.equals(SpaceUtils.MEMBER)) {
       if (spaceService.isManager(space, targetUser)) {
         spaceService.setManager(space, targetUser, false);
       }
@@ -415,16 +433,16 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
   }
   
   private List<DataEntity> getSpaceMemberships(List<Space> spaces, String userId, String path, String expand) {
-    List<DataEntity> spaceMemberships = new ArrayList<DataEntity>();
+    List<DataEntity> spaceMemberships = new ArrayList<>();
     SpaceMembershipEntity membershipEntity = null;
     for (Space space : spaces) {
       if (userId != null) {
         if (ArrayUtils.contains(space.getMembers(), userId)) {
-          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, "member", path, expand);
+          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, SpaceUtils.MEMBER, path, expand);
           spaceMemberships.add(membershipEntity.getDataEntity());
         }
         if (ArrayUtils.contains(space.getManagers(), userId)) {
-          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, "manager", path, expand);
+          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, SpaceUtils.MANAGER, path, expand);
           spaceMemberships.add(membershipEntity.getDataEntity());
         }
         if (ArrayUtils.contains(space.getInvitedUsers(), userId)) {
@@ -437,11 +455,11 @@ public class SpaceMembershipRestResourcesV1 implements SpaceMembershipRestResour
         }
       } else {
         for (String user : space.getMembers()) {
-          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, user, "member", path, expand);
+          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, user, SpaceUtils.MEMBER, path, expand);
           spaceMemberships.add(membershipEntity.getDataEntity());
         }
         for (String user : space.getManagers()) {
-          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, user, "manager", path, expand);
+          membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, user, SpaceUtils.MANAGER, path, expand);
           spaceMemberships.add(membershipEntity.getDataEntity());
         }
       }

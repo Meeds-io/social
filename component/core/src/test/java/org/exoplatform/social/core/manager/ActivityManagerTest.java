@@ -47,7 +47,8 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
  * @author hoat_le
  */
 public class ActivityManagerTest extends AbstractCoreTest {
-  private final Log               LOG = ExoLogger.getLogger(ActivityManagerTest.class);
+
+  private static final Log        LOG = ExoLogger.getLogger(ActivityManagerTest.class);
 
   private List<ExoSocialActivity> tearDownActivityList;
 
@@ -65,7 +66,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
   private Identity                raulIdentity;
 
-  private Identity                jameIdentity;
+  private Identity                jamesIdentity;
 
   private Identity                paulIdentity;
 
@@ -95,7 +96,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     demoIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo");
     ghostIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "ghost");
     raulIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "raul");
-    jameIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jame");
+    jamesIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "james");
     paulIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "paul");
 
     PropertyManager.setProperty("exo.activity-type.cs-calendar:spaces.enabled", "false");
@@ -125,7 +126,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     identityManager.deleteIdentity(maryIdentity);
     identityManager.deleteIdentity(demoIdentity);
     identityManager.deleteIdentity(ghostIdentity);
-    identityManager.deleteIdentity(jameIdentity);
+    identityManager.deleteIdentity(jamesIdentity);
     identityManager.deleteIdentity(raulIdentity);
     identityManager.deleteIdentity(paulIdentity);
 
@@ -377,7 +378,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     originalActivity = activityManager.getActivity(originalActivity.getId());
     assertTrue(CollectionUtils.isEmpty(originalActivity.getShareActions()));
 
-    Space targetSpace = createSpace("TargetSpace", "james", "james", "mary", "demo");
+    Space targetSpace = createSpace("TargetSpace", "james", "demo");
     String shareMessage = "share Message";
     String type = "sharedActivityTest"; // No matter, will be removed from API
                                         // anyway
@@ -385,6 +386,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     org.exoplatform.services.security.Identity johnSecurityIdentity = new org.exoplatform.services.security.Identity("john");
     org.exoplatform.services.security.Identity demoSecurityIdentity = new org.exoplatform.services.security.Identity("demo");
     org.exoplatform.services.security.Identity jamesSecurityIdentity = new org.exoplatform.services.security.Identity("james");
+    org.exoplatform.services.security.Identity marySecurityIdentity = new org.exoplatform.services.security.Identity("mary");
 
     ExoSocialActivity shareActivityTemplate = new ExoSocialActivityImpl();
     shareActivityTemplate.setTitle(shareMessage);
@@ -393,8 +395,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
       activityManager.shareActivity(shareActivityTemplate,
                                     originalActivity.getId(),
                                     Arrays.asList(targetSpace.getPrettyName()),
-                                    johnSecurityIdentity);
-      fail("John is not member of target space");
+                                    marySecurityIdentity);
+      fail("Mary is not member of target space");
     } catch (IllegalAccessException e) {
       // Expected
     }
@@ -738,29 +740,30 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    Space space = createSpace("spaceTestPin", "john");
+    Space space = createSpace("spaceTestPin", "john", "demo", "james");
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     activityManager.saveActivityNoReturn(spaceIdentity, activity);
     // when
     boolean maryCanPinActivity = activityManager.canPinActivity(activity, maryIdentity);
     boolean demoCanPinActivity = activityManager.canPinActivity(activity, demoIdentity);
+    boolean jamesCanPinActivity = activityManager.canPinActivity(activity, jamesIdentity);
 
     // then
     assertFalse(maryCanPinActivity);
     assertFalse(demoCanPinActivity);
+    assertFalse(jamesCanPinActivity);
 
     // when
     String[] managers = new String[] { "mary" };
     String[] redactors = new String[] { "demo" };
+    String[] publishers = new String[] { "james" };
     space.setRedactors(redactors);
     space.setManagers(managers);
+    space.setPublishers(publishers);
     spaceService.updateSpace(space);
-    maryCanPinActivity = activityManager.canPinActivity(activity, maryIdentity);
-    demoCanPinActivity = activityManager.canPinActivity(activity, demoIdentity);
-
-    // then
-    assertTrue(maryCanPinActivity);
-    assertTrue(demoCanPinActivity);
+    assertTrue(activityManager.canPinActivity(activity, maryIdentity));
+    assertFalse(activityManager.canPinActivity(activity, demoIdentity));
+    assertTrue(activityManager.canPinActivity(activity, jamesIdentity));
   }
 
   /**
