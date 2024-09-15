@@ -133,11 +133,6 @@ public class SpaceUtils {
 
   public static final String                                  PLATFORM_PUBLISHER_GROUP = "/platform/web-contributors";
 
-  /**
-   * @deprecated Use {@link UserACL#getAdminMSType()} instead. Will be removed
-   *             by 1.2.9
-   */
-  @Deprecated
   public static final String                                  MANAGER                  = "manager";
 
   public static final String                                  MEMBER                   = "member";
@@ -709,8 +704,7 @@ public class SpaceUtils {
       shortName = Utils.cleanString(spaceName);
       groupId = parentGroup.getId() + "/" + shortName;
 
-      PortalContainer portalContainer = PortalContainer.getInstance();
-      SpaceService spaceService = (SpaceService) portalContainer.getComponentInstanceOfType(SpaceService.class);
+      SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
       if (spaceService.getSpaceByGroupId(groupId) != null) {
         shortName = buildGroupId(shortName, parentGroup.getId());
         groupId = parentGroup.getId() + "/" + shortName;
@@ -724,20 +718,26 @@ public class SpaceUtils {
       newGroup.setDescription("the " + parentGroup.getId() + "/" + shortName + " group");
       groupHandler.addChild(parentGroup, newGroup, true);
     } catch (Exception e) {
-      if (e instanceof SpaceException) {
-        throw (SpaceException) e;
+      if (e instanceof SpaceException spaceException) {
+        throw spaceException;
+      } else {
+        throw new SpaceException(SpaceException.Code.UNABLE_TO_CREATE_GROUP, e);
       }
-      throw new SpaceException(SpaceException.Code.UNABLE_TO_CREATE_GROUP, e);
     }
 
     try {
-      // adds user as creator (member, manager)
+      // Adds user as creator (member, manager)
       addCreatorToGroup(creator, groupId);
+      return groupId;
     } catch (Exception e) {
-      // TODO:should rollback what has to be rollback here
+      try {
+        groupHandler.removeGroup(newGroup, true);
+      } catch (Exception ex) {
+        LOG.warn("Unable to rollback group creation after a failure in space group creation. Throw original exception to stop space creation only.",
+                 ex);
+      }
       throw new SpaceException(SpaceException.Code.UNABLE_TO_ADD_CREATOR, e);
     }
-    return groupId;
   }
 
   /**
@@ -1717,34 +1717,6 @@ public class SpaceUtils {
     }
 
     return new ArrayList<String>(userNames);
-  }
-
-  /**
-   * Check if the user has the role redactor in that space or that the space is
-   * not redactional
-   * 
-   * @param userName
-   * @param spaceGroupId
-   * @return boolean true if the user has that role Or the role is not present
-   *         in the space
-   */
-  public static boolean isRedactor(String userName, String spaceGroupId) {
-    Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    return space != null && (getSpaceService().isRedactor(space, userName)
-                             || (ArrayUtils.isEmpty(space.getRedactors()) && getSpaceService().isMember(space, userName)));
-  }
-
-  /**
-   * Check if the user has the role manager in that space
-   *
-   * @param userName
-   * @param spaceGroupId
-   * @return boolean true if the user is supermanager of all spaces or has the
-   *         role manager in that space
-   */
-  public static boolean isSpaceManagerOrSuperManager(String userName, String spaceGroupId) {
-    Space space = getSpaceService().getSpaceByGroupId(spaceGroupId);
-    return (space != null && getSpaceService().isManager(space, userName)) || getSpaceService().isSuperManager(userName);
   }
 
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,

@@ -48,6 +48,8 @@ public class SpaceException extends Exception{
 
     APPLICATION_NOT_FOUND_IN_TEMPLATE,
 
+    UNAUTHORIZED_TO_RENAME_SPACE,
+
     /** The UNABL e_ t o_ remov e_ application. */
     UNABLE_TO_MOVE_APPLICATION,
 
@@ -90,7 +92,7 @@ public class SpaceException extends Exception{
     SPACE_PERMISSION,
 
     /** The UNKNOW n_ spac e_ type. */
-    UNKNOWN_SPACE_TYPE,
+    UNKNOWN_SPACE_TEMPLATE,
 
     /** The UNABL e_ t o_ crea t_ nav. */
     UNABLE_TO_CREAT_NAV,

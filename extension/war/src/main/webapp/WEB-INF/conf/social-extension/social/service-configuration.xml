@@ -24,9 +24,6 @@
 
   <!-- Deprecated REST service (will be removed in next versions) -->
   <component>
-    <type>org.exoplatform.social.service.rest.SpacesRestService</type>
-  </component>
-  <component>
     <type>org.exoplatform.social.service.rest.IdentityRestService</type>
   </component>
   <component>

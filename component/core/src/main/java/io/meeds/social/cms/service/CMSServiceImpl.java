@@ -96,10 +96,8 @@ public class CMSServiceImpl implements CMSService {
     if (hasEditPermission || spaceId <= 0) {
       return hasEditPermission;
     } else {
-      String username = identity.getUserId();
       Space space = spaceService.getSpaceById(String.valueOf(spaceId));
-      return spaceService.isSuperManager(username)
-             || (space != null && (spaceService.isPublisher(space, username) || spaceService.isManager(space, username)));
+      return spaceService.canPublishOnSpace(space, identity.getUserId());
     }
   }
 
