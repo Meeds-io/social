@@ -16,8 +16,7 @@
   int maxUploadSize = identityManager.getImageUploadLimit();
   SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
   boolean isAdmin = space != null
-      && (spaceService.isSuperManager(request.getRemoteUser())
-      || spaceService.isManager(space, request.getRemoteUser()));
+      && spaceService.canManageSpace(space, request.getRemoteUser());
 %>
 <div class="VuetifyApp">
   <div data-app="true"

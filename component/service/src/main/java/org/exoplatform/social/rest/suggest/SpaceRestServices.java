@@ -78,7 +78,7 @@ public class SpaceRestServices implements ResourceContainer {
                 return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
             }
 
-            SpaceService spaceService = (SpaceService) container.getComponentInstanceOfType(SpaceService.class);
+            SpaceService spaceService = container.getComponentInstanceOfType(SpaceService.class);
             ListAccess<Space> suggestedSpacesLA = spaceService.getPublicSpacesWithListAccess(userId);
 
             // new create system with no spaces
@@ -386,83 +386,6 @@ public class SpaceRestServices implements ResourceContainer {
             return Response.ok("error").cacheControl(cacheControl).build();
         }
     }
-
-    @GET
-    @Path("myspaces")
-    @DeprecatedAPI("Use SpaceRestResourcesV1.getSpaces instead")
-    public Response request(@Context SecurityContext sc, @Context UriInfo uriInfo) {
-
-        try {
-
-            String userId = getUserId(sc, uriInfo);
-            if (userId == null) {
-                return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-            }
-
-            SpaceService spaceService = (SpaceService) container.getComponentInstanceOfType(SpaceService.class);
-            List<Space> mySpaces = spaceService.getAccessibleSpaces(userId);
-
-            JSONArray jsonArray = new JSONArray();
-
-            for (Space space : mySpaces) {
-                JSONObject json = new JSONObject();
-                json.put(SPACE_NAME, space.getName());
-                json.put(SPACE_ID, space.getId());
-                json.put(SPACE_DISPLAY_NAME, space.getDisplayName());
-                json.put(SPACE_URL, space.getUrl());
-                json.put(SPACE_MEMBERS, space.getMembers().length);
-                jsonArray.put(json);
-            }
-
-            return Response.ok(jsonArray.toString(), MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-
-        } catch (Exception e) {
-            LOG.error("Error in space deny rest service: " + e.getMessage(), e);
-            return Response.ok("error").cacheControl(cacheControl).build();
-        }
-
-    }
-
-    @GET
-    @Path("public")
-    @DeprecatedAPI("Use SpaceRestResourcesV1.getSpaces instead")
-    public Response getPublicSpaces(@Context SecurityContext sc, @Context UriInfo uriInfo) {
-
-        try {
-            String userId = getUserId(sc, uriInfo);
-            if (userId == null) {
-                return Response.status(HTTPStatus.INTERNAL_ERROR).cacheControl(cacheControl).build();
-            }
-
-            SpaceService spaceService = (SpaceService) container.getComponentInstanceOfType(SpaceService.class);
-            ListAccess<Space> publicSpaces = spaceService.getPublicSpacesWithListAccess(userId);
-
-            JSONArray jsonArray = new JSONArray();
-
-            Space[] spaces = publicSpaces.load(0, publicSpaces.getSize());
-            if (spaces != null && spaces.length > 0) {
-                for (Space space : spaces) {
-
-                    if (space.getVisibility().equals(Space.HIDDEN))
-                        continue;
-                    if (space.getRegistration().equals(Space.CLOSED))
-                        continue;
-
-                    JSONObject json = new JSONObject();
-                    json.put(SPACE_NAME, space.getName());
-                    json.put(SPACE_DISPLAY_NAME, space.getDisplayName());
-                    json.put(SPACE_ID, space.getId());
-                    jsonArray.put(json);
-                }
-            }
-
-            return Response.ok(jsonArray.toString(), MediaType.APPLICATION_JSON).cacheControl(cacheControl).build();
-        } catch (Exception e) {
-            LOG.error("Error in space invitation rest service: " + e.getMessage(), e);
-            return Response.ok("error").cacheControl(cacheControl).build();
-        }
-    }
-
 
     private String getUserId(SecurityContext sc, UriInfo uriInfo) {
         try {

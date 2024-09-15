@@ -19,8 +19,7 @@
 	int maxUploadSize = identityManager.getImageUploadLimit();
 
 	SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-	boolean isAdmin = spaceService.isSuperManager(request.getRemoteUser())
-			|| spaceService.isManager(space, request.getRemoteUser());
+	boolean isAdmin = spaceService.canManageSpace(space, request.getRemoteUser());
 
 	List<UserNode> navigations = (List<UserNode>) request.getAttribute("navigations");
 %>

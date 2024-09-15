@@ -70,7 +70,7 @@
     Space space = SpaceUtils.getSpaceByContext();
     if (space != null) {
       SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-      isManager = spaceService.isSuperManager(request.getRemoteUser()) || spaceService.isManager(space, request.getRemoteUser());
+      isManager = spaceService.canManageSpace(space, request.getRemoteUser());
     }
 %>
 
