@@ -531,7 +531,31 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
-    renameSpace(null, space, newDisplayName);
+    String oldPrettyName = space.getPrettyName();
+
+    space.setDisplayName(newDisplayName);
+    space.setPrettyName(newDisplayName);
+    space.setUrl(Utils.cleanString(newDisplayName));
+
+    SpaceEntity entity = spaceDAO.find(Long.parseLong(space.getId()));
+    // Retrieve identity before saving
+    Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, oldPrettyName);
+
+    EntityConverterUtils.buildFrom(space, entity);
+    entity.setUpdatedDate(new Date());
+    spaceDAO.update(entity);
+
+    // change profile of space
+    if (identitySpace != null) {
+      identitySpace.setRemoteId(space.getPrettyName());
+      identityStorage.saveIdentity(identitySpace);
+
+      Profile profileSpace = identitySpace.getProfile();
+      profileSpace.setProperty(Profile.URL, space.getUrl());
+      identityStorage.saveProfile(profileSpace);
+    }
+
+    LOG.debug("Space {} ({}) saved", space.getPrettyName(), space.getId());
   }
 
   @Override
@@ -553,37 +577,6 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public boolean isSpaceIgnored(String spaceId, String userId) {
     SpaceMemberEntity entity = spaceMemberDAO.getSpaceMemberShip(userId, Long.parseLong(spaceId), Status.IGNORED);
     return entity != null;
-  }
-  
-  @Override
-  public void renameSpace(String remoteId, Space space, String newDisplayName) throws SpaceStorageException {
-    SpaceEntity entity;
-
-    String oldPrettyName = space.getPrettyName();
-
-    space.setDisplayName(newDisplayName);
-    space.setPrettyName(newDisplayName);
-    space.setUrl(Utils.cleanString(newDisplayName));
-
-    entity = spaceDAO.find(Long.parseLong(space.getId()));
-    // Retrieve identity before saving
-    Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, oldPrettyName);
-
-    EntityConverterUtils.buildFrom(space, entity);
-    entity.setUpdatedDate(new Date());
-    spaceDAO.update(entity);
-
-    // change profile of space
-    if (identitySpace != null) {
-      identitySpace.setRemoteId(space.getPrettyName());
-      identityStorage.saveIdentity(identitySpace);
-
-      Profile profileSpace = identitySpace.getProfile();
-      profileSpace.setProperty(Profile.URL, space.getUrl());
-      identityStorage.saveProfile(profileSpace);
-    }
-
-    LOG.debug("Space {} ({}) saved", space.getPrettyName(), space.getId());
   }
 
   @Override

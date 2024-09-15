@@ -174,7 +174,7 @@ public class SpaceActivityRDBMSPublisherTest extends AbstractCoreTest {
    avatar.setMimeType("plain/text");
    avatar.setInputStream(new ByteArrayInputStream("Attachment content".getBytes()));
    space.setAvatarAttachment(avatar);
-   spaceService.updateSpaceAvatar(space);
+   spaceService.updateSpaceAvatar(space, space.getManagers()[0]);
    comments = activityManager.getCommentsWithListAccess(activity).loadAsList(0, 20);
    assertEquals(4, comments.size());
    assertEquals("Space has a new avatar.", comments.get(3).getTitle());

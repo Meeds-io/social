@@ -774,7 +774,8 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("test activity");
 
-    Space space = getSpaceInstance("spaceTestPin", "john");
+    Space space = getSpaceInstance("spaceTestPin", "john", "mary");
+
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     activityManager.saveActivityNoReturn(spaceIdentity, activity);
     // when
@@ -785,7 +786,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                                          null);
     // then
     assertNotNull(response);
-    assertEquals(404, response.getStatus());
+    assertEquals(401, response.getStatus());
 
     // when
     response = service("DELETE",
@@ -795,7 +796,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                        null);
     // then
     assertNotNull(response);
-    assertEquals(404, response.getStatus());
+    assertEquals(401, response.getStatus());
 
     // when
     response = service("DELETE", "/" + VersionResources.VERSION_ONE + "/social/activities/20000/pins", "", null, null);
@@ -831,9 +832,19 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(401, response.getStatus());
 
     // when
-    String[] redactors = new String[] { "mary" };
-    space.setRedactors(redactors);
-    spaceService.updateSpace(space);
+    spaceService.addRedactor(space, "mary");
+    
+    response = service("POST",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    // when
+    spaceService.addPublisher(space, "mary");
 
     response = service("POST",
                        "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",

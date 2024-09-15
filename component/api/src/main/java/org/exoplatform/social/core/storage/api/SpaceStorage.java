@@ -62,18 +62,7 @@ public interface SpaceStorage {
    * @since 1.2.8
    */
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException;
-  
-  /**
-   * Renames a space.
-   * 
-   * @param remoteId who update Space information
-   * @param space
-   * @param newDisplayName
-   * @throws SpaceStorageException
-   * @since 4.0.0
-   */
-  public void renameSpace(String remoteId, Space space, String newDisplayName) throws SpaceStorageException;
-  
+
   /**
    * Deletes a space by space id.
    *

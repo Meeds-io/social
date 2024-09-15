@@ -39,7 +39,7 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       data.spaces.forEach((item) => {
-        if ((excludeRedactionalSpace && !item.redactorsCount ) || ((!onlyRedactor || item.isRedactor || item.canEdit || !item.redactorsCount) && (!onlyManager || item.canEdit))) {
+        if ((excludeRedactionalSpace && !item.redactorsCount ) || ((!onlyRedactor || item.isRedactor || item.isPublisher || item.canEdit || !item.redactorsCount) && (!onlyManager || item.canEdit))) {
           items.push({
             id: `space:${item.prettyName}`,
             remoteId: item.prettyName,

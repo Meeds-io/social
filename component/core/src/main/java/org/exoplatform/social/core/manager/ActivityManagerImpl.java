@@ -525,7 +525,7 @@ public class ActivityManagerImpl implements ActivityManager {
       LOG.warn("activity is already liked by identity: " + identity);
       return;
     }
-    identityIds = (String[]) ArrayUtils.add(identityIds, identity.getId());
+    identityIds = ArrayUtils.add(identityIds, identity.getId());
     existingActivity.setLikeIdentityIds(identityIds);
     //broadcast is false : we don't want to launch update listeners for a like
     updateActivity(existingActivity, false);
@@ -546,7 +546,7 @@ public class ActivityManagerImpl implements ActivityManager {
     activity.setTemplateParams(null);
     String[] identityIds = activity.getLikeIdentityIds();
     if (ArrayUtils.contains(identityIds, identity.getId())) {
-      identityIds = (String[]) ArrayUtils.removeElement(identityIds, identity.getId());
+      identityIds = ArrayUtils.removeElement(identityIds, identity.getId());
       activity.setLikeIdentityIds(identityIds);
       //broadcast is false : we don't want to launch update listeners for a like
       updateActivity(activity, false);
@@ -598,11 +598,8 @@ public class ActivityManagerImpl implements ActivityManager {
    */
   @Override
   public boolean canPinActivity(ExoSocialActivity activity, Identity identity) {
-    Space space = spaceService.getSpaceById(activity.getSpaceId());
-    if (space != null) {
-      return spaceService.isManager(space, identity.getRemoteId()) || spaceService.isRedactor(space, identity.getRemoteId());
-    }
-    return false;
+    return spaceService.canPublishOnSpace(spaceService.getSpaceById(activity.getSpaceId()),
+                                          identity.getRemoteId());
   }
 
   @Override
@@ -802,7 +799,8 @@ public class ActivityManagerImpl implements ActivityManager {
     }
     ActivityStream activityStream = activity.getActivityStream();
     if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
-      return isSpaceMember(viewer, activityStream.getPrettyId());
+      return spaceService.canViewSpace(spaceService.getSpaceByPrettyName(activityStream.getPrettyId()),
+                                       viewer.getUserId());
     } else if (activityStream != null
         && ActivityStream.Type.USER.equals(activityStream.getType())
         && (StringUtils.equals(activityStream.getPrettyId(), username)
@@ -870,18 +868,15 @@ public class ActivityManagerImpl implements ActivityManager {
       activityStream = activity.getActivityStream();
     }
 
-    if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
-      return isManagerOrSpaceManager(viewer, activityStream.getPrettyId());
+    if (activityStream != null
+        && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
+      return spaceService.canManageSpace(spaceService.getSpaceByPrettyName(activityStream.getPrettyId()),
+                                         viewer.getUserId());
     } else {
-      return StringUtils.equals(userACL.getSuperUser(), username)
-          || viewer.isMemberOf(userACL.getAdminGroups())
-          || spaceService.isSuperManager(username);
+      return spaceService.isSuperManager(username);
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean isActivityTypeEnabled(String activityType) {
     return activityTypesRegistry.get(activityType) == null || activityTypesRegistry.get(activityType);
@@ -919,9 +914,8 @@ public class ActivityManagerImpl implements ActivityManager {
       throw new IllegalArgumentException("streamOwner is mandatory");
     }
     if (streamOwner.isSpace()) {
-      String spacePrettyName = streamOwner.getRemoteId();
-      Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
-      return space != null && spaceService.canRedactOnSpace(space, viewer);
+      Space space = spaceService.getSpaceByPrettyName(streamOwner.getRemoteId());
+      return spaceService.canRedactOnSpace(space, viewer);
     } else if (streamOwner.isUser()) {
       return isEnableUserComposer() && StringUtils.equals(viewer.getUserId(), streamOwner.getRemoteId());
     }
@@ -933,31 +927,6 @@ public class ActivityManagerImpl implements ActivityManager {
     return activity != null
         && ((activity.getType() != null && systemActivityTypes.contains(activity.getType()))
             || (activity.getTitleId() != null && systemActivityTitleIds.contains(activity.getTitleId())));
-  }
-
-  private boolean isManagerOrSpaceManager(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
-    String username = viewer.getUserId();
-    if (viewer.isMemberOf(userACL.getAdminGroups()) || StringUtils.equals(userACL.getSuperUser(), username)) {
-      return true;
-    }
-    if (spaceService.isSuperManager(username)) {
-      return true;
-    }
-    Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
-    return space != null && spaceService.isManager(space, username);
-  }
-
-  private boolean isSpaceMember(org.exoplatform.services.security.Identity viewer, String spacePrettyName) {
-    String username = viewer.getUserId();
-    if (StringUtils.equals(userACL.getSuperUser(), username) || viewer.isMemberOf(userACL.getAdminGroups())) {
-      return true;
-    }
-    Space space = spaceService.getSpaceByPrettyName(spacePrettyName);
-    boolean isSpacesManager = spaceService.isSuperManager(username);
-    if (space == null) {
-      return isSpacesManager;
-    }
-    return isSpacesManager || spaceService.isMember(space, username);
   }
 
   private boolean hasMentioned(ExoSocialActivity activity, String username) {
