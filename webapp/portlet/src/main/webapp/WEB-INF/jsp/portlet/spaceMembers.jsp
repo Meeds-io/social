@@ -20,7 +20,7 @@
   if (space != null) {
     spaceId = space.getId();
     SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
-    isManager = spaceService.isSuperManager(request.getRemoteUser()) || spaceService.isManager(space, request.getRemoteUser());
+    isManager = spaceService.canManageSpace(space, request.getRemoteUser());
   }
 
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);

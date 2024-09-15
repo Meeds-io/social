@@ -300,23 +300,14 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     cleanRef(space);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
-    renameSpace(null, space, newDisplayName);
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public void renameSpace(String remoteId, Space space, String newDisplayName) throws SpaceStorageException {
     String oldDisplayName = space.getDisplayName();
     String oldUrl = Utils.cleanString(oldDisplayName);
     String oldPrettyName = space.getPrettyName();
     
     //
-    super.renameSpace(remoteId, space, newDisplayName);
+    super.renameSpace(space, newDisplayName);
 
     //remove identity and profile from cache
     cachedIdentityStorage = this.getCachedIdentityStorage();
