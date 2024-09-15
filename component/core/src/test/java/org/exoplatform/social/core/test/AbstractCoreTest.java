@@ -40,6 +40,7 @@ import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
 import junit.framework.AssertionFailedError;
+import lombok.SneakyThrows;
 
 /**
  *
@@ -85,10 +86,13 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     end();
   }
 
-  protected void deleteAllSpaces() throws SpaceException {
-    List<Space> allSpaces = spaceService.getAllSpaces();
-    if(allSpaces != null && !allSpaces.isEmpty()) {
-      for (Space space : allSpaces) {
+  @SneakyThrows
+  protected void deleteAllSpaces() {
+    ListAccess<Space> allSpacesListAccess = spaceService.getAllSpacesWithListAccess();
+    int size = allSpacesListAccess.getSize();
+    if(size > 0) {
+      Space[] spaces = allSpacesListAccess.load(0, size);
+      for (Space space : spaces) {
         try {
           spaceService.deleteSpace(space);
         } catch (Throwable e) {
