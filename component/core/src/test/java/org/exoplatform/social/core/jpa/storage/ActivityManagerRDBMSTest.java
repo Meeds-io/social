@@ -405,19 +405,16 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     activityStream.setPrettyId("demo_space");
 
     Space space = new Space();
-    Mockito.when(spaceService.getSpaceByPrettyName(Mockito.eq("demo_space"))).thenReturn(space);
+    Mockito.when(spaceService.getSpaceByPrettyName("demo_space")).thenReturn(space);
 
-    Mockito.when(spaceService.isManager(Mockito.eq(space), Mockito.eq("john"))).thenReturn(false);
-    Mockito.when(spaceService.isManager(Mockito.eq(space), Mockito.eq("mary"))).thenReturn(true);
-    Mockito.when(spaceService.isManager(Mockito.eq(space), Mockito.eq("james"))).thenReturn(false);
+    Mockito.when(spaceService.canManageSpace(space, "john")).thenReturn(true);
+    Mockito.when(spaceService.canManageSpace(space, "mary")).thenReturn(true);
+    Mockito.when(spaceService.canManageSpace(space, "james")).thenReturn(false);
 
     assertTrue(activityManager.isActivityDeletable(activity, owner));
-    assertTrue(activityManager.isActivityDeletable(activity, admin));
     assertTrue(activityManager.isActivityDeletable(activity, mary));
+    assertTrue(activityManager.isActivityDeletable(activity, admin));
     assertFalse(activityManager.isActivityDeletable(activity, james));
-
-    Mockito.when(james.isMemberOf(acl.getAdminGroups())).thenReturn(true);
-    assertTrue(activityManager.isActivityDeletable(activity, james));
 
     Map<String, String> templateParams = new HashMap<>();
     when(activity.getTemplateParams()).thenReturn(templateParams);
@@ -425,13 +422,13 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertFalse(activityManager.isActivityDeletable(activity, owner));
     assertTrue(activityManager.isActivityDeletable(activity, admin));
     assertTrue(activityManager.isActivityDeletable(activity, mary));
-    assertTrue(activityManager.isActivityDeletable(activity, james));
+    assertFalse(activityManager.isActivityDeletable(activity, james));
 
     templateParams.put(ActivityManagerImpl.REMOVABLE, "true");
     assertTrue(activityManager.isActivityDeletable(activity, owner));
     assertTrue(activityManager.isActivityDeletable(activity, admin));
     assertTrue(activityManager.isActivityDeletable(activity, mary));
-    assertTrue(activityManager.isActivityDeletable(activity, james));
+    assertFalse(activityManager.isActivityDeletable(activity, james));
   }
 
   /**

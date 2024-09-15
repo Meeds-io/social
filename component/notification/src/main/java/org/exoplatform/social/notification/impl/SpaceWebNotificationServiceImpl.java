@@ -261,8 +261,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
     if (space == null) {
       throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND, spaceId));
     }
-    if (!spaceService.isSuperManager(username) && !spaceService.isMember(space, username)
-        && !spaceService.isManager(space, username)) {
+    if (!spaceService.canViewSpace(space, username)) {
       throw new IllegalAccessException(String.format(USER_NOT_MEMBER_OF_SPACE, username, spaceId));
     }
     return getUnreadActivityIds(offset, limit, Collections.singletonList(spaceIdString), userIdentity);
@@ -299,8 +298,7 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
     if (space == null) {
       throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND, spaceId));
     }
-    if (!spaceService.isSuperManager(username) && !spaceService.isMember(space, username)
-        && !spaceService.isManager(space, username)) {
+    if (!spaceService.canViewSpace(space, username)) {
       throw new IllegalAccessException(String.format(USER_NOT_MEMBER_OF_SPACE, username, spaceId));
     }
     return countUnreadActivityIds(Collections.singletonList(spaceIdString), userIdentity);

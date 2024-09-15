@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -75,12 +76,17 @@ public class StreamItemDAOTest extends BaseCoreTest {
     }
     
     //
-    for (Space space : spaceService.getAllSpaces()) {
-      Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-      if (spaceIdentity != null) {
-        identityStorage.deleteIdentity(spaceIdentity);
+    ListAccess<Space> allSpacesListAccess = spaceService.getAllSpacesWithListAccess();
+    int size = allSpacesListAccess.getSize();
+    if(size > 0) {
+      Space[] spaces = allSpacesListAccess.load(0, size);
+      for (Space space : spaces) {
+        Identity spaceIdentity = identityStorage.findIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+        if (spaceIdentity != null) {
+          identityStorage.deleteIdentity(spaceIdentity);
+        }
+        spaceService.deleteSpace(space);
       }
-      spaceService.deleteSpace(space);
     }
 
     identityManager.deleteIdentity(ghostIdentity);

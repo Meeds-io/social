@@ -558,10 +558,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       Space space = byId ? spaceService.getSpaceById(id)
                          : spaceService.getSpaceByPrettyName(id);
       if (space == null
-          || (Space.HIDDEN.equals(space.getVisibility()) && RestUtils.isAnonymous())
-          || (Space.HIDDEN.equals(space.getVisibility()) && !RestUtils.isAnonymous()
-              && !spaceService.isMember(space, authenticatedUser)
-              && !spaceService.isSuperManager(authenticatedUser))) {
+          || (Space.HIDDEN.equals(space.getVisibility())
+              && !spaceService.canViewSpace(space, authenticatedUser))) {
         return Response.status(Status.NOT_FOUND).build();
       }
       Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
@@ -655,10 +653,8 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     Space space = byId ? spaceService.getSpaceById(id)
                        : spaceService.getSpaceByPrettyName(id);
     if (space == null
-        || (Space.HIDDEN.equals(space.getVisibility()) && RestUtils.isAnonymous())
-        || (Space.HIDDEN.equals(space.getVisibility()) && !RestUtils.isAnonymous()
-            && !spaceService.isMember(space, authenticatedUser)
-            && !spaceService.isSuperManager(authenticatedUser))) {
+        || (Space.HIDDEN.equals(space.getVisibility())
+            && !spaceService.canViewSpace(space, authenticatedUser))) {
       return Response.status(Status.NOT_FOUND).build();
     }
     Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
@@ -724,7 +720,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+    if (!spaceService.canManageSpace(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     if (model.getDisplayName() != null && (model.getDisplayName().length() < 3 || model.getDisplayName().length() > 200)) {
@@ -733,7 +729,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
     if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
       space.setEditor(RestUtils.getCurrentUser());
-      spaceService.renameSpace(authenticatedUser, space, model.getDisplayName());
+      spaceService.renameSpace(space, model.getDisplayName(), authenticatedUser);
     }
 
     if (model.getExternalInvitedUsers() != null
@@ -789,7 +785,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+    if (!spaceService.canManageSpace(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     space.setEditor(authenticatedUser);
@@ -834,7 +830,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+    if (!spaceService.canViewSpace(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
@@ -909,7 +905,6 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     boolean isMember = spaceService.isMember(space, userId);
-
     return Response.ok().entity("{\"isMember\":\"" + isMember + "\"}").build();
   }
 
@@ -927,7 +922,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                       String spaceId) {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Space space = spaceService.getSpaceById(spaceId);
-    if (space == null || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+    if (!spaceService.canViewSpace(space, authenticatedUser)) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
     List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space, httpRequest.getLocale(), authenticatedUser);
@@ -1100,7 +1095,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (space == null ||  (! spaceService.isManager(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+    if (!spaceService.canManageSpace(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     List<SpaceExternalInvitation> spaceExternalInvitations = spaceService.findSpaceExternalInvitationsBySpaceId(id);
@@ -1133,7 +1128,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!spaceService.isManager(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser)) {
+    if (!spaceService.canManageSpace(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
@@ -1151,8 +1146,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                   String value) throws IOException {
     if (Profile.BANNER.equals(name) && StringUtils.equals(value, "DEFAULT_BANNER")) {
       space.setBannerAttachment(null);
-      space.setEditor(RestUtils.getCurrentUser());
-      spaceService.updateSpaceBanner(space);
+      spaceService.updateSpaceBanner(space, RestUtils.getCurrentUser());
     } else if (Profile.AVATAR.equals(name) || Profile.BANNER.equals(name)) {
       UploadResource uploadResource = uploadService.getUploadResource(value);
       if (uploadResource == null) {
@@ -1167,8 +1161,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             inputStream,
                                             System.currentTimeMillis());
           space.setAvatarAttachment(attachment);
-          space.setEditor(RestUtils.getCurrentUser());
-          spaceService.updateSpaceAvatar(space);
+          spaceService.updateSpaceAvatar(space, RestUtils.getCurrentUser());
         } else {
           BannerAttachment attachment = new BannerAttachment(null,
                                             uploadResource.getFileName(),
@@ -1176,8 +1169,7 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
                                             inputStream,
                                             System.currentTimeMillis());
           space.setBannerAttachment(attachment);
-          space.setEditor(RestUtils.getCurrentUser());
-          spaceService.updateSpaceBanner(space);
+          spaceService.updateSpaceBanner(space, RestUtils.getCurrentUser());
         }
       } finally {
         uploadService.removeUploadResource(value);
@@ -1201,7 +1193,9 @@ public class SpaceRestResourcesV1 implements SpaceRestResources {
 
   private Response buildSpaceResponse(Space space, String expand, UriInfo uriInfo, Request request) {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && ! spaceService.isMember(space, authenticatedUser) && ! spaceService.isSuperManager(authenticatedUser))) {
+    if (space == null
+        || (Space.HIDDEN.equals(space.getVisibility())
+            && !spaceService.canViewSpace(space, authenticatedUser))) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
