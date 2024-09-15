@@ -25,7 +25,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -312,7 +311,7 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
 
     assertThrows(IllegalAccessException.class, () -> spaceWebNotificationService.countUnreadActivitiesBySpace(username, spaceId));
 
-    when(spaceService.isMember(space, username)).thenReturn(true);
+    when(spaceService.canViewSpace(space, username)).thenReturn(true);
     long result = spaceWebNotificationService.countUnreadActivitiesBySpace(username, spaceId);
     assertEquals(5l, result);
   }
@@ -360,7 +359,7 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
 
     assertThrows(IllegalAccessException.class, () -> spaceWebNotificationService.getUnreadActivityIdsBySpace(username, spaceId, 0, 10));
     
-    when(spaceService.isMember(space, username)).thenReturn(true);
+    when(spaceService.canViewSpace(space, username)).thenReturn(true);
     List<Long> result = spaceWebNotificationService.getUnreadActivityIdsBySpace(username, spaceId, 0, 10);
     assertEquals(Collections.singletonList(Long.parseLong(activityId)), result);
   }

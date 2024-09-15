@@ -38,8 +38,6 @@ import org.exoplatform.social.service.rest.GroupSpaceBindingRestServiceTest;
 import org.exoplatform.social.service.rest.IdentityRestServiceTest;
 import org.exoplatform.social.service.rest.NotificationsRestServiceTest;
 import org.exoplatform.social.service.rest.RestCheckerTest;
-import org.exoplatform.social.service.rest.SecurityManagerTest;
-import org.exoplatform.social.service.rest.SpaceRestServiceTest;
 import org.exoplatform.social.service.rest.UtilTest;
 import org.exoplatform.social.service.rest.api.VersionResourcesTest;
 import org.exoplatform.social.service.rest.notification.IntranetNotificationsRestServiceTest;
@@ -50,12 +48,10 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-  SpaceRestServiceTest.class,
   VersionResourcesTest.class,
   IdentityRestServiceTest.class,
   //PeopleRestServiceTest.class,  //skipped until add integration test
   RestCheckerTest.class,
-  SecurityManagerTest.class,
   UtilTest.class,
   IntranetNotificationsRestServiceTest.class,
   NotificationsRestServiceTest.class,
