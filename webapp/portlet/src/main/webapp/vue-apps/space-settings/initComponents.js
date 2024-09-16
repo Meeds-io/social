@@ -30,6 +30,9 @@ import SpaceSettingAccessDrawer from './components/drawer/SpaceSettingAccessDraw
 import SpaceSettingAvatar from './components/form/SpaceSettingAvatar.vue';
 import SpaceSettingBanner from './components/form/SpaceSettingBanner.vue';
 
+import SpaceSettingRolesTable from './components/section/roles/SpaceSettingRolesTable.vue';
+import SpaceSettingRoleItem from './components/section/roles/SpaceSettingRoleItem.vue';
+
 const components = {
   'space-settings': SpaceSettings,
   'space-setting-overview': SpaceSettingOverview,
@@ -38,6 +41,8 @@ const components = {
 
   'space-setting-overview-section': SpaceSettingOverviewSection,
   'space-setting-roles-section': SpaceSettingRolesSection,
+  'space-setting-roles-table': SpaceSettingRolesTable,
+  'space-setting-role-item': SpaceSettingRoleItem,
 
   'space-setting-access-drawer': SpaceSettingAccessDrawer,
 
