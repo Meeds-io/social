@@ -61,6 +61,7 @@ export function init(maxFileSize) {
           activityBaseLink: activityBaseLink,
           selectedActivityId: null,
           selectedCommentId: null,
+          canPost: null,
           replyToComment: false,
           displayCommentActionTypes: []
         },
