@@ -129,7 +129,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
 
   public void testShouldReturnNotAuthorizedResponseWhenUserIsNotMemberOfSpace() throws Exception {
     // Given
-    startSessionAs("john");
+    startSessionAs("james");
     Space space = getSpaceInstance("test", "root");
     testSpaceIdentity = new Identity(SpaceIdentityProvider.NAME, "test");
     identityStorage.saveIdentity(testSpaceIdentity);
@@ -195,7 +195,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
 
       // Test get a comment when logged user is not a member of space in which
       // the comment is posted
-      startSessionAs("John");
+      startSessionAs("james");
       response = service("GET",
                          "/" + VersionResources.VERSION_ONE + "/social/comments/" + testSpaceActivity.getId(),
                          "",
@@ -206,9 +206,7 @@ public class CommentRestResourcesTest extends AbstractResourceTest {
     } catch (Exception exc) {
       log.error(exc);
     } finally {
-      if (space != null) {
-        spaceService.deleteSpace(space);
-      }
+      spaceService.deleteSpace(space);
     }
   }
 
