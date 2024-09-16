@@ -3,7 +3,7 @@
     <v-main class="application-body">
       <activity-stream-toolbar
         v-if="canPostInitialized"
-        :can-post="canPost"
+        :can-post="$root.canPost"
         :can-filter="canFilter"
         :filter="filter"
         :has-activities="hasActivities" />
@@ -34,7 +34,6 @@ export default {
     canPostInitialized: false,
     spaceId: eXo.env.portal.spaceId,
     forceReload: false,
-    canPost: false,
     hasActivities: false,
     activityId: null,
     activityTypes: {},
@@ -137,7 +136,7 @@ export default {
       return params.get(paramName);
     },
     canPostLoaded(canPost) {
-      this.canPost = canPost;
+      this.$root.canPost = !!canPost;
       this.canPostInitialized = true;
     },
   },

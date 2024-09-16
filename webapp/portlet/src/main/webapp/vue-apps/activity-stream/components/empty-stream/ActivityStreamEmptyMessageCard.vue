@@ -35,7 +35,7 @@
       eager />
     <v-card
       max-width="150"
-      class="pe-3 ps-0 px-sm-3 pt-sm-3 text-start text-sm-center flex-grow-1"
+      class="pe-3 ps-0 px-sm-1 pt-sm-3 text-start text-sm-center flex-grow-1"
       flat>
       {{ infoMessage }}
     </v-card>
