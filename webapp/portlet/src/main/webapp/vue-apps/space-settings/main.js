@@ -57,6 +57,9 @@ export function init() {
         isAllSections() {
           return !this.activeSection;
         },
+        isMobile() {
+          return this.$vuetify.breakpoint.mobile;
+        },
       },
       watch: {
         activeSection() {

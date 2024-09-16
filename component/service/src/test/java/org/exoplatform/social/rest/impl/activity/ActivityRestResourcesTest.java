@@ -1159,9 +1159,9 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
   public void testGetSharedActivityOnSpaces() throws Exception {
     startSessionAs("root");
-    Space originalSpace = getSpaceInstance("originalSpace", "root", "john");
+    Space originalSpace = getSpaceInstance("originalSpace", "root", "james");
 
-    startSessionAs("john");
+    startSessionAs("james");
     
     String param1 = "param1";
     String param2 = "param2";
@@ -1178,27 +1178,27 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertNotNull(originalActivity.getActivityStream());
     assertNotNull(originalActivity.getActivityStream().get("space"));
 
-    Space targetSpace = getSpaceInstance("targetSpace", "mary", "james", "demo");
+    Space targetSpace = getSpaceInstance("targetSpace", "mary", "john", "demo");
 
     String message = "Share activity Message";
     input = "{\"title\":\"" + message + "\",\"type\":SHARED_DEFAULT_ACTIVITY,\"targetSpaces\":[\"" + targetSpace.getPrettyName()
         + "\"]}";
     response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
     assertNotNull(response);
-    assertEquals("User john is not member of target space", 401, response.getStatus());
+    assertEquals("User james is not member of target space", 401, response.getStatus());
 
-    spaceService.addMember(targetSpace, "john");
+    spaceService.addMember(targetSpace, "james");
     spaceService.addRedactor(targetSpace, "demo");
 
     response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
     assertNotNull(response);
-    assertEquals("User john is not redactor of target space", 401, response.getStatus());
+    assertEquals("User james is not redactor of target space", 401, response.getStatus());
 
-    spaceService.addRedactor(targetSpace, "john");
+    spaceService.addRedactor(targetSpace, "james");
 
     response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
     assertNotNull(response);
-    assertEquals("User john is redactor of target space and member on original space", 200, response.getStatus());
+    assertEquals("User james is redactor of target space and member on original space", 200, response.getStatus());
 
     CollectionEntity sharedActivities = (CollectionEntity) response.getEntity();
     assertNotNull(sharedActivities);
@@ -1224,7 +1224,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertTrue(!sharedActivity.getTemplateParams().containsKey(param2));
 
     restartTransaction();
-    startSessionAs("john");
+    startSessionAs("james");
     response = service("GET",
                        "/" + VersionResources.VERSION_ONE + "/social/activities/" + originalActivity.getId() + "?expand=" + RestProperties.SHARED,
                        "",
