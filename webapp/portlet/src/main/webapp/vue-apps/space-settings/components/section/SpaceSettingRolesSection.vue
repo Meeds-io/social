@@ -8,6 +8,7 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -21,7 +22,7 @@
 <template>
   <widget-wrapper v-if="$root.space" no-margin>
     <template #title>
-      <v-list-item class="px-0 mb-4" dense>
+      <v-list-item class="px-0" dense>
         <v-list-item-action class="my-auto me-3 ms-n2">
           <v-btn
             :title="$t('generalSettings.access.backToMain')"
@@ -47,7 +48,7 @@
       </v-list-item>
     </template>
     <template #default>
-      <!-- TODO -->
+      <space-setting-roles-table class="mb-5" />
     </template>
   </widget-wrapper>
 </template>
