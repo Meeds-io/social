@@ -22,6 +22,7 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,11 +38,17 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class SiteRestTest extends AbstractResourceTest { // NOSONAR
 
+  private static final String CLASSIC_PORTAL_NAME          = "classic";
+
   private static final String ACCESS_PERMISSIONS_ATTRIBUTE = "accessPermissions";
 
   private static final String EVERYONE                     = "Everyone";
 
-  private static final String PLATFORM_USERS               = "*:/platform/users";
+  private static final String PLATFORM_USERS_PERMISSION    = "*:/platform/users";
+
+  private static final String PLATFORM_USERS_GROUP         = "/platform/users";
+
+  private static final String BASE_URL                     = "/v1/social/sites/";
 
   private LayoutService       layoutService;
 
@@ -63,10 +70,11 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
     super.tearDown();
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testGetSites() throws Exception {
     HashSet<MembershipEntry> ms = new HashSet<>();
-    ms.add(new MembershipEntry("/platform/users"));
+    ms.add(new MembershipEntry(PLATFORM_USERS_GROUP));
     startSessionAs("john", ms);
 
     String path = "/v1/social/sites";
@@ -99,8 +107,8 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
 
   @Test
   public void testGetSiteBanner() throws Exception {
-    String originPath = getBaseUrl();
-    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().stream().filter(siteEntity -> siteEntity.getSiteType() == SiteType.PORTAL).findFirst().get();
+    String originPath = BASE_URL;
+    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findByKey(SiteKey.portal(CLASSIC_PORTAL_NAME));
     site.setBannerFileId(1);
     siteDAO.update(site);
     String path = originPath + "notValidSiteName/banner" + "?bannerId=1";
@@ -120,24 +128,26 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
   @Test
   public void testGetSiteById() throws Exception {
     HashSet<MembershipEntry> ms = new HashSet<>();
-    ms.add(new MembershipEntry("/platform/users"));
+    ms.add(new MembershipEntry(PLATFORM_USERS_GROUP));
     startSessionAs("john", ms);
 
-    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().stream().filter(siteEntity -> siteEntity.getSiteType() == SiteType.PORTAL).findFirst().get();
-    String path = getBaseUrl() + "8594";
+    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findByKey(SiteKey.portal(CLASSIC_PORTAL_NAME));
+    String path = BASE_URL + "8594";
     ContainerResponse resp = getResponse("GET", path, "");
     assertEquals(404, resp.getStatus());
     Object entity = resp.getEntity();
     assertNull(entity);
     
-    path = getBaseUrl() + site.getId();
+    path = BASE_URL + site.getId();
     resp = getResponse("GET", path, "");
     assertEquals(200, resp.getStatus());
     entity = resp.getEntity();
     assertNotNull(entity);
     SiteEntity siteEntity = (SiteEntity) entity;
-    assertEquals(siteEntity.getDescription(), site.getDescription());
-    assertEquals(siteEntity.getBannerFileId(), site.getBannerFileId());
+    assertEquals(site.getName(), siteEntity.getName());
+    assertEquals("Classic", siteEntity.getDisplayName());
+    assertEquals("This is classic portal for testing", siteEntity.getDescription());
+    assertEquals(site.getBannerFileId(), siteEntity.getBannerFileId());
     assertNotNull(siteEntity.getRootNode());
     assertNotNull(siteEntity.getBannerUrl());
   }
@@ -145,47 +155,48 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
   @Test
   public void testGetSite() throws Exception {
     HashSet<MembershipEntry> ms = new HashSet<>();
-    ms.add(new MembershipEntry("/platform/users"));
+    ms.add(new MembershipEntry(PLATFORM_USERS_GROUP));
     startSessionAs("john", ms);
 
-    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findAll().stream().filter(siteEntity -> siteEntity.getSiteType() == SiteType.PORTAL).findFirst().get();
-    String path = getBaseUrl() + site.getSiteType().name() + "/NotExisting";
+    org.exoplatform.portal.jdbc.entity.SiteEntity site = siteDAO.findByKey(SiteKey.portal(CLASSIC_PORTAL_NAME));
+    String path = BASE_URL + SiteType.PORTAL.name() + "/NotExisting";
     ContainerResponse resp = getResponse("GET", path, "");
     assertEquals(404, resp.getStatus());
     Object entity = resp.getEntity();
     assertNull(entity);
 
-    path = getBaseUrl() + site.getSiteType().name() + "/" + site.getName();
+    path = BASE_URL + SiteType.PORTAL.name() + "/" + site.getName();
     resp = getResponse("GET", path, "");
     assertEquals(200, resp.getStatus());
     entity = resp.getEntity();
     assertNotNull(entity);
     SiteEntity siteEntity = (SiteEntity) entity;
-    assertEquals(siteEntity.getName(), site.getName());
-    assertEquals(siteEntity.getDescription(), site.getDescription());
-    assertEquals(siteEntity.getBannerFileId(), site.getBannerFileId());
+    assertEquals(site.getName(), siteEntity.getName());
+    assertEquals("Classic", siteEntity.getDisplayName());
+    assertEquals("This is classic portal for testing", siteEntity.getDescription());
+    assertEquals(site.getBannerFileId(), siteEntity.getBannerFileId());
     assertNotNull(siteEntity.getRootNode());
     assertNotNull(siteEntity.getBannerUrl());
   }
 
   @Test
   public void testUpdateSiteById() {
-    PortalConfig portalConfig = layoutService.getPortalConfig("classic");
-    portalConfig.setAccessPermissions(new String[] { PLATFORM_USERS });
+    PortalConfig portalConfig = layoutService.getPortalConfig(CLASSIC_PORTAL_NAME);
+    portalConfig.setAccessPermissions(new String[] { PLATFORM_USERS_PERMISSION });
     layoutService.save(portalConfig);
 
     startSessionAs("test", true);
-    ContainerResponse resp = savePortalAccessPermission(ACCESS_PERMISSIONS_ATTRIBUTE, PLATFORM_USERS, portalConfig.getStorageId());
+    ContainerResponse resp = savePortalAccessPermission(ACCESS_PERMISSIONS_ATTRIBUTE, PLATFORM_USERS_PERMISSION, portalConfig.getStorageId());
     assertEquals(204, resp.getStatus());
 
-    portalConfig = layoutService.getPortalConfig("classic");
+    portalConfig = layoutService.getPortalConfig(CLASSIC_PORTAL_NAME);
     assertNotNull(portalConfig.getAccessPermissions());
-    assertEquals(PLATFORM_USERS, portalConfig.getAccessPermissions()[0]);
+    assertEquals(PLATFORM_USERS_PERMISSION, portalConfig.getAccessPermissions()[0]);
 
     resp = savePortalAccessPermission(ACCESS_PERMISSIONS_ATTRIBUTE, EVERYONE, portalConfig.getStorageId());
     assertEquals(204, resp.getStatus());
 
-    portalConfig = layoutService.getPortalConfig("classic");
+    portalConfig = layoutService.getPortalConfig(CLASSIC_PORTAL_NAME);
     assertNotNull(portalConfig.getAccessPermissions());
     assertEquals(EVERYONE, portalConfig.getAccessPermissions()[0]);
 
@@ -193,14 +204,14 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
     assertEquals(404, resp.getStatus());
 
     startSessionAs("test");
-    resp = savePortalAccessPermission(ACCESS_PERMISSIONS_ATTRIBUTE, PLATFORM_USERS, portalConfig.getStorageId());
+    resp = savePortalAccessPermission(ACCESS_PERMISSIONS_ATTRIBUTE, PLATFORM_USERS_PERMISSION, portalConfig.getStorageId());
     assertEquals(401, resp.getStatus());
   }
 
   private ContainerResponse savePortalAccessPermission(String name, String permissions, String siteStorageId) {
     try {
       long siteId = Long.parseLong((siteStorageId.split("_"))[1]);
-      String path = getBaseUrl() + siteId;
+      String path = BASE_URL + siteId;
       String urlParam = "name=" + name + "&value=" + permissions;
       MultivaluedMap<String, String> h = new MultivaluedMapImpl();
       h.putSingle("content-type", MediaType.APPLICATION_FORM_URLENCODED);
@@ -211,7 +222,4 @@ public class SiteRestTest extends AbstractResourceTest { // NOSONAR
     }
   }
 
-  private String getBaseUrl() {
-    return "/v1/social/sites/";
-  }
 }

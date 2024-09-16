@@ -89,6 +89,7 @@
       </template>
     </v-text-field>
     <translation-drawer
+      v-if="initialized"
       ref="translationDrawer"
       v-model="valuesPerLanguage"
       :object-type="objectType"
@@ -191,6 +192,7 @@ export default {
     },
   },
   data: () => ({
+    initialized: false,
     defaultLanguageValue: null,
     valuesPerLanguage: {},
     translationConfiguration: null,
@@ -231,8 +233,9 @@ export default {
     value: {
       immediate: true,
       handler: function() {
-        this.valuesPerLanguage = this.value && JSON.parse(JSON.stringify(this.value)) || {};
-        this.defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale] || '';
+        this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
+        const defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale] || '';
+        this.defaultLanguageValue = defaultLanguageValue.replace('_', '-');
       },
     },
     isI18N(newVal, oldVal) {
@@ -252,14 +255,17 @@ export default {
       .then(() => this.serverSideFetch && this.$translationService.getTranslations(this.objectType, this.objectId, this.fieldName))
       .then(translations => {
         if (this.serverSideFetch && translations && Object.keys(translations).length) {
-          this.valuesPerLanguage = translations;
+          this.setValuesPerLanguage(translations);
         } else {
-          this.valuesPerLanguage = this.value && JSON.parse(JSON.stringify(this.value)) || {};
+          this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
         }
       })
       .then(() => this.init())
       .then(() => this.$nextTick())
-      .finally(() => this.$emit('initialized'));
+      .finally(() => {
+        this.initialized = true;
+        this.$emit('initialized');
+      });
   },
   methods: {
     init() {
@@ -287,6 +293,16 @@ export default {
     // To keep, used by parent to update value in case of need
     setValue(value) {
       this.defaultLanguageValue = value;
+    },
+    setValuesPerLanguage(defaults) {
+      let valuesPerLanguage = defaults && JSON.parse(JSON.stringify(defaults)) || {};
+      if (valuesPerLanguage) {
+        const values = {};
+        Object.keys(valuesPerLanguage)
+          .forEach(l => values[l.replace('_', '-')] = valuesPerLanguage[l]);
+        valuesPerLanguage = values;
+      }
+      this.valuesPerLanguage = valuesPerLanguage;
     },
   },
 };

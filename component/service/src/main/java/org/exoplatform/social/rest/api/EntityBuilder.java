@@ -52,8 +52,8 @@ import io.meeds.social.translation.service.TranslationService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +76,6 @@ import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.navigation.Scope;
 import org.exoplatform.portal.mop.rest.model.UserNodeRestEntity;
 import org.exoplatform.portal.mop.service.LayoutService;
-import org.exoplatform.portal.mop.user.HttpUserPortalContext;
 import org.exoplatform.portal.mop.user.UserNavigation;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.portal.mop.user.UserNodeFilterConfig;
@@ -1159,7 +1158,7 @@ public class EntityBuilder {
                                                                                                                    metadataItem.getMetadata()
                                                                                                                                .getAudienceId(),
                                                                                                                    metadataItem.getProperties()))
-                                                                       .collect(Collectors.toList());
+                                                                       .toList();
         if (CollectionUtils.isNotEmpty(activityMetadataEntities)) {
           activityMetadatasToPublish.put(metadataType, activityMetadataEntities);
         }
@@ -1629,8 +1628,8 @@ public class EntityBuilder {
    * @return responseBuilder the response builder object
    */
   public static ResponseBuilder getResponseBuilder(Object entity, UriInfo uriInfo, MediaType mediaType, Response.Status status) {
-    if (entity instanceof BaseEntity) {
-      entity = ((BaseEntity) entity).getDataEntity();
+    if (entity instanceof BaseEntity baseEntity) {
+      entity = baseEntity.getDataEntity();
     }
     ResponseBuilder responseBuilder = Response.created(uriInfo.getAbsolutePath())
                                               .entity(entity)
@@ -1871,8 +1870,10 @@ public class EntityBuilder {
       ProfilePropertySettingEntity profilePropertySettingEntity = buildEntityProfilePropertySetting(propertySetting,
                                                                                                     profilePropertyService,
                                                                                                     objectType);
-      profilePropertySettingEntity.setHidden(hiddenPropertyIds.contains(profilePropertySettingEntity.getId()));
-      profilePropertySettingsList.add(profilePropertySettingEntity);
+      if (profilePropertySettingEntity != null) {
+        profilePropertySettingEntity.setHidden(hiddenPropertyIds.contains(profilePropertySettingEntity.getId()));
+        profilePropertySettingsList.add(profilePropertySettingEntity);
+      }
     }
     for (int i = 0; i < profilePropertySettingsList.size(); i++) {
       ProfilePropertySettingEntity entity = profilePropertySettingsList.get(i);
@@ -1998,7 +1999,7 @@ public class EntityBuilder {
     if (filterByPermission) {
       filteredByPermissionSites = sites.stream().filter(getUserACL()::hasPermission).toList();
     }
-    List<SiteEntity> siteEntities = new ArrayList<SiteEntity>();
+    List<SiteEntity> siteEntities = new ArrayList<>();
     for (PortalConfig site : filteredByPermissionSites) {
       siteEntities.add(buildSiteEntity(site,
                                        request,
@@ -2029,89 +2030,122 @@ public class EntityBuilder {
       return null;
     }
     SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
-    String displayName = site.getLabel();
-    org.exoplatform.services.security.Identity userIdentity = ConversationState.getCurrent().getIdentity();
-    UserNode rootNode = null;
-    String currentUser = userIdentity.getUserId();
-    UserPortal userPortal = null;
-    try {
-      HttpUserPortalContext userPortalContext = new HttpUserPortalContext(request);
-      UserPortalConfig userPortalConfig =
-                                        getUserPortalConfigService().getUserPortalConfig(siteType
-                                            != SiteType.PORTAL ? getUserPortalConfigService().getMetaPortal() : site.getName(),
-                                                                                         currentUser,
-                                                                                         userPortalContext);
-
-      if (userPortalConfig != null) {
-        userPortal = userPortalConfig.getUserPortal();
-        UserNavigation navigation = userPortal.getNavigation(new SiteKey(siteType.getName(), site.getName()));
-        if (navigation != null) {
-          UserNodeFilterConfig.Builder builder = UserNodeFilterConfig.builder();
-          builder.withReadWriteCheck().withVisibility(convertVisibilities(visibilityNames));
-          if (temporalCheck) {
-            builder.withTemporalCheck();
-          }
-          rootNode = userPortal.getNode(navigation, Scope.ALL, builder.build(), null);
-        }
-      }
-    } catch (Exception e) {
-      throw new Exception("Error while getting site " + site.getName() + " navigations for user " + currentUser);
-    }
-
-    if (excludeEmptyNavigationSites && (rootNode == null || rootNode.getChildren().isEmpty())) {
+    String siteName = site.getName();
+    if (SiteType.GROUP.equals(siteType) && !isMemberOf(siteName)) {
       return null;
     }
+    SiteKey siteKey = new SiteKey(siteType, siteName);
+
+    UserPortalConfig userPortalConfig = getUserPortalConfig(request, site, siteType);
+
+    UserNode rootNode = null;
+    UserPortal userPortal = null;
     List<UserNodeRestEntity> siteNavigations = null;
-    if (expandNavigations && rootNode != null) {
-      siteNavigations = toUserNodeRestEntity(rootNode.getChildren(),
-                                             true,
-                                             getOrganizationService(),
-                                             getLayoutService(),
-                                             getUserACL(),
-                                             userPortal,
-                                             false);
-      if (excludeGroupNodesWithoutPageChildNodes) {
-        removeGroupNodesWithoutPageChildNodes(siteNavigations);
-      }
+    if (userPortalConfig != null) {
+      userPortal = userPortalConfig.getUserPortal();
+      rootNode = getRootNode(userPortal,
+                             siteKey,
+                             visibilityNames,
+                             temporalCheck);
+      if (excludeEmptyNavigationSites
+          && (rootNode == null || CollectionUtils.isEmpty(rootNode.getChildren()))) {
+        return null;
+      } 
+      siteNavigations = getSiteNavigations(userPortal,
+                                           rootNode,
+                                           expandNavigations,
+                                           excludeGroupNodesWithoutPageChildNodes);
+    } else if (excludeEmptyNavigationSites) {
+      return null;
     }
-    if (SiteType.GROUP.equals(siteType)) {
-      try {
-        Group siteGroup = getOrganizationService().getGroupHandler().findGroupById(site.getName());
-        if (siteGroup == null || !userIdentity.isMemberOf(siteGroup.getId())) {
-          return null;
-        } else if (StringUtils.isBlank(displayName)) {
-          displayName = siteGroup.getLabel();
-        }
-      } catch (Exception e) {
-        LOG.error("Error while retrieving group with name {}", site.getName(), e);
-      }
-    }
+
+    long siteId = Long.parseLong((site.getStorageId().split("_"))[1]);
+
+    String translatedSiteLabel = getTranslatedLabel(SITE_LABEL_FIELD_NAME, siteId, locale);
+    String siteLabel = StringUtils.isBlank(translatedSiteLabel) ? getSiteLabel(siteKey, userPortal): translatedSiteLabel;
+
+    String translateSiteDescription = getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
+    String siteDescription = StringUtils.isBlank(translateSiteDescription) ? getSiteDescription(siteKey, userPortal) : translateSiteDescription;
+
     List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
     Map<String, Object> editPermission = computePermission(site.getEditPermission());
-    long siteId = Long.parseLong((site.getStorageId().split("_"))[1]);
-    String translatedSiteLabel = getTranslatedLabel(SITE_LABEL_FIELD_NAME, siteId, locale);
-    String translateSiteDescription = getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
-    displayName = StringUtils.isNotBlank(translatedSiteLabel) ? translatedSiteLabel : displayName;
     return new SiteEntity(siteId,
                           siteType,
-                          site.getName(),
-                          !StringUtils.isBlank(displayName) ? displayName : site.getName(),
-                          StringUtils.isNotBlank(translateSiteDescription) ? translateSiteDescription : site.getDescription(),
-                          new UserNodeRestEntity(rootNode),
+                          siteName,
+                          siteLabel,
+                          siteDescription,
+                          rootNode == null ? null : new UserNodeRestEntity(rootNode),
                           accessPermissions,
                           editPermission,
                           site.isDisplayed(),
                           site.getDisplayOrder(),
-                          isMetaSite(site.getName()),
+                          isMetaSite(siteName),
                           siteNavigations,
                           getUserACL().hasPermission(site.getEditPermission()),
                           site.getBannerFileId(),
-                          LinkProvider.buildSiteBannerUrl(site.getName(), site.getBannerFileId()));
+                          LinkProvider.buildSiteBannerUrl(siteName, site.getBannerFileId()));
+  }
+
+  private static String getSiteDescription(SiteKey siteKey, UserPortal userPortal) {
+    return userPortal == null ? null : userPortal.getPortalDescription(siteKey);
+  }
+
+  private static String getSiteLabel(SiteKey siteKey, UserPortal userPortal) {
+    return userPortal == null ? siteKey.getName() : userPortal.getPortalLabel(siteKey);
+  }
+
+  private static boolean isMemberOf(String groupId) {
+    org.exoplatform.services.security.Identity identity = ConversationState.getCurrent().getIdentity();
+    return identity != null && identity.isMemberOf(groupId);
+  }
+
+  private static UserPortalConfig getUserPortalConfig(HttpServletRequest request,
+                                                      PortalConfig portalConfig,
+                                                      SiteType siteType) throws Exception {
+    String portalName = siteType == SiteType.PORTAL ? portalConfig.getName() : getUserPortalConfigService().getMetaPortal();
+    return getUserPortalConfigService().getUserPortalConfig(portalName,
+                                                            request.getRemoteUser());
+  }
+
+  private static List<UserNodeRestEntity> getSiteNavigations(UserPortal userPortal,
+                                                             UserNode rootNode,
+                                                             boolean expandNavigations,
+                                                             boolean excludeGroupNodesWithoutPageChildNodes) {
+    if (expandNavigations && rootNode != null) {
+      List<UserNodeRestEntity> siteNavigations = toUserNodeRestEntity(rootNode.getChildren(),
+                                                                      true,
+                                                                      getOrganizationService(),
+                                                                      getLayoutService(),
+                                                                      getUserACL(),
+                                                                      userPortal,
+                                                                      false);
+      if (excludeGroupNodesWithoutPageChildNodes) {
+        removeGroupNodesWithoutPageChildNodes(siteNavigations);
+      }
+      return siteNavigations;
+    }
+    return Collections.emptyList();
+  }
+
+  private static UserNode getRootNode(UserPortal userPortal,
+                                      SiteKey siteKey,
+                                      List<String> visibilityNames,
+                                      boolean temporalCheck) {
+    UserNavigation navigation = userPortal.getNavigation(siteKey);
+    if (navigation != null) {
+      UserNodeFilterConfig.Builder builder = UserNodeFilterConfig.builder();
+      builder.withReadWriteCheck().withVisibility(convertVisibilities(visibilityNames));
+      if (temporalCheck) {
+        builder.withTemporalCheck();
+      }
+      return userPortal.getNode(navigation, Scope.ALL, builder.build(), null);
+    }
+    return null;
   }
 
   private static List<Map<String, Object>> computePermissions(String[] permissions) {
     return permissions != null ? Arrays.stream(permissions).map(EntityBuilder::computePermission).toList() :
-                               new ArrayList<Map<String, Object>>();
+                               new ArrayList<>();
   }
 
   private static Map<String, Object> computePermission(String permission) {
