@@ -28,12 +28,12 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
+import org.exoplatform.social.rest.impl.user.UserRest;
 
 /**
  * Provides services to work with identities.
  *
- *  @deprecated use {@link UserRestResourcesV1}
+ *  @deprecated use {@link UserRest}
  * @anchor IdentityRestService
  */
 @Path("{portalName}/social/identity/{username}/id")

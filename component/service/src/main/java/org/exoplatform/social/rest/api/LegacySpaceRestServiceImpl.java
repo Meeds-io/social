@@ -34,11 +34,11 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.impl.space.SpaceRestResourcesV1;
+import org.exoplatform.social.rest.impl.space.SpaceRest;
 
 /**
  * @author <a href="kmenzli@exoplatform.com">kmenzli</a>
- * @deprecated use {@link SpaceRestResourcesV1} instead
+ * @deprecated use {@link SpaceRest} instead
  */
 @Path("/space")
 @Deprecated

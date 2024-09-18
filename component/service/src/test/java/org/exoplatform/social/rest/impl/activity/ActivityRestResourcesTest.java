@@ -24,7 +24,7 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class ActivityRestResourcesTest extends AbstractResourceTest {
 
-  private ActivityRestResourcesV1 activityRestResourcesV1;
+  private ActivityRest activityRestResourcesV1;
 
   private IdentityStorage         identityStorage;
 
@@ -67,7 +67,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     identityStorage.saveIdentity(maryIdentity);
     identityStorage.saveIdentity(demoIdentity);
 
-    activityRestResourcesV1 = new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null);
+    activityRestResourcesV1 = new ActivityRest(activityManager, identityManager, spaceService, null);
     registry(activityRestResourcesV1);
 
     ExoContainerContext.setCurrentContainer(getContainer());

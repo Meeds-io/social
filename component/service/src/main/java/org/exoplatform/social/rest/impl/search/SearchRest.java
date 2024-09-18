@@ -17,11 +17,11 @@ import org.exoplatform.social.service.rest.api.VersionResources;
 
 @Path(VersionResources.VERSION_ONE + "/social/search")
 @Tag(name = VersionResources.VERSION_ONE + "/social/search", description = "Operations on search connectors")
-public class SearchRestResourcesV1 implements ResourceContainer {
+public class SearchRest implements ResourceContainer {
 
   private SearchService searchService;
 
-  public SearchRestResourcesV1(SearchService searchService) {
+  public SearchRest(SearchService searchService) {
     this.searchService = searchService;
   }
 

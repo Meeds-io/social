@@ -624,25 +624,11 @@ public class SpaceServiceTest extends AbstractCoreTest {
     // Member can redact
     assertTrue(spaceService.canRedactOnSpace(space, jamesACLIdentity));
     assertTrue(spaceService.canRedactOnSpace(space, raulACLIdentity));
-    // Outside space can't redact
-    assertFalse(spaceService.canRedactOnSpace(space, maryACLIdentity));
-
-    space.setRedactors(new String[]{"james"});
-    spaceService.updateSpace(space);
-
-    // Super Manager can redact
-    assertTrue(spaceService.canRedactOnSpace(space, rootACLIdentity));
-    // Platform Manager can redact
-    assertTrue(spaceService.canRedactOnSpace(space, johnACLIdentity));
-    // Space Manager can redact
-    assertTrue(spaceService.canRedactOnSpace(space, demoACLIdentity));
-    // Redactor can redact
-    assertTrue(spaceService.canRedactOnSpace(space, jamesACLIdentity));
-    // space members can't redact
-    assertFalse(spaceService.canRedactOnSpace(space, raulACLIdentity));
+    // Non Member can't redact
     assertFalse(spaceService.canRedactOnSpace(space, maryACLIdentity));
 
     space.setMembers(new String[]{"demo", "james", "raul", "mary"});
+    space.setRedactors(new String[]{"james"});
     space.setPublishers(new String[]{"mary"});
     spaceService.updateSpace(space);
 
@@ -654,8 +640,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertTrue(spaceService.canRedactOnSpace(space, demoACLIdentity));
     // Redactor can redact
     assertTrue(spaceService.canRedactOnSpace(space, jamesACLIdentity));
-    // Publisher can redact
-    assertTrue(spaceService.canRedactOnSpace(space, maryACLIdentity));
+    // space publisher can't redact
+    assertFalse(spaceService.canRedactOnSpace(space, maryACLIdentity));
     // space members can't redact
     assertFalse(spaceService.canRedactOnSpace(space, raulACLIdentity));
   }

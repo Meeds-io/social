@@ -51,34 +51,31 @@
 
   <!-- Supported REST services -->
   <component>
-    <type>org.exoplatform.social.rest.impl.identity.IdentityRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.identity.IdentityRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.space.SpaceRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.space.SpaceRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.user.UserRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.user.UserRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1</type>
-  </component>
-  <component>
-    <type>org.exoplatform.social.rest.impl.comment.CommentRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.activity.ActivityRest</type>
   </component>
   <component>
     <type>org.exoplatform.social.rest.impl.relationship.RelationshipsRestResources</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministrationRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministrationRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRest</type>
   </component>
   <component>
     <type>org.exoplatform.social.rest.impl.favorite.FavoriteRest</type>
