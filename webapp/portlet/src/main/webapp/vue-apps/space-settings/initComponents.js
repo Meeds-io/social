@@ -26,12 +26,16 @@ import SpaceSettingOverviewSection from './components/section/SpaceSettingOvervi
 import SpaceSettingRolesSection from './components/section/SpaceSettingRolesSection.vue';
 
 import SpaceSettingAccessDrawer from './components/drawer/SpaceSettingAccessDrawer.vue';
+import SpaceSettingRedactorDrawer from './components/drawer/SpaceSettingRedactorDrawer.vue';
 
 import SpaceSettingAvatar from './components/form/SpaceSettingAvatar.vue';
 import SpaceSettingBanner from './components/form/SpaceSettingBanner.vue';
 
 import SpaceSettingRolesTable from './components/section/roles/SpaceSettingRolesTable.vue';
-import SpaceSettingRoleItem from './components/section/roles/SpaceSettingRoleItem.vue';
+import SpaceSettingRolesTableItem from './components/section/roles/SpaceSettingRolesTableItem.vue';
+
+import SpaceSettingsRolesList from './components/section/roles/SpaceSettingsRolesList.vue';
+import SpaceSettingsRolesListItem from './components/section/roles/SpaceSettingsRolesListItem.vue';
 
 const components = {
   'space-settings': SpaceSettings,
@@ -40,11 +44,15 @@ const components = {
   'space-setting-access': SpaceSettingAccess,
 
   'space-setting-overview-section': SpaceSettingOverviewSection,
+
   'space-setting-roles-section': SpaceSettingRolesSection,
   'space-setting-roles-table': SpaceSettingRolesTable,
-  'space-setting-role-item': SpaceSettingRoleItem,
+  'space-setting-roles-table-item': SpaceSettingRolesTableItem,
+  'space-setting-roles-list': SpaceSettingsRolesList,
+  'space-setting-roles-list-item': SpaceSettingsRolesListItem,
 
   'space-setting-access-drawer': SpaceSettingAccessDrawer,
+  'space-setting-redactor-drawer': SpaceSettingRedactorDrawer,
 
   'space-setting-avatar': SpaceSettingAvatar,
   'space-setting-banner': SpaceSettingBanner,

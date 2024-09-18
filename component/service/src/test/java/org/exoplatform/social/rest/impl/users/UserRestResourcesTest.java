@@ -59,8 +59,8 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
-import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
-import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
+import org.exoplatform.social.rest.impl.activity.ActivityRest;
+import org.exoplatform.social.rest.impl.user.UserRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
@@ -141,8 +141,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(johnIdentity);
     assertNotNull(maryIdentity);
     assertNotNull(demoIdentity);
-    UserRestResourcesV1 userRestResourcesV1 = new UserRestResourcesV1(
-                                                                      new ActivityRestResourcesV1(activityManager,
+    UserRest userRestResourcesV1 = new UserRest(
+                                                                      new ActivityRest(activityManager,
                                                                                                   identityManager,
                                                                                                   spaceService,
                                                                                                   null),
@@ -167,7 +167,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     for(ProfilePropertySetting propertySetting : tearDownProfilePropertyList){
       profilePropertyService.deleteProfilePropertySetting(propertySetting.getId());
     }
-    removeResource(UserRestResourcesV1.class);
+    removeResource(UserRest.class);
   }
 
   public void testGetAllUsers() throws Exception {
@@ -208,7 +208,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(0, collections.getEntities().size());
     
     // test when isDisabled false
-    removeResource(UserRestResourcesV1.class);
+    removeResource(UserRest.class);
     identityManager = mock(IdentityManager.class);
     
     ListAccess<Identity> identityListAccess = new ListAccess<Identity>() {
@@ -226,8 +226,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     when(identityManager.getIdentitiesByProfileFilter(anyString(), any(), anyBoolean())).thenReturn(identityListAccess);
 
-    UserRestResourcesV1 userRestResources = new UserRestResourcesV1(
-                                                                    new ActivityRestResourcesV1(activityManager,
+    UserRest userRestResources = new UserRest(
+                                                                    new ActivityRest(activityManager,
                                                                                                 identityManager,
                                                                                                 spaceService,
                                                                                                 null),

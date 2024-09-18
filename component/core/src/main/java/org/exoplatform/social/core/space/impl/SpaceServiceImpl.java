@@ -385,6 +385,15 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public void removeMember(Space space, String username) {
+    if (isManager(space, username)) {
+      setManager(space, username, false);
+    }
+    if (isRedactor(space, username)) {
+      removeRedactor(space, username);
+    }
+    if (isPublisher(space, username)) {
+      removePublisher(space, username);
+    }
     spaceLifeCycle.setCurrentEvent(Type.LEFT);
     try {
       Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
