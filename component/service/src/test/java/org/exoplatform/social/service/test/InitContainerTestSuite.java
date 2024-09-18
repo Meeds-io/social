@@ -25,7 +25,6 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesTest;
-import org.exoplatform.social.rest.impl.comment.CommentRestResourcesTest;
 import org.exoplatform.social.rest.impl.favorite.FavoriteRestTest;
 import org.exoplatform.social.rest.impl.identity.IdentityRestResourcesTest;
 import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesTest;
@@ -56,7 +55,6 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   IntranetNotificationsRestServiceTest.class,
   NotificationsRestServiceTest.class,
   ActivityRestResourcesTest.class,
-  CommentRestResourcesTest.class,
   IdentityRestResourcesTest.class,
   RelationshipsRestResourcesTest.class,
   SpaceRestResourcesTest.class,

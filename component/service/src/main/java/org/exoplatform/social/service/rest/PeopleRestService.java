@@ -48,7 +48,7 @@ import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.impl.user.UserRestResourcesV1;
+import org.exoplatform.social.rest.impl.user.UserRest;
 import org.exoplatform.social.service.rest.api.models.IdentityNameList;
 import org.exoplatform.social.service.rest.api.models.IdentityNameList.Option;
 import org.exoplatform.social.service.rest.api.models.PeopleInfo;
@@ -66,7 +66,7 @@ import java.util.*;
  * 
  * Provides REST Services for manipulating jobs relates to people.
  *
- *  @deprecated user {@link UserRestResourcesV1}
+ *  @deprecated user {@link UserRest}
  * @anchor PeopleRestService
  */
 
@@ -678,7 +678,7 @@ public class PeopleRestService implements ResourceContainer{
    * @throws Exception
    * @LevelAPI Platform
    * @anchor PeopleRestService.suggestUsernames
-   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRestResourcesV1#getUsers(UriInfo, String, boolean, boolean, String, String, String, String, boolean, String, int, int, boolean, String, boolean)}
+   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRest#getUsers(UriInfo, String, boolean, boolean, String, String, String, String, boolean, String, int, int, boolean, String, boolean)}
    * 
    */
   @GET
@@ -731,7 +731,7 @@ public class PeopleRestService implements ResourceContainer{
    * @throws Exception
    * @LevelAPI Platform
    * @anchor PeopleRestService.searchConnection
-   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRestResourcesV1#getConnectionsOfUser(UriInfo, String, String, boolean, String)}
+   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRest#getConnectionsOfUser(UriInfo, String, String, boolean, String)}
    */
   @GET
   @Path("{portalName}/getConnections.{format}")
