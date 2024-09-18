@@ -1252,8 +1252,7 @@ public class EntityBuilder {
                                                                 RestUtils.DEFAULT_OFFSET,
                                                                 RestUtils.HARD_LIMIT)));
     } else {
-      commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE +
-          "/social/comments/" + comment.getId() + "/likes"));
+      commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE + "/social/activities/" + comment.getId() + "/likes"));
     }
     commentEntity.setCreateDate(RestUtils.formatISO8601(new Date(comment.getPostedTime())));
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));

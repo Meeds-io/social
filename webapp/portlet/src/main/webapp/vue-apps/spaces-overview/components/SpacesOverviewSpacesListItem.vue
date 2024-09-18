@@ -27,7 +27,7 @@
       </v-list-item-title>
       <v-list-item-subtitle>
         <template v-if="filter === 'requests'">
-          {{ $t('spacesOverview.requestToJoin.from', {0: space.pending[0].fullname }) }}
+          {{ $t('spacesOverview.requestToJoin.from', {0: user.fullname }) }}
         </template>
         <template v-else>
           {{ $t('spacesOverview.members', {0: space.membersCount}) }}
@@ -132,7 +132,6 @@
 
 <script>
 const randomMax = 10000;
-
 export default {
   props: {
     space: {
@@ -161,6 +160,9 @@ export default {
     avatarUrl() {
       return this.space && this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.prettyName}/avatar`;
     },
+    user() {
+      return this?.space?.pending?.[0];
+    },
     url() {
       if (!this.space || !this.space.groupId) {
         return '#';
@@ -172,7 +174,7 @@ export default {
   methods: {
     acceptUserRequest() {
       this.sendingAction = true;
-      this.$spaceService.acceptUserRequest(this.space.displayName, this.space.pending[0].username)
+      this.$spaceService.acceptUserRequest(this.space.id, this.user.username)
         .then(() => this.$emit('refresh', 'receivedRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console
@@ -184,7 +186,7 @@ export default {
     },
     refuseUserRequest() {
       this.sendingAction = true;
-      this.$spaceService.refuseUserRequest(this.space.displayName, this.space.pending[0].username)
+      this.$spaceService.refuseUserRequest(this.space.id, this.user.username)
         .then(() => this.$emit('refresh', 'receivedRequests'))
         .catch((e) => {
           // eslint-disable-next-line no-console

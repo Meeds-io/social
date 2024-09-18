@@ -32,6 +32,7 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity_;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.SortBy;
+import org.exoplatform.social.core.space.model.Space;
 
 public final class SpaceQueryBuilder {
   private long offset;
@@ -102,6 +103,13 @@ public final class SpaceQueryBuilder {
 
     if (CollectionUtils.isNotEmpty(spaceFilter.getIds())) {
       predicates.add(root.get(SpaceEntity_.id).in(spaceFilter.getIds()));
+    } else if (CollectionUtils.isNotEmpty(spaceFilter.getIncludeSpaces())) {
+      predicates.add(root.get(SpaceEntity_.id)
+                         .in(spaceFilter.getIncludeSpaces()
+                                        .stream()
+                                        .map(Space::getId)
+                                        .map(Long::parseLong)
+                                        .toList()));
     }
 
     //status
