@@ -18,7 +18,7 @@ public class SpaceTemplatesRestResourcesTest extends AbstractResourceTest {
   private SpaceTemplateService spaceTemplateService;
   private ConfigurationManager configurationManager;
 
-  private SpaceTemplatesRestResourcesV1 spaceTemplatesRestResourcesV1;
+  private SpaceTemplatesRest spaceTemplatesRestResourcesV1;
 
   public void setUp() throws Exception {
     super.setUp();
@@ -28,7 +28,7 @@ public class SpaceTemplatesRestResourcesTest extends AbstractResourceTest {
     spaceTemplateService = getContainer().getComponentInstanceOfType(SpaceTemplateService.class);
     configurationManager = getContainer().getComponentInstanceOfType(ConfigurationManager.class);
 
-    spaceTemplatesRestResourcesV1 = new SpaceTemplatesRestResourcesV1(spaceTemplateService, configurationManager);
+    spaceTemplatesRestResourcesV1 = new SpaceTemplatesRest(spaceTemplateService, configurationManager);
     registry(spaceTemplatesRestResourcesV1);
   }
 

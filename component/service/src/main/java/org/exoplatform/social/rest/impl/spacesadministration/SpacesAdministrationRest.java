@@ -32,26 +32,25 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.api.SocialRest;
 import org.exoplatform.social.rest.entity.MembershipEntityWrapper;
 import org.exoplatform.social.rest.entity.SpacesAdministrationMembershipsEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 @Path(VersionResources.VERSION_ONE + "/social/spacesAdministration")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spacesAdministration", description = "Managing Spaces Administration settings")
-public class SpacesAdministrationRestResourcesV1 implements SocialRest {
+public class SpacesAdministrationRest implements ResourceContainer {
 
   private SpacesAdministrationService spacesAdministrationService;
 
   private UserACL userACL;
 
-  public SpacesAdministrationRestResourcesV1(SpacesAdministrationService spacesAdministrationService,
+  public SpacesAdministrationRest(SpacesAdministrationService spacesAdministrationService,
                                              UserACL userACL) {
     this.spacesAdministrationService = spacesAdministrationService;
     this.userACL = userACL;

@@ -48,6 +48,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
@@ -58,7 +59,6 @@ import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.GroupSpaceBindingRestResources;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -67,11 +67,10 @@ import org.exoplatform.social.service.rest.api.VersionResources;
  * {@link org.exoplatform.social.rest.api.GroupSpaceBindingRestResources}
  * implementation.
  */
-
 @Path(VersionResources.VERSION_ONE + "/social/spaceGroupBindings")
 @Tag(name = VersionResources.VERSION_ONE
     + "/social/groupSpaceBindings", description = "API  to manage the binding between a space and an organization group")
-public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestResources {
+public class GroupSpaceBindingRest implements ResourceContainer {
 
   private GroupSpaceBindingService groupSpaceBindingService;
 
@@ -81,9 +80,9 @@ public class GroupSpaceBindingRestResourcesV1 implements GroupSpaceBindingRestRe
 
   private UserACL                  userACL;
 
-  private static final Log         LOG      = ExoLogger.getLogger(GroupSpaceBindingRestResourcesV1.class);
+  private static final Log         LOG      = ExoLogger.getLogger(GroupSpaceBindingRest.class);
 
-  public GroupSpaceBindingRestResourcesV1(SpaceService spaceService,
+  public GroupSpaceBindingRest(SpaceService spaceService,
                                           GroupSpaceBindingService groupSpaceBindingService,
                                           UserACL userACL) {
     this.groupSpaceBindingService = groupSpaceBindingService;

@@ -21,13 +21,13 @@
 -->
 <template>
   <tr>
-    <td>
+    <td class="ps-0">
       <div>{{ name }}</div>
     </td>
     <td v-if="!$root.isMobile">
       <div>{{ description }}</div>
     </td>
-    <td>
+    <td class="pe-0">
       <div v-if="size">
         <exo-user-avatars-list
           :users="users"

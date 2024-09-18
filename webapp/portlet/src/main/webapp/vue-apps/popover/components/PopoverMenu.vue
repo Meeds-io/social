@@ -22,15 +22,15 @@
   <v-menu
     v-if="menu"
     v-model="menu"
-    rounded="rounded"
-    role="tooltip"
     :close-on-content-click="false"
     :position-x="offsetX"
     :position-y="offsetY"
-    transition="slide-x-transition"
-    absolute
     :top="top"
-    content-class="profile-popover-menu pa-1 transparent"
+    transition="slide-x-transition"
+    rounded="rounded"
+    role="tooltip"
+    content-class="profile-popover-menu z-index-modal pa-1 transparent"
+    absolute
     elevation="0"
     max-width="350"
     min-width="350">
