@@ -88,13 +88,13 @@ export default {
   methods: {
     acceptUserRequest() {
       this.accepting = true;
-      this.$spaceService.acceptUserRequest(this.spaceDisplatName, this.username)
+      this.$spaceService.acceptUserRequest(this.spaceId, this.username)
         .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
         .finally(() => this.accepting = false);
     },
     refuseUserRequest() {
       this.refusing = true;
-      this.$spaceService.refuseUserRequest(this.spaceDisplatName, this.username)
+      this.$spaceService.refuseUserRequest(this.spaceId, this.username)
         .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
         .finally(() => this.refusing = false);
     },

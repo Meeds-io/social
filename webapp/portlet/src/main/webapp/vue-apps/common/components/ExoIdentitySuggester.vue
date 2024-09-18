@@ -16,19 +16,19 @@
       :hide-no-data="hideNoData"
       :class="autocompleteClass"
       :prepend-inner-icon="prependInnerIcon"
+      :item-text="itemText"
+      :cache-items="!ignoreCache"
       append-icon=""
       menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
       class="identitySuggester"
       content-class="identitySuggesterContent"
       width="100%"
       max-width="100%"
-      :item-text="itemText"
       item-value="id"
       return-object
       persistent-hint
       hide-selected
       chips
-      cache-items
       dense
       flat
       @update:search-input="searchTerm = $event">
@@ -138,6 +138,10 @@ export default {
       default: function() {
         return false;
       },
+    },
+    ignoreCache: {
+      type: Boolean,
+      default: false,
     },
     noRedactorSpace: {
       type: Boolean,
@@ -266,7 +270,7 @@ export default {
       return this.labels.searchPlaceholder && !this.searchStarted;
     },
     hideNoData() {
-      return !this.searchStarted && this.items.length === 0;
+      return (!this.searchTerm?.length || !this.searchStarted) && this.items.length === 0;
     },
     menuItemStyle() {
       return this.width && `width:${this.width}px;max-width:${this.width}px;min-width:${this.width}px;` || '';
@@ -288,9 +292,10 @@ export default {
     value() {
       this.emitSelectedValue(this.value);
       this.init();
+      this.searchTerm = null;
+      this.startTypingKeywordTimeout = 0;
     },
   },
-
   mounted() {
     $(`#${this.id} input`).on('blur', () => {
       // A hack to close on select
@@ -365,12 +370,15 @@ export default {
     searchSpacesOrUsers() {
       if (this.searchTerm && this.searchTerm.length) {
         this.focus();
-        if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
+        if (this.ignoreCache
+            || !this.previousSearchTerm
+            || this.previousSearchTerm !== this.searchTerm) {
           this.loadingSuggestions = 0;
           this.items = [];
           if (!this.includeGroups) {
+            const items = [];
             this.$suggesterService.searchSpacesOrUsers(this.searchTerm,
-              this.items,
+              items,
               this.typeOfRelations,
               this.searchOptions,
               this.includeUsers,
@@ -381,11 +389,13 @@ export default {
               () => this.loadingSuggestions++,
               () => {
                 this.loadingSuggestions--;
+                this.items = items;
               });
           } else {
+            const items = [];
             this.$suggesterService.search({
               term: this.searchTerm,
-              items: this.items,
+              items,
               typeOfRelations: this.typeOfRelations,
               searchOptions: this.searchOptions,
               includeUsers: this.includeUsers,
@@ -400,6 +410,7 @@ export default {
               loadingCallback: () => this.loadingSuggestions++,
               successCallback: () => {
                 this.loadingSuggestions--;
+                this.items = items;
               },
               errorCallback: () => {
                 throw new Error('Response code indicates a server error');

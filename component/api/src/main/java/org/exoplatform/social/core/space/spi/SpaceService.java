@@ -537,7 +537,6 @@ public interface SpaceService {
     } else if (isMember(space, username)
                && (!hasRedactor(space)
                    || isRedactor(space, username)
-                   || isPublisher(space, username)
                    || isManager(space, username))) {
       return true;
     } else {

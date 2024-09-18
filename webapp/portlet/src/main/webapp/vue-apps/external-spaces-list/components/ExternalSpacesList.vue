@@ -13,8 +13,8 @@
         </template>
       </v-list>
       <v-btn
+        v-if="hasMore"
         :loading="loading"
-        :disabled="!hasMore"
         class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
         outlined
         @click="loadMore()">
@@ -53,14 +53,15 @@ export default {
   },
   methods: {
     getExternalSpacesList() {
-      this.$externalSpacesListService.getExternalSpacesList(this.offset,this.limit).then(data => {
-        this.spacesList = this.spacesList.concat(data.spaces);
-        this.hasMore = data.spaces.length===this.pageSize;
-        this.loading=false;
-      });
+      this.loading = true;
+      return this.$spaceService.getSpaces(null, this.offset, this.limit, 'member')
+        .then(data => {
+          this.spacesList = this.spacesList.concat(data.spaces);
+          this.hasMore = data.size > this.spacesList.length;
+        })
+        .finally(() => this.loading = false);
     },
     loadMore() {
-      this.loading=true;
       this.offset += this.pageSize;
       this.getExternalSpacesList();
     }
