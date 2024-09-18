@@ -42,6 +42,7 @@ export default {
     filter: null,
     loadingSpaces: false,
     offset: 0,
+    limit: 20,
     pageSize: 20,
     spaces: [],
   }),

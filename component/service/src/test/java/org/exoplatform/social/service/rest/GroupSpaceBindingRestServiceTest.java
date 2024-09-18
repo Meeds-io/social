@@ -30,14 +30,14 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRestResourcesV1;
+import org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
 
   private IdentityManager                  identityManager;
 
-  private GroupSpaceBindingRestResourcesV1 groupSpaceBindingRestResourcesV1;
+  private GroupSpaceBindingRest groupSpaceBindingRestResourcesV1;
 
   private SpaceService                     spaceService;
 
@@ -63,7 +63,7 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     groupSpaceBindingService = getContainer().getComponentInstanceOfType(GroupSpaceBindingService.class);
-    groupSpaceBindingRestResourcesV1 = new GroupSpaceBindingRestResourcesV1(spaceService, groupSpaceBindingService, userACL);
+    groupSpaceBindingRestResourcesV1 = new GroupSpaceBindingRest(spaceService, groupSpaceBindingService, userACL);
     registry(groupSpaceBindingRestResourcesV1);
   }
 

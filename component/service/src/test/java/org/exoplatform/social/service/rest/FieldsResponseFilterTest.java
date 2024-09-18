@@ -9,7 +9,7 @@ import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
+import org.exoplatform.social.rest.impl.activity.ActivityRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class FieldsResponseFilterTest extends AbstractResourceTest {
@@ -42,12 +42,12 @@ public class FieldsResponseFilterTest extends AbstractResourceTest {
     identityStorage.saveIdentity(maryIdentity);
     identityStorage.saveIdentity(demoIdentity);
     
-    addResource(ActivityRestResourcesV1.class, null);
+    addResource(ActivityRest.class, null);
   }
 
   public void tearDown() throws Exception {
     super.tearDown();
-    removeResource(ActivityRestResourcesV1.class);
+    removeResource(ActivityRest.class);
   }
   
   public void testGetActivitiesWithFields() throws Exception {

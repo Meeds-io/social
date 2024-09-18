@@ -76,7 +76,7 @@ export default {
                  && !user.isGroupBound;
         },
         click: (user) => {
-          this.$spaceService.removeMember(eXo.env.portal.spaceName, user.username)
+          this.$spaceService.removeMember(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -90,7 +90,7 @@ export default {
           return user.isManager && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
-          this.$spaceService.removeManager(eXo.env.portal.spaceName, user.username)
+          this.$spaceService.removeManager(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -104,7 +104,7 @@ export default {
           return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isManager;
         },
         click: (user) => {
-          this.$spaceService.promoteManager(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.promoteManager(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -118,7 +118,7 @@ export default {
           return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isSpaceRedactor;
         },
         click: (user) => {
-          this.$spaceService.setAsRedactor(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.promoteRedactor(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -132,7 +132,7 @@ export default {
           return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
-          this.$spaceService.removeRedactor(eXo.env.portal.spaceName, user.username)
+          this.$spaceService.removeRedactor(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -146,7 +146,7 @@ export default {
           return !user.isSpacePublisher && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
-          this.$spaceService.promotePublisher(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.promotePublisher(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -160,7 +160,7 @@ export default {
           return user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
-          this.$spaceService.removePublisher(eXo.env.portal.spaceName, user.username)
+          this.$spaceService.removePublisher(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -173,7 +173,7 @@ export default {
           return this.filter === 'invited' && user.isInvited;
         },
         click: (user) => {
-          this.$spaceService.cancelInvitation(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.cancelInvitation(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -186,7 +186,7 @@ export default {
           return user.enabled && !user.deleted && this.filter === 'pending' && user.isPending;
         },
         click: (user) => {
-          this.$spaceService.acceptUserRequest(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.acceptUserRequest(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -199,7 +199,7 @@ export default {
           return this.filter === 'pending' && user.isPending;
         },
         click: (user) => {
-          this.$spaceService.refuseUserRequest(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.refuseUserRequest(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });

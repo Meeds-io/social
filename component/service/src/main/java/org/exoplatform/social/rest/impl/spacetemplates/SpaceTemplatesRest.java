@@ -16,15 +16,30 @@
  */
 package org.exoplatform.social.rest.impl.spacetemplates;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.space.SpaceTemplate;
@@ -32,15 +47,14 @@ import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.api.SocialRest;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
-import javax.annotation.security.RolesAllowed;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.io.InputStream;
-import java.util.*;
 
 /**
  *
@@ -49,9 +63,9 @@ import java.util.*;
  */
 @Path(VersionResources.VERSION_ONE + "/social/spaceTemplates")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaceTemplates", description = "Managing Spaces Templates")
-public class SpaceTemplatesRestResourcesV1 implements SocialRest {
+public class SpaceTemplatesRest implements ResourceContainer {
 
-  private static final Log          LOG                         = ExoLogger.getLogger(SpaceTemplatesRestResourcesV1.class);
+  private static final Log          LOG                         = ExoLogger.getLogger(SpaceTemplatesRest.class);
 
   private static final CacheControl CACHE_CONTROL               = new CacheControl();
 
@@ -70,7 +84,7 @@ public class SpaceTemplatesRestResourcesV1 implements SocialRest {
 
   private ConfigurationManager configurationManager;
 
-  public SpaceTemplatesRestResourcesV1(SpaceTemplateService spaceTemplateService, ConfigurationManager configurationManager) {
+  public SpaceTemplatesRest(SpaceTemplateService spaceTemplateService, ConfigurationManager configurationManager) {
     this.spaceTemplateService = spaceTemplateService;
     this.configurationManager = configurationManager;
   }
