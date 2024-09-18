@@ -86,45 +86,29 @@ export default {
         this.invitations = '-';
         this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'invited')
-          .then(data => {
-            this.invitations = data && data.size || 0;
-          })
-          .finally(() => {
-            this.loading--;
-          });
+          .then(data => this.invitations = data && data.size || 0)
+          .finally(() => this.loading--);
       }
       if (!itemType || itemType === 'sentRequests') {
         this.sentRequests = '-';
         this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'pending')
-          .then(data => {
-            this.sentRequests = data && data.size || 0;
-          })
-          .finally(() => {
-            this.loading--;
-          });
+          .then(data => this.sentRequests = data?.size || 0)
+          .finally(() => this.loading--);
       }
       if (!itemType || itemType === 'receivedRequests') {
         this.receivedRequests = '-';
         this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'requests')
-          .then(data => {
-            this.receivedRequests = data && data.size || 0;
-          })
-          .finally(() => {
-            this.loading--;
-          });
+          .then(data => this.receivedRequests = data?.size || 0)
+          .finally(() => this.loading--);
       }
       if (!itemType || itemType === 'managing') {
         this.managing = '-';
         this.loading++;
         this.$spaceService.getSpaces(null, null, null, 'manager')
-          .then(data => {
-            this.managing = data && data.size || 0;
-          })
-          .finally(() => {
-            this.loading--;
-          });
+          .then(data => this.managing = data?.size || 0)
+          .finally(() => this.loading--);
       }
     },
   },

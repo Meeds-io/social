@@ -48,7 +48,24 @@
       </v-list-item>
     </template>
     <template #default>
-      <space-setting-roles-table class="mb-5" />
+      <div>
+        <v-switch
+          v-model="isContentCreationRestricted"
+          :loading="saving"
+          inset
+          @click="switchContentRestriction">
+          <template #label>
+            <div class="text-body">{{ $t('SpaceSettings.roles.restrictContentCreation') }}</div>
+          </template>
+        </v-switch>
+      </div>
+      <space-setting-roles-table
+        class="mb-5"
+        @restriction-loaded="isContentCreationRestricted = $event"
+        @redactors-loaded="redactorsChoosing = false" />
+      <space-setting-redactor-drawer
+        ref="redactorsDrawer"
+        @closed="$root.$emit('space-settings-refresh-redactors')" />
     </template>
   </widget-wrapper>
 </template>
@@ -56,6 +73,9 @@
 export default {
   data: () => ({
     space: null,
+    saving: false,
+    isContentCreationRestricted: false,
+    redactorsChoosing: true,
   }),
   created() {
     this.init();
@@ -63,6 +83,48 @@ export default {
   methods: {
     init() {
       this.space = this.$root.space;
+    },
+    async switchContentRestriction() {
+      await this.$nextTick();
+      if (this.isContentCreationRestricted) {
+        this.redactorsChoosing = true;
+        const redactors = await this.getAllRedactors();
+        const publishers = await this.getAllPublishers();
+        this.$refs.redactorsDrawer.open(redactors, publishers);
+      } else {
+        this.saving = true;
+        try {
+          const redactors = await this.getAllRedactors();
+          if (redactors?.length) {
+            for (const i in redactors) {
+              // eslint-disable-next-line no-await-in-loop
+              await this.$spaceService.removeRedactor(this.$root.space.id, redactors[i].username);
+            }
+          }
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.redactorsRemovedSuccessfully'), 'success');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingRoles'), 'error');
+        } finally {
+          this.$root.$emit('space-settings-redactors-updated', this.redactors);
+          this.saving = false;
+        }
+      }
+    },
+    getAllRedactors(expand) {
+      return this.getAllUsers('redactor', expand);
+    },
+    getAllPublishers(expand) {
+      return this.getAllUsers('publisher', expand);
+    },
+    async getAllUsers(filter, expand) {
+      let data = await this.$spaceService.getSpaceMembers(null, 0, 100, expand || '', filter, this.space.id);
+      let users = data?.users;
+      const size = data?.size;
+      if (users?.length && size > users.length) {
+        data = await this.$spaceService.getSpaceMembers(null, 0, size, expand || '', filter, this.space.id);
+        users = data?.users;
+      }
+      return users;
     },
   },
 };

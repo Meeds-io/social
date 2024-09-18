@@ -90,9 +90,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(VersionResources.VERSION_ONE + "/social/activities")
 @Tag(name = VersionResources.VERSION_ONE + "/social/activities", description = "Managing activities together with comments and likes")
-public class ActivityRestResourcesV1 implements ResourceContainer {
+public class ActivityRest implements ResourceContainer {
 
-  private static final Log        LOG            = ExoLogger.getLogger(ActivityRestResourcesV1.class);
+  private static final Log        LOG            = ExoLogger.getLogger(ActivityRest.class);
 
   private static final int        MAX_TO_PRELOAD = 10;
 
@@ -104,7 +104,7 @@ public class ActivityRestResourcesV1 implements ResourceContainer {
 
   private ActivitySearchConnector activitySearchConnector;
 
-  public ActivityRestResourcesV1(ActivityManager activityManager,
+  public ActivityRest(ActivityManager activityManager,
                                  IdentityManager identityManager,
                                  SpaceService spaceService,
                                  ActivitySearchConnector activitySearchConnector) {

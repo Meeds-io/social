@@ -26,7 +26,7 @@
   </component>
 
   <component>
-    <type>org.exoplatform.social.rest.impl.search.SearchRestResourcesV1</type>
+    <type>org.exoplatform.social.rest.impl.search.SearchRest</type>
   </component>
 
    <component>

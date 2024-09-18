@@ -22,7 +22,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
   private UserACL userACL;
   private SpacesAdministrationService spacesAdministrationService;
 
-  private SpacesAdministrationRestResourcesV1 spacesAdministrationRestResourcesV1;
+  private SpacesAdministrationRest spacesAdministrationRestResourcesV1;
 
   public void setUp() throws Exception {
     super.setUp();
@@ -38,7 +38,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     identityManager.getOrCreateIdentity("organization", "mary", true);
     identityManager.getOrCreateIdentity("organization", "demo", true);
 
-    spacesAdministrationRestResourcesV1 = new SpacesAdministrationRestResourcesV1(spacesAdministrationService, userACL);
+    spacesAdministrationRestResourcesV1 = new SpacesAdministrationRest(spacesAdministrationService, userACL);
     registry(spacesAdministrationRestResourcesV1);
   }
 
