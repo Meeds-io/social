@@ -264,32 +264,6 @@ public class PeopleRestService implements ResourceContainer{
         List<Identity> identities = Arrays.asList(listAccess.load(0, (int) remain));
         addSpaceOrUserToList(identities, nameList, currentSpace, typeOfRelation, 2, request.getLocale());
       }
-
-      remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
-      if (remain > 0) {
-        SpaceFilter spaceFilter = new SpaceFilter();
-        spaceFilter.setSpaceNameSearchCondition(name);
-        ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(currentUser, spaceFilter);
-        Space[] spaces = list.load(0, (int) remain);
-        for (Space s : spaces) {
-          //do not add current space
-          if (s.equals(currentSpace)) {
-            exclusions.add(s);
-            continue;
-          }
-          Option opt = new Option();
-          opt.setType("space");
-          opt.setValue(SPACE_PREFIX + s.getPrettyName());
-          opt.setText(s.getDisplayName());
-          opt.setAvatarUrl(s.getAvatarUrl());
-          opt.setOrder(3);
-          nameList.addOption(opt);
-          exclusions.add(s);
-          if (nameList.getOptions().size() >= SUGGEST_LIMIT) {
-            break;
-          }
-        }
-      }
     } else if (SHARE_DOCUMENT.equals(typeOfRelation)) {
 
       // This is for pre-loading data

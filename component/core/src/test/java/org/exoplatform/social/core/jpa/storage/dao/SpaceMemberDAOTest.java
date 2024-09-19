@@ -16,20 +16,25 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.entity.AppEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
-import java.util.*;
+import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 public class SpaceMemberDAOTest extends BaseCoreTest {
 
-  private List<IdentityEntity> toDeleteIdentities = new ArrayList<IdentityEntity>();
+  private List<IdentityEntity> toDeleteIdentities = new ArrayList<>();
 
   private SpaceDAO spaceDAO;
   private SpaceMemberDAO spaceMemberDAO;
@@ -69,16 +74,16 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
     assertTrue(spacesIds == null || spacesIds.isEmpty());
 
     SpaceEntity space = createSpace("test");
-    addIdentityToSpace(space, Status.MANAGER, userId);
-    addIdentityToSpace(space, Status.MEMBER, userId);
+    addIdentityToSpace(space, SpaceMembershipStatus.MANAGER, userId);
+    addIdentityToSpace(space, SpaceMembershipStatus.MEMBER, userId);
     spaceDAO.create(space);
 
     spacesIds = spaceMemberDAO.getSpacesIdsByUserName(userId, 0, 10);
     assertEquals(1, spacesIds.size());
 
     space = createSpace("test2");
-    addIdentityToSpace(space, Status.MANAGER, userId);
-    addIdentityToSpace(space, Status.MEMBER, userId);
+    addIdentityToSpace(space, SpaceMembershipStatus.MANAGER, userId);
+    addIdentityToSpace(space, SpaceMembershipStatus.MEMBER, userId);
     spaceIdentity = createIdentity("test2", SpaceIdentityProvider.NAME);
     identityDAO.create(spaceIdentity);
     toDeleteIdentities.add(spaceIdentity);
@@ -88,7 +93,7 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
     assertEquals(2, spacesIds.size());
 
     space = createSpace("testspace2");
-    addIdentityToSpace(space, Status.MANAGER, userId);
+    addIdentityToSpace(space, SpaceMembershipStatus.MANAGER, userId);
     spaceIdentity = createIdentity("testspace2", SpaceIdentityProvider.NAME);
     identityDAO.create(spaceIdentity);
     toDeleteIdentities.add(spaceIdentity);
@@ -98,7 +103,7 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
     assertEquals(2, spacesIds.size());
 
     space = createSpace("testspace3");
-    addIdentityToSpace(space, Status.PENDING, userId);
+    addIdentityToSpace(space, SpaceMembershipStatus.PENDING, userId);
     spaceIdentity = createIdentity("testspace3", SpaceIdentityProvider.NAME);
     identityDAO.create(spaceIdentity);
     toDeleteIdentities.add(spaceIdentity);
@@ -124,7 +129,7 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
     return spaceEntity;
   }
 
-  private void addIdentityToSpace(SpaceEntity spaceEntity, Status status, String userId) {
+  private void addIdentityToSpace(SpaceEntity spaceEntity, SpaceMembershipStatus status, String userId) {
     SpaceMemberEntity mem = new SpaceMemberEntity();
     mem.setSpace(spaceEntity);
     mem.setStatus(status);
