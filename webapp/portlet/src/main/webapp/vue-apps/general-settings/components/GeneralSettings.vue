@@ -176,7 +176,7 @@
           </v-expand-transition>
         </template>
       </v-card>
-      <exo-confirm-dialog
+      <confirm-dialog
         ref="closeConfirmDialog"
         :title="$t('generalSettings.closeTabConfirmTitle')"
         :message="$t('generalSettings.closeTabConfirmMessage')"
