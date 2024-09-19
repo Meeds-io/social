@@ -109,62 +109,6 @@ export default {
         },
       });
       extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-setAsRedactor',
-        title: this.$t('peopleList.button.setAsRedactor'),
-        icon: 'uiIconEditMembership',
-        class: 'fas fa-user-edit',
-        order: 1,
-        enabled: (user) => {
-          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isSpaceRedactor;
-        },
-        click: (user) => {
-          this.$spaceService.promoteRedactor(eXo.env.portal.spaceId, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-removeRedactor',
-        title: this.$t('peopleList.button.removeRedactor'),
-        icon: 'uiIconEditMembership',
-        class: 'fas fa-user-edit',
-        order: 1,
-        enabled: (user) => {
-          return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
-        },
-        click: (user) => {
-          this.$spaceService.removeRedactor(eXo.env.portal.spaceId, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-promotePublisher',
-        title: this.$t('peopleList.button.promotePublisher'),
-        icon: 'fa fa-paper-plane',
-        class: 'fas fa-paper-plane',
-        order: 1,
-        enabled: (user) => {
-          return !user.isSpacePublisher && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
-        },
-        click: (user) => {
-          this.$spaceService.promotePublisher(eXo.env.portal.spaceId, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-removePublisher',
-        title: this.$t('peopleList.button.removePublisher'),
-        icon: 'fa fa-paper-plane',
-        class: 'fas fa-paper-plane',
-        order: 1,
-        enabled: (user) => {
-          return user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
-        },
-        click: (user) => {
-          this.$spaceService.removePublisher(eXo.env.portal.spaceId, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
         id: 'spaceMembers-cancelInvitation',
         title: this.$t('peopleList.button.cancelInvitation'),
         icon: 'uiIconTrash',
