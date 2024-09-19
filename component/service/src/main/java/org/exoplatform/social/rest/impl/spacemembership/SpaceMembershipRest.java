@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.rest.impl.spacemembership;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +38,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -51,6 +53,8 @@ import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.SpaceMembershipEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -58,6 +62,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.Getter;
 
 @Path(VersionResources.VERSION_ONE + "/social/spacesMemberships")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spacesMemberships", description = "Managing memberships of users in a space")
@@ -67,8 +72,24 @@ public class SpaceMembershipRest implements ResourceContainer {
 
   private IdentityManager identityManager;
 
-  private enum MembershipType {
-    ALL, PENDING, APPROVED, IGNORED, INVITED, MEMBER, MANAGER
+  public enum MembershipType {
+    PENDING(SpaceUtils.PENDING, SpaceMembershipStatus.PENDING), APPROVED(SpaceUtils.MEMBER,
+        SpaceMembershipStatus.MEMBER), IGNORED(SpaceUtils.IGNORED, SpaceMembershipStatus.IGNORED), INVITED(
+            SpaceUtils.INVITED, SpaceMembershipStatus.INVITED), MEMBER(SpaceUtils.MEMBER, SpaceMembershipStatus.MEMBER), MANAGER(
+                SpaceUtils.MANAGER, SpaceMembershipStatus.MANAGER), PUBLISHER(SpaceUtils.PUBLISHER,
+                    SpaceMembershipStatus.PUBLISHER), REDACTOR(SpaceUtils.REDACTOR, SpaceMembershipStatus.REDACTOR);
+
+    @Getter
+    private final SpaceMembershipStatus status;
+
+    @Getter
+    private final String                role;
+
+    MembershipType(String role, SpaceMembershipStatus status) {
+      this.role = role;
+      this.status = status;
+    }
+
   }
 
   public SpaceMembershipRest(SpaceService spaceService, IdentityManager identityManager) {
@@ -112,32 +133,16 @@ public class SpaceMembershipRest implements ResourceContainer {
                                        int limit,
                                        @Parameter(description = "Asking for a full representation of a specific subresource if any")
                                        @QueryParam("expand")
-                                       String expand,
-                                       @Parameter(description = "Returning the number of memberships or not")
-                                       @Schema(defaultValue = "false")
-                                       @QueryParam("returnSize")
-                                       boolean returnSize) throws Exception {
-
+                                       String expand) throws Exception {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
-    MembershipType membershipType;
-    if (StringUtils.isBlank(status)) {
-      membershipType = MembershipType.ALL;
-    } else {
-      try {
-        membershipType = MembershipType.valueOf(status.toUpperCase());
-      } catch (Exception e) {
-        return Response.status(Response.Status.BAD_REQUEST).entity("Status is not managed").build();
-      }
-    }
-
-    if (StringUtils.isBlank(user)) {
-      user = authenticatedUser;
-    }
+    MembershipType membershipType = getMembershipType(status);
 
     Space space = null;
     if (StringUtils.isNotBlank(spaceId)) {
       space = spaceService.getSpaceById(spaceId);
+    } else if (StringUtils.isBlank(user)) {
+      user = authenticatedUser;
     }
 
     if (!canRetrieveSpaceMemberships(space, user, authenticatedUser)) {
@@ -147,46 +152,50 @@ public class SpaceMembershipRest implements ResourceContainer {
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
-    ListAccess<Space> listAccess = null;
-    SpaceFilter spaceFilter = new SpaceFilter();
-    if (space != null) {
-      spaceFilter.setIncludeSpaces(Collections.singletonList(space));
-    }
-    if (query != null) {
+    List<DataEntity> spaceMemberships;
+    int size = 0;
+    if (StringUtils.isNotBlank(query) && space != null) {
+      // 1. Search for users using a specific space (either space or user aren't
+      // null)
+      SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(membershipType.name());
+      ListAccess<Identity> listAccess = identityManager.getSpaceIdentityByProfileFilter(space,
+                                                                                        new ProfileFilter(query),
+                                                                                        type,
+                                                                                        true);
+      Identity[] identities = listAccess.load(offset, limit);
+      spaceMemberships = EntityBuilder.buildSpaceMemberships(spaceService,
+                                                             space,
+                                                             Arrays.asList(identities),
+                                                             membershipType,
+                                                             uriInfo,
+                                                             expand);
+    } else {
+      SpaceFilter spaceFilter = new SpaceFilter();
+      spaceFilter.setRemoteId(user);
+      spaceFilter.setStatus(Collections.singleton(membershipType.getStatus()));
+      if (space != null) {
+        spaceFilter.setIncludeSpaces(Collections.singletonList(space));
+      }
+      // 2. Search for spaces using a specific user (either space or user aren't
+      // null)
       spaceFilter.setSpaceNameSearchCondition(query);
+      ListAccess<Space> listAccess = spaceService.getAllSpacesByFilter(spaceFilter);
+      Space[] spaces = listAccess.load(0, limit);
+      spaceMemberships = EntityBuilder.buildSpaceMemberships(spaceService,
+                                                             Arrays.asList(spaces),
+                                                             user,
+                                                             membershipType,
+                                                             offset,
+                                                             uriInfo.getPath(),
+                                                             expand);
     }
-    switch (membershipType) {
-    case PENDING: {
-      listAccess = spaceService.getPendingSpacesByFilter(user, spaceFilter);
-      break;
-    }
-    case APPROVED, MEMBER: {
-      listAccess = spaceService.getMemberSpacesByFilter(user, spaceFilter);
-      break;
-    }
-    case MANAGER: {
-      listAccess = spaceService.getManagerSpacesByFilter(user, spaceFilter);
-      break;
-    }
-    case INVITED: {
-      listAccess = spaceService.getInvitedSpacesByFilter(user, spaceFilter);
-      break;
-    }
-    default:
-      listAccess = spaceService.getAllSpacesByFilter(spaceFilter);
-      break;
-    }
-    List<DataEntity> spaceMemberships = getSpaceMemberships(Arrays.asList(listAccess.load(offset, limit)),
-                                                            user,
-                                                            uriInfo.getPath(),
-                                                            expand);
-    CollectionEntity spacesMemberships = new CollectionEntity(spaceMemberships,
+    CollectionEntity spacesMemberships = new CollectionEntity(spaceMemberships.stream()
+                                                                              .limit(limit)
+                                                                              .toList(),
                                                               EntityBuilder.SPACES_MEMBERSHIP_TYPE,
                                                               offset,
                                                               limit);
-    if (returnSize) {
-      spacesMemberships.setSize(listAccess.getSize());
-    }
+    spacesMemberships.setSize(size);
     return EntityBuilder.getResponseBuilder(spacesMemberships,
                                             uriInfo,
                                             RestUtils.getJsonMediaType(),
@@ -388,38 +397,6 @@ public class SpaceMembershipRest implements ResourceContainer {
     return Response.noContent().build();
   }
 
-  private List<DataEntity> getSpaceMemberships(List<Space> spaces, String userId, String path, String expand) {
-    List<DataEntity> spaceMemberships = new ArrayList<>();
-    SpaceMembershipEntity membershipEntity = null;
-    for (Space space : spaces) {
-      if (spaceService.isMember(space, userId)) {
-        membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, SpaceUtils.MEMBER, path, expand);
-        spaceMemberships.add(membershipEntity.getDataEntity());
-      }
-      if (spaceService.isManager(space, userId)) {
-        membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, SpaceUtils.MANAGER, path, expand);
-        spaceMemberships.add(membershipEntity.getDataEntity());
-      }
-      if (spaceService.isPublisher(space, userId)) {
-        membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, SpaceUtils.PUBLISHER, path, expand);
-        spaceMemberships.add(membershipEntity.getDataEntity());
-      }
-      if (spaceService.isRedactor(space, userId)) {
-        membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, SpaceUtils.REDACTOR, path, expand);
-        spaceMemberships.add(membershipEntity.getDataEntity());
-      }
-      if (spaceService.isInvitedUser(space, userId)) {
-        membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, "invited", path, expand);
-        spaceMemberships.add(membershipEntity.getDataEntity());
-      }
-      if (spaceService.isPendingUser(space, userId)) {
-        membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, userId, "pending", path, expand);
-        spaceMemberships.add(membershipEntity.getDataEntity());
-      }
-    }
-    return spaceMemberships;
-  }
-
   private boolean canRetrieveSpaceMemberships(Space space, String targetUser, String authenticatedUser) {
     if (spaceService.isSuperManager(authenticatedUser)
         || (space == null && StringUtils.equals(targetUser, authenticatedUser))) {
@@ -442,6 +419,22 @@ public class SpaceMembershipRest implements ResourceContainer {
 
   private boolean canAddSelfToSpace(Space space, String authenticatedUser) {
     return space.getRegistration().equals(Space.OPEN) || spaceService.isInvitedUser(space, authenticatedUser);
+  }
+
+  private MembershipType getMembershipType(String status) {
+    if (StringUtils.isBlank(status)) {
+      return MembershipType.MEMBER;
+    } else {
+      try {
+        MembershipType membershipType = MembershipType.valueOf(status.toUpperCase());
+        if (membershipType == MembershipType.APPROVED) {
+          membershipType = MembershipType.MEMBER;
+        }
+        return membershipType;
+      } catch (Exception e) {
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      }
+    }
   }
 
 }

@@ -257,10 +257,11 @@ export function createSpace(space) {
 
 export function getSpaceMemberships(params) {
   const formData = new FormData();
-  formData.append('user', params.user);
   formData.append('offset', params.offset || 0);
   formData.append('limit', params.limit || 0);
-  formData.append('returnSize', params.returnSize !== false);
+  if (params.user) {
+    formData.append('user', params.user);
+  }
   if (params.space) {
     formData.append('space', params.space);
   }
