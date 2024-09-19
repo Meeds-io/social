@@ -52,7 +52,7 @@
         <v-switch
           v-model="isContentCreationRestricted"
           :loading="saving"
-          inset
+          class="ma-0"
           @click="switchContentRestriction">
           <template #label>
             <div class="text-body">{{ $t('SpaceSettings.roles.restrictContentCreation') }}</div>
@@ -66,6 +66,12 @@
       <space-setting-redactor-drawer
         ref="redactorsDrawer"
         @closed="$root.$emit('space-settings-refresh-redactors')" />
+      <space-setting-users-list-drawer
+        ref="usersListDrawer" />
+      <space-setting-users-selection-drawer
+        ref="usersSelectionDrawer" />
+      <space-setting-users-invitation-drawer
+        ref="usersInvitationDrawer" />
     </template>
   </widget-wrapper>
 </template>

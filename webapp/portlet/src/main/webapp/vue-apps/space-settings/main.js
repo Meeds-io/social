@@ -34,87 +34,91 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 const lang = eXo && eXo.env.portal.language || 'en';
 
 //should expose the locale ressources as REST API
-const url = `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`;
+const urls = [
+  `/social-portlet/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`
+];
 
 const appId = 'SpaceSettings';
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => 
-    Vue.createApp({
-      template: '<space-settings />',
-      data: {
-        spaceId: eXo.env.portal.spaceId,
-        space: null,
-        activeSection: null,
-      },
-      computed: {
-        isOverviewSection() {
-          return this.activeSection === 'overview';
+  exoi18n.loadLanguageAsync(lang, urls)
+    .then(i18n => 
+      Vue.createApp({
+        template: '<space-settings />',
+        data: {
+          spaceId: eXo.env.portal.spaceId,
+          space: null,
+          activeSection: null,
         },
-        isRolesSection() {
-          return this.activeSection === 'roles';
+        computed: {
+          isOverviewSection() {
+            return this.activeSection === 'overview';
+          },
+          isRolesSection() {
+            return this.activeSection === 'roles';
+          },
+          isAllSections() {
+            return !this.activeSection;
+          },
+          isMobile() {
+            return this.$vuetify.breakpoint.mobile;
+          },
         },
-        isAllSections() {
-          return !this.activeSection;
+        watch: {
+          activeSection() {
+            if (this.$root.isAllSections) {
+              window.history.replaceState('', window.document.title, window.location.href.split('#')[0]);
+            } else {
+              window.history.replaceState('', window.document.title, `${window.location.href.split('#')[0]}#${this.$root.activeSection}`);
+            }
+            this.$root.$emit('close-alert-message');
+          },
         },
-        isMobile() {
-          return this.$vuetify.breakpoint.mobile;
+        created() {
+          this.init();
+          document.addEventListener('hideSettingsApps', this.showSection);
+          document.addEventListener('showSettingsApps', this.showMain);
+          this.$root.$on('space-settings-updated', this.handleSpaceUpdated);
         },
-      },
-      watch: {
-        activeSection() {
-          if (this.$root.isAllSections) {
-            window.history.replaceState('', window.document.title, window.location.href.split('#')[0]);
-          } else {
-            window.history.replaceState('', window.document.title, `${window.location.href.split('#')[0]}#${this.$root.activeSection}`);
-          }
-          this.$root.$emit('close-alert-message');
+        beforeDestroy() {
+          document.removeEventListener('hideSettingsApps', this.showSection);
+          document.removeEventListener('showSettingsApps', this.showMain);
+          this.$root.$off('space-settings-updated', this.handleSpaceUpdated);
         },
-      },
-      created() {
-        this.init();
-        document.addEventListener('hideSettingsApps', this.showSection);
-        document.addEventListener('showSettingsApps', this.showMain);
-        this.$root.$on('space-settings-updated', this.handleSpaceUpdated);
-      },
-      beforeDestroy() {
-        document.removeEventListener('hideSettingsApps', this.showSection);
-        document.removeEventListener('showSettingsApps', this.showMain);
-        this.$root.$off('space-settings-updated', this.handleSpaceUpdated);
-      },
-      methods: {
-        async init() {
-          if (window.location.hash === '#overview') {
-            this.$root.activeSection = 'overview';
-          } else if (window.location.hash === '#roles') {
-            this.$root.activeSection = 'roles';
-          }
-          await this.refreshSpace();
-          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-          this.$applicationLoaded();
+        methods: {
+          async init() {
+            if (window.location.hash === '#overview') {
+              this.$root.activeSection = 'overview';
+            } else if (window.location.hash === '#roles') {
+              this.$root.activeSection = 'roles';
+            }
+            await this.refreshSpace();
+            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+            this.$applicationLoaded();
+          },
+          async handleSpaceUpdated() {
+            const oldPrettyName = this.space.prettyName;
+            await this.refreshSpace();
+            if (oldPrettyName !== this.space.prettyName) {
+              window.history.replaceState('', window.document.title, window.location.href.replaceAll(oldPrettyName, this.space.prettyName));
+            }
+            document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: this.space}));
+          },
+          async refreshSpace() {
+            if (this.spaceId) {
+              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now());
+            }
+          },
+          showSection(event) {
+            this.activeSection = event?.detail;
+          },
+          showMain() {
+            this.activeSection = null;
+          },
         },
-        async handleSpaceUpdated() {
-          const oldPrettyName = this.space.prettyName;
-          await this.refreshSpace();
-          if (oldPrettyName !== this.space.prettyName) {
-            window.history.replaceState('', window.document.title, window.location.href.replaceAll(oldPrettyName, this.space.prettyName));
-          }
-          document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: this.space}));
-        },
-        async refreshSpace() {
-          if (this.spaceId) {
-            this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now());
-          }
-        },
-        showSection(event) {
-          this.activeSection = event?.detail;
-        },
-        showMain() {
-          this.activeSection = null;
-        },
-      },
-      i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
-    }, `#${appId}`, 'Space Settings')
-  ).finally(() => Vue.prototype.$utils.includeExtensions('SpaceSettingExtension'));
+        i18n,
+        vuetify: Vue.prototype.vuetifyOptions,
+      }, `#${appId}`, 'Space Settings')
+    ).finally(() => Vue.prototype.$utils.includeExtensions('SpaceSettingExtension'));
 }

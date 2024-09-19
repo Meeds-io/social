@@ -1,5 +1,5 @@
 import ExoDrawer from './components/ExoDrawer.vue';
-import ExoConfirmDialog from './components/ExoConfirmDialog.vue';
+import ConfirmDialog from './components/ConfirmDialog.vue';
 import ExoUserAvatarsList from './components/ExoUserAvatarsList.vue';
 import UserAvatar from './components/UserAvatar.vue';
 import SpaceAvatar from './components/SpaceAvatar.vue';
@@ -43,7 +43,8 @@ const components = {
   'exo-drawer': ExoDrawer,
   'activity-share-drawer': ActivityShareDrawer,
   'drawers-overlay': DrawersOverlay,
-  'exo-confirm-dialog': ExoConfirmDialog,
+  'exo-confirm-dialog': ConfirmDialog,
+  'confirm-dialog': ConfirmDialog,
   'exo-identity-suggester': IdentitySuggester,
   'identity-suggester': IdentitySuggester,
   // FIXME should be deleted, deprecated, use rich-editor instead

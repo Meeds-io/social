@@ -36,9 +36,20 @@
           :default-length="size"
           :margin-left="size > 1 && 'ml-n5' || ''"
           compact
-          @open-detail="$emit('open')" />
+          clickable
+          @open-detail="openDetail" />
       </div>
-      <div v-else>-</div>
+      <v-btn
+        v-else
+        :title="$t('SpaceSettings.users.addUsers')"
+        class="ma-auto"
+        color="primary"
+        elevation="0"
+        icon
+        dark
+        @click="addUsers">
+        <v-icon size="18">fa-plus</v-icon>
+      </v-btn>
     </td>
   </tr>
 </template>
@@ -50,6 +61,10 @@ export default {
       default: null,
     },
     description: {
+      type: String,
+      default: null,
+    },
+    role: {
       type: String,
       default: null,
     },
@@ -66,5 +81,17 @@ export default {
     menu: false,
     realizationLink: null,
   }),
+  methods: {
+    openDetail() {
+      this.$root.$emit('space-settings-users-list-open', this.role);
+    },
+    addUsers() {
+      if (this.role === 'member') {
+        this.$root.$emit('space-settings-invite-member');
+      } else {
+        this.$root.$emit('space-settings-user-add', this.role);
+      }
+    },
+  }
 };
 </script>

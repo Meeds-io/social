@@ -83,42 +83,74 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(4, collections.getEntities().size());
+    assertEquals(2, collections.getEntities().size());
 
-    response = service(HttpMethod.GET, getURLResource("spacesMemberships?user=root"), "", null, null);
+    response = service(HttpMethod.GET, getURLResource(SPACES_MEMBERSHIPS_URL + "?limit=1"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(4, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
+
+    response = service(HttpMethod.GET, getURLResource(SPACES_MEMBERSHIPS_URL + "?user=root&offset=1"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
 
     startSessionAs("john");
-    response = service(HttpMethod.GET, getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(5)), "", null, null);
+    response = service(HttpMethod.GET, getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(5) + "&user=john"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
 
-    response = service(HttpMethod.GET, getURLResource(SPACES_MEMBERSHIPS_SPACE_URL), "", null, null);
+    response = service(HttpMethod.GET, getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(5)), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(2, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
+
+    response = service(HttpMethod.GET,
+                       getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(5) + "&status=manager"),
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
   }
 
   public void testGetSpaceMembershipsOfAnotherUserAsANonSpacesAdministrator() throws Exception {
     startSessionAs("mary");
-    ContainerResponse response = service(HttpMethod.GET, getURLResource("spacesMemberships?user=john"), "", null, null, "mary");
+    ContainerResponse response = service(HttpMethod.GET,
+                                         getURLResource(SPACES_MEMBERSHIPS_URL + "?user=john"),
+                                         "",
+                                         null,
+                                         null,
+                                         "mary");
     assertNotNull(response);
     assertEquals(401, response.getStatus());
   }
 
   public void testGetSpaceMembershipsOfAnotherUserAsASpacesAdministrator() throws Exception {
     startSessionAs("root");
-    ContainerResponse response = service(HttpMethod.GET, getURLResource("spacesMemberships?user=mary"), "", null, null, "root");
+    ContainerResponse response = service(HttpMethod.GET,
+                                         getURLResource("spacesMemberships?user=mary&status=member"),
+                                         "",
+                                         null,
+                                         null,
+                                         "root");
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(6, collections.getEntities().size());
+    assertEquals(3, collections.getEntities().size());
+
+    response = service(HttpMethod.GET, getURLResource("spacesMemberships?user=mary&status=manager"), "", null, null, "root");
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(3, collections.getEntities().size());
   }
 
   public void testGetSpaceMembershipsOfASpaceAsANonMember() throws Exception {
@@ -173,7 +205,22 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     CollectionEntity spacesMemberships = (CollectionEntity) response.getEntity();
     assertNotNull(spacesMemberships);
     assertNotNull(spacesMemberships.getEntities());
+    assertEquals(0, spacesMemberships.getEntities().size());
+
+    response = service(HttpMethod.GET,
+                       getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(1) + "&user=mary&status=pending"),
+                       "",
+                       null,
+                       null,
+                       "mary");
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    spacesMemberships = (CollectionEntity) response.getEntity();
+    assertNotNull(spacesMemberships);
+    assertNotNull(spacesMemberships.getEntities());
     assertEquals(1, spacesMemberships.getEntities().size());
+
     DataEntity data = spacesMemberships.getEntities().get(0);
     assertEquals("space1:mary:pending", data.get("id"));
   }
@@ -201,6 +248,19 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     CollectionEntity spacesMemberships = (CollectionEntity) response.getEntity();
     assertNotNull(spacesMemberships);
     assertNotNull(spacesMemberships.getEntities());
+    assertEquals(0, spacesMemberships.getEntities().size());
+
+    response = service(HttpMethod.GET,
+                       getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(1) + "&user=mary&status=invited"),
+                       "",
+                       null,
+                       null,
+                       "mary");
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    spacesMemberships = (CollectionEntity) response.getEntity();
+    assertNotNull(spacesMemberships);
+    assertNotNull(spacesMemberships.getEntities());
     assertEquals(1, spacesMemberships.getEntities().size());
     DataEntity data = spacesMemberships.getEntities().get(0);
     assertEquals("space1:mary:invited", data.get("id"));
@@ -209,7 +269,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
   public void testGetSpaceMembershipsOfASpaceAsManager() throws Exception {
     startSessionAs("mary");
     ContainerResponse response = service(HttpMethod.GET,
-                                         getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(4)),
+                                         getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(4) + "&user=mary"),
                                          "",
                                          null,
                                          null,
@@ -217,7 +277,18 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(2, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
+
+    response = service(HttpMethod.GET,
+                       getURLResource(SPACES_MEMBERSHIPS_SPACE_URL + getSpaceId(4)),
+                       "",
+                       null,
+                       null,
+                       "mary");
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
   }
 
   public void testAddSpaceMembership() throws Exception {
@@ -371,7 +442,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
     startSessionAs("demo");
     ContainerResponse response = service(HttpMethod.GET,
-                                         getURLResource("spacesMemberships?status=APPROVED&returnSize=true&limit=3"),
+                                         getURLResource(SPACES_MEMBERSHIPS_URL + "?status=approved&limit=3"),
                                          "",
                                          null,
                                          null);
@@ -379,59 +450,83 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
-    // should return the size of whole list
-    assertEquals(1, collections.getSize());
 
     response = service(HttpMethod.GET,
-                       getURLResource("spacesMemberships?status=approved&space=" + getSpaceId(2) + "&returnSize=true&limit=3"),
+                       getURLResource(SPACES_MEMBERSHIPS_URL + "?status=approved&space=" + getSpaceId(2) +
+                           "&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getSize());
+    assertEquals(1, collections.getEntities().size());
 
     response = service(HttpMethod.GET,
-                       getURLResource("spacesMemberships?status=invited&space=" + getSpaceId(4) + "&returnSize=true&limit=3"),
+                       getURLResource(SPACES_MEMBERSHIPS_URL + "?status=approved&space=" + getSpaceId(2) +
+                           "&user=demo&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(1, collections.getSize());
+    assertEquals(0, collections.getEntities().size());
 
     response = service(HttpMethod.GET,
-                       getURLResource("spacesMemberships?status=approved&space=" + getSpaceId(4) + "&returnSize=true&limit=3"),
+                       getURLResource(SPACES_MEMBERSHIPS_URL + "?status=invited&space=" + getSpaceId(4) +
+                           "&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getSize());
+    assertEquals(1, collections.getEntities().size());
 
     response = service(HttpMethod.GET,
-                       getURLResource("spacesMemberships?status=approved&space=" + getSpaceId(6) + "&returnSize=true&limit=3"),
+                       getURLResource(SPACES_MEMBERSHIPS_URL + "?status=approved&space=" + getSpaceId(4) +
+                           "&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(1, collections.getSize());
-
+    assertEquals(1, collections.getEntities().size());
+    
     response = service(HttpMethod.GET,
-                       getURLResource("spacesMemberships?status=approved&space=" + getSpaceId(6) +
-                           "&user=demo&returnSize=true&limit=3"),
+                       getURLResource(SPACES_MEMBERSHIPS_URL + "?status=approved&space=" + getSpaceId(6) +
+                           "&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(1, collections.getSize());
+    assertEquals(2, collections.getEntities().size());
+
+    response = service(HttpMethod.GET,
+                       getURLResource(SPACES_MEMBERSHIPS_URL + "?status=approved&space=" + getSpaceId(6) +
+                           "&offset=3&limit=3"),
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(0, collections.getEntities().size());
+
+    response = service(HttpMethod.GET,
+                       getURLResource(SPACES_MEMBERSHIPS_URL + "?status=approved&space=" + getSpaceId(6) +
+                           "&user=demo&limit=3"),
+                       "",
+                       null,
+                       null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    collections = (CollectionEntity) response.getEntity();
+    assertEquals(1, collections.getEntities().size());
   }
 
   public void testGetInvitedSpaceMemberships() throws Exception {
@@ -444,7 +539,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
     startSessionAs("demo");
     ContainerResponse response = service(HttpMethod.GET,
-                                         getURLResource("spacesMemberships?status=invited&returnSize=true&limit=3"),
+                                         getURLResource("spacesMemberships?status=invited&limit=3"),
                                          "",
                                          null,
                                          null);
@@ -452,12 +547,10 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(3, collections.getEntities().size());
-    // should return the size of whole list
-    assertEquals(4, collections.getSize());
 
     response = service(HttpMethod.GET,
                        getURLResource("spacesMemberships?status=invited&space=" + getSpaceId(5) +
-                           "&user=demo&returnSize=true&limit=3"),
+                           "&user=demo&limit=3"),
                        "",
                        null,
                        null);
@@ -468,25 +561,25 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
     response = service(HttpMethod.GET,
                        getURLResource("spacesMemberships?status=invited&space=" + getSpaceId(4) +
-                           "&user=demo&returnSize=true&limit=3"),
+                           "&user=demo&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(1, collections.getSize());
+    assertEquals(1, collections.getEntities().size());
 
     response = service(HttpMethod.GET,
                        getURLResource("spacesMemberships?status=invited&space=" + getSpaceId(6) +
-                           "&user=demo&returnSize=true&limit=3"),
+                           "&user=demo&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getSize());
+    assertEquals(0, collections.getEntities().size());
   }
 
   public void testGetPendingSpaceMemberships() throws Exception {
@@ -499,7 +592,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
     startSessionAs("demo");
     ContainerResponse response = service(HttpMethod.GET,
-                                         getURLResource("spacesMemberships?status=pending&user=demo&returnSize=true&limit=3"),
+                                         getURLResource("spacesMemberships?status=pending&user=demo&limit=3"),
                                          "",
                                          null,
                                          null);
@@ -507,12 +600,10 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(3, collections.getEntities().size());
-    // should return the size of whole list
-    assertEquals(4, collections.getSize());
 
     response = service(HttpMethod.GET,
                        getURLResource("spacesMemberships?status=pending&user=demo&space=" + getSpaceId(5) +
-                           "&returnSize=true&limit=3"),
+                           "&limit=3"),
                        "",
                        null,
                        null);
@@ -523,25 +614,25 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
     response = service(HttpMethod.GET,
                        getURLResource("spacesMemberships?status=pending&user=demo&space=" + getSpaceId(4) +
-                           "&returnSize=true&limit=3"),
+                           "&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(1, collections.getSize());
+    assertEquals(1, collections.getEntities().size());
 
     response = service(HttpMethod.GET,
                        getURLResource("spacesMemberships?status=pending&user=demo&space=" + getSpaceId(6) +
-                           "&returnSize=true&limit=3"),
+                           "&limit=3"),
                        "",
                        null,
                        null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getSize());
+    assertEquals(0, collections.getEntities().size());
   }
 
   private void createSpaceIfNotExist(int index, String creator) throws Exception {

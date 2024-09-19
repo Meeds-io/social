@@ -442,9 +442,9 @@ export default {
     typing()  {
       this.$emit('filter-text-typing', this.typing);
       if (this.typing) {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+        this.startLoading();
       } else {
-        this.$nextTick(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+        this.endLoading();
       }
     },
     expandFilter()  {
@@ -478,6 +478,20 @@ export default {
     document.removeEventListener('keydown', this.closeFilter);
   },
   methods: {
+    startLoading() {
+      if (this.$listeners.loading) {
+        this.$emit('loading', true);
+      } else {
+        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));      
+      }
+    },
+    endLoading() {
+      if (this.$listeners.loading) {
+        this.$emit('loading', false);
+      } else {
+        this.$nextTick(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+      }
+    },
     reset() {
       this.term = null;
       this.expandFilter = false;

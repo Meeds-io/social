@@ -40,6 +40,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.CacheControl;
@@ -118,6 +120,7 @@ import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRest.MembershipType;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
@@ -300,7 +303,7 @@ public class EntityBuilder {
     userEntity.getDataEntity().put(RestProperties.USER_NAME, profile.getIdentity().getRemoteId());
 
     boolean isAdmin = getUserACL().isSuperUser()
-        || getUserACL().isUserInGroup(getUserACL().getAdminGroups());
+                      || getUserACL().isUserInGroup(getUserACL().getAdminGroups());
     boolean isCurrentUser = StringUtils.equals(getCurrentUserName(), profile.getIdentity().getRemoteId());
     boolean canViewProperties = isAdmin || isCurrentUser;
 
@@ -571,7 +574,8 @@ public class EntityBuilder {
     Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
     List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings()
                                                                   .stream()
-                                                                  .filter(prop -> prop.isVisible() || (prop.isEditable() && canViewProperties))
+                                                                  .filter(prop -> prop.isVisible()
+                                                                                  || (prop.isEditable() && canViewProperties))
                                                                   .toList();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
@@ -935,6 +939,133 @@ public class EntityBuilder {
     return spaceEntity;
   }
 
+  public static List<DataEntity> buildSpaceMemberships(SpaceService spaceService,
+                                                       List<Space> spaces,
+                                                       String userId,
+                                                       MembershipType membershipType,
+                                                       int offset,
+                                                       String path,
+                                                       String expand) {
+    if (StringUtils.isNotBlank(userId)) {
+      return spaces.stream()
+                   .map(space -> buildSpaceMembership(spaceService,
+                                                      space,
+                                                      userId,
+                                                      membershipType,
+                                                      path,
+                                                      expand))
+                   .skip(offset)
+                   .filter(Objects::nonNull)
+                   .toList();
+    } else {
+      return spaces.stream()
+                   .map(space -> buildSpaceMemberships(space,
+                                                       membershipType,
+                                                       path,
+                                                       expand))
+                   .filter(CollectionUtils::isNotEmpty)
+                   .flatMap(List::stream)
+                   .skip(offset)
+                   .toList();
+    }
+  }
+
+  public static List<DataEntity> buildSpaceMemberships(SpaceService spaceService,
+                                                       Space space,
+                                                       List<Identity> identities,
+                                                       MembershipType membershipType,
+                                                       UriInfo uriInfo,
+                                                       String expand) {
+    return identities.stream()
+                     .filter(Objects::nonNull)
+                     .filter(Identity::isUser)
+                     .map(identity -> buildSpaceMembership(spaceService,
+                                                           space,
+                                                           identity.getRemoteId(),
+                                                           membershipType,
+                                                           uriInfo.getPath(),
+                                                           expand))
+                     .toList();
+  }
+
+  private static DataEntity buildSpaceMembership(SpaceService spaceService,
+                                                 Space space,
+                                                 String userId,
+                                                 MembershipType membershipType,
+                                                 String restPath,
+                                                 String expand) {
+    if (getMembershipTypePredicate(spaceService, membershipType).test(space, userId)) {
+      return EntityBuilder.buildSpaceMembershipEntity(space,
+                                                      userId,
+                                                      membershipType.getRole(),
+                                                      restPath,
+                                                      expand);
+    } else {
+      return null; // NOSONAR
+    }
+  }
+
+  private static List<DataEntity> buildSpaceMemberships(Space space,
+                                                        MembershipType membershipType,
+                                                        String restPath,
+                                                        String expand) {
+    return Arrays.stream(getUsersSupplier(space, membershipType).get())
+                 .map(user -> EntityBuilder.buildSpaceMembershipEntity(space,
+                                                                       user,
+                                                                       membershipType.getRole(),
+                                                                       restPath,
+                                                                       expand))
+                 .toList();
+  }
+
+  private static DataEntity buildSpaceMembershipEntity(Space space,
+                                                       String user,
+                                                       String role,
+                                                       String restPath,
+                                                       String expand) {
+    SpaceMembershipEntity membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, user, role, restPath, expand);
+    return membershipEntity.getDataEntity();
+  }
+
+  private static Supplier<String[]> getUsersSupplier(Space space, MembershipType membershipType) {
+    return switch (membershipType) {
+    case MEMBER, APPROVED:
+      yield space::getMembers;
+    case MANAGER:
+      yield space::getManagers;
+    case PUBLISHER:
+      yield space::getPublishers;
+    case REDACTOR:
+      yield space::getRedactors;
+    case INVITED:
+      yield space::getInvitedUsers;
+    case PENDING:
+      yield space::getPendingUsers;
+    default:
+      throw new IllegalArgumentException("Unexpected value: " + membershipType);
+    };
+
+  }
+
+  private static BiPredicate<Space, String> getMembershipTypePredicate(SpaceService spaceService, MembershipType membershipType) {
+    return switch (membershipType) {
+    case MEMBER, APPROVED:
+      yield spaceService::isMember;
+    case MANAGER:
+      yield spaceService::isManager;
+    case PUBLISHER:
+      yield spaceService::isPublisher;
+    case REDACTOR:
+      yield spaceService::isRedactor;
+    case INVITED:
+      yield spaceService::isInvitedUser;
+    case PENDING:
+      yield spaceService::isPendingUser;
+    default:
+      throw new IllegalArgumentException("Unexpected value: " + membershipType);
+    };
+  }
+
   /**
    * Get a hash map from a space in order to build a json object for the rest
    * service
@@ -1252,7 +1383,8 @@ public class EntityBuilder {
                                                                 RestUtils.DEFAULT_OFFSET,
                                                                 RestUtils.HARD_LIMIT)));
     } else {
-      commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE + "/social/activities/" + comment.getId() + "/likes"));
+      commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE +
+          "/social/activities/" + comment.getId() + "/likes"));
     }
     commentEntity.setCreateDate(RestUtils.formatISO8601(new Date(comment.getPostedTime())));
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));
@@ -2049,7 +2181,7 @@ public class EntityBuilder {
       if (excludeEmptyNavigationSites
           && (rootNode == null || CollectionUtils.isEmpty(rootNode.getChildren()))) {
         return null;
-      } 
+      }
       siteNavigations = getSiteNavigations(userPortal,
                                            rootNode,
                                            expandNavigations,
@@ -2061,10 +2193,11 @@ public class EntityBuilder {
     long siteId = Long.parseLong((site.getStorageId().split("_"))[1]);
 
     String translatedSiteLabel = getTranslatedLabel(SITE_LABEL_FIELD_NAME, siteId, locale);
-    String siteLabel = StringUtils.isBlank(translatedSiteLabel) ? getSiteLabel(siteKey, userPortal): translatedSiteLabel;
+    String siteLabel = StringUtils.isBlank(translatedSiteLabel) ? getSiteLabel(siteKey, userPortal) : translatedSiteLabel;
 
     String translateSiteDescription = getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
-    String siteDescription = StringUtils.isBlank(translateSiteDescription) ? getSiteDescription(siteKey, userPortal) : translateSiteDescription;
+    String siteDescription = StringUtils.isBlank(translateSiteDescription) ? getSiteDescription(siteKey, userPortal) :
+                                                                           translateSiteDescription;
 
     List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
     Map<String, Object> editPermission = computePermission(site.getEditPermission());
