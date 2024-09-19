@@ -8,7 +8,6 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
-
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -20,21 +19,49 @@
 
 -->
 <template>
-  <v-list v-if="users?.length" dense>
-    <space-setting-roles-list-item
-      v-for="u in users"
-      :key="u.id"
-      :user="u"
-      @remove="$emit('remove', u)" />
-  </v-list>
+  <application-toolbar
+    id="spaceSettingUsersListToolbar"
+    :right-text-filter="hasUsers && {
+      minCharacters: 3,
+      placeholder: $t('SpaceSettings.users.filterByName'),
+      tooltip: $t('SpaceSettings.users.filterByName')
+    }"
+    compact
+    @filter-text-input-end-typing="query = $event"
+    @loading="$emit('loading', $event)">
+    <template #left>
+      <v-btn
+        :title="$t('SpaceSettings.users.add')"
+        color="primary"
+        elevation="0"
+        @click="$emit('add')">
+        <v-icon
+          color="while"
+          class="me-2"
+          size="18">
+          fa-plus
+        </v-icon>
+        {{ $t('SpaceSettings.users.add') }}
+      </v-btn>
+    </template>
+  </application-toolbar>
 </template>
 <script>
 export default {
   props: {
-    users: {
-      type: Array,
+    hasUsers: {
+      type: Boolean,
       default: null,
+    }
+  },
+  data: () => ({
+    query: null,
+  }),
+  watch: {
+    query() {
+      this.$emit('query', this.query);
     },
   },
 };
 </script>
+

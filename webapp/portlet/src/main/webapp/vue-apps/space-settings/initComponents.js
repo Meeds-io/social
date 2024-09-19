@@ -27,6 +27,9 @@ import SpaceSettingRolesSection from './components/section/SpaceSettingRolesSect
 
 import SpaceSettingAccessDrawer from './components/drawer/SpaceSettingAccessDrawer.vue';
 import SpaceSettingRedactorDrawer from './components/drawer/SpaceSettingRedactorDrawer.vue';
+import SpaceSettingUsersListDrawer from './components/drawer/SpaceSettingUsersListDrawer.vue';
+import SpaceSettingUsersSelectionDrawer from './components/drawer/SpaceSettingUsersSelectionDrawer.vue';
+import SpaceSettingUsersInvitationDrawer from './components/drawer/SpaceSettingUsersInvitationDrawer.vue';
 
 import SpaceSettingAvatar from './components/form/SpaceSettingAvatar.vue';
 import SpaceSettingBanner from './components/form/SpaceSettingBanner.vue';
@@ -36,6 +39,7 @@ import SpaceSettingRolesTableItem from './components/section/roles/SpaceSettingR
 
 import SpaceSettingsRolesList from './components/section/roles/SpaceSettingsRolesList.vue';
 import SpaceSettingsRolesListItem from './components/section/roles/SpaceSettingsRolesListItem.vue';
+import SpaceSettingsUsersListToolbar from './components/section/roles/SpaceSettingsUsersListToolbar.vue';
 
 const components = {
   'space-settings': SpaceSettings,
@@ -53,6 +57,10 @@ const components = {
 
   'space-setting-access-drawer': SpaceSettingAccessDrawer,
   'space-setting-redactor-drawer': SpaceSettingRedactorDrawer,
+  'space-setting-users-list-drawer': SpaceSettingUsersListDrawer,
+  'space-setting-users-selection-drawer': SpaceSettingUsersSelectionDrawer,
+  'space-setting-users-invitation-drawer': SpaceSettingUsersInvitationDrawer,
+  'space-setting-users-list-toolbar': SpaceSettingsUsersListToolbar,
 
   'space-setting-avatar': SpaceSettingAvatar,
   'space-setting-banner': SpaceSettingBanner,

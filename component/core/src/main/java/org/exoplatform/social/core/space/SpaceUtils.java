@@ -141,6 +141,12 @@ public class SpaceUtils {
 
   public static final String                                  PUBLISHER                = "publisher";
 
+  public static final String                                  PENDING                  = "pending";
+
+  public static final String                                  INVITED                  = "invited";
+
+  public static final String                                  IGNORED                  = "ignored";
+
   public static final String                                  MENU_CONTAINER           = "Menu";
 
   public static final String                                  APPLICATION_CONTAINER    = "Application";
