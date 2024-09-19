@@ -20,6 +20,11 @@ package org.exoplatform.social.core.jpa.storage.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,10 +38,6 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-
-import org.exoplatform.commons.api.persistence.ExoEntity;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 
 @Entity(name = "SocSpaceMember")
 @Table(name = "SOC_SPACES_MEMBERS")
@@ -99,7 +100,7 @@ public class SpaceMemberEntity implements Serializable {
   private String            userId;
 
   @Column(name = "STATUS", nullable = false)
-  private Status            status;
+  private SpaceMembershipStatus            status;
 
   /**
    * We can not set default lastAccess is Date(0L)
@@ -120,7 +121,7 @@ public class SpaceMemberEntity implements Serializable {
     this(null, null, null);
   }
 
-  public SpaceMemberEntity(SpaceEntity space, String userId, Status status) {
+  public SpaceMemberEntity(SpaceEntity space, String userId, SpaceMembershipStatus status) {
     this.setSpace(space);
     this.setUserId(userId);
     this.setStatus(status);
@@ -150,11 +151,11 @@ public class SpaceMemberEntity implements Serializable {
     this.userId = userId;
   }
 
-  public Status getStatus() {
+  public SpaceMembershipStatus getStatus() {
     return status;
   }
 
-  public void setStatus(Status status) {
+  public void setStatus(SpaceMembershipStatus status) {
     this.status = status;
   }
 
@@ -195,7 +196,4 @@ public class SpaceMemberEntity implements Serializable {
     return result;
   }
 
-  public static enum Status {
-    MEMBER, MANAGER, REDACTOR, PENDING, INVITED, IGNORED, PUBLISHER
-  }
 }

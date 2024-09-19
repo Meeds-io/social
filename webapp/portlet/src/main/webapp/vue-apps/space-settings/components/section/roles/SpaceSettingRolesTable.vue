@@ -60,6 +60,7 @@
         :key="props.item.role"
         :name="props.item.name"
         :description="props.item.description"
+        :role="props.item.role"
         :users="props.item.users"
         :size="props.item.size" />
     </template>
@@ -89,7 +90,7 @@ export default {
         description: this.$t('SpaceSettings.roles.publisher.description'),
         users: this.publishers?.users,
         size: this.publishers?.size,
-        role: 'manager',
+        role: 'publisher',
       },{
         name: this.$t('SpaceSettings.roles.member'),
         description: this.$t('SpaceSettings.roles.member.description'),
@@ -148,6 +149,17 @@ export default {
     this.$root.$on('space-settings-members-updated', this.refreshMembers);
 
     this.init();
+  },
+  beforeDestroy() {
+    this.$root.$off('space-settings-refresh-managers', this.refreshManagers);
+    this.$root.$off('space-settings-refresh-publishers', this.refreshPublishers);
+    this.$root.$off('space-settings-refresh-redactors', this.refreshRedactors);
+    this.$root.$off('space-settings-refresh-members', this.refreshMembers);
+
+    this.$root.$off('space-settings-managers-updated', this.refreshManagers);
+    this.$root.$off('space-settings-publishers-updated', this.refreshPublishers);
+    this.$root.$off('space-settings-redactors-updated', this.refreshRedactors);
+    this.$root.$off('space-settings-members-updated', this.refreshMembers);
   },
   methods: {
     init() {

@@ -37,19 +37,19 @@
           <v-list-item-title
             v-if="displaySearchPlaceHolder"
             :style="menuItemStyle"
-            class="px-2">
+            class="px-2 text-wrap">
             {{ labels.searchPlaceholder }}
           </v-list-item-title>
           <v-list-item-title
             v-else-if="loadingSuggestions > 0"
             :style="menuItemStyle"
-            class="px-2">
+            class="px-2 text-wrap">
             {{ $t('Search.label.inProgress') }}
           </v-list-item-title>
           <v-list-item-title
             v-else-if="labels.noDataLabel"
             :style="menuItemStyle"
-            class="px-2">
+            class="px-2 text-wrap">
             {{ labels.noDataLabel }}
           </v-list-item-title>
         </v-list-item>
@@ -62,7 +62,12 @@
           :close="!disabled"
           class="identitySuggesterItem"
           @click:close="remove(item)">
-          <v-avatar left>
+          <v-avatar
+            :class="{
+              'spaceAvatar': item.providerId === 'space',
+            }"
+            :tile="item.providerId === 'space'"
+            left>
             <v-img :src="item.profile.avatarUrl" role="presentation" />
           </v-avatar>
           <span class="text-truncate">
@@ -74,16 +79,20 @@
         </v-chip>
       </template>
 
-      <template slot="item" slot-scope="data">
+      <template slot="item" slot-scope="{item}">
         <v-list-item-avatar
-          v-if="data.item && data.item.profile && data.item.profile.avatarUrl"
+          v-if="item?.profile?.avatarUrl"
+          :class="{
+            'spaceAvatar': item?.providerId === 'space',
+          }"
+          :tile="item?.providerId === 'space'"
           size="20">
-          <v-img :src="data.item.profile.avatarUrl" />
+          <v-img :src="item?.profile?.avatarUrl" />
         </v-list-item-avatar>
         <v-list-item-title
           :style="menuItemStyle"
           class="text-truncate identitySuggestionMenuItemText"
-          v-text="itemText !== 'profile.fullName' ? data.item[itemText] : data.item.profile.fullName" />
+          v-text="itemText !== 'profile.fullName' ? item[itemText] : item?.profile?.fullName" />
       </template>
     </v-autocomplete>
   </v-flex>
@@ -337,7 +346,7 @@ export default {
       return true;
     },
     focus() {
-      this.$refs.selectAutoComplete.focus();
+      this.$refs?.selectAutoComplete?.focus?.();
     },
     clear() {
       this.items = [];

@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.profileproperty.ProfileProperty;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
@@ -142,7 +143,8 @@ public class ProfileSearchConnector {
 
   private String buildQueryStatement(Identity identity, ProfileFilter filter, Type type, long offset, long limit) {
     String expEs = buildExpression(filter);
-    String expEsForAdvancedFilter = !filter.getProfileSettings().isEmpty() ? buildAdvancedFilterExpression(filter) : "";
+    Map<String, String> profileSettings = filter.getProfileSettings();
+    String expEsForAdvancedFilter = MapUtils.isNotEmpty(profileSettings) ? buildAdvancedFilterExpression(filter) : "";
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
     esQuery.append("   \"from\" : " + offset + ", \"size\" : " + limit + ",\n");
@@ -499,8 +501,11 @@ public class ProfileSearchConnector {
   }
 
   private String buildAdvancedFilterExpression(ProfileFilter filter) {
-    StringBuilder query = new StringBuilder();
     Map<String, String> settings = filter.getProfileSettings();
+    if (MapUtils.isEmpty(settings)) {
+      return StringUtils.EMPTY;
+    }
+    StringBuilder query = new StringBuilder();
     int index = 0;
     for(String key : settings.keySet()) {
       ProfilePropertySetting property = profilePropertyService.getProfileSettingByName(key);

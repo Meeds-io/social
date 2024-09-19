@@ -16,51 +16,59 @@
  */
 package org.exoplatform.social.core.space;
 
+import java.util.List;
+import java.util.Set;
+
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.search.Sorting;
-import java.util.List;
-import java.util.Objects;
-
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
  * @since 1.2.0-GA
  */
 @AllArgsConstructor
+@EqualsAndHashCode
 public class SpaceFilter implements Cloneable {
-  
+
   /** The space name search condition. */
-  private String spaceNameSearchCondition;
-  
+  private String      spaceNameSearchCondition;
+
   private List<Space> includeSpaces;
-  
+
   private List<Space> exclusions;
-  
+
   /** The remoteId search condition. */
-  private String remoteId;
-  
+  private String      remoteId;
+
   /** The appId search condition. */
-  private String appId;
+  private String      appId;
 
   /** The template search condition. */
-  private String template;
-  
-  /** The default value for char type. */
-  private static char CHAR_DEFAULT_VALUE = '\u0000';
+  private String      template;
 
-  private Sorting sorting;
+  @Getter
+  @Setter
+  private Set<SpaceMembershipStatus> status;
 
-  private boolean favorite;
+  private Sorting     sorting;
+
+  private boolean     favorite;
+
   /**
    * The constructor.
    */
   public SpaceFilter() {
     this.spaceNameSearchCondition = null;
   }
-  
+
   /**
    * The constructor.
    * 
@@ -69,7 +77,7 @@ public class SpaceFilter implements Cloneable {
   public SpaceFilter(String spaceNameSearchCondition) {
     this.spaceNameSearchCondition = Utils.processUnifiedSearchCondition(spaceNameSearchCondition);
   }
-  
+
   /**
    * The constructor.
    * 
@@ -77,12 +85,13 @@ public class SpaceFilter implements Cloneable {
    * @param appId
    */
   public SpaceFilter(String remoteId, String appId) {
-   this.appId = appId;
-   this.remoteId = remoteId;
+    this.appId = appId;
+    this.remoteId = remoteId;
   }
-  
+
   /**
    * Gets Space list to filter
+   * 
    * @return
    * @since 4.0
    */
@@ -92,6 +101,7 @@ public class SpaceFilter implements Cloneable {
 
   /**
    * Sets Space list to filter
+   * 
    * @param includeSpaces
    * @since 4.0
    */
@@ -101,6 +111,7 @@ public class SpaceFilter implements Cloneable {
 
   /**
    * Gets remoteId to filter
+   * 
    * @return
    * @since 4.0
    */
@@ -110,6 +121,7 @@ public class SpaceFilter implements Cloneable {
 
   /**
    * Sets remoteId to filter
+   * 
    * @param remoteId
    * @since 4.0
    */
@@ -119,6 +131,7 @@ public class SpaceFilter implements Cloneable {
 
   /**
    * Gets appId to filter
+   * 
    * @return
    * @since 4.0
    */
@@ -128,6 +141,7 @@ public class SpaceFilter implements Cloneable {
 
   /**
    * Sets appId to filter
+   * 
    * @param appId
    * @since 4.0
    */
@@ -137,6 +151,7 @@ public class SpaceFilter implements Cloneable {
 
   /**
    * Gets template to filter
+   * 
    * @return
    */
   public String getTemplate() {
@@ -145,6 +160,7 @@ public class SpaceFilter implements Cloneable {
 
   /**
    * Sets template to filter
+   * 
    * @param template
    * @since 4.0
    */
@@ -172,7 +188,7 @@ public class SpaceFilter implements Cloneable {
 
   public Sorting getSorting() {
     if (sorting == null) {
-      return sorting = new Sorting(Sorting.SortBy.TITLE, Sorting.OrderBy.ASC);
+      sorting = new Sorting(Sorting.SortBy.TITLE, Sorting.OrderBy.ASC);
     }
     return sorting;
   }
@@ -198,39 +214,14 @@ public class SpaceFilter implements Cloneable {
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(appId,
-                        exclusions,
-                        favorite,
-                        includeSpaces,
-                        remoteId,
-                        sorting,
-                        spaceNameSearchCondition,
-                        template);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    SpaceFilter other = (SpaceFilter) obj;
-    return Objects.equals(appId, other.appId) && Objects.equals(exclusions, other.exclusions) && favorite == other.favorite
-        && Objects.equals(remoteId, other.remoteId) && Objects.equals(sorting, other.sorting)
-        && Objects.equals(spaceNameSearchCondition, other.spaceNameSearchCondition) && Objects.equals(template, other.template);
-  }
-
-  @Override
-  public SpaceFilter clone() { // NOSNAR
+  public SpaceFilter clone() { // NOSONAR
     return new SpaceFilter(spaceNameSearchCondition,
                            includeSpaces,
                            exclusions,
                            remoteId,
                            appId,
                            template,
+                           status,
                            sorting,
                            favorite);
   }
