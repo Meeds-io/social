@@ -23,7 +23,7 @@
   <parent>
     <artifactId>social-component</artifactId>
     <groupId>io.meeds.social</groupId>
-    <version>7.0.x-exo-SNAPSHOT</version>
+    <version>7.0.0-exo-M36</version>
   </parent>
   <artifactId>social-component-api</artifactId>
   <name>Meeds:: PLF:: Social API</name>
