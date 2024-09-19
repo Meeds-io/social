@@ -16,12 +16,22 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import jakarta.persistence.LockModeType;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -38,24 +48,40 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
-import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.activity.model.ActivityFile;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
+import org.exoplatform.social.core.activity.model.ActivityStream;
+import org.exoplatform.social.core.activity.model.ActivityStreamImpl;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.dao.*;
-import org.exoplatform.social.core.jpa.storage.entity.*;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityShareActionDAO;
+import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
+import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
+import org.exoplatform.social.core.jpa.storage.entity.ActivityShareActionEntity;
+import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
+import org.exoplatform.social.core.jpa.storage.entity.StreamType;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityFileStoragePlugin;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
-import org.exoplatform.social.core.storage.api.*;
+import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
+
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+
+import jakarta.persistence.LockModeType;
 
 public class RDBMSActivityStorageImpl implements ActivityStorage {
 
@@ -548,7 +574,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
     case MANAGE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                    String.valueOf(SpaceMemberEntity.Status.MANAGER),
+                                                                    String.valueOf(SpaceMembershipStatus.MANAGER),
                                                                     0,
                                                                     -1);
       if (CollectionUtils.isEmpty(spaceIdentityIds)) {
@@ -614,7 +640,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
     case MANAGE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                    String.valueOf(SpaceMemberEntity.Status.MANAGER),
+                                                                    String.valueOf(SpaceMembershipStatus.MANAGER),
                                                                     0,
                                                                     -1);
       if (CollectionUtils.isEmpty(spaceIdentityIds)) {
@@ -627,7 +653,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
     case PIN_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-        String.valueOf(SpaceMemberEntity.Status.MEMBER),
+        String.valueOf(SpaceMembershipStatus.MEMBER),
         0,
         -1);
       if (CollectionUtils.isEmpty(spaceIdentityIds)) {
@@ -673,7 +699,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
     case MANAGE_SPACES_STREAM:
       spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                    String.valueOf(SpaceMemberEntity.Status.MANAGER),
+                                                                    String.valueOf(SpaceMembershipStatus.MANAGER),
                                                                     0,
                                                                     -1);
       if (CollectionUtils.isEmpty(spaceIdentityIds)) {

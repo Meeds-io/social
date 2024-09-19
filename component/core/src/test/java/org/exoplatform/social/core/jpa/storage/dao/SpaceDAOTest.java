@@ -16,11 +16,22 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.entity.*;
+import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
+import org.exoplatform.social.core.jpa.storage.entity.AppEntity;
+import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
-import java.util.*;
+import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 public class SpaceDAOTest extends BaseCoreTest {
   private SpaceDAO spaceDAO;
@@ -100,11 +111,11 @@ public class SpaceDAOTest extends BaseCoreTest {
     spaceEntity.setVisibility(SpaceEntity.VISIBILITY.PRIVATE);
     spaceEntity.setBannerLastUpdated(new Date());
 
-    addMember(spaceEntity, "root", SpaceMemberEntity.Status.PENDING);
+    addMember(spaceEntity, "root", SpaceMembershipStatus.PENDING);
     return spaceEntity;
   }
 
-  private void addMember(SpaceEntity spaceEntity, String username, SpaceMemberEntity.Status status) {
+  private void addMember(SpaceEntity spaceEntity, String username, SpaceMembershipStatus status) {
     SpaceMemberEntity mem = new SpaceMemberEntity();
     mem.setSpace(spaceEntity);
     mem.setStatus(status);
@@ -152,9 +163,9 @@ public class SpaceDAOTest extends BaseCoreTest {
 
     SpaceEntity spaceEntity = createSpace("testPrettyName3");
     spaceEntity = spaceDAO.create(spaceEntity);
-    addMember(spaceEntity, maryIdentity.getRemoteId(), SpaceMemberEntity.Status.MEMBER);
-    addMember(spaceEntity, johnIdentity.getRemoteId(), SpaceMemberEntity.Status.MEMBER);
-    addMember(spaceEntity, demoIdentity.getRemoteId(), SpaceMemberEntity.Status.MEMBER);
+    addMember(spaceEntity, maryIdentity.getRemoteId(), SpaceMembershipStatus.MEMBER);
+    addMember(spaceEntity, johnIdentity.getRemoteId(), SpaceMembershipStatus.MEMBER);
+    addMember(spaceEntity, demoIdentity.getRemoteId(), SpaceMembershipStatus.MEMBER);
 
     IdentityEntity spaceIdentity = identityDAO.create(createIdentity(SpaceIdentityProvider.NAME, spaceEntity.getPrettyName()));
 

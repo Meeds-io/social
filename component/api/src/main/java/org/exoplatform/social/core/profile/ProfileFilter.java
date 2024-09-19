@@ -86,12 +86,16 @@ public class ProfileFilter implements Cloneable {
   private boolean wildcardSearch = true;
 
   public ProfileFilter() {
-    this.name = "";
+    this("");
+  }
+
+  public ProfileFilter(String query) {
+    this.name = query;
     this.position = "";
     this.company = "";
     this.skills = "";
-    this.excludedIdentityList = new ArrayList<Identity>();
-    this.onlineRemoteIds = new ArrayList<String>();
+    this.excludedIdentityList = new ArrayList<>();
+    this.onlineRemoteIds = new ArrayList<>();
     this.all = "";
     this.profileSettings = new HashMap<>();
   }
@@ -290,7 +294,7 @@ public class ProfileFilter implements Cloneable {
       return;
     }
     if(this.excludedIdentityList == null) {
-      this.excludedIdentityList = new ArrayList<Identity>();
+      this.excludedIdentityList = new ArrayList<>();
     }
     if(!this.excludedIdentityList.contains(currentIdentity)) {
       this.excludedIdentityList.add(this.viewerIdentity);

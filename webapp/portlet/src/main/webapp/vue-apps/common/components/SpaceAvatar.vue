@@ -111,10 +111,8 @@
     </a>
   </div>
 </template>
-
 <script>
 const randomMax = 10000;
-
 export default {
   props: {
     space: {
@@ -170,7 +168,6 @@ export default {
       type: String,
       default: () => '',
     },
-      
   },
   data() {
     return {
@@ -230,18 +227,12 @@ export default {
   },
   created() {
     if (!this.space) {
-      if (this.spacePrettyName && !this.spaceId){
+      if (this.spaceId) {
+        this.$spaceService.getSpaceById(this.spaceId)
+          .then(space => this.space = space);
+      } else if (this.spacePrettyName) {
         this.$spaceService.getSpaceByPrettyName(this.spacePrettyName)
-          .then(space => {
-            this.space = space;
-          });
-      } else {
-        if (this.spaceId) {
-          this.$spaceService.getSpaceById(this.spaceId)
-            .then(space => {
-              this.space = space;
-            });
-        }
+          .then(space => this.space = space);
       }
     }
   },
