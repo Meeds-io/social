@@ -18,19 +18,20 @@ package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.util.List;
 
-import jakarta.persistence.Tuple;
-
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.space.model.Space;
+
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+
+import jakarta.persistence.Tuple;
 
 public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
     void deleteBySpace(SpaceEntity entity);
 
-    SpaceMemberEntity getSpaceMemberShip(String remoteId, Long spaceId, Status status);
+    SpaceMemberEntity getSpaceMemberShip(String remoteId, Long spaceId, SpaceMembershipStatus status);
 
     /**
      * Get space identity ids switch user status
@@ -42,7 +43,7 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      * @return {@link List} of {@link Space} technical identifiers of type
      *         {@link Long}
      */
-    default List<Long> getSpaceIdentityIdsByUserRole(String remoteId, Status status, int offset, int limit) {
+    default List<Long> getSpaceIdentityIdsByUserRole(String remoteId, SpaceMembershipStatus status, int offset, int limit) {
       throw new UnsupportedOperationException();
     }
     
@@ -57,7 +58,7 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      * @param limit
      * @return
      */
-    List<String> getSpaceMembers(Long spaceId, Status status, int offset, int limit);
+    List<String> getSpaceMembers(Long spaceId, SpaceMembershipStatus status, int offset, int limit);
 
     /**
      * Get disabled space members
@@ -92,7 +93,7 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      * @param limit The limitation of returned results
      * @return {@link List} of {@link Space} technical identifiers of type {@link Long}
      */
-    default List<Long> getSpaceIdsByUserRole(String username, Status status, int offset, int limit) {
+    default List<Long> getSpaceIdsByUserRole(String username, SpaceMembershipStatus status, int offset, int limit) {
         throw new UnsupportedOperationException();
     }
 
@@ -117,7 +118,7 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      * @param status equals to MEMBER, MANAGER, PENDING, INVITED or IGNORED
      * @return
      */
-    int countSpaceMembers(Long spaceId, Status status);
+    int countSpaceMembers(Long spaceId, SpaceMembershipStatus status);
 
     /**
      * Count disabled space members
