@@ -87,6 +87,17 @@
         </span>
       </v-btn>
       <v-btn
+        v-else-if="connected"
+        :loading="sendingAction"
+        :disabled="sendingAction"
+        class="btn btn-primary mx-auto disconnectButton"
+        @click="disconnect">
+        <i class="uiIconSocCancelConnectUser"></i>
+        <span class="buttonText">
+          {{ $t('profileHeader.button.disconnect') }}
+        </span>
+      </v-btn>
+      <v-btn
         v-else-if="disconnected"
         :loading="sendingAction"
         :disabled="sendingAction"
@@ -247,6 +258,18 @@ export default {
         });
     },
     cancelRequest() {
+      this.sendingAction = true;
+      this.$userService.deleteRelationship(this.user.username)
+        .then(() => this.$emit('refresh'))
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error('Error processing action', e);
+        })
+        .finally(() => {
+          this.sendingAction = false;
+        });
+    },
+    disconnect() {
       this.sendingAction = true;
       this.$userService.deleteRelationship(this.user.username)
         .then(() => this.$emit('refresh'))
