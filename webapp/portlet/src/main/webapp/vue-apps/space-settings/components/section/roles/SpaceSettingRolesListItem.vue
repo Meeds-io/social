@@ -37,8 +37,17 @@
         {{ fullName }}
       </v-list-item-title>
       <v-list-item-subtitle
+        v-if="displayDate && user.createdDate"
+        class="d-flex text-wrap pt-2px">
+        {{ $t('SpaceSetting.invitation.sentOn') }}
+        <date-format
+          :value="user.createdDate"
+          :format="format"
+          class="ms-1" />
+      </v-list-item-subtitle>
+      <v-list-item-subtitle
+        v-else-if="subtitle"
         :title="subtitle"
-        v-if="subtitle"
         class="text-truncate">
         {{ subtitle }}
       </v-list-item-subtitle>
@@ -78,7 +87,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    displayDate: {
+      type: Boolean,
+      default: false,
+    },
   },
+  data: () => ({
+    format: {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    },
+  }),
   computed: {
     avatar() {
       return this.user.avatar || this.user.profile?.avatarUrl;

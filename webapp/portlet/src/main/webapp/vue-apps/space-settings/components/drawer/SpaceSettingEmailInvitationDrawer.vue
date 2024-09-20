@@ -31,7 +31,7 @@
       {{ $t('peopleList.title.usersToInvite') }}
     </template>
     <template slot="content">
-      <div class="pa-4 position-relative">
+      <div class="pa-4 d-flex flex-column">
         <v-card
           ref="emailInput"
           :placeholder="$t('SpaceSettings.invitation.emailPlaceholder')"
@@ -41,25 +41,30 @@
           flat
           @keydown.enter.prevent.stop="addEmails"
           @keyup="updateInput" />
-        <div
-          :class="$vuetify.rtl && 'l-0' || 'r-0'"
-          class="position-absolute mt-5 me-5 t-0">
-          <v-btn
-            :title="$t('SpaceSetting.invitation.addEmails')"
-            :disabled="!emailInput"
-            color="success"
-            icon
-            @click="addEmails">
-            <v-icon size="22">fa-check</v-icon>
-          </v-btn>
-          <v-btn
-            :title="$t('SpaceSetting.invitation.clearEmails')"
-            :disabled="!emailInput"
-            color="error"
-            icon
-            @click="resetInput">
-            <v-icon size="22">fa-times</v-icon>
-          </v-btn>
+        <div class="d-flex">
+          <div class="flex-grow-1 flex-shrink-1 text-subtitle-font-size info--text text-wrap pt-2px">
+            {{ hintMessage }}
+          </div>
+          <div v-show="emailInput?.length" class="flex-grow-0 flex-shrink-0 border-color mt-n1 pt-2px">
+            <v-btn
+              :title="$t('SpaceSetting.invitation.addEmails')"
+              :disabled="!emailInput"
+              color="success"
+              icon
+              tile
+              @click="addEmails">
+              <v-icon size="22">fa-check</v-icon>
+            </v-btn>
+            <v-btn
+              :title="$t('SpaceSetting.invitation.clearEmails')"
+              :disabled="!emailInput"
+              color="error"
+              icon
+              tile
+              @click="resetInput">
+              <v-icon size="22">fa-times</v-icon>
+            </v-btn>
+          </div>
         </div>
       </div>
       <v-list
@@ -126,6 +131,12 @@ export default {
     },
     alreadSentInvitations() {
       return this.emailInvitations.filter(u => u.invitationId);
+    },
+    hintMessage() {
+      return this.emailInput?.length
+        && !this.$root.isMobile
+        && this.$t('SpaceSetting.invitation.hintToConfirm')
+        || '';
     },
   },
   created() {

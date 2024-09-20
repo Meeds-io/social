@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -134,6 +135,7 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
     mem.setSpace(spaceEntity);
     mem.setStatus(status);
     mem.setUserId(userId);
+    mem.setCreatedDate(Instant.now());
     spaceEntity.getMembers().add(mem);
   }
 

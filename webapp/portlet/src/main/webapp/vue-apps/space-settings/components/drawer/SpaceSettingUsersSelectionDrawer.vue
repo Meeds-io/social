@@ -196,7 +196,7 @@ export default {
         data = await this.$spaceService.getSpaceMemberships({
           space: this.$root.space.id,
           status: this.role,
-          expand: 'users',
+          expand: this.$root.space.canEdit && 'users,createdDate' || 'users',
           offset: 0,
           limit,
         });

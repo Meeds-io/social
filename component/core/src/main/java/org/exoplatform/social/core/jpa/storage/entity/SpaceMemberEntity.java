@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date;
 
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -32,56 +33,66 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity(name = "SocSpaceMember")
 @Table(name = "SOC_SPACES_MEMBERS")
-@NamedQueries({
-        @NamedQuery(name = "SpaceMember.deleteBySpace", query = "DELETE FROM SocSpaceMember mem WHERE mem.space.id = :spaceId"),
-        @NamedQuery(name = "SpaceMember.getSpaceIdentitiesIdByMemberId",
-                query = "SELECT DISTINCT identity.id FROM SocIdentityEntity AS identity WHERE "
-                        + " identity.providerId = '" + SpaceIdentityProvider.NAME + "' AND "
-                        + " identity.remoteId IN "
-                        + "   (SELECT DISTINCT spaceMember.space.prettyName FROM SocSpaceMember AS spaceMember where "
-                        + "     spaceMember.userId = :userId AND "
-                        + "     spaceMember.status = :status "
-                        + "   ) "),
-        @NamedQuery(
-            name = "SpaceMember.getSpaceIdByMemberId",
-            query = "SELECT DISTINCT spaceMember.space.id FROM SocSpaceMember AS spaceMember"
-                + "  WHERE spaceMember.userId = :userId "
-                + "  AND spaceMember.status = :status "
-                + "  ORDER BY spaceMember.space.id DESC"
-        ),
-        @NamedQuery(name = "SpaceMember.getSpaceMembersByStatus",
-                query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember "
-                        + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
-                        + " WHERE spaceMember.status = :status "
-                        + " AND identity.enabled = true"
-                        + " AND   spaceMember.space.id = :spaceId "),
-        @NamedQuery(name = "SpaceMember.countSpaceMembersByStatus",
-                query = "SELECT count(*) FROM SocSpaceMember AS spaceMember"
-                        + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
-                        + " WHERE spaceMember.status = :status "
-                        + " AND identity.enabled = true"
-                        + " AND   spaceMember.space.id = :spaceId "),
-        @NamedQuery(name = "SpaceMember.getMember", query = "SELECT mem FROM SocSpaceMember mem WHERE mem.userId = :userId AND mem.space.id = :spaceId AND mem.status = :status"),
-        @NamedQuery(name = "SpaceMember.deleteByUsername", query = "DELETE FROM SocSpaceMember sm WHERE sm.userId = :username"),
-        @NamedQuery(name = "SpaceMember.getSpaceMemberShip", query = "SELECT mem FROM SocSpaceMember mem WHERE mem.userId = :userId AND mem.space.id = :spaceId"),
-        @NamedQuery(name = "SpaceMember.countPendingSpaceRequestsToManage", query = "SELECT count(*) FROM SocSpaceMember mem WHERE mem.status = :status AND mem.space.id in (SELECT mem_tmp.space.id FROM SocSpaceMember mem_tmp WHERE mem_tmp.userId = :userId AND mem_tmp.status = :user_status)"),
-        @NamedQuery(name = "SpaceMember.getPendingSpaceRequestsToManage", query = "SELECT mem.userId, mem.space.id FROM SocSpaceMember mem WHERE mem.status = :status AND mem.space.id in (SELECT mem_tmp.space.id FROM SocSpaceMember mem_tmp WHERE mem_tmp.userId = :userId AND mem_tmp.status = :user_status)"),
-        @NamedQuery(name = "SpaceMember.getDisabledSpaceMembers",
-                query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId WHERE identity.enabled = false  AND spaceMember.space.id = :spaceId\n" +
-                        " AND identity.providerId = '" + OrganizationIdentityProvider.NAME +"'"),
-        @NamedQuery(name = "SpaceMember.countDisabledSpaceMembers",
-                query = "SELECT count(*) FROM SocSpaceMember AS spaceMember INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId WHERE identity.enabled = false  AND spaceMember.space.id = :spaceId\n" +
-                        " AND identity.providerId = '" + OrganizationIdentityProvider.NAME +"'"),
-})
+@NamedQuery(
+            name = "SpaceMember.getSpaceMembershipDate",
+            query = """
+                    SELECT mem.createdDate FROM SocSpaceMember mem
+                    WHERE mem.space.id = :spaceId
+                    AND mem.userId = :userId
+                """)
+@NamedQuery(name = "SpaceMember.deleteBySpace", query = "DELETE FROM SocSpaceMember mem WHERE mem.space.id = :spaceId")
+@NamedQuery(name = "SpaceMember.getSpaceIdentitiesIdByMemberId",
+        query = "SELECT DISTINCT identity.id FROM SocIdentityEntity AS identity WHERE "
+                + " identity.providerId = '" + SpaceIdentityProvider.NAME + "' AND "
+                + " identity.remoteId IN "
+                + "   (SELECT DISTINCT spaceMember.space.prettyName FROM SocSpaceMember AS spaceMember where "
+                + "     spaceMember.userId = :userId AND "
+                + "     spaceMember.status = :status "
+                + "   ) ")
+@NamedQuery(
+    name = "SpaceMember.getSpaceIdByMemberId",
+    query = "SELECT DISTINCT spaceMember.space.id FROM SocSpaceMember AS spaceMember"
+        + "  WHERE spaceMember.userId = :userId "
+        + "  AND spaceMember.status = :status "
+        + "  ORDER BY spaceMember.space.id DESC"
+)
+@NamedQuery(name = "SpaceMember.getSpaceMembersByStatus",
+        query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember "
+                + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
+                + " WHERE spaceMember.status = :status "
+                + " AND identity.enabled = true"
+                + " AND   spaceMember.space.id = :spaceId ")
+@NamedQuery(name = "SpaceMember.countSpaceMembersByStatus",
+        query = "SELECT count(*) FROM SocSpaceMember AS spaceMember"
+                + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
+                + " WHERE spaceMember.status = :status "
+                + " AND identity.enabled = true"
+                + " AND   spaceMember.space.id = :spaceId ")
+@NamedQuery(name = "SpaceMember.getMember", query = "SELECT mem FROM SocSpaceMember mem WHERE mem.userId = :userId AND mem.space.id = :spaceId AND mem.status = :status")
+@NamedQuery(name = "SpaceMember.deleteByUsername", query = "DELETE FROM SocSpaceMember sm WHERE sm.userId = :username")
+@NamedQuery(name = "SpaceMember.getSpaceMemberShip", query = "SELECT mem FROM SocSpaceMember mem WHERE mem.userId = :userId AND mem.space.id = :spaceId")
+@NamedQuery(name = "SpaceMember.countPendingSpaceRequestsToManage", query = "SELECT count(*) FROM SocSpaceMember mem WHERE mem.status = :status AND mem.space.id in (SELECT mem_tmp.space.id FROM SocSpaceMember mem_tmp WHERE mem_tmp.userId = :userId AND mem_tmp.status = :user_status)")
+@NamedQuery(name = "SpaceMember.getPendingSpaceRequestsToManage", query = "SELECT mem.userId, mem.space.id FROM SocSpaceMember mem WHERE mem.status = :status AND mem.space.id in (SELECT mem_tmp.space.id FROM SocSpaceMember mem_tmp WHERE mem_tmp.userId = :userId AND mem_tmp.status = :user_status)")
+@NamedQuery(name = "SpaceMember.getDisabledSpaceMembers",
+        query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId WHERE identity.enabled = false  AND spaceMember.space.id = :spaceId\n" +
+                " AND identity.providerId = '" + OrganizationIdentityProvider.NAME +"'")
+@NamedQuery(name = "SpaceMember.countDisabledSpaceMembers",
+        query = "SELECT count(*) FROM SocSpaceMember AS spaceMember INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId WHERE identity.enabled = false  AND spaceMember.space.id = :spaceId\n" +
+                " AND identity.providerId = '" + OrganizationIdentityProvider.NAME +"'")
+@AllArgsConstructor
+@NoArgsConstructor
 public class SpaceMemberEntity implements Serializable {
 
   private static final long serialVersionUID = 1015703779692801839L;
@@ -117,14 +128,17 @@ public class SpaceMemberEntity implements Serializable {
   @Column(name = "VISITED")
   private boolean           visited;
 
-  public SpaceMemberEntity() {
-    this(null, null, null);
-  }
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "CREATED_DATE")
+  @Getter
+  @Setter
+  private Instant               createdDate;
 
-  public SpaceMemberEntity(SpaceEntity space, String userId, SpaceMembershipStatus status) {
+  public SpaceMemberEntity(SpaceEntity space, String userId, SpaceMembershipStatus status, Instant createdDate) {
     this.setSpace(space);
     this.setUserId(userId);
     this.setStatus(status);
+    this.setCreatedDate(createdDate);
   }
 
   public Long getId() {
