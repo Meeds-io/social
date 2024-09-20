@@ -931,13 +931,13 @@ public class EntityBuilder {
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
     spaceEntity.setSubscription(space.getRegistration());
-    spaceEntity.setMembersCount(space.getMembers() == null ? 0 : space.getMembers().length);
-    spaceEntity.setManagersCount(space.getManagers() == null ? 0 : space.getManagers().length);
-    spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : space.getRedactors().length);
-    spaceEntity.setPublishersCount(space.getPublishers() == null ? 0 : space.getPublishers().length);
+    spaceEntity.setMembersCount(space.getMembers() == null ? 0 : countUsers(space.getMembers()));
+    spaceEntity.setManagersCount(space.getManagers() == null ? 0 : countUsers(space.getManagers()));
+    spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : countUsers(space.getRedactors()));
+    spaceEntity.setPublishersCount(space.getPublishers() == null ? 0 : countUsers(space.getPublishers()));
     if (canEdit) {
-      spaceEntity.setPendingUsersCount(space.getPendingUsers() == null ? 0 : space.getPendingUsers().length);
-      spaceEntity.setInvitedUsersCount(space.getInvitedUsers() == null ? 0 : space.getInvitedUsers().length);
+      spaceEntity.setPendingUsersCount(space.getPendingUsers() == null ? 0 : countUsers(space.getPendingUsers()));
+      spaceEntity.setInvitedUsersCount(space.getInvitedUsers() == null ? 0 : countUsers(space.getInvitedUsers()));
     }
 
     return spaceEntity;
@@ -2416,6 +2416,10 @@ public class EntityBuilder {
     ConversationState conversationState = ConversationState.getCurrent();
     return conversationState == null || conversationState.getIdentity() == null ? null :
                                                                                 conversationState.getIdentity().getUserId();
+  }
+
+  private static int countUsers(String[] users) {
+    return Arrays.stream(users).collect(Collectors.toSet()).size();
   }
 
 }

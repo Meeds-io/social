@@ -37,10 +37,10 @@
         {{ fullName }}
       </v-list-item-title>
       <v-list-item-subtitle
-        :title="position"
-        v-if="position"
+        :title="subtitle"
+        v-if="subtitle"
         class="text-truncate">
-        {{ position }}
+        {{ subtitle }}
       </v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action v-if="approveButton" class="mx-0">
@@ -74,6 +74,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    emailSubtitle: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     avatar() {
@@ -84,6 +88,12 @@ export default {
     },
     position() {
       return this.user.position || this.user.profile?.position;
+    },
+    email() {
+      return this.user.email || this.user.profile?.email;
+    },
+    subtitle() {
+      return this.emailSubtitle ? this.email : this.position;
     },
     isSpace() {
       return this.user.providerId === 'space';
