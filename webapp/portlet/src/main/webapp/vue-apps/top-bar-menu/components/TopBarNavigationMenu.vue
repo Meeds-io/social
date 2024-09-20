@@ -79,7 +79,6 @@ export default {
       : eXo.env.portal.siteKeyName,
     exclude: 'global',
     tab: null,
-    navigationTabState: 'topNavigationTabState',
   }),
   computed: {
     isMobile() {
@@ -130,7 +129,6 @@ export default {
   },
   created() {
     this.init();
-    window.addEventListener('beforeunload', this.cacheMenuContent);
   },
   mounted() {
     this.mounted = true;
@@ -141,7 +139,7 @@ export default {
         .finally(() => this.initialized = true);
     },
     cacheMenuContent() {
-      sessionStorage.setItem(`topBarMenu-${this.$root.cacheId}`, document.querySelector('#topBarMenu').innerHTML);
+      sessionStorage.setItem(this.$root.cacheId, document.querySelector('#topBarMenu').innerHTML);
     },
     hideCachedMenu() {
       this.refreshWindowSize();
@@ -151,6 +149,7 @@ export default {
           menuElement.remove();
         }
       }
+      window.setTimeout(() => this.cacheMenuContent(), 2000);
     },
     getNavigationBaseUri(index) {
       const navigationBaseUri = `${this.baseSiteUri}${this.navigations[0].name}`;
@@ -170,7 +169,6 @@ export default {
         });
     },
     updateNavigationState(value) {
-      sessionStorage.setItem(this.navigationTabState,  value);
       this.tab = value;
     },
     constructNavigations() {

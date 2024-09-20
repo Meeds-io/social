@@ -42,7 +42,7 @@
       <v-btn
         v-else
         :title="$t('SpaceSettings.users.addUsers')"
-        class="ma-auto"
+        class="my-auto mx-1"
         color="primary"
         elevation="0"
         icon
