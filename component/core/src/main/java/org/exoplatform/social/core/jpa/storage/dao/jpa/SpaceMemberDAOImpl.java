@@ -76,14 +76,14 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" LEFT JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
       queryStringBuilder.append("   ON identity_1.identity_id = identity_prop.identity_id \n");
-      queryStringBuilder.append("       AND identity_prop.name = '").append(sortField).append("' \n");
+      queryStringBuilder.append("       AND identity_prop.name = '").append(escapeSQLValue(sortField)).append("' \n");
     }
     queryStringBuilder.append(" WHERE identity_1.remote_id IN (");
     for (int i = 0; i < userNames.size(); i++) {
       if (i > 0) {
         queryStringBuilder.append(",");
       }
-      queryStringBuilder.append("'").append(userNames.get(i)).append("'");
+      queryStringBuilder.append("'").append(escapeSQLValue(userNames.get(i))).append("'");
     }
     queryStringBuilder.append(")\n");
 
@@ -93,7 +93,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     }
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
-      queryStringBuilder.append(" ORDER BY lower(identity_prop.value) " + sortDirection);
+      queryStringBuilder.append(" ORDER BY lower(identity_prop.value) " + escapeSQLValue(sortDirection));
     }
 
     Query query = getEntityManager().createNativeQuery(queryStringBuilder.toString());
@@ -301,4 +301,9 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     query.setParameter("spaceId", spaceId);
     return query.getSingleResult().intValue();
   }
+
+  private String escapeSQLValue(String value) {
+    return value.replace("'", "'");
+  }
+
 }

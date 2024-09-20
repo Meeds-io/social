@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -791,24 +792,28 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       spaceMembers = getDisabledSpaceMembers(Long.parseLong(space.getId()));
     }
 
-    if(spaceMembers.isEmpty()) {
-      return Collections.emptyList();
-    }
-
+    List<String> remoteIds = profileFilter.getRemoteIds();
     spaceMembers = spaceMembers.stream()
-        .filter(username -> !excludedMembers.contains(username))
-        .toList();
+                               .filter(username -> !excludedMembers.contains(username)
+                                                   && (CollectionUtils.isEmpty(remoteIds) || remoteIds.contains(username)))
+                               .distinct()
+                               .toList();
+
     if (profileFilter.getExcludedIdentityList() != null) {
       for (Identity identity : profileFilter.getExcludedIdentityList()) {
         spaceMembers.remove(identity.getRemoteId());
       }
     }
 
-    if (profileFilter.isEmpty() || SpaceMemberFilterListAccess.Type.DISABLED.equals(type)) {
+    if(spaceMembers.isEmpty()) {
+      return Collections.emptyList();
+    } else if (profileFilter.isEmpty() || SpaceMemberFilterListAccess.Type.DISABLED.equals(type)) {
       // Retrieve space members from DB
 
       List<Identity> identities = new ArrayList<>();
-      spaceMembers = sortIdentities(spaceMembers, sortFieldName, sortDirection, false);
+      if (spaceMembers.size() > 1) {
+        spaceMembers = sortIdentities(spaceMembers, sortFieldName, sortDirection, false);
+      }
 
       int i = (int) offset;
       long indexLimit = offset + limit;
