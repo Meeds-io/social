@@ -555,6 +555,11 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
 
   @Override
+  public Instant getSpaceMembershipDate(long spaceId, String username) {
+    return spaceMemberDAO.getSpaceMembershipDate(spaceId, username);
+  }
+
+  @Override
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
     String oldPrettyName = space.getPrettyName();
 
@@ -592,6 +597,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       entity.setSpace(spaceEntity);
       entity.setUserId(userId);
       entity.setStatus(SpaceMembershipStatus.IGNORED);
+      entity.setCreatedDate(Instant.now());
       spaceMemberDAO.create(entity);
     } else {
       spaceMemberDAO.delete(entity);

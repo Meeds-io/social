@@ -33,6 +33,7 @@
       :key="u.id"
       :user="u"
       :approve-button="approveButton"
+      :display-date="displayDate"
       @approve="$emit('approve', u)"
       @remove="$emit('remove', u)" />
   </v-list>
@@ -49,6 +50,10 @@ export default {
       default: null,
     },
     approveButton: {
+      type: Boolean,
+      default: false,
+    },
+    displayDate: {
       type: Boolean,
       default: false,
     },
