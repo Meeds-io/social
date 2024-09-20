@@ -21,55 +21,41 @@
 -->
 <template>
   <exo-drawer
-    ref="spaceInvitationDrawer"
+    id="spaceInvitationDrawer"
+    ref="drawer"
+    v-model="drawer"
     :loading="saving"
     :go-back-button="goBackButton"
-    right
-    class="spaceInvitationDrawer">
-    <template slot="title">
+    right>
+    <template #title>
       {{ $t('peopleList.title.usersToInvite') }}
     </template>
-    <template slot="content">
-      <form
-        ref="form3"
-        id="spaceUserInvitationForm"
-        name="spaceUserInvitationForm"
+    <template #content>
+      <exo-identity-suggester
+        v-if="!resetInput"
+        v-model="selectedUser"
+        :labels="suggesterLabels"
         :disabled="saving"
-        @keypress="checkExternalInvitation">
-        <exo-identity-suggester
-          v-if="!resetInput"
-          ref="autoFocusInput3"
-          v-model="selectedUser"
-          :labels="suggesterLabels"
-          :disabled="saving"
-          :search-options="{
-            spaceURL: spacePrettyName,
-          }"
-          :items="users"
-          name="inviteMembers"
-          type-of-relations="user_to_invite"
-          class="ma-4"
-          include-users
-          include-spaces />
-      </form>
+        :search-options="{
+          spaceURL: spacePrettyName,
+        }"
+        :items="users"
+        name="inviteMembers"
+        type-of-relations="user_to_invite"
+        class="ma-4"
+        include-users
+        include-spaces />
       <v-list
-        v-if="invitedMembers?.length || externalInvitedUsers?.length"
-        class="mx-4 mt-0 rounded externalList"
-        subheader>
-        <space-setting-invitation-list-item
-          v-for="u in externalInvitedUsers"
-          :key="u.id"
-          :invitation="u"
-          email-only
-          @remove="removeExternalInvitation(u)" />
+        v-if="invitedMembers?.length"
+        class="mx-4 mt-0 rounded">
         <space-setting-roles-list-item
-          v-for="u in invitedMembers"
+          v-for="(u, index) in invitedMembers"
           :key="u.id"
           :user="u"
-          @remove="removeInvitation(u)" />
+          @remove="invitedMembers.splice(index, 1)" />
       </v-list>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -90,31 +76,27 @@
   </exo-drawer>
 </template>
 <script>
-const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}])|(([a-zA-Z\-\d]+\.)+[a-zA-Z]{2,24}))$/;
 export default {
   data: () => ({
     users: [],
+    drawer: false,
     saving: false,
     resetInput: false,
     goBackButton: false,
     spacePrettyName: eXo.env.portal.spaceName,
     selectedUser: null,
     invitedMembers: [],
-    includeExternalUser: false,
-    externalInvitedUsers: [],
-    externalInvitationsSent: [],
   }),
   computed: {
     saveButtonDisabled() {
       return this.saving
         || !this.invitedMembers
-        || !this.invitedMembers.length
-        && !this.includeExternalUser;
+        || !this.invitedMembers.length;
     },
     suggesterLabels() {
       return {
-        placeholder: this.$t('peopleList.label.inviteMembers'),
-        noDataLabel: this.$t('SpaceSettings.invitationHelpTooltip'),
+        placeholder: this.$t('SpaceSettings.inviteMembers.placeholder'),
+        noDataLabel: this.$t('SpaceSettings.inviteMembers.noResults'),
       };
     },
   },
@@ -138,88 +120,32 @@ export default {
     open(goBackButton) {
       this.saving = false;
       this.goBackButton = goBackButton;
-      this.includeExternalUser = false;
       this.spacePrettyName = eXo.env.portal.spaceName;
       this.selectedUser = null;
       this.invitedMembers = [];
-      this.externalInvitedUsers = [];
-      this.$refs.spaceInvitationDrawer.open();
-      this.$spaceService.findSpaceExternalInvitationsBySpaceId(eXo.env.portal.spaceId)
-        .then(invitations => this.externalInvitationsSent = invitations);
-    },
-    cancel() {
-      this.$refs.spaceInvitationDrawer.close();
+      this.$refs.drawer.open();
     },
     inviteUsers() {
       this.saving = true;
       this.$spaceService.updateSpace({
         id: eXo.env.portal.spaceId,
         invitedMembers: this.invitedMembers,
-        externalInvitedUsers: this.externalInvitedUsers
       })
         .then(() => {
           this.$root.$emit('alert-message', this.$t('peopleList.label.successfulInvitation'), 'success');
           this.$root.$emit('space-settings-pending-updated');
-          this.$refs.spaceInvitationDrawer.close();
+          this.$refs.drawer.close();
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('peopleList.error.errorWhensaving'), 'error'))
         .finally(() => this.saving = false);
     },
-    checkExternalInvitationInput() {
-      this.verifyExternalEmails();
-    },
-    checkExternalInvitation(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        this.verifyExternalEmails();
-      } else if (Number(event.keyCode) === 32) {
-        this.verifyExternalEmails();
-      }
-    },
-    verifyExternalEmails() {
-      const input = this.$refs.autoFocusInput3.searchTerm;
-      const emails = input ? input.split(/[, ]/g) : [];
-      emails.forEach(this.verifyExternalEmail);
-    },
-    async verifyExternalEmail(email) {
-      if (!emailRegex.test(email) || this.externalInvitedUsers.find(em => em.toLowerCase() === email.toLowerCase())) {
-        return;
-      }
-      const user = await this.$userService.getUserByEmail(email);
-      if (user?.id && user?.id !== 'null') {
-        const data = await this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId);
-        if (data.isMember === 'true') {
-          this.$root.$emit('alert-message-html', `<span style="font-style: italic;">${email}</span> ${this.$t('peopleList.label.alreadyMember')}`, 'warning');
-        } else if (!this.invitedMembers.find(u => u.remoteId === user.remoteId)) {
-          this.invitedMembers.unshift(user, this.invitedMembers);
-        }
-        this.resetSuggester();
-      } else {
-        this.includeExternalUser = true;
-        if (this.externalInvitationsSent.find(u => u.userEmail === email)) {
-          this.$refs.autoFocusInput3?.$el?.querySelector?.('input')?.blur?.();
-          this.$root.$emit('alert-message-html', this.$t('peopleList.label.alreadyInvited'), 'warning');
-          this.resetSuggester();
-        } else if (this.externalInvitedUsers.indexOf(email) === -1) {
-          this.externalInvitedUsers.unshift(email);
-          this.resetSuggester();
-        }
-      }
+    cancel() {
+      this.$refs.drawer.close();
     },
     resetSuggester() {
       this.resetInput = true;
       this.selectedUser = null;
       this.$nextTick().then(() => this.resetInput = false);
-    },
-    removeExternalInvitation(user) {
-      const index = this.externalInvitedUsers.indexOf(user);
-      if (index > -1) {
-        this.externalInvitedUsers.splice(index, 1);
-      }
-    },
-    removeInvitation(invitation) {
-      this.externalInvitationsSent.splice(this.externalInvitationsSent.indexOf(invitation),1);
-      this.$spaceService.declineExternalInvitation(eXo.env.portal.spaceId, invitation.invitationId);
     },
   },
 };
