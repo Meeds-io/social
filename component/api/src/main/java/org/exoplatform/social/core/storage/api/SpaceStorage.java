@@ -19,13 +19,12 @@ package org.exoplatform.social.core.storage.api;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
-import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -861,6 +860,18 @@ public interface SpaceStorage {
    * @return list of common spaces between two users in param
    */
   default int countCommonSpaces(String userId, String otherUserId){
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Retrieves the Space Membership date
+   * 
+   * @param spaceId {@link Space} technical id
+   * @param username User name (identifier)
+   * @return {@link Instant} corresponding to the creation date of the
+   *         membership
+   */
+  default Instant getSpaceMembershipDate(long spaceId, String username) {
     throw new UnsupportedOperationException();
   }
 }

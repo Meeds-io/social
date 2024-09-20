@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
@@ -154,6 +155,18 @@ public interface SpaceMemberDAO extends GenericDAO<SpaceMemberEntity, Long> {
      */
     default int countExternalMembers(Long spaceId) {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Retrieves the Space Membership date
+     * 
+     * @param spaceId {@link Space} technical id
+     * @param username User name (identifier)
+     * @return {@link Instant} corresponding to the creation date of the
+     *         membership
+     */
+    default Instant getSpaceMembershipDate(long spaceId, String username) {
+      throw new UnsupportedOperationException();
     }
 
 }
