@@ -158,7 +158,7 @@ export default {
           status: this.role,
           query: this.query,
           returnSize: false,
-          expand: 'users',
+          expand: this.$root.space.canEdit && 'users,createdDate' || 'users',
         });
         const users = data?.spacesMemberships;
         if (users?.length) {
@@ -245,7 +245,7 @@ export default {
         offset: 0,
         limit: 2,
         status: 'manager',
-        expand: 'users',
+        expand: this.$root.space.canEdit && 'users,createdDate' || 'users',
         returnSize: false,
       });
       this.isLastAdmin = data?.spacesMemberships?.length < 2 && data?.spacesMemberships?.[0]?.user?.id === this.userToDelete?.id;

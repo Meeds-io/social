@@ -111,6 +111,7 @@
           <v-list v-if="users?.length">
             <space-setting-roles-list
               :users="users"
+              display-date
               @remove="cancelInvitation" />
           </v-list>
           <div v-else-if="!loading" class="d-flex flex-column align-center justify-center py-8">
@@ -129,6 +130,7 @@
             <space-setting-roles-list
               :users="users"
               approve-button
+              display-date
               @approve="acceptUserRequest"
               @remove="denyUserRequest" />
           </v-list>
@@ -253,15 +255,22 @@ export default {
           limit: reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
           status: this.role,
           returnSize: false,
-          expand: 'users',
+          expand: this.$root.space.canEdit && 'users,createdDate' || 'users',
         });
         const users = data?.spacesMemberships;
         if (users?.length) {
           if (reset) {
-            this.users = users.slice(0, this.pageSize).map(m => m?.user).filter(u => u);
+            this.users = users.slice(0, this.pageSize).map(m => m?.user && ({
+              createdDate: m.createdDate,
+              ...m.user,
+            })).filter(u => u);
           } else {
-            this.users.push(...users.slice(0, this.pageSize).map(m => m.user));
+            this.users.push(...users.slice(0, this.pageSize).map(m => m?.user && ({
+              createdDate: m.createdDate,
+              ...m.user,
+            })).filter(u => u));
           }
+          console.warn('this.users', this.role, this.users);
           this.hasMore = users.length > this.pageSize;
         } else {
           if (reset) {

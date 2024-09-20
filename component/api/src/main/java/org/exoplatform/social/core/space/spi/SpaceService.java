@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.exoplatform.commons.utils.ListAccess;
@@ -1486,4 +1487,15 @@ public interface SpaceService {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Retrieves the Space Membership date
+   * 
+   * @param spaceId {@link Space} technical id
+   * @param username User name (identifier)
+   * @return {@link Instant} corresponding to the creation date of the
+   *         membership
+   */
+  default Instant getSpaceMembershipDate(long spaceId, String username) {
+    throw new UnsupportedOperationException();
+  }
 }
