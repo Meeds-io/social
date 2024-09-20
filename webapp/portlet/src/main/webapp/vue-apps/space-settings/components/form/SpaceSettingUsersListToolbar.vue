@@ -31,51 +31,54 @@
     @filter-text-input-end-typing="query = $event"
     @loading="$emit('loading', $event)">
     <template #left>
-      <v-btn
-        :title="$t('SpaceSettings.users.add')"
-        color="primary"
-        elevation="0"
-        @click="$emit('add')">
-        <v-icon
-          color="while"
-          class="me-2"
-          size="18">
-          fa-plus
-        </v-icon>
-        {{ $t('SpaceSettings.users.add') }}
-      </v-btn>
-      <v-badge
-        v-if="pendingButton && pendingCount"
-        top
-        color="white pa-0"
-        class="mailBadge"
-        offset-x="8"
-        offset-y="12">
-        <span slot="badge">
-          <v-avatar
-            v-show="pendingCount"
-            color="secondary"
-            height="20"
-            min-width="20"
-            width="auto"
-            dark>
-            {{ pendingCount }}
-          </v-avatar>
-        </span>
+      <div class="d-flex align-center">
+        <space-setting-invite-button
+          v-if="role === 'member'" />
         <v-btn
-          :title="$t('SpaceSettings.users.pendingMembers')"
-          class="ms-2"
-          height="35"
-          width="35"
-          icon
-          @click="$root.$emit('space-settings-users-pending-list-open')">
-          <v-icon size="22">
-            fa-history
+          v-else
+          :title="$t('SpaceSettings.users.add')"
+          color="primary"
+          elevation="0"
+          @click="$emit('add')">
+          <v-icon
+            color="while"
+            class="me-2"
+            size="18">
+            fa-plus
           </v-icon>
-          <template #badge>
-          </template>
+          {{ $t('SpaceSettings.users.add') }}
         </v-btn>
-      </v-badge>
+        <v-badge
+          v-if="pendingButton && pendingCount"
+          color="white pa-0"
+          offset-x="24"
+          offset-y="20"
+          top
+          @click="$root.$emit('space-settings-users-pending-list-open')">
+          <span slot="badge">
+            <v-avatar
+              v-show="pendingCount"
+              color="secondary"
+              min-height="16"
+              min-width="16"
+              height="auto"
+              width="auto"
+              class="pa-1 aspect-ratio-1 white--text content-box-sizing clickable"
+              @click="$root.$emit('space-settings-users-pending-list-open')">
+              {{ pendingCount }}
+            </v-avatar>
+          </span>
+          <v-btn
+            :title="$t('SpaceSettings.users.pendingMembers')"
+            class="ms-2"
+            icon
+            @click="$root.$emit('space-settings-users-pending-list-open')">
+            <v-icon size="22">
+              fa-history
+            </v-icon>
+          </v-btn>
+        </v-badge>
+      </div>
     </template>
   </application-toolbar>
 </template>
@@ -88,6 +91,10 @@ export default {
     },
     pendingButton: {
       type: Boolean,
+      default: null,
+    },
+    role: {
+      type: String,
       default: null,
     },
   },
