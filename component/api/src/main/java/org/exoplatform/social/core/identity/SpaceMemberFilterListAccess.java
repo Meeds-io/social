@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.social.common.ListAccessValidator;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
@@ -102,7 +101,6 @@ public class SpaceMemberFilterListAccess implements ListAccess<Identity> {
    * {@inheritDoc}
    */
   public Identity[] load(int offset, int limit) throws Exception, IllegalArgumentException {
-    ListAccessValidator.validateIndex(offset, limit, getSize());
     IdentityManager manager = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityManager.class);
     if (profileFilter.isSortingEmpty()) {
       profileFilter.setSorting(manager.getDefaultSorting());

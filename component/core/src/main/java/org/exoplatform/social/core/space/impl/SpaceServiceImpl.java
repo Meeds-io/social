@@ -406,7 +406,7 @@ public class SpaceServiceImpl implements SpaceService {
         members = ArrayUtils.addAll(members, disabledMembers.toArray(String[]::new));
       }
       if (ArrayUtils.contains(members, username)) {
-        members = ArrayUtils.removeElement(members, username);
+        members = ArrayUtils.removeAllOccurrences(members, username);
         space.setMembers(members);
         this.updateSpace(space);
         SpaceUtils.removeUserFromGroupWithMemberMembership(username, space.getGroupId());
@@ -952,7 +952,7 @@ public class SpaceServiceImpl implements SpaceService {
   public void removeRedactor(Space space, String username) {
     String[] redactors = space.getRedactors();
     if (ArrayUtils.contains(redactors, username)) {
-      redactors = ArrayUtils.removeElement(redactors, username);
+      redactors = ArrayUtils.removeAllOccurrences(redactors, username);
       space.setRedactors(redactors);
       this.updateSpace(space);
       SpaceUtils.removeUserFromGroupWithRedactorMembership(username, space.getGroupId());
@@ -974,7 +974,7 @@ public class SpaceServiceImpl implements SpaceService {
   public void removePublisher(Space space, String username) {
     String[] publishers = space.getPublishers();
     if (ArrayUtils.contains(publishers, username)) {
-      publishers = ArrayUtils.removeElement(publishers, username);
+      publishers = ArrayUtils.removeAllOccurrences(publishers, username);
       space.setPublishers(publishers);
       this.updateSpace(space);
       SpaceUtils.removeUserFromGroupWithPublisherMembership(username, space.getGroupId());
@@ -1001,7 +1001,7 @@ public class SpaceServiceImpl implements SpaceService {
       if (ArrayUtils.contains(managers, username)) {
         spaceLifeCycle.setCurrentEvent(Type.REVOKED_LEAD);
         try {
-          managers = ArrayUtils.removeElement(managers, username);
+          managers = ArrayUtils.removeAllOccurrences(managers, username);
           space.setManagers(managers);
           this.updateSpace(space);
           SpaceUtils.removeUserFromGroupWithManagerMembership(username, space.getGroupId());
@@ -1361,7 +1361,7 @@ public class SpaceServiceImpl implements SpaceService {
   private Space removePending(Space space, String username) {
     String[] pendingUsers = space.getPendingUsers();
     if (ArrayUtils.contains(pendingUsers, username)) {
-      pendingUsers = ArrayUtils.removeElement(pendingUsers, username);
+      pendingUsers = ArrayUtils.removeAllOccurrences(pendingUsers, username);
       space.setPendingUsers(pendingUsers);
     }
     return space;
@@ -1379,7 +1379,7 @@ public class SpaceServiceImpl implements SpaceService {
   private Space removeInvited(Space space, String username) {
     String[] invitedUsers = space.getInvitedUsers();
     if (ArrayUtils.contains(invitedUsers, username)) {
-      invitedUsers = ArrayUtils.removeElement(invitedUsers, username);
+      invitedUsers = ArrayUtils.removeAllOccurrences(invitedUsers, username);
       space.setInvitedUsers(invitedUsers);
     }
     return space;
