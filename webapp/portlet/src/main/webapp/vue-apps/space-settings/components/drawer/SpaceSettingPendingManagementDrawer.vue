@@ -31,46 +31,86 @@
     <template #title>
       {{ $t('SpaceSettings.roles.pending.drawer.title') }}
     </template>
+    <template #titleIcons>
+      <div class="full-height d-flex align-center">
+        <v-btn
+          v-if="role !== 'pending'"
+          :title="$t('SpaceSettings.users.inviteMembers')"
+          color="primary"
+          elevation="0"
+          small
+          @click="inviteMembers">
+          <v-icon
+            color="while"
+            class="me-2"
+            size="18">
+            fa-plus
+          </v-icon>
+          {{ $t('SpaceSettings.users.invite') }}
+        </v-btn>
+      </div>
+    </template>
     <template v-if="drawer" #content>
-      <v-tabs
-        v-model="role"
-        slider-size="4">
-        <v-tab
-          tab-value="invited"
-          href="#invited">
-          {{ $t('SpaceSettings.roles.pending.tab.invitations') }}
-        </v-tab>
-        <v-tab
-          tab-value="pending"
-          href="#pending">
-          {{ $t('SpaceSettings.roles.pending.tab.requests') }}
-        </v-tab>
-        <div v-if="role === 'invited'" class="ms-auto my-auto me-4">
-          <v-btn
-            :title="$t('SpaceSettings.users.inviteMembers')"
-            color="primary"
-            elevation="0"
-            small
-            @click="$root.$emit('space-settings-invite-member', true)">
-            <v-icon
-              color="while"
-              class="me-2"
-              size="18">
-              fa-plus
-            </v-icon>
-            {{ $t('SpaceSettings.users.add') }}
-          </v-btn>
-        </div>
-      </v-tabs>
+      <div class="d-flex overflow-hidden full-width">
+        <v-tabs
+          v-model="role"
+          slider-size="4"
+          class="flex-grow-1 flex-shrink-1">
+          <v-tab
+            tab-value="invited"
+            href="#invited">
+            {{ $t('SpaceSettings.roles.pending.tab.invitations') }}
+            <v-avatar
+              v-show="$root.space.invitedUsersCount"
+              color="secondary"
+              min-height="16"
+              min-width="16"
+              height="auto"
+              width="auto"
+              class="ms-2 pa-1 aspect-ratio-1 white--text content-box-sizing">
+              {{ $root.space.invitedUsersCount }}
+            </v-avatar>
+          </v-tab>
+          <v-tab
+            tab-value="pending"
+            href="#pending">
+            {{ $t('SpaceSettings.roles.pending.tab.requests') }}
+            <v-avatar
+              v-show="$root.space.pendingUsersCount"
+              color="secondary"
+              min-height="16"
+              min-width="16"
+              height="auto"
+              width="auto"
+              class="ms-2 pa-1 aspect-ratio-1 white--text content-box-sizing">
+              {{ $root.space.pendingUsersCount }}
+            </v-avatar>
+          </v-tab>
+          <v-tab
+            v-if="$root.isExternalFeatureEnabled"
+            tab-value="external"
+            href="#external">
+            {{ $t('SpaceSettings.roles.pending.tab.externalInvitations') }}
+            <v-avatar
+              v-show="$root.externalInvitations?.length"
+              color="secondary"
+              min-height="16"
+              min-width="16"
+              height="auto"
+              width="auto"
+              class="ms-2 pa-1 aspect-ratio-1 white--text content-box-sizing">
+              {{ $root.externalInvitations?.length || 0 }}
+            </v-avatar>
+          </v-tab>
+        </v-tabs>
+      </div>
       <v-tabs-items
         v-model="role"
         class="px-4">
         <v-tab-item value="invited">
-          <v-list v-if="users?.length || externalInvitations?.length">
+          <v-list v-if="users?.length">
             <space-setting-roles-list
               :users="users"
-              :external-invitations="externalInvitations"
-              :role="role"
               @remove="cancelInvitation" />
           </v-list>
           <div v-else-if="!loading" class="d-flex flex-column align-center justify-center py-8">
@@ -100,6 +140,23 @@
               elevation="0"
               @click="role = 'invited'">
               {{ $t('SpaceSettings.placeholder.seeInvitations') }}
+            </v-btn>
+          </div>
+        </v-tab-item>
+        <v-tab-item v-if="$root.isExternalFeatureEnabled" value="external">
+          <v-list v-if="externalInvitations?.length">
+            <space-setting-roles-list
+              :external-invitations="externalInvitations"
+              @remove="cancelInvitation" />
+          </v-list>
+          <div v-else-if="!loading" class="d-flex flex-column align-center justify-center py-8">
+            <v-icon size="54" color="secondary">fa-history</v-icon>
+            <span class="my-4">{{ $t('SpaceSettings.placeholder.emptyInvitations') }}</span>
+            <v-btn
+              color="primary"
+              elevation="0"
+              @click="role = 'pending'">
+              {{ $t('SpaceSettings.placeholder.seeRequests') }}
             </v-btn>
           </div>
         </v-tab-item>
@@ -150,10 +207,12 @@ export default {
   created() {
     this.$root.$on('space-settings-users-pending-list-open', this.open);
     this.$root.$on('space-settings-pending-updated', this.refreshMemberships);
+    this.$root.$on('space-settings-members-updated', this.refreshMemberships);
   },
   beforeDestroy() {
     this.$root.$off('space-settings-users-pending-list-open', this.open);
     this.$root.$off('space-settings-pending-updated', this.refreshMemberships);
+    this.$root.$off('space-settings-members-updated', this.refreshMemberships);
   },
   methods: {
     open(role) {
@@ -180,6 +239,12 @@ export default {
       this.getSpaceMemberships();
     },
     async getSpaceMemberships(reset) {
+      if (this.role === 'external') {
+        if (reset) {
+          this.users = [];
+        }
+        return;
+      }
       this.loading = true;
       try {
         const data = await this.$spaceService.getSpaceMemberships({
@@ -239,6 +304,13 @@ export default {
         this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingRoles'), 'error');
       } finally {
         this.loading = false;
+      }
+    },
+    inviteMembers() {
+      if (this.role === 'invited') {
+        this.$root.$emit('space-settings-invite-member', true);
+      } else {
+        this.$root.$emit('space-settings-invite-email', true);
       }
     },
     async denyUserRequest(user) {

@@ -39,7 +39,8 @@
         :pending-button="role === 'member'"
         :pending-count="pendingCount"
         :has-users="hasUsers"
-        @add="addUsers"
+        :role="role"
+        @add="$root.$emit('space-settings-user-add', role)"
         @query="query = $event"
         @loading="loading = $event" />
       <div class="px-4 pb-4">
@@ -189,13 +190,6 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
-    },
-    addUsers() {
-      if (this.role === 'member') {
-        this.$root.$emit('space-settings-invite-member');
-      } else {
-        this.$root.$emit('space-settings-user-add', this.role);
-      }
     },
     async removeUserMembership(user) {
       this.userToDelete = user;
