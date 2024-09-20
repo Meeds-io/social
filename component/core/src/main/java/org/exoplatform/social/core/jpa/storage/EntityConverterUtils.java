@@ -1,5 +1,6 @@
 package org.exoplatform.social.core.jpa.storage;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -373,7 +374,7 @@ public class EntityConverterUtils {
 
     for (String id : ids) {
       if (StringUtils.isNotBlank(id)) {
-        spaceEntity.getMembers().add(new SpaceMemberEntity(spaceEntity, id, status));
+        spaceEntity.getMembers().add(new SpaceMemberEntity(spaceEntity, id, status, Instant.now()));
       }
     }
   }

@@ -956,6 +956,19 @@
   </changeSet>
 
   <changeSet
+    id="1.0.0-98"
+    author="social">
+    <addColumn tableName="SOC_SPACES_MEMBERS">
+      <column
+        name="CREATED_DATE"
+        type="TIMESTAMP"
+        defaultValueComputed="${now}">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet
     author="social"
     id="1.0.0-99"
     dbms="mysql">
