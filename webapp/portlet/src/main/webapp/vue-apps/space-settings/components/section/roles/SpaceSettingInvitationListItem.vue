@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <v-list-item class="pa-0">
+  <v-list-item v-if="!emailOnly || !invitation.hidden" class="pa-0">
     <v-badge
       color="white d-flex align-center justify-center pa-0"
       class="externalBadge pa-0"
@@ -41,18 +41,30 @@
         class="text-body text-truncate mb-1">
         {{ email }}
       </v-list-item-title>
-      <v-list-item-subtitle class="text-truncate d-flex align-center">
-        <template v-if="emailOnly">
+      <v-list-item-subtitle class="d-flex text-wrap">
+        <span v-if="emailOnly && invitation.status === 'alreadySpaceMember'" class="error--text">
+          {{ $t('SpaceSettings.invitation.alreadySpaceMember') }}
+        </span>
+        <span v-else-if="emailOnly && invitation.status === 'alreadyInvited'" class="info--text">
+          {{ $t('SpaceSettings.invitation.alreadyInvitedWillBeResent') }}
+        </span>
+        <span v-else-if="emailOnly && invitation.status === 'invalidEmail'" class="error--text">
+          {{ $t('SpaceSettings.invitation.invalidEmail') }}
+        </span>
+        <span v-else-if="emailOnly && invitation.status === 'alreadyAddedInList'" class="error--text">
+          {{ $t('SpaceSettings.invitation.alreadyAddedInList') }}
+        </span>
+        <template v-else-if="emailOnly && invitation.status === 'pending'">
           {{ $t('peopleList.label.pending') }}
         </template>
-        <template v-else-if="invitation.createdDate">
+        <template v-else-if="!emailOnly && invitation.createdDate">
           {{ $t('peopleList.label.invitationSentOn') }}
           <date-format
             :value="invitation.createdDate"
             :format="format"
             class="ms-1" />
         </template>
-        <template v-else-if="!invitation.expired">
+        <template v-else-if="!emailOnly && !invitation.expired">
           {{ $t('peopleList.label.invitationSent') }}
         </template>
         <template v-if="!emailOnly && invitation.expired">
@@ -102,7 +114,7 @@ export default {
       return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
     },
     email() {
-      return this.emailOnly && this.invitation || this.invitation.userEmail;
+      return this.invitation.userEmail;
     },
   },
 };

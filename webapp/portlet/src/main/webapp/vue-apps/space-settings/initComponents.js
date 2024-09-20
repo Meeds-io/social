@@ -31,9 +31,12 @@ import SpaceSettingUsersListDrawer from './components/drawer/SpaceSettingUsersLi
 import SpaceSettingUsersSelectionDrawer from './components/drawer/SpaceSettingUsersSelectionDrawer.vue';
 import SpaceSettingUsersInvitationDrawer from './components/drawer/SpaceSettingUsersInvitationDrawer.vue';
 import SpaceSettingPendingManagementDrawer from './components/drawer/SpaceSettingPendingManagementDrawer.vue';
+import SpaceSettingEmailInvitationDrawer from './components/drawer/SpaceSettingEmailInvitationDrawer.vue';
 
 import SpaceSettingAvatar from './components/form/SpaceSettingAvatar.vue';
 import SpaceSettingBanner from './components/form/SpaceSettingBanner.vue';
+import SpaceSettingUsersListToolbar from './components/form/SpaceSettingUsersListToolbar.vue';
+import SpaceSettingInviteButton from './components/form/SpaceSettingInviteButton.vue';
 
 import SpaceSettingRolesTable from './components/section/roles/SpaceSettingRolesTable.vue';
 import SpaceSettingRolesTableItem from './components/section/roles/SpaceSettingRolesTableItem.vue';
@@ -41,7 +44,6 @@ import SpaceSettingRolesTableItem from './components/section/roles/SpaceSettingR
 import SpaceSettingRolesList from './components/section/roles/SpaceSettingRolesList.vue';
 import SpaceSettingRolesListItem from './components/section/roles/SpaceSettingRolesListItem.vue';
 import SpaceSettingInvitationListItem from './components/section/roles/SpaceSettingInvitationListItem.vue';
-import SpaceSettingUsersListToolbar from './components/section/roles/SpaceSettingUsersListToolbar.vue';
 
 const components = {
   'space-settings': SpaceSettings,
@@ -64,10 +66,12 @@ const components = {
   'space-setting-users-selection-drawer': SpaceSettingUsersSelectionDrawer,
   'space-setting-users-invitation-drawer': SpaceSettingUsersInvitationDrawer,
   'space-setting-users-pending-management-drawer': SpaceSettingPendingManagementDrawer,
-  'space-setting-users-list-toolbar': SpaceSettingUsersListToolbar,
+  'space-setting-email-pending-management-drawer': SpaceSettingEmailInvitationDrawer,
 
   'space-setting-avatar': SpaceSettingAvatar,
   'space-setting-banner': SpaceSettingBanner,
+  'space-setting-users-list-toolbar': SpaceSettingUsersListToolbar,
+  'space-setting-invite-button': SpaceSettingInviteButton,
 };
 
 for (const key in components) {
