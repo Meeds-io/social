@@ -704,7 +704,16 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     spaceService.updateSpace(space);
 
     startSessionAs("root");
-    ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId() + "/users"), "", null, null);
+    ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    DataEntity dataEntity = (DataEntity) response.getEntity();
+    assertEquals(1, dataEntity.get("managersCount"));
+    assertEquals(2, dataEntity.get("membersCount"));
+    assertEquals(1, dataEntity.get("invitedUsersCount"));
+    assertEquals(1, dataEntity.get("pendingUsersCount"));
+
+    response = service("GET", getURLResource("spaces/" + space.getId() + "/users"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
