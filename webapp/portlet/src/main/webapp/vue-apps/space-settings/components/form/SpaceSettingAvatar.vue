@@ -86,14 +86,11 @@ export default {
       return this.maxUploadSize * 1024 * 1024;
     },
     height() {
-      if (this.isMobile) {
+      if (this.$root.isMobile) {
         return 125;
       } else {
         return 175;
       }
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.mobile;
     },
   },
 };

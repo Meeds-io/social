@@ -264,6 +264,13 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("allSpaces.load(0, count).length must return: " + count, count, allSpaces.load(0, count).length);
   }
 
+  public void testGetSpaceMembershipDate() throws Exception {
+    Space space = populateData();
+    assertNotNull(spaceService.getSpaceMembershipDate(Long.parseLong(space.getId()), "root"));
+    assertNotNull(spaceService.getSpaceMembershipDate(Long.parseLong(space.getId()), "john"));
+    assertNull(spaceService.getSpaceMembershipDate(Long.parseLong(space.getId()), "notExistingUser"));
+  }
+
   /**
    * Test {@link SpaceService#getSpaceByDisplayName(String)}
    *

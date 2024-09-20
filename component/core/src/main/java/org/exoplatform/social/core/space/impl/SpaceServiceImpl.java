@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.space.impl;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -134,6 +135,11 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public Space getSpaceByPrettyName(String spacePrettyName) {
     return spaceStorage.getSpaceByPrettyName(spacePrettyName);
+  }
+
+  @Override
+  public Instant getSpaceMembershipDate(long spaceId, String username) {
+    return spaceStorage.getSpaceMembershipDate(spaceId, username);
   }
 
   @Override
