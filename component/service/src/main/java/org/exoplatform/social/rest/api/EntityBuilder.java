@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -146,6 +147,8 @@ public class EntityBuilder {
   public static final String              IDENTITIES_TYPE                            = "identities";
 
   public static final String              SPACES_TYPE                                = "spaces";
+
+  public static final String              CREATED_DATE                               = "createdDate";
 
   public static final String              SPACES_MEMBERSHIP_TYPE                     = "spacesMemberships";
 
@@ -1027,7 +1030,7 @@ public class EntityBuilder {
                                                        String role,
                                                        String restPath,
                                                        String expand) {
-    SpaceMembershipEntity membershipEntity = EntityBuilder.buildEntityFromSpaceMembership(space, user, role, restPath, expand);
+    SpaceMembershipEntity membershipEntity = buildEntityFromSpaceMembership(space, user, role, restPath, expand);
     return membershipEntity.getDataEntity();
   }
 
@@ -1106,6 +1109,13 @@ public class EntityBuilder {
       userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, userId, restPath));
     }
     spaceMembership.setDataUser(userEntity);
+
+    if (expandFields.contains(CREATED_DATE)) {
+      Instant createdDate = getSpaceService().getSpaceMembershipDate(Long.parseLong(space.getId()), userId);
+      if (createdDate != null && getSpaceService().canManageSpace(space, getCurrentUserName())) {
+        spaceMembership.getDataEntity().put(CREATED_DATE, createdDate.toEpochMilli());
+      }
+    }
 
     LinkEntity spaceEntity;
     if (expandFields.contains(SPACES_TYPE)) {

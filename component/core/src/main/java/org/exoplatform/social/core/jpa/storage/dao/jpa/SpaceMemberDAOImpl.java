@@ -17,10 +17,12 @@
 
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
@@ -271,6 +273,17 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     } catch (NoResultException e) {
       return 0;
     }
+  }
+
+  @Override
+  public Instant getSpaceMembershipDate(long spaceId, String username) {
+    TypedQuery<Instant> query = getEntityManager().createNamedQuery("SpaceMember.getSpaceMembershipDate",
+                                                                    Instant.class);
+    query.setParameter("spaceId", spaceId);
+    query.setParameter("userId", username);
+    query.setMaxResults(1);
+    List<Instant> resultList = query.getResultList();
+    return CollectionUtils.isEmpty(resultList) ? null : resultList.get(0);
   }
 
   @Override
