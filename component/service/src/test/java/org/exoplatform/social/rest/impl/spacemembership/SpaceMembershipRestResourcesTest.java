@@ -1,5 +1,6 @@
 package org.exoplatform.social.rest.impl.spacemembership;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
@@ -54,7 +55,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     Identity maryIdentity = identityManager.getOrCreateUserIdentity("mary");
     Identity demoIdentity = identityManager.getOrCreateUserIdentity("demo");
 
-    Stream.of(rootIdentity, johnIdentity, maryIdentity, demoIdentity).forEach(identity -> {
+    Stream.of(rootIdentity, johnIdentity, maryIdentity, demoIdentity).filter(Objects::nonNull).forEach(identity -> {
       identity.setDeleted(false);
       identity.setEnable(true);
       identityManager.updateIdentity(identity);

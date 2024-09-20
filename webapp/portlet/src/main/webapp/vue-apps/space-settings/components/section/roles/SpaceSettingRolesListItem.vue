@@ -21,29 +21,44 @@
 -->
 <template>
   <v-list-item class="pa-0">
-    <v-list-item-avatar class="me-2">
+    <v-list-item-avatar
+      :class="isSpace && 'spaceAvatar' || 'userAvatar'"
+      class="me-2">
       <v-avatar :size="40">
         <img
-          :src="user.avatar"
+          :src="avatar"
           class="object-fit-cover ma-auto"
           loading="lazy"
           alt="">
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content>
-      <v-list-item-title class="text-body">
-        {{ user.fullname }}
+      <v-list-item-title :title="fullName" class="text-body text-truncate">
+        {{ fullName }}
       </v-list-item-title>
-      <v-list-item-subtitle v-if="user.position">
-        {{ user.position }}
+      <v-list-item-subtitle
+        :title="position"
+        v-if="position"
+        class="text-truncate">
+        {{ position }}
       </v-list-item-subtitle>
     </v-list-item-content>
-    <v-list-item-action>
+    <v-list-item-action v-if="approveButton" class="mx-0">
       <v-btn
+        :title="$t('SpaceSettings.roles.acceptRequest')"
+        small
+        icon
+        @click="$emit('approve')">
+        <v-icon size="18" color="success">fa-check</v-icon>
+      </v-btn>
+    </v-list-item-action>
+    <v-list-item-action class="ms-2">
+      <v-btn
+        :title="approveButton && $t('SpaceSettings.roles.rejectRequest') || $t('SpaceSettings.roles.delete')"
         small
         icon
         @click="$emit('remove')">
-        <v-icon size="18" color="error">fa-trash</v-icon>
+        <v-icon size="18" color="error">{{ approveButton && 'fa-times' || 'fa-trash' }}</v-icon>
       </v-btn>
     </v-list-item-action>
   </v-list-item>
@@ -55,6 +70,24 @@ export default {
       type: Object,
       default: null,
     },
+    approveButton: {
+      type: Boolean,
+      default: false,
+    },
   },
+  computed: {
+    avatar() {
+      return this.user.avatar || this.user.profile?.avatarUrl;
+    },
+    fullName() {
+      return this.user.fullname || this.user.profile?.fullName;
+    },
+    position() {
+      return this.user.position || this.user.profile?.position;
+    },
+    isSpace() {
+      return this.user.providerId === 'space';
+    },
+  }
 };
 </script>

@@ -52,11 +52,12 @@ export function init(params) {
         refreshSpaceSettings(event) {
           const space = event?.detail;
           if (space) {
-            params.logoTitle = space.displayName;
-            params.spaceDescription = space.description;
-            params.logoPath = space.avatarUrl;
-            params.portalPath = `${eXo.env.portal.context}/g/${space.groupId.replaceAll('/', ':')}/${space.prettyName}`;
-            init(params);
+            this.logoTitle = space.displayName;
+            this.spaceDescription = space.description;
+            this.logoPath = space.avatarUrl;
+            this.membersNumber = space.membersCount;
+            this.portalPath = `${eXo.env.portal.context}/g/${space.groupId.replaceAll('/', ':')}/${space.prettyName}`;
+            this.$forceUpdate();
           }
         }
       },
