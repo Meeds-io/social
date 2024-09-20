@@ -275,12 +275,12 @@ public class EntityBuilder {
   public static ProfileEntity buildEntityProfile(Space space, Profile profile, String path, String expand) {
     ProfileEntity entity = buildEntityProfile(profile, path, expand);
     String userId = profile.getIdentity().getRemoteId();
-    entity.setIsManager(spaceService.isManager(space, userId));
-    entity.setIsSpaceRedactor(spaceService.isRedactor(space, userId));
-    entity.setIsSpacePublisher(spaceService.isPublisher(space, userId));
-    entity.setIsMember(spaceService.isMember(space, userId));
-    entity.setIsInvited(spaceService.isInvitedUser(space, userId));
-    entity.setIsPending(spaceService.isPendingUser(space, userId));
+    entity.setIsManager(getSpaceService().isManager(space, userId));
+    entity.setIsSpaceRedactor(getSpaceService().isRedactor(space, userId));
+    entity.setIsSpacePublisher(getSpaceService().isPublisher(space, userId));
+    entity.setIsMember(getSpaceService().isMember(space, userId));
+    entity.setIsInvited(getSpaceService().isInvitedUser(space, userId));
+    entity.setIsPending(getSpaceService().isPendingUser(space, userId));
     String[] expandArray = StringUtils.split(expand, ",");
     List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);
     if (expandAttributes.contains("binding") || expandAttributes.contains("all")) {
@@ -793,9 +793,10 @@ public class EntityBuilder {
    */
   public static SpaceEntity buildEntityFromSpace(Space space, String userId, String restPath, String expand) {
     SpaceEntity spaceEntity = new SpaceEntity(space.getId());
+    SpaceService spaceService = getSpaceService();
+    boolean canEdit = spaceService.canManageSpace(space, userId);
     if (StringUtils.isNotBlank(userId)) {
       IdentityManager identityManager = getIdentityManager();
-      SpaceService spaceService = getSpaceService();
       GroupSpaceBindingService groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
       if (ArrayUtils.contains(space.getMembers(), userId) || spaceService.isSuperManager(userId)) {
         spaceEntity.setHref(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
@@ -903,7 +904,6 @@ public class EntityBuilder {
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
-      boolean canEdit = isManager || spaceService.isSuperManager(userId);
       spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));
       spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
@@ -935,6 +935,10 @@ public class EntityBuilder {
     spaceEntity.setManagersCount(space.getManagers() == null ? 0 : space.getManagers().length);
     spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : space.getRedactors().length);
     spaceEntity.setPublishersCount(space.getPublishers() == null ? 0 : space.getPublishers().length);
+    if (canEdit) {
+      spaceEntity.setPendingUsersCount(space.getPendingUsers() == null ? 0 : space.getPendingUsers().length);
+      spaceEntity.setInvitedUsersCount(space.getInvitedUsers() == null ? 0 : space.getInvitedUsers().length);
+    }
 
     return spaceEntity;
   }
@@ -2097,21 +2101,21 @@ public class EntityBuilder {
 
   public static SpaceService getSpaceService() {
     if (spaceService == null) {
-      spaceService = CommonsUtils.getService(SpaceService.class);
+      spaceService = ExoContainerContext.getService(SpaceService.class);
     }
     return spaceService;
   }
 
   public static OrganizationService getOrganizationService() {
     if (organizationService == null) {
-      organizationService = CommonsUtils.getService(OrganizationService.class);
+      organizationService = ExoContainerContext.getService(OrganizationService.class);
     }
     return organizationService;
   }
 
   public static RelationshipManager getRelationshipManager() {
     if (relationshipManager == null) {
-      relationshipManager = CommonsUtils.getService(RelationshipManager.class);
+      relationshipManager = ExoContainerContext.getService(RelationshipManager.class);
     }
     return relationshipManager;
   }

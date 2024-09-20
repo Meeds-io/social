@@ -36,6 +36,8 @@
         {{ $t(`SpaceSettings.users.list.drawer.${role}.description`) }}
       </div>
       <space-setting-users-list-toolbar
+        :pending-button="role === 'member'"
+        :pending-count="pendingCount"
         :has-users="hasUsers"
         @add="addUsers"
         @query="query = $event"
@@ -84,6 +86,7 @@ export default {
     hasMore: false,
     hasUsers: false,
     isLastAdmin: false,
+    pendingCount: 0,
     pageSize: 20,
     page: 0,
     size: 0,
@@ -94,8 +97,7 @@ export default {
   }),
   watch: {
     query() {
-      this.reset();
-      this.getSpaceMemberships();
+      this.getSpaceMemberships(true, true);
     },
   },
   created() {
@@ -126,13 +128,12 @@ export default {
       this.page = 0;
       this.size = 0;
       this.users = [];
+      this.userToDelete = null;
       this.isLastAdmin = false;
+      this.hasUsers = false;
       this.loading = false;
       this.hasMore = false;
-      this.hasUsers = false;
-      this.isLastAdmin = false;
       this.query = null;
-      this.userToDelete = null;
     },
     loadMore() {
       this.page++;
@@ -140,26 +141,36 @@ export default {
     },
     refreshMemberships() {
       if (this.drawer) {
-        this.reset();
-        this.getSpaceMemberships();
+        this.getSpaceMemberships(true);
       }
     },
-    async getSpaceMemberships() {
+    async getSpaceMemberships(resetUsers, resetPage) {
       this.loading = true;
       try {
+        if (resetPage) {
+          this.page = 0;
+        }
         const data = await this.$spaceService.getSpaceMemberships({
           space: eXo.env.portal.spaceId,
-          offset: this.page * this.pageSize,
-          limit: (this.page + 1) * this.pageSize + 1,
+          offset: resetUsers && !resetPage ? 0 : this.page * this.pageSize,
+          limit: resetUsers && !resetPage ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
           status: this.role,
           query: this.query,
           returnSize: false,
           expand: 'users',
         });
-        if (data?.spacesMemberships?.length) {
-          this.users.push(...data.spacesMemberships.slice(0, this.pageSize).map(m => m.user));
-          this.hasMore = data.spacesMemberships.length > this.pageSize;
+        const users = data?.spacesMemberships;
+        if (users?.length) {
+          if (resetUsers) {
+            this.users = users.slice(0, this.pageSize).map(m => m?.user).filter(u => u);
+          } else {
+            this.users.push(...users.slice(0, this.pageSize).map(m => m.user));
+          }
+          this.hasMore = users.length > this.pageSize;
         } else {
+          if (resetUsers) {
+            this.users = [];
+          }
           this.hasMore = false;
         }
         if (!this.query?.length) {

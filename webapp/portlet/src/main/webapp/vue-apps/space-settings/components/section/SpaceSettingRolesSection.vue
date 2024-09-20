@@ -72,6 +72,8 @@
         ref="usersSelectionDrawer" />
       <space-setting-users-invitation-drawer
         ref="usersInvitationDrawer" />
+      <space-setting-users-pending-management-drawer
+        ref="usersPendingManagementDrawer" />
     </template>
   </widget-wrapper>
 </template>
