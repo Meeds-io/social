@@ -154,12 +154,16 @@ public class SpaceMembershipRest implements ResourceContainer {
 
     List<DataEntity> spaceMemberships;
     int size = 0;
-    if (StringUtils.isNotBlank(query) && space != null) {
+    if (space != null) {
       // 1. Search for users using a specific space (either space or user aren't
       // null)
       SpaceMemberFilterListAccess.Type type = SpaceMemberFilterListAccess.Type.valueOf(membershipType.name());
+      ProfileFilter profileFilter = new ProfileFilter(query);
+      if (StringUtils.isNotBlank(user)) {
+        profileFilter.setRemoteIds(Collections.singletonList(user));
+      }
       ListAccess<Identity> listAccess = identityManager.getSpaceIdentityByProfileFilter(space,
-                                                                                        new ProfileFilter(query),
+                                                                                        profileFilter,
                                                                                         type,
                                                                                         true);
       Identity[] identities = listAccess.load(offset, limit);
@@ -173,9 +177,6 @@ public class SpaceMembershipRest implements ResourceContainer {
       SpaceFilter spaceFilter = new SpaceFilter();
       spaceFilter.setRemoteId(user);
       spaceFilter.setStatus(Collections.singleton(membershipType.getStatus()));
-      if (space != null) {
-        spaceFilter.setIncludeSpaces(Collections.singletonList(space));
-      }
       // 2. Search for spaces using a specific user (either space or user aren't
       // null)
       spaceFilter.setSpaceNameSearchCondition(query);

@@ -86,12 +86,6 @@ export default {
           text: this.$t('peopleList.label.filter.publisher'),
           value: 'publisher',
         },{
-          text: this.$t('peopleList.label.filter.invited'),
-          value: 'invited',
-        },{
-          text: this.$t('peopleList.label.filter.pending'),
-          value: 'pending',
-        },{
           text: this.$t('peopleList.label.filter.disabled'),
           value: 'disabled',
         }];

@@ -8,6 +8,7 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -19,49 +20,43 @@
 
 -->
 <template>
-  <application-toolbar
-    id="spaceSettingUsersListToolbar"
-    :right-text-filter="hasUsers && {
-      minCharacters: 3,
-      placeholder: $t('SpaceSettings.users.filterByName'),
-      tooltip: $t('SpaceSettings.users.filterByName')
-    }"
-    compact
-    @filter-text-input-end-typing="query = $event"
-    @loading="$emit('loading', $event)">
-    <template #left>
-      <v-btn
-        :title="$t('SpaceSettings.users.add')"
-        color="primary"
-        elevation="0"
-        @click="$emit('add')">
-        <v-icon
-          color="while"
-          class="me-2"
-          size="18">
-          fa-plus
-        </v-icon>
-        {{ $t('SpaceSettings.users.add') }}
-      </v-btn>
+  <v-list v-if="displayList" dense>
+    <template v-if="externalInvitations">
+      <space-setting-invitation-list-item
+        v-for="u in externalInvitations"
+        :key="u.id"
+        :invitation="u"
+        @remove="$emit('remove', u)" />
     </template>
-  </application-toolbar>
+    <space-setting-roles-list-item
+      v-for="u in users"
+      :key="u.id"
+      :user="u"
+      :approve-button="approveButton"
+      @approve="$emit('approve', u)"
+      @remove="$emit('remove', u)" />
+  </v-list>
 </template>
 <script>
 export default {
   props: {
-    hasUsers: {
-      type: Boolean,
+    users: {
+      type: Array,
       default: null,
-    }
+    },
+    externalInvitations: {
+      type: Array,
+      default: null,
+    },
+    approveButton: {
+      type: Boolean,
+      default: false,
+    },
   },
-  data: () => ({
-    query: null,
-  }),
-  watch: {
-    query() {
-      this.$emit('query', this.query);
+  computed: {
+    displayList() {
+      return this.users?.length || this.externalInvitations?.length;
     },
   },
 };
 </script>
-

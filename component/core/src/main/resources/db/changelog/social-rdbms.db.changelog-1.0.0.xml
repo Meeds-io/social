@@ -759,7 +759,7 @@
           </column>
         </addColumn>
   </changeSet>
-  
+
   <changeSet author="social" id="1.0.0-77" dbms="oracle,postgresql">
       <createSequence sequenceName="SEQ_INVITATION_ID" startValue="1"/>
   </changeSet>
@@ -941,6 +941,19 @@
         </column>
       </addColumn>
     </changeSet>
+
+  <changeSet
+    id="1.0.0-97"
+    author="social">
+    <addColumn tableName="SOC_SPACES_EXTERNAL_INVITATIONS">
+      <column
+        name="CREATED_DATE"
+        type="TIMESTAMP"
+        defaultValueComputed="${now}">
+        <constraints nullable="false" />
+      </column>
+    </addColumn>
+  </changeSet>
 
   <changeSet
     author="social"

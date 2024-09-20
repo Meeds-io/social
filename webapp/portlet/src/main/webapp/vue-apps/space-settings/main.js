@@ -41,15 +41,17 @@ const urls = [
 
 const appId = 'SpaceSettings';
 
-export function init() {
+export function init(isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => 
       Vue.createApp({
         template: '<space-settings />',
         data: {
+          isExternalFeatureEnabled,
           spaceId: eXo.env.portal.spaceId,
           space: null,
           activeSection: null,
+          externalInvitations: null,
         },
         computed: {
           isOverviewSection() {
@@ -79,12 +81,24 @@ export function init() {
           this.init();
           document.addEventListener('hideSettingsApps', this.showSection);
           document.addEventListener('showSettingsApps', this.showMain);
+
           this.$root.$on('space-settings-updated', this.handleSpaceUpdated);
+          this.$root.$on('space-settings-managers-updated', this.handleSpaceUpdated);
+          this.$root.$on('space-settings-publishers-updated', this.handleSpaceUpdated);
+          this.$root.$on('space-settings-redactors-updated', this.handleSpaceUpdated);
+          this.$root.$on('space-settings-members-updated', this.handleSpaceUpdated);
+          this.$root.$on('space-settings-pending-updated', this.handlePendingUpdated);
         },
         beforeDestroy() {
           document.removeEventListener('hideSettingsApps', this.showSection);
           document.removeEventListener('showSettingsApps', this.showMain);
+
           this.$root.$off('space-settings-updated', this.handleSpaceUpdated);
+          this.$root.$off('space-settings-managers-updated', this.handleSpaceUpdated);
+          this.$root.$off('space-settings-publishers-updated', this.handleSpaceUpdated);
+          this.$root.$off('space-settings-redactors-updated', this.handleSpaceUpdated);
+          this.$root.$off('space-settings-members-updated', this.handleSpaceUpdated);
+          this.$root.$off('space-settings-pending-updated', this.handlePendingUpdated);
         },
         methods: {
           async init() {
@@ -96,6 +110,11 @@ export function init() {
             await this.refreshSpace();
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             this.$applicationLoaded();
+            this.refreshExternalInvitations();
+          },
+          handlePendingUpdated() {
+            this.refreshSpace();
+            this.refreshExternalInvitations();
           },
           async handleSpaceUpdated() {
             const oldPrettyName = this.space.prettyName;
@@ -109,6 +128,9 @@ export function init() {
             if (this.spaceId) {
               this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now());
             }
+          },
+          async refreshExternalInvitations() {
+            this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
           },
           showSection(event) {
             this.activeSection = event?.detail;
