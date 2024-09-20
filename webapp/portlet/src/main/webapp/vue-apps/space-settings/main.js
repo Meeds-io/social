@@ -130,7 +130,9 @@ export function init(isExternalFeatureEnabled) {
             }
           },
           async refreshExternalInvitations() {
-            this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
+            if (isExternalFeatureEnabled) {
+              this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
+            }
           },
           showSection(event) {
             this.activeSection = event?.detail;

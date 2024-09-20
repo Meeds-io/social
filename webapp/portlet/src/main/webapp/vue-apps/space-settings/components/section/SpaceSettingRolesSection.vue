@@ -74,6 +74,9 @@
         ref="usersInvitationDrawer" />
       <space-setting-users-pending-management-drawer
         ref="usersPendingManagementDrawer" />
+      <space-setting-email-pending-management-drawer
+        v-if="$root.isExternalFeatureEnabled"
+        ref="emailInvitationDrawer" />
     </template>
   </widget-wrapper>
 </template>

@@ -744,8 +744,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response updateSpaceById(@Context
-  UriInfo uriInfo,
+  public Response updateSpaceById(
+                                  @Context
+                                  UriInfo uriInfo,
                                   @Parameter(description = "Space id", required = true)
                                   @PathParam("id")
                                   String id,
