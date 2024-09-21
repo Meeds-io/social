@@ -1,6 +1,7 @@
 <template>
   <exo-drawer
     ref="spaceInvitationDrawer"
+    :loading="savingSpace"
     right
     class="spaceInvitationDrawer">
     <template slot="title">
@@ -160,15 +161,6 @@ export default {
     },
     invitedUserFullName() {
       return this.invitedUser && this.invitedUser.fullName || this.$t('peopleList.label.users');
-    },
-  },
-  watch: {
-    savingSpace() {
-      if (this.savingSpace) {
-        this.$refs.spaceInvitationDrawer.startLoading();
-      } else {
-        this.$refs.spaceInvitationDrawer.endLoading();
-      }
     },
   },
   methods: {
