@@ -11,6 +11,7 @@
       items: peopleFilters,
     }"
     compact
+    no-text-truncate
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-select-change="$emit('filter-changed', $event)"
     @toggle-select="$emit('filter-changed', $event)"
