@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <tr>
+  <tr :id="`${role}SpaceSettingRoleRow`">
     <td class="ps-0">
       <div>{{ name }}</div>
     </td>

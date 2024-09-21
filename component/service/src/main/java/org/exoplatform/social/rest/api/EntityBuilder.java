@@ -1119,7 +1119,7 @@ public class EntityBuilder {
 
     LinkEntity spaceEntity;
     if (expandFields.contains(SPACES_TYPE)) {
-      spaceEntity = new LinkEntity(buildEntityProfile(userId, restPath, expand));
+      spaceEntity = new LinkEntity(buildEntityFromSpace(space, userId, restPath, expand));
     } else {
       spaceEntity = new LinkEntity(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
     }

@@ -45,7 +45,7 @@ export function init(isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => 
       Vue.createApp({
-        template: '<space-settings />',
+        template: `<space-settings id="${appId}" />`,
         data: {
           isExternalFeatureEnabled,
           spaceId: eXo.env.portal.spaceId,
@@ -86,7 +86,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$on('space-settings-managers-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-publishers-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-redactors-updated', this.handleSpaceUpdated);
-          this.$root.$on('space-settings-members-updated', this.handleSpaceUpdated);
+          this.$root.$on('space-settings-members-updated', this.handlePendingUpdated);
           this.$root.$on('space-settings-pending-updated', this.handlePendingUpdated);
         },
         beforeDestroy() {
@@ -97,7 +97,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$off('space-settings-managers-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-publishers-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-redactors-updated', this.handleSpaceUpdated);
-          this.$root.$off('space-settings-members-updated', this.handleSpaceUpdated);
+          this.$root.$off('space-settings-members-updated', this.handlePendingUpdated);
           this.$root.$off('space-settings-pending-updated', this.handlePendingUpdated);
         },
         methods: {
@@ -108,13 +108,13 @@ export function init(isExternalFeatureEnabled) {
               this.$root.activeSection = 'roles';
             }
             await this.refreshSpace();
+            await this.refreshExternalInvitations();
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             this.$applicationLoaded();
-            this.refreshExternalInvitations();
           },
-          handlePendingUpdated() {
-            this.refreshSpace();
-            this.refreshExternalInvitations();
+          async handlePendingUpdated() {
+            await this.refreshSpace();
+            await this.refreshExternalInvitations();
           },
           async handleSpaceUpdated() {
             const oldPrettyName = this.space.prettyName;
@@ -130,7 +130,7 @@ export function init(isExternalFeatureEnabled) {
             }
           },
           async refreshExternalInvitations() {
-            if (isExternalFeatureEnabled) {
+            if (this.isExternalFeatureEnabled) {
               this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },

@@ -89,12 +89,14 @@
       <div class="d-flex mt-8">
         <v-spacer />
         <v-btn
+          id="cancelUpdateSpaceButton"
           :disabled="savingSpace"
           class="btn me-4"
           @click="$root.showMain">
           {{ $t('SpaceSettings.button.cancel') }}
         </v-btn>
         <v-btn
+          id="updateSpaceButton"
           :loading="savingSpace"
           :disabled="saveButtonDisabled"
           class="btn btn-primary"
