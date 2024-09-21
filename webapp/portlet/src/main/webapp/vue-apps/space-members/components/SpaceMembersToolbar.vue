@@ -10,9 +10,11 @@
       selected: filter,
       items: peopleFilters,
     }"
-    @filter-text-input-end-typing="keyword = $event"
-    @filter-select-change="filterValue = $event"
-    @toggle-select="updateFilter($event)">
+    compact
+    @filter-text-input-end-typing="$emit('keyword-changed', $event)"
+    @filter-select-change="$emit('filter-changed', $event)"
+    @toggle-select="$emit('filter-changed', $event)"
+    @loading="$emit('loading', $event)">
     <template
       #left>
       <div class="d-flex">
@@ -26,15 +28,9 @@
     </template>
   </application-toolbar>
 </template>
-
 <script>
-
 export default {
   props: {
-    keyword: {
-      type: String,
-      default: null,
-    },
     filter: {
       type: String,
       default: null,
@@ -48,15 +44,6 @@ export default {
       default: false,
     },
   },
-  data: () => ({
-    filterToChange: null,
-    bottomMenu: false,
-    startSearchAfterInMilliseconds: 300,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
-    typing: false,
-    filterValue: null
-  }),
   computed: {
     isMobile() {
       return this.$vuetify.breakpoint.smAndDown;
@@ -96,39 +83,6 @@ export default {
       }
     },
   },
-  watch: {
-    keyword() {
-      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
-      if (!this.typing) {
-        this.typing = true;
-        this.waitForEndTyping();
-      }
-    },
-    filter() {
-      this.filterValue = this.filter;
-    },
-    filterValue() {
-      this.updateFilter();
-    }
-  },
-  created() {
-    this.filterValue = this.filter;
-  },
-  methods: {
-    updateFilter() {
-      this.$emit('filter-changed', this.filterValue);
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() > this.startTypingKeywordTimeout) {
-          this.typing = false;
-          this.$emit('keyword-changed', this.keyword);
-        } else {
-          this.waitForEndTyping();
-        }
-      }, this.endTypingKeywordTimeout);
-    },
-  }
 };
 </script>
 
