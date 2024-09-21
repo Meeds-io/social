@@ -42,14 +42,15 @@
           @keydown.enter.prevent.stop="addEmails"
           @keyup="updateInput" />
         <div class="d-flex">
-          <div class="flex-grow-1 flex-shrink-1 text-subtitle-font-size info--text text-wrap pt-2px">
+          <div class="flex-grow-1 flex-shrink-1 text-subtitle text-wrap my-auto me-2 py-1">
             {{ hintMessage }}
           </div>
-          <div v-show="emailInput?.length" class="flex-grow-0 flex-shrink-0 border-color mt-n1 pt-2px">
+          <div v-show="emailInput?.length" class="flex-grow-0 flex-shrink-0 me-n1">
             <v-btn
               :title="$t('SpaceSetting.invitation.addEmails')"
               :disabled="!emailInput"
               color="success"
+              small
               icon
               tile
               @click="addEmails">
@@ -59,6 +60,7 @@
               :title="$t('SpaceSetting.invitation.clearEmails')"
               :disabled="!emailInput"
               color="error"
+              small
               icon
               tile
               @click="resetInput">
