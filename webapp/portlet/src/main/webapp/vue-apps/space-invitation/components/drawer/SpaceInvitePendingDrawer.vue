@@ -263,13 +263,13 @@ export default {
         if (users?.length) {
           if (reset) {
             this.users = users.slice(0, this.pageSize).map(m => m?.user && ({
-              createdDate: m.createdDate,
               ...m.user,
+              createdDate: m.createdDate,
             })).filter(u => u);
           } else {
             this.users.push(...users.slice(0, this.pageSize).map(m => m?.user && ({
-              createdDate: m.createdDate,
               ...m.user,
+              createdDate: m.createdDate,
             })).filter(u => u));
           }
           this.hasMore = users.length > this.pageSize;
