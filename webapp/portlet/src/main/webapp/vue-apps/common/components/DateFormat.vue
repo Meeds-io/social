@@ -27,7 +27,8 @@ export default {
   },
   computed: {
     displayedDate() {
-      return this.value && this.$dateUtil.formatDateObjectToDisplay(new Date(this.value), this.format, this.lang) || '';
+      const value = this.value && Number.isInteger(Number(this.value)) ? Number(this.value) : this.value;
+      return value && this.$dateUtil.formatDateObjectToDisplay(new Date(value), this.format, this.lang) || '';
     },
   },
 };
