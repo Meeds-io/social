@@ -788,6 +788,9 @@
         <path>/js/spaceSettings.bundle.js</path>
       </script>
       <depends>
+        <module>spaceInvitation</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -818,6 +821,9 @@
         <minify>false</minify>
         <path>/js/spaceMembers.bundle.js</path>
       </script>
+      <depends>
+        <module>spaceInvitation</module>
+      </depends>
       <depends>
         <module>peopleListComponents</module>
       </depends>
@@ -2111,6 +2117,29 @@
     <depends>
       <module>jquery</module>
       <as>$</as>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>spaceInvitation</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/spaceInvitation.bundle.js</path>
+    </script>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
     </depends>
     <depends>
       <module>extensionRegistry</module>

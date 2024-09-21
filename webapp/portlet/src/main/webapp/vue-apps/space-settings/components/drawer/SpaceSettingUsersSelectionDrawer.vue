@@ -20,6 +20,7 @@
 -->
 <template>
   <exo-drawer
+    id="SpaceSettingsUsersSelectionDrawer"
     ref="drawer"
     v-model="drawer"
     :loading="saving || loading"
@@ -51,7 +52,7 @@
           include-users
           ignore-cache />
         <div v-if="users?.length">
-          <space-setting-roles-list
+          <space-setting-role-list
             :users="users"
             @add="addUserMembership"
             @remove="removeUserMembership" />

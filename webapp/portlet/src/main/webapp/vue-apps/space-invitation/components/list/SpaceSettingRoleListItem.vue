@@ -39,7 +39,7 @@
       <v-list-item-subtitle
         v-if="displayDate && user.createdDate"
         class="d-flex text-wrap pt-2px">
-        {{ $t('SpaceSetting.invitation.sentOn') }}
+        {{ role === 'pending' && $t('SpaceSetting.invitation.requestedOn') || $t('SpaceSetting.invitation.sentOn') }}
         <date-format
           :value="user.createdDate"
           :format="format"
@@ -90,6 +90,10 @@ export default {
     displayDate: {
       type: Boolean,
       default: false,
+    },
+    role: {
+      type: String,
+      default: null,
     },
   },
   data: () => ({

@@ -20,10 +20,10 @@
 -->
 <template>
   <exo-drawer
+    id="SpaceSettingsRedactorsDrawer"
     ref="drawer"
     v-model="drawer"
     :loading="saving"
-    class="spaceSettingsRedactorsDrawer"
     allow-expand
     right
     @closed="$emit('closed')">
@@ -61,8 +61,8 @@
           width="220"
           include-users
           ignore-cache />
-        <div v-if="redactors?.length">
-          <space-setting-roles-list
+        <div v-if="redactors?.length" id="SpaceSettingsRedactorsList">
+          <space-setting-role-list
             :users="redactors"
             @add="addUserMembership"
             @remove="removeUserMembership" />
@@ -81,6 +81,7 @@
           </template>
         </v-btn>
         <v-btn
+          :disabled="disabled"
           :loading="saving"
           class="btn btn-primary"
           @click.prevent.stop="saveRedactors">
@@ -102,6 +103,9 @@ export default {
     removedRedactors: null,
   }),
   computed: {
+    disabled() {
+      return !this.addedRedactors?.length && !this.removedRedactors?.length;
+    },
     redactors() {
       const redactors = this.originalRedactors?.slice() || [];
       this.addedRedactors.forEach(u => redactors.push(u));
