@@ -133,7 +133,12 @@ public class SpaceMembershipRest implements ResourceContainer {
                                        int limit,
                                        @Parameter(description = "Asking for a full representation of a specific subresource if any")
                                        @QueryParam("expand")
-                                       String expand) throws Exception {
+                                       String expand,
+                                       @Parameter(description = "Returning the number of memberships or not")
+                                       @Schema(defaultValue = "false")
+                                       @QueryParam("returnSize")
+                                       boolean returnSize) throws Exception {
+
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
     MembershipType membershipType = getMembershipType(status);
@@ -173,6 +178,9 @@ public class SpaceMembershipRest implements ResourceContainer {
                                                              membershipType,
                                                              uriInfo,
                                                              expand);
+      if (returnSize) {
+        size = listAccess.getSize();
+      }
     } else {
       SpaceFilter spaceFilter = new SpaceFilter();
       spaceFilter.setRemoteId(user);
@@ -189,6 +197,9 @@ public class SpaceMembershipRest implements ResourceContainer {
                                                              offset,
                                                              uriInfo.getPath(),
                                                              expand);
+      if (returnSize) {
+        size = listAccess.getSize();
+      }
     }
     CollectionEntity spacesMemberships = new CollectionEntity(spaceMemberships.stream()
                                                                               .limit(limit)
