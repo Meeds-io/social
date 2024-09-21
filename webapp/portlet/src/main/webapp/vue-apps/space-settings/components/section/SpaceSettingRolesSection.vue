@@ -48,17 +48,16 @@
       </v-list-item>
     </template>
     <template #default>
-      <div>
-        <v-switch
-          v-model="isContentCreationRestricted"
-          :loading="saving"
-          class="ma-0"
-          @click="switchContentRestriction">
-          <template #label>
-            <div class="text-body">{{ $t('SpaceSettings.roles.restrictContentCreation') }}</div>
-          </template>
-        </v-switch>
-      </div>
+      <v-switch
+        id="SpaceSettingRestrictContent"
+        v-model="isContentCreationRestricted"
+        :loading="saving"
+        class="ma-0"
+        @click="switchContentRestriction">
+        <template #label>
+          <div class="text-body">{{ $t('SpaceSettings.roles.restrictContentCreation') }}</div>
+        </template>
+      </v-switch>
       <space-setting-roles-table
         class="mb-5"
         @restriction-loaded="isContentCreationRestricted = $event"
@@ -70,13 +69,6 @@
         ref="usersListDrawer" />
       <space-setting-users-selection-drawer
         ref="usersSelectionDrawer" />
-      <space-setting-users-invitation-drawer
-        ref="usersInvitationDrawer" />
-      <space-setting-users-pending-management-drawer
-        ref="usersPendingManagementDrawer" />
-      <space-setting-email-pending-management-drawer
-        v-if="$root.isExternalFeatureEnabled"
-        ref="emailInvitationDrawer" />
     </template>
   </widget-wrapper>
 </template>

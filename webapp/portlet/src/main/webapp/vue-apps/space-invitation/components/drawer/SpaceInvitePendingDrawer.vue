@@ -109,8 +109,9 @@
         class="px-4">
         <v-tab-item value="invited">
           <v-list v-if="users?.length">
-            <space-setting-roles-list
+            <space-setting-role-list
               :users="users"
+              :role="role"
               display-date
               @remove="cancelInvitation" />
           </v-list>
@@ -127,8 +128,9 @@
         </v-tab-item>
         <v-tab-item value="pending">
           <v-list v-if="users?.length">
-            <space-setting-roles-list
+            <space-setting-role-list
               :users="users"
+              :role="role"
               approve-button
               display-date
               @approve="acceptUserRequest"
@@ -147,7 +149,7 @@
         </v-tab-item>
         <v-tab-item v-if="$root.isExternalFeatureEnabled" value="external">
           <v-list v-if="externalInvitations?.length">
-            <space-setting-roles-list
+            <space-setting-role-list
               :external-invitations="externalInvitations"
               @remove="cancelInvitation" />
           </v-list>

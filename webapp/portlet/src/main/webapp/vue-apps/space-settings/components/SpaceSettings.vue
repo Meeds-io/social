@@ -21,9 +21,9 @@
 <template>
   <v-app class="application-body">
     <v-main v-if="$root.space" class="px-5 py-1 border-box-sizing">
-      <space-setting-overview />
-      <space-setting-roles />
-      <space-setting-access />
+      <space-setting-overview id="SpaceSettingsOverview" />
+      <space-setting-roles id="SpaceSettingsRoles" />
+      <space-setting-access id="SpaceSettingsAccess" />
       <template>
         <extension-registry-components
           :params="extensionParams"

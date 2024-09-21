@@ -48,7 +48,7 @@
       <v-list
         v-if="invitedMembers?.length"
         class="mx-4 mt-0 rounded">
-        <space-setting-roles-list-item
+        <space-setting-role-list-item
           v-for="(u, index) in invitedMembers"
           :key="u.id"
           :user="u"
