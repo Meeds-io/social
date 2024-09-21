@@ -274,6 +274,9 @@ export function getSpaceMemberships(params) {
   if (params.expand) {
     formData.append('expand', params.expand);
   }
+  if (params.returnSize) {
+    formData.append('returnSize', params.returnSize);
+  }
   const urlParams = new URLSearchParams(formData).toString();
   return fetch( `/portal/rest/v1/social/spacesMemberships?${urlParams}`, {
     method: 'GET',

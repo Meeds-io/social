@@ -20,6 +20,7 @@
 -->
 <template>
   <exo-drawer
+    id="SpaceSettingsAccessDrawer"
     ref="drawer"
     v-model="drawer"
     :loading="savingSpace"
