@@ -44,7 +44,7 @@
         @query="query = $event"
         @loading="loading = $event" />
       <div class="px-4 pb-4">
-        <space-setting-roles-list
+        <space-setting-role-list
           :users="users"
           @remove="removeUserMembership" />
         <div v-if="query && !users.length && !loading" class="d-flex align-center justify-center pa-5">

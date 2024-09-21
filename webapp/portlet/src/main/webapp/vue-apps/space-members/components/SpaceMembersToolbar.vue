@@ -16,19 +16,9 @@
     <template
       #left>
       <div class="d-flex">
-        <v-btn
+        <space-invite-buttons-group
           v-if="isManager"
-          class="btn pe-2 ps-0 me-4 inviteUserToSpaceButton"
-          @click="$emit('invite-users')">
-          <v-icon
-            size="18"
-            class="primary--text ms-2 me-1">
-            fas fa-user-plus
-          </v-icon>
-          <span class="d-none d-sm-inline">
-            {{ $t('peopleList.button.inviteUsers') }}
-          </span>
-        </v-btn>
+          class="pe-2 me-4" />
         <div class="showingPeopleText text-subtitle d-none my-auto d-sm-flex">
           {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
         </div>

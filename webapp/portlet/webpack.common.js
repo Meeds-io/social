@@ -56,6 +56,7 @@ let config = {
     spaceHeader: './src/main/webapp/vue-apps/space-header/main.js',
     spaceMembers: './src/main/webapp/vue-apps/space-members/main.js',
     spaceSettings: './src/main/webapp/vue-apps/space-settings/main.js',
+    spaceInvitation: './src/main/webapp/vue-apps/space-invitation/main.js',
     idmUsersManagement: './src/main/webapp/vue-apps/idm-users-management/main.js',
     idmGroupsManagement: './src/main/webapp/vue-apps/idm-groups-management/main.js',
     idmMembershipTypesManagement: './src/main/webapp/vue-apps/idm-membership-types-management/main.js',

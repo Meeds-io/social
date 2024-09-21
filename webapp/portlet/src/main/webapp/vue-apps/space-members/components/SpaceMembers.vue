@@ -8,10 +8,10 @@
       :people-count="peopleCount"
       :is-manager="isManager"
       @keyword-changed="keyword = $event"
-      @filter-changed="filter = $event"
-      @invite-users="$refs.spaceInvitationDrawer.open()"
-      @refresh="refreshInvited" />
-    <alert-space-members v-if="space" :space-display-name="space.displayName" />
+      @filter-changed="filter = $event" />
+    <alert-space-members
+      v-if="space"
+      :space-display-name="space.displayName" />
     <people-card-list
       ref="spaceMembers"
       :keyword="keyword"
@@ -23,16 +23,10 @@
       lg="3"
       xl="3"
       @loaded="peopleLoaded" />
-    <space-invitation-drawer
-      ref="spaceInvitationDrawer"
-      :is-external-feature-enabled="isExternalFeatureEnabled"
-      @refresh="refreshInvited" />
     <people-compact-card-options-drawer />
   </v-app>
 </template>
-
 <script>
-
 export default {
   props: {
     isManager: {
@@ -54,10 +48,19 @@ export default {
   },
   data: () => ({
     keyword: null,
-    peopleCount: 0,
-    space: null,
   }),
+  computed: {
+    space() {
+      return this.$root.space;
+    },
+    peopleCount() {
+      return this.$root.space?.membersCount || 0;
+    },
+  },
   created() {
+    this.$root.$on('space-settings-members-updated', this.refreshMembers);
+    this.$root.$on('space-settings-pending-updated', this.refreshPending);
+
     this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
       .then( space => {
         this.space = space;
@@ -150,16 +153,24 @@ export default {
       document.dispatchEvent(new CustomEvent('space-member-extension-updated'));
     }
   },
+  beforeDestroy() {
+    this.$root.$off('space-settings-members-updated', this.refreshMembers);
+    this.$root.$off('space-settings-pending-updated', this.refreshPending);
+  },
   methods: {
-    refreshInvited() {
-      if (this.filter === 'invited' || this.filter === 'member') {
-        this.$refs.spaceMembers.searchPeople();
+    refreshMembers() {
+      if (this.filter === 'member') {
+        this.refreshUsers();
       }
     },
-    peopleLoaded(peopleCount) {
-      this.peopleCount = peopleCount;
+    refreshPending() {
+      if (this.filter === 'invited' || this.filter === 'pending') {
+        this.refreshUsers();
+      }
     },
-
+    refreshUsers() {
+      this.$refs.spaceMembers.searchPeople();
+    },
   },
 };
 </script>
