@@ -22,18 +22,19 @@
 <template>
   <v-list v-if="displayList" dense>
     <template v-if="externalInvitations">
-      <space-setting-invitation-list-item
+      <space-invite-email-list-item
         v-for="u in externalInvitations"
         :key="u.id"
         :invitation="u"
         @remove="$emit('remove', u)" />
     </template>
-    <space-setting-roles-list-item
+    <space-setting-role-list-item
       v-for="u in users"
       :key="u.id"
       :user="u"
       :approve-button="approveButton"
       :display-date="displayDate"
+      :role="role"
       @approve="$emit('approve', u)"
       @remove="$emit('remove', u)" />
   </v-list>
@@ -56,6 +57,10 @@ export default {
     displayDate: {
       type: Boolean,
       default: false,
+    },
+    role: {
+      type: String,
+      default: null,
     },
   },
   computed: {
