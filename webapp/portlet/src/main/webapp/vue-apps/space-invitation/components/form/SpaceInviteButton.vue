@@ -25,6 +25,7 @@
     offset-y>
     <template #activator="{attrs, on}">
       <v-btn
+        id="InviteUserToSpaceButton"
         :title="$t('SpaceSettings.users.inviteMembers')"
         color="primary"
         elevation="0"
@@ -41,6 +42,7 @@
     </template>
     <v-list max-width="300">
       <v-list-item
+        id="InvitePlatformUserToSpaceButton"
         link
         @click="$root.$emit('space-settings-invite-member', true)">
         <v-list-item-content class="d-inline">
@@ -49,6 +51,7 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
+        id="InviteUserByEmailToSpaceButton"
         link
         @click="$root.$emit('space-settings-invite-email', true)">
         <v-list-item-content class="d-inline">
@@ -60,6 +63,7 @@
   </v-menu>
   <v-btn
     v-else
+    id="spaceSettingUsersListToolbar"
     :title="$t('SpaceSettings.users.invite')"
     color="primary"
     elevation="0"
