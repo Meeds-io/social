@@ -8,7 +8,8 @@
       :people-count="peopleCount"
       :is-manager="isManager"
       @keyword-changed="keyword = $event"
-      @filter-changed="filter = $event" />
+      @filter-changed="filter = $event"
+      @loading="loading = $event" />
     <alert-space-members
       v-if="space"
       :space-display-name="space.displayName" />
@@ -19,6 +20,7 @@
       :space-id="spaceId"
       :people-count="peopleCount"
       :is-manager="isManager"
+      :loading="loading"
       md="4"
       lg="3"
       xl="3"
@@ -48,6 +50,7 @@ export default {
   },
   data: () => ({
     keyword: null,
+    loading: false,
   }),
   computed: {
     space() {
@@ -61,11 +64,6 @@ export default {
     this.$root.$on('space-settings-members-updated', this.refreshMembers);
     this.$root.$on('space-settings-pending-updated', this.refreshPending);
 
-    this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
-      .then( space => {
-        this.space = space;
-      })
-      .finally(() => this.$root.$applicationLoaded());
     if (this.isManager) {
       extensionRegistry.registerExtension('space-member-extension', 'action', {
         id: 'spaceMembers-removeMember',
