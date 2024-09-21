@@ -71,18 +71,18 @@
         v-if="invitedMembers?.length || emailInvitations?.length"
         class="mx-4 mt-0 rounded externalList"
         subheader>
-        <space-setting-invitation-list-item
+        <space-invite-email-list-item
           v-for="(u, index) in emailInvitations"
           :key="u.userEmail"
           :invitation="u"
           email-only
-          @remove="emailInvitations.splice(index, 1)" />
-        <space-setting-roles-list-item
+          @remove="removeEmailInvitation(index)" />
+        <space-setting-role-list-item
           v-for="(u, index) in invitedMembers"
           :key="u.id"
           :user="u"
           email-subtitle
-          @remove="invitedMembers.splice(index, 1)" />
+          @remove="removeMemberInvitation(index)" />
       </v-list>
     </template>
     <template slot="footer">
@@ -113,7 +113,6 @@ export default {
     saving: false,
     goBackButton: false,
     emailInput: '',
-    emailRegex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/g,
   }),
   computed: {
     disabled() {
@@ -150,6 +149,7 @@ export default {
       this.saving = false;
       this.goBackButton = goBackButton;
       this.emailInvitations = [];
+      this.invitedMembers = [];
       this.$refs.spaceInvitationDrawer.open();
     },
     async inviteUsers() {
@@ -177,28 +177,22 @@ export default {
           .finally(() => this.$root.$emit('space-settings-pending-updated'));
       }
     },
-    cancel() {
-      this.$refs.spaceInvitationDrawer.close();
-    },
     addEmails() {
       if (this.emailInput?.length) {
-        const emails = this.emailInput.split(/,/g).map(s => s.trim());
-        emails.forEach(this.addEmail);
+        this.emailInput
+          .trim()
+          .split(/,/g)
+          .map(s => s.trim())
+          .forEach(this.addEmail);
         this.resetInput();
       }
-    },
-    updateInput() {
-      this.emailInput = this.$refs.emailInput?.$el.innerText?.trim();
-    },
-    resetInput() {
-      this.$refs.emailInput.$el.innerText = '';
-      this.emailInput = '';
     },
     async addEmail(email) {
       if (!email?.length) {
         return;
       }
-      if (!this.emailRegex.test(email)) {
+      email = email.trim();
+      if (!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/g).test(email)) {
         this.emailInvitations.unshift({
           userEmail: email,
           status: 'invalidEmail',
@@ -243,6 +237,28 @@ export default {
           });
         }
       }
+    },
+    cancel() {
+      this.$refs.spaceInvitationDrawer.close();
+    },
+    updateInput() {
+      this.emailInput = this.$refs.emailInput?.$el.innerText?.trim();
+    },
+    resetInput() {
+      this.$refs.emailInput.$el.innerText = '';
+      this.emailInput = '';
+    },
+    async removeEmailInvitation(index) {
+      const deletedEmail = this.emailInvitations.splice(index, 1)?.[0]?.userEmail;
+      await this.$nextTick();
+      if (!this.emails?.find(e => e?.toLowerCase?.() === deletedEmail?.toLowerCase?.()) // No valid emails with same entry
+          && this.emailInvitations.find(i => i.userEmail?.toLowerCase?.() === deletedEmail?.toLowerCase?.())) { // has invalid email inputs
+        // Delete all invalid email inputs
+        this.emailInvitations = this.emailInvitations.filter(i => i.userEmail?.toLowerCase?.() !== deletedEmail?.toLowerCase?.());
+      }
+    },
+    removeMemberInvitation(index) {
+      this.invitedMembers.splice(index, 1);
     },
   },
 };

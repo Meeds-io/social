@@ -32,7 +32,7 @@
     @loading="$emit('loading', $event)">
     <template #left>
       <div class="d-flex align-center">
-        <space-setting-invite-button
+        <space-invite-buttons-group
           v-if="role === 'member'" />
         <v-btn
           v-else
@@ -48,36 +48,6 @@
           </v-icon>
           {{ $t('SpaceSettings.users.add') }}
         </v-btn>
-        <v-badge
-          v-if="pendingButton && pendingCount"
-          color="white pa-0"
-          offset-x="24"
-          offset-y="20"
-          top
-          @click="$root.$emit('space-settings-users-pending-list-open')">
-          <span slot="badge">
-            <v-avatar
-              v-show="pendingCount"
-              color="secondary"
-              min-height="16"
-              min-width="16"
-              height="auto"
-              width="auto"
-              class="pa-1 aspect-ratio-1 white--text content-box-sizing clickable"
-              @click="$root.$emit('space-settings-users-pending-list-open')">
-              {{ pendingCount }}
-            </v-avatar>
-          </span>
-          <v-btn
-            :title="$t('SpaceSettings.users.pendingMembers')"
-            class="ms-2"
-            icon
-            @click="$root.$emit('space-settings-users-pending-list-open')">
-            <v-icon size="22">
-              fa-history
-            </v-icon>
-          </v-btn>
-        </v-badge>
       </div>
     </template>
   </application-toolbar>
@@ -89,10 +59,6 @@ export default {
       type: Boolean,
       default: null,
     },
-    pendingButton: {
-      type: Boolean,
-      default: null,
-    },
     role: {
       type: String,
       default: null,
@@ -101,13 +67,6 @@ export default {
   data: () => ({
     query: null,
   }),
-  computed: {
-    pendingCount() {
-      return (this.$root?.space?.pendingUsersCount || 0)
-        + (this.$root?.space?.invitedUsersCount || 0)
-        + (this.$root?.externalInvitations?.length || 0);
-    },
-  },
   watch: {
     query() {
       this.$emit('query', this.query);

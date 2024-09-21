@@ -62,7 +62,7 @@
           include-users
           ignore-cache />
         <div v-if="redactors?.length">
-          <space-setting-roles-list
+          <space-setting-role-list
             :users="redactors"
             @add="addUserMembership"
             @remove="removeUserMembership" />
