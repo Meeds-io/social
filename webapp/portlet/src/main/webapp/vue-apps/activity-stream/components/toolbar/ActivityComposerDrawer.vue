@@ -229,7 +229,7 @@ export default {
           || this.loading
           || (!!this.activityId && !this.activityBodyEdited && !this.activityAttachmentsEdited)
           || (!this.activityAttachmentsEdited && !this.messageLength && !this.activityBodyEdited)
-          || (this.postInYourSpacesChoice && !this.spaceId)
+          || (this.postInYourSpacesChoice && !(this.spaceId || this.activityType?.toString()?.includes('poll') && eXo.env.portal.spaceId))
           || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited);
     },
     metadataObjectId() {
