@@ -573,9 +573,9 @@ public class ProfileSearchConnector {
   }
 
   public static String removeESReservedChars(String string) {
-    String [] ES_RESERVED_CHARS = new String []{"","+","-","=","&&","||",">","<","!","(",")","{","}","[","]","^","\"","~","*","?",":","\\","/"};
+    String [] ES_RESERVED_CHARS = new String []{"+","-","=","&&","||",">","<","!","(",")","{","}","[","]","^","\"","~","*","?",":","\\","/"};
     for(String c : ES_RESERVED_CHARS) {
-      string = string.replace(c, "");
+      string = string.replace(c, " ");
     }
     return string;
   }
