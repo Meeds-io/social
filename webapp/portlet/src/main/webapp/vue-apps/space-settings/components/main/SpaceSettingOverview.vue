@@ -36,7 +36,7 @@
             <v-btn
               small
               icon
-              @click="$root.activeSection = 'overview'">
+              @click="$root.showSection('overview')">
               <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
             </v-btn>
           </v-list-item-action>

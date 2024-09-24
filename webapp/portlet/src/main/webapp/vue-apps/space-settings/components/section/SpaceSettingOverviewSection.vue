@@ -86,7 +86,7 @@
           </div>
         </div>
       </form>
-      <div class="d-flex mt-8">
+      <div class="d-flex mt-8 mb-4">
         <v-spacer />
         <v-btn
           id="cancelUpdateSpaceButton"
