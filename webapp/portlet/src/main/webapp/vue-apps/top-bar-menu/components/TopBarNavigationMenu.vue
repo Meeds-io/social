@@ -128,7 +128,11 @@ export default {
     },
   },
   created() {
+    document.addEventListener('space-settings-updated', this.init);
     this.init();
+  },
+  beforeDestroy() {
+    document.removeEventListener('space-settings-updated', this.init);
   },
   mounted() {
     this.mounted = true;

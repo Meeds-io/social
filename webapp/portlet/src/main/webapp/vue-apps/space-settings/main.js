@@ -120,7 +120,7 @@ export function init(isExternalFeatureEnabled) {
             const oldPrettyName = this.space.prettyName;
             await this.refreshSpace();
             if (oldPrettyName !== this.space.prettyName) {
-              window.history.replaceState('', window.document.title, window.location.href.replaceAll(oldPrettyName, this.space.prettyName));
+              window.history.replaceState('', window.document.title, window.location.href.replaceAll(`/${oldPrettyName}/`, `/${this.space.prettyName}/`));
             }
             document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: this.space}));
           },
