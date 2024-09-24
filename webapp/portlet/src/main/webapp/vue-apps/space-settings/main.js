@@ -79,8 +79,8 @@ export function init(isExternalFeatureEnabled) {
         },
         created() {
           this.init();
-          document.addEventListener('hideSettingsApps', this.showSection);
-          document.addEventListener('showSettingsApps', this.showMain);
+          document.addEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
+          document.addEventListener('showSettingsApps', this.handleShowMainEvent);
 
           this.$root.$on('space-settings-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-managers-updated', this.handleSpaceUpdated);
@@ -90,8 +90,8 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$on('space-settings-pending-updated', this.handlePendingUpdated);
         },
         beforeDestroy() {
-          document.removeEventListener('hideSettingsApps', this.showSection);
-          document.removeEventListener('showSettingsApps', this.showMain);
+          document.removeEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
+          document.removeEventListener('showSettingsApps', this.handleShowMainEvent);
 
           this.$root.$off('space-settings-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-managers-updated', this.handleSpaceUpdated);
@@ -103,9 +103,9 @@ export function init(isExternalFeatureEnabled) {
         methods: {
           async init() {
             if (window.location.hash === '#overview') {
-              this.$root.activeSection = 'overview';
+              this.$root.showSection('overview');
             } else if (window.location.hash === '#roles') {
-              this.$root.activeSection = 'roles';
+              this.$root.showSection('roles');
             }
             await this.refreshSpace();
             await this.refreshExternalInvitations();
@@ -134,10 +134,16 @@ export function init(isExternalFeatureEnabled) {
               this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },
-          showSection(event) {
-            this.activeSection = event?.detail;
+          showSection(sectionId) {
+            document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: sectionId}));
           },
           showMain() {
+            document.dispatchEvent(new CustomEvent('showSettingsApps'));
+          },
+          handleDisplaySectionEvent(event) {
+            this.activeSection = event?.detail;
+          },
+          handleShowMainEvent() {
             this.activeSection = null;
           },
         },
