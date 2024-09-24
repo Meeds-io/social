@@ -41,7 +41,7 @@
             @click="openComposerDrawer(true)">
             <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
           </v-btn>
-          <span v-else class="text-subtitle my-auto">
+          <span v-else class="my-auto text-subtitle-color">
             {{ $t('activity.toolbar.title') }}
           </span>
           <div class="my-auto ms-auto d-flex flex-row">
