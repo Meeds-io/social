@@ -910,4 +910,41 @@
         </sql>
     </changeSet>
 
+    <changeSet author="social" id="1.0.0-93">
+        <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+            <column name="IS_HIDDENABLE" type="BOOLEAN" defaultValue="true">
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="social" id="1.0.0-94" dbms="mysql">
+        <sql>
+            ALTER TABLE SOC_SPACES MODIFY COLUMN DISPLAY_NAME varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+        </sql>
+    </changeSet>
+
+    <changeSet author="social" id="1.0.0-95">
+        <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+            <column name="PROPERTY_TYPE" type="NVARCHAR(100)" defaultValue="text"/>
+        </addColumn>
+    </changeSet>
+        
+    <changeSet author="social" id="1.0.0-96">
+      <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+        <column name="UPDATED_DATE" type="TIMESTAMP" defaultValueDate="${now}">
+          <constraints nullable="false"/>
+        </column>
+      </addColumn>
+    </changeSet>
+
+  <changeSet
+    author="social"
+    id="1.0.0-99"
+    dbms="mysql">
+    <sql>
+      ALTER TABLE SOC_IDENTITY_EXPERIENCES MODIFY COLUMN COMPANY varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      ALTER TABLE SOC_IDENTITY_EXPERIENCES MODIFY COLUMN POSITION varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>
