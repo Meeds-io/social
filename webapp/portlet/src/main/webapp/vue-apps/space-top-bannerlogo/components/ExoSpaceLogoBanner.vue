@@ -21,7 +21,7 @@
             <v-list-item-avatar 
               v-if="logoPath"
               id="UserHomePortalLink"
-              size="30"
+              size="36"
               class="tile my-0 spaceAvatar ms-0 me-3"
               tile>
               <v-img :src="logoPath" :alt="$t('space.avatar.img.alt',{0:logoTitle})" />
