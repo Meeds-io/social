@@ -23,32 +23,53 @@
     <div class="text-header">
       {{ $t('generalSettings.preview.title') }}
     </div>
-    <div class="mt-4 position-relative border-color full-width overflow-hidden border-radius" style="height:470px;">
-      <iframe 
+    <div
+      ref="iframeParent"
+      class="mt-4 position-relative border-color full-width aspect-ratio-1 overflow-hidden border-radius">
+      <iframe
+        v-if="initialized && parentWidth"
         id="previewIframe" 
         :title="$t('generalSettings.preview.title')"
         :src="pageHomeLink" 
+        :width="`${iframeWidthPercentage}%`"
+        :height="`${iframeHeightPercentage}%`"
+        :style="`transform: scale(${zoom}); transform-origin: 0 0;`"
         name="pageHomeLink"
-        width="167%"
-        height="220%"
-        style="transform: scale(0.6); transform-origin: 0 0;"
         class="no-border">
       </iframe>
-      <div class="position-absolute full-width full-height t-0"></div>
+      <div class="flex-grow-0 flex-shrink-1 position-absolute full-width full-height t-0"></div>
     </div>
   </div>
 </template>
 <script>
 export default {
   data: ()=> ({
-    pageHomeLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}?sticky=false`,
+    initialized: false,
+    sites: null,
+    parentWidth: 0,
+    zoom: 0.4,
   }),
-  mounted() {
+  computed: {
+    iframeWidthPercentage() {
+      return parseInt((1 / this.zoom) * 100);
+    },
+    iframeHeightPercentage() {
+      return parseInt((1 / this.zoom) * 100);
+    },
+    pageHomeLink() {
+      return `${eXo.env.portal.context}/${this.sites?.[0]?.name || eXo.env.portal.metaPortalName}?sticky=false`;
+    },
+  },
+  created() {
     this.$root.$on('refresh-style-property', this.setStyleProperty);
     this.$root.$on('refresh-body-style-property', this.setBodyStyleProperty);
     this.$root.$on('refresh-iframe', this.reloadURL);
     this.$root.$on('refresh-company-name', this.refreshCompanyName);
     this.$root.$on('refresh-company-logo', this.refreshCompanyLogo);
+    this.init();
+  },
+  mounted() {
+    this.computeWidth();
   },
   beforeDestroy() {
     this.$root.$off('refresh-style-property', this.setStyleProperty);
@@ -58,26 +79,44 @@ export default {
     this.$root.$off('refresh-company-logo', this.refreshCompanyLogo);
   },
   methods: {
+    init() {
+      return this.$siteService.getSites('PORTAL', null, 'global', true, true, false, true, true, true, true, true, true, ['displayed', 'temporal'])
+        .then(data => this.sites = data || [])
+        .then(this.computeWidth)
+        .finally(() => this.initialized = true);
+    },
+    computeWidth() {
+      if (this.$refs.iframeParent) {
+        this.parentWidth = this.$refs.iframeParent.clientWidth;
+      }
+    },
     reloadURL() {
       document.getElementById('previewIframe').src = this.pageHomeLink;
     },
     setStyleProperty(event) {
-      if (event?.detail && event.detail?.propertyName && event.detail?.propertyValue) {
+      if (this.initialized
+          && event?.detail
+          && event.detail?.propertyName
+          && event.detail?.propertyValue) {
         const propertyName = event.detail.propertyName;
         const propertyValue = event.detail.propertyValue;
-        const iframeDoc = document.getElementById('previewIframe').contentWindow.document.documentElement;
-        iframeDoc.style.setProperty(propertyName, propertyValue);
+        const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.documentElement;
+        if (iframeDoc) {
+          iframeDoc.style.setProperty(propertyName, propertyValue);
+        }
       }
     },
     setBodyStyleProperty(property) {
       const propertyName = property.name;
       const propertyValue = property.value;
-      const iframeDoc = document.getElementById('previewIframe').contentWindow.document.body;
-      iframeDoc.style.setProperty(propertyName, propertyValue);
+      const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.body;
+      if (iframeDoc) {
+        iframeDoc.style.setProperty(propertyName, propertyValue);
+      }
     },
     refreshCompanyName(event) {
       if (event) {
-        const companyNameElement =  document.getElementById('previewIframe').contentWindow.document.getElementsByClassName('logoTitle')[0];
+        const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementsByClassName?.('logoTitle')[0];
         if (companyNameElement) {
           companyNameElement.innerHTML = event;
         }
@@ -85,7 +124,7 @@ export default {
     },
     refreshCompanyLogo(event) {
       if (event) {
-        const companyNameElement =  document.getElementById('previewIframe').contentWindow.document.getElementById('UserHomePortalLink').getElementsByTagName('img')[0];
+        const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementById?.('UserHomePortalLink').getElementsByTagName('img')[0];
         if (companyNameElement) {
           companyNameElement.src = event;
         }
