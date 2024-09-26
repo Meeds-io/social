@@ -16,7 +16,7 @@ if (navigations != null) {
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application spaceMenuParent white v-application--is-ltr theme--light"
+    class="v-application spaceMenuParent v-application--is-ltr theme--light"
     id="SpaceMenu">
     <v-cacheable-dom-app cache-id="SpaceMenu_<%=spaceId%>"></v-cacheable-dom-app>
     <textarea id="SpaceMenuNavigationsValue" class="hidden">{

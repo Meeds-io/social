@@ -78,7 +78,6 @@ export function init(isExternalFeatureEnabled) {
           },
         },
         created() {
-          this.init();
           document.addEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
           document.addEventListener('showSettingsApps', this.handleShowMainEvent);
 
@@ -88,6 +87,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$on('space-settings-redactors-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-members-updated', this.handlePendingUpdated);
           this.$root.$on('space-settings-pending-updated', this.handlePendingUpdated);
+          this.init();
         },
         beforeDestroy() {
           document.removeEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
