@@ -4,7 +4,7 @@
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application white v-application--is-ltr theme--light profileAboutMe"
+    class="v-application v-application--is-ltr theme--light profileAboutMe"
     id="ProfileAboutMe">
     <v-cacheable-dom-app cache-id="ProfileAboutMe_<%=profileOwnerId%>"></v-cacheable-dom-app>
     <script type="text/javascript">
