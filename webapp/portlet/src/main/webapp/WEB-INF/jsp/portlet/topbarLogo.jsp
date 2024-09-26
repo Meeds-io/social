@@ -95,7 +95,7 @@
           <% if (space == null) { %>
           <% if (logoPath != null) { %>
           <a id="UserHomePortalLink" href="<%=portalPath%>" class="pe-3 logoContainer">
-            <img src="<%=logoPath%>" class="<%=imageClass%>" alt="<%= logoTitle%>">
+            <img src="<%=logoPath%>" height="36px" width="auto" class="<%=imageClass%>" alt="<%=logoTitle%>">
           </a>
           <% } %>
           <a href="<%=portalPath%>" title="<%=logoTitle%>"
