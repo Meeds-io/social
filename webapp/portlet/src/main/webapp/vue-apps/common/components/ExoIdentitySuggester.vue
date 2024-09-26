@@ -16,19 +16,19 @@
       :hide-no-data="hideNoData"
       :class="autocompleteClass"
       :prepend-inner-icon="prependInnerIcon"
+      :item-text="itemText"
+      :cache-items="!ignoreCache"
       append-icon=""
       menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
       class="identitySuggester"
       content-class="identitySuggesterContent"
       width="100%"
       max-width="100%"
-      :item-text="itemText"
       item-value="id"
       return-object
       persistent-hint
       hide-selected
       chips
-      cache-items
       dense
       flat
       @update:search-input="searchTerm = $event">
@@ -37,19 +37,19 @@
           <v-list-item-title
             v-if="displaySearchPlaceHolder"
             :style="menuItemStyle"
-            class="px-2">
+            class="px-2 text-wrap">
             {{ labels.searchPlaceholder }}
           </v-list-item-title>
           <v-list-item-title
             v-else-if="loadingSuggestions > 0"
             :style="menuItemStyle"
-            class="px-2">
+            class="px-2 text-wrap">
             {{ $t('Search.label.inProgress') }}
           </v-list-item-title>
           <v-list-item-title
             v-else-if="labels.noDataLabel"
             :style="menuItemStyle"
-            class="px-2">
+            class="px-2 text-wrap">
             {{ labels.noDataLabel }}
           </v-list-item-title>
         </v-list-item>
@@ -62,28 +62,37 @@
           :close="!disabled"
           class="identitySuggesterItem"
           @click:close="remove(item)">
-          <v-avatar left>
+          <v-avatar
+            :class="{
+              'spaceAvatar': item.providerId === 'space',
+            }"
+            :tile="item.providerId === 'space'"
+            left>
             <v-img :src="item.profile.avatarUrl" role="presentation" />
           </v-avatar>
           <span class="text-truncate">
             {{ item.profile.external
               ? (itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName).concat(' (').concat($t('userAvatar.external.label')).concat(')')
               : itemText !== 'profile.fullName' ? item[itemText] : item.profile.fullName
-            }}          
+            }}
           </span>
         </v-chip>
       </template>
 
-      <template slot="item" slot-scope="data">
+      <template slot="item" slot-scope="{item}">
         <v-list-item-avatar
-          v-if="data.item && data.item.profile && data.item.profile.avatarUrl"
+          v-if="item?.profile?.avatarUrl"
+          :class="{
+            'spaceAvatar': item?.providerId === 'space',
+          }"
+          :tile="item?.providerId === 'space'"
           size="20">
-          <v-img :src="data.item.profile.avatarUrl" />
+          <v-img :src="item?.profile?.avatarUrl" />
         </v-list-item-avatar>
         <v-list-item-title
           :style="menuItemStyle"
           class="text-truncate identitySuggestionMenuItemText"
-          v-text="itemText !== 'profile.fullName' ? data.item[itemText] : data.item.profile.fullName" />
+          v-text="itemText !== 'profile.fullName' ? item[itemText] : item?.profile?.fullName" />
       </template>
     </v-autocomplete>
   </v-flex>
@@ -138,6 +147,10 @@ export default {
       default: function() {
         return false;
       },
+    },
+    ignoreCache: {
+      type: Boolean,
+      default: false,
     },
     noRedactorSpace: {
       type: Boolean,
@@ -266,7 +279,7 @@ export default {
       return this.labels.searchPlaceholder && !this.searchStarted;
     },
     hideNoData() {
-      return !this.searchStarted && this.items.length === 0;
+      return (!this.searchTerm?.length || !this.searchStarted) && this.items.length === 0;
     },
     menuItemStyle() {
       return this.width && `width:${this.width}px;max-width:${this.width}px;min-width:${this.width}px;` || '';
@@ -288,9 +301,10 @@ export default {
     value() {
       this.emitSelectedValue(this.value);
       this.init();
+      this.searchTerm = null;
+      this.startTypingKeywordTimeout = 0;
     },
   },
-
   mounted() {
     $(`#${this.id} input`).on('blur', () => {
       // A hack to close on select
@@ -332,7 +346,7 @@ export default {
       return true;
     },
     focus() {
-      this.$refs.selectAutoComplete.focus();
+      this.$refs?.selectAutoComplete?.focus?.();
     },
     clear() {
       this.items = [];
@@ -365,12 +379,15 @@ export default {
     searchSpacesOrUsers() {
       if (this.searchTerm && this.searchTerm.length) {
         this.focus();
-        if (!this.previousSearchTerm || this.previousSearchTerm !== this.searchTerm) {
+        if (this.ignoreCache
+            || !this.previousSearchTerm
+            || this.previousSearchTerm !== this.searchTerm) {
           this.loadingSuggestions = 0;
           this.items = [];
           if (!this.includeGroups) {
+            const items = [];
             this.$suggesterService.searchSpacesOrUsers(this.searchTerm,
-              this.items,
+              items,
               this.typeOfRelations,
               this.searchOptions,
               this.includeUsers,
@@ -381,11 +398,13 @@ export default {
               () => this.loadingSuggestions++,
               () => {
                 this.loadingSuggestions--;
+                this.items = items;
               });
           } else {
+            const items = [];
             this.$suggesterService.search({
               term: this.searchTerm,
-              items: this.items,
+              items,
               typeOfRelations: this.typeOfRelations,
               searchOptions: this.searchOptions,
               includeUsers: this.includeUsers,
@@ -400,6 +419,7 @@ export default {
               loadingCallback: () => this.loadingSuggestions++,
               successCallback: () => {
                 this.loadingSuggestions--;
+                this.items = items;
               },
               errorCallback: () => {
                 throw new Error('Response code indicates a server error');

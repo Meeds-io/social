@@ -18,23 +18,21 @@ export function init(params) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale resources are ready
     popover = Vue.createApp({
-      data: function() {
-        return {
-          spaceId: params.id,
-          isFavorite: params.isFavorite,
-          muted: params.muted === 'true',
-          isMember: params.isMember,
-          logoPath: params.logoPath,
-          portalPath: params.portalPath,
-          imageClass: params.imageClass,
-          logoTitle: decodeURIComponent(params.logoTitle || ''),
-          titleClass: params.titleClass,
-          membersNumber: params.membersNumber,
-          spaceDescription: decodeURIComponent(params.spaceDescription || ''),
-          managers: params.managers,
-          homePath: params.homePath,
-        };
-      },
+      data: () => ({
+        spaceId: params.id,
+        isFavorite: params.isFavorite,
+        muted: params.muted === 'true',
+        isMember: params.isMember,
+        logoPath: params.logoPath,
+        portalPath: params.portalPath,
+        imageClass: params.imageClass,
+        logoTitle: decodeURIComponent(params.logoTitle || ''),
+        titleClass: params.titleClass,
+        membersNumber: params.membersNumber,
+        spaceDescription: decodeURIComponent(params.spaceDescription || ''),
+        managers: params.managers,
+        homePath: params.homePath,
+      }),
       template: `<exo-space-logo-banner
                     id="SpaceTopBannerLogo"
                     :space-id="spaceId"
@@ -47,6 +45,22 @@ export function init(params) {
                     :managers="managers"
                     :home-path="homePath"
                     :space-description="spaceDescription" />`,
+      created() {
+        document.addEventListener('space-settings-updated', this.refreshSpaceSettings);
+      },
+      methods: {
+        refreshSpaceSettings(event) {
+          const space = event?.detail;
+          if (space) {
+            this.logoTitle = space.displayName;
+            this.spaceDescription = space.description;
+            this.logoPath = space.avatarUrl;
+            this.membersNumber = space.membersCount;
+            this.portalPath = `${eXo.env.portal.context}/g/${space.groupId.replaceAll('/', ':')}/${space.prettyName}`;
+            this.$forceUpdate();
+          }
+        }
+      },
       i18n,
       vuetify,
     }, `#${appId}`, 'social-portlet');

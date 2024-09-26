@@ -9,9 +9,10 @@
       :is-manager="isManager"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event"
-      @invite-users="$refs.spaceInvitationDrawer.open()"
-      @refresh="refreshInvited" />
-    <alert-space-members v-if="space" :space-display-name="space.displayName" />
+      @loading="loading = $event" />
+    <alert-space-members
+      v-if="space"
+      :space-display-name="space.displayName" />
     <people-card-list
       ref="spaceMembers"
       :keyword="keyword"
@@ -19,20 +20,15 @@
       :space-id="spaceId"
       :people-count="peopleCount"
       :is-manager="isManager"
+      :loading="loading"
       md="4"
       lg="3"
       xl="3"
       @loaded="peopleLoaded" />
-    <space-invitation-drawer
-      ref="spaceInvitationDrawer"
-      :is-external-feature-enabled="isExternalFeatureEnabled"
-      @refresh="refreshInvited" />
     <people-compact-card-options-drawer />
   </v-app>
 </template>
-
 <script>
-
 export default {
   props: {
     isManager: {
@@ -54,15 +50,20 @@ export default {
   },
   data: () => ({
     keyword: null,
-    peopleCount: 0,
-    space: null,
+    loading: false,
   }),
+  computed: {
+    space() {
+      return this.$root.space;
+    },
+    peopleCount() {
+      return this.$root.space?.membersCount || 0;
+    },
+  },
   created() {
-    this.$spaceService.getSpaceById(eXo.env.portal.spaceId)
-      .then( space => {
-        this.space = space;
-      })
-      .finally(() => this.$root.$applicationLoaded());
+    this.$root.$on('space-settings-members-updated', this.refreshMembers);
+    this.$root.$on('space-settings-pending-updated', this.refreshPending);
+
     if (this.isManager) {
       extensionRegistry.registerExtension('space-member-extension', 'action', {
         id: 'spaceMembers-removeMember',
@@ -76,7 +77,7 @@ export default {
                  && !user.isGroupBound;
         },
         click: (user) => {
-          this.$spaceService.removeMember(eXo.env.portal.spaceName, user.username)
+          this.$spaceService.removeMember(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -90,7 +91,7 @@ export default {
           return user.isManager && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
         },
         click: (user) => {
-          this.$spaceService.removeManager(eXo.env.portal.spaceName, user.username)
+          this.$spaceService.removeManager(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -104,63 +105,7 @@ export default {
           return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isManager;
         },
         click: (user) => {
-          this.$spaceService.promoteManager(eXo.env.portal.spaceDisplayName, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-setAsRedactor',
-        title: this.$t('peopleList.button.setAsRedactor'),
-        icon: 'uiIconEditMembership',
-        class: 'fas fa-user-edit',
-        order: 1,
-        enabled: (user) => {
-          return user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher') && !user.isSpaceRedactor;
-        },
-        click: (user) => {
-          this.$spaceService.setAsRedactor(eXo.env.portal.spaceDisplayName, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-removeRedactor',
-        title: this.$t('peopleList.button.removeRedactor'),
-        icon: 'uiIconEditMembership',
-        class: 'fas fa-user-edit',
-        order: 1,
-        enabled: (user) => {
-          return user.isSpaceRedactor && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
-        },
-        click: (user) => {
-          this.$spaceService.removeRedactor(eXo.env.portal.spaceName, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-promotePublisher',
-        title: this.$t('peopleList.button.promotePublisher'),
-        icon: 'fa fa-paper-plane',
-        class: 'fas fa-paper-plane',
-        order: 1,
-        enabled: (user) => {
-          return !user.isSpacePublisher && user.enabled && !user.deleted && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
-        },
-        click: (user) => {
-          this.$spaceService.promotePublisher(eXo.env.portal.spaceDisplayName, user.username)
-            .then(() => this.$refs.spaceMembers.searchPeople());
-        },
-      });
-      extensionRegistry.registerExtension('space-member-extension', 'action', {
-        id: 'spaceMembers-removePublisher',
-        title: this.$t('peopleList.button.removePublisher'),
-        icon: 'fa fa-paper-plane',
-        class: 'fas fa-paper-plane',
-        order: 1,
-        enabled: (user) => {
-          return user.isSpacePublisher && (this.filter === 'member' || this.filter === 'manager' || this.filter === 'redactor' || this.filter === 'publisher');
-        },
-        click: (user) => {
-          this.$spaceService.removePublisher(eXo.env.portal.spaceName, user.username)
+          this.$spaceService.promoteManager(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -173,7 +118,7 @@ export default {
           return this.filter === 'invited' && user.isInvited;
         },
         click: (user) => {
-          this.$spaceService.cancelInvitation(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.cancelInvitation(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -186,7 +131,7 @@ export default {
           return user.enabled && !user.deleted && this.filter === 'pending' && user.isPending;
         },
         click: (user) => {
-          this.$spaceService.acceptUserRequest(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.acceptUserRequest(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
@@ -199,23 +144,31 @@ export default {
           return this.filter === 'pending' && user.isPending;
         },
         click: (user) => {
-          this.$spaceService.refuseUserRequest(eXo.env.portal.spaceDisplayName, user.username)
+          this.$spaceService.refuseUserRequest(eXo.env.portal.spaceId, user.username)
             .then(() => this.$refs.spaceMembers.searchPeople());
         },
       });
       document.dispatchEvent(new CustomEvent('space-member-extension-updated'));
     }
   },
+  beforeDestroy() {
+    this.$root.$off('space-settings-members-updated', this.refreshMembers);
+    this.$root.$off('space-settings-pending-updated', this.refreshPending);
+  },
   methods: {
-    refreshInvited() {
-      if (this.filter === 'invited' || this.filter === 'member') {
-        this.$refs.spaceMembers.searchPeople();
+    refreshMembers() {
+      if (this.filter === 'member') {
+        this.refreshUsers();
       }
     },
-    peopleLoaded(peopleCount) {
-      this.peopleCount = peopleCount;
+    refreshPending() {
+      if (this.filter === 'invited' || this.filter === 'pending') {
+        this.refreshUsers();
+      }
     },
-
+    refreshUsers() {
+      this.$refs.spaceMembers.searchPeople();
+    },
   },
 };
 </script>

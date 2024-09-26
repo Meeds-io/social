@@ -16,14 +16,20 @@
  */
 package org.exoplatform.social.core.jpa.search;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
+import org.apache.commons.collections.CollectionUtils;
+
 import org.exoplatform.social.core.space.SpaceFilter;
 
-public class XSpaceFilter extends SpaceFilter {
+import io.meeds.social.space.constant.SpaceMembershipStatus;
 
-  private Set<Status> status = new HashSet<>();
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = true)
+public class XSpaceFilter extends SpaceFilter {
 
   private Set<Long>   ids    = null;
 
@@ -49,16 +55,16 @@ public class XSpaceFilter extends SpaceFilter {
       if (spaceFilter.getSpaceNameSearchCondition() != null) {
         this.setSpaceNameSearchCondition(spaceFilter.getSpaceNameSearchCondition());
       }
+      if (CollectionUtils.isNotEmpty(spaceFilter.getStatus())) {
+        this.setStatus(new HashSet<>(spaceFilter.getStatus()));
+      }
 
-      if (spaceFilter instanceof XSpaceFilter) {
-        XSpaceFilter filter = (XSpaceFilter) spaceFilter;
-
+      if (spaceFilter instanceof XSpaceFilter filter) {
         this.setIncludePrivate(filter.isIncludePrivate());
         this.setUnifiedSearch(filter.isUnifiedSearch());
         this.setNotHidden(filter.isNotHidden());
         this.setLastAccess(filter.isLastAccess());
         this.setVisited(filter.isVisited());
-        this.addStatus(filter.getStatus().toArray(new Status[filter.getStatus().size()]));
         if (filter.isPublic()) {
           this.setPublic(filter.getRemoteId());
         }
@@ -67,8 +73,11 @@ public class XSpaceFilter extends SpaceFilter {
     return this;
   }
 
-  public XSpaceFilter addStatus(Status... st) {
-    status.addAll(Arrays.asList(st));
+  public XSpaceFilter addStatus(SpaceMembershipStatus... st) {
+    if (getStatus() == null) {
+      setStatus(new HashSet<>());
+    }
+    getStatus().addAll(Arrays.asList(st));
     return this;
   }
 
@@ -85,10 +94,6 @@ public class XSpaceFilter extends SpaceFilter {
   public XSpaceFilter setNotHidden(boolean notHidden) {
     this.notHidden = notHidden;
     return this;
-  }
-
-  public Set<Status> getStatus() {
-    return status;
   }
 
   public boolean isIncludePrivate() {
@@ -134,18 +139,6 @@ public class XSpaceFilter extends SpaceFilter {
 
   public void setIds(Set<Long> ids) {
     this.ids = ids;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(),
-                        status,
-                        includePrivate,
-                        unifiedSearch,
-                        notHidden,
-                        isPublic,
-                        lastAccess,
-                        visited);
   }
 
 }

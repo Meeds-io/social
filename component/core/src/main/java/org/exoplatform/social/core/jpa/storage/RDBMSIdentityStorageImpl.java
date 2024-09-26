@@ -32,13 +32,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-
-import lombok.SneakyThrows;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.social.core.image.ImageUtils;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -60,13 +55,15 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.user.UserStateModel;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.identity.*;
+import org.exoplatform.social.core.identity.IdentityProvider;
+import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.ActiveIdentityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.image.ImageUtils;
 import org.exoplatform.social.core.jpa.search.ExtendProfileFilter;
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
@@ -74,7 +71,6 @@ import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.profile.ProfileFilter;
@@ -84,6 +80,13 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
+
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import lombok.SneakyThrows;
 
 /**
  * Created by The eXo Platform SAS
@@ -762,51 +765,55 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         excludedMembers.add(identity.getRemoteId());
       }
     }
-    Status status = null;
+    SpaceMembershipStatus status = null;
     List<String> spaceMembers;
     if (!SpaceMemberFilterListAccess.Type.DISABLED.equals(type)) {
       switch (type) {
         case MANAGER:
-          status = Status.MANAGER;
+          status = SpaceMembershipStatus.MANAGER;
           break;
         case REDACTOR:
-          status = Status.REDACTOR;
+          status = SpaceMembershipStatus.REDACTOR;
           break;
         case PUBLISHER:
-          status = Status.PUBLISHER;
+          status = SpaceMembershipStatus.PUBLISHER;
           break;
         case INVITED:
-          status = Status.INVITED;
+          status = SpaceMembershipStatus.INVITED;
           break;
         case PENDING:
-          status = Status.PENDING;
+          status = SpaceMembershipStatus.PENDING;
           break;
         default:
-          status = Status.MEMBER;
+          status = SpaceMembershipStatus.MEMBER;
       }
       spaceMembers = getSpaceMembers(space.getId(), status);
     } else {
       spaceMembers = getDisabledSpaceMembers(Long.parseLong(space.getId()));
     }
 
-    if(spaceMembers.isEmpty()) {
-      return Collections.emptyList();
-    }
-
+    List<String> remoteIds = profileFilter.getRemoteIds();
     spaceMembers = spaceMembers.stream()
-        .filter(username -> !excludedMembers.contains(username))
-        .toList();
+                               .filter(username -> !excludedMembers.contains(username)
+                                                   && (CollectionUtils.isEmpty(remoteIds) || remoteIds.contains(username)))
+                               .distinct()
+                               .toList();
+
     if (profileFilter.getExcludedIdentityList() != null) {
       for (Identity identity : profileFilter.getExcludedIdentityList()) {
         spaceMembers.remove(identity.getRemoteId());
       }
     }
 
-    if (profileFilter.isEmpty() || SpaceMemberFilterListAccess.Type.DISABLED.equals(type)) {
+    if(spaceMembers.isEmpty()) {
+      return Collections.emptyList();
+    } else if (profileFilter.isEmpty() || SpaceMemberFilterListAccess.Type.DISABLED.equals(type)) {
       // Retrieve space members from DB
 
       List<Identity> identities = new ArrayList<>();
-      spaceMembers = sortIdentities(spaceMembers, sortFieldName, sortDirection, false);
+      if (spaceMembers.size() > 1) {
+        spaceMembers = sortIdentities(spaceMembers, sortFieldName, sortDirection, false);
+      }
 
       int i = (int) offset;
       long indexLimit = offset + limit;
@@ -1114,7 +1121,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
     return file.getAsStream();
   }
 
-  private List<String> getSpaceMembers(String spaceIdString, Status status) {
+  private List<String> getSpaceMembers(String spaceIdString, SpaceMembershipStatus status) {
     long spaceId = Long.parseLong(spaceIdString);
     int countSpaceMembers = spaceMemberDAO.countSpaceMembers(spaceId, status);
     if (countSpaceMembers == 0) {

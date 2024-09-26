@@ -39,6 +39,7 @@ import org.exoplatform.social.core.storage.cache.model.data.*;
 import org.exoplatform.social.core.storage.cache.model.key.*;
 import org.exoplatform.social.core.storage.cache.selector.*;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -192,8 +193,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
                             ActivityDAO activityDAO,
                             SpaceExternalInvitationDAO spaceExternalInvitationDAO,
                             SocialStorageCacheService cacheService,
-                            FavoriteService favoriteService) {
-    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO, favoriteService);
+                            FavoriteService favoriteService,
+                            RemindPasswordTokenService remindPasswordTokenService) {
+    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO, favoriteService, remindPasswordTokenService);
     this.cacheService = cacheService;
 
     this.exoSpaceCache = cacheService.getSpaceCache();
@@ -300,23 +302,14 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     cleanRef(space);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
-    renameSpace(null, space, newDisplayName);
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public void renameSpace(String remoteId, Space space, String newDisplayName) throws SpaceStorageException {
     String oldDisplayName = space.getDisplayName();
     String oldUrl = Utils.cleanString(oldDisplayName);
     String oldPrettyName = space.getPrettyName();
     
     //
-    super.renameSpace(remoteId, space, newDisplayName);
+    super.renameSpace(space, newDisplayName);
 
     //remove identity and profile from cache
     cachedIdentityStorage = this.getCachedIdentityStorage();

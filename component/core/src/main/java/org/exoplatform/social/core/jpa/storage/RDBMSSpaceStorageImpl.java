@@ -17,16 +17,23 @@
 
 package org.exoplatform.social.core.jpa.storage;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.Tuple;
-
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.Utils;
@@ -35,12 +42,15 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.XSpaceFilter;
-import org.exoplatform.social.core.jpa.storage.dao.*;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.query.SpaceQueryBuilder;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -51,7 +61,12 @@ import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.web.security.Token;
+import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
+
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+
+import jakarta.persistence.Tuple;
 
 public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
@@ -76,13 +91,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   private FavoriteService            favoriteService;
 
-  public RDBMSSpaceStorageImpl(SpaceDAO spaceDAO,
+  private RemindPasswordTokenService remindPasswordTokenService;
+
+  public RDBMSSpaceStorageImpl(SpaceDAO spaceDAO, // NOSONAR
                                SpaceMemberDAO spaceMemberDAO,
                                IdentityStorage identityStorage,
                                IdentityDAO identityDAO,
                                ActivityDAO activityDAO,
                                SpaceExternalInvitationDAO spaceExternalInvitationDAO,
-                               FavoriteService favoriteService) {
+                               FavoriteService favoriteService,
+                               RemindPasswordTokenService remindPasswordTokenService) {
     this.spaceDAO = spaceDAO;
     this.identityStorage = identityStorage;
     this.spaceMemberDAO = spaceMemberDAO;
@@ -90,6 +108,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     this.activityDAO = activityDAO;
     this.spaceExternalInvitationDAO = spaceExternalInvitationDAO;
     this.favoriteService = favoriteService;
+    this.remindPasswordTokenService = remindPasswordTokenService;
   }
 
   @Override
@@ -121,12 +140,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<Space> getAccessibleSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    return getSpaces(userId, Arrays.asList(Status.MANAGER, Status.MEMBER), spaceFilter, offset, limit);
+    return getSpaces(userId,
+                     Arrays.asList(SpaceMembershipStatus.MANAGER, SpaceMembershipStatus.MEMBER),
+                     spaceFilter,
+                     offset,
+                     limit);
   }
 
   @Override
   public int getAccessibleSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, Arrays.asList(Status.MANAGER, Status.MEMBER), spaceFilter);
+    return getSpacesCount(userId, Arrays.asList(SpaceMembershipStatus.MANAGER, SpaceMembershipStatus.MEMBER), spaceFilter);
   }
 
   @Override
@@ -161,12 +184,12 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<Space> getEditableSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    return getSpaces(userId, Arrays.asList(Status.MANAGER), spaceFilter, offset, limit);
+    return getSpaces(userId, Arrays.asList(SpaceMembershipStatus.MANAGER), spaceFilter, offset, limit);
   }
 
   @Override
   public int getEditableSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, Arrays.asList(Status.MANAGER), spaceFilter);
+    return getSpacesCount(userId, Arrays.asList(SpaceMembershipStatus.MANAGER), spaceFilter);
   }
 
   @Override
@@ -186,12 +209,12 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<Space> getInvitedSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    return getSpaces(userId, Arrays.asList(Status.INVITED), spaceFilter, offset, limit);
+    return getSpaces(userId, Arrays.asList(SpaceMembershipStatus.INVITED), spaceFilter, offset, limit);
   }
 
   @Override
   public int getInvitedSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, Arrays.asList(Status.INVITED), spaceFilter);
+    return getSpacesCount(userId, Arrays.asList(SpaceMembershipStatus.INVITED), spaceFilter);
   }
 
   @Override
@@ -204,7 +227,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     XSpaceFilter xFilter = new XSpaceFilter();
     xFilter.setSpaceFilter(spaceFilter);
     xFilter.setLastAccess(true);
-    return getSpaces(spaceFilter.getRemoteId(), Arrays.asList(Status.MEMBER), xFilter, offset, limit);
+    return getSpaces(spaceFilter.getRemoteId(), Arrays.asList(SpaceMembershipStatus.MEMBER), xFilter, offset, limit);
   }
 
   @Override
@@ -225,7 +248,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<Space> getManagerSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-  return getSpaces(userId, Arrays.asList(Status.MANAGER), spaceFilter, offset, limit);
+    return getSpaces(userId, Arrays.asList(SpaceMembershipStatus.MANAGER), spaceFilter, offset, limit);
   }
 
   @Override
@@ -235,13 +258,12 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, Arrays.asList(Status.MANAGER), spaceFilter);
+    return getSpacesCount(userId, Arrays.asList(SpaceMembershipStatus.MANAGER), spaceFilter);
   }
-  
+
   @Override
   public List<String> getSpaceIdentityIdsByUserRole(String remoteId, String status, int offset, int limit) {
-
-    SpaceMemberEntity.Status spaceMemberStatus = SpaceMemberEntity.Status.valueOf(status.toUpperCase());
+    SpaceMembershipStatus spaceMemberStatus = SpaceMembershipStatus.valueOf(status.toUpperCase());
     List<Long> spaceIdentityIds = spaceMemberDAO.getSpaceIdentityIdsByUserRole(remoteId, spaceMemberStatus, offset, limit);
 
     List<String> ids = new LinkedList<>();
@@ -299,10 +321,13 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<String> getManagerRoleSpaceIds(String identityId,
-                                            int offset,
-                                            int limit) throws SpaceStorageException {
+                                             int offset,
+                                             int limit) throws SpaceStorageException {
     Identity identity = identityStorage.findIdentityById(identityId);
-    List<Long> spaceIds = spaceMemberDAO.getSpaceIdsByUserRole(identity.getRemoteId(), Status.MANAGER, offset, limit);
+    List<Long> spaceIds = spaceMemberDAO.getSpaceIdsByUserRole(identity.getRemoteId(),
+                                                               SpaceMembershipStatus.MANAGER,
+                                                               offset,
+                                                               limit);
 
     List<String> ids = new LinkedList<>();
     if (spaceIds != null && !spaceIds.isEmpty()) {
@@ -325,16 +350,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<Space> getMemberSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    return getSpaces(userId, Arrays.asList(Status.MEMBER), spaceFilter, offset, limit);
+    return getSpaces(userId, Arrays.asList(SpaceMembershipStatus.MEMBER), spaceFilter, offset, limit);
   }
-  
+
   @Override
   public List<Space> getFavoriteSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
     SpaceFilter favoriteSpaceFilter = spaceFilter.clone();
     favoriteSpaceFilter.setIsFavorite(true);
     return getSpaces(userId, null, favoriteSpaceFilter, offset, limit);
   }
-  
+
   @Override
   public int getFavoriteSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
     SpaceFilter favoriteSpaceFilter = spaceFilter.clone();
@@ -344,7 +369,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public int getMemberSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, Arrays.asList(Status.MEMBER), spaceFilter);
+    return getSpacesCount(userId, Arrays.asList(SpaceMembershipStatus.MEMBER), spaceFilter);
   }
 
   @Override
@@ -356,7 +381,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   public int getNumberOfMemberPublicSpaces(String userId) {
     XSpaceFilter filter = new XSpaceFilter();
     filter.setNotHidden(true);
-    return getSpacesCount(userId, Arrays.asList(Status.MEMBER), filter);
+    return getSpacesCount(userId, Arrays.asList(SpaceMembershipStatus.MEMBER), filter);
   }
 
   @Override
@@ -371,12 +396,12 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   @Override
   public List<Space> getPendingSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    return getSpaces(userId, Arrays.asList(Status.PENDING), spaceFilter, offset, limit);
+    return getSpaces(userId, Arrays.asList(SpaceMembershipStatus.PENDING), spaceFilter, offset, limit);
   }
 
   @Override
   public int getPendingSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, Arrays.asList(Status.PENDING), spaceFilter);
+    return getSpacesCount(userId, Arrays.asList(SpaceMembershipStatus.PENDING), spaceFilter);
   }
 
   @Override
@@ -506,7 +531,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     XSpaceFilter xFilter = new XSpaceFilter();
     xFilter.setSpaceFilter(spaceFilter);
     xFilter.setRemoteId(userId);
-    xFilter.addStatus(Status.MEMBER, Status.MANAGER, Status.INVITED);
+    xFilter.addStatus(SpaceMembershipStatus.MEMBER, SpaceMembershipStatus.MANAGER, SpaceMembershipStatus.INVITED);
     xFilter.setIncludePrivate(true);
     return getSpacesByFilter(xFilter, offset, limit);
   }
@@ -516,7 +541,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     XSpaceFilter xFilter = new XSpaceFilter();
     xFilter.setSpaceFilter(spaceFilter);
     xFilter.setRemoteId(userId);
-    xFilter.addStatus(Status.MEMBER, Status.MANAGER, Status.INVITED);
+    xFilter.addStatus(SpaceMembershipStatus.MEMBER, SpaceMembershipStatus.MANAGER, SpaceMembershipStatus.INVITED);
     xFilter.setIncludePrivate(true);
     return getSpacesCount(userId, null, xFilter);
   }
@@ -526,46 +551,23 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     XSpaceFilter xFilter = new XSpaceFilter();
     xFilter.setSpaceFilter(spaceFilter);
     xFilter.setVisited(true);
-    return getSpaces(spaceFilter.getRemoteId(), Arrays.asList(Status.MEMBER), xFilter, offset, limit);
+    return getSpaces(spaceFilter.getRemoteId(), Arrays.asList(SpaceMembershipStatus.MEMBER), xFilter, offset, limit);
+  }
+
+  @Override
+  public Instant getSpaceMembershipDate(long spaceId, String username) {
+    return spaceMemberDAO.getSpaceMembershipDate(spaceId, username);
   }
 
   @Override
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
-    renameSpace(null, space, newDisplayName);
-  }
-
-  @Override
-  public void ignoreSpace(String spaceId, String userId) {
-    SpaceMemberEntity entity = spaceMemberDAO.getSpaceMemberShip(userId, Long.parseLong(spaceId), null);
-    SpaceEntity spaceEntity = spaceDAO.find(Long.parseLong(spaceId));
-    if (entity == null) {
-      entity = new SpaceMemberEntity();
-      entity.setSpace(spaceEntity);
-      entity.setUserId(userId);
-      entity.setStatus(Status.IGNORED);
-      spaceMemberDAO.create(entity);
-    } else {
-      spaceMemberDAO.delete(entity);
-    }
-  }
-
-  @Override
-  public boolean isSpaceIgnored(String spaceId, String userId) {
-    SpaceMemberEntity entity = spaceMemberDAO.getSpaceMemberShip(userId, Long.parseLong(spaceId), Status.IGNORED);
-    return entity != null;
-  }
-  
-  @Override
-  public void renameSpace(String remoteId, Space space, String newDisplayName) throws SpaceStorageException {
-    SpaceEntity entity;
-
     String oldPrettyName = space.getPrettyName();
 
     space.setDisplayName(newDisplayName);
     space.setPrettyName(newDisplayName);
     space.setUrl(Utils.cleanString(newDisplayName));
 
-    entity = spaceDAO.find(Long.parseLong(space.getId()));
+    SpaceEntity entity = spaceDAO.find(Long.parseLong(space.getId()));
     // Retrieve identity before saving
     Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, oldPrettyName);
 
@@ -584,6 +586,28 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
 
     LOG.debug("Space {} ({}) saved", space.getPrettyName(), space.getId());
+  }
+
+  @Override
+  public void ignoreSpace(String spaceId, String userId) {
+    SpaceMemberEntity entity = spaceMemberDAO.getSpaceMemberShip(userId, Long.parseLong(spaceId), null);
+    SpaceEntity spaceEntity = spaceDAO.find(Long.parseLong(spaceId));
+    if (entity == null) {
+      entity = new SpaceMemberEntity();
+      entity.setSpace(spaceEntity);
+      entity.setUserId(userId);
+      entity.setStatus(SpaceMembershipStatus.IGNORED);
+      entity.setCreatedDate(Instant.now());
+      spaceMemberDAO.create(entity);
+    } else {
+      spaceMemberDAO.delete(entity);
+    }
+  }
+
+  @Override
+  public boolean isSpaceIgnored(String spaceId, String userId) {
+    SpaceMemberEntity entity = spaceMemberDAO.getSpaceMemberShip(userId, Long.parseLong(spaceId), SpaceMembershipStatus.IGNORED);
+    return entity != null;
   }
 
   @Override
@@ -617,7 +641,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   @Override
   @ExoTransactional
   public void updateSpaceAccessed(String remoteId, Space space) {
-    SpaceMemberEntity member = spaceMemberDAO.getSpaceMemberShip(remoteId, Long.parseLong(space.getId()), Status.MEMBER);
+    SpaceMemberEntity member = spaceMemberDAO.getSpaceMemberShip(remoteId,
+                                                                 Long.parseLong(space.getId()),
+                                                                 SpaceMembershipStatus.MEMBER);
     if (member != null) {
       member.setVisited(true);
       member.setLastAccess(new Date());
@@ -635,7 +661,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     for (Tuple tuple : spaceRequestsToManage) {
       Space space = new Space();
       space.setId(tuple.get(1).toString());
-      space.setPendingUsers(new String[]{tuple.get(0).toString()});
+      space.setPendingUsers(new String[] { tuple.get(0).toString() });
       spaces.add(space);
     }
     return spaces;
@@ -647,13 +673,10 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
 
   public List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
-    List<SpaceExternalInvitationEntity> spaceExternalInvitationEntities = spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId(spaceId);
-    List<SpaceExternalInvitation> spaceExternalInvitations = new ArrayList<>();
-    for (SpaceExternalInvitationEntity spaceExternalInvitationEntity : spaceExternalInvitationEntities) {
-      SpaceExternalInvitation spaceExternalInvitation = fillSpaceExternalInvitationFromEntity(spaceExternalInvitationEntity);
-      spaceExternalInvitations.add(spaceExternalInvitation);
-    }
-    return spaceExternalInvitations;
+    return spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId(spaceId)
+                                     .stream()
+                                     .map(this::fillSpaceExternalInvitationFromEntity)
+                                     .toList();
   }
 
   public void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) {
@@ -661,16 +684,18 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     spaceExternalInvitation.setSpaceId(spaceId);
     spaceExternalInvitation.setUserEmail(email);
     spaceExternalInvitation.setTokenId(tokenId);
+    spaceExternalInvitation.setCreatedDate(Instant.now());
     spaceExternalInvitationDAO.create(spaceExternalInvitation);
   }
 
-    public SpaceExternalInvitation findSpaceExternalInvitationById(String invitationId) {
+  public SpaceExternalInvitation findSpaceExternalInvitationById(String invitationId) {
     SpaceExternalInvitationEntity spaceExternalInvitationEntity = spaceExternalInvitationDAO.find(Long.parseLong(invitationId));
     return fillSpaceExternalInvitationFromEntity(spaceExternalInvitationEntity);
   }
 
   public void deleteSpaceExternalInvitation(SpaceExternalInvitation spaceExternalInvitation) {
-    SpaceExternalInvitationEntity spaceExternalInvitationEntity = spaceExternalInvitationDAO.find(spaceExternalInvitation.getInvitationId());
+    SpaceExternalInvitationEntity spaceExternalInvitationEntity =
+                                                                spaceExternalInvitationDAO.find(spaceExternalInvitation.getInvitationId());
     spaceExternalInvitationDAO.delete(spaceExternalInvitationEntity);
   }
 
@@ -682,7 +707,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     spaceExternalInvitationDAO.deleteExternalUserInvitations(email);
   }
 
-  private String[] getSpaceMembers(long spaceId, SpaceMemberEntity.Status status) {
+  private String[] getSpaceMembers(long spaceId, SpaceMembershipStatus status) {
     int countSpaceMembers = spaceMemberDAO.countSpaceMembers(spaceId, status);
     if (countSpaceMembers == 0) {
       return new String[0];
@@ -719,17 +744,17 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     Space space = new Space();
     fillSpaceSimpleFromEntity(entity, space);
 
-    space.setPendingUsers(getSpaceMembers(entity.getId(), Status.PENDING));
-    space.setInvitedUsers(getSpaceMembers(entity.getId(), Status.INVITED));
+    space.setPendingUsers(getSpaceMembers(entity.getId(), SpaceMembershipStatus.PENDING));
+    space.setInvitedUsers(getSpaceMembers(entity.getId(), SpaceMembershipStatus.INVITED));
 
     //
-    String[] members = getSpaceMembers(entity.getId(), Status.MEMBER);
-    String[] redactors = getSpaceMembers(entity.getId(), Status.REDACTOR);
-    String[] publishers = getSpaceMembers(entity.getId(), Status.PUBLISHER);
-    String[] managers = getSpaceMembers(entity.getId(), Status.MANAGER);
+    String[] members = getSpaceMembers(entity.getId(), SpaceMembershipStatus.MEMBER);
+    String[] redactors = getSpaceMembers(entity.getId(), SpaceMembershipStatus.REDACTOR);
+    String[] publishers = getSpaceMembers(entity.getId(), SpaceMembershipStatus.PUBLISHER);
+    String[] managers = getSpaceMembers(entity.getId(), SpaceMembershipStatus.MANAGER);
 
     //
-    Set<String> membersList = new HashSet<String>();
+    Set<String> membersList = new HashSet<>();
     if (members != null)
       membersList.addAll(Arrays.asList(members));
     if (managers != null)
@@ -744,13 +769,17 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return space;
   }
 
-  private List<Space> getSpaces(String userId, List<Status> status, SpaceFilter spaceFilter, long offset, long limit) {
+  private List<Space> getSpaces(String userId,
+                                List<SpaceMembershipStatus> status,
+                                SpaceFilter spaceFilter,
+                                long offset,
+                                long limit) {
     XSpaceFilter filter = new XSpaceFilter();
     filter.setSpaceFilter(spaceFilter);
     if (userId != null) {
       filter.setRemoteId(userId);
       if (status != null) {
-        filter.addStatus(status.toArray(new Status[status.size()]));
+        filter.addStatus(status.toArray(new SpaceMembershipStatus[status.size()]));
       }
     }
 
@@ -762,7 +791,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
 
     if (filter.isUnifiedSearch()) {
-      //return spaceSearchConnector.search(filter, offset, limit);
+      // return spaceSearchConnector.search(filter, offset, limit);
       throw new UnsupportedOperationException();
     } else {
       SpaceQueryBuilder query = SpaceQueryBuilder.builder().filter(filter).offset(offset).limit(limit);
@@ -772,19 +801,19 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       } else {
         List<Long> ids = entities.stream()
                                  .map(tuple -> tuple.get(0, Long.class))
-                                 .collect(Collectors.toList());
+                                 .toList();
         return buildList(ids);
       }
     }
   }
 
-  private int getSpacesCount(String userId, List<Status> status, SpaceFilter spaceFilter) {
+  private int getSpacesCount(String userId, List<SpaceMembershipStatus> status, SpaceFilter spaceFilter) {
     XSpaceFilter filter = new XSpaceFilter();
     filter.setSpaceFilter(spaceFilter);
     if (userId != null) {
       filter.setRemoteId(userId);
       if (status != null) {
-        filter.addStatus(status.toArray(new Status[status.size()]));
+        filter.addStatus(status.toArray(new SpaceMembershipStatus[status.size()]));
       }
     }
 
@@ -849,17 +878,17 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
     if (entity.getPriority() != null) {
       switch (entity.getPriority()) {
-        case HIGH:
-          space.setPriority(Space.HIGH_PRIORITY);
-          break;
-        case INTERMEDIATE:
-          space.setPriority(Space.INTERMEDIATE_PRIORITY);
-          break;
-        case LOW:
-          space.setPriority(Space.LOW_PRIORITY);
-          break;
-        default:
-          space.setPriority(null);
+      case HIGH:
+        space.setPriority(Space.HIGH_PRIORITY);
+        break;
+      case INTERMEDIATE:
+        space.setPriority(Space.INTERMEDIATE_PRIORITY);
+        break;
+      case LOW:
+        space.setPriority(Space.LOW_PRIORITY);
+        break;
+      default:
+        space.setPriority(null);
       }
     }
     space.setGroupId(entity.getGroupId());
@@ -867,14 +896,12 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     space.setCreatedTime(entity.getCreatedDate().getTime());
     space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
 
-    Date lastUpdated = entity.getAvatarLastUpdated();
-    if (lastUpdated != null) {
-      space.setAvatarLastUpdated(entity.getAvatarLastUpdated().getTime());
-    } else {
-      space.setAvatarLastUpdated(System.currentTimeMillis());
-      lastUpdated = new Date(System.currentTimeMillis());
-    }
-    space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME, space.getId(), true, lastUpdated == null ? null : lastUpdated.getTime()));
+    Date lastUpdated = ObjectUtils.getFirstNonNull(entity::getAvatarLastUpdated, () -> new Date(System.currentTimeMillis()));
+    space.setAvatarLastUpdated(lastUpdated.getTime());
+    space.setAvatarUrl(LinkProvider.buildAvatarURL(SpaceIdentityProvider.NAME,
+                                                   space.getId(),
+                                                   true,
+                                                   lastUpdated.getTime()));
     lastUpdated = entity.getBannerLastUpdated();
     if (lastUpdated == null && !StringUtils.isBlank(space.getTemplate())) {
       space.setBannerUrl(LinkProvider.buildBannerURL("spaceTemplates", space.getTemplate(), null));
@@ -892,12 +919,16 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     spaceExternalInvitation.setSpaceId(spaceExternalInvitationEntity.getSpaceId());
     spaceExternalInvitation.setUserEmail(spaceExternalInvitationEntity.getUserEmail());
     spaceExternalInvitation.setTokenId(spaceExternalInvitationEntity.getTokenId());
-    RemindPasswordTokenService remindPasswordTokenService = CommonsUtils.getService(RemindPasswordTokenService.class);
-    Token token = null;
-    if (remindPasswordTokenService != null) {
-      token = remindPasswordTokenService.getToken(spaceExternalInvitationEntity.getTokenId(), remindPasswordTokenService.EXTERNAL_REGISTRATION_TOKEN);
-    }
+
+    Token token = remindPasswordTokenService.getToken(spaceExternalInvitationEntity.getTokenId(),
+                                                      CookieTokenService.EXTERNAL_REGISTRATION_TOKEN);
     spaceExternalInvitation.setExpired(token == null || token.isExpired());
+
+    Instant createdDate = ObjectUtils.getFirstNonNull(spaceExternalInvitationEntity::getCreatedDate,
+                                                      () -> computeCreatedDate(token));
+    if (createdDate != null) {
+      spaceExternalInvitation.setCreatedDate(createdDate.toEpochMilli());
+    }
     return spaceExternalInvitation;
   }
 
@@ -911,17 +942,22 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
 
   @Override
-  public List<Space> getCommonSpaces(String userId, String otherUserId,int offset, int limit)  {
-
+  public List<Space> getCommonSpaces(String userId, String otherUserId, int offset, int limit) {
     List<SpaceEntity> commonSpaces = spaceDAO.getCommonSpaces(userId, otherUserId, offset, limit);
-
     return commonSpaces.stream()
-            .map(this::fillSpaceFromEntity)
-            .collect(Collectors.toList());
+                       .map(this::fillSpaceFromEntity)
+                       .toList();
   }
+
   @Override
   public int countCommonSpaces(String userId, String otherUserId) {
     return spaceDAO.countCommonSpaces(userId, otherUserId);
+  }
+
+  private Instant computeCreatedDate(Token token) {
+    return token == null ? null :
+                         Instant.ofEpochMilli(token.getExpirationTimeMillis())
+                                .minusSeconds(remindPasswordTokenService.getValidityTime());
   }
 
 }

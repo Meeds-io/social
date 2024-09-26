@@ -1,5 +1,6 @@
 package org.exoplatform.social.core.jpa.storage;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,10 +37,11 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.PRIORITY;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.REGISTRATION;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.VISIBILITY;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity.Status;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
+
+import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 public class EntityConverterUtils {
 
@@ -55,11 +56,11 @@ public class EntityConverterUtils {
   public static Identity convertToIdentity(IdentityEntity entity, boolean mapDeleted) {
     if (entity.isDeleted() && !mapDeleted) {
       return null;
+    } else {
+      Identity identity = new Identity(entity.getStringId());
+      mapToIdentity(entity, identity);
+      return identity;
     }
-
-    Identity identity = new Identity(entity.getStringId());
-    mapToIdentity(entity, identity);
-    return identity;
   }
 
   public static void mapToIdentity(IdentityEntity entity, Identity identity) {
@@ -230,8 +231,8 @@ public class EntityConverterUtils {
       
       List<IdentityWithRelationship> result = new ArrayList<>(limit);
       for (Entry<IdentityEntity, ConnectionEntity> tuple : entities) {
-        IdentityEntity identityEntity = (IdentityEntity) tuple.getKey();
-        ConnectionEntity connectionEntity = (ConnectionEntity) tuple.getValue();
+        IdentityEntity identityEntity = tuple.getKey();
+        ConnectionEntity connectionEntity = tuple.getValue();
 
         IdentityWithRelationship identityWithRelationship = new IdentityWithRelationship(identityEntity.getStringId());
         mapToIdentity(identityEntity, identityWithRelationship);
@@ -258,16 +259,11 @@ public class EntityConverterUtils {
   public static List<Identity> convertToIdentities(IdentityEntity[] entities) {
     if (entities == null || entities.length == 0) {
       return Collections.emptyList();
+    } else {
+      return Arrays.stream(entities)
+                   .map(EntityConverterUtils::convertToIdentity)
+                   .toList();
     }
-
-    List<Identity> result = new ArrayList<>(entities.length);
-    for (IdentityEntity entity : entities) {
-      Identity idt = convertToIdentity(entity);
-      if (idt != null) {
-        result.add(idt);
-      }
-    }
-    return result;
   }
 
   public static SpaceEntity buildFrom(Space space, SpaceEntity spaceEntity) {
@@ -341,43 +337,27 @@ public class EntityConverterUtils {
     return fileInfo != null && DEFAULT_AVATAR.equals(fileInfo.getName());
   }
 
-  private static String[] getPendingMembersId(SpaceEntity spaceEntity) {
-    return getUserIds(spaceEntity, Status.PENDING);
-  }
-
-  private static String[] getInvitedMembersId(SpaceEntity spaceEntity) {
-    return getUserIds(spaceEntity, Status.INVITED);
-  }
-
-  private static String[] getMembersId(SpaceEntity spaceEntity) {
-    return getUserIds(spaceEntity, Status.MEMBER);
-  }
-
-  private static String[] getManagerMembersId(SpaceEntity spaceEntity) {
-    return getUserIds(spaceEntity, Status.MANAGER);
-  }
-
   private static void buildMembers(Space space, SpaceEntity spaceEntity) {
-    Set<SpaceMemberEntity> invited = getMembers(spaceEntity, Status.INVITED);
-    merge(spaceEntity, invited, space.getInvitedUsers(), Status.INVITED);
+    Set<SpaceMemberEntity> invited = getMembers(spaceEntity, SpaceMembershipStatus.INVITED);
+    merge(spaceEntity, invited, space.getInvitedUsers(), SpaceMembershipStatus.INVITED);
 
-    Set<SpaceMemberEntity> manager = getMembers(spaceEntity, Status.MANAGER);
-    merge(spaceEntity, manager, space.getManagers(), Status.MANAGER);
+    Set<SpaceMemberEntity> manager = getMembers(spaceEntity, SpaceMembershipStatus.MANAGER);
+    merge(spaceEntity, manager, space.getManagers(), SpaceMembershipStatus.MANAGER);
 
-    Set<SpaceMemberEntity> member = getMembers(spaceEntity, Status.MEMBER);
-    merge(spaceEntity, member, space.getMembers(), Status.MEMBER);
+    Set<SpaceMemberEntity> member = getMembers(spaceEntity, SpaceMembershipStatus.MEMBER);
+    merge(spaceEntity, member, space.getMembers(), SpaceMembershipStatus.MEMBER);
     
-    Set<SpaceMemberEntity> redactor = getMembers(spaceEntity, Status.REDACTOR);
-    merge(spaceEntity, redactor, space.getRedactors(), Status.REDACTOR);
+    Set<SpaceMemberEntity> redactor = getMembers(spaceEntity, SpaceMembershipStatus.REDACTOR);
+    merge(spaceEntity, redactor, space.getRedactors(), SpaceMembershipStatus.REDACTOR);
     
-    Set<SpaceMemberEntity> publisher = getMembers(spaceEntity, Status.PUBLISHER);
-    merge(spaceEntity, publisher, space.getPublishers(), Status.PUBLISHER);
+    Set<SpaceMemberEntity> publisher = getMembers(spaceEntity, SpaceMembershipStatus.PUBLISHER);
+    merge(spaceEntity, publisher, space.getPublishers(), SpaceMembershipStatus.PUBLISHER);
 
-    Set<SpaceMemberEntity> pending = getMembers(spaceEntity, Status.PENDING);
-    merge(spaceEntity, pending, space.getPendingUsers(), Status.PENDING);
+    Set<SpaceMemberEntity> pending = getMembers(spaceEntity, SpaceMembershipStatus.PENDING);
+    merge(spaceEntity, pending, space.getPendingUsers(), SpaceMembershipStatus.PENDING);
   }
 
-  private static void merge(SpaceEntity spaceEntity, Set<SpaceMemberEntity> spaceMembers, String[] userIds, Status status) {
+  private static void merge(SpaceEntity spaceEntity, Set<SpaceMemberEntity> spaceMembers, String[] userIds, SpaceMembershipStatus status) {
     Set<String> ids = new HashSet<>(userIds != null ? Arrays.asList(userIds) : Collections.<String> emptyList());
 
     Iterator<SpaceMemberEntity> mems = spaceMembers.iterator();
@@ -394,12 +374,12 @@ public class EntityConverterUtils {
 
     for (String id : ids) {
       if (StringUtils.isNotBlank(id)) {
-        spaceEntity.getMembers().add(new SpaceMemberEntity(spaceEntity, id, status));
+        spaceEntity.getMembers().add(new SpaceMemberEntity(spaceEntity, id, status, Instant.now()));
       }
     }
   }
 
-  private static Set<SpaceMemberEntity> getMembers(SpaceEntity spaceEntity, Status status) {
+  private static Set<SpaceMemberEntity> getMembers(SpaceEntity spaceEntity, SpaceMembershipStatus status) {
     Set<SpaceMemberEntity> mems = new HashSet<>();
     for (SpaceMemberEntity mem : spaceEntity.getMembers()) {
       if (mem.getStatus().equals(status)) {
@@ -407,14 +387,6 @@ public class EntityConverterUtils {
       }
     }
     return mems;
-  }
-
-  private static String[] getUserIds(SpaceEntity spaceEntity, Status status) {
-    List<String> ids = new LinkedList<>();
-    for (SpaceMemberEntity mem : getMembers(spaceEntity, status)) {
-      ids.add(mem.getUserId());
-    }
-    return ids.toArray(new String[ids.size()]);
   }
 
 }

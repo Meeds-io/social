@@ -280,7 +280,7 @@ public class SpaceEntity extends BaseEntity {
   public String getPublishers() {
     return getString("publishers");
   }
-
+  
   public SpaceEntity setPublishersCount(int publishersCount) {
     setProperty("publishersCount", publishersCount);
     return this;
@@ -288,6 +288,24 @@ public class SpaceEntity extends BaseEntity {
 
   public Integer getPublishersCount() {
     return (Integer) getProperty("publishersCount");
+  }
+
+  public SpaceEntity setPendingUsersCount(int pendingUsersCount) {
+    setProperty("pendingUsersCount", pendingUsersCount);
+    return this;
+  }
+
+  public Integer getPendingUsersCount() {
+    return (Integer) getProperty("pendingUsersCount");
+  }
+
+  public SpaceEntity setInvitedUsersCount(int invitedUsersCount) {
+    setProperty("invitedUsersCount", invitedUsersCount);
+    return this;
+  }
+
+  public Integer getInvitedUsersCountCount() {
+    return (Integer) getProperty("invitedUsersCount");
   }
 
   public SpaceEntity setIsMember(boolean isMember) {

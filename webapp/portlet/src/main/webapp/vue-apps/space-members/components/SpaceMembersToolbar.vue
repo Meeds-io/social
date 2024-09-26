@@ -10,25 +10,18 @@
       selected: filter,
       items: peopleFilters,
     }"
-    @filter-text-input-end-typing="keyword = $event"
-    @filter-select-change="filterValue = $event"
-    @toggle-select="updateFilter($event)">
+    compact
+    no-text-truncate
+    @filter-text-input-end-typing="$emit('keyword-changed', $event)"
+    @filter-select-change="$emit('filter-changed', $event)"
+    @toggle-select="$emit('filter-changed', $event)"
+    @loading="$emit('loading', $event)">
     <template
       #left>
       <div class="d-flex">
-        <v-btn
+        <space-invite-buttons-group
           v-if="isManager"
-          class="btn pe-2 ps-0 me-4 inviteUserToSpaceButton"
-          @click="$emit('invite-users')">
-          <v-icon
-            size="18"
-            class="primary--text ms-2 me-1">
-            fas fa-user-plus
-          </v-icon>
-          <span class="d-none d-sm-inline">
-            {{ $t('peopleList.button.inviteUsers') }}
-          </span>
-        </v-btn>
+          class="px-2 me-4" />
         <div class="showingPeopleText text-subtitle d-none my-auto d-sm-flex">
           {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
         </div>
@@ -36,15 +29,9 @@
     </template>
   </application-toolbar>
 </template>
-
 <script>
-
 export default {
   props: {
-    keyword: {
-      type: String,
-      default: null,
-    },
     filter: {
       type: String,
       default: null,
@@ -58,15 +45,6 @@ export default {
       default: false,
     },
   },
-  data: () => ({
-    filterToChange: null,
-    bottomMenu: false,
-    startSearchAfterInMilliseconds: 300,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
-    typing: false,
-    filterValue: null
-  }),
   computed: {
     isMobile() {
       return this.$vuetify.breakpoint.smAndDown;
@@ -85,12 +63,6 @@ export default {
         },{
           text: this.$t('peopleList.label.filter.publisher'),
           value: 'publisher',
-        },{
-          text: this.$t('peopleList.label.filter.invited'),
-          value: 'invited',
-        },{
-          text: this.$t('peopleList.label.filter.pending'),
-          value: 'pending',
         },{
           text: this.$t('peopleList.label.filter.disabled'),
           value: 'disabled',
@@ -112,39 +84,6 @@ export default {
       }
     },
   },
-  watch: {
-    keyword() {
-      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
-      if (!this.typing) {
-        this.typing = true;
-        this.waitForEndTyping();
-      }
-    },
-    filter() {
-      this.filterValue = this.filter;
-    },
-    filterValue() {
-      this.updateFilter();
-    }
-  },
-  created() {
-    this.filterValue = this.filter;
-  },
-  methods: {
-    updateFilter() {
-      this.$emit('filter-changed', this.filterValue);
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() > this.startTypingKeywordTimeout) {
-          this.typing = false;
-          this.$emit('keyword-changed', this.keyword);
-        } else {
-          this.waitForEndTyping();
-        }
-      }, this.endTypingKeywordTimeout);
-    },
-  }
 };
 </script>
 

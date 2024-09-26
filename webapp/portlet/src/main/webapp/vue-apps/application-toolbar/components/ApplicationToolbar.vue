@@ -27,7 +27,7 @@
         v-if="showLeftContent"
         id="applicationToolbarLeft"
         :class="leftCols"
-        class="flex-grow-1 text-start text-truncate pa-0">
+        class="flex-grow-1 text-start pa-0">
         <v-btn
           v-if="showLeftButton"
           id="applicationToolbarLeftButton"
@@ -300,6 +300,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    noTextTruncate: { // Avoid using overflow-hidden/text-truncate on parent elements to allow overflow
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     expandFilter: false,
@@ -401,11 +405,13 @@ export default {
       return !this.hideRight && (!this.isCompact || this.hasRightContent);
     },
     leftCols() {
-      return this.expandFilter && 'd-none'
-        || (!this.showRightContent && !this.showCenterContent
-            && 'col-12'
-            || ((!this.showRightContent !== !this.showCenterContent)
-                && 'col-6' || 'col-4'));
+      return {
+        'd-none': this.expandFilter,
+        'col-12': !this.expandFilter && !this.showRightContent && !this.showCenterContent,
+        'col-6': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+        'col-4': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent === !this.showCenterContent),
+        'text-truncate': !this.noTextTruncate,
+      };
     },
     centerCols() {
       return this.expandFilter && 'col-12'
@@ -442,9 +448,9 @@ export default {
     typing()  {
       this.$emit('filter-text-typing', this.typing);
       if (this.typing) {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+        this.startLoading();
       } else {
-        this.$nextTick(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+        this.endLoading();
       }
     },
     expandFilter()  {
@@ -478,6 +484,20 @@ export default {
     document.removeEventListener('keydown', this.closeFilter);
   },
   methods: {
+    startLoading() {
+      if (this.$listeners.loading) {
+        this.$emit('loading', true);
+      } else {
+        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));      
+      }
+    },
+    endLoading() {
+      if (this.$listeners.loading) {
+        this.$emit('loading', false);
+      } else {
+        this.$nextTick(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+      }
+    },
     reset() {
       this.term = null;
       this.expandFilter = false;

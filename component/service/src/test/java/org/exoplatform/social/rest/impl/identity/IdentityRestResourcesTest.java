@@ -37,7 +37,7 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
 
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
-    addResource(IdentityRestResourcesV1.class, null);
+    addResource(IdentityRest.class, null);
     createIdentity("root");
     createIdentity("john");
     createIdentity("mary");
@@ -46,7 +46,7 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
 
   public void tearDown() throws Exception {
     super.tearDown();
-    removeResource(IdentityRestResourcesV1.class);
+    removeResource(IdentityRest.class);
   }
 
   public void testGetIdentities() throws Exception {

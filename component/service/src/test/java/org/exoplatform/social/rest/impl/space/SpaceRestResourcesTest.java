@@ -41,8 +41,8 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.rest.impl.activity.ActivityRestResourcesV1;
-import org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRestResourcesV1;
+import org.exoplatform.social.rest.impl.activity.ActivityRest;
+import org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
@@ -59,7 +59,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
   private SpaceService          spaceService;
 
-  private SpaceRestResourcesV1  spaceRestResources;
+  private SpaceRest  spaceRestResources;
 
   private Identity              rootIdentity;
 
@@ -96,7 +96,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     demoIdentity = identityManager.getOrCreateIdentity("organization", "demo");
 
     spaceRestResources =
-                       new SpaceRestResourcesV1(new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null),
+                       new SpaceRest(new ActivityRest(activityManager, identityManager, spaceService, null),
                                                 spaceService,
                                                 identityManager,
                                                 uploadService,
@@ -104,7 +104,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
                                                 securitySettingService);
     registry(spaceRestResources);
 
-    SpaceTemplatesRestResourcesV1 spaceTemplatesRestResourcesV1 = new SpaceTemplatesRestResourcesV1(getContainer().getComponentInstanceOfType(SpaceTemplateService.class), getContainer().getComponentInstanceOfType(ConfigurationManager.class));
+    SpaceTemplatesRest spaceTemplatesRestResourcesV1 = new SpaceTemplatesRest(getContainer().getComponentInstanceOfType(SpaceTemplateService.class), getContainer().getComponentInstanceOfType(ConfigurationManager.class));
     registry(spaceTemplatesRestResourcesV1);
   }
 
@@ -704,7 +704,16 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     spaceService.updateSpace(space);
 
     startSessionAs("root");
-    ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId() + "/users"), "", null, null);
+    ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    DataEntity dataEntity = (DataEntity) response.getEntity();
+    assertEquals(1, dataEntity.get("managersCount"));
+    assertEquals(2, dataEntity.get("membersCount"));
+    assertEquals(1, dataEntity.get("invitedUsersCount"));
+    assertEquals(1, dataEntity.get("pendingUsersCount"));
+
+    response = service("GET", getURLResource("spaces/" + space.getId() + "/users"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();

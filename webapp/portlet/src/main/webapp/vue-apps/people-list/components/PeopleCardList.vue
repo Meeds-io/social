@@ -1,10 +1,11 @@
 <template>
   <v-card flat>
     <v-progress-linear
-      v-if="loadingPeople"
+      v-if="displayLoading"
+      color="primary"
+      class="position-absolute"
       indeterminate
-      height="2"
-      color="primary" />
+      height="2" />
     <v-card-text id="peopleListBody" class="pb-0">
       <v-item-group>
         <v-container
@@ -28,7 +29,7 @@
                 :profile-action-extensions="profileActionExtensions" />
             </v-col>
           </v-row>
-          <div v-else-if="!loadingPeople" class="d-flex text-center noPeopleYetBlock">
+          <div v-else-if="!displayLoading" class="d-flex text-center noPeopleYetBlock">
             <div class="ma-auto noPeopleYet">
               <p class="noPeopleYetIcons">
                 <v-icon>fa-users</v-icon>
@@ -61,8 +62,7 @@
     <v-card-actions id="peopleListFooter" class="pt-0 px-5 border-box-sizing">
       <v-btn
         v-if="canShowMore"
-        :loading="loadingPeople"
-        :disabled="loadingPeople"
+        :loading="displayLoading"
         class="loadMoreButton ma-auto btn"
         block
         @click="loadNextPage">
@@ -80,6 +80,10 @@ export default {
       default: null,
     },
     filter: {
+      type: String,
+      default: null,
+    },
+    loading: {
       type: String,
       default: null,
     },
@@ -116,6 +120,9 @@ export default {
     advancedFilterSettings: null,
   }),
   computed: {
+    displayLoading() {
+      return this.loadingPeople || this.loading;
+    },
     profileActionExtensions() {
       return [...this.profileExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
     },
@@ -196,8 +203,6 @@ export default {
         searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
       } else if (this.filter === 'member'
           || this.filter === 'manager'
-          || this.filter === 'invited'
-          || this.filter === 'pending'
           || this.filter === 'redactor'
           || this.filter === 'publisher'
           || this.filter === 'disabled') {

@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,6 +41,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.CacheControl;
@@ -118,6 +121,7 @@ import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRest.MembershipType;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.ws.frameworks.json.impl.JsonDefaultHandler;
@@ -143,6 +147,8 @@ public class EntityBuilder {
   public static final String              IDENTITIES_TYPE                            = "identities";
 
   public static final String              SPACES_TYPE                                = "spaces";
+
+  public static final String              CREATED_DATE                               = "createdDate";
 
   public static final String              SPACES_MEMBERSHIP_TYPE                     = "spacesMemberships";
 
@@ -272,12 +278,12 @@ public class EntityBuilder {
   public static ProfileEntity buildEntityProfile(Space space, Profile profile, String path, String expand) {
     ProfileEntity entity = buildEntityProfile(profile, path, expand);
     String userId = profile.getIdentity().getRemoteId();
-    entity.setIsManager(spaceService.isManager(space, userId));
-    entity.setIsSpaceRedactor(spaceService.isRedactor(space, userId));
-    entity.setIsSpacePublisher(spaceService.isPublisher(space, userId));
-    entity.setIsMember(spaceService.isMember(space, userId));
-    entity.setIsInvited(spaceService.isInvitedUser(space, userId));
-    entity.setIsPending(spaceService.isPendingUser(space, userId));
+    entity.setIsManager(getSpaceService().isManager(space, userId));
+    entity.setIsSpaceRedactor(getSpaceService().isRedactor(space, userId));
+    entity.setIsSpacePublisher(getSpaceService().isPublisher(space, userId));
+    entity.setIsMember(getSpaceService().isMember(space, userId));
+    entity.setIsInvited(getSpaceService().isInvitedUser(space, userId));
+    entity.setIsPending(getSpaceService().isPendingUser(space, userId));
     String[] expandArray = StringUtils.split(expand, ",");
     List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);
     if (expandAttributes.contains("binding") || expandAttributes.contains("all")) {
@@ -300,7 +306,7 @@ public class EntityBuilder {
     userEntity.getDataEntity().put(RestProperties.USER_NAME, profile.getIdentity().getRemoteId());
 
     boolean isAdmin = getUserACL().isSuperUser()
-        || getUserACL().isUserInGroup(getUserACL().getAdminGroups());
+                      || getUserACL().isUserInGroup(getUserACL().getAdminGroups());
     boolean isCurrentUser = StringUtils.equals(getCurrentUserName(), profile.getIdentity().getRemoteId());
     boolean canViewProperties = isAdmin || isCurrentUser;
 
@@ -571,7 +577,8 @@ public class EntityBuilder {
     Map<Long, ProfilePropertySettingEntity> properties = new HashMap<>();
     List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings()
                                                                   .stream()
-                                                                  .filter(prop -> prop.isVisible() || (prop.isEditable() && canViewProperties))
+                                                                  .filter(prop -> prop.isVisible()
+                                                                                  || (prop.isEditable() && canViewProperties))
                                                                   .toList();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
@@ -789,9 +796,10 @@ public class EntityBuilder {
    */
   public static SpaceEntity buildEntityFromSpace(Space space, String userId, String restPath, String expand) {
     SpaceEntity spaceEntity = new SpaceEntity(space.getId());
+    SpaceService spaceService = getSpaceService();
+    boolean canEdit = spaceService.canManageSpace(space, userId);
     if (StringUtils.isNotBlank(userId)) {
       IdentityManager identityManager = getIdentityManager();
-      SpaceService spaceService = getSpaceService();
       GroupSpaceBindingService groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
       if (ArrayUtils.contains(space.getMembers(), userId) || spaceService.isSuperManager(userId)) {
         spaceEntity.setHref(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
@@ -899,7 +907,6 @@ public class EntityBuilder {
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
-      boolean canEdit = isManager || spaceService.isSuperManager(userId);
       spaceEntity.setIsPending(spaceService.isPendingUser(space, userId));
       spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
@@ -927,12 +934,143 @@ public class EntityBuilder {
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
     spaceEntity.setSubscription(space.getRegistration());
-    spaceEntity.setMembersCount(space.getMembers() == null ? 0 : space.getMembers().length);
-    spaceEntity.setManagersCount(space.getManagers() == null ? 0 : space.getManagers().length);
-    spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : space.getRedactors().length);
-    spaceEntity.setPublishersCount(space.getPublishers() == null ? 0 : space.getPublishers().length);
+    spaceEntity.setMembersCount(space.getMembers() == null ? 0 : countUsers(space.getMembers()));
+    spaceEntity.setManagersCount(space.getManagers() == null ? 0 : countUsers(space.getManagers()));
+    spaceEntity.setRedactorsCount(space.getRedactors() == null ? 0 : countUsers(space.getRedactors()));
+    spaceEntity.setPublishersCount(space.getPublishers() == null ? 0 : countUsers(space.getPublishers()));
+    if (canEdit) {
+      spaceEntity.setPendingUsersCount(space.getPendingUsers() == null ? 0 : countUsers(space.getPendingUsers()));
+      spaceEntity.setInvitedUsersCount(space.getInvitedUsers() == null ? 0 : countUsers(space.getInvitedUsers()));
+    }
 
     return spaceEntity;
+  }
+
+  public static List<DataEntity> buildSpaceMemberships(SpaceService spaceService,
+                                                       List<Space> spaces,
+                                                       String userId,
+                                                       MembershipType membershipType,
+                                                       int offset,
+                                                       String path,
+                                                       String expand) {
+    if (StringUtils.isNotBlank(userId)) {
+      return spaces.stream()
+                   .map(space -> buildSpaceMembership(spaceService,
+                                                      space,
+                                                      userId,
+                                                      membershipType,
+                                                      path,
+                                                      expand))
+                   .skip(offset)
+                   .filter(Objects::nonNull)
+                   .toList();
+    } else {
+      return spaces.stream()
+                   .map(space -> buildSpaceMemberships(space,
+                                                       membershipType,
+                                                       path,
+                                                       expand))
+                   .filter(CollectionUtils::isNotEmpty)
+                   .flatMap(List::stream)
+                   .skip(offset)
+                   .toList();
+    }
+  }
+
+  public static List<DataEntity> buildSpaceMemberships(SpaceService spaceService,
+                                                       Space space,
+                                                       List<Identity> identities,
+                                                       MembershipType membershipType,
+                                                       UriInfo uriInfo,
+                                                       String expand) {
+    return identities.stream()
+                     .filter(Objects::nonNull)
+                     .filter(Identity::isUser)
+                     .map(identity -> buildSpaceMembership(spaceService,
+                                                           space,
+                                                           identity.getRemoteId(),
+                                                           membershipType,
+                                                           uriInfo.getPath(),
+                                                           expand))
+                     .toList();
+  }
+
+  private static DataEntity buildSpaceMembership(SpaceService spaceService,
+                                                 Space space,
+                                                 String userId,
+                                                 MembershipType membershipType,
+                                                 String restPath,
+                                                 String expand) {
+    if (getMembershipTypePredicate(spaceService, membershipType).test(space, userId)) {
+      return EntityBuilder.buildSpaceMembershipEntity(space,
+                                                      userId,
+                                                      membershipType.getRole(),
+                                                      restPath,
+                                                      expand);
+    } else {
+      return null; // NOSONAR
+    }
+  }
+
+  private static List<DataEntity> buildSpaceMemberships(Space space,
+                                                        MembershipType membershipType,
+                                                        String restPath,
+                                                        String expand) {
+    return Arrays.stream(getUsersSupplier(space, membershipType).get())
+                 .map(user -> EntityBuilder.buildSpaceMembershipEntity(space,
+                                                                       user,
+                                                                       membershipType.getRole(),
+                                                                       restPath,
+                                                                       expand))
+                 .toList();
+  }
+
+  private static DataEntity buildSpaceMembershipEntity(Space space,
+                                                       String user,
+                                                       String role,
+                                                       String restPath,
+                                                       String expand) {
+    SpaceMembershipEntity membershipEntity = buildEntityFromSpaceMembership(space, user, role, restPath, expand);
+    return membershipEntity.getDataEntity();
+  }
+
+  private static Supplier<String[]> getUsersSupplier(Space space, MembershipType membershipType) {
+    return switch (membershipType) {
+    case MEMBER, APPROVED:
+      yield space::getMembers;
+    case MANAGER:
+      yield space::getManagers;
+    case PUBLISHER:
+      yield space::getPublishers;
+    case REDACTOR:
+      yield space::getRedactors;
+    case INVITED:
+      yield space::getInvitedUsers;
+    case PENDING:
+      yield space::getPendingUsers;
+    default:
+      throw new IllegalArgumentException("Unexpected value: " + membershipType);
+    };
+
+  }
+
+  private static BiPredicate<Space, String> getMembershipTypePredicate(SpaceService spaceService, MembershipType membershipType) {
+    return switch (membershipType) {
+    case MEMBER, APPROVED:
+      yield spaceService::isMember;
+    case MANAGER:
+      yield spaceService::isManager;
+    case PUBLISHER:
+      yield spaceService::isPublisher;
+    case REDACTOR:
+      yield spaceService::isRedactor;
+    case INVITED:
+      yield spaceService::isInvitedUser;
+    case PENDING:
+      yield spaceService::isPendingUser;
+    default:
+      throw new IllegalArgumentException("Unexpected value: " + membershipType);
+    };
   }
 
   /**
@@ -972,9 +1110,16 @@ public class EntityBuilder {
     }
     spaceMembership.setDataUser(userEntity);
 
+    if (expandFields.contains(CREATED_DATE)) {
+      Instant createdDate = getSpaceService().getSpaceMembershipDate(Long.parseLong(space.getId()), userId);
+      if (createdDate != null && getSpaceService().canManageSpace(space, getCurrentUserName())) {
+        spaceMembership.getDataEntity().put(CREATED_DATE, createdDate.toEpochMilli());
+      }
+    }
+
     LinkEntity spaceEntity;
     if (expandFields.contains(SPACES_TYPE)) {
-      spaceEntity = new LinkEntity(buildEntityProfile(userId, restPath, expand));
+      spaceEntity = new LinkEntity(buildEntityFromSpace(space, userId, restPath, expand));
     } else {
       spaceEntity = new LinkEntity(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
     }
@@ -1253,7 +1398,7 @@ public class EntityBuilder {
                                                                 RestUtils.HARD_LIMIT)));
     } else {
       commentEntity.setLikes(new LinkEntity(RestUtils.getBaseRestUrl() + "/" + VersionResources.VERSION_ONE +
-          "/social/comments/" + comment.getId() + "/likes"));
+          "/social/activities/" + comment.getId() + "/likes"));
     }
     commentEntity.setCreateDate(RestUtils.formatISO8601(new Date(comment.getPostedTime())));
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));
@@ -1966,21 +2111,21 @@ public class EntityBuilder {
 
   public static SpaceService getSpaceService() {
     if (spaceService == null) {
-      spaceService = CommonsUtils.getService(SpaceService.class);
+      spaceService = ExoContainerContext.getService(SpaceService.class);
     }
     return spaceService;
   }
 
   public static OrganizationService getOrganizationService() {
     if (organizationService == null) {
-      organizationService = CommonsUtils.getService(OrganizationService.class);
+      organizationService = ExoContainerContext.getService(OrganizationService.class);
     }
     return organizationService;
   }
 
   public static RelationshipManager getRelationshipManager() {
     if (relationshipManager == null) {
-      relationshipManager = CommonsUtils.getService(RelationshipManager.class);
+      relationshipManager = ExoContainerContext.getService(RelationshipManager.class);
     }
     return relationshipManager;
   }
@@ -2050,7 +2195,7 @@ public class EntityBuilder {
       if (excludeEmptyNavigationSites
           && (rootNode == null || CollectionUtils.isEmpty(rootNode.getChildren()))) {
         return null;
-      } 
+      }
       siteNavigations = getSiteNavigations(userPortal,
                                            rootNode,
                                            expandNavigations,
@@ -2062,10 +2207,11 @@ public class EntityBuilder {
     long siteId = Long.parseLong((site.getStorageId().split("_"))[1]);
 
     String translatedSiteLabel = getTranslatedLabel(SITE_LABEL_FIELD_NAME, siteId, locale);
-    String siteLabel = StringUtils.isBlank(translatedSiteLabel) ? getSiteLabel(siteKey, userPortal): translatedSiteLabel;
+    String siteLabel = StringUtils.isBlank(translatedSiteLabel) ? getSiteLabel(siteKey, userPortal) : translatedSiteLabel;
 
     String translateSiteDescription = getTranslatedLabel(SITE_DESCRIPTION_FIELD_NAME, siteId, locale);
-    String siteDescription = StringUtils.isBlank(translateSiteDescription) ? getSiteDescription(siteKey, userPortal) : translateSiteDescription;
+    String siteDescription = StringUtils.isBlank(translateSiteDescription) ? getSiteDescription(siteKey, userPortal) :
+                                                                           translateSiteDescription;
 
     List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
     Map<String, Object> editPermission = computePermission(site.getEditPermission());
@@ -2280,6 +2426,10 @@ public class EntityBuilder {
     ConversationState conversationState = ConversationState.getCurrent();
     return conversationState == null || conversationState.getIdentity() == null ? null :
                                                                                 conversationState.getIdentity().getUserId();
+  }
+
+  private static int countUsers(String[] users) {
+    return Arrays.stream(users).collect(Collectors.toSet()).size();
   }
 
 }

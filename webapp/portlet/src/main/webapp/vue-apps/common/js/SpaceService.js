@@ -162,64 +162,6 @@ export function getSpaceByGroupSuffix(groupSuffix, expand) {
   });
 }
 
-export function getSpaceApplications(spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
-    }
-  });
-}
-
-export function getSpaceApplicationsChoices() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/applications`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
-    }
-  });
-}
-
-export function removeSpacesApplication(appName) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/applications/${appName}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function addSpacesApplication(application) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/applications`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      applicationName: application.applicationName,
-      contentId: application.contentId,
-      description: application.description,
-      displayName: application.displayName || application.applicationName,
-      id: application.id,
-    }),
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
 export function restoreSpaceHomeLayout(spaceId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/layout/home/${spaceId}`, {
     credentials: 'include',
@@ -265,9 +207,6 @@ export function getSpaces(query, offset, limit, filter, expand) {
 }
 
 export function removeSpace(spaceId) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}`, {
     method: 'DELETE',
     credentials: 'include',
@@ -279,9 +218,6 @@ export function removeSpace(spaceId) {
 }
 
 export function updateSpace(space) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${space.id}`, {
     method: 'PUT',
     credentials: 'include',
@@ -319,91 +255,137 @@ export function createSpace(space) {
   });
 }
 
-export function leave(spaceId) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
+export function getSpaceMemberships(params) {
+  const formData = new FormData();
+  formData.append('offset', params.offset || 0);
+  formData.append('limit', params.limit || 0);
+  if (params.user) {
+    formData.append('user', params.user);
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/leave/${spaceId}`, {
+  if (params.space) {
+    formData.append('space', params.space);
+  }
+  if (params.status) {
+    formData.append('status', params.status || 'member');
+  }
+  if (params.query) {
+    formData.append('query', params.query);
+  }
+  if (params.expand) {
+    formData.append('expand', params.expand);
+  }
+  if (params.returnSize) {
+    formData.append('returnSize', params.returnSize);
+  }
+  const urlParams = new URLSearchParams(formData).toString();
+  return fetch( `/portal/rest/v1/social/spacesMemberships?${urlParams}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then((resp) => {
+    if (resp?.ok) {
+      return resp.json();
+    }  else {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
+export function leave(spaceId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: eXo.env.portal.userName,
+      role: 'member',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
 export function cancel(spaceId) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/cancel/${spaceId}`, {
-    method: 'DELETE',
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
+    method: 'POST',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: eXo.env.portal.userName,
+      status: 'ignored',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
 export function join(spaceId) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/join/${spaceId}`, {
-    method: 'GET',
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
+    method: 'POST',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: eXo.env.portal.userName,
+      role: 'member',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
 export function requestJoin(spaceId) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/request/${spaceId}`, {
-    method: 'GET',
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
+    method: 'POST',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: eXo.env.portal.userName,
+      status: 'pending',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
 export function accept(spaceId) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/accept/${spaceId}`, {
-    method: 'GET',
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
+    method: 'POST',
     credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: eXo.env.portal.userName,
+      status: 'approved',
+    }),
+  }).then((resp) => {
+    if (!resp?.ok) {
+      throw new Error ('Error when replying invitation to join space');
     }
   });
 }
 
 export function deny(spaceId) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/deny/${spaceId}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function acceptUserRequest(spaceDisplayName, userId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -411,19 +393,37 @@ export function acceptUserRequest(spaceDisplayName, userId) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      space: spaceDisplayName,
-      user: userId,
+      space: spaceId,
+      user: eXo.env.portal.userName,
+      status: 'ignored',
+    }),
+  }).then((resp) => {
+    if (!resp?.ok) {
+      throw new Error ('Error when replying invitation to join space');
+    }
+  });
+}
+
+export function acceptUserRequest(spaceId, username) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: username,
       role: 'MEMBER',
-      status: 'APPROVED',
     }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function refuseUserRequest(spaceDisplayName, userId) {
+export function refuseUserRequest(spaceId, username) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -431,18 +431,18 @@ export function refuseUserRequest(spaceDisplayName, userId) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      space: spaceDisplayName,
-      user: userId,
-      status: 'IGNORED',
+      space: spaceId,
+      user: username,
+      status: 'ignored',
     }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function cancelInvitation(spaceDisplayName, userId) {
+export function cancelInvitation(spaceId, username) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -450,18 +450,18 @@ export function cancelInvitation(spaceDisplayName, userId) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      space: spaceDisplayName,
-      user: userId,
-      status: 'IGNORED',
+      space: spaceId,
+      user: username,
+      status: 'ignored',
     }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function promoteManager(spaceDisplayName, userId) {
+export function promoteManager(spaceId, username) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -469,30 +469,37 @@ export function promoteManager(spaceDisplayName, userId) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      space: spaceDisplayName,
-      user: userId,
+      space: spaceId,
+      user: username,
       role: 'manager',
     }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function removeManager(spacePrettyName, username) {
-  const id = `${spacePrettyName}:${username}:manager`;
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
+export function removeManager(spaceId, username) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: username,
+      role: 'manager',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function setAsRedactor(spaceDisplayName, userId) {
+export function promoteRedactor(spaceId, username) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -500,30 +507,37 @@ export function setAsRedactor(spaceDisplayName, userId) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      space: spaceDisplayName,
-      user: userId,
+      space: spaceId,
+      user: username,
       role: 'redactor',
     }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error(`Error while setting user ${userId} as a redactor in ${spaceDisplayName} space`, resp);
+    if (!resp?.ok) {
+      throw new Error(`Error while setting user ${username} as a redactor in ${spaceId} space`, resp);
     }
   });
 }
 
-export function removeRedactor(spacePrettyName, username) {
-  const id = `${spacePrettyName}:${username}:redactor`;
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
+export function removeRedactor(spaceId, username) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      space: spaceId,
+      user: username,
+      role: 'redactor',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function promotePublisher(spaceDisplayName, userId) {
+export function promotePublisher(spaceId, username) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -531,102 +545,56 @@ export function promotePublisher(spaceDisplayName, userId) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      space: spaceDisplayName,
-      user: userId,
+      space: spaceId,
+      user: username,
       role: 'publisher',
     }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function removePublisher(spacePrettyName, username) {
-  const id = `${spacePrettyName}:${username}:publisher`;
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
+export function removePublisher(spaceId, username) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'DELETE',
     credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function addApplication(spaceId, appId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications`, {
-    method: 'POST',
-    credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: `appId=${appId}`,
+    body: JSON.stringify({
+      space: spaceId,
+      user: username,
+      role: 'publisher',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
-export function removeApplication(spaceId, appId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications/${appId}`, {
+export function removeMember(spaceId, username) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'DELETE',
     credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function moveApplicationUp(spaceId, appId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications/${appId}`, {
-    method: 'PUT',
-    credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/json',
     },
-    body: 'transition=-1',
+    body: JSON.stringify({
+      space: spaceId,
+      user: username,
+      role: 'member',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function moveApplicationDown(spaceId, appId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/applications/${appId}`, {
-    method: 'PUT',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'transition=1',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function removeMember(spacePrettyName, username) {
-  const id = `${spacePrettyName}:${username}:member`;
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
 }
 
 export function getSuggestionsSpace(){
-  const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  if (cachedSuggestions) {
-    return Promise.resolve(JSON.parse(cachedSuggestions));
-  }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/spaces/suggestions`, {
     credentials: 'include'
   }).then(resp => {
@@ -637,37 +605,24 @@ export function getSuggestionsSpace(){
     } else {
       return resp.json();
     }
-  }).then(data => {
-    if (sessionStorage && data) {
-      try {
-        sessionStorage.setItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`, JSON.stringify(data));
-      } catch (e) {
-        // Expected when Quota Error is thrown 
-      }
-    }
-    return data;
   });
 }
 
 export function ignoreSuggestion(item) {
-  if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Spaces_${eXo.env.server.sessionId}`);
-  }
-  const data = {'user': item.username,'space': item.displayName, 'status': 'IGNORED'};
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
-      Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      space: item.id,
+      user: item.username,
+      status: 'ignored',
+    }),
   }).then(resp => {
-    if (!resp || !resp.ok) {
-      return resp.text().then((text) => {
-        throw new Error(text);
-      });
-    } else {
-      return resp.json();
+    if (!resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
     }
   });
 }

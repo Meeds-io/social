@@ -24,7 +24,7 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class ActivityRestResourcesTest extends AbstractResourceTest {
 
-  private ActivityRestResourcesV1 activityRestResourcesV1;
+  private ActivityRest activityRestResourcesV1;
 
   private IdentityStorage         identityStorage;
 
@@ -67,7 +67,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     identityStorage.saveIdentity(maryIdentity);
     identityStorage.saveIdentity(demoIdentity);
 
-    activityRestResourcesV1 = new ActivityRestResourcesV1(activityManager, identityManager, spaceService, null);
+    activityRestResourcesV1 = new ActivityRest(activityManager, identityManager, spaceService, null);
     registry(activityRestResourcesV1);
 
     ExoContainerContext.setCurrentContainer(getContainer());
@@ -774,7 +774,8 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("test activity");
 
-    Space space = getSpaceInstance("spaceTestPin", "john");
+    Space space = getSpaceInstance("spaceTestPin", "john", "mary");
+
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     activityManager.saveActivityNoReturn(spaceIdentity, activity);
     // when
@@ -785,7 +786,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                                          null);
     // then
     assertNotNull(response);
-    assertEquals(404, response.getStatus());
+    assertEquals(401, response.getStatus());
 
     // when
     response = service("DELETE",
@@ -795,7 +796,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
                        null);
     // then
     assertNotNull(response);
-    assertEquals(404, response.getStatus());
+    assertEquals(401, response.getStatus());
 
     // when
     response = service("DELETE", "/" + VersionResources.VERSION_ONE + "/social/activities/20000/pins", "", null, null);
@@ -831,9 +832,19 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(401, response.getStatus());
 
     // when
-    String[] redactors = new String[] { "mary" };
-    space.setRedactors(redactors);
-    spaceService.updateSpace(space);
+    spaceService.addRedactor(space, "mary");
+    
+    response = service("POST",
+                       "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
+                       "",
+                       null,
+                       null);
+    // then
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
+
+    // when
+    spaceService.addPublisher(space, "mary");
 
     response = service("POST",
                        "/" + VersionResources.VERSION_ONE + "/social/activities/" + maryActivity.getId() + "/pins",
@@ -1148,9 +1159,9 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
   public void testGetSharedActivityOnSpaces() throws Exception {
     startSessionAs("root");
-    Space originalSpace = getSpaceInstance("originalSpace", "root", "john");
+    Space originalSpace = getSpaceInstance("originalSpace", "root", "james");
 
-    startSessionAs("john");
+    startSessionAs("james");
     
     String param1 = "param1";
     String param2 = "param2";
@@ -1167,27 +1178,27 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertNotNull(originalActivity.getActivityStream());
     assertNotNull(originalActivity.getActivityStream().get("space"));
 
-    Space targetSpace = getSpaceInstance("targetSpace", "mary", "james", "demo");
+    Space targetSpace = getSpaceInstance("targetSpace", "mary", "john", "demo");
 
     String message = "Share activity Message";
     input = "{\"title\":\"" + message + "\",\"type\":SHARED_DEFAULT_ACTIVITY,\"targetSpaces\":[\"" + targetSpace.getPrettyName()
         + "\"]}";
     response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
     assertNotNull(response);
-    assertEquals("User john is not member of target space", 401, response.getStatus());
+    assertEquals("User james is not member of target space", 401, response.getStatus());
 
-    spaceService.addMember(targetSpace, "john");
+    spaceService.addMember(targetSpace, "james");
     spaceService.addRedactor(targetSpace, "demo");
 
     response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
     assertNotNull(response);
-    assertEquals("User john is not redactor of target space", 401, response.getStatus());
+    assertEquals("User james is not redactor of target space", 401, response.getStatus());
 
-    spaceService.addRedactor(targetSpace, "john");
+    spaceService.addRedactor(targetSpace, "james");
 
     response = getResponse("POST", getURLResource("activities/" + originalActivity.getId() + "/share"), input);
     assertNotNull(response);
-    assertEquals("User john is redactor of target space and member on original space", 200, response.getStatus());
+    assertEquals("User james is redactor of target space and member on original space", 200, response.getStatus());
 
     CollectionEntity sharedActivities = (CollectionEntity) response.getEntity();
     assertNotNull(sharedActivities);
@@ -1213,7 +1224,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertTrue(!sharedActivity.getTemplateParams().containsKey(param2));
 
     restartTransaction();
-    startSessionAs("john");
+    startSessionAs("james");
     response = service("GET",
                        "/" + VersionResources.VERSION_ONE + "/social/activities/" + originalActivity.getId() + "?expand=" + RestProperties.SHARED,
                        "",
