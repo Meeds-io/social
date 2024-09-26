@@ -1,4 +1,4 @@
-import './components/initComponents.js';
+import './initComponents.js';
 
 // getting language of the PLF 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -26,7 +26,7 @@ export function init() {
     appElement.id = appId;
 
     Vue.createApp({
-      template: `<exo-space-infos v-cacheable="{cacheId: '${cacheId}'}" id="${appId}"></exo-space-infos>`,
+      template: `<space-infos v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, appElement, 'Space Info');

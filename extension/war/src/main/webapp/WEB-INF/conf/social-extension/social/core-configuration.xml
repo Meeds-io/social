@@ -971,6 +971,11 @@
         <set-method>register</set-method>
         <type>org.exoplatform.social.core.space.impl.SpaceAccessHandler</type>
       </component-plugin>
+      <component-plugin>
+        <name>SpaceHandler</name>
+        <set-method>register</set-method>
+        <type>io.meeds.social.portlet.SpaceHandler</type>
+      </component-plugin>
     </external-component-plugins>
     <external-component-plugins>
         <target-component>io.meeds.social.translation.service.TranslationService</target-component>
