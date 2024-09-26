@@ -20,7 +20,7 @@
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application spaceMenuParent white v-application--is-ltr theme--light"
+    class="v-application spaceMenuParent v-application--is-ltr theme--light"
     id="SpaceHeader">
     <v-cacheable-dom-app cache-id="SpaceHeader_<%=space == null ? "0" : space.getId()%>"></v-cacheable-dom-app>
     <script type="text/javascript">
