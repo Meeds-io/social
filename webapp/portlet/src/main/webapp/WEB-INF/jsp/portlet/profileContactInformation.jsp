@@ -17,9 +17,9 @@
 %>
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application white v-application--is-ltr theme--light profileContactInformation"
+    class="v-application v-application--is-ltr theme--light profileContactInformation"
     id="ProfileContactInformation">
-    <textarea id="imTypesDefault" class="hidden"><%=jsonImTypes%></textarea>
+    <textarea id="imTypesDefault" class="d-none"><%=jsonImTypes%></textarea>
     <script type="text/javascript">
       require(['PORTLET/social-portlet/ProfileContactInformation'], 
           app => app.init(<%=maxUploadSize%>, JSON.parse(document.getElementById('imTypesDefault').value))

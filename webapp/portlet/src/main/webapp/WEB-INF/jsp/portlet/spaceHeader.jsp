@@ -26,7 +26,7 @@
 
 <div class="VuetifyApp">
   <div data-app="true"
-    class="v-application spaceMenuParent white v-application--is-ltr theme--light <%= navigations != null ? "hasNavigations" : ""%>"
+    class="v-application spaceMenuParent v-application--is-ltr theme--light <%= navigations != null ? "hasNavigations" : ""%>"
     id="SpaceHeader">
     <v-cacheable-dom-app cache-id="SpaceHeader_<%=space.getId()%>"></v-cacheable-dom-app>
     <%
