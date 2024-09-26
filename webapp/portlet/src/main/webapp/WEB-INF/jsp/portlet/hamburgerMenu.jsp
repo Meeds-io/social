@@ -1,3 +1,4 @@
+<%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@page import="org.exoplatform.commons.api.settings.SettingValue"%>
@@ -13,10 +14,12 @@
 
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
+  if (rcontext.getRequest().getParameter("sticky") != null) {
+    sticky = StringUtils.equals("true", rcontext.getRequest().getParameter("sticky"));
+  }
 
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/sites?siteType=PORTAL&excludedSiteName=global&lang=" + rcontext.getLocale().toLanguageTag() + "&excludeEmptyNavigationSites=true&excludeGroupNodesWithoutPageChildNodes=true&temporalCheck=true&excludeSpaceSites=true&expandNavigations=true&visibility=displayed&visibility=temporal&filterByDisplayed=true&sortByDisplayOrder=true&displayed=true&filterByPermissions=true>; rel=preload; as=fetch; crossorigin=use-credentials", false);
   responseWrapper.addHeader("Link", "</portal/rest/v1/social/spaces?q=&offset=0&limit=7&filterType=lastVisited&returnSize=true&expand=member,managers,favorite,unread,muted>; rel=preload; as=fetch; crossorigin=use-credentials", false);
-
 %>
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
