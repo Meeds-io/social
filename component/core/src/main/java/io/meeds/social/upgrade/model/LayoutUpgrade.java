@@ -31,6 +31,8 @@ public class LayoutUpgrade {
 
   private boolean      updatePortalConfig;
 
+  private boolean      updatePortalProperties;
+
   private boolean      updatePageLayout;
 
   private boolean      updateNavigation;
