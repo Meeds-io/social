@@ -136,6 +136,15 @@ public class LayoutUpgradePlugin extends UpgradeProductPlugin {
   private boolean upgradePortalLayout(LayoutUpgrade upgrade, String portalType, String portalName) {
     String location = upgrade.getConfigPath();
     PortalConfig newPortalConfig = portalConfigService.getConfig(portalType, portalName, PortalConfig.class, location);
+    PortalConfig portalConfig = layoutService.getPortalConfig(portalType, portalName);
+    if (portalConfig == null) {
+      portalConfig = newPortalConfig;
+    } else if (upgrade.isUpdatePortalProperties()) {
+      newPortalConfig.setBannerFileId(portalConfig.getBannerFileId());
+      portalConfig = newPortalConfig;
+    } else {
+      portalConfig.setPortalLayout(newPortalConfig.getPortalLayout());
+    }
     if (newPortalConfig == null) {
       LOG.info("IGNORE:: Portal layout {}/{} wasn't found in path {}. The layout upgrade will be ignored",
                portalType,
@@ -144,7 +153,7 @@ public class LayoutUpgradePlugin extends UpgradeProductPlugin {
       return false;
     }
     LOG.info("Process:: Upgrade Portal Layout {}/{}", portalType, portalName);
-    PortalConfigImporter portalImporter = new PortalConfigImporter(getImportMode(upgrade), newPortalConfig, layoutService);
+    PortalConfigImporter portalImporter = new PortalConfigImporter(getImportMode(upgrade), portalConfig, layoutService);
     try {
       portalImporter.perform();
       return true;

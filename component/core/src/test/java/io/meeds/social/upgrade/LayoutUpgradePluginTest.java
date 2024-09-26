@@ -109,6 +109,15 @@ public class LayoutUpgradePluginTest extends AbstractCoreTest {// NOSONAR
     layoutUpgradePlugin.processUpgrade(null, null);
     portalConfig = layoutService.getPortalConfig(PORTAL_NAME);
     assertNotNull(portalConfig);
+    assertEquals(PROP_VALUE, portalConfig.getProperty(PROP_KEY));
+    portalLayout = portalConfig.getPortalLayout();
+    assertNotNull(portalLayout);
+    assertEquals(5, portalLayout.getChildren().size());
+
+    layoutUpgrade.setUpdatePortalProperties(true);
+    layoutUpgradePlugin.processUpgrade(null, null);
+    portalConfig = layoutService.getPortalConfig(PORTAL_NAME);
+    assertNotNull(portalConfig);
     assertEquals(PROP_VALUE_MODIFIED, portalConfig.getProperty(PROP_KEY));
     portalLayout = portalConfig.getPortalLayout();
     assertNotNull(portalLayout);
