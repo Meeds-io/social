@@ -55,6 +55,7 @@ let config = {
     spaceMenu: './src/main/webapp/vue-apps/space-menu/main.js',
     spaceHeader: './src/main/webapp/vue-apps/space-header/main.js',
     spaceDescription: './src/main/webapp/vue-apps/space-description/main.js',
+    spaceManagers: './src/main/webapp/vue-apps/space-managers/main.js',
     spaceMembers: './src/main/webapp/vue-apps/space-members/main.js',
     spaceSettings: './src/main/webapp/vue-apps/space-settings/main.js',
     spaceInvitation: './src/main/webapp/vue-apps/space-invitation/main.js',

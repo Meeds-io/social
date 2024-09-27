@@ -20,14 +20,16 @@
 -->
 <template>
   <v-app>
-    <v-hover v-slot="{ hover }">
+    <v-hover v-model="hover">
       <widget-wrapper
-        :title="$t('social.space.description.title')"
+        :title="$t('social.space.description.managers')"
+        ref="spaceManagers"
+        key="spaceManagers"
         extra-class="application-body">
         <template v-if="$root.canEdit" #action>
           <v-btn
             v-show="hover"
-            :title="$t('social.space.description.editTooltip')"
+            :title="$t('social.space.managers.editTooltip')"
             :href="administrationUrl"
             height="27"
             width="27"
@@ -44,11 +46,18 @@
           </v-btn>
         </template>
         <template #default>
-          <span
-            v-if="$root.spaceDescription"
-            v-sanitized-html="$root.spaceDescription"
-            id="spaceDescription"
-            class="text-color"></span>
+          <div class="mt-n3">
+            <exo-user-avatar
+              v-for="username in $root.spaceManagers"
+              :key="username"
+              :identity="{username}"
+              avatar-class="me-2"
+              extra-class="mt-3"
+              size="36"
+              display-position
+              bold-title
+              popover />
+          </div>
         </template>
       </widget-wrapper>
     </v-hover>
@@ -56,9 +65,12 @@
 </template>
 <script>
 export default {
+  data: () => ({
+    hover: false,
+  }),
   computed: {
     administrationUrl() {
-      return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
+      return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#roles`;
     },
   },
   mounted() {
