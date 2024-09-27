@@ -154,7 +154,7 @@ export default {
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
-    document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
   },
   methods: {

@@ -1,6 +1,6 @@
 import ExoDrawer from './components/ExoDrawer.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
-import ExoUserAvatarsList from './components/ExoUserAvatarsList.vue';
+import UserAvatarsList from './components/UserAvatarsList.vue';
 import UserAvatar from './components/UserAvatar.vue';
 import SpaceAvatar from './components/SpaceAvatar.vue';
 import IdentitySuggester from './components/ExoIdentitySuggester.vue';
@@ -33,7 +33,8 @@ import NumberInput from './components/NumberInput.vue';
 
 const components = {
   'card-carousel': CardCarousel,
-  'exo-user-avatars-list': ExoUserAvatarsList,
+  'exo-user-avatars-list': UserAvatarsList,
+  'user-avatars-list': UserAvatarsList,
   // FIXME should be deleted, deprecated, use user-avatar instead
   'exo-user-avatar': UserAvatar,
   // FIXME should be deleted, deprecated, use space-avatar instead
