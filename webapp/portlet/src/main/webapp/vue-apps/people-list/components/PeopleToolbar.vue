@@ -31,11 +31,11 @@
       text: $t('pepole.advanced.filter.button.title'),
     }"
     :right-select-box="{
-      hide: isMobile || hideFilter,
+      hide: compactDisplay || hideFilter,
       selected:'all',
       items: peopleFilters,
     }"
-    :compact="compact"
+    :compact="compactDisplay"
     :filters-count="advancedFilterCount"
     @filter-text-input-end-typing="keyword = $event"
     @filter-button-click="openPeopleAdvancedFilterDrawer"
@@ -68,7 +68,7 @@ export default {
       type: Boolean,
       default: false
     },
-    compact: {
+    compactDisplay: {
       type: Boolean,
       default: false
     },
@@ -103,9 +103,6 @@ export default {
         value: 'connections',
       }];
     },
-    isMobile() {
-      return this.$vuetify.breakpoint.smAndDown;
-    }
   },
   watch: {
     keyword() {
