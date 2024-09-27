@@ -32,8 +32,10 @@
                   </v-icon>
                 </v-btn>
               </v-list-item-action>
-              <v-list-item-content class="drawerTitle align-start text-header-title text-truncate">
-                <slot name="title"></slot>
+              <v-list-item-content class="drawerTitle align-start text-header-title">
+                <div class="text-truncate">
+                  <slot name="title"></slot>
+                </div>
               </v-list-item-content>
               <v-list-item-action class="drawerIcons align-end d-flex flex-row">
                 <slot name="titleIcons"></slot>
@@ -60,7 +62,15 @@
               class="position-absolute" />
           </div>
         </template>
-        <v-flex :class="bottomDrawer && 'pt-4'" class="drawerContent flex-grow-1 overflow-auto border-box-sizing">
+        <v-flex
+          :class="{
+            'overflow-x-auto': !noXScroll,
+            'overflow-x-hidden': noXScroll,
+            'overflow-y-auto': !noYScroll,
+            'overflow-y-hidden': noYScroll,
+            'pt-4': bottomDrawer,
+          }"
+          class="drawerContent flex-grow-1 border-box-sizing">
           <slot name="content"></slot>
           <attachments-draggable-zone />    
         </v-flex>
@@ -147,6 +157,14 @@ export default {
       default: false,
     },
     loading: {
+      type: Boolean,
+      default: false,
+    },
+    noXScroll: {
+      type: Boolean,
+      default: false,
+    },
+    noYScroll: {
       type: Boolean,
       default: false,
     },

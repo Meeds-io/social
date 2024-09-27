@@ -37,18 +37,18 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `/social-portlet/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`;
 
-const appId = 'spaceMembersApplication';
+const appId = 'SpaceMembersApplication';
 
-export function init(filter, isManager, isExternalFeatureEnabled) {
+export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, members) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
-      if (!filter?.length && window.location.hash.replace('#', '').length) {
-        filter = window.location.hash.replace('#', '');
-      }
       Vue.createApp({
         data: {
+          isManager,
+          isMember,
+          members,
           isExternalFeatureEnabled,
-          spaceId: eXo.env.portal.spaceId,
+          spaceId,
           space: null,
           externalInvitations: null,
         },
@@ -87,7 +87,7 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
           },
           async refreshSpace() {
             if (this.spaceId) {
-              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now());
+              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now(), 'membersCount');
             }
           },
           async refreshExternalInvitations() {
@@ -96,12 +96,7 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
             }
           },
         },
-        template: `<space-members
-                    id="${appId}"
-                    :is-manager="${isManager}"
-                    :is-external-feature-enabled="${isExternalFeatureEnabled}"
-                    filter="${filter || 'member'}"
-                    space-id="${eXo.env.portal.spaceId}" />`,
+        template: `<space-members-application id="${appId}" />`,
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
       }, `#${appId}`, 'Space Members');

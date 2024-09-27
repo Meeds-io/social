@@ -43,7 +43,7 @@
                 min-width="auto"
                 class="px-0"
                 @click="replyInvitationToJoinSpace(item.space, 'approved')">
-                <v-icon color="green" size="20">mdi-checkbox-marked-circle</v-icon>
+                <v-icon color="success" size="20">mdi-checkbox-marked-circle</v-icon>
               </v-btn>
               <v-btn
                 :loading="saving"
@@ -54,7 +54,7 @@
                 min-width="auto"
                 class="px-0"
                 @click="replyInvitationToJoinSpace(item.space, 'ignored')">
-                <v-icon color="red" size="20">mdi-close-circle</v-icon>
+                <v-icon color="error" size="20">mdi-close-circle</v-icon>
               </v-btn>
             </v-btn-toggle>
           </v-list-item-action>
