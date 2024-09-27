@@ -83,14 +83,4 @@
       <artifactId>jsoup</artifactId>
     </dependency>
   </dependencies>
-
-  <build>
-    <finalName>${project.artifactId}</finalName>
-    <plugins>
-      <plugin>
-        <groupId>com.jcabi</groupId>
-        <artifactId>jcabi-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 </project>
