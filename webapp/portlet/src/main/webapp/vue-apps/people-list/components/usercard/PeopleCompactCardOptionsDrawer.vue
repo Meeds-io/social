@@ -33,12 +33,18 @@
               v-if="!extension.init"
               @click="triggerExtension(extension)">
               <v-list-item-title class="align-center d-flex">
-                <v-icon
-                  class="ms-4 me-2 itemIconSize"
-                  size="20">
-                  {{ extension.class }}
-                </v-icon>
-                <span class="mx-2">
+                <v-card
+                  class="d-flex align-center justify-center transparent ms-4 me-2"
+                  height="25"
+                  width="25"
+                  flat>
+                  <v-icon
+                    class="itemIconSize"
+                    size="20">
+                    {{ extension.class }}
+                  </v-icon>
+                </v-card>
+                <span class="ms-3">
                   {{ extension.title || $t(extension.titleKey) }}
                 </span>
               </v-list-item-title>
@@ -58,13 +64,19 @@
             :key="i"
             @click="triggerExtension(extension)">
             <v-list-item-title class="align-center d-flex">
-              <v-icon
-                class="ms-4 me-2 itemIconSize"
-                size="20">
-                {{ extension.class }}
-              </v-icon>
-              <span class="mx-2">
-                {{ extension.title }}
+              <v-card
+                class="d-flex align-center justify-center transparent ms-4 me-2"
+                height="25"
+                width="25"
+                flat>
+                <v-icon
+                  class="itemIconSize"
+                  size="20">
+                  {{ extension.class }}
+                </v-icon>
+              </v-card>
+              <span class="ms-3">
+                {{ extension.title || $t(extension.titleKey) }}
               </span>
             </v-list-item-title>
           </v-list-item>

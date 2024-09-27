@@ -40,7 +40,7 @@
             ref="actionMenu"
             v-model="menu"
             transition="slide-x-reverse-transition"
-            content-class="mt-6 ms-5"
+            content-class="mt-6 ms-5 z-index-modal"
             left
             offset-x>
             <template #activator="{ on, attrs }">
@@ -48,12 +48,12 @@
                 v-bind="attrs"
                 v-on="on"
                 :title="$t('peopleList.label.openUserMenu')"
-                class="d-block grey darken-1 mt-2 ms-auto me-2"
+                class="d-block grey darken-1 mt-2 ms-auto me-2  z-index-modal"
                 width="24"
                 height="24"
                 icon
                 text
-                @click.prevent>
+                @click.prevent.stop="0">
                 <v-icon
                   class="white--text"
                   size="12">
@@ -67,12 +67,15 @@
                 :key="i"
                 @click="extension.click(user)">
                 <v-list-item-title class="align-center d-flex">
-                  <v-icon
-                    size="15">
-                    {{ extension.class }}
-                  </v-icon>
-                  <span class="mx-2">
-                    {{ extension.title }}
+                  <v-card
+                    class="d-flex align-center justify-center transparent"
+                    height="18"
+                    width="18"
+                    flat>
+                    <v-icon size="15">{{ extension.class }}</v-icon>
+                  </v-card>
+                  <span class="ms-3">
+                    {{ extension.title || $t(extension.titleKey) }}
                   </span>
                 </v-list-item-title>
               </v-list-item>
@@ -139,14 +142,18 @@
           <v-btn
             v-for="extension in filteredUserNavigationExtensions"
             :key="extension.id"
-            :aria-label="extension.title"
+            :title="extension.title || $t(extension.titleKey)"
             icon
             @click.prevent="extension.click(user)">
-            <v-icon
-              :title="extension.title"
-              size="20">
-              {{ extension.class }}
-            </v-icon>
+            <v-card
+              class="d-flex align-center justify-center transparent"
+              height="25"
+              width="25"
+              flat>
+              <v-icon size="20">
+                {{ extension.class }}
+              </v-icon>
+            </v-card>
           </v-btn>
         </div>
         <div
@@ -157,11 +164,11 @@
             :key="extension.id">
             <v-btn
               v-if="!extension.init"
-              :aria-label="extension.title"
+              :aria-label="extension.title || $t(extension.titleKey)"
               icon
               @click.prevent="extension.click(user)">
               <v-icon
-                :title="extension.title"
+                :title="extension.title || $t(extension.titleKey)"
                 size="20">
                 {{ extension.class }}
               </v-icon>
@@ -180,11 +187,6 @@
 
 <script>
 export default {
-  data() {
-    return {
-      menu: false,
-    };
-  },
   props: {
     user: {
       type: Object,
@@ -206,7 +208,7 @@ export default {
       type: Array,
       default: () => []
     },
-    isMobile: {
+    compactDisplay: {
       type: Boolean,
       default: false
     },
@@ -215,9 +217,12 @@ export default {
       default: null
     },
   },
+  data: () => ({
+    menu: false,
+  }),
   computed: {
     showMenu() {
-      return this.menu || this.isMobile;
+      return this.menu || this.compactDisplay;
     },
     filteredUserNavigationExtensions() {
       return this.userNavigationExtensions.filter(extension => extension.enabled(this.user)

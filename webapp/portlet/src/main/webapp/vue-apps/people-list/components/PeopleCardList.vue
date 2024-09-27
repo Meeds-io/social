@@ -1,12 +1,20 @@
 <template>
-  <v-card flat>
+  <v-card
+    id="peopleListApplication"
+    :class="{
+      'mobile-cards': compact,
+    }"
+    flat>
     <v-progress-linear
       v-if="displayLoading"
       color="primary"
       class="position-absolute"
       indeterminate
       height="2" />
-    <v-card-text id="peopleListBody" class="pb-0">
+    <v-card-text
+      v-if="initialized"
+      id="peopleListBody"
+      :class="noMargins && compact && 'pa-0' || (noMargins && 'px-3 pb-0') || 'pb-0'">
       <v-item-group>
         <v-container
           class="pa-0"
@@ -16,17 +24,19 @@
               v-for="user in filteredPeople"
               :key="user.id"
               :id="`peopleCardItem${user.id}`"
-              cols="12"
-              sm="6"
+              :sm="$attrs.sm || 6"
               :md="$attrs.md || 6"
               :lg="$attrs.lg || 4"
               :xl="$attrs.xl || 4"
-              class="pa-2">
+              :class="noMargins && compact && 'pa-0' || 'pa-2'"
+              cols="12">
               <people-card
                 :user="user"
                 :space-members-extensions="spaceMembersActionExtensions"
                 :user-navigation-extensions="userExtensions"
-                :profile-action-extensions="profileActionExtensions" />
+                :profile-action-extensions="profileActionExtensions"
+                :compact-display="compactDisplay"
+                :mobile-display="mobileDisplay" />
             </v-col>
           </v-row>
           <div v-else-if="!displayLoading" class="d-flex text-center noPeopleYetBlock">
@@ -59,7 +69,10 @@
         </v-container>
       </v-item-group>
     </v-card-text>
-    <v-card-actions id="peopleListFooter" class="pt-0 px-5 border-box-sizing">
+    <v-card-actions
+      v-if="!noLoadMoreButton"
+      id="peopleListFooter"
+      class="pt-0 px-5 border-box-sizing">
       <v-btn
         v-if="canShowMore"
         :loading="displayLoading"
@@ -71,7 +84,6 @@
     </v-card-actions>
   </v-card>
 </template>
-
 <script>
 export default {
   props: {
@@ -98,7 +110,23 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
-    }
+    },
+    compactDisplay: {
+      type: Boolean,
+      default: false,
+    },
+    mobileDisplay: {
+      type: Boolean,
+      default: false,
+    },
+    noMargins: {
+      type: Boolean,
+      default: false,
+    },
+    noLoadMoreButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     profileExtensions: [],
@@ -121,7 +149,7 @@ export default {
   }),
   computed: {
     displayLoading() {
-      return this.loadingPeople || this.loading;
+      return !this.noLoadMoreButton && (this.loadingPeople || this.loading);
     },
     profileActionExtensions() {
       return [...this.profileExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
@@ -130,7 +158,10 @@ export default {
       return [...this.spaceMemberExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
     },
     canShowMore() {
-      return this.loadingPeople || this.users.length >= this.limitToFetch;
+      return this.users.length >= this.limitToFetch;
+    },
+    compact() {
+      return this.compactDisplay || this.mobileDisplay;
     },
     filteredPeople() {
       if (!this.keyword || !this.loadingPeople) {
@@ -153,6 +184,12 @@ export default {
       this.searchPeople();
 
     },
+    canShowMore() {
+      this.$emit('has-more', this.canShowMore);
+    },
+    loadingPeople() {
+      this.$emit('loading', this.loadingPeople);
+    },
     limitToFetch() {
       this.searchPeople();
     },
@@ -164,18 +201,22 @@ export default {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
     // To refresh menu when a new extension is ready to be used
-    document.addEventListener('space-member-extension-updated', this.refreshExtensions);
-    document.addEventListener('profile-extension-updated', this.refreshExtensions);
+    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    document.addEventListener('extension-space-member-extension-action-updated', this.refreshExtensions);
     document.addEventListener('user-extension-updated', this.refreshUserExtensions);
+    document.addEventListener('people-list-refresh', this.searchPeopleNoFilters);
 
-    // To broadcast event about current page supporting profile extensions
-    document.dispatchEvent(new CustomEvent('profile-extension-init'));
     this.$root.$on('reset-advanced-filter', this.searchPeople);
-
     this.$root.$on('advanced-filter', profileSettings => this.searchPeople(profileSettings));
 
     this.refreshExtensions();
     this.refreshUserExtensions();
+  },
+  beforeDestroy() {
+    document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    document.removeEventListener('extension-space-member-extension-action-updated', this.refreshExtensions);
+    document.removeEventListener('user-extension-updated', this.refreshUserExtensions);
+    document.removeEventListener('people-list-refresh', this.searchPeopleNoFilters);
   },
   methods: {
     resetFilters() {
@@ -189,6 +230,9 @@ export default {
     refreshExtensions() {
       this.profileExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
       this.spaceMemberExtensions = this.spaceId && extensionRegistry.loadExtensions('space-member-extension', 'action') || [];
+    },
+    searchPeopleNoFilters() {
+      this.searchPeople();
     },
     searchPeople(profileSettings) {
       this.loadingPeople = true;

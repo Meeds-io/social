@@ -1,6 +1,4 @@
-<%@page import="java.util.Arrays"%>
-<%@page import="org.apache.commons.lang3.StringUtils"%>
-<%@page import="org.apache.commons.lang3.ArrayUtils"%>
+<%@page import="java.net.URLEncoder"%>
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
@@ -12,8 +10,8 @@
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
   String activityId = rcontext.getRequest().getParameter("id");
   Space space = SpaceUtils.getSpaceByContext();
+  String description = space == null || space.getDescription() == null ? "" : space.getDescription();
   String id = space == null ? "" : space.getId();
-  String[] managers = space == null ? new String[0] : Arrays.stream(space.getManagers()).distinct().toArray(String[]::new);
   boolean canEdit = space != null
       && request.getRemoteUser() != null
       && ExoContainerContext.getService(SpaceService.class)
@@ -22,9 +20,10 @@
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
-    id="SpaceManagersApplication">
+    id="SpaceDescriptionApplication">
+    <textarea id="spaceDescriptionContent" class="d-none"><%=URLEncoder.encode(description.replace(" ", "._.")).replace("._.", " ")%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/SpaceManagers'], app => app.init(<%=id%>, <%=canEdit%>, <%=managers.length == 0 ? "[]" : "['" + StringUtils.join(managers, "','") + "']"%>));
+      require(['PORTLET/social-portlet/SpaceWidgetDescription'], app => app.init(<%=id%>, <%=canEdit%>, decodeURIComponent(document.getElementById('spaceDescriptionContent').value)));
     </script>
   </div>
 </div>

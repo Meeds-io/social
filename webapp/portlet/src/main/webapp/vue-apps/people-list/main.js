@@ -11,6 +11,11 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 export function init(filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
+      computed: {
+        isMobile() {
+          return this.$vuetify.breakpoint.mobile;
+        },
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },

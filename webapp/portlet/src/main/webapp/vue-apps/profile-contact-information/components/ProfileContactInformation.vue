@@ -174,7 +174,7 @@ export default {
       return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
         .then(userdataEntity => {
           this.user = userdataEntity;
-          this.properties = userdataEntity?.properties.filter(item => item.active && !(item.propertyType === 'user' && eXo.env.portal.isExternal === 'true')).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
+          this.properties = userdataEntity?.properties.filter(item => item.active && !(item.propertyType === 'user' && eXo.env.portal.isExternal === true)).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
           this.$nextTick().then(() => this.$root.$emit('application-loaded'));
           if (broadcast){
             document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));
