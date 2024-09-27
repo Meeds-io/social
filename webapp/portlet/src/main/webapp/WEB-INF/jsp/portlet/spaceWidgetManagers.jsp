@@ -24,7 +24,7 @@
     class="v-application v-application--is-ltr theme--light"
     id="SpaceManagersApplication">
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/SpaceManagers'], app => app.init(<%=id%>, <%=canEdit%>, <%=managers.length == 0 ? "[]" : "['" + StringUtils.join(managers, "','") + "']"%>));
+      require(['PORTLET/social-portlet/SpaceWidgetManagers'], app => app.init(<%=id%>, <%=canEdit%>, <%=managers.length == 0 ? "[]" : "['" + StringUtils.join(managers, "','") + "']"%>));
     </script>
   </div>
 </div>

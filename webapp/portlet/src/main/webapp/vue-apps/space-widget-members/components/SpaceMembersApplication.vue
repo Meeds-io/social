@@ -2,48 +2,30 @@
   <v-app 
     class="application-body"
     flat>
-    <space-members-toolbar
-      :keyword="keyword"
-      :filter="filter"
-      :people-count="peopleCount"
-      :is-manager="isManager"
-      @keyword-changed="keyword = $event"
-      @filter-changed="filter = $event"
-      @loading="loading = $event" />
-    <space-members-alert
-      v-if="space"
-      :space-display-name="space.displayName" />
-    <people-card-list
-      ref="spaceMembers"
-      :keyword="keyword"
-      :filter="filter"
-      :space-id="spaceId"
-      :people-count="peopleCount"
-      :is-manager="isManager"
-      :loading="loading"
-      :mobile-display="$root.isMobile"
-      md="4"
-      lg="3"
-      xl="3" />
-    <people-compact-card-options-drawer />
+    <v-hover v-model="hover">
+      <widget-wrapper
+        :title="$t('social.space.description.members')"
+        ref="spaceMembers"
+        key="spaceMembers"
+        extra-class="application-body">
+        <template #action>
+          <exo-user-avatars-list
+            :users="$root.members"
+            :default-length="peopleCount"
+            :margin-left="peopleCount > 1 && 'ml-n5' || ''"
+            :icon-size="33"
+            :max="4"
+            compact
+            clickable
+            @open-detail="$root.$emit('space-members-drawer-open')" />
+        </template>
+      </widget-wrapper>
+    </v-hover>
+    <space-members-drawer v-if="$root.isMember" />
   </v-app>
 </template>
 <script>
 export default {
-  props: {
-    isManager: {
-      type: Boolean,
-      default: false,
-    },
-    spaceId: {
-      type: Number,
-      default: 0,
-    },
-    filter: {
-      type: String,
-      default: null,
-    },
-  },
   data: () => ({
     keyword: null,
     loading: false,

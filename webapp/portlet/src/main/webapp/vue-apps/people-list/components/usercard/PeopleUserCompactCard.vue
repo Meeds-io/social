@@ -22,9 +22,8 @@
   <v-hover v-slot="{hover}">
     <v-card
       :id="userMenuParentId"
-      class="peopleCardItem d-flex mx-2"
       :class="hover && 'grey lighten-4'"
-      ripple
+      class="peopleCardItem d-flex mx-2"
       flat>
       <div class="peopleToolbarIcons my-auto ms-auto">
         <v-btn
@@ -38,7 +37,7 @@
           <span class="d-flex uiIconGroup"></span>
         </v-btn>
         <v-spacer />
-        <div v-if="isMobile">
+        <div v-if="$root.isMobile">
           <v-icon
             size="14"
             class="my-1"
@@ -50,16 +49,16 @@
           <v-menu
             ref="actionMenu"
             v-model="displayActionMenu"
-            :attach="`#${userMenuParentId}`"
+            attach
             transition="slide-x-reverse-transition"
             content-class="peopleActionMenu mt-n6 me-4"
             offset-y>
             <template #activator="{ on, attrs }">
               <v-btn
+                v-show="hover"
                 v-bind="attrs"
                 v-on="on"
                 :title="$t('peopleList.label.openUserMenu')"
-                class="d-block"
                 icon
                 text>
                 <v-icon
@@ -69,39 +68,53 @@
               </v-btn>
             </template>
             <v-list class="pa-0 white" dense>
-              <v-list-item
-                v-for="(extension, i) in enabledProfileActionExtensions"
-                :key="i"
-                @click="extension.click(user)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon
-                    size="18">
-                    {{ extension.class }}
-                  </v-icon>
-                  <span class="mx-2">
-                    {{ extension.title }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                v-for="(extension, i) in filteredUserNavigationExtensions"
-                :key="i"
-                @click="extension.click(user)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon
-                    size="18">
-                    {{ extension.class }}
-                  </v-icon>
-                  <span class="mx-2">
-                    {{ extension.title || $t(extension.titleKey) }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
+              <template v-if="$root.spaceId && spaceMembersExtensions?.length">
+                <v-list-item
+                  v-for="extension in spaceMembersExtensions"
+                  :key="extension.id"
+                  @click="extension.click(user)">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-card
+                      class="d-flex align-center justify-center transparent"
+                      height="25"
+                      width="25"
+                      flat>
+                      <v-icon size="20">
+                        {{ extension.class }}
+                      </v-icon>
+                    </v-card>
+                    <span class="ms-3">
+                      {{ extension.title || $t(extension.titleKey) }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+              <template v-else>
+                <v-list-item
+                  v-for="(extension, i) in actionExtensions"
+                  :key="i"
+                  @click="extension.click(user)">
+                  <v-list-item-title class="align-center d-flex">
+                    <v-card
+                      class="d-flex align-center justify-center transparent"
+                      height="25"
+                      width="25"
+                      flat>
+                      <v-icon size="20">
+                        {{ extension.class }}
+                      </v-icon>
+                    </v-card>
+                    <span class="ms-3">
+                      {{ extension.title || $t(extension.titleKey) }}
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
             </v-list>
           </v-menu>
         </template>
       </div>
-      <div class="mt-3 peopleAvatar">
+      <div class="peopleAvatar">
         <a :href="url">
           <v-img
             :lazy-src="`${userAvatarUrl}`"
@@ -116,7 +129,11 @@
         </a>
       </div>
       <v-card-text
-        class="peopleCardBody align-center py-0 py-sm-1 d-flex full-height">
+        class="peopleCardBody align-center d-flex full-height"
+        :class="{
+          'py-0': mobileDisplay,
+          'py-1': !mobileDisplay,
+        }">
         <div class="my-auto">
           <a
             :href="url"
@@ -129,7 +146,11 @@
             </span>
           </a>
           <v-card-subtitle
-            class="userPositionLabel text-truncate pa-0 mt-0 mt-sm-auto">
+            class="userPositionLabel text-truncate pa-0"
+            :class="{
+              'mt-0': mobileDisplay,
+              'mt-auto': !mobileDisplay,
+            }">
             <a
               :href="url"
               class="grey--text text--darken-1">
@@ -165,7 +186,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    isMobile: {
+    mobileDisplay: {
       type: Boolean,
       default: false,
     },
@@ -187,16 +208,14 @@ export default {
     waitTimeUntilCloseMenu: 200,
     bottomMenu: false,
   }),
-  watch: {
-    displayActionMenu(newVal) {
-      if (newVal) {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
-      } else {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
-      }
-    }
-  },
   computed: {
+    actionExtensions() {
+      if (!this.isSameUser) {
+        return [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions];
+      } else {
+        return this.filteredUserNavigationExtensions;
+      }
+    },
     filteredUserNavigationExtensions() {
       return this.userNavigationExtensions.filter(extension => extension.enabled(this.user));
     },
@@ -218,6 +237,15 @@ export default {
     externalUser() {
       return this.user?.external === 'true';
     },
+  },
+  watch: {
+    displayActionMenu(newVal) {
+      if (newVal) {
+        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
+      } else {
+        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
+      }
+    }
   },
   created() {
     $(document).on('mousedown', () => {

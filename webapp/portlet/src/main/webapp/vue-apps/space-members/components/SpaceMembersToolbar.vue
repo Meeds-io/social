@@ -6,7 +6,7 @@
       placeholder: $t('peopleList.label.filterPeople'),
       tooltip: $t('peopleList.label.filterPeople')
     }"
-    :right-select-box="{
+    :right-select-box="!hideFilter && {
       selected: filter,
       items: peopleFilters,
     }"
@@ -44,11 +44,12 @@ export default {
       type: Boolean,
       default: false,
     },
+    hideFilter: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.smAndDown;
-    },
     peopleFilters() {
       if (this.isManager) {
         return [{

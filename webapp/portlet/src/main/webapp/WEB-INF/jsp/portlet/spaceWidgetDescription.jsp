@@ -1,3 +1,4 @@
+<%@page import="java.net.URLEncoder"%>
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
@@ -20,9 +21,9 @@
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="SpaceDescriptionApplication">
-    <textarea id="spaceDescriptionContent" class="d-none"><%=description%></textarea>
+    <textarea id="spaceDescriptionContent" class="d-none"><%=URLEncoder.encode(description.replace(" ", "._.")).replace("._.", " ")%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/SpaceDescription'], app => app.init(<%=id%>, <%=canEdit%>, document.getElementById('spaceDescriptionContent').value));
+      require(['PORTLET/social-portlet/SpaceWidgetDescription'], app => app.init(<%=id%>, <%=canEdit%>, decodeURIComponent(document.getElementById('spaceDescriptionContent').value)));
     </script>
   </div>
 </div>

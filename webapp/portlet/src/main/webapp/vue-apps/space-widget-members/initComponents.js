@@ -16,14 +16,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import SpaceMembers from './components/SpaceMembers.vue';
-import SpaceMembersToolbar from './components/SpaceMembersToolbar.vue';
-import SpaceMembersAlert from './components/SpaceMembersAlert.vue';
+import SpaceMembersApplication from './components/SpaceMembersApplication.vue';
+import SpaceMembersDrawer from './components/SpaceMembersDrawer.vue';
 
 const components = {
-  'space-members': SpaceMembers,
-  'space-members-toolbar': SpaceMembersToolbar,
-  'space-members-alert': SpaceMembersAlert,
+  'space-members-application': SpaceMembersApplication,
+  'space-members-drawer': SpaceMembersDrawer,
 };
 
 for (const key in components) {

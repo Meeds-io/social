@@ -93,7 +93,9 @@
         v-else-if="connected"
         :loading="sendingAction"
         :disabled="sendingAction"
-        class="btn btn-primary mx-auto disconnectButton"
+        color="error"
+        class="mx-auto border-color disconnectButton"
+        outlined
         @click="disconnect">
         <i class="uiIconSocCancelConnectUser"></i>
         <span class="buttonText">
@@ -190,11 +192,7 @@ export default {
   },
   created() {
     // To refresh menu when a new extension is ready to be used
-    document.addEventListener('profile-extension-updated', this.refreshExtensions);
-
-    // To broadcast event about current page supporting profile extensions
-    document.dispatchEvent(new CustomEvent('profile-extension-init'));
-
+    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
 
     $(document).on('mousedown', () => {
