@@ -34,8 +34,9 @@ if (extensionRegistry) {
 const appId = 'SpaceManagersApplication';
 const url = `/social-portlet/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`;
 
-export async function init(spaceId, canEdit, spaceManagers) {
-  if (!spaceManagers.length) {
+export async function init(spaceId, isManager, isMember, managers) {
+  console.warn('managers', managers);
+  if (!managers.length) {
     Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }
@@ -43,8 +44,9 @@ export async function init(spaceId, canEdit, spaceManagers) {
   Vue.createApp({
     data: {
       spaceId,
-      spaceManagers,
-      canEdit,
+      isManager,
+      isMember,
+      managers,
     },
     template: `<space-managers-application id="${appId}" />`,
     vuetify: Vue.prototype.vuetifyOptions,

@@ -20,6 +20,14 @@
 -->
 <gatein-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/gatein_resources_1_5 http://www.exoplatform.org/xml/ns/gatein_resources_1_5" xmlns="http://www.exoplatform.org/xml/ns/gatein_resources_1_5">
 
+  <portal-skin>
+    <skin-name>Enterprise</skin-name>
+    <skin-module>PeopleList</skin-module>
+    <css-path>/skin/css/portlet/PeopleList/Style.css</css-path>
+    <css-priority>500</css-priority>
+    <filtered>true</filtered>
+  </portal-skin>
+
   <portlet-skin>
     <application-name>social-portlet</application-name>
     <portlet-name>GeneralSettings</portlet-name>
@@ -39,8 +47,7 @@
     <application-name>social-portlet</application-name>
     <portlet-name>PeopleList</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/PeopleList/Style.css</css-path>
-    <css-priority>1</css-priority>
+    <additional-module>PeopleList</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -121,8 +128,14 @@
     <application-name>social-portlet</application-name>
     <portlet-name>MembersPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/SpaceMembers/Style.css</css-path>
-    <css-priority>1</css-priority>
+    <additional-module>PeopleList</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
+    <portlet-name>SpaceWidgetMembers</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>PeopleList</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -664,11 +677,11 @@
   </portlet>
 
   <portlet>
-    <name>SpaceDescription</name>
+    <name>SpaceWidgetDescription</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/spaceDescription.bundle.js</path>
+        <path>/js/spaceWidgetDescription.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -689,11 +702,11 @@
   </portlet>
 
   <portlet>
-    <name>SpaceManagers</name>
+    <name>SpaceWidgetManagers</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/spaceManagers.bundle.js</path>
+        <path>/js/spaceWidgetManagers.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -709,6 +722,40 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>SpaceWidgetMembers</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/spaceWidgetMembers.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>spaceInvitation</module>
+      </depends>
+      <depends>
+        <module>peopleListComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
       </depends>
     </module>
   </portlet>

@@ -111,7 +111,6 @@
                 <include>portlet/Search/Style.less</include>
                 <include>portlet/SpaceHeader/Style.less</include>
                 <include>portlet/SpaceInfos/Style.less</include>
-                <include>portlet/SpaceMembers/Style.less</include>
                 <include>portlet/SpaceMenu/Style.less</include>
                 <include>portlet/SpacesAdministration/Style.less</include>
                 <include>portlet/SpaceSearch/Style.less</include>

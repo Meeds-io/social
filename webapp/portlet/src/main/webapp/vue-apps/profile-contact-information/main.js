@@ -34,6 +34,11 @@ export function init(uploadLimit, imTypes) {
       data: () => ({
         imTypes,
       }),
+      computed: {
+        isMobile() {
+          return this.$vuetify.breakpoint.mobile;
+        },
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },

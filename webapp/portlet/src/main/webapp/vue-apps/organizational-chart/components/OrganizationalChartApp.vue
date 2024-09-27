@@ -171,10 +171,11 @@ export default {
   created() {
     const centerUser = this.getRequestedCenterUserId() || this.initialUserId || this.userId;
     this.updateChart(centerUser);
+
+    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
     this.refreshExtensions();
     this.refreshUserExtensions();
-    document.addEventListener('profile-extension-updated', this.refreshExtensions);
-    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
   },
   methods: {
     downloadChart() {

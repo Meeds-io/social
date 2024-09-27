@@ -48,9 +48,9 @@
         <template #default>
           <div class="mt-n3">
             <exo-user-avatar
-              v-for="username in $root.spaceManagers"
-              :key="username"
-              :identity="{username}"
+              v-for="(identity, i) in $root.managers"
+              :key="i"
+              :identity="identity"
               avatar-class="me-2"
               extra-class="mt-3"
               size="36"
