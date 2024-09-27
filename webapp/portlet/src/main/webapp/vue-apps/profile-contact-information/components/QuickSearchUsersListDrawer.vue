@@ -35,10 +35,10 @@
         filter="all"
         :hide-filter="true"
         :hide-right-filter-button="true"
-        :compact="true"
         :filter-message="filterMessage"
         filter-message-class="position-absolute filter-message ps-1"
         class="transparent"
+        compact-display
         @keyword-changed="keyword = $event" />
       <complementary-filter
         class="mt-n1 z-index-two position-relative"
@@ -90,7 +90,8 @@
                   :user="user"
                   :user-navigation-extensions="userExtensions"
                   :profile-action-extensions="profileActionExtensions"
-                  :user-card-settings="userCardSettings" />
+                  :user-card-settings="userCardSettings"
+                  :mobile-display="$root.isMobile" />
               </v-col>
             </v-row>
           </v-container>
@@ -105,7 +106,8 @@
             :user="user"
             :user-navigation-extensions="userExtensions"
             :profile-action-extensions="profileActionExtensions"
-            :compact-display="true" />
+            :mobile-display="$root.isMobile"
+            compact-display />
         </div>
       </div>
     </template>
@@ -186,8 +188,8 @@ export default {
   created() {
     this.refreshExtensions();
     this.refreshUserExtensions();
-    document.addEventListener('profile-extension-updated', this.refreshExtensions);
-    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
+    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
     this.$root.$on('open-quick-search-users-drawer', this.open);
   },
   methods: {
