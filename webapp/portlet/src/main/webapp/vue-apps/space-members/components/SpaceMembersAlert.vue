@@ -9,7 +9,7 @@ export default {
   created() {
     const params = new URL(location.href).searchParams;
     const feedbackMessage = params.get('feedbackMessage');
-    if (feedbackMessage && feedbackMessage === 'SpaceRequestAlreadyMember') {
+    if (feedbackMessage === 'SpaceRequestAlreadyMember') {
       const userName = params.get('userName');
       this.$identityService.getIdentityByProviderIdAndRemoteId('organization', userName)
         .then(identity => {
@@ -19,7 +19,7 @@ export default {
             1: this.spaceDisplayName,
           }), 'warning');
         });
-    }   
+    }
   },
 };
 </script>

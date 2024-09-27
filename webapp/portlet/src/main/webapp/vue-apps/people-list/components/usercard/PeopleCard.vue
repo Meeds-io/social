@@ -5,11 +5,10 @@
       :user="user"
       :user-navigation-extensions="userNavigationExtensions"
       :space-members-extensions="filteredSpaceMembersExtensions"
-      :profile-action-extensions="profileActionExtensions"
-      :is-mobile="isMobile" />
+      :profile-action-extensions="profileActionExtensions" />
     <people-user-compact-card
       v-else
-      :is-mobile="isMobile"
+      :mobile-display="mobileDisplay"
       :user="user"
       :user-navigation-extensions="userNavigationExtensions"
       :enabled-profile-action-extensions="enabledProfileActionExtensions"
@@ -43,6 +42,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    mobileDisplay: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     sendingAction: false,
@@ -55,11 +58,8 @@ export default {
     enabledProfileActionExtensions() {
       return this.profileActionExtensions.filter(extension => extension.enabled(this.user));
     },
-    isMobile() {
-      return this.$vuetify.breakpoint.smAndDown;
-    },
     compact() {
-      return this.isMobile || this.compactDisplay;
+      return this.mobileDisplay || this.compactDisplay;
     },
     userAvatarUrl() {
       let userAvatarUrl;

@@ -156,10 +156,10 @@ export default {
     }
   },
   created() {
+    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
     this.refreshExtensions();
     this.refreshUserExtensions();
-    document.addEventListener('profile-extension-updated', this.refreshExtensions);
-    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
   },
   methods: {
     bindSavedSettings() {

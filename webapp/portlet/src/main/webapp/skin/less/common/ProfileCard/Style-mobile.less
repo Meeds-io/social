@@ -6,17 +6,15 @@
 }
 
 .peopleAvatar {
-  position: absolute;
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
   max-width: 60px;
-  margin: 6px 12px;
+  margin: 0 12px;
 }
 
-.peopleToolbarIcons {
-  width: 50px;
-
-  .peopleActionIcon {
-    color: @btnColor !important;
-  }
+.peopleToolbarIcons .peopleActionIcon {
+  color: @btnColor !important;
 }
 
 .peopleCardActions {

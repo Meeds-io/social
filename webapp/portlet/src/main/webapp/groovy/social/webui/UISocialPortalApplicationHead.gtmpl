@@ -41,8 +41,8 @@
      eXo.env.portal.profileOwnerIdentityId = "<%=ownerIdentityId == null ? "" : Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=viewerIdentityId == null ? "" : viewerIdentityId%>" ;
      eXo.env.portal.companyName = "<%=brandingService.getCompanyName()%>" ;
-     eXo.env.portal.isExternal = "<%=Utils.isExternal(Utils.getViewerIdentity())%>" ;
-     eXo.env.portal.isSpacesManager = "<%=Utils.isSpacesManager(Utils.getViewerIdentity())%>" ;
+     eXo.env.portal.isExternal = <%=Utils.isExternal(Utils.getViewerIdentity())%>;
+     eXo.env.portal.isSpacesManager = <%=Utils.isSpacesManager(Utils.getViewerIdentity())%>;
      eXo.env.portal.cometdToken = "<%=cometdToken%>";
      eXo.env.portal.cometdContext = "<%=cometdContext%>";
      eXo.env.server.sessionId = "<%=rcontext.getRequest().getSession(true).getId()%>";
