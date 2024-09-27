@@ -7,7 +7,7 @@ let initialized = false;
 
 // Handle Tag Link click
 document.onclick = (event) => {
-  if (event && event.target && event.target.className && event.target.className.includes('metadata-tag')) {
+  if (event && event.target && event.target.className && JSON.stringify(event.target.className).includes('metadata-tag')) {
     const tagName = event.target.innerText;
     if (tagName) {
       event.stopPropagation();
