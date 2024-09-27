@@ -212,6 +212,24 @@
   </portlet>
 
   <portlet>
+    <portlet-name>SpaceManagers</portlet-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/spaceManagers.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.SpaceInfosPortlet</resource-bundle>
+    <portlet-info>
+      <title>Space Managers</title>
+      <keywords>Space Homepage Managers</keywords>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <description>Members Portlet</description>
     <portlet-name>MembersPortlet</portlet-name>
     <display-name>Members</display-name>
