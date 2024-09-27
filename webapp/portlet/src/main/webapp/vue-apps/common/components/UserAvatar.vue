@@ -55,6 +55,9 @@
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
+      <span v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate my-auto text-left">
+        {{ userPosition }}
+      </span>
     </component>
     <component
       v-else
@@ -94,8 +97,11 @@
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
         </p>
-        <p v-if="$slots.subTitle" class="text-subtitle  text-truncate text-left mb-0">
+        <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
+        </p>
+        <p v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate text-left mb-0">
+          {{ userPosition }}
         </p>
       </div>
       <template v-if="$slots.actions">
@@ -158,6 +164,9 @@
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
+      <span v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate my-auto text-left">
+        {{ userPosition }}
+      </span>
     </component>
     <component
       v-else
@@ -197,8 +206,11 @@
           </span>
           <span v-if="isExternal" class="muted font-weight-regular">{{ externalTag }} </span>
         </p>
-        <p v-if="$slots.subTitle" class="text-subtitle  text-truncate text-left mb-0">
+        <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
+        </p>
+        <p v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate text-left mb-0">
+          {{ userPosition }}
         </p>
       </div>
       <template v-if="$slots.actions">
@@ -313,7 +325,11 @@ export default {
     showDisabledUser: {
       type: Boolean,
       default: () => true
-    }
+    },
+    displayPosition: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
@@ -329,7 +345,7 @@ export default {
       return this.showDisabledUser || this.enabled;
     },
     userIdentity() {
-      return this.retrievedIdentity || this.identity;
+      return this.retrievedIdentity || (this.identity && JSON.parse(JSON.stringify(this.identity)));
     },
     identityId() {
       return this.userIdentity?.id;
@@ -351,6 +367,9 @@ export default {
     },
     userAvatarUrl() {
       return this.userIdentity?.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
+    },
+    userPosition() {
+      return this.userIdentity?.position;
     },
     profileUrl() {
       if (this.url && !this.clickable && this.username) {
@@ -407,22 +426,26 @@ export default {
           || !this.identityId
           || !this.username
           || !this.userFullname
-          || !this.identity.avatar
-          || !this.identity.hasOwnProperty('enabled')
-          || !this.identity.hasOwnProperty('deleted')
-          || !this.identity.hasOwnProperty('primaryProperty')
-          || !this.identity.hasOwnProperty('external');
+          || !Object.hasOwn(this.identity, 'avatar')
+          || !Object.hasOwn(this.identity, 'enabled')
+          || !Object.hasOwn(this.identity, 'deleted')
+          || !Object.hasOwn(this.identity, 'primaryProperty')
+          || !Object.hasOwn(this.identity, 'external');
     },
   },
   created() {
     if (this.username && this.mustRetrieveIdentity) {
       this.$userService.getUser(this.username)
-        .then(user => this.retrievedIdentity = user);
+        .then(user => this.retrievedIdentity = user && JSON.parse(JSON.stringify(user)));
     }
   },
   watch: {
-    identity() {
-      this.retrievedIdentity = null;
+    identity(newVal, oldVal) {
+      if (!newVal
+          || !oldVal
+          || JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+        this.retrievedIdentity = null;
+      }
     }
   },
 };
