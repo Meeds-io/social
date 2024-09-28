@@ -80,7 +80,6 @@
     <quick-search-users-list-drawer
       :properties="quickSearchSettingProperties"
       :user-card-settings="userCardSettings" />
-    <people-compact-card-options-drawer />
   </v-app>
 </template>
 

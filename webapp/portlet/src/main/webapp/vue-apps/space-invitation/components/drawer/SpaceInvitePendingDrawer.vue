@@ -252,7 +252,7 @@ export default {
       this.loading = true;
       try {
         const data = await this.$spaceService.getSpaceMemberships({
-          space: eXo.env.portal.spaceId,
+          space: this.$root.spaceId,
           offset: reset ? 0 : this.page * this.pageSize,
           limit: reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
           status: this.role,

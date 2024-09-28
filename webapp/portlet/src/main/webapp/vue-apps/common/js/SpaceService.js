@@ -13,20 +13,6 @@ export function getSpaceTemplates() {
   });
 }
 
-export function getSpaceMembers(query, offset, limit, expand, role, spaceId, signal) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/users?role=${role}&q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
-    method: 'GET',
-    credentials: 'include',
-    signal: signal
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
-    }
-  });
-}
-
 export function findSpaceExternalInvitationsBySpaceId(spaceId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/externalInvitations`, {
     method: 'GET',
@@ -47,19 +33,6 @@ export function declineExternalInvitation(spaceId, invitationId) {
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
-    }
-  });
-}
-
-export function isSpaceMember(spaceId, userId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/users/${userId}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
     }
   });
 }
@@ -281,6 +254,7 @@ export function getSpaceMemberships(params) {
   return fetch( `/portal/rest/v1/social/spacesMemberships?${urlParams}`, {
     method: 'GET',
     credentials: 'include',
+    signal: params.signal,
   }).then((resp) => {
     if (resp?.ok) {
       return resp.json();
@@ -288,6 +262,16 @@ export function getSpaceMemberships(params) {
       throw new Error('Response code indicates a server error', resp);
     }
   });
+}
+
+export function isSpaceMember(spaceId, userId) {
+  return getSpaceMemberships({
+    offset: 0,
+    limit: 1,
+    user: userId,
+    space: spaceId,
+    status: 'member',
+  }).then(data => !!data?.spacesMemberships?.length);
 }
 
 export function leave(spaceId) {

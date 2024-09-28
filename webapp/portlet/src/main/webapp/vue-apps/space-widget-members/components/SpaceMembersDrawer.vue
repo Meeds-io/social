@@ -67,7 +67,6 @@
         class="px-1 my-2"
         @has-more="hasMore = $event"
         @loading="loading = $event" />
-      <people-compact-card-options-drawer />
     </template>
     <template v-if="hasMore" #footer>
       <v-btn

@@ -19,7 +19,7 @@
  -->
 
 <template>
-  <v-hover v-slot="{hover}">
+  <v-hover v-model="hover">
     <v-card
       :id="userMenuParentId"
       :class="hover && 'grey lighten-4'"
@@ -27,90 +27,62 @@
       flat>
       <div class="peopleToolbarIcons my-auto ms-auto">
         <v-avatar
+          v-if="user.isGroupBound"
           :title="$t('peopleList.label.groupBound')"
           :size="28"
           class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
           <v-icon size="12" color="white">fa-users</v-icon>
         </v-avatar>
-        <v-spacer />
-        <div v-if="$root.isMobile">
-          <v-icon
-            size="14"
-            class="my-1"
-            @click="openBottomMenu">
-            fas fa-ellipsis-v
-          </v-icon>
-        </div>
-        <template v-else-if="canUseActionsMenu">
-          <v-menu
-            ref="actionMenu"
-            v-model="displayActionMenu"
-            attach
-            transition="slide-x-reverse-transition"
-            content-class="peopleActionMenu mt-n6 me-4"
-            offset-y>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                v-show="hover"
-                v-bind="attrs"
-                v-on="on"
-                :title="$t('peopleList.label.openUserMenu')"
-                class="me-2"
-                icon
-                text
-                small>
-                <v-icon
-                  class="icon-default-size icon-default-color">
-                  mdi-dots-vertical
-                </v-icon>
-              </v-btn>
-            </template>
+        <component
+          v-if="canUseActionsMenu"
+          :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+          :attach="$root.isMobile && '#vuetify-apps' || true"
+          ref="actionMenu"
+          v-model="displayActionMenu"
+          transition="slide-x-reverse-transition"
+          content-class="peopleActionMenu"
+          offset-y>
+          <template #activator="{ on }">
+            <v-btn
+              v-show="hover || $root.isMobile"
+              v-on="on"
+              :title="$t('peopleList.label.openUserMenu')"
+              color="primary"
+              class="me-2"
+              height="28"
+              width="28"
+              outlined
+              fab
+              @click="openBottomMenu">
+              <v-icon size="16">
+                fa-ellipsis-v
+              </v-icon>
+            </v-btn>
+          </template>
+          <v-sheet :min-height="$root.isMobile && '30vh' || 'auto'">
             <v-list class="pa-0 white" dense>
-              <template v-if="$root.spaceId && spaceMembersExtensions?.length">
-                <v-list-item
-                  v-for="extension in spaceMembersExtensions"
-                  :key="extension.id"
-                  @click="extension.click(user)">
-                  <v-list-item-title class="align-center d-flex">
-                    <v-card
-                      class="d-flex align-center justify-center transparent"
-                      height="25"
-                      width="25"
-                      flat>
-                      <v-icon size="20">
-                        {{ extension.class }}
-                      </v-icon>
-                    </v-card>
-                    <span class="ms-3">
-                      {{ extension.title || $t(extension.titleKey) }}
-                    </span>
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
-              <template v-else>
-                <v-list-item
-                  v-for="(extension, i) in actionExtensions"
-                  :key="i"
-                  @click="extension.click(user)">
-                  <v-list-item-title class="align-center d-flex">
-                    <v-card
-                      class="d-flex align-center justify-center transparent"
-                      height="25"
-                      width="25"
-                      flat>
-                      <v-icon size="20">
-                        {{ extension.class }}
-                      </v-icon>
-                    </v-card>
-                    <span class="ms-3">
-                      {{ extension.title || $t(extension.titleKey) }}
-                    </span>
-                  </v-list-item-title>
-                </v-list-item>
-              </template>
+              <v-list-item
+                v-for="(extension, i) in actionExtensions"
+                :key="i"
+                @click="extension.click(user, spaceId)">
+                <v-list-item-title class="align-center d-flex">
+                  <v-card
+                    class="d-flex align-center justify-center transparent"
+                    height="25"
+                    width="25"
+                    flat>
+                    <v-icon size="20">
+                      {{ extension.class }}
+                    </v-icon>
+                  </v-card>
+                  <span class="ms-3">
+                    {{ extension.title || $t(extension.titleKey) }}
+                  </span>
+                </v-list-item-title>
+              </v-list-item>
             </v-list>
-          </v-menu>
-        </template>
+          </v-sheet>
+        </component>
       </div>
       <div class="peopleAvatar">
         <a :href="url">
@@ -160,12 +132,15 @@
     </v-card>
   </v-hover>
 </template>
-
 <script>
 export default {
   props: {
     user: {
       type: Object,
+      default: null,
+    },
+    spaceId: {
+      type: String,
       default: null,
     },
     isManager: {
@@ -203,15 +178,18 @@ export default {
   },
   data: () => ({
     displayActionMenu: false,
+    hover: false,
     waitTimeUntilCloseMenu: 200,
     bottomMenu: false,
   }),
   computed: {
     actionExtensions() {
-      if (!this.isSameUser) {
-        return [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions];
+      if (this.spaceId && this.spaceMembersExtensions?.length) {
+        return this.spaceMembersExtensions;
+      } else if (this.isSameUser) {
+        return this.filteredUserNavigationExtensions || [];
       } else {
-        return this.filteredUserNavigationExtensions;
+        return [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions];
       }
     },
     filteredUserNavigationExtensions() {
@@ -224,7 +202,7 @@ export default {
       return this.user?.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
     },
     canUseActionsMenu() {
-      return this.user && (this.enabledProfileActionExtensions.length || this.userNavigationExtensions.length);
+      return this.user && this.actionExtensions.length;
     },
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-subtitle' || 'primary--text text-truncate-2 mt-0'}`;
@@ -256,13 +234,9 @@ export default {
   },
   methods: {
     openBottomMenu() {
-      if (!this.isSameUser) {
-        this.$root.$emit('open-people-compact-card-options-drawer',
-          this.user, [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
-      } else {
-        this.$root.$emit('open-people-compact-card-options-drawer',
-          this.user, [...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
-      }
+      window.setTimeout(() => {
+        document.querySelector('.v-overlay--active').addEventListener('click', this.close);
+      }, 50);
     }
   },
 };

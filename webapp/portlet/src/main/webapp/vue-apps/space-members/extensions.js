@@ -28,8 +28,8 @@ document.addEventListener('space-member-management-actions-load', () => {
         && user?.username !== eXo?.env?.portal?.userName
         && !user.isGroupBound;
     },
-    click: (user) => {
-      Vue.prototype.$spaceService.removeMember(eXo.env.portal.spaceId, user.username)
+    click: (user, spaceId) => {
+      Vue.prototype.$spaceService.removeMember(spaceId, user.username)
         .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
     },
   });
@@ -40,8 +40,8 @@ document.addEventListener('space-member-management-actions-load', () => {
     class: 'fas fa-user-cog',
     order: 1,
     enabled: user => user.isManager,
-    click: (user) => {
-      Vue.prototype.$spaceService.removeManager(eXo.env.portal.spaceId, user.username)
+    click: (user, spaceId) => {
+      Vue.prototype.$spaceService.removeManager(spaceId, user.username)
         .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
     },
   });
@@ -52,8 +52,8 @@ document.addEventListener('space-member-management-actions-load', () => {
     class: 'fas fa-user-cog',
     order: 1,
     enabled: user => user.enabled && !user.deleted && !user.isManager,
-    click: (user) => {
-      Vue.prototype.$spaceService.promoteManager(eXo.env.portal.spaceId, user.username)
+    click: (user, spaceId) => {
+      Vue.prototype.$spaceService.promoteManager(spaceId, user.username)
         .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
     },
   });
@@ -63,8 +63,8 @@ document.addEventListener('space-member-management-actions-load', () => {
     icon: 'uiIconTrash',
     order: 1,
     enabled: user => user.isInvited,
-    click: (user) => {
-      Vue.prototype.$spaceService.cancelInvitation(eXo.env.portal.spaceId, user.username)
+    click: (user, spaceId) => {
+      Vue.prototype.$spaceService.cancelInvitation(spaceId, user.username)
         .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
     },
   });
@@ -74,8 +74,8 @@ document.addEventListener('space-member-management-actions-load', () => {
     icon: 'uiIconUserCheck',
     order: 1,
     enabled: user => user.isPending,
-    click: (user) => {
-      Vue.prototype.$spaceService.acceptUserRequest(eXo.env.portal.spaceId, user.username)
+    click: (user, spaceId) => {
+      Vue.prototype.$spaceService.acceptUserRequest(spaceId, user.username)
         .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
     },
   });
@@ -85,8 +85,8 @@ document.addEventListener('space-member-management-actions-load', () => {
     icon: 'uiIconTrash',
     order: 1,
     enabled: user => user.isPending,
-    click: (user) => {
-      Vue.prototype.$spaceService.refuseUserRequest(eXo.env.portal.spaceId, user.username)
+    click: (user, spaceId) => {
+      Vue.prototype.$spaceService.refuseUserRequest(spaceId, user.username)
         .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
     },
   });
