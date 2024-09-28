@@ -3,6 +3,7 @@
     <people-user-card
       v-if="!compact"
       :user="user"
+      :space-id="spaceId"
       :user-navigation-extensions="userNavigationExtensions"
       :space-members-extensions="filteredSpaceMembersExtensions"
       :profile-action-extensions="profileActionExtensions" />
@@ -10,6 +11,7 @@
       v-else
       :mobile-display="mobileDisplay"
       :user="user"
+      :space-id="spaceId"
       :user-navigation-extensions="userNavigationExtensions"
       :enabled-profile-action-extensions="enabledProfileActionExtensions"
       :space-members-extensions="filteredSpaceMembersExtensions"
@@ -25,6 +27,10 @@ export default {
     user: {
       type: Object,
       default: () => ({}),
+    },
+    spaceId: {
+      type: String,
+      default: null,
     },
     userNavigationExtensions: {
       type: Array,

@@ -17,12 +17,9 @@
       :mobile-display="$root.isMobile"
       @loaded="peopleLoaded" />
     <people-advanced-filter-drawer />
-    <people-compact-card-options-drawer />
   </v-app>
 </template>
-
 <script>
-
 export default {
   props: {
     filter: {
