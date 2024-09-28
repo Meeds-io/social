@@ -809,6 +809,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     for(int i = 0; i < 7; i++) {
       populateUser("username" + i);
     }
+    restartTransaction();
 
     Space space = new Space();
     space.setApp("app");
@@ -1248,10 +1249,10 @@ public class IdentityStorageTest extends AbstractCoreTest {
   private User populateUser(String name) {
     OrganizationService os = SpaceUtils.getOrganizationService();
     User user = os.getUserHandler().createUserInstance(name);
-    
+    user.setFirstName(name);
+    user.setLastName(name);
     try {
-      os.getUserHandler().createUser(user, false);
-      identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, name);
+      os.getUserHandler().createUser(user, true);
     } catch (Exception e) {
       return null;
     }

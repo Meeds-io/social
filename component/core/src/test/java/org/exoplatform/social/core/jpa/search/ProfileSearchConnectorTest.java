@@ -44,7 +44,7 @@ public class ProfileSearchConnectorTest {
         String index = "profile_alias";
         String query = "{\n" +
                 "   \"from\" : 0, \"size\" : 10,\n" +
-                "   \"sort\": {\"name.raw\": {\"order\": \"ASC\"}}\n" +
+                "   \"sort\": {\"lastName.raw\": {\"order\": \"ASC\"}}\n" +
                 "       ,\n" +
                 "\"query\" : {\n" +
                 "      \"constant_score\" : {\n" +
