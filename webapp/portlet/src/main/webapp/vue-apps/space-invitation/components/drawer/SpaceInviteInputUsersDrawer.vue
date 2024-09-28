@@ -128,7 +128,7 @@ export default {
     inviteUsers() {
       this.saving = true;
       this.$spaceService.updateSpace({
-        id: eXo.env.portal.spaceId,
+        id: this.$root.spaceId,
         invitedMembers: this.invitedMembers,
       })
         .then(() => {
