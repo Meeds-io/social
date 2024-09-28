@@ -17,7 +17,7 @@
       ref="spaceMembers"
       :keyword="keyword"
       :filter="filter"
-      :space-id="spaceId"
+      :space-id="$root.spaceId"
       :people-count="peopleCount"
       :is-manager="isManager"
       :loading="loading"
@@ -25,7 +25,6 @@
       md="4"
       lg="3"
       xl="3" />
-    <people-compact-card-options-drawer />
   </v-app>
 </template>
 <script>
@@ -34,10 +33,6 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
-    },
-    spaceId: {
-      type: Number,
-      default: 0,
     },
     filter: {
       type: String,

@@ -32,6 +32,7 @@
               cols="12">
               <people-card
                 :user="user"
+                :space-id="spaceId"
                 :space-members-extensions="spaceMembersActionExtensions"
                 :user-navigation-extensions="userExtensions"
                 :profile-action-extensions="profileActionExtensions"
@@ -250,7 +251,19 @@ export default {
           || this.filter === 'redactor'
           || this.filter === 'publisher'
           || this.filter === 'disabled') {
-        searchUsersFunction = this.$spaceService.getSpaceMembers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.filter, this.spaceId, this.abortController.signal);
+        searchUsersFunction = this.$spaceService.getSpaceMemberships({
+          query: this.keyword,
+          offset: this.offset,
+          limit: this.limitToFetch + 1,
+          status: this.filter,
+          expand: `users,${this.fieldsToRetrieve}`,
+          space: this.spaceId,
+          returnSize: true,
+          signal: this.abortController.signal,
+        }).then(data => ({
+          size: data.size || 0,
+          users: data?.spacesMemberships?.map?.(m => m.user),
+        }));
       } else if (profileSettings) {
         this.advancedFilterSettings = profileSettings;
         searchUsersFunction = this.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
