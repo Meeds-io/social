@@ -158,7 +158,7 @@ export default {
       this.saving = true;
       try {
         await this.$spaceService.updateSpace({
-          id: eXo.env.portal.spaceId,
+          id: this.$root.spaceId,
           invitedMembers: this.invitedMembers,
           externalInvitedUsers: this.emails,
         });
@@ -210,7 +210,7 @@ export default {
       }
       const user = await this.$userService.getUserByEmail(email);
       if (user?.id && user?.id !== 'null') {
-        const data = await this.$spaceService.isSpaceMember(eXo.env.portal.spaceId, user.remoteId);
+        const data = await this.$spaceService.isSpaceMember(this.$root.spaceId, user.remoteId);
         if (data.isMember === 'true') {
           this.emailInvitations.unshift({
             userEmail: email,

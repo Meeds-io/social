@@ -22,11 +22,11 @@
   <v-hover v-slot="{ hover }">
     <v-card
       :class="hover && 'elevation-2'"
-      class="mx-auto border-box-sizing card-border-radius socialUserCard"
       :width="$attrs.width"
       :min-width="$attrs.minWidth"
-      height="227"
       :href="profileUrl"
+      class="mx-auto border-box-sizing card-border-radius socialUserCard"
+      height="227"
       outlined>
       <v-img
         :lazy-src="bannerUrl"
@@ -65,7 +65,7 @@
               <v-list-item
                 v-for="(extension, i) in spaceMembersExtensions"
                 :key="i"
-                @click="extension.click(user)">
+                @click="extension.click(user, spaceId)">
                 <v-list-item-title class="align-center d-flex">
                   <v-card
                     class="d-flex align-center justify-center transparent"
@@ -190,6 +190,10 @@ export default {
   props: {
     user: {
       type: Object,
+      default: null
+    },
+    spaceId: {
+      type: String,
       default: null
     },
     profileActionExtensions: {
