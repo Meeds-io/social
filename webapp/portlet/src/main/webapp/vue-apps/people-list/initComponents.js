@@ -7,7 +7,6 @@ import PeopleCard from './components/usercard/PeopleCard.vue';
 import PeopleUserCompactCard from './components/usercard/PeopleUserCompactCard.vue';
 import PeopleUserCard from './components/usercard/PeopleUserCard.vue';
 import PeopleUserRole from './components/usercard/PeopleUserRole.vue';
-import PeopleCompactCardOptionsDrawer from './components/usercard/PeopleCompactCardOptionsDrawer.vue';
 
 const components = {
   'people-list': PeopleList,
@@ -19,7 +18,6 @@ const components = {
   'people-user-compact-card': PeopleUserCompactCard,
   'people-user-card': PeopleUserCard,
   'people-user-role': PeopleUserRole,
-  'people-compact-card-options-drawer': PeopleCompactCardOptionsDrawer
 };
 
 for (const key in components) {

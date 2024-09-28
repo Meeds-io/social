@@ -100,8 +100,7 @@ export function init(filter, isManager, isExternalFeatureEnabled) {
                     id="${appId}"
                     :is-manager="${isManager}"
                     :is-external-feature-enabled="${isExternalFeatureEnabled}"
-                    filter="${filter || 'member'}"
-                    space-id="${eXo.env.portal.spaceId}" />`,
+                    filter="${filter || 'member'}" />`,
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
       }, `#${appId}`, 'Space Members');

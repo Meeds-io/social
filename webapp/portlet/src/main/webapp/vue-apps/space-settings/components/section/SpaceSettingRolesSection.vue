@@ -113,21 +113,28 @@ export default {
         }
       }
     },
-    getAllRedactors(expand) {
-      return this.getAllUsers('redactor', expand);
+    getAllRedactors() {
+      return this.getUsers('redactor');
     },
-    getAllPublishers(expand) {
-      return this.getAllUsers('publisher', expand);
+    getAllPublishers() {
+      return this.getUsers('publisher');
     },
-    async getAllUsers(filter, expand) {
-      let data = await this.$spaceService.getSpaceMembers(null, 0, 100, expand || '', filter, this.space.id);
-      let users = data?.users;
-      const size = data?.size;
-      if (users?.length && size > users.length) {
-        data = await this.$spaceService.getSpaceMembers(null, 0, size, expand || '', filter, this.space.id);
-        users = data?.users;
+    async getUsers(role, limit, noRecursive) {
+      const data = await this.$spaceService.getSpaceMemberships({
+        offset: 0,
+        limit: limit || 100,
+        status: role,
+        expand: 'users',
+        space: this.space.id,
+        returnSize: false,
+      });
+      const users = data?.spacesMemberships?.map?.(m => m.user) || [];
+      const size = data?.size || 0;
+      if (!noRecursive && size > users.length) {
+        return this.getUsers(role, size, true);
+      } else {
+        return users;
       }
-      return users;
     },
   },
 };
