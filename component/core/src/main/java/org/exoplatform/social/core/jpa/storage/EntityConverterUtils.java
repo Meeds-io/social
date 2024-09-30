@@ -34,6 +34,7 @@ import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.PRIORITY;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.PublicSiteVisibility;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.REGISTRATION;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.VISIBILITY;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
@@ -284,6 +285,8 @@ public class EntityConverterUtils {
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setGroupId(space.getGroupId());
     spaceEntity.setPrettyName(space.getPrettyName());
+    spaceEntity.setPublicSiteId(space.getPublicSiteId());
+    spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility() == null ? PublicSiteVisibility.MANAGER : PublicSiteVisibility.valueOf(space.getPublicSiteVisibility().toUpperCase()));
     PRIORITY priority = null;
     if (Space.HIGH_PRIORITY.equals(space.getPriority())) {
       priority = PRIORITY.HIGH;

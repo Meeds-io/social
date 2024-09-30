@@ -17,6 +17,8 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -692,6 +694,38 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     space = spaceService.getSpaceById(spaceId);
     assertNull(space);
+  }
+
+  public void testSaveSpacePublicSite() throws Exception {
+    //root creates 1 spaces
+    Space space = getSpaceInstance(1, "root");
+
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity.getPublicSiteId());
+    assertEquals(0l, spaceEntity.getPublicSiteId().longValue());
+
+    String spaceId = spaceEntity.getId();
+
+    String input = "{\"publicSiteVisibility\":\"authenticated\",\"publicSiteName\":\"Test Public Site\"}";
+    response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
+    restartTransaction();
+
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity.getPublicSiteId());
+    assertTrue(spaceEntity.getPublicSiteId().longValue() > 0);
+    assertEquals("authenticated", spaceEntity.getPublicSiteVisibility());
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig portalConfig = layoutService.getPortalConfig(spaceEntity.getPublicSiteId());
+    assertNotNull(portalConfig);
+    assertEquals("Test Public Site", portalConfig.getLabel());
+    assertEquals("test_public_site", portalConfig.getName());
   }
 
   public void testGetUsersSpaceById() throws Exception {

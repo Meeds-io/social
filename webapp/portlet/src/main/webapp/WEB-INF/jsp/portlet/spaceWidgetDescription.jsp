@@ -11,7 +11,7 @@
   String activityId = rcontext.getRequest().getParameter("id");
   Space space = SpaceUtils.getSpaceByContext();
   String description = space == null || space.getDescription() == null ? "" : space.getDescription();
-  String id = space == null ? "" : space.getId();
+  String id = space == null ? "0" : space.getId();
   boolean canEdit = space != null
       && request.getRemoteUser() != null
       && ExoContainerContext.getService(SpaceService.class)
