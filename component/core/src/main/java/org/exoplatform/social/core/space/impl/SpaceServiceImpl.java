@@ -1158,39 +1158,14 @@ public class SpaceServiceImpl implements SpaceService {
     } else if (!canManageSpace(space, authenticatedUser)) {
       throw new IllegalAccessException("User isn't manager of the space");
     }
-
-    boolean visibilityChanged = StringUtils.isNotBlank(publicSiteVisibility) && !StringUtils.equals(space.getPublicSiteVisibility(), publicSiteVisibility);
     space.setEditor(authenticatedUser);
-    space.setPublicSiteVisibility(publicSiteVisibility);
 
-    String publicSiteName = Utils.cleanString(publicSiteLabel);
-    if (space.getPublicSiteId() == 0
-        || layoutService.getPortalConfig(space.getPublicSiteId()) == null) {
-      long siteId = spaceTemplateService.createSpacePublicSite(space,
-                                                               publicSiteName,
-                                                               publicSiteLabel,
-                                                               getPublicSitePermissions(publicSiteVisibility, space.getGroupId()));
-      space.setPublicSiteId(siteId);
-
-      spaceStorage.saveSpace(space, false);
-      spaceLifeCycle.spacePublicSiteCreated(space, authenticatedUser);
-    } else {
-      PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
-      boolean siteNameChanged = StringUtils.isNotBlank(publicSiteName) && !StringUtils.equals(publicSiteName, portalConfig.getName());
-      if (siteNameChanged) {
-        portalConfig.setLabel(publicSiteLabel);
-        portalConfig.setName(publicSiteName);
-      }
-      if (visibilityChanged) {
-        String[] publicSitePermissions = getPublicSitePermissions(publicSiteVisibility, space.getGroupId());
-        portalConfig.setAccessPermissions(publicSitePermissions);
-      }
-      if (siteNameChanged || visibilityChanged) {
-        layoutService.save(portalConfig);
-      }
-      spaceStorage.saveSpace(space, false);
-      spaceLifeCycle.spacePublicSiteUpdated(space, authenticatedUser);
-    }
+    saveSpacePublicSite(space, publicSiteLabel, publicSiteVisibility, authenticatedUser);
+  }
+  
+  @Override
+  public void saveSpacePublicSite(Space space, String publicSiteLabel, String publicSiteVisibility) {
+    saveSpacePublicSite(space, publicSiteLabel, publicSiteVisibility, null);
   }
 
   @Override
@@ -1467,6 +1442,43 @@ public class SpaceServiceImpl implements SpaceService {
       spaceTemplate = spaceTemplateService.getSpaceTemplateByName(defaultTemplate);
     }
     return spaceTemplate;
+  }
+
+  public void saveSpacePublicSite(Space space, String publicSiteLabel, String publicSiteVisibility, String authenticatedUser) {
+    boolean visibilityChanged = StringUtils.isNotBlank(publicSiteVisibility)
+                                && !StringUtils.equals(space.getPublicSiteVisibility(), publicSiteVisibility);
+    space.setPublicSiteVisibility(publicSiteVisibility);
+
+    String publicSiteName = Utils.cleanString(publicSiteLabel);
+    if (space.getPublicSiteId() == 0
+        || layoutService.getPortalConfig(space.getPublicSiteId()) == null) {
+      long siteId = spaceTemplateService.createSpacePublicSite(space,
+                                                               publicSiteName,
+                                                               publicSiteLabel,
+                                                               getPublicSitePermissions(publicSiteVisibility,
+                                                                                        space.getGroupId()));
+      space.setPublicSiteId(siteId);
+
+      spaceStorage.saveSpace(space, false);
+      spaceLifeCycle.spacePublicSiteCreated(space, authenticatedUser);
+    } else {
+      PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
+      boolean siteNameChanged = StringUtils.isNotBlank(publicSiteName)
+                                && !StringUtils.equals(publicSiteName, portalConfig.getName());
+      if (siteNameChanged) {
+        portalConfig.setLabel(publicSiteLabel);
+        portalConfig.setName(publicSiteName);
+      }
+      if (visibilityChanged) {
+        String[] publicSitePermissions = getPublicSitePermissions(publicSiteVisibility, space.getGroupId());
+        portalConfig.setAccessPermissions(publicSitePermissions);
+      }
+      if (siteNameChanged || visibilityChanged) {
+        layoutService.save(portalConfig);
+      }
+      spaceStorage.saveSpace(space, false);
+      spaceLifeCycle.spacePublicSiteUpdated(space, authenticatedUser);
+    }
   }
 
   private String[] getPublicSitePermissions(String publicSiteVisibility, String spaceGroupId) {
