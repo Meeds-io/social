@@ -63,33 +63,43 @@
                 </div>
               </template>
             </v-radio>
-            <v-radio
-              value="internal"
-              class="mt-0 mb-2">
-              <template #label>
-                <div class="text-body">
-                  {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersNoGuests') }}
+            <v-tooltip :value="isHiddenSpace" bottom>
+              <template #activator="{on, attrs}">
+                <div v-on="on" v-bind="attrs">
+                  <v-radio
+                    :disabled="isHiddenSpace"
+                    value="internal"
+                    class="mt-0 mb-2">
+                    <template #label>
+                      <div class="text-body">
+                        {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersNoGuests') }}
+                      </div>
+                    </template>
+                  </v-radio>
+                  <v-radio
+                    :disabled="isHiddenSpace"
+                    value="authenticated"
+                    class="mt-0 mb-2">
+                    <template #label>
+                      <div class="text-body">
+                        {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersWithGuests') }}
+                      </div>
+                    </template>
+                  </v-radio>
+                  <v-radio
+                    :disabled="isHiddenSpace"
+                    value="everyone"
+                    class="mt-0 mb-2">
+                    <template #label>
+                      <div class="text-body">
+                        {{ $t('SpaceSettings.publicSite.drawer.accessChoiceAnonymous') }}
+                      </div>
+                    </template>
+                  </v-radio>
                 </div>
               </template>
-            </v-radio>
-            <v-radio
-              value="authenticated"
-              class="mt-0 mb-2">
-              <template #label>
-                <div class="text-body">
-                  {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersWithGuests') }}
-                </div>
-              </template>
-            </v-radio>
-            <v-radio
-              value="everyone"
-              class="mt-0 mb-2">
-              <template #label>
-                <div class="text-body">
-                  {{ $t('SpaceSettings.publicSite.drawer.accessChoiceAnonymous') }}
-                </div>
-              </template>
-            </v-radio>
+              <span>{{ $t('SpaceSettings.publicSite.visibilityNotAllowDueToHiddenSpace') }}</span>
+            </v-tooltip>
           </v-radio-group>
           <div class="text-header my-1">
             {{ $t('SpaceSettings.publicSite.editPublicSite') }}
@@ -172,6 +182,9 @@ export default {
   computed: {
     publicSiteLink() {
       return this.publicSite && `${eXo.env.portal.context}/${this.publicSite.name}`;
+    },
+    isHiddenSpace() {
+      return this.$root.space?.visibility?.toLowerCase?.() === 'hidden';
     },
   },
   watch: {
