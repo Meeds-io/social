@@ -19,30 +19,34 @@
 
 -->
 <template>
-  <v-app class="application-body">
-    <v-main v-if="$root.space" class="px-5 py-1 border-box-sizing">
-      <space-setting-overview id="SpaceSettingsOverview" />
-      <space-setting-roles id="SpaceSettingsRoles" />
-      <space-setting-access id="SpaceSettingsAccess" />
-      <space-setting-public-site id="SpaceSettingsPublicAccess" />
-      <template>
-        <extension-registry-components
-          :params="extensionParams"
-          name="SpaceSettings"
-          type="space-settings-components"
-          parent-element="div"
-          element="div" />
-      </template>
-    </v-main>
-  </v-app>
+  <div v-if="$root.isAllSections">
+    <v-card flat>
+      <v-list class="pa-0" dense>
+        <v-list-item class="pa-0">
+          <v-list-item-content>
+            <v-list-item-title class="text-title py-1">
+              {{ $t('SpaceSettings.publicSite') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-btn
+              small
+              icon
+              @click="openDrawer">
+              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+            </v-btn>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+    </v-card>
+    <space-setting-public-site-drawer ref="publicSiteDrawer" />
+  </div>
 </template>
 <script>
 export default {
-  computed: {
-    extensionParams() {
-      return {
-        spaceId: this.$root.spaceId,
-      };
+  methods: {
+    openDrawer() {
+      this.$refs.publicSiteDrawer.open();
     },
   },
 };

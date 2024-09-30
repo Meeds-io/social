@@ -933,6 +933,8 @@ public class EntityBuilder {
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
+    spaceEntity.setPublicSiteId(space.getPublicSiteId());
+    spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility());
     spaceEntity.setSubscription(space.getRegistration());
     spaceEntity.setMembersCount(space.getMembers() == null ? 0 : countUsers(space.getMembers()));
     spaceEntity.setManagersCount(space.getManagers() == null ? 0 : countUsers(space.getManagers()));
@@ -1104,7 +1106,9 @@ public class EntityBuilder {
 
     LinkEntity userEntity;
     if (expandFields.contains(USERS_TYPE)) {
-      userEntity = new LinkEntity(buildEntityProfile(userId, restPath, expand));
+      Identity identity = getIdentityManager().getOrCreateUserIdentity(userId);
+      Profile profile = identity == null ? null : identity.getProfile();
+      userEntity = profile == null ? null : new LinkEntity(buildEntityProfile(space, profile, restPath, expand));
     } else {
       userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, userId, restPath));
     }

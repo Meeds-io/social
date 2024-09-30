@@ -19,6 +19,7 @@ package org.exoplatform.social.core.space.spi;
 import java.time.Instant;
 import java.util.List;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
@@ -1496,6 +1497,23 @@ public interface SpaceService {
    *         membership
    */
   default Instant getSpaceMembershipDate(long spaceId, String username) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Saves the space public site characteristics
+   * 
+   * @param spaceId
+   * @param publicSiteName public site display name
+   * @param publicSiteVisibility Visibility of public site, possible values: manager, member, internal, authenticated or everyone.
+   * @param username user identifier who's making the operation
+   * @throws IllegalAccessException when 
+   * @throws ObjectNotFoundException 
+   */
+  default void saveSpacePublicSite(String spaceId,
+                                   String publicSiteName,
+                                   String publicSiteVisibility,
+                                   String username) throws ObjectNotFoundException, IllegalAccessException {
     throw new UnsupportedOperationException();
   }
 }

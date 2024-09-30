@@ -31,31 +31,57 @@ import java.util.Objects;
 public class SpaceData implements CacheData<Space> {
   private static final long serialVersionUID = 6109309246791818373L;
 
-  private final String id;
-  private final String app;
-  private final String prettyName;
-  private final String displayName;
-  private final String registration;
-  private final String description;
-  private final String type;
-  private final String visibility;
-  private final String priority;
-  private final String avatarUrl;
-  private final String bannerUrl;
-  private final String groupId;
-  private final String url;
-  private final Long avatarLastUpdated;
-  private final Long bannerLastUpdated;
-  private final Long createdTime;
-  private final Long lastUpdatedTime;
-  private final long cacheTime;
+  private final String      id;
 
-  private final String[] members;
-  private final String[] redactors;
-  private final String[] publishers;
-  private final String[] managers;
-  private final String[] pendingUser;
-  private final String[] invitedUser;
+  private final String      app;
+
+  private final String      prettyName;
+
+  private final String      displayName;
+
+  private final String      registration;
+
+  private final String      description;
+
+  private final String      type;
+
+  private final String      visibility;
+
+  private final String      priority;
+
+  private final String      avatarUrl;
+
+  private final String      bannerUrl;
+
+  private final String      groupId;
+
+  private final String      url;
+
+  private final Long        avatarLastUpdated;
+
+  private final Long        bannerLastUpdated;
+
+  private final Long        createdTime;
+
+  private final Long        lastUpdatedTime;
+
+  private final long        cacheTime;
+
+  private final String[]    members;
+
+  private final String[]    redactors;
+
+  private final String[]    publishers;
+
+  private final String[]    managers;
+
+  private final String[]    pendingUser;
+
+  private final String[]    invitedUser;
+
+  private long              publicSiteId;
+
+  private String            publicSiteVisibility;
 
   public SpaceData(final Space space) {
 
@@ -82,6 +108,8 @@ public class SpaceData implements CacheData<Space> {
     pendingUser = space.getPendingUsers();
     invitedUser = space.getInvitedUsers();
     createdTime = space.getCreatedTime();
+    publicSiteId = space.getPublicSiteId();
+    publicSiteVisibility = space.getPublicSiteVisibility();
 
     lastUpdatedTime = space.getLastUpdatedTime();
     cacheTime = System.currentTimeMillis();
@@ -115,6 +143,8 @@ public class SpaceData implements CacheData<Space> {
     space.setCreatedTime(createdTime);
     space.setLastUpdatedTime(lastUpdatedTime);
     space.setCacheTime(cacheTime);
+    space.setPublicSiteId(publicSiteId);
+    space.setPublicSiteVisibility(publicSiteVisibility);
 
     return space;
 
