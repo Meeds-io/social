@@ -68,8 +68,8 @@ public class Utils {
    * @return cleaned string
    */
   public static String cleanString(String str) {
-    if (str == null) {
-      throw new IllegalArgumentException("String argument must not be null.");
+    if (StringUtils.isBlank(str)) {
+      return str;
     }
 
     str = Normalizer.normalize(str, Normalizer.Form.NFKD);

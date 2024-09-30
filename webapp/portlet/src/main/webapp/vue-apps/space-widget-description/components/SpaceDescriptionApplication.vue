@@ -24,7 +24,7 @@
       <widget-wrapper
         :title="$t('social.space.description.title')"
         extra-class="application-body">
-        <template v-if="$root.canEdit" #action>
+        <template v-if="$root.isManager" #action>
           <v-btn
             v-show="hover"
             :title="$t('social.space.description.editTooltip')"

@@ -25,8 +25,7 @@
     v-model="drawer"
     :loading="savingSpace"
     allow-expand
-    right
-    class="spaceFormDrawer">
+    right>
     <template slot="title">
       {{ $t('SpaceSettings.accessAndVisibility.drawer') }}
     </template>

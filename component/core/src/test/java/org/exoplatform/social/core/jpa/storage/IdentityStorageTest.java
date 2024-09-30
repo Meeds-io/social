@@ -42,6 +42,8 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
+import lombok.SneakyThrows;
+
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1287,24 +1289,18 @@ public class IdentityStorageTest extends AbstractCoreTest {
     space.setUrl(space.getPrettyName());
     return space;
   }
-  
+
+  @SneakyThrows
   private static void addUserToGroupWithMembership(String remoteId, String groupId, String membership) {
     OrganizationService organizationService = SpaceUtils.getOrganizationService();
-    try {
-      // TODO: checks whether user is already manager?
-      MembershipHandler membershipHandler = organizationService.getMembershipHandler();
-      Membership found = membershipHandler.findMembershipByUserGroupAndType(remoteId, groupId, membership);
-      if (found != null) {
-        return;
-      }
+    MembershipHandler membershipHandler = organizationService.getMembershipHandler();
+    Membership found = membershipHandler.findMembershipByUserGroupAndType(remoteId, groupId, membership);
+    if (found == null) {
       User user = organizationService.getUserHandler().findUserByName(remoteId);
       MembershipType membershipType = organizationService.getMembershipTypeHandler().findMembershipType(membership);
       GroupHandler groupHandler = organizationService.getGroupHandler();
       Group existingGroup = groupHandler.findGroupById(groupId);
       membershipHandler.linkMembership(user, existingGroup, membershipType, true);
-      persist();
-    } catch (Exception e) {
-      return;
     }
   }
 

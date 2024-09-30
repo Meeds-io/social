@@ -892,6 +892,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       }
     }
     space.setGroupId(entity.getGroupId());
+    space.setPublicSiteId(entity.getPublicSiteId());
+    space.setPublicSiteVisibility(entity.getPublicSiteVisibility() == null ? null : entity.getPublicSiteVisibility().name().toLowerCase());
     space.setUrl(entity.getUrl());
     space.setCreatedTime(entity.getCreatedDate().getTime());
     space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
