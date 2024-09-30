@@ -724,8 +724,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
     PortalConfig portalConfig = layoutService.getPortalConfig(spaceEntity.getPublicSiteId());
     assertNotNull(portalConfig);
-    assertEquals("Test Public Site", portalConfig.getLabel());
-    assertEquals("test_public_site", portalConfig.getName());
+    assertEquals(space.getDisplayName(), portalConfig.getLabel());
+    assertEquals(space.getPrettyName(), portalConfig.getName());
   }
 
   public void testGetUsersSpaceById() throws Exception {

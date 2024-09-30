@@ -35,7 +35,7 @@ const appId = 'SpaceDescriptionApplication';
 const url = `/social-portlet/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`;
 
 export async function init(spaceId, isManager, spaceDescription) {
-  if (!spaceDescription.length) {
+  if (!isManager && (!spaceDescription.length || !Vue.prototype.$utils.htmlToText(spaceDescription).length)) {
     Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }

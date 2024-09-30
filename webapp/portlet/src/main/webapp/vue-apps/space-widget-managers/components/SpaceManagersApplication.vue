@@ -51,12 +51,12 @@
               v-for="(identity, i) in $root.managers"
               :key="i"
               :identity="identity"
+              :popover="!isAnonymous"
               avatar-class="me-2"
               extra-class="mt-3"
               size="36"
               display-position
-              bold-title
-              popover />
+              bold-title />
           </div>
         </template>
       </widget-wrapper>
@@ -67,6 +67,7 @@
 export default {
   data: () => ({
     hover: false,
+    isAnonymous: !eXo.env.portal.userName,
   }),
   computed: {
     administrationUrl() {
