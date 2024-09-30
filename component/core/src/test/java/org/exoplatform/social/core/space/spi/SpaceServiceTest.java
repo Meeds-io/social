@@ -2987,6 +2987,40 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("true", publicSitePortalConfig.getProperty("IS_SPACE_PUBLIC_SITE"));
   }
 
+  @SneakyThrows
+  public void testChangeSpacePublicSiteVisibility() {
+    Space space = getSpaceInstance(18);
+    String spaceId = space.getId();
+    String publicSiteLabel = "Test Public Site";
+
+    assertThrows(ObjectNotFoundException.class,
+                 () -> spaceService.saveSpacePublicSite("15587688", publicSiteLabel, SpaceUtils.AUTHENTICATED, "demo"));
+    assertThrows(IllegalAccessException.class,
+                 () -> spaceService.saveSpacePublicSite(spaceId, publicSiteLabel, SpaceUtils.AUTHENTICATED, "raul"));
+
+    spaceService.saveSpacePublicSite(spaceId, "Test Public Site", SpaceUtils.AUTHENTICATED, "demo");
+    space = spaceService.getSpaceById(space.getId());
+    assertEquals(SpaceUtils.AUTHENTICATED, space.getPublicSiteVisibility());
+    long publicSiteId = space.getPublicSiteId();
+    assertTrue(publicSiteId > 0);
+
+    space.setVisibility(Space.HIDDEN);
+    spaceService.updateSpace(space);
+    space = spaceService.getSpaceById(space.getId());
+
+    assertEquals(SpaceUtils.MEMBER, space.getPublicSiteVisibility());
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
+    assertNotNull(publicSitePortalConfig);
+    assertEquals(SpaceUtils.cleanString(publicSiteLabel), publicSitePortalConfig.getName());
+    assertEquals(publicSiteLabel, publicSitePortalConfig.getLabel());
+    assertEquals(1, publicSitePortalConfig.getAccessPermissions().length);
+    assertEquals(new HashSet<String>(Arrays.asList(SpaceUtils.MEMBER + ":" + space.getGroupId())),
+                 new HashSet<String>(Arrays.asList(publicSitePortalConfig.getAccessPermissions())));
+    assertEquals(SpaceUtils.MANAGER + ":" + space.getGroupId(), publicSitePortalConfig.getEditPermission());
+  }
+
   private int countPageApplications(ArrayList<ModelObject> children, int size) {
     for (ModelObject modelObject : children) {
       if (modelObject instanceof org.exoplatform.portal.config.model.Application) {
