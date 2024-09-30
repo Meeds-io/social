@@ -159,7 +159,7 @@ export default {
       } catch (e) {
         this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUrlCopiedError'), 'warning');
       }
-    }
+    },
   }
 };
 </script>

@@ -23,6 +23,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -1296,6 +1297,8 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
   public void testGetSpaceById() throws Exception {
     int number = 1;
     Space space = this.getSpaceInstance(number);
+    space.setPublicSiteId(3l);
+    space.setPublicSiteVisibility(SpaceUtils.INTERNAL);
 
     spaceStorage.saveSpace(space, true);
     persist();
@@ -1319,6 +1322,8 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
                  space.getVisibility(),
                  savedSpace.getVisibility());
     assertEquals("space.getPriority() must return: " + space.getPriority(), space.getPriority(), savedSpace.getPriority());
+    assertEquals("space.getPublicSiteId() must return: " + space.getPublicSiteId(), space.getPublicSiteId(), savedSpace.getPublicSiteId());
+    assertEquals("space.getPublicSiteVisibility() must return: " + space.getPublicSiteVisibility(), space.getPublicSiteVisibility(), savedSpace.getPublicSiteVisibility());
   }
 
   /**

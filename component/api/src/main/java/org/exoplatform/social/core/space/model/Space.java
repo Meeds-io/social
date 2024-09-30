@@ -92,6 +92,14 @@ public class Space implements CacheEntry {
   @Setter
   private long cacheTime;
 
+  @Getter
+  @Setter
+  private long               publicSiteId;
+
+  @Getter
+  @Setter
+  private String             publicSiteVisibility;
+
   /** Last Updated time */
   private long lastUpdatedTime;
   /**

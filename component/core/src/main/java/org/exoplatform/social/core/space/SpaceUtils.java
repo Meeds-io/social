@@ -131,11 +131,19 @@ public class SpaceUtils {
 
   public static final String                                  PLATFORM_USERS_GROUP     = "/platform/users";
 
+  public static final String                                  PLATFORM_EXTERNALS_GROUP = "/platform/externals";
+
   public static final String                                  PLATFORM_PUBLISHER_GROUP = "/platform/web-contributors";
 
   public static final String                                  MANAGER                  = "manager";
 
   public static final String                                  MEMBER                   = "member";
+
+  public static final String                                  INTERNAL                 = "internal";
+
+  public static final String                                  AUTHENTICATED            = "authenticated";
+
+  public static final String                                  EVERYONE                 = "everyone";
 
   public static final String                                  REDACTOR                 = "redactor";
 

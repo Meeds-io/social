@@ -772,8 +772,15 @@ public class SpaceRest implements ResourceContainer {
       throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
+    if (StringUtils.isNotBlank(model.getPublicSiteVisibility())) {
+      spaceService.saveSpacePublicSite(id,
+                                       model.getPublicSiteName(),
+                                       model.getPublicSiteVisibility(),
+                                       authenticatedUser);
+      space = spaceService.getSpaceById(id);
+    }
+
     if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
-      space.setEditor(RestUtils.getCurrentUser());
       spaceService.renameSpace(space, model.getDisplayName(), authenticatedUser);
     }
 
@@ -810,9 +817,11 @@ public class SpaceRest implements ResourceContainer {
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     spaceService.updateSpace(space, model.getInvitedMembers());
-    space = spaceService.getSpaceById(space.getId());
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(spaceService.getSpaceById(id),
+                                                                        authenticatedUser,
+                                                                        uriInfo.getPath(),
+                                                                        expand),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);

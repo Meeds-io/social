@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity(name = "SocSpaceEntity")
 @Table(name = "SOC_SPACES")
@@ -124,6 +126,16 @@ public class SpaceEntity implements Serializable {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "UPDATED_DATE", nullable = false)
   private Date              updatedDate      = new Date();
+
+  @Getter
+  @Setter
+  @Column(name = "PUBLIC_SITE_ID", nullable = false)
+  private long                                     publicSiteId;
+
+  @Getter
+  @Setter
+  @Column(name = "PUBLIC_SITE_VISIBILITY", nullable = false)
+  private PublicSiteVisibility                     publicSiteVisibility       = PublicSiteVisibility.MANAGER;
 
   public Long getId() {
     return id;
@@ -286,15 +298,19 @@ public class SpaceEntity implements Serializable {
     return id == null ? 0 : id.intValue();
   }
   
-  public static enum VISIBILITY {
+  public enum VISIBILITY {
     PUBLIC, PRIVATE, HIDDEN
   }
 
-  public static enum PRIORITY {
+  public enum PRIORITY {
     HIGH, INTERMEDIATE, LOW
   }
 
-  public static enum REGISTRATION {
+  public enum REGISTRATION {
     OPEN, VALIDATION, CLOSED
+  }
+
+  public static enum PublicSiteVisibility {
+    MANAGER, MEMBER, INTERNAL, AUTHENTICATED, EVERYONE;
   }
 }

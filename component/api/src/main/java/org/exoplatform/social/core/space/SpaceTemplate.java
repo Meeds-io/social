@@ -22,7 +22,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Definition of space template model.
@@ -30,17 +32,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpaceTemplate implements Cloneable {
-  private String name;
-  private String resolvedLabel;
-  private String resolvedDescription;
-  private String visibility;
-  private String registration;
-  private String bannerPath;
-  private String permissions;
-  private String permissionsLabels;
-  private String invitees;
-  private SpaceApplication homePageApplication;
+  private String                 name;
+
+  private String                 resolvedLabel;
+
+  private String                 resolvedDescription;
+
+  private String                 visibility;
+
+  private String                 registration;
+
+  private String                 bannerPath;
+
+  private String                 permissions;
+
+  private String                 permissionsLabels;
+
+  private String                 invitees;
+
+  private SpaceApplication       homePageApplication;
+
   private List<SpaceApplication> applications;
+
+  @Getter
+  @Setter
+  private String                 publicSiteTemplateName;
 
   /**
    * Sets the template name
@@ -263,6 +279,7 @@ public class SpaceTemplate implements Cloneable {
                              invitees,
                              homePageApplication == null ? null : homePageApplication.clone(),
                              applications == null ? null :
-                                                  new ArrayList<>(applications.stream().map(SpaceApplication::clone).toList()));
+                                                  new ArrayList<>(applications.stream().map(SpaceApplication::clone).toList()),
+                             publicSiteTemplateName);
   }
 }

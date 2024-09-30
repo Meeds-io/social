@@ -20,6 +20,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -33,35 +36,46 @@ import org.exoplatform.social.core.space.SpaceApplication;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceTemplate;
 import org.exoplatform.social.core.space.SpaceTemplateConfigPlugin;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceApplicationHandler;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
+
+import lombok.SneakyThrows;
+
 import org.picocontainer.Startable;
 
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * {@link org.exoplatform.social.core.space.spi.SpaceTemplateService} implementation.
- */
 public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable {
 
-  private static final String DEFAULT_SPACE_TEMPLATE_PARAM= "defaultSpaceTemplate";
+  public static final String                   DEFAULT_PUBLIC_SITE_TEMPLATE = "spacePublic";
 
-  private static final Log LOG = ExoLogger.getLogger(SpaceTemplateServiceImpl.class);
+  public static final String                   DEFAULT_SPACE_TEMPLATE_PARAM = "defaultSpaceTemplate";
 
-  private Map<String, SpaceApplicationHandler> spaceApplicationHandlers = new HashMap<String, SpaceApplicationHandler>();
+  private static final Log                     LOG                          = ExoLogger.getLogger(SpaceTemplateServiceImpl.class);
 
-  private Map<String, SpaceTemplate> spaceTemplates = new HashMap<>();
+  private Map<String, SpaceApplicationHandler> spaceApplicationHandlers     = new HashMap<>();
 
-  private Map<String, SpaceTemplate> registeredSpaceTemplates = new HashMap<>();
+  private Map<String, SpaceTemplate>           spaceTemplates               = new HashMap<>();
 
-  private Map<String, List<SpaceTemplate>> extendedSpaceTemplates = new HashMap<>();
+  private Map<String, SpaceTemplate>           registeredSpaceTemplates     = new HashMap<>();
 
-  private String defaultSpaceTemplate;
+  private Map<String, List<SpaceTemplate>>     extendedSpaceTemplates       = new HashMap<>();
 
-  public SpaceTemplateServiceImpl(InitParams params) {
+  private LayoutService                        layoutService;
+
+  private UserPortalConfigService              portalConfigService;
+
+  private String                               defaultSpaceTemplate;
+
+  public SpaceTemplateServiceImpl(UserPortalConfigService portalConfigService,
+                                  LayoutService layoutService,
+                                  InitParams params) {
+    this.portalConfigService = portalConfigService;
+    this.layoutService = layoutService;
     if (params != null) {
       defaultSpaceTemplate = params.getValueParam(DEFAULT_SPACE_TEMPLATE_PARAM).getValue();
     }
@@ -70,7 +84,7 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
   @Override
   public List<SpaceTemplate> getSpaceTemplates() {
     return Collections.unmodifiableList(new ArrayList<>(spaceTemplates.values().stream().map(SpaceTemplate::clone)
-        .sorted(Comparator.comparing(SpaceTemplate::getName)).collect(Collectors.toList())));
+        .sorted(Comparator.comparing(SpaceTemplate::getName)).toList()));
   }
 
   @Override
@@ -234,6 +248,32 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
             Space.ACTIVE_STATUS);
       }
     }
+  }
+
+  @SneakyThrows
+  @Override
+  public long createSpacePublicSite(Space space,
+                                    String name,
+                                    String label,
+                                    String[] accessPermissions) {
+    SpaceTemplate spaceTemplate = getSpaceTemplateByName(space.getTemplate());
+    String publicSiteTemplateName = spaceTemplate == null ? null : spaceTemplate.getPublicSiteTemplateName();
+    String siteTemplateName = StringUtils.firstNonBlank(publicSiteTemplateName, DEFAULT_PUBLIC_SITE_TEMPLATE);
+    String siteName = StringUtils.firstNonBlank(name, space.getPrettyName());
+
+    portalConfigService.createUserPortalConfig(PortalConfig.PORTAL_TYPE, siteName, siteTemplateName);
+
+    PortalConfig portalConfig = layoutService.getPortalConfig(siteName);
+    if (accessPermissions != null) {
+      portalConfig.setAccessPermissions(accessPermissions);
+      portalConfig.setEditPermission(SpaceUtils.MANAGER + ":" + space.getGroupId());
+    }
+    portalConfig.setLabel(StringUtils.firstNonBlank(label, space.getDisplayName()));
+    portalConfig.setProperty("SPACE_ID", space.getId());
+    portalConfig.setProperty("IS_SPACE_PUBLIC_SITE", "true");
+    layoutService.save(portalConfig);
+
+    return Long.parseLong(portalConfig.getStorageId().split("_")[1]);
   }
 
   @Override

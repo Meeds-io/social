@@ -35,12 +35,19 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 const lang = eXo && eXo.env.portal.language || 'en';
 
 //should expose the locale ressources as REST API 
-const url = `/social-portlet/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`;
+const urls = [
+  `/social-portlet/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`,
+  `/social-portlet/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`
+];
 
 const appId = 'SpaceMembersApplication';
 
 export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, members) {
-  exoi18n.loadLanguageAsync(lang, url)
+  if (!members.length) {
+    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
+    return;
+  }
+  exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({
         data: {
@@ -91,7 +98,7 @@ export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, mem
             }
           },
           async refreshExternalInvitations() {
-            if (this.isExternalFeatureEnabled && this.space?.canEdit) {
+            if (this.isExternalFeatureEnabled && this.isManager) {
               this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },

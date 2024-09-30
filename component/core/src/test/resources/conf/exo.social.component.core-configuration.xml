@@ -1540,6 +1540,32 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.portal.config.UserPortalConfigService</target-component>
+    <component-plugin>
+      <name>spacePublic.portal.template</name>
+      <set-method>initListener</set-method>
+      <type>org.exoplatform.portal.config.NewPortalConfigListener</type>
+      <init-params>
+        <object-param>
+          <name>site.templates.location</name>
+          <object type="org.exoplatform.portal.config.SiteConfigTemplates">
+            <field name="location">
+              <string>classpath:/portal/config/portal</string>
+            </field>
+            <field name="portalTemplates">
+              <collection type="java.util.HashSet">
+                <value>
+                  <string>spacePublic</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
   <remove-configuration>org.exoplatform.commons.search.index.IndexingOperationProcessor</remove-configuration>
   <remove-configuration>org.exoplatform.mock.MockUploadService</remove-configuration>
 </configuration>
