@@ -42,7 +42,7 @@
                                   .map(m -> identityManager.getOrCreateUserIdentity(m))
                                   .filter(Objects::nonNull)
                                   .map(i -> i.getProfile())
-                                  .map(p -> isAnonymous ? ("{'avatar': '" + p.getAvatarUrl() + "'}")
+                                  .map(p -> isAnonymous ? ("{\"avatar\": \"" + p.getAvatarUrl() + "\", \"fullname\": \"" + p.getFullName() + "\", \"enabled\": true}")
                                                         : JsonUtils.toJsonString(EntityBuilder.buildEntityProfile(space, p, "", "").getDataEntity()))
                                   .toArray(String[]::new);
     }

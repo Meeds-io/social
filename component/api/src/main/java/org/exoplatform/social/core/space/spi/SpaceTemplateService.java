@@ -112,13 +112,15 @@ public interface SpaceTemplateService {
    * Creates a public site for the designated space
    * 
    * @param space chosen {@link Space} to create its public site
+   * @param publicSiteName chosen Site Name to create
    * @param publicSiteLabel chosen Site label
-   * @param publicSiteName chosen Site Name to create. If default, use
-   *          'spacePublic' template
    * @param accessPermissions Site access Permissions
    * @return created site identifier
    */
-  long createSpacePublicSite(Space space, String publicSiteLabel, String publicSiteName, String[] accessPermissions);
+  long createSpacePublicSite(Space space,
+                             String publicSiteName,
+                             String publicSiteLabel,
+                             String[] accessPermissions);
 
   /**
    * an application status is composed with the form of:

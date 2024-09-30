@@ -114,15 +114,6 @@ public class SpaceEntity extends BaseEntity {
     return (Long) getProperty("publicSiteId");
   }
 
-  public SpaceEntity setPublicSiteName(String publicSiteName) {
-    setProperty("publicSiteName", publicSiteName);
-    return this;
-  }
-
-  public String getPublicSiteName() {
-    return getString("publicSiteName");
-  }
-
   public SpaceEntity setPublicSiteVisibility(String publicSiteVisibility) {
     setProperty("publicSiteVisibility", publicSiteVisibility);
     return this;

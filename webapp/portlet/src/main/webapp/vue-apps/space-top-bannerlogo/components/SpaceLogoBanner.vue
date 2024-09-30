@@ -2,12 +2,12 @@
   <v-app>
     <v-menu
       v-model="menu"
+      :close-on-content-click="false"
+      :open-on-hover="!isAnonymous"
+      :nudge-width="200"
       rounded="rounded"
       elevation="2"
-      open-on-hover
       transition="slide-x-transition"
-      :close-on-content-click="false"
-      :nudge-width="200"
       max-width="350"
       min-width="300"
       content-class="no-box-shadow full-height pa-1 mt-6 "
@@ -144,7 +144,7 @@
         </v-list>
       </v-card>
     </v-menu>
-    <space-hosts-drawer />
+    <space-hosts-drawer v-if="!isAnonymous" />
   </v-app>
 </template>
 
@@ -208,6 +208,7 @@ export default {
   },
   data: () => ({
     menu: false,
+    isAnonymous: !eXo.env.portal.userName,
   }),
   computed: {
     mangersToDisplay() {
