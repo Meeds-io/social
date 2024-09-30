@@ -43,7 +43,7 @@ const urls = [
 const appId = 'SpaceMembersApplication';
 
 export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, members) {
-  if (!members.length) {
+  if (!isManager && !members.length) {
     Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }
@@ -80,7 +80,9 @@ export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, mem
         },
         methods: {
           async init() {
-            await this.refreshSpace();
+            if (eXo.env.portal.userName?.length) {
+              await this.refreshSpace();
+            }
             await this.refreshExternalInvitations();
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           },
