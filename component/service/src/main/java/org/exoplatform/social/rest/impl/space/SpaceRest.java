@@ -774,7 +774,6 @@ public class SpaceRest implements ResourceContainer {
 
     if (StringUtils.isNotBlank(model.getPublicSiteVisibility())) {
       spaceService.saveSpacePublicSite(id,
-                                       model.getPublicSiteName(),
                                        model.getPublicSiteVisibility(),
                                        authenticatedUser);
       space = spaceService.getSpaceById(id);
