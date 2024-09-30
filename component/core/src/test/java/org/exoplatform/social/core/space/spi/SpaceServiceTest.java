@@ -23,16 +23,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.model.ModelObject;
 import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.portal.mop.navigation.NodeModel;
@@ -77,6 +80,8 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
+
+import lombok.SneakyThrows;
 
 public class SpaceServiceTest extends AbstractCoreTest {
   private IdentityStorage               identityStorage;
@@ -2739,7 +2744,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
    * @throws Exception
    * @since 1.2.0-GA
    */
-  private Space getSpaceInstance(int number) throws Exception {
+  private Space getSpaceInstance(int number) {
     Space space = new Space();
     space.setDisplayName("my space " + number);
     space.setPrettyName(space.getDisplayName());
@@ -2949,6 +2954,37 @@ public class SpaceServiceTest extends AbstractCoreTest {
     page = layoutService.getPage(homePageKey.format());
     assertNotNull(page);
     assertEquals(2, countPageApplications(page.getChildren(), 0));
+  }
+
+  @SneakyThrows
+  public void testSaveSpacePublicSite() {
+    Space space = getSpaceInstance(18);
+    String spaceId = space.getId();
+    String publicSiteLabel = "Test Public Site";
+
+    assertThrows(ObjectNotFoundException.class,
+                 () -> spaceService.saveSpacePublicSite("15587688", publicSiteLabel, SpaceUtils.AUTHENTICATED, "demo"));
+    assertThrows(IllegalAccessException.class,
+                 () -> spaceService.saveSpacePublicSite(spaceId, publicSiteLabel, SpaceUtils.AUTHENTICATED, "raul"));
+
+    spaceService.saveSpacePublicSite(spaceId, "Test Public Site", SpaceUtils.AUTHENTICATED, "demo");
+    space = spaceService.getSpaceById(space.getId());
+    assertEquals(SpaceUtils.AUTHENTICATED, space.getPublicSiteVisibility());
+    long publicSiteId = space.getPublicSiteId();
+    assertTrue(publicSiteId > 0);
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
+    assertNotNull(publicSitePortalConfig);
+    assertEquals(SpaceUtils.cleanString(publicSiteLabel), publicSitePortalConfig.getName());
+    assertEquals(publicSiteLabel, publicSitePortalConfig.getLabel());
+    assertEquals(2, publicSitePortalConfig.getAccessPermissions().length);
+    assertEquals(new HashSet<String>(Arrays.asList("member:/platform/externals",
+                                                   "member:/platform/users")),
+                 new HashSet<String>(Arrays.asList(publicSitePortalConfig.getAccessPermissions())));
+    assertEquals(SpaceUtils.MANAGER + ":" + space.getGroupId(), publicSitePortalConfig.getEditPermission());
+    assertEquals(spaceId, publicSitePortalConfig.getProperty("SPACE_ID"));
+    assertEquals("true", publicSitePortalConfig.getProperty("IS_SPACE_PUBLIC_SITE"));
   }
 
   private int countPageApplications(ArrayList<ModelObject> children, int size) {

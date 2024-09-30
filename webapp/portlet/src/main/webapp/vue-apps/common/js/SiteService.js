@@ -90,13 +90,23 @@ export function getSite(siteType, siteName, params) {
 
 export function getSiteById(siteId, params) {
   const formData = new FormData();
-  formData.append('lang', params.lang);
-  formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
-  formData.append('expandNavigations', params.expandNavigations);
-  formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
-  formData.append('excludeGroupNodesWithoutPageChildNodes', params.excludeGroupNodesWithoutPageChildNodes);
-  formData.append('temporalCheck', params.temporalCheck);
-  if (params.visibility) {
+  formData.append('lang', params?.lang || eXo.env.portal.language);
+  if (params?.excludeEmptyNavigationSites) {
+    formData.append('excludeEmptyNavigationSites', params?.excludeEmptyNavigationSites);
+  }
+  if (params?.expandNavigations) {
+    formData.append('expandNavigations', params?.expandNavigations);
+  }
+  if (params?.excludeEmptyNavigationSites) {
+    formData.append('excludeEmptyNavigationSites', params?.excludeEmptyNavigationSites);
+  }
+  if (params?.excludeGroupNodesWithoutPageChildNodes) {
+    formData.append('excludeGroupNodesWithoutPageChildNodes', params?.excludeGroupNodesWithoutPageChildNodes);
+  }
+  if (params?.temporalCheck) {
+    formData.append('temporalCheck', params?.temporalCheck);
+  }
+  if (params?.visibility) {
     params.visibility.forEach(visibility => {
       formData.append('visibility', visibility);
     });

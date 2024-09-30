@@ -1006,4 +1006,16 @@
     </createIndex>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-103">
+    <addColumn tableName="SOC_SPACES">
+      <column name="PUBLIC_SITE_ID" type="BIGINT" defaultValueNumeric="0"></column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-104">
+    <addColumn tableName="SOC_SPACES">
+      <column name="PUBLIC_SITE_VISIBILITY" type="TINYINT" defaultValueNumeric="0"></column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

@@ -26,7 +26,7 @@
         ref="spaceManagers"
         key="spaceManagers"
         extra-class="application-body">
-        <template v-if="$root.canEdit" #action>
+        <template v-if="$root.isManager" #action>
           <v-btn
             v-show="hover"
             :title="$t('social.space.managers.editTooltip')"
