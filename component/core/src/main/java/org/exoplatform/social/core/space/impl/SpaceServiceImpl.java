@@ -43,7 +43,6 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -1149,7 +1148,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public void saveSpacePublicSite(String spaceId,
-                                  String publicSiteLabel,
                                   String publicSiteVisibility,
                                   String authenticatedUser) throws ObjectNotFoundException, IllegalAccessException {
     Space space = getSpaceById(spaceId);
@@ -1160,12 +1158,12 @@ public class SpaceServiceImpl implements SpaceService {
     }
     space.setEditor(authenticatedUser);
 
-    saveSpacePublicSite(space, publicSiteLabel, publicSiteVisibility, authenticatedUser);
+    saveSpacePublicSite(space, publicSiteVisibility, authenticatedUser);
   }
   
   @Override
-  public void saveSpacePublicSite(Space space, String publicSiteLabel, String publicSiteVisibility) {
-    saveSpacePublicSite(space, publicSiteLabel, publicSiteVisibility, null);
+  public void saveSpacePublicSite(Space space, String publicSiteVisibility) {
+    saveSpacePublicSite(space, publicSiteVisibility, null);
   }
 
   @Override
@@ -1444,40 +1442,32 @@ public class SpaceServiceImpl implements SpaceService {
     return spaceTemplate;
   }
 
-  public void saveSpacePublicSite(Space space, String publicSiteLabel, String publicSiteVisibility, String authenticatedUser) {
+  public void saveSpacePublicSite(Space space, String publicSiteVisibility, String authenticatedUser) {
     boolean visibilityChanged = StringUtils.isNotBlank(publicSiteVisibility)
                                 && !StringUtils.equals(space.getPublicSiteVisibility(), publicSiteVisibility);
-    space.setPublicSiteVisibility(publicSiteVisibility);
 
-    String publicSiteName = Utils.cleanString(publicSiteLabel);
     if (space.getPublicSiteId() == 0
         || layoutService.getPortalConfig(space.getPublicSiteId()) == null) {
       long siteId = spaceTemplateService.createSpacePublicSite(space,
-                                                               publicSiteName,
-                                                               publicSiteLabel,
+                                                               space.getPrettyName(),
+                                                               space.getDisplayName(),
                                                                getPublicSitePermissions(publicSiteVisibility,
                                                                                         space.getGroupId()));
       space.setPublicSiteId(siteId);
-
+      space.setPublicSiteVisibility(publicSiteVisibility);
       spaceStorage.saveSpace(space, false);
       spaceLifeCycle.spacePublicSiteCreated(space, authenticatedUser);
     } else {
       PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
-      boolean siteNameChanged = StringUtils.isNotBlank(publicSiteName)
-                                && !StringUtils.equals(publicSiteName, portalConfig.getName());
-      if (siteNameChanged) {
-        portalConfig.setLabel(publicSiteLabel);
-        portalConfig.setName(publicSiteName);
-      }
       if (visibilityChanged) {
         String[] publicSitePermissions = getPublicSitePermissions(publicSiteVisibility, space.getGroupId());
         portalConfig.setAccessPermissions(publicSitePermissions);
-      }
-      if (siteNameChanged || visibilityChanged) {
         layoutService.save(portalConfig);
+
+        space.setPublicSiteVisibility(publicSiteVisibility);
+        spaceStorage.saveSpace(space, false);
+        spaceLifeCycle.spacePublicSiteUpdated(space, authenticatedUser);
       }
-      spaceStorage.saveSpace(space, false);
-      spaceLifeCycle.spacePublicSiteUpdated(space, authenticatedUser);
     }
   }
 

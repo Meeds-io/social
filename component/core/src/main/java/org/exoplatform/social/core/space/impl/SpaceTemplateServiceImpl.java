@@ -260,19 +260,16 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
     String publicSiteTemplateName = spaceTemplate == null ? null : spaceTemplate.getPublicSiteTemplateName();
     String siteTemplateName = StringUtils.firstNonBlank(publicSiteTemplateName, DEFAULT_PUBLIC_SITE_TEMPLATE);
     String siteName = StringUtils.firstNonBlank(name, space.getPrettyName());
-
     portalConfigService.createUserPortalConfig(PortalConfig.PORTAL_TYPE, siteName, siteTemplateName);
-
     PortalConfig portalConfig = layoutService.getPortalConfig(siteName);
     if (accessPermissions != null) {
       portalConfig.setAccessPermissions(accessPermissions);
       portalConfig.setEditPermission(SpaceUtils.MANAGER + ":" + space.getGroupId());
     }
     portalConfig.setLabel(StringUtils.firstNonBlank(label, space.getDisplayName()));
-    portalConfig.setProperty("SPACE_ID", space.getId());
-    portalConfig.setProperty("IS_SPACE_PUBLIC_SITE", "true");
+    portalConfig.setProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID, space.getId());
+    portalConfig.setProperty(SpaceUtils.IS_PUBLIC_SITE_SPACE, "true");
     layoutService.save(portalConfig);
-
     return Long.parseLong(portalConfig.getStorageId().split("_")[1]);
   }
 

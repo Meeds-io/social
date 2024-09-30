@@ -2960,14 +2960,13 @@ public class SpaceServiceTest extends AbstractCoreTest {
   public void testSaveSpacePublicSite() {
     Space space = getSpaceInstance(18);
     String spaceId = space.getId();
-    String publicSiteLabel = "Test Public Site";
 
     assertThrows(ObjectNotFoundException.class,
-                 () -> spaceService.saveSpacePublicSite("15587688", publicSiteLabel, SpaceUtils.AUTHENTICATED, "demo"));
+                 () -> spaceService.saveSpacePublicSite("15587688", SpaceUtils.AUTHENTICATED, "demo"));
     assertThrows(IllegalAccessException.class,
-                 () -> spaceService.saveSpacePublicSite(spaceId, publicSiteLabel, SpaceUtils.AUTHENTICATED, "raul"));
+                 () -> spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "raul"));
 
-    spaceService.saveSpacePublicSite(spaceId, "Test Public Site", SpaceUtils.AUTHENTICATED, "demo");
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "demo");
     space = spaceService.getSpaceById(space.getId());
     assertEquals(SpaceUtils.AUTHENTICATED, space.getPublicSiteVisibility());
     long publicSiteId = space.getPublicSiteId();
@@ -2976,8 +2975,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
     PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
     assertNotNull(publicSitePortalConfig);
-    assertEquals(SpaceUtils.cleanString(publicSiteLabel), publicSitePortalConfig.getName());
-    assertEquals(publicSiteLabel, publicSitePortalConfig.getLabel());
+    assertEquals(space.getPrettyName(), publicSitePortalConfig.getName());
+    assertEquals(space.getDisplayName(), publicSitePortalConfig.getLabel());
     assertEquals(2, publicSitePortalConfig.getAccessPermissions().length);
     assertEquals(new HashSet<String>(Arrays.asList("member:/platform/externals",
                                                    "member:/platform/users")),
@@ -2991,14 +2990,13 @@ public class SpaceServiceTest extends AbstractCoreTest {
   public void testChangeSpacePublicSiteVisibility() {
     Space space = getSpaceInstance(18);
     String spaceId = space.getId();
-    String publicSiteLabel = "Test Public Site";
 
     assertThrows(ObjectNotFoundException.class,
-                 () -> spaceService.saveSpacePublicSite("15587688", publicSiteLabel, SpaceUtils.AUTHENTICATED, "demo"));
+                 () -> spaceService.saveSpacePublicSite("15587688", SpaceUtils.AUTHENTICATED, "demo"));
     assertThrows(IllegalAccessException.class,
-                 () -> spaceService.saveSpacePublicSite(spaceId, publicSiteLabel, SpaceUtils.AUTHENTICATED, "raul"));
+                 () -> spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "raul"));
 
-    spaceService.saveSpacePublicSite(spaceId, "Test Public Site", SpaceUtils.AUTHENTICATED, "demo");
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "demo");
     space = spaceService.getSpaceById(space.getId());
     assertEquals(SpaceUtils.AUTHENTICATED, space.getPublicSiteVisibility());
     long publicSiteId = space.getPublicSiteId();
@@ -3013,8 +3011,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
     PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
     assertNotNull(publicSitePortalConfig);
-    assertEquals(SpaceUtils.cleanString(publicSiteLabel), publicSitePortalConfig.getName());
-    assertEquals(publicSiteLabel, publicSitePortalConfig.getLabel());
+    assertEquals(space.getPrettyName(), publicSitePortalConfig.getName());
+    assertEquals(space.getDisplayName(), publicSitePortalConfig.getLabel());
     assertEquals(1, publicSitePortalConfig.getAccessPermissions().length);
     assertEquals(new HashSet<String>(Arrays.asList(SpaceUtils.MEMBER + ":" + space.getGroupId())),
                  new HashSet<String>(Arrays.asList(publicSitePortalConfig.getAccessPermissions())));
