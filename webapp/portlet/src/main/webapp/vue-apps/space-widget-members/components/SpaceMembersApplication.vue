@@ -13,9 +13,10 @@
             <exo-user-avatars-list
               :users="$root.members"
               :default-length="peopleCount"
-              :margin-left="peopleCount > 1 && 'ml-n5' || ''"
+              :margin-left="$root.members.length > 1 && 'ml-n5' || ''"
               :icon-size="33"
               :max="4"
+              :popover="!isAnonymous"
               :class="$vuetify.rtl && 'l-0' || 'r-0'"
               class="absolute-vertical-center"
               compact
@@ -33,6 +34,7 @@ export default {
   data: () => ({
     keyword: null,
     loading: false,
+    isAnonymous: !eXo.env.portal.userName,
   }),
   computed: {
     space() {

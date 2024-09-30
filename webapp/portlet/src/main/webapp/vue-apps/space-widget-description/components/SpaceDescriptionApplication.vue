@@ -22,9 +22,9 @@
   <v-app>
     <v-hover v-slot="{ hover }">
       <widget-wrapper
-        :title="$t('social.space.description.title')"
+        :title="!emptyDescription && $t('social.space.description.title')"
         extra-class="application-body">
-        <template v-if="$root.isManager" #action>
+        <template v-if="$root.isManager && !emptyDescription" #action>
           <v-btn
             v-show="hover"
             :title="$t('social.space.description.editTooltip')"
@@ -44,8 +44,19 @@
           </v-btn>
         </template>
         <template #default>
+          <div v-if="emptyDescription" class="d-flex flex-column align-center justify-center my-12">
+            <v-icon size="54" color="tertiary">fa-align-left</v-icon>
+            <div class="my-2">{{ $t('social.space.description.noDescription') }}</div>
+            <v-btn
+              :title="$t('social.space.description.editTooltip')"
+              :href="administrationUrl"
+              color="primary"
+              elevation="0">
+              {{ $t('social.space.description.addDescription') }}
+            </v-btn>
+          </div>
           <span
-            v-if="$root.spaceDescription"
+            v-else
             v-sanitized-html="$root.spaceDescription"
             id="spaceDescription"
             class="text-color"></span>
@@ -59,6 +70,10 @@ export default {
   computed: {
     administrationUrl() {
       return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
+    },
+    emptyDescription() {
+      return !this.$root.spaceDescription
+        || !this.$utils.htmlToText(this.$root.spaceDescription).length;
     },
   },
   mounted() {

@@ -22,15 +22,12 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.TimeZone;
 
-import jakarta.servlet.http.Cookie;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
-import org.exoplatform.portal.application.RequestNavigationData;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.portal.webui.util.Util;
@@ -39,7 +36,6 @@ import org.exoplatform.portal.webui.workspace.UIWorkingWorkspace;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.router.ExoRouter;
-import org.exoplatform.social.common.router.ExoRouter.Route;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -57,6 +53,8 @@ import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 import org.exoplatform.webui.application.WebuiRequestContext;
 
+import jakarta.servlet.http.Cookie;
+
 /**
  * Contains some common methods for using as utility.
  */
@@ -73,9 +71,9 @@ public class Utils {
   /** . */
   public static final String NOT_SEEN_ACTIVITIES_COOKIES = "exo_social_not_seen_activities_%s";
   public static final String SEEN_ACTIVITIES_COOKIES = "exo_social_seen_activities_%s";
-  
-  private static Log             LOG = ExoLogger.getLogger(Utils.class);
-  
+
+  private static final Log    LOG                                    = ExoLogger.getLogger(Utils.class);
+
   /**
    * Gets remote id of owner user (depends on URL: .../remoteId). If owner user is null, return viewer remote id
    *
@@ -692,8 +690,9 @@ public class Utils {
    * @return
    * @since 4.0.0-RC2
    */
+  @Deprecated(forRemoval = true, since = "7.0")
   public static boolean isSpaceContext() {
-    return (getSpaceByContext() != null);
+    return (SpaceUtils.getSpaceByContext() != null);
   }
 
   /**
@@ -702,14 +701,16 @@ public class Utils {
    * @return
    * @since 4.0.0-RC2
    */
+  @Deprecated(forRemoval = true, since = "7.0")
   public static String getSpaceUrlByContext() {
-    Space space = getSpaceByContext();
+    Space space = SpaceUtils.getSpaceByContext();
     return (space != null ? space.getUrl() : null);
   }
 
   /**
    * @return the space id based on the current context.
    */
+  @Deprecated(forRemoval = true, since = "7.0")
   public static String getSpaceIdByContext() {
     Space space = getSpaceByContext();
     return (space != null ? space.getId() : null);
@@ -720,36 +721,13 @@ public class Utils {
     return StringUtils.isNotBlank(username) && ExoContainerContext.getService(SpaceService.class).isSuperManager(username);
   }
 
+  /**
+   * @return Current {@link Space}
+   * @deprecated should use {@link SpaceUtils#getSpaceByContext()} instead
+   */
+  @Deprecated(forRemoval = true, since = "7.0")
   public static Space getSpaceByContext() {
-    //
-    SpaceService spaceService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceService.class);
-    PortalRequestContext pcontext = Util.getPortalRequestContext();
-    if (!pcontext.getSiteType().equals(SiteType.GROUP) ||
-        !pcontext.getSiteName().startsWith(SpaceUtils.SPACE_GROUP)) {
-      return null;
-    }
-    String requestPath = pcontext.getControllerContext().getParameter(RequestNavigationData.REQUEST_PATH);
-
-    Route route = ExoRouter.route(requestPath);
-    if (route == null) {
-      String groupId = pcontext.getControllerContext().getParameter(RequestNavigationData.REQUEST_SITE_NAME);
-      if(StringUtils.isNotBlank(groupId) && groupId.startsWith(SpaceUtils.SPACE_GROUP)) {
-        return spaceService.getSpaceByGroupId(groupId);
-      }
-    }
-
-    //
-    String spacePrettyName = route.localArgs.get("spacePrettyName");
-    Space space = null;
-    if(StringUtils.isNotBlank(spacePrettyName) && !spacePrettyName.startsWith(";jsessionid=")) {
-      space = spaceService.getSpaceByPrettyName(spacePrettyName);
-      if (space == null) {
-        String groupId = String.format("%s/%s", SpaceUtils.SPACE_GROUP, spacePrettyName);
-        space = spaceService.getSpaceByGroupId(groupId); 
-      }
-    }
-    
-    return space;
+    return SpaceUtils.getSpaceByContext();
   }
 
   /**

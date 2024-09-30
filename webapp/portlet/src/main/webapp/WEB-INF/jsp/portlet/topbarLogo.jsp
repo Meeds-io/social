@@ -1,3 +1,4 @@
+<%@page import="org.exoplatform.services.security.IdentityConstants"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="org.apache.commons.lang3.StringUtils"%>
 <%@page import="org.exoplatform.commons.api.notification.model.UserSetting"%>
@@ -34,7 +35,7 @@
   boolean isFavorite= false;
   boolean muted= false;
   boolean isMember =false;
-  String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+  String authenticatedUser = request.getRemoteUser();
   List<Profile> managers = new ArrayList<>();
   String spaceDescription= "";
   Space space = SpaceUtils.getSpaceByContext();
@@ -42,7 +43,7 @@
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
   UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
   UserSettingService userSettingService = CommonsUtils.getService(UserSettingService.class);
-  UserSetting userSetting = userSettingService.get(authenticatedUser);
+  UserSetting userSetting = authenticatedUser == null ? null : userSettingService.get(authenticatedUser);
 
   defaultHomePath = "/portal/" + requestContext.getPortalOwner();
   if (space == null) {
@@ -67,20 +68,22 @@
     Identity userIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
     spaceId = space.getId();
     SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
-    isMember = spaceService.isMember(space, authenticatedUser);
-    isFavorite = favoriteService.isFavorite(new Favorite(space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
-    muted = userSetting.isSpaceMuted(Long.parseLong(spaceId));
+    isMember = authenticatedUser == null ? false : spaceService.isMember(space, authenticatedUser);
+    isFavorite = authenticatedUser == null ? false : favoriteService.isFavorite(new Favorite(space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
+    muted = authenticatedUser == null ? false : userSetting.isSpaceMuted(Long.parseLong(spaceId));
     logoPath = space.getAvatarUrl();
     logoTitle = space.getDisplayName();
     String permanentSpaceName = space.getGroupId().split("/")[2];
-    portalPath = "/portal/g/:spaces:" + permanentSpaceName + "/" + space.getPrettyName();
+    portalPath = "/portal/s/" + space.getId();
     membersNumber = space.getMembers().length;
     spaceDescription = Optional.ofNullable(space.getDescription()).orElse("");
-    for(String username : space.getManagers()) {
-      Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
-      managers.add(profile);
+    if (authenticatedUser != null) {
+      for(String username : space.getManagers()) {
+        Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
+        managers.add(profile);
+      }
     }
-    homePath = Optional.ofNullable(portalConfigService.getUserHomePage(request.getRemoteUser())).orElse(defaultHomePath);
+    homePath = authenticatedUser == null ? "/" : Optional.ofNullable(portalConfigService.getUserHomePage(request.getRemoteUser())).orElse(defaultHomePath);
   }
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
@@ -108,15 +111,14 @@
           <div app-data="true" id="SpaceTopBannerLogo">
             <script type="text/javascript">
               window.topbarLogoManagers = new Array();
-              <%
-               for (int i =0 ; i < managers.size(); i++) { %>
-               window.topbarLogoManagers.push({
+              <% for (int i =0 ; i < managers.size(); i++) { %>
+              window.topbarLogoManagers.push({
                 id: `<%=managers.get(i).getId()%>`,
                 userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
                 fullName: `<%=managers.get(i).getFullName()%>`,
                 avatar: `<%=managers.get(i).getAvatarUrl()%>`,
               });
-              <%} %>
+              <% } %>
               require(["SHARED/spaceBannerLogoPopover"], app => app.init({
                 id: `<%=spaceId%>`,
                 isFavorite: `<%=isFavorite%>`,
