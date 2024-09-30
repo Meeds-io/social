@@ -34,7 +34,7 @@ if (extensionRegistry) {
 const appId = 'SpaceDescriptionApplication';
 const url = `/social-portlet/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`;
 
-export async function init(spaceId, canEdit, spaceDescription) {
+export async function init(spaceId, isManager, spaceDescription) {
   if (!spaceDescription.length) {
     Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
@@ -44,7 +44,7 @@ export async function init(spaceId, canEdit, spaceDescription) {
     data: {
       spaceId,
       spaceDescription,
-      canEdit,
+      isManager,
     },
     template: `<space-description-application id="${appId}" />`,
     vuetify: Vue.prototype.vuetifyOptions,
