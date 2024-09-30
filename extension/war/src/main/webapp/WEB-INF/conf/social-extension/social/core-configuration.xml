@@ -846,12 +846,17 @@
     </external-component-plugins>
 
     <external-component-plugins>
-        <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
-        <component-plugin>
-            <name>SpaceRenamedListenerImpl</name>
-            <set-method>addSpaceListener</set-method>
-            <type>org.exoplatform.social.core.space.impl.SpaceRenamedListenerImpl</type>
-        </component-plugin>
+      <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
+      <component-plugin>
+        <name>SpaceRenamedListenerImpl</name>
+        <set-method>addSpaceListener</set-method>
+        <type>org.exoplatform.social.core.space.impl.SpaceRenamedListenerImpl</type>
+      </component-plugin>
+      <component-plugin>
+        <name>SpaceVisibilityListener</name>
+        <set-method>addSpaceListener</set-method>
+        <type>io.meeds.social.core.space.listener.SpaceVisibilityListener</type>
+      </component-plugin>
     </external-component-plugins>
 
     <external-component-plugins>
