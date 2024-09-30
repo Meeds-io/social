@@ -1516,4 +1516,16 @@ public interface SpaceService {
                                    String username) throws ObjectNotFoundException, IllegalAccessException {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Saves the space public site characteristics
+   * 
+   * @param space
+   * @param publicSiteName public site display name
+   * @param publicSiteVisibility Visibility of public site, possible values: manager, member, internal, authenticated or everyone.
+   */
+  default void saveSpacePublicSite(Space space, String publicSiteLabel, String publicSiteVisibility) {
+    throw new UnsupportedOperationException();
+  }
+
 }
