@@ -40,7 +40,7 @@ public class SpaceVisibilityListener extends SpaceListenerPlugin {
         && space.getPublicSiteId() > 0
         && !(StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MEMBER)
              || StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER))) {
-      ExoContainerContext.getService(SpaceService.class).saveSpacePublicSite(space, null, SpaceUtils.MEMBER);
+      ExoContainerContext.getService(SpaceService.class).saveSpacePublicSite(space, SpaceUtils.MEMBER);
     }
   }
 

@@ -27,6 +27,15 @@
   </component>
 
   <external-component-plugins>
+    <target-component>org.exoplatform.web.application.ApplicationLifecycleExtension</target-component>
+    <component-plugin>
+      <name>PublicSpaceSiteLifecycle</name>
+      <set-method>addPortalApplicationLifecycle</set-method>
+      <type>io.meeds.social.portlet.PublicSpaceSiteLifecycle</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
     <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
     <component-plugin>
       <name>Social UI Component Resource Bundle</name>

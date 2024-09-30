@@ -50,6 +50,8 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceUtils;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.webui.Utils;
 
 import io.meeds.social.cms.service.CMSService;
@@ -226,7 +228,8 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
   }
 
   private long getCurrentSpaceId() {
-    String spaceId = Utils.getSpaceIdByContext();
+    Space space = SpaceUtils.getSpaceByContext();
+    String spaceId = space == null ? null : space.getId();
     return spaceId == null ? 0l : Long.parseLong(spaceId);
   }
 

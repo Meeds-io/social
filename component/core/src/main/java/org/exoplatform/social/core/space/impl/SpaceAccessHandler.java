@@ -33,8 +33,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.url.PortalURLContext;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -67,6 +69,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   private UserPortalConfigService userPortalConfigService;
 
+  private LayoutService           layoutService;
+
   @Override
   public void onInit(WebAppController controller, ServletConfig sConfig) throws Exception {
     super.onInit(controller, sConfig);
@@ -77,6 +81,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
     this.identityManager = container.getComponentInstanceOfType(IdentityManager.class);
     this.urlFactoryService = container.getComponentInstanceOfType(URLFactoryService.class);
     this.userPortalConfigService = container.getComponentInstanceOfType(UserPortalConfigService.class);
+    this.layoutService = container.getComponentInstanceOfType(LayoutService.class);
   }
 
   @Override
@@ -106,10 +111,26 @@ public class SpaceAccessHandler extends WebRequestHandler {
         }
         cleanupSession(controllerContext);
         session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
+      } else if (space != null && canAccessSpacePublicSite(remoteId, space)) {
+        PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
+        controllerContext.getResponse().sendRedirect("/portal/" + portalConfig.getName());
+        return true;
       } else {
         processSpaceAccess(controllerContext, remoteId, space);
         return true;
       }
+    }
+    return false;
+  }
+
+  private boolean canAccessSpacePublicSite(String username, Space space) {
+    if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.EVERYONE)) {
+      return true;
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.AUTHENTICATED)) {
+      return StringUtils.isNotBlank(username);
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.INTERNAL)) {
+      Identity identity = identityRegistry.getIdentity(username);
+      return identity != null && identity.isMemberOf(SpaceUtils.PLATFORM_USERS_GROUP);
     }
     return false;
   }

@@ -8,6 +8,7 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -73,7 +74,7 @@
         :loading="loading"
         block
         class="btn pa-0"
-        @click="$refs.spaceMembers.loadNextPage">
+        @click="loadNextPage">
         {{ $t('social.space.description.members.loadMore') }}
       </v-btn>
     </template>
@@ -130,6 +131,9 @@ export default {
     },
     refreshUsers() {
       this.$refs.spaceMembers.searchPeople();
+    },
+    loadNextPage() {
+      this.$refs.spaceMembers.loadNextPage();
     },
   },
 };
