@@ -44,7 +44,7 @@
             class="mt-2 ms-n1"
             mandatory
             inset
-            @change="updateSpacePublicSite">
+            @change="saveSpacePublicSite">
             <v-radio
               value="manager"
               class="mt-0 mb-2">
@@ -106,7 +106,7 @@
           </div>
           <v-list-item class="px-0" dense>
             <v-list-item-content>
-              <v-list-item-title class="font-weight-bold">
+              <v-list-item-title class="text-body">
                 {{ $t('SpaceSettings.publicSite.drawer.editContent') }}
               </v-list-item-title>
             </v-list-item-content>
@@ -121,7 +121,7 @@
           </v-list-item>
           <v-list-item class="px-0" dense>
             <v-list-item-content>
-              <v-list-item-title class="font-weight-bold">
+              <v-list-item-title class="text-body">
                 {{ $t('SpaceSettings.publicSite.drawer.copyLink') }}
               </v-list-item-title>
             </v-list-item-content>
@@ -140,27 +140,13 @@
               </v-tooltip>
             </v-list-item-action>
           </v-list-item>
-          <v-list-item class="px-0" dense>
-            <v-list-item-content>
-              <v-list-item-title class="font-weight-bold">
-                {{ $t('SpaceSettings.publicSite.drawer.customizeName') }}
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action class="my-auto ms-2">
-              <v-switch
-                v-model="editName"
-                :loading="loading"
-                class="my-auto"
-                hide-details />
-            </v-list-item-action>
-          </v-list-item>
         </template>
         <div v-else class="my-8 d-flex align-center justify-center">
           <v-btn
             :loading="loading"
             color="primary"
             elevation="0"
-            @click="updateSpacePublicSite">
+            @click="saveSpacePublicSite">
             {{ $t('SpaceSettings.publicSite.create') }}
           </v-btn>
         </div>
@@ -173,9 +159,7 @@ export default {
   data: () => ({
     drawer: false,
     loading: false,
-    editName: false,
     publicSiteVisibility: null,
-    publicSiteName: null,
     publicSiteId: null,
     publicSite: null,
   }),
@@ -189,9 +173,7 @@ export default {
   },
   watch: {
     publicSiteId() {
-      if (this.publicSiteId) {
-        this.retrievePublicSite();
-      }
+      this.retrievePublicSite();
     },
   },
   methods: {
@@ -204,9 +186,11 @@ export default {
       this.$refs.drawer.close();
     },
     async retrievePublicSite() {
-      this.publicSite = await this.$siteService.getSiteById(this.publicSiteId);
+      if (this.publicSiteId) {
+        this.publicSite = await this.$siteService.getSiteById(this.publicSiteId);
+      }
     },
-    async updateSpacePublicSite() {
+    async saveSpacePublicSite() {
       if (!this.drawer) {
         return;
       }
@@ -215,7 +199,6 @@ export default {
         const space = await this.$spaceService.updateSpace({
           id: this.$root.spaceId,
           publicSiteVisibility: this.publicSiteVisibility,
-          publicSiteName: this.editName ? this.publicSiteName : null,
         });
         this.publicSiteId = space?.publicSiteId;
         this.$root.$emit('space-settings-updated', space);

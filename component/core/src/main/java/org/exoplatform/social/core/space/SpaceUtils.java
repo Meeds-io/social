@@ -163,12 +163,11 @@ public class SpaceUtils {
 
   public static final String                                  SPACE_SETTINGS_PAGE      = "settings";
 
-  /**
-   * The id of the container in plf.
-   * 
-   * @since 1.2.8
-   */
-  private static final String                                 SPACE_MENU               = "SpaceMenu";
+  public static final String                                  PUBLIC_SITE_SPACE_ID     = "SPACE_ID";
+
+  public static final String                                  IS_PUBLIC_SITE_SPACE     = "IS_SPACE_PUBLIC_SITE";
+
+  public static final String                                  CURRENT_SPACE            = "CurrentSpace";
 
   /**
    * The id of the container in plf.
@@ -186,8 +185,6 @@ public class SpaceUtils {
   private static final String                                 UNDER_SCORE_STR          = "_";
 
   private static final String                                 SPACE_STR                = " ";
-
-  private static final String                                 CURRENT_SPACE            = "CurrentSpace";
 
   private static Set<Portlet>                                 portletsCache            = null;
 
@@ -351,7 +348,6 @@ public class SpaceUtils {
 
       List<UserNode> userNodes = new ArrayList<>(renamedNode.getChildren());
       for (UserNode childNode : userNodes) {
-        SpaceUtils.changeSpaceUrlPreference(childNode, space, newNodeLabel);
         SpaceUtils.changeAppPageTitle(childNode, newNodeLabel);
       }
       return renamedNode;
@@ -418,14 +414,19 @@ public class SpaceUtils {
     }
     if (!pcontext.getSiteType().equals(SiteType.GROUP) ||
         !pcontext.getSiteName().startsWith(SpaceUtils.SPACE_GROUP)) {
+      setSpaceByContext(pcontext, StringUtils.EMPTY);
       return null;
     }
 
     //
     SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
     Space currentSpace = spaceService.getSpaceByGroupId(pcontext.getSiteName());
-    pcontext.setAttribute(CURRENT_SPACE, currentSpace);
+    setSpaceByContext(pcontext, currentSpace);
     return currentSpace;
+  }
+
+  public static void setSpaceByContext(PortalRequestContext context, Object space) {
+    context.setAttribute(CURRENT_SPACE, space);
   }
 
   public static Identity getSpaceIdentityByContext() {
@@ -464,39 +465,6 @@ public class SpaceUtils {
 
     // remove group navigation
     SpaceUtils.removeGroupNavigation(groupId);
-  }
-
-  /**
-   * change spaceUrl preferences for all applications in a pageNode. This
-   * pageNode is the clonedPage of spacetemplate.
-   *
-   * @param spacePageNode
-   * @param space
-   * @throws Exception
-   */
-  @SuppressWarnings("unchecked")
-  public static void changeSpaceUrlPreference(UserNode spacePageNode,
-                                              Space space,
-                                              String newSpaceName) throws Exception {
-    LayoutService layoutService = getLayoutService();
-    Page page = layoutService.getPage(spacePageNode.getPageRef().format());
-
-    ArrayList<ModelObject> pageChildren = page.getChildren();
-
-    // change menu portlet preference
-    Container menuContainer = findContainerById(pageChildren, MENU_CONTAINER);
-
-    // This is a workaround for PLF. The workaround should be removed when issue
-    // SOC-2074 is resolved.
-    if (menuContainer == null) {
-      menuContainer = findContainerById(pageChildren, SPACE_MENU);
-    }
-
-    // change applications portlet preference
-    Container applicationContainer = findContainerById(pageChildren, APPLICATION_CONTAINER);
-    if (applicationContainer == null) {
-      applicationContainer = findContainerById(pageChildren, SPACE_APPLICATIONS);
-    }
   }
 
   /**
