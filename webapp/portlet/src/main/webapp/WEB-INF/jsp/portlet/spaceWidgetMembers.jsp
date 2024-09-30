@@ -24,7 +24,7 @@
   boolean isManager = false;
   boolean isMember = false;
   boolean isAnonymous = StringUtils.isBlank(request.getRemoteUser());
-  String spaceId = "";
+  String spaceId = "0";
   String[] spaceMemberDetails = null;
 
   Space space = SpaceUtils.getSpaceByContext();
@@ -52,7 +52,7 @@
                                  .filter(Objects::nonNull)
                                  .map(i -> i.getProfile())
                                  .map(p -> isAnonymous ? ("{'avatar': '" + p.getAvatarUrl() + "'}")
-                                                       : JsonUtils.toJsonString(EntityBuilder.buildEntityProfile(p, "").getDataEntity()))
+                                                       : JsonUtils.toJsonString(EntityBuilder.buildEntityProfile(space, p, "", "").getDataEntity()))
                                  .toArray(String[]::new);
     }
   }

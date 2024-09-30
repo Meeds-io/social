@@ -28,10 +28,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -40,6 +43,7 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -80,15 +84,13 @@ public class SpaceServiceImpl implements SpaceService {
 
   public static final String          MANAGER              = "manager";
 
-  public static final String          DEFAULT_APP_CATEGORY = "spacesApplications";
-
   private SpaceStorage                spaceStorage;
 
   private IdentityManager             identityManager;
 
-  private OrganizationService         organizationService  = null;
+  private OrganizationService         organizationService;
 
-  private UserACL                     userACL              = null;
+  private UserACL                     userACL;
 
   private IdentityRegistry            identityRegistry;
 
@@ -106,13 +108,16 @@ public class SpaceServiceImpl implements SpaceService {
 
   private SpaceTemplateService        spaceTemplateService;
 
-  public SpaceServiceImpl(SpaceStorage spaceStorage,
+  private LayoutService               layoutService;
+
+  public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
                           IdentityManager identityManager,
                           UserACL userACL,
                           IdentityRegistry identityRegistry,
                           Authenticator authenticator,
                           SpacesAdministrationService spacesAdministrationService,
-                          SpaceTemplateService spaceTemplateService) {
+                          SpaceTemplateService spaceTemplateService,
+                          LayoutService layoutService) {
     this.spaceStorage = spaceStorage;
     this.identityManager = identityManager;
     this.identityRegistry = identityRegistry;
@@ -120,6 +125,7 @@ public class SpaceServiceImpl implements SpaceService {
     this.authenticator = authenticator;
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateService = spaceTemplateService;
+    this.layoutService = layoutService;
   }
 
   @Override
@@ -1142,6 +1148,52 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public void saveSpacePublicSite(String spaceId,
+                                  String publicSiteLabel,
+                                  String publicSiteVisibility,
+                                  String authenticatedUser) throws ObjectNotFoundException, IllegalAccessException {
+    Space space = getSpaceById(spaceId);
+    if (space == null) {
+      throw new ObjectNotFoundException("Space not found");
+    } else if (!canManageSpace(space, authenticatedUser)) {
+      throw new IllegalAccessException("User isn't manager of the space");
+    }
+
+    boolean visibilityChanged = StringUtils.isNotBlank(publicSiteVisibility) && !StringUtils.equals(space.getPublicSiteVisibility(), publicSiteVisibility);
+    space.setEditor(authenticatedUser);
+    space.setPublicSiteVisibility(publicSiteVisibility);
+
+    String publicSiteName = Utils.cleanString(publicSiteLabel);
+    if (space.getPublicSiteId() == 0
+        || layoutService.getPortalConfig(space.getPublicSiteId()) == null) {
+      long siteId = spaceTemplateService.createSpacePublicSite(space,
+                                                               publicSiteName,
+                                                               publicSiteLabel,
+                                                               getPublicSitePermissions(publicSiteVisibility, space.getGroupId()));
+      space.setPublicSiteId(siteId);
+
+      spaceStorage.saveSpace(space, false);
+      spaceLifeCycle.spacePublicSiteCreated(space, authenticatedUser);
+    } else {
+      PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
+      boolean siteNameChanged = StringUtils.isNotBlank(publicSiteName) && !StringUtils.equals(publicSiteName, portalConfig.getName());
+      if (siteNameChanged) {
+        portalConfig.setLabel(publicSiteLabel);
+        portalConfig.setName(publicSiteName);
+      }
+      if (visibilityChanged) {
+        String[] publicSitePermissions = getPublicSitePermissions(publicSiteVisibility, space.getGroupId());
+        portalConfig.setAccessPermissions(publicSitePermissions);
+      }
+      if (siteNameChanged || visibilityChanged) {
+        layoutService.save(portalConfig);
+      }
+      spaceStorage.saveSpace(space, false);
+      spaceLifeCycle.spacePublicSiteUpdated(space, authenticatedUser);
+    }
+  }
+
+  @Override
   public SpaceExternalInvitation getSpaceExternalInvitationById(String invitationId) {
     return spaceStorage.findSpaceExternalInvitationById(invitationId);
   }
@@ -1415,6 +1467,32 @@ public class SpaceServiceImpl implements SpaceService {
       spaceTemplate = spaceTemplateService.getSpaceTemplateByName(defaultTemplate);
     }
     return spaceTemplate;
+  }
+
+  private String[] getPublicSitePermissions(String publicSiteVisibility, String spaceGroupId) {
+    if (StringUtils.isBlank(publicSiteVisibility)) {
+      return null; // NOSONAR
+    }
+    switch (publicSiteVisibility) {
+    case SpaceUtils.MANAGER: {
+      return new String[] { SpaceUtils.MANAGER + ":" + spaceGroupId };
+    }
+    case SpaceUtils.MEMBER: {
+      return new String[] { SpaceUtils.MEMBER + ":" + spaceGroupId };
+    }
+    case SpaceUtils.INTERNAL: {
+      return new String[] { SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_USERS_GROUP };
+    }
+    case SpaceUtils.AUTHENTICATED: {
+      return new String[] { SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_USERS_GROUP,
+                            SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_EXTERNALS_GROUP };
+    }
+    case SpaceUtils.EVERYONE: {
+      return new String[] { UserACL.EVERYONE };
+    }
+    default:
+      throw new IllegalArgumentException("Unexpected value: " + publicSiteVisibility);
+    }
   }
 
 }

@@ -218,6 +218,14 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_REGISTRATION));
   }
 
+  public void spacePublicSiteCreated(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_PUBLIC_SITE_CREATED));
+  }
+
+  public void spacePublicSiteUpdated(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_PUBLIC_SITE_UPDATED));
+  }
+
   public void addInvitedUser(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.ADD_INVITED_USER));
   }
