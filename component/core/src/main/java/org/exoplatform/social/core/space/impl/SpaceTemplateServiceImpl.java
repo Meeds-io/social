@@ -267,6 +267,7 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
       portalConfig.setEditPermission(SpaceUtils.MANAGER + ":" + space.getGroupId());
     }
     portalConfig.setLabel(StringUtils.firstNonBlank(label, space.getDisplayName()));
+    portalConfig.setDefaultSite(false);
     portalConfig.setProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID, space.getId());
     portalConfig.setProperty(SpaceUtils.IS_PUBLIC_SITE_SPACE, "true");
     layoutService.save(portalConfig);

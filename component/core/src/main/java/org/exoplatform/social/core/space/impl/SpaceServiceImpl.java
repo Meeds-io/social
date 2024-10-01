@@ -1462,6 +1462,7 @@ public class SpaceServiceImpl implements SpaceService {
       if (visibilityChanged) {
         String[] publicSitePermissions = getPublicSitePermissions(publicSiteVisibility, space.getGroupId());
         portalConfig.setAccessPermissions(publicSitePermissions);
+        portalConfig.setDefaultSite(false);
         layoutService.save(portalConfig);
 
         space.setPublicSiteVisibility(publicSiteVisibility);
