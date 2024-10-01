@@ -3013,6 +3013,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertNotNull(publicSitePortalConfig);
     assertEquals(space.getPrettyName(), publicSitePortalConfig.getName());
     assertEquals(space.getDisplayName(), publicSitePortalConfig.getLabel());
+    assertFalse(publicSitePortalConfig.isDefaultSite());
     assertEquals(1, publicSitePortalConfig.getAccessPermissions().length);
     assertEquals(new HashSet<String>(Arrays.asList(SpaceUtils.MEMBER + ":" + space.getGroupId())),
                  new HashSet<String>(Arrays.asList(publicSitePortalConfig.getAccessPermissions())));
