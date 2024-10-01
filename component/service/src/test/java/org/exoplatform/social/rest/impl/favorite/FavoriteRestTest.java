@@ -31,7 +31,6 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.plugin.ActivityFavoriteACLPlugin;
 import org.exoplatform.social.core.plugin.SpaceFavoriteACLPlugin;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.metadata.FavoriteACLPlugin;
@@ -40,7 +39,6 @@ import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
-import org.exoplatform.social.rest.impl.favorite.FavoriteRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class FavoriteRestTest extends AbstractResourceTest {
@@ -48,12 +46,6 @@ public class FavoriteRestTest extends AbstractResourceTest {
   private Identity        johnIdentity;
 
   private Identity        maryIdentity;
-
-  private IdentityManager identityManager;
-
-  private FavoriteRest    metadataRest;
-
-  private FavoriteService favoriteService;
 
   private MetadataService metadataService;
   
@@ -68,7 +60,7 @@ public class FavoriteRestTest extends AbstractResourceTest {
     super.setUp();
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
-    favoriteService = getContainer().getComponentInstanceOfType(FavoriteService.class);
+    FavoriteService favoriteService = getContainer().getComponentInstanceOfType(FavoriteService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
@@ -88,8 +80,7 @@ public class FavoriteRestTest extends AbstractResourceTest {
       // Expected when already added
     }
 
-    metadataRest = new FavoriteRest(favoriteService);
-    registry(metadataRest);
+    registry(new FavoriteRest(favoriteService));
 
     johnIdentity = identityManager.getOrCreateUserIdentity("john");
     maryIdentity = identityManager.getOrCreateUserIdentity("mary");

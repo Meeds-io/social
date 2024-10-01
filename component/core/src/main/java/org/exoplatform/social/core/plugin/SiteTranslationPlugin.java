@@ -50,13 +50,13 @@ public class SiteTranslationPlugin extends TranslationPlugin {
   @Override
   public boolean hasAccessPermission(long siteId, String username) throws ObjectNotFoundException {
     PortalConfig portalConfig = layoutService.getPortalConfig(siteId);
-    return userACL.hasAccessPermission(portalConfig);
+    return userACL.hasAccessPermission(portalConfig, userACL.getUserIdentity(username));
   }
 
   @Override
   public boolean hasEditPermission(long siteId, String username) throws ObjectNotFoundException {
     PortalConfig portalConfig = layoutService.getPortalConfig(siteId);
-    return userACL.hasEditPermission(portalConfig);
+    return userACL.hasEditPermission(portalConfig, userACL.getUserIdentity(username));
   }
 
   @Override

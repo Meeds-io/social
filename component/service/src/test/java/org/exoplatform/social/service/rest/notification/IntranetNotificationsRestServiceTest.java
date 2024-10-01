@@ -102,7 +102,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testSecurityRestService() throws Exception {
     //No user logged in
     ContainerResponse response = service("GET", "/social/intranet-notification/ignoreInvitationToConnect/" + johnIdentity.getRemoteId() +"/" + rootIdentity.getRemoteId() + "/" + createNotif() + "/message.json", "", null, null);
-    assertEquals(401, response.getStatus());
+    assertEquals(403, response.getStatus());
     
     //login as demo
     startSessionAs("demo");
@@ -110,7 +110,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
     assertEquals(401, response.getStatus());
     
     //login as root
-    startSessionAs("root");
+    startSessionAs("root", true);
     response = service("GET", "/social/intranet-notification/ignoreInvitationToConnect/" + johnIdentity.getRemoteId() +"/" + rootIdentity.getRemoteId() + "/" + createNotif() + "/message.json", "", null, null);
     assertEquals(200, response.getStatus());
   }
