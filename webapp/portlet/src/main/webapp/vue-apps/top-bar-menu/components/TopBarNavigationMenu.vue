@@ -1,24 +1,24 @@
 <!--
-   * This file is part of the Meeds project (https://meeds.io/).
-   *
-   * Copyright (C) 2023 Meeds Association
-   * contact@meeds.io
-   *
-   * This program is free software; you can redistribute it and/or
-   * modify it under the terms of the GNU Lesser General Public
-   * License as published by the Free Software Foundation; either
-   * version 3 of the License, or (at your option) any later version.
-   *
-   * This program is distributed in the hope that it will be useful,
-   * but WITHOUT ANY WARRANTY; without even the implied warranty of
-   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-   * Lesser General Public License for more details.
-   *
-   * You should have received a copy of the GNU Lesser General Public License
-   * along with this program; if not, write to the Free Software Foundation,
-   * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
--->
 
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-app :class="componentId" class="topBarMenu">
     <v-footer
@@ -60,7 +60,6 @@
     </v-tabs>
   </v-app>
 </template>
-
 <script>
 export default {
   data: () => ({
@@ -160,22 +159,18 @@ export default {
       return index && `${navigationBaseUri}/` || navigationBaseUri;
     },
     getNavigations() {
-      return this.$navigationService.getNavigations(this.siteName, this.siteType, this.globalScope, this.visibility, this.exclude, null, null, true)
-        .then(navs => {
-          if (navs.length) {
-            const homeNavigation = navs[0];
-            return this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id, null, true)
-              .then(navigations => {
-                this.navigations = navigations || [];
-                this.constructNavigations();
-              });
+      return this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, null, null, true)
+        .then(navigations => {
+          if (navigations.length) {
+            this.navigations = navigations || [];
+            this.buildNavigations();
           }
         });
     },
     updateNavigationState(value) {
       this.tab = value;
     },
-    constructNavigations() {
+    buildNavigations() {
       if (this.navigations.length && this.navigations[0].children?.length) {
         this.navigations.push(...this.navigations[0].children);
         this.navigations[0].children = [];
