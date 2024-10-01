@@ -1,6 +1,5 @@
 package org.exoplatform.social.rest.impl.spacesadministration;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.security.MembershipEntry;
@@ -18,8 +16,6 @@ import org.exoplatform.social.rest.entity.SpacesAdministrationMembershipsEntity;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest {
-  private IdentityManager identityManager;
-  private UserACL userACL;
   private SpacesAdministrationService spacesAdministrationService;
 
   private SpacesAdministrationRest spacesAdministrationRestResourcesV1;
@@ -30,15 +26,14 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     System.setProperty("gatein.email.domain.url", "localhost:8080");
 
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
-    userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     spacesAdministrationService = getContainer().getComponentInstanceOfType(SpacesAdministrationService.class);
 
-    identityManager.getOrCreateIdentity("organization", "root", true);
-    identityManager.getOrCreateIdentity("organization", "john", true);
-    identityManager.getOrCreateIdentity("organization", "mary", true);
-    identityManager.getOrCreateIdentity("organization", "demo", true);
+    identityManager.getOrCreateUserIdentity("root");
+    identityManager.getOrCreateUserIdentity("john");
+    identityManager.getOrCreateUserIdentity("mary");
+    identityManager.getOrCreateUserIdentity("demo");
 
-    spacesAdministrationRestResourcesV1 = new SpacesAdministrationRest(spacesAdministrationService, userACL);
+    spacesAdministrationRestResourcesV1 = new SpacesAdministrationRest(spacesAdministrationService);
     registry(spacesAdministrationRestResourcesV1);
   }
 
@@ -58,7 +53,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
             new MembershipEntry("/platform/users", "member")
     ));
 
-    startSessionAs("root");
+    startSessionAs("root", true);
 
     // When
     ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions"), "", null, null, "root");
@@ -105,7 +100,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
 
     // Then
     assertNotNull(response);
-    assertEquals(401, response.getStatus());
+    assertEquals(403, response.getStatus());
   }
 
   public void testShouldReturnTrueWhenAuthorizedCanCreateSpaces() throws Exception {
@@ -115,7 +110,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
         new MembershipEntry("/platform/administrators", "*")
     ));
 
-    startSessionAs("mary");
+    startSessionAs("root");
 
     // When
     ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/mary"), "", null, null, "mary");
@@ -133,7 +128,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
         new MembershipEntry("/platform/administrators", "*")
     ));
 
-    startSessionAs("mary");
+    startSessionAs("root");
 
     // When
     ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/__anonim"), "", null, null, "mary");
@@ -192,14 +187,14 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
             new MembershipEntry("/platform/administrators", "*")
     ));
 
-    startSessionAs("mary");
+    startSessionAs("mary", false);
 
     // When
     ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/spacesAdministrators"), "", null, null, "mary");
 
     // Then
     assertNotNull(response);
-    assertEquals(401, response.getStatus());
+    assertEquals(403, response.getStatus());
   }
 
   public void testShouldUpdateSpacesAdministratorsWhenSpacesAdministrator() throws Exception {
@@ -253,7 +248,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
 
     // Then
     assertNotNull(response);
-    assertEquals(401, response.getStatus());
+    assertEquals(403, response.getStatus());
   }
 
 
@@ -312,7 +307,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
 
     // Then
     assertNotNull(response);
-    assertEquals(401, response.getStatus());
+    assertEquals(403, response.getStatus());
   }
 
   public void testShouldUpdateSpacesCreatorsWhenSpacesAdministrator() throws Exception {
@@ -366,6 +361,6 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
 
     // Then
     assertNotNull(response);
-    assertEquals(401, response.getStatus());
+    assertEquals(403, response.getStatus());
   }
 }

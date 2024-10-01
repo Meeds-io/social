@@ -25,12 +25,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
-
-import org.mockito.ArgumentMatcher;
 
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.channel.AbstractChannel;
@@ -55,6 +56,7 @@ import org.exoplatform.services.rest.impl.EnvironmentContext;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.test.mock.MockHttpServletRequest;
 import org.exoplatform.settings.jpa.JPAUserSettingServiceImpl;
 import org.exoplatform.social.service.rest.BaseRestServicesTestCase;
@@ -116,8 +118,7 @@ public class NotificationSettingsRestServiceTest extends BaseRestServicesTestCas
     userSettingService = mock(UserSettingService.class);
     userACL = mock(UserACL.class);
 
-    when(userACL.isSuperUser()).thenReturn(false);
-    when(userACL.getAdminGroups()).thenReturn("admins");
+    when(userACL.isAdministrator(any(Identity.class))).thenReturn(false);
 
     when(channelManager.getChannels()).thenReturn(CHANNELS);
 
@@ -191,8 +192,8 @@ public class NotificationSettingsRestServiceTest extends BaseRestServicesTestCas
     EnvironmentContext envctx = new EnvironmentContext();
     envctx.put(HttpServletRequest.class, httpRequest);
 
-    startSessionAs(USER_2);
-    when(userACL.isUserInGroup(eq("admins"))).thenReturn(true);
+    startSessionAs(USER_2, true);
+    when(userACL.isAdministrator(ConversationState.getCurrent().getIdentity())).thenReturn(true);
 
     // When
     ContainerResponse resp = launcher.service("GET",
@@ -320,8 +321,20 @@ public class NotificationSettingsRestServiceTest extends BaseRestServicesTestCas
     return "/notifications/settings/" + username + "/" + prefix;
   }
 
-  private void startSessionAs(String username) {
-    Identity identity = new Identity(username);
+  protected void startSessionAs(String user) {
+    startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/users", "*"))));
+  }
+
+  protected void startSessionAs(String user, boolean isAdmin) {
+    if (isAdmin) {
+      startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/administrators", "*"), new MembershipEntry("/platform/users", "*"))));
+    } else {
+      startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/users", "*"))));
+    }
+  }
+
+  protected void startSessionAs(String user, Collection<MembershipEntry> memberships) {
+    Identity identity = new Identity(user, memberships);
     ConversationState state = new ConversationState(identity);
     ConversationState.setCurrent(state);
   }
