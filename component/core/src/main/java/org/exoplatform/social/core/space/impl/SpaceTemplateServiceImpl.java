@@ -124,7 +124,7 @@ public class SpaceTemplateServiceImpl implements SpaceTemplateService, Startable
         if (perms != null) {
           ResourceBundle resourceBundle = resourceBundleService.getResourceBundle("locale.portlet.social.SpacesAdministrationPortlet", new Locale(lang));
           Pattern pattern = Pattern.compile(";");
-          List<String> permissions = pattern.splitAsStream(perms).collect(Collectors.toList());
+          List<String> permissions = pattern.splitAsStream(perms).toList();
           for (String perm : permissions) {
             UserACL.Permission permission = new UserACL.Permission();
             permission.setPermissionExpression(perm);

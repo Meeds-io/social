@@ -51,6 +51,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.entity.SiteEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -323,7 +324,7 @@ public class SiteRest implements ResourceContainer {
       if (site == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
-      if (!userACL.hasAccessPermission(site)) {
+      if (!userACL.hasAccessPermission(site, ConversationState.getCurrent().getIdentity())) {
         return Response.status(Status.UNAUTHORIZED).build();
       }
       SiteEntity siteEntity = EntityBuilder.buildSiteEntity(site,
@@ -380,7 +381,7 @@ public class SiteRest implements ResourceContainer {
       if (site == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
-      if (!userACL.hasEditPermission(site)) {
+      if (!userACL.hasEditPermission(site, ConversationState.getCurrent().getIdentity())) {
         return Response.status(Status.UNAUTHORIZED).build();
       }
       if (StringUtils.equals(name, "accessPermissions")) {
@@ -418,7 +419,7 @@ public class SiteRest implements ResourceContainer {
       if (site == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
-      if (!userACL.hasAccessPermission(site)) {
+      if (!userACL.hasAccessPermission(site, ConversationState.getCurrent().getIdentity())) {
         return Response.status(Status.UNAUTHORIZED).build();
       }
       boolean isDefault = bannerId == 0;

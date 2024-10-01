@@ -43,8 +43,9 @@ public interface SearchService {
   public Set<SearchConnector> getConnectors();
 
   /**
+   * @param username
    * @return a {@link Set} of {@link SearchConnector} set as enabled
    */
-  public Set<SearchConnector> getEnabledConnectors();
+  public Set<SearchConnector> getEnabledConnectors(String username);
 
 }
