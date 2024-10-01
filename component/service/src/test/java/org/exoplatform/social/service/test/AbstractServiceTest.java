@@ -27,6 +27,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.rest.ext.method.filter.MethodAccessFilter;
 import org.exoplatform.services.rest.impl.*;
 import org.exoplatform.services.security.*;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -71,6 +72,7 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
     providerBinder = ProviderBinder.getInstance();
     ApplicationContextImpl.setCurrent(new ApplicationContextImpl(null, null, providerBinder));
     resourceBinder.clear();
+    providerBinder.addMethodInvokerFilter(MethodAccessFilter.class);
     configures();
 
     ExoContainerContext.setCurrentContainer(getContainer());
@@ -192,14 +194,14 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
   }
 
   protected void startSessionAs(String user) {
-    startSessionAs(user, new HashSet<MembershipEntry>());
+    startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/users", "*"))));
   }
 
   protected void startSessionAs(String user, boolean isAdmin) {
     if (isAdmin) {
-      startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/administrators", "*"))));
+      startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/administrators", "*"), new MembershipEntry("/platform/users", "*"))));
     } else {
-      startSessionAs(user, new HashSet<MembershipEntry>());
+      startSessionAs(user, new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/users", "*"))));
     }
   }
 

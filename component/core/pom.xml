@@ -29,7 +29,7 @@
   <name>Meeds:: PLF:: Social Core Component</name>
   <description>Meeds Social Core Component: People and Space</description>
   <properties>
-    <exo.test.coverage.ratio>0.69</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.70</exo.test.coverage.ratio>
   </properties>
   <dependencies>
     <!-- These dependency is required to compile but reported as useless by mvn dependency:analyze -->

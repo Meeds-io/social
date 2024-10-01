@@ -47,19 +47,19 @@ public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePrope
   public void onEvent(Event<ProfilePropertyService, ProfilePropertySetting> event) throws Exception {
     ProfilePropertySetting propertySetting = event.getData();
     if ("manager".equalsIgnoreCase(event.getData().getPropertyName())) {
-      for(String pageRefKey : orgChartPages) {
+      for (String pageRefKey : orgChartPages) {
         PageKey pageKey = PageKey.parse(pageRefKey);
         PageContext pageContext = pageStorage.loadPage(pageKey);
         if (pageContext != null) {
           PageState page = pageContext.getState();
           PageState pageState = new PageState(page.getDisplayName(),
-                  page.getDescription(),
-                  page.getShowMaxWindow(),
-                  page.getFactoryId(),
-                  propertySetting.isActive() ? List.of(ALL_USERS_PERMISSION) : List.of(userACL.getSuperUser()),
-                  propertySetting.isActive() ? ALL_ADMINISTRATORS_PERMISSION : userACL.getSuperUser(),
-                  propertySetting.isActive() ? List.of(ALL_ADMINISTRATORS_PERMISSION) : List.of(userACL.getSuperUser()),
-                  propertySetting.isActive() ? List.of(ALL_ADMINISTRATORS_PERMISSION) : List.of(userACL.getSuperUser()));
+                                              page.getDescription(),
+                                              page.getShowMaxWindow(),
+                                              page.getFactoryId(),
+                                              propertySetting.isActive() ? List.of(ALL_USERS_PERMISSION) :
+                                                                         List.of(userACL.getSuperUser()),
+                                              propertySetting.isActive() ? ALL_ADMINISTRATORS_PERMISSION :
+                                                                         userACL.getSuperUser());
           pageStorage.savePage(new PageContext(pageKey, pageState));
         }
       }

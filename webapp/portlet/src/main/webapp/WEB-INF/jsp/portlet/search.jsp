@@ -18,7 +18,7 @@
 <%
   SearchService searchService = ExoContainerContext.getService(SearchService.class);
   SkinService skinService = ExoContainerContext.getService(SkinService.class);
-  Set<SearchConnector> connectors = searchService.getEnabledConnectors();
+  Set<SearchConnector> connectors = searchService.getEnabledConnectors(request.getRemoteUser());
   String jsonSearchConnectors = EntityBuilder.toJsonString(connectors);
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   ControllerContext controllerContext = rcontext.getControllerContext();
