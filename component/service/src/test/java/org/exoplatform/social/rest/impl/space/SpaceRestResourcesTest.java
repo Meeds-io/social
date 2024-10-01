@@ -203,9 +203,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
 
-    HashSet<MembershipEntry> ms = new HashSet<MembershipEntry>();
-    ms.add(new MembershipEntry("/platform/administrators"));
-    startSessionAs("john", ms);
+    startSessionAs("john", true);
     response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=member"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -213,7 +211,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(1, collections.getEntities().size());
 
     // Only the super user can see all the spaces.
-    startSessionAs("root", ms);
+    startSessionAs("root", true);
     response = service("GET", getURLResource("spaces?limit=5&offset=0&filterType=member"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -473,6 +471,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     String bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
     assertTrue(bannerUrl.contains("spaceTemplates"));
+
+    startSessionAs(user);
     ContainerResponse response = service("GET", bannerUrl, "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());

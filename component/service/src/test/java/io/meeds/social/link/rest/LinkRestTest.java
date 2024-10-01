@@ -37,7 +37,6 @@ import org.mockito.MockedStatic;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.PageType;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageState;
@@ -45,6 +44,7 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
+import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.mock.MockUploadService;
@@ -124,7 +124,7 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     assertNotNull(linkSetting);
 
     ContainerResponse response = saveLink();
-    assertEquals(401, response.getStatus());
+    assertEquals(403, response.getStatus());
 
     registerInternalUser(USERNAME);
     response = saveLink();
@@ -395,14 +395,9 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     PageState pageState = new PageState(pageName,
                                         null,
                                         false,
-                                        false,
                                         null,
                                         Collections.singletonList(accessPermission),
-                                        editPermission,
-                                        Collections.singletonList(editPermission),
-                                        Collections.singletonList(editPermission),
-                                        PageType.PAGE.name(),
-                                        null);
+                                        editPermission);
     layoutService.save(new PageContext(pageKey, pageState));
     return pageKey.format();
   }
@@ -419,8 +414,9 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
   private org.exoplatform.services.security.Identity registerAdministratorUser(String user) {
     org.exoplatform.services.security.Identity identity =
                                                         new org.exoplatform.services.security.Identity(user,
-                                                                                                       Arrays.asList(MembershipEntry.parse(ADMINISTRATORS_GROUP)));
+                                                                                                       Arrays.asList(MembershipEntry.parse(ADMINISTRATORS_GROUP), MembershipEntry.parse(USERS_GROUP)));
     identityRegistry.register(identity);
+    ConversationState.setCurrent(new ConversationState(identity));
     resetRestUtils();
     REST_UTILS.when(RestUtils::getCurrentUser).thenReturn(USERNAME);
     REST_UTILS.when(RestUtils::getCurrentUserAclIdentity).thenReturn(identity);
@@ -432,6 +428,7 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
                                                         new org.exoplatform.services.security.Identity(username,
                                                                                                        Arrays.asList(MembershipEntry.parse(USERS_GROUP)));
     identityRegistry.register(identity);
+    ConversationState.setCurrent(new ConversationState(identity));
     resetRestUtils();
     REST_UTILS.when(RestUtils::getCurrentUser).thenReturn(USERNAME);
     REST_UTILS.when(RestUtils::getCurrentUserAclIdentity).thenReturn(identity);

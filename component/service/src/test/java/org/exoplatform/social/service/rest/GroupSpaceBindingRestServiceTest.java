@@ -61,9 +61,8 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
     identityManager.getOrCreateIdentity("organization", "john", true);
 
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
-    userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     groupSpaceBindingService = getContainer().getComponentInstanceOfType(GroupSpaceBindingService.class);
-    groupSpaceBindingRestResourcesV1 = new GroupSpaceBindingRest(spaceService, groupSpaceBindingService, userACL);
+    groupSpaceBindingRestResourcesV1 = new GroupSpaceBindingRest(spaceService, groupSpaceBindingService);
     registry(groupSpaceBindingRestResourcesV1);
   }
 

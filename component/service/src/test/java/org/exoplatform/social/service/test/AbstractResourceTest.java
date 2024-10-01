@@ -106,11 +106,11 @@ public abstract class AbstractResourceTest extends AbstractServiceTest {
                                                                       remoteUser);
     envctx.put(HttpServletRequest.class, httpRequest);
     EnvironmentContext.setCurrent(envctx);
-    ContainerRequest request = new ContainerRequest(method,
-                                                    new URI(requestURI),
-                                                    new URI(baseURI),
-                                                    in,
-                                                    new InputHeadersMap(headers));
+    ContainerRequestWithAclCheck request = new ContainerRequestWithAclCheck(method,
+                                                                            new URI(requestURI),
+                                                                            new URI(baseURI),
+                                                                            in,
+                                                                            new InputHeadersMap(headers));
     ContainerResponse response = new ContainerResponse(writer);
     requestHandler.handleRequest(request, response);
     return response;
