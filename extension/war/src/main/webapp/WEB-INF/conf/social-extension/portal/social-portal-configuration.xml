@@ -24,7 +24,7 @@
 
   <component>
     <key>org.exoplatform.portal.config.UserACL</key>
-    <type>org.exoplatform.portal.config.UserACL</type>
+    <type>io.meeds.social.authorization.AuthorizationManager</type>
     <init-params>
       <value-param>
         <name>super.user</name>
@@ -75,6 +75,8 @@
         <name>mandatory.mstypes</name>
         <description>Membership type that can not be deleted.</description>
         <value>member</value>
+        <value>publisher</value>
+        <value>redactor</value>
         <value>manager</value>
         <value>*</value>
       </values-param>

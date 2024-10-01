@@ -25,8 +25,6 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
 
   private TranslationServiceImpl translationService;
 
-  private LocaleConfigService    localeConfigService;
-
   private String                 objectType  = OBJECT_TYPE;
 
   private long                   objectId    = 322l;
@@ -44,7 +42,7 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
     super.setUp();
 
     translationService = ExoContainerContext.getService(TranslationServiceImpl.class);
-    localeConfigService = ExoContainerContext.getService(LocaleConfigService.class);
+    LocaleConfigService localeConfigService = ExoContainerContext.getService(LocaleConfigService.class);
     translationRest = new TranslationRest(translationService, localeConfigService);
     registry(translationRest);
 
@@ -143,8 +141,14 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
 
     response = saveDefaultLocale("fr");
     assertNotNull(response);
+    assertEquals(403, response.getStatus());
+
+    startSessionAs(username, true);
+    response = saveDefaultLocale("fr");
+    assertNotNull(response);
     assertEquals(204, response.getStatus());
 
+    startSessionAs(username);
     response = getResponse("GET", getConfigurationUrl(), null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -153,26 +157,30 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
     assertNotNull(responseEntity);
     assertEquals("fr", responseEntity.getDefaultLanguage());
 
+    startSessionAs(username, true);
     response = saveDefaultLocale("");
     assertNotNull(response);
     assertEquals(204, response.getStatus());
 
+    startSessionAs(username);
     response = getResponse("GET", getConfigurationUrl(), null);
     responseEntity = (TranslationConfiguration) response.getEntity();
     assertNotNull(responseEntity);
     assertEquals("en", responseEntity.getDefaultLanguage());
 
+    startSessionAs(username, true);
     response = saveDefaultLocale("en");
     assertNotNull(response);
     assertEquals(204, response.getStatus());
 
+    startSessionAs(username);
     response = getResponse("GET", getConfigurationUrl(), null);
     responseEntity = (TranslationConfiguration) response.getEntity();
     assertNotNull(responseEntity);
     assertEquals("en", responseEntity.getDefaultLanguage());
   }
 
-  private ContainerResponse saveDefaultLocale(String locale) throws UnsupportedEncodingException, Exception {
+  private ContainerResponse saveDefaultLocale(String locale) throws Exception {
     ContainerResponse response;
     byte[] formDataInput = ("lang=" + locale).getBytes("UTF-8");
 

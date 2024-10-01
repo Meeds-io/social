@@ -1,6 +1,22 @@
 package org.exoplatform.social.core.listeners;
 
-import org.exoplatform.commons.utils.CommonsUtils;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
+import org.junit.After;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.page.PageContext;
@@ -10,18 +26,6 @@ import org.exoplatform.portal.mop.storage.PageStorage;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 
@@ -62,8 +66,6 @@ public class ManagerPropertySettingUpdatedListenerTest {
                                         "PagesFactory",
                                         List.of("/platform/users"),
                                         "/platform/administrators",
-                                        List.of("/platform/administrators"),
-                                        List.of("/platform/administrators"),
                                         "page",
                                         "/myteam");
     PageContext pageContext = new PageContext(PageKey.parse("portal::global::organizationalChart"), pageState);

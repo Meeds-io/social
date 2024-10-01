@@ -185,6 +185,7 @@ public class ObserverRestTest extends AbstractResourceTest { // NOSONAR
 
   @SuppressWarnings("unchecked")
   private List<ObserverObject> getObservedObjects(long identityId) {
+    startSessionAs("testuser");
     REST_UTILS.reset();
     REST_UTILS.when(RestUtils::getCurrentUserIdentityId).thenReturn(identityId);
     try {
@@ -196,6 +197,7 @@ public class ObserverRestTest extends AbstractResourceTest { // NOSONAR
   }
 
   private boolean isObserved(long identityId, String objectType, String objectId) {
+    startSessionAs("testuser");
     REST_UTILS.reset();
     REST_UTILS.when(RestUtils::getCurrentUserIdentityId).thenReturn(identityId);
     try {
@@ -208,7 +210,8 @@ public class ObserverRestTest extends AbstractResourceTest { // NOSONAR
   }
 
   private ContainerResponse createObserver(long identityId, String objectType, String objectId) {
-    REST_UTILS.reset();
+    startSessionAs("testuser");
+   REST_UTILS.reset();
     REST_UTILS.when(RestUtils::getCurrentUserIdentityId).thenReturn(identityId);
     try {
       return getResponse("POST", getUrl(objectType, objectId), null);
@@ -218,6 +221,7 @@ public class ObserverRestTest extends AbstractResourceTest { // NOSONAR
   }
 
   private ContainerResponse deleteObserver(long identityId, String objectType, String objectId) {
+    startSessionAs("testuser");
     REST_UTILS.reset();
     REST_UTILS.when(RestUtils::getCurrentUserIdentityId).thenReturn(identityId);
     try {

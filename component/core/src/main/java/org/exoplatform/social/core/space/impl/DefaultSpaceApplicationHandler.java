@@ -549,8 +549,6 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
                                           page.getProfiles(),
                                           Arrays.asList(page.getAccessPermissions()),
                                           page.getEditPermission(),
-                                          Arrays.asList(page.getMoveAppsPermissions()),
-                                          Arrays.asList(page.getMoveContainersPermissions()),
                                           PageType.PAGE.name(),
                                           null);
 
@@ -629,7 +627,6 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
     return application;
   }
 
-  @SuppressWarnings("unchecked")
   protected void setPage(Space space,
                          Application app,
                          org.exoplatform.portal.config.model.Application<Portlet> portletApplication,

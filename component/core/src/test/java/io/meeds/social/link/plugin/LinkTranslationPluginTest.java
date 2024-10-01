@@ -32,7 +32,6 @@ import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.PageType;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageState;
@@ -157,14 +156,9 @@ public class LinkTranslationPluginTest extends AbstractKernelTest { // NOSONAR
     PageState pageState = new PageState(pageName,
                                         null,
                                         false,
-                                        false,
                                         null,
                                         Collections.singletonList(accessPermission),
-                                        editPermission,
-                                        Collections.singletonList(editPermission),
-                                        Collections.singletonList(editPermission),
-                                        PageType.PAGE.name(),
-                                        null);
+                                        editPermission);
     layoutService.save(new PageContext(pageKey, pageState));
     return pageKey.format();
   }

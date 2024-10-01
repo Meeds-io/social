@@ -53,7 +53,6 @@ import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
 import org.exoplatform.portal.config.UserACL;
-import org.exoplatform.portal.config.UserACL.Permission;
 import org.exoplatform.portal.config.UserPortalConfig;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.ApplicationState;
@@ -187,41 +186,6 @@ public class SpaceUtils {
   private static final String                                 SPACE_STR                = " ";
 
   private static Set<Portlet>                                 portletsCache            = null;
-
-  /**
-   * Creates a new group from an existing group. This new group will get all
-   * data from existing group except for group name
-   *
-   * @param parentGroup
-   * @param existingGroup
-   * @param name
-   * @return new Group
-   * @throws Exception
-   * @deprecated to be removed by 1.2.x
-   */
-  @SuppressWarnings("unchecked")
-  public static Group createGroupFromExistingGroup(Group parentGroup,
-                                                   Group existingGroup,
-                                                   String name) throws Exception {
-    OrganizationService orgSrc = getOrganizationService();
-    GroupHandler groupHandler = orgSrc.getGroupHandler();
-    MembershipHandler memberShipHandler = orgSrc.getMembershipHandler();
-    Group newGroup = groupHandler.createGroupInstance();
-    newGroup.setGroupName(name);
-    newGroup.setLabel(name);
-    newGroup.setDescription(existingGroup.getDescription());
-    groupHandler.addChild(parentGroup, newGroup, true);
-    Collection<Membership> memberShips = memberShipHandler.findMembershipsByGroup(existingGroup);
-    Iterator<Membership> itr = memberShips.iterator();
-    while (itr.hasNext()) {
-      Membership membership = itr.next();
-      User user = orgSrc.getUserHandler().findUserByName(membership.getUserName());
-      MembershipType memberShipType = orgSrc.getMembershipTypeHandler()
-                                            .findMembershipType(membership.getMembershipType());
-      memberShipHandler.linkMembership(user, newGroup, memberShipType, true);
-    }
-    return newGroup;
-  }
 
   /**
    * Gets application from portal container
@@ -1621,86 +1585,6 @@ public class SpaceUtils {
     return (UserACL) container.getComponentInstanceOfType(UserACL.class);
   }
 
-  /**
-   * Checks if an specific user has membership in group group with input
-   * membership type.
-   * 
-   * @param remoteId User to be checked.
-   * @param groupId Group information.
-   * @param membershipType input membership type to check.
-   * @return true if user has membership in group with input type.
-   */
-  public static boolean isUserHasMembershipTypesInGroup(String remoteId, String groupId, String membershipType) {
-    if (remoteId == null || groupId == null || membershipType == null)
-      return false;
-
-    ConversationState conversationState = ConversationState.getCurrent();
-    if (conversationState != null && conversationState.getIdentity() != null
-        && remoteId.equals(conversationState.getIdentity().getUserId())) {
-      Permission permission = new Permission();
-      permission.setGroupId(groupId);
-      permission.setMembership(membershipType);
-      return getUserACL().hasPermission(conversationState.getIdentity(), permission.getValue());
-    }
-
-    try {
-      Collection<Membership> membershipsList = getOrganizationService()
-                                                                       .getMembershipHandler()
-                                                                       .findMembershipsByUserAndGroup(remoteId, groupId);
-
-      for (Membership membership : membershipsList) {
-        if (membershipType.equals(membership.getMembershipType()))
-          return true;
-      }
-    } catch (Exception e) {
-      return false;
-    }
-    return false;
-  }
-
-  /**
-   * Get users that have membership with group by input membership types.
-   * 
-   * @param groupId Group information.
-   * @param membershipTypes membership types to be get.
-   * @return List of users that have membership with group is input membership
-   *         type.
-   */
-  public static List<String> findMembershipUsersByGroupAndTypes(String groupId, String... membershipTypes) {
-    if (groupId == null || membershipTypes == null)
-      return Collections.<String> emptyList();
-
-    Set<String> userNames = new HashSet<String>();
-    try {
-      Group group = getOrganizationService().getGroupHandler().findGroupById(groupId);
-      ListAccess<Membership> membershipsListAccess = getOrganizationService()
-                                                                             .getMembershipHandler()
-                                                                             .findAllMembershipsByGroup(group);
-
-      Membership[] memberships = membershipsListAccess.load(0, membershipsListAccess.getSize());
-
-      List<String> types = Arrays.asList(membershipTypes);
-
-      for (Membership membership : memberships) {
-        if (!types.contains(membership.getMembershipType()))
-          continue;
-
-        String userName = membership.getUserName();
-        User user = getOrganizationService().getUserHandler()
-                                            .findUserByName(userName, UserStatus.ENABLED);
-
-        if (user != null) {
-          userNames.add(userName);
-        }
-      }
-    } catch (Exception e) {
-      LOG.warn("Failed to get space members, groupId = " + groupId + " and roles = " + String.join(",", membershipTypes), e);
-      return new ArrayList<String>();
-    }
-
-    return new ArrayList<String>(userNames);
-  }
-
   public static NodeContext<NodeContext<?>> loadNode(NavigationService navigationService,
                                                      NavigationContext navigation,
                                                      String navUri) {
@@ -1808,7 +1692,7 @@ public class SpaceUtils {
         nonePageNodes.add(node);
       } else {
         PageContext currentPageContext = getPageStorage().loadPage(currentPage);
-        if (currentPageContext == null || !userACL.hasPermission(currentPageContext)) {
+        if (currentPageContext == null || !userACL.hasAccessPermission(currentPageContext, ConversationState.getCurrent().getIdentity())) {
           nonePageNodes.add(node);
         }
       }

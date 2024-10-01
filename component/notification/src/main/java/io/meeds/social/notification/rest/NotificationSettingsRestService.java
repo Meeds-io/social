@@ -50,6 +50,8 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Identity;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.exoplatform.services.rest.http.PATCH;
@@ -159,8 +161,9 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                       + "If current user is and administrator, it will be able to retrieve settings of all users",
                                   required = true
                               ) @PathParam("id") String username) {
-    boolean isAdmin = userACL.isSuperUser() || userACL.isUserInGroup(userACL.getAdminGroups());
-    boolean isSameUser = ConversationState.getCurrent().getIdentity().getUserId().equals(username);
+    Identity identity = ConversationState.getCurrent().getIdentity();
+    boolean isAdmin = userACL.isAdministrator(identity);
+    boolean isSameUser = identity.getUserId().equals(username);
     if (!isAdmin && !isSameUser) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
@@ -233,8 +236,9 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                   required = true
                               ) @FormParam("digest") String digest) {
 
-    boolean isAdmin = userACL.isSuperUser() || userACL.isUserInGroup(userACL.getAdminGroups());
-    boolean isSameUser = ConversationState.getCurrent().getIdentity().getUserId().equals(username);
+    Identity identity = ConversationState.getCurrent().getIdentity();
+    boolean isAdmin = userACL.isAdministrator(identity);
+    boolean isSameUser = identity.getUserId().equals(username);
     if (!isAdmin && !isSameUser) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
@@ -316,8 +320,9 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                       @Parameter(description = "Enable/disable a channel", required = true)
                                       @FormParam("enable")
                                       boolean enable) {
-    boolean isAdmin = userACL.isSuperUser() || userACL.isUserInGroup(userACL.getAdminGroups());
-    boolean isSameUser = ConversationState.getCurrent().getIdentity().getUserId().equals(username);
+    Identity identity = ConversationState.getCurrent().getIdentity();
+    boolean isAdmin = userACL.isAdministrator(identity);
+    boolean isSameUser = identity.getUserId().equals(username);
     if (!isAdmin && !isSameUser) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
@@ -358,8 +363,9 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                        required = true
                                    ) @FormParam("enable") boolean enable) {
 
-    boolean isAdmin = userACL.isSuperUser() || userACL.isUserInGroup(userACL.getAdminGroups());
-    boolean isSameUser = ConversationState.getCurrent().getIdentity().getUserId().equals(username);
+    Identity identity = ConversationState.getCurrent().getIdentity();
+    boolean isAdmin = userACL.isAdministrator(identity);
+    boolean isSameUser = identity.getUserId().equals(username);
     if (!isAdmin && !isSameUser) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }

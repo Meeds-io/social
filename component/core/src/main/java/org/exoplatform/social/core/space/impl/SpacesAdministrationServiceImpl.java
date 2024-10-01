@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.ServletContext;
-
 import org.apache.commons.lang3.StringUtils;
 import org.picocontainer.Startable;
 
@@ -35,6 +33,8 @@ import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
+
+import jakarta.servlet.ServletContext;
 
 /**
  * Service to manage administration of spaces
@@ -221,19 +221,19 @@ public class SpacesAdministrationServiceImpl implements Startable, SpacesAdminis
         PageService pageService = CommonsUtils.getService(PageService.class);
         PageKey pageKey = PageKey.parse(SPACES_ADMINISTRATION_PAGE_KEY);
         PageContext pageContext = pageService.loadPage(pageKey);
-        if(pageContext != null) {
+        if (pageContext != null) {
           PageState page = pageContext.getState();
           PageState pageState = new PageState(page.getDisplayName(),
-                  page.getDescription(),
-                  page.getShowMaxWindow(),
-                  page.getFactoryId(),
-                  superManagersMemberships.stream()
-                          .map(membership -> membership.getMembershipType() + ":"
-                                  + membership.getGroup())
-                          .collect(Collectors.toList()),
-                  page.getEditPermission(),
-                  page.getMoveAppsPermissions(),
-                  page.getMoveContainersPermissions());
+                                              page.getDescription(),
+                                              page.getShowMaxWindow(),
+                                              page.getFactoryId(),
+                                              superManagersMemberships.stream()
+                                                                      .map(membership -> membership.getMembershipType() + ":" +
+                                                                          membership.getGroup())
+                                                                      .collect(Collectors.toList()),
+                                              page.getEditPermission(),
+                                              null,
+                                              null);
           pageService.savePage(new PageContext(pageKey, pageState));
         }
       } finally {

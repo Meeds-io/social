@@ -24,7 +24,9 @@ import org.exoplatform.social.core.search.impl.SearchServiceImpl;
  */
 public class SearchServiceTest {
 
-  private SearchServiceImpl searchService;
+  private static final String TEST_USER = "testUser";
+
+  private SearchServiceImpl   searchService;
 
   @Before
   public void setup() {
@@ -124,17 +126,17 @@ public class SearchServiceTest {
     SearchConnectorPlugin connectorPlugin = new SearchConnectorPlugin(params);
     searchService.addConnector(connectorPlugin);
 
-    assertNotNull(searchService.getEnabledConnectors());
-    assertEquals(1, searchService.getEnabledConnectors().size());
+    assertNotNull(searchService.getEnabledConnectors(TEST_USER));
+    assertEquals(1, searchService.getEnabledConnectors(TEST_USER).size());
 
     try {
-      searchService.getEnabledConnectors().iterator().remove();
+      searchService.getEnabledConnectors(TEST_USER).iterator().remove();
       fail("Returned list must be unmodifiable");
     } catch (Exception e) {
       // Expected
     }
 
-    SearchConnector searchConnectorResult = searchService.getEnabledConnectors().iterator().next();
+    SearchConnector searchConnectorResult = searchService.getEnabledConnectors(TEST_USER).iterator().next();
     assertNotNull(searchConnectorResult);
 
     assertTrue(searchConnectorResult.isEnabled());
@@ -142,8 +144,8 @@ public class SearchServiceTest {
     assertEquals("uri", searchConnectorResult.getUri());
 
     searchService.setConnectorAsEnabled(searchConnector.getName(), false);
-    assertNotNull(searchService.getEnabledConnectors());
-    assertEquals(0, searchService.getEnabledConnectors().size());
+    assertNotNull(searchService.getEnabledConnectors(TEST_USER));
+    assertEquals(0, searchService.getEnabledConnectors(TEST_USER).size());
   }
 
   @Test
