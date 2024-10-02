@@ -29,6 +29,7 @@ import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -37,14 +38,17 @@ import org.exoplatform.web.application.ApplicationLifecycle;
 
 public class PublicSpaceSiteLifecycle extends BaseComponentPlugin implements ApplicationLifecycle<PortalRequestContext> {
 
-  private LayoutService layoutService;
+  private LayoutService         layoutService;
 
-  private SpaceService  spaceService;
+  private SpaceService          spaceService;
+
+  private ResourceBundleService resourceBundleService;
 
   @Override
   public void onInit(Application app) throws Exception {
     layoutService = ExoContainerContext.getService(LayoutService.class);
     spaceService = ExoContainerContext.getService(SpaceService.class);
+    resourceBundleService = ExoContainerContext.getService(ResourceBundleService.class);
   }
 
   public void onStartRequest(Application app, PortalRequestContext context) { // NOSONAR
@@ -60,12 +64,15 @@ public class PublicSpaceSiteLifecycle extends BaseComponentPlugin implements App
         || StringUtils.isBlank(portalConfig.getProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID))) {
       return;
     }
-    String spaceId = portalConfig.getProperty("SPACE_ID");
+    String spaceId = portalConfig.getProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID);
     Space space = spaceService.getSpaceById(spaceId);
     if (space == null) {
       return;
     }
     SpaceUtils.setSpaceByContext(context, space);
+
+    String browserTabTitle = resourceBundleService.getSharedString("UISpaceMenu.browser.publicSiteTitle", context.getLocale());
+    context.getRequest().setAttribute(PortalRequestContext.REQUEST_TITLE, browserTabTitle.replace("{0}", space.getDisplayName()));
   }
 
 }

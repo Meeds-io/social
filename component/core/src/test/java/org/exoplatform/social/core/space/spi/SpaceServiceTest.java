@@ -3020,6 +3020,23 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(SpaceUtils.MANAGER + ":" + space.getGroupId(), publicSitePortalConfig.getEditPermission());
   }
 
+  @SneakyThrows
+  public void testSpaceWithPublicSiteRemoved() {
+    Space space = getSpaceInstance(18);
+    String spaceId = space.getId();
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "demo");
+    space = spaceService.getSpaceById(space.getId());
+    long publicSiteId = space.getPublicSiteId();
+    assertTrue(publicSiteId > 0);
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
+    assertNotNull(publicSitePortalConfig);
+
+    spaceService.deleteSpace(space);
+    assertNull(layoutService.getPortalConfig(publicSiteId));
+  }
+
   private int countPageApplications(ArrayList<ModelObject> children, int size) {
     for (ModelObject modelObject : children) {
       if (modelObject instanceof org.exoplatform.portal.config.model.Application) {
