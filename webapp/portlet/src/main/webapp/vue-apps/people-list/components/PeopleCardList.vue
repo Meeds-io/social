@@ -275,7 +275,6 @@ export default {
       return searchUsersFunction.then(data => {
         const users = data && data.users || [];
         this.users = users.slice(0, this.limitToFetch);
-        this.peopleCount = data && data.size && data.size || 0;
         this.hasPeople = this.hasPeople || this.peopleCount > 0;
         this.$emit('loaded', this.peopleCount);
         return this.$nextTick();

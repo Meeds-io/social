@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
-import './extensions.js';
+import '../space-members/extensions.js';
 
 // get overrided components if exists
 if (extensionRegistry) {

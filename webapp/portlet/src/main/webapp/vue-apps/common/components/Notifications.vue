@@ -246,8 +246,8 @@ export default {
         this.useHtml = params.useHtml || false;
         this.confeti = params.confeti || false;
         this.alertLink = params.alertLink || null;
-        this.alertMessage = params.alertMessage || null;
-        this.alertLinkText = params.alertLinkText || null;
+        this.alertMessage = params.alertMessage || (params.alertMessageKey && this.$t(params.alertMessageKey)) || null;
+        this.alertLinkText = params.alertLinkText || (params.alertLinkTextKey && this.$t(params.alertLinkTextKey)) || null;
         this.alertLinkTarget = params.alertLinkTarget || null;
         this.alertLinkIcon = params.alertLinkIcon || null;
         this.alertType = params.alertType || 'info';
