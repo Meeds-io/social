@@ -33,73 +33,21 @@
         :src="bannerUrl"
         height="50px">
         <div
-          v-if="spaceMembersExtensions.length"
-          class="full-width position-absolute z-index-two">
-          <v-menu
-            v-if="hover || showMenu"
-            ref="actionMenu"
-            v-model="menu"
-            transition="slide-x-reverse-transition"
-            content-class="mt-6 ms-5 z-index-modal"
-            left
-            offset-x>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                v-bind="attrs"
-                v-on="on"
-                :title="$t('peopleList.label.openUserMenu')"
-                class="d-block grey darken-1 mt-2 ms-auto me-2  z-index-modal"
-                width="24"
-                height="24"
-                icon
-                text
-                @click.prevent.stop="0">
-                <v-icon
-                  class="white--text"
-                  size="12">
-                  fas fa-ellipsis-v
-                </v-icon>
-              </v-btn>
-            </template>
-            <v-list class="pa-0 white" dense>
-              <v-list-item
-                v-for="(extension, i) in spaceMembersExtensions"
-                :key="i"
-                @click="extension.click(user, spaceId)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-card
-                    class="d-flex align-center justify-center transparent"
-                    height="18"
-                    width="18"
-                    flat>
-                    <v-icon size="15">{{ extension.class }}</v-icon>
-                  </v-card>
-                  <span class="ms-3">
-                    {{ extension.title || $t(extension.titleKey) }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          :class="$vuetify.rtl && 'l-0' || 'r-0'"
+          class="position-absolute">
+          <people-user-menu
+            v-if="spaceId"
+            :user="user"
+            :space-id="spaceId"
+            :space-members-extensions="spaceMembersExtensions"
+            :display-menu-button="$root.isMobile || hover"
+            :bottom-menu="$root.isMobile"
+            menu-button-class="mt-2 me-2"
+            dark />
         </div>
-        <div class="ms-11 ps-11 mt-2 position-absolute z-index-two">
-          <people-user-role
-            v-if="isManager"
-            :title="$t('peopleList.label.spaceManager')"
-            :icon="'fas fa-user-cog'" />
-          <people-user-role
-            v-if="isRedactor"
-            :title="$t('peopleList.label.spaceRedactor')"
-            :icon="'fas fa-user-edit'" />
-          <people-user-role
-            v-if="isPublisher"
-            :title="$t('peopleList.label.spacePublisher')"
-            :icon="'fas fa-paper-plane'" />
-          <people-user-role
-            v-if="isGroupBound"
-            :title="$t('peopleList.label.groupBound')"
-            :icon="'fas fa-users'" />
-        </div>
+        <people-user-card-roles
+          :user="user"
+          class="ms-11 ps-11 mt-2 position-absolute z-index-two" />
       </v-img>
       <div class="d-flex">
         <v-avatar
@@ -184,7 +132,6 @@
     </v-card>
   </v-hover>
 </template>
-
 <script>
 export default {
   props: {
@@ -225,8 +172,8 @@ export default {
     menu: false,
   }),
   computed: {
-    showMenu() {
-      return this.menu || this.compactDisplay;
+    filteredSpaceMembersExtensions() {
+      return this.spaceId && this.spaceMembersExtensions?.filter?.(extension => extension.enabled(this.user)) || [];
     },
     filteredUserNavigationExtensions() {
       return this.userNavigationExtensions.filter(extension => extension.enabled(this.user)
@@ -300,13 +247,6 @@ export default {
     this.initExtensions();
   },
   methods: {
-    closeMenu() {
-      if (this.menu) {
-        setTimeout(() => {
-          this.menu = false;
-        }, 200);
-      }
-    },
     initExtensions() {
       this.filteredProfileActionExtensions.forEach((extension) => {
         if (extension.init) {
