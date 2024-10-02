@@ -25,15 +25,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
-import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
@@ -53,11 +49,15 @@ import org.exoplatform.web.url.URLFactoryService;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 public class SpaceAccessHandler extends WebRequestHandler {
 
   private static final String     SPACES_GROUP_PREFIX = SpaceUtils.SPACE_GROUP + "/";
 
-  public static final String      PAGE_URI       = "space-access";
+  public static final String      PAGE_URI            = "space-access";
 
   private IdentityManager         identityManager;
 
@@ -71,6 +71,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   private LayoutService           layoutService;
 
+  private UserACL                 userAcl;
+
   @Override
   public void onInit(WebAppController controller, ServletConfig sConfig) throws Exception {
     super.onInit(controller, sConfig);
@@ -82,6 +84,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
     this.urlFactoryService = container.getComponentInstanceOfType(URLFactoryService.class);
     this.userPortalConfigService = container.getComponentInstanceOfType(UserPortalConfigService.class);
     this.layoutService = container.getComponentInstanceOfType(LayoutService.class);
+    this.userAcl = container.getComponentInstanceOfType(UserACL.class);
   }
 
   @Override
@@ -96,48 +99,50 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   @Override
   public boolean execute(ControllerContext controllerContext) throws Exception {
-    String remoteId = controllerContext.getRequest().getRemoteUser();
+    String username = controllerContext.getRequest().getRemoteUser();
     String requestSiteType = controllerContext.getParameter(REQUEST_SITE_TYPE);
     String requestSiteName = controllerContext.getParameter(REQUEST_SITE_NAME);
-    if (StringUtils.isNotBlank(remoteId)
-        && SiteType.GROUP.name().equalsIgnoreCase(requestSiteType)
-        && requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
-      Space space = spaceService.getSpaceByGroupId(requestSiteName);
-      if (space != null && canAccessSpace(remoteId, space)) {
-        HttpSession session = controllerContext.getRequest().getSession();
-        String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
-        if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
-          spaceService.updateSpaceAccessed(remoteId, space);
-        }
-        cleanupSession(controllerContext);
-        session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
-      } else if (space != null && canAccessSpacePublicSite(remoteId, space)) {
-        PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
-        controllerContext.getResponse().sendRedirect("/portal/" + portalConfig.getName());
-        return true;
-      } else {
-        processSpaceAccess(controllerContext, remoteId, space);
-        return true;
+    if (!SiteType.GROUP.name().equalsIgnoreCase(requestSiteType)
+        || !requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
+      return false;
+    }
+    Space space = spaceService.getSpaceByGroupId(requestSiteName);
+    if (canAccessSpace(space, username)) {
+      HttpSession session = controllerContext.getRequest().getSession();
+      String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
+      if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
+        spaceService.updateSpaceAccessed(username, space);
       }
-    }
-    return false;
-  }
-
-  private boolean canAccessSpacePublicSite(String username, Space space) {
-    if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.EVERYONE)) {
+      cleanupSession(controllerContext);
+      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
+      return false;
+    } else if (space == null || Space.HIDDEN.equals(space.getVisibility())) {
+      controllerContext.getResponse()
+                       .sendRedirect(String.format("%s/%s/page-not-found",
+                                                   controllerContext.getRequest().getContextPath(),
+                                                   getPageNotFoundSite(username)));
       return true;
-    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.AUTHENTICATED)) {
-      return StringUtils.isNotBlank(username);
-    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.INTERNAL)) {
-      Identity identity = identityRegistry.getIdentity(username);
-      return identity != null && identity.isMemberOf(SpaceUtils.PLATFORM_USERS_GROUP);
+    } else if (canAccessSpacePublicSite(space, username)) {
+      controllerContext.getResponse()
+                       .sendRedirect(String.format("%s/%s",
+                                                   controllerContext.getRequest().getContextPath(),
+                                                   spaceService.getSpacePublicSiteName(space)));
+      return true;
+    } else {
+      processSpaceAccess(controllerContext, username, space);
+      return true;
     }
-    return false;
   }
 
-  private boolean canAccessSpace(String username, Space space) {
+  private boolean canAccessSpacePublicSite(Space space, String username) {
+    return spaceService.canAccessSpacePublicSite(space, username)
+           && userAcl.hasAccessPermission(layoutService.getPortalConfig(space.getPublicSiteId()),
+                                          userAcl.getUserIdentity(username));
+  }
+
+  private boolean canAccessSpace(Space space, String username) {
     Identity identity = identityRegistry.getIdentity(username);
-    if (identity == null) {
+    if (identity == null || space == null) {
       return false;
     } else if (spaceService.isMember(space, username)) {
       return true;
@@ -213,6 +218,10 @@ public class SpaceAccessHandler extends WebRequestHandler {
     url.setAjax(false);
     url.setResource(resource);
     return url.toString();
+  }
+
+  private String getPageNotFoundSite(String username) {
+    return StringUtils.isBlank(username) ? "public" : userPortalConfigService.getMetaPortal();
   }
 
 }

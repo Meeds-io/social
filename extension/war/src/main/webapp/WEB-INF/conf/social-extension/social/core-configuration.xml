@@ -982,9 +982,9 @@
         <type>org.exoplatform.social.core.space.impl.SpaceAccessHandler</type>
       </component-plugin>
       <component-plugin>
-        <name>SpaceHandler</name>
+        <name>SpacePermanentLinkHandler</name>
         <set-method>register</set-method>
-        <type>io.meeds.social.portlet.SpaceHandler</type>
+        <type>io.meeds.social.portlet.SpacePermanentLinkHandler</type>
       </component-plugin>
     </external-component-plugins>
     <external-component-plugins>
