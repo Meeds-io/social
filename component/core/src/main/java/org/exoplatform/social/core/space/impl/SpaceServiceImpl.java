@@ -587,7 +587,6 @@ public class SpaceServiceImpl implements SpaceService {
   public void deactivateApplication(Space space, String appId) throws SpaceException {
     String appStatus = SpaceUtils.getAppStatus(space, appId);
     if (appStatus == null) {
-      LOG.warn("appStatus is null!");
       return;
     }
     if (appStatus.equals(Space.DEACTIVE_STATUS))
@@ -881,6 +880,38 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public boolean hasSettingPermission(Space space, String username) {
     return canManageSpace(space, username);
+  }
+
+  @Override
+  public boolean canAccessSpacePublicSite(Space space, String username) {
+    if (space == null
+        || space.getPublicSiteId() == 0
+        || StringUtils.isBlank(space.getPublicSiteVisibility())) {
+      return false;
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.EVERYONE)) {
+      return true;
+    } else if (userACL.isAnonymousUser(username)) {
+      return false;
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.AUTHENTICATED)) {
+      return true;
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.INTERNAL)) {
+      return userACL.getUserIdentity(username).isMemberOf(SpaceUtils.PLATFORM_USERS_GROUP);
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MEMBER)) {
+      return canViewSpace(space, username);
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER)) {
+      return canManageSpace(space, username);
+    }
+    return false;
+  }
+
+  @Override
+  public String getSpacePublicSiteName(Space space) {
+    if (space == null || space.getPublicSiteId() == 0) {
+      return null;
+    } else {
+      PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
+      return portalConfig == null ? null : portalConfig.getName();
+    }
   }
 
   @Override
