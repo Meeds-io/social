@@ -91,9 +91,6 @@
             <include>**/InitContainerTestSuite.java</include>
             <include>**/NoContainerTestSuite.java</include>
           </includes>
-          <excludes>
-            <exclude>**/*TestIT.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
     </plugins>

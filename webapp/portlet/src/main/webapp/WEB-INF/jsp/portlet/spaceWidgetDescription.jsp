@@ -12,22 +12,20 @@
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
   String activityId = rcontext.getRequest().getParameter("id");
+
+  SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
   Space space = SpaceUtils.getSpaceByContext();
   String description = space == null || space.getDescription() == null ? "" : space.getDescription();
   String id = space == null ? "0" : space.getId();
 
-  String publicSiteUrl = "";
-  boolean hasVisiblePublicSiteName = space.getPublicSiteId() > 0
-      && !StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER)
-      && rcontext.getSiteType() == SiteType.GROUP;
-  if (hasVisiblePublicSiteName) {
-    publicSiteUrl = "/portal/" + ExoContainerContext.getService(LayoutService.class).getPortalConfig(space.getPublicSiteId()).getName();
+  String publicSiteName = "";
+  if (rcontext.getSiteType() == SiteType.GROUP && spaceService.canAccessSpacePublicSite(space, username)) {
+    publicSiteName = spaceService.getSpacePublicSiteName(space);
   }
 
   boolean canEdit = space != null
       && request.getRemoteUser() != null
-      && ExoContainerContext.getService(SpaceService.class)
-           .canManageSpace(space, request.getRemoteUser());
+      && spaceService.canManageSpace(space, request.getRemoteUser());
 %>
 <div class="VuetifyApp">
   <div data-app="true"
@@ -35,7 +33,7 @@
     id="SpaceDescriptionApplication">
     <textarea id="spaceDescriptionContent" class="d-none"><%=URLEncoder.encode(description.replace(" ", "._.")).replace("._.", " ")%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/SpaceWidgetDescription'], app => app.init(<%=id%>, <%=canEdit%>, '<%=publicSiteUrl%>', decodeURIComponent(document.getElementById('spaceDescriptionContent').value)));
+      require(['PORTLET/social-portlet/SpaceWidgetDescription'], app => app.init(<%=id%>, <%=canEdit%>, '<%=publicSiteName%>', decodeURIComponent(document.getElementById('spaceDescriptionContent').value)));
     </script>
   </div>
 </div>
