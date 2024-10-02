@@ -169,6 +169,7 @@ export function init(i18n) {
       new Vue({
         template: '<v-app id="alert-notifications"><alert-notifications /></v-app>',
         vuetify: Vue.prototype.vuetifyOptions,
+        i18n,
       }).$mount(alertNotificationsElement);
     }
   } else {
