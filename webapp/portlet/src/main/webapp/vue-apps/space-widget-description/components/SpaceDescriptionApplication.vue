@@ -63,9 +63,9 @@
             v-sanitized-html="$root.spaceDescription"
             class="text-color"></span>
         </template>
-        <template v-if="$root.publicSiteUrl" #footer>
+        <template v-if="publicSiteUrl" #footer>
           <v-card
-            :href="$root.publicSiteUrl"
+            :href="publicSiteUrl"
             :title="$t('social.space.description.visitPublicSite.tooltip')"
             width="100%"
             flat>
@@ -88,6 +88,9 @@ export default {
   computed: {
     administrationUrl() {
       return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
+    },
+    publicSiteUrl() {
+      return this.$root.publicSiteName && `${eXo.env.portal.context}/${this.$root.publicSiteName}`;
     },
     emptyDescription() {
       return !this.$root.spaceDescription
