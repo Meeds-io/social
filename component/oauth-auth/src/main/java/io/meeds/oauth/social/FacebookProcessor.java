@@ -116,7 +116,7 @@ public class FacebookProcessor {
       protected String parseResponse(String httpResponse) throws JSONException {
         JSONObject json = new JSONObject(httpResponse);
         String accessToken = json.getString(OAuthConstants.ACCESS_TOKEN_PARAMETER);
-        String expires = json.getString(FacebookConstants.EXPIRES);
+        int expires = json.getInt(FacebookConstants.EXPIRES);
         if (trace)
           log.trace("Access Token=" + accessToken + " :: Expires=" + expires);
 
@@ -196,7 +196,7 @@ public class FacebookProcessor {
 
       @Override
       protected URL createURL(String accessToken) throws IOException {
-        String urlString = new StringBuilder(FacebookConstants.PROFILE_ENDPOINT_URL).append("?access_token=")
+        String urlString = new StringBuilder(FacebookConstants.PROFILE_ENDPOINT_URL).append("?fields=id,name,first_name,last_name,gender,timezone,locale,email,picture&access_token=")
                                                                                     .append(URLEncoder.encode(accessToken,
                                                                                                               "UTF-8"))
                                                                                     .toString();
