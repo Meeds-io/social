@@ -5,7 +5,7 @@
       :user="user"
       :space-id="spaceId"
       :user-navigation-extensions="userNavigationExtensions"
-      :space-members-extensions="filteredSpaceMembersExtensions"
+      :space-members-extensions="spaceMembersExtensions"
       :profile-action-extensions="profileActionExtensions" />
     <people-user-compact-card
       v-else
@@ -13,14 +13,13 @@
       :user="user"
       :space-id="spaceId"
       :user-navigation-extensions="userNavigationExtensions"
-      :enabled-profile-action-extensions="enabledProfileActionExtensions"
-      :space-members-extensions="filteredSpaceMembersExtensions"
+      :profile-action-extensions="profileActionExtensions"
+      :space-members-extensions="spaceMembersExtensions"
       :url="url"
       :user-avatar-url="userAvatarUrl"
       :is-updating-status="sendingAction || sendingSecondAction" />
   </v-flex>
 </template>
-
 <script>
 export default {
   props: {
@@ -58,12 +57,6 @@ export default {
     sendingSecondAction: false,
   }),
   computed: {
-    filteredSpaceMembersExtensions() {
-      return this.spaceMembersExtensions.filter(extension => extension.enabled(this.user));
-    },
-    enabledProfileActionExtensions() {
-      return this.profileActionExtensions.filter(extension => extension.enabled(this.user));
-    },
     compact() {
       return this.mobileDisplay || this.compactDisplay;
     },

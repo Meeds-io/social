@@ -33,59 +33,19 @@
           class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
           <v-icon size="12" color="white">fa-users</v-icon>
         </v-avatar>
-        <component
-          v-if="canUseActionsMenu"
-          :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
-          :attach="$root.isMobile && '#vuetify-apps' || true"
-          ref="actionMenu"
-          v-model="displayActionMenu"
-          transition="slide-x-reverse-transition"
-          content-class="peopleActionMenu"
-          offset-y>
-          <template #activator="{ on }">
-            <v-btn
-              v-show="hover || $root.isMobile"
-              v-on="on"
-              :title="$t('peopleList.label.openUserMenu')"
-              color="primary"
-              class="me-2"
-              height="28"
-              width="28"
-              outlined
-              fab
-              @click="openBottomMenu">
-              <v-icon size="16">
-                fa-ellipsis-v
-              </v-icon>
-            </v-btn>
-          </template>
-          <v-sheet :min-height="$root.isMobile && '30vh' || 'auto'">
-            <v-list class="pa-0 white" dense>
-              <v-list-item
-                v-for="(extension, i) in actionExtensions"
-                :key="i"
-                @click="extension.click(user, spaceId)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-card
-                    class="d-flex align-center justify-center transparent"
-                    height="25"
-                    width="25"
-                    flat>
-                    <v-icon size="20">
-                      {{ extension.class }}
-                    </v-icon>
-                  </v-card>
-                  <span class="ms-3">
-                    {{ extension.title || $t(extension.titleKey) }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-sheet>
-        </component>
+        <people-user-menu
+          :user="user"
+          :space-id="spaceId"
+          :user-navigation-extensions="userNavigationExtensions"
+          :space-members-extensions="spaceMembersExtensions"
+          :profile-action-extensions="profileActionExtensions"
+          :display-menu-button="$root.isMobile || hover"
+          :bottom-menu="$root.isMobile"
+          menu-button-class="me-1"
+          attach-menu />
       </div>
       <div class="peopleAvatar">
-        <a :href="url">
+        <a :href="url" :aria-label="$t('profileSettings.label.profile')">
           <v-img
             :lazy-src="`${userAvatarUrl}`"
             :src="`${userAvatarUrl}`"
@@ -143,15 +103,11 @@ export default {
       type: String,
       default: null,
     },
-    isManager: {
-      type: Boolean,
-      default: false,
-    },
     userNavigationExtensions: {
       type: Array,
       default: () => [],
     },
-    enabledProfileActionExtensions: {
+    profileActionExtensions: {
       type: Array,
       default: () => [],
     },
@@ -177,32 +133,11 @@ export default {
     }
   },
   data: () => ({
-    displayActionMenu: false,
     hover: false,
-    waitTimeUntilCloseMenu: 200,
-    bottomMenu: false,
   }),
   computed: {
-    actionExtensions() {
-      if (this.spaceId && this.spaceMembersExtensions?.length) {
-        return this.spaceMembersExtensions;
-      } else if (this.isSameUser) {
-        return this.filteredUserNavigationExtensions || [];
-      } else {
-        return [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions];
-      }
-    },
-    filteredUserNavigationExtensions() {
-      return this.userNavigationExtensions.filter(extension => extension.enabled(this.user));
-    },
-    isSameUser() {
-      return this.user?.username === eXo?.env?.portal?.userName;
-    },
     userMenuParentId() {
       return this.user?.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
-    },
-    canUseActionsMenu() {
-      return this.user && this.actionExtensions.length;
     },
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-subtitle' || 'primary--text text-truncate-2 mt-0'}`;
@@ -213,31 +148,6 @@ export default {
     externalUser() {
       return this.user?.external === 'true';
     },
-  },
-  watch: {
-    displayActionMenu(newVal) {
-      if (newVal) {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
-      } else {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
-      }
-    }
-  },
-  created() {
-    $(document).on('mousedown', () => {
-      if (this.displayActionMenu) {
-        window.setTimeout(() => {
-          this.displayActionMenu = false;
-        }, this.waitTimeUntilCloseMenu);
-      }
-    });
-  },
-  methods: {
-    openBottomMenu() {
-      window.setTimeout(() => {
-        document.querySelector('.v-overlay--active').addEventListener('click', this.close);
-      }, 50);
-    }
   },
 };
 </script>
