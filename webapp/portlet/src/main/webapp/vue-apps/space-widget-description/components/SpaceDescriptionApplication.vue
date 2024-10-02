@@ -20,7 +20,7 @@
 -->
 <template>
   <v-app>
-    <v-hover v-slot="{ hover }">
+    <v-hover v-model="hover">
       <widget-wrapper
         :title="!emptyDescription && $t('social.space.description.title')"
         extra-class="application-body">
@@ -57,9 +57,24 @@
           </div>
           <span
             v-else
-            v-sanitized-html="$root.spaceDescription"
             id="spaceDescription"
+            ref="spaceDescription"
+            key="spaceDescription"
+            v-sanitized-html="$root.spaceDescription"
             class="text-color"></span>
+        </template>
+        <template v-if="$root.publicSiteUrl" #footer>
+          <v-card
+            :href="$root.publicSiteUrl"
+            :title="$t('social.space.description.visitPublicSite.tooltip')"
+            width="100%"
+            flat>
+            <v-divider />
+            <div class="d-flex align-center">
+              <v-icon size="48" class="ma-4">fa-globe</v-icon>
+              {{ $t('social.space.description.visitPublicSite') }}
+            </div>
+          </v-card>
         </template>
       </widget-wrapper>
     </v-hover>
@@ -67,6 +82,9 @@
 </template>
 <script>
 export default {
+  data: () => ({
+    hover: false,
+  }),
   computed: {
     administrationUrl() {
       return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
