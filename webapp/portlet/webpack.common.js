@@ -38,7 +38,7 @@ let config = {
     spacesList: './src/main/webapp/vue-apps/spaces-list/main.js',
     spacesOverview: './src/main/webapp/vue-apps/spaces-overview/main.js',
     suggestions: './src/main/webapp/vue-apps/suggestions-people-space/main.js',
-    peopleListComponents: './src/main/webapp/vue-apps/people-list/initComponents.js',
+    peopleListComponents: './src/main/webapp/vue-apps/people-list/main-components.js',
     peopleList: './src/main/webapp/vue-apps/people-list/main.js',
     peopleOverview: './src/main/webapp/vue-apps/people-overview/main.js',
     profileHeader: './src/main/webapp/vue-apps/profile-header/main.js',

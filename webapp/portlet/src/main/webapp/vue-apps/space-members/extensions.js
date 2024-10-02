@@ -20,6 +20,8 @@ document.addEventListener('space-member-management-actions-load', () => {
   extensionRegistry.registerExtension('space-member-extension', 'action', {
     id: 'spaceMembers-removeMember',
     titleKey: 'peopleList.button.removeMember',
+    iconColor: 'error--text',
+    textColor: 'error--text',
     icon: 'fa-user-minus',
     class: 'fas fa-user-minus',
     order: 2,
@@ -30,7 +32,13 @@ document.addEventListener('space-member-management-actions-load', () => {
     },
     click: (user, spaceId) => {
       Vue.prototype.$spaceService.removeMember(spaceId, user.username)
-        .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('people-list-refresh'));
+          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+            alertType: 'success',
+            alertMessageKey: 'peopleList.alert.memberRemoved',
+          }}));
+        });
     },
   });
   extensionRegistry.registerExtension('space-member-extension', 'action', {
@@ -42,7 +50,13 @@ document.addEventListener('space-member-management-actions-load', () => {
     enabled: user => user.isManager,
     click: (user, spaceId) => {
       Vue.prototype.$spaceService.removeManager(spaceId, user.username)
-        .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('people-list-refresh'));
+          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+            alertType: 'success',
+            alertMessageKey: 'peopleList.alert.managerRemoved',
+          }}));
+        });
     },
   });
   extensionRegistry.registerExtension('space-member-extension', 'action', {
@@ -54,7 +68,13 @@ document.addEventListener('space-member-management-actions-load', () => {
     enabled: user => user.enabled && !user.deleted && !user.isManager,
     click: (user, spaceId) => {
       Vue.prototype.$spaceService.promoteManager(spaceId, user.username)
-        .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('people-list-refresh'));
+          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+            alertType: 'success',
+            alertMessageKey: 'peopleList.alert.managerPromoted',
+          }}));
+        });
     },
   });
   extensionRegistry.registerExtension('space-member-extension', 'action', {
@@ -65,7 +85,13 @@ document.addEventListener('space-member-management-actions-load', () => {
     enabled: user => user.isInvited,
     click: (user, spaceId) => {
       Vue.prototype.$spaceService.cancelInvitation(spaceId, user.username)
-        .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('people-list-refresh'));
+          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+            alertType: 'success',
+            alertMessageKey: 'peopleList.alert.invitationCanceled',
+          }}));
+        });
     },
   });
   extensionRegistry.registerExtension('space-member-extension', 'action', {
@@ -76,7 +102,13 @@ document.addEventListener('space-member-management-actions-load', () => {
     enabled: user => user.isPending,
     click: (user, spaceId) => {
       Vue.prototype.$spaceService.acceptUserRequest(spaceId, user.username)
-        .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('people-list-refresh'));
+          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+            alertType: 'success',
+            alertMessageKey: 'peopleList.alert.requestAccepted',
+          }}));
+        });
     },
   });
   extensionRegistry.registerExtension('space-member-extension', 'action', {
@@ -87,7 +119,13 @@ document.addEventListener('space-member-management-actions-load', () => {
     enabled: user => user.isPending,
     click: (user, spaceId) => {
       Vue.prototype.$spaceService.refuseUserRequest(spaceId, user.username)
-        .then(() => document.dispatchEvent(new CustomEvent('people-list-refresh')));
+        .then(() => {
+          document.dispatchEvent(new CustomEvent('people-list-refresh'));
+          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+            alertType: 'success',
+            alertMessageKey: 'peopleList.alert.requestRefused',
+          }}));
+        });
     },
   });
 });
