@@ -198,12 +198,6 @@
     <component-plugin>
       <name>social.update.membership.event.listener</name>
       <set-method>addListenerPlugin</set-method>
-      <type>org.exoplatform.social.core.listeners.ExternalUsersListenerImpl</type>
-      <description>Update external profile property.</description>
-    </component-plugin>
-    <component-plugin>
-      <name>social.update.membership.event.listener</name>
-      <set-method>addListenerPlugin</set-method>
       <type>org.exoplatform.social.core.listeners.SocialMembershipListenerImpl</type>
       <priority>50</priority>
     </component-plugin>
