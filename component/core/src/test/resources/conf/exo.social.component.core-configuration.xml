@@ -815,6 +815,22 @@
                 <value>
                   <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
                     <field name="name">
+                      <string>externals</string>
+                    </field>
+                    <field name="parentId">
+                      <string>/platform</string>
+                    </field>
+                    <field name="description">
+                      <string>the /platform/externals group</string>
+                    </field>
+                    <field name="label">
+                      <string>Externals</string>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+                    <field name="name">
                       <string>spaces</string>
                     </field>
                     <field name="parentId">
@@ -1072,6 +1088,28 @@
                     </field>
                     <field name="groups">
                       <string>member:/platform/users</string>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$User">
+                    <field name="userName">
+                      <string>externalUser</string>
+                    </field>
+                    <field name="password">
+                      <string>gtn</string>
+                    </field>
+                    <field name="firstName">
+                      <string>External</string>
+                    </field>
+                    <field name="lastName">
+                      <string>User</string>
+                    </field>
+                    <field name="email">
+                      <string>externalUser@platform.com</string>
+                    </field>
+                    <field name="groups">
+                      <string>member:/platform/externals</string>
                     </field>
                   </object>
                 </value>
