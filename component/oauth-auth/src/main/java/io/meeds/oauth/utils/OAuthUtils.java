@@ -65,7 +65,7 @@ public class OAuthUtils {
                                                                                                     String avatar,
                                                                                                     OAuthProviderType<FacebookAccessTokenContext> facebookProviderType,
                                                                                                     FacebookAccessTokenContext fbAccessTokenContext) {
-    return new OAuthPrincipal<>(facebookPrincipal.getUsername(),
+    return new OAuthPrincipal<>(null,
                                 facebookPrincipal.getFirstName(),
                                 facebookPrincipal.getLastName(),
                                 facebookPrincipal.getAttribute("name"),
