@@ -32,13 +32,7 @@
       {{ $t(`SpaceSettings.users.add.drawer.${role}.title`) }}
     </template>
     <template v-if="drawer" #content>
-      <div class="pa-4">
-        <div>
-          {{ $t('SpaceSettings.roles.restrictContentCreation.placeholder1') }}
-        </div>
-        <div class="pt-2">
-          {{ $t('SpaceSettings.roles.restrictContentCreation.placeholder2') }}
-        </div>
+      <div class="mx-4 pb-4 pt-1">
         <identity-suggester
           ref="suggester"
           id="userMemberSuggester"
