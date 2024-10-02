@@ -61,6 +61,9 @@
         <slot></slot>
       </div>
     </div>
+    <div v-if="$slots.footer">
+      <slot name="footer"></slot>
+    </div>
   </v-card>
 </template>
 <script>
