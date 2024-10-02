@@ -22,6 +22,8 @@ package io.meeds.social.core.space.listener;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -31,7 +33,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 /**
  * A listener to change public site visibility if the space has become hidden
  */
-public class SpaceVisibilityListener extends SpaceListenerPlugin {
+public class SpacePublicSiteListener extends SpaceListenerPlugin {
 
   @Override
   public void spaceAccessEdited(SpaceLifeCycleEvent event) {
@@ -42,6 +44,20 @@ public class SpaceVisibilityListener extends SpaceListenerPlugin {
              || StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER))) {
       ExoContainerContext.getService(SpaceService.class).saveSpacePublicSite(space, SpaceUtils.MEMBER);
     }
+  }
+
+  @Override
+  public void spaceRemoved(SpaceLifeCycleEvent event) {
+    Space space = event.getSpace();
+    if (space.getPublicSiteId() == 0) {
+      return;
+    }
+    LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
+    PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
+    if (portalConfig == null) {
+      return;
+    }
+    layoutService.remove(portalConfig);
   }
 
 }

@@ -858,9 +858,9 @@
         <type>org.exoplatform.social.core.space.impl.SpaceRenamedListenerImpl</type>
       </component-plugin>
       <component-plugin>
-        <name>SpaceVisibilityListener</name>
+        <name>SpacePublicSiteListener</name>
         <set-method>addSpaceListener</set-method>
-        <type>io.meeds.social.core.space.listener.SpaceVisibilityListener</type>
+        <type>io.meeds.social.core.space.listener.SpacePublicSiteListener</type>
       </component-plugin>
     </external-component-plugins>
 
