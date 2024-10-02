@@ -39,7 +39,7 @@ import io.meeds.portal.permlink.service.PermanentLinkService;
 
 import jakarta.servlet.ServletConfig;
 
-public class SpaceHandler extends WebRequestHandler {
+public class SpacePermanentLinkHandler extends WebRequestHandler {
 
   public static final QualifiedName REQUEST_SPACE_ID = QualifiedName.create("spaceId");
 

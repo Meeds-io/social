@@ -599,6 +599,17 @@ public interface SpaceService {
   }
 
   /**
+   * Checks whether the user can access Space Public Site or not
+   * 
+   * @param space {@link Space}
+   * @param username User name identifier
+   * @return true if can access sitch Space Settings else false
+   */
+  default boolean canAccessSpacePublicSite(Space space, String username) {
+    return false;
+  }
+
+  /**
    * Assigns the "manager" role to a user in a space.
    *
    * @param space The space that its user is assigned to manager.
@@ -1518,10 +1529,18 @@ public interface SpaceService {
   /**
    * Saves the space public site characteristics
    * 
-   * @param space
+   * @param space {@link Space}
    * @param publicSiteVisibility Visibility of public site, possible values: manager, member, internal, authenticated or everyone.
    */
   default void saveSpacePublicSite(Space space, String publicSiteVisibility) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param space {@link Space}
+   * @return Public site name if exists, else null
+   */
+  default String getSpacePublicSiteName(Space space) {
     throw new UnsupportedOperationException();
   }
 
