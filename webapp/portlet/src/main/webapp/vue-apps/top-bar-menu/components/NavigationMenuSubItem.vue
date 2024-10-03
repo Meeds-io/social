@@ -120,7 +120,7 @@ export default {
     navigationNodeUri() {
       return this.navigation?.pageLink
         && this.urlVerify(this.navigation?.pageLink)
-        || `${this.baseSiteUri}${this.navigation.uri}`;
+        || (this.hasPage && `${this.baseSiteUri}${this.navigation.uri}`);
     },
     isSelected() {
       return this.navigationNodeUri === this.selectedPath;
@@ -143,6 +143,9 @@ export default {
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
       this.positionY = this.$el.getBoundingClientRect().top;
       this.$root.$emit('close-sibling-drop-menus-children', this);
+    },
+    hasPage() {
+      return !!this.navigation?.pageKey;
     },
   },
   created() {
@@ -183,7 +186,7 @@ export default {
       return url ;
     },
     handleCloseSiblingMenus(emitter) {
-      if (!emitter.navigation.pageLink && !emitter.navigationNodeUri.includes(this.navigationNodeUri) && this.showMenu) {
+      if (!emitter?.navigation?.pageLink && !emitter?.navigationNodeUri?.includes?.(this.navigationNodeUri) && this.showMenu) {
         this.showMenu = false;
       }
     },
