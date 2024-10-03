@@ -24,6 +24,7 @@
     v-if="hasActions"
     :is="bottomMenu && 'v-bottom-sheet' || 'v-menu'"
     ref="actionMenu"
+    id="peopleCompactCardBottomDrawer"
     v-model="displayActionMenu"
     :attach="bottomMenu && '#vuetify-apps' || attachMenu"
     :left="!$vuetify.rtl"

@@ -21,6 +21,11 @@
 -->
 <template>
   <v-list-item
+    v-if="extension.init"
+    ref="container"
+    :class="`${extension.appClass}`" />
+  <v-list-item
+    v-else
     v-bind="extension?.link && {
       href: extension.link(user, spaceId)
     }"
@@ -59,5 +64,16 @@ export default {
       default: null,
     },
   },
+  mounted() {
+    this.initExtension();
+  },
+  methods: {
+    initExtension() {
+      if (this.$refs.container?.$el) {
+        this.$refs.container.$el.innerHTML = '';
+        this.extension.init(this.$refs.container?.$el, this.user.username);
+      }
+    }
+  }
 };
 </script>
