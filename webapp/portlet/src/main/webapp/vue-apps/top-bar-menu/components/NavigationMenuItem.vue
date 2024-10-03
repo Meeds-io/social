@@ -107,7 +107,7 @@ export default {
       return !!this.navigation?.pageKey;
     },
     navigationNodeUri() {
-      return this.navigation?.pageLink || `${this.baseSiteUri}${this.navigation.uri}`;
+      return this.navigation?.pageLink || (this.hasPage && `${this.baseSiteUri}${this.navigation.uri}`);
     },
     navigationNodeTarget() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
@@ -183,12 +183,14 @@ export default {
       return childrenHasPage;
     },
     openUrl(url, target) {
-      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-        url = `//${url}`;
-      } else if (url.match(/^(\/portal\/)/)) {
-        url = `${window.location.origin}${url}`;
+      if (url) {
+        if (!url?.match?.(/^(https?:\/\/|javascript:|\/portal\/)/)) {
+          url = `//${url}`;
+        } else if (url?.match?.(/^(\/portal\/)/)) {
+          url = `${window.location.origin}${url}`;
+        }
+        window.open(url, target);
       }
-      window.open(url, target);
     },
   }
 };
