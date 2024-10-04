@@ -2,9 +2,10 @@
   <v-card flat>
     <v-progress-linear
       v-if="loadingSpaces"
+      class="position-absolute"
+      color="primary"
       indeterminate
-      height="2"
-      color="primary" />
+      height="2" />
     <v-card-text id="spacesListBody" class="pb-0">
       <v-item-group>
         <v-container class="pa-0">
@@ -17,7 +18,7 @@
               lg="4"
               xl="4"
               class="pa-0">
-              <exo-space-card
+              <space-card
                 :space="space"
                 :profile-action-extensions="profileActionExtensions"
                 @refresh="searchSpaces" />
