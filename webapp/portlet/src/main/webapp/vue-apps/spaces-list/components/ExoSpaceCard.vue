@@ -15,7 +15,6 @@
     </div>
   </v-flex>
 </template>
-
 <script>
 export default {
   props: {
