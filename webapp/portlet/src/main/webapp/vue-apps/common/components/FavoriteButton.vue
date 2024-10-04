@@ -14,6 +14,7 @@
           :small="small"
           v-bind="attrs"
           v-on="on"
+          @mousedown.stop="0"
           @click="changeFavorite">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon

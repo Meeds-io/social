@@ -1,74 +1,84 @@
 <template>
-  <v-card flat>
+  <v-card
+    class="d-flex flex-column"
+    min-height="calc(var(--100vh, 100vh) - 180px)"
+    flat>
     <v-progress-linear
       v-if="loadingSpaces"
       class="position-absolute"
       color="primary"
       indeterminate
       height="2" />
-    <v-card-text id="spacesListBody" class="pb-0">
-      <v-item-group>
-        <v-container class="pa-0">
-          <v-row v-if="filteredSpaces && filteredSpaces.length" class="ma-0 border-box-sizing">
-            <v-col
-              v-for="space in filteredSpaces"
-              :key="space.id"
-              cols="12"
-              md="6"
-              lg="4"
-              xl="4"
-              class="pa-0">
-              <space-card
-                :space="space"
-                :profile-action-extensions="profileActionExtensions"
-                @refresh="searchSpaces" />
-            </v-col>
-          </v-row>
-          <div v-else-if="!loadingSpaces" class="d-flex text-center noSpacesYetBlock">
-            <div class="ma-auto noSpacesYet">
-              <p class="noSpacesYetIcons">
-                <v-icon>fa-chevron-left</v-icon>
-                <v-icon>fa-chevron-right</v-icon>
-              </p>
-              <template v-if="hasSpaces">
-                <p class="text-title">
-                  {{ $t('spacesOverview.label.noResults') }}
-                </p>
-              </template>
-              <template v-else>
-                <p class="text-title">
-                  {{ $t('spacesList.label.noSpacesYet') }}
-                </p>
-                <div>
-                  {{ $t('spacesList.label.noSpacesYetDescription1') }}
-                </div>
-                <span>
-                  {{ $t('spacesList.label.noSpacesYetDescription2') }}
-                  <v-btn
-                    link
-                    text
-                    class="primary--text px-0 addNewSpaceLink"
-                    @click="$root.$emit('addNewSpace')">
-                    {{ $t('spacesList.label.noSpacesLink') }}
-                  </v-btn>
-                </span>
-              </template>
+    <div id="spacesListBody" class="flex-grow-1 flex-shrink-1 pt-4">
+      <div
+        v-if="filteredSpaces && filteredSpaces.length"
+        class="d-flex flex-wrap mx-n2 border-box-sizing">
+        <template v-for="(space, index) in filteredSpaces">
+          <div
+            v-if="index > 0"
+            :key="`spacer-${index}`"
+            class="mx-auto flex-grow-0 flex-shrink-0"></div>
+          <space-card
+            :key="space.id"
+            :space="space"
+            :profile-action-extensions="profileActionExtensions"
+            :style="cardFlexBasis && `flex-basis: ${cardFlexBasis}`"
+            class="mx-2 mb-4 flex-grow-1 flex-shrink-1 pa-0"
+            @refresh="searchSpaces" />
+        </template>
+        <div class="mx-auto"></div>
+        <v-card
+          :min-width="402"
+          class="mx-2 flex-grow-1 flex-shrink-1"
+          flat />
+      </div>
+      <v-card
+        v-else-if="!loadingSpaces"
+        min-height="calc(var(--100vh, 100vh) - 280px)"
+        class="d-flex text-center noSpacesYetBlock"
+        flat>
+        <div class="ma-auto noSpacesYet">
+          <p class="noSpacesYetIcons">
+            <v-icon class="fa-9x">fa-chevron-left</v-icon>
+            <v-icon class="fa-9x">fa-chevron-right</v-icon>
+          </p>
+          <template v-if="hasSpaces">
+            <p class="text-title">
+              {{ $t('spacesList.label.noResults') }}
+            </p>
+          </template>
+          <template v-else>
+            <p class="text-title">
+              {{ $t('spacesList.label.noSpacesYet') }}
+            </p>
+            <div>
+              {{ $t('spacesList.label.noSpacesYetDescription1') }}
             </div>
-          </div>
-        </v-container>
-      </v-item-group>
-    </v-card-text>
-    <v-card-actions id="spacesListFooter" class="pt-0 px-5 border-box-sizing">
+            <span>
+              {{ $t('spacesList.label.noSpacesYetDescription2') }}
+              <v-btn
+                link
+                text
+                class="primary--text px-0 pb-1 addNewSpaceLink"
+                @click="$root.$emit('addNewSpace')">
+                {{ $t('spacesList.label.noSpacesLink') }}
+              </v-btn>
+            </span>
+          </template>
+        </div>
+      </v-card>
+    </div>
+    <div id="spacesListFooter" class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing">
       <v-btn
         v-if="canShowMore"
         :loading="loadingSpaces"
         :disabled="loadingSpaces"
-        class="loadMoreButton ma-auto btn"
+        class="loadMoreButton border-color elevation-0 ma-auto"
         block
         @click="loadNextPage">
         {{ $t('spacesList.button.showMore') }}
       </v-btn>
-    </v-card-actions>
+    </div>
   </v-card>
 </template>
 
@@ -94,21 +104,34 @@ export default {
   },
   data: () => ({
     profileActionExtensions: [],
-    startSearchAfterInMilliseconds: 600,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
     hasSpaces: false,
     offset: 0,
-    pageSize: 20,
-    limit: 20,
+    pageSize: 12,
+    limit: 12,
     spaces: [],
     limitToFetch: 0,
     originalLimitToFetch: 0,
-    typing: false,
+    cardXSpacing: 16 + 2, // margin left/right + border left/right
+    cardsListWidth: 0, // computed
   }),
   computed: {
     canShowMore() {
       return this.loadingSpaces || this.spaces.length >= this.limitToFetch;
+    },
+    cardMinWidthBase() {
+      if (this.cardsListWidth > 1000) {
+        return 300;
+      } else if (this.cardsListWidth < 600) {
+        return this.cardsListWidth;
+      } else {
+        return 220;
+      }
+    },
+    cardPerLine() {
+      return this.cardsListWidth && parseInt((this.cardsListWidth + 8) / (this.cardMinWidthBase + this.cardXSpacing));
+    },
+    cardFlexBasis() {
+      return this.cardsListWidth && `calc(${String(100 / this.cardPerLine).substring(0, 12)}% - ${this.cardXSpacing}px)`;
     },
     filteredSpaces() {
       if (!this.keyword || !this.loadingSpaces) {
@@ -118,38 +141,16 @@ export default {
             || space.description && space.description.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0 );
       }
     },
-    selectedSpaceIndex() {
-      return this.spaces.findIndex(space => space.spaceUrl === eXo.env.server.portalBaseURL || eXo.env.server.portalBaseURL.indexOf(`${space.spaceUrl}/`) === 0);
-    },
   },
   watch: {
     keyword() {
-      if (!this.keyword?.length) {
-        this.resetSearch();
-        this.searchSpaces();
-        return;
-      }
-      this.startTypingKeywordTimeout = Date.now();
-      if (!this.typing) {
-        this.typing = true;
-        this.waitForEndTyping();
-      }
-    },
-    spaces() {
-      this.spaces.forEach(space => {
-        space.spaceUrl = `${eXo.env.portal.context}${space.url}`;
-      });
+      this.searchSpaces();
     },
     limitToFetch() {
       this.searchSpaces();
     },
     filter() {
       this.searchSpaces();
-    },
-    typing() {
-      if (this.typing) {
-        this.$emit('loading-spaces', true);
-      }
     },
   }, 
   created() {
@@ -158,7 +159,18 @@ export default {
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
   },
+  mounted() {
+    this.$el.addEventListener('resize', this.computeWidth);
+    this.computeWidth();
+  },
+  beforeDestroy() {
+    this.$el?.removeEventListener?.('resize', this.computeWidth);
+    document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+  },
   methods: {
+    computeWidth() {
+      this.cardsListWidth = this.$el?.offsetWidth;
+    },
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
@@ -180,23 +192,8 @@ export default {
         })
         .finally(() => this.$emit('loading-spaces', false));
     },
-    resetSearch() {
-      if (this.limitToFetch !== this.originalLimitToFetch) {
-        this.limitToFetch = this.originalLimitToFetch;
-      }
-    },
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
-          this.typing = false;
-          this.searchSpaces();
-        } else {
-          this.waitForEndTyping();
-        }
-      }, this.endTypingKeywordTimeout);
     },
   }
 };

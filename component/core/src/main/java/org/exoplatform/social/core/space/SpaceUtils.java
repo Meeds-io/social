@@ -441,6 +441,9 @@ public class SpaceUtils {
    */
 
   public static void changeAppPageTitle(UserNode spacePageNode, String newSpaceName) throws Exception {
+    if (spacePageNode == null || spacePageNode.getPageRef() == null) {
+      return;
+    }
     LayoutService layoutService = getLayoutService();
     Page page = layoutService.getPage(spacePageNode.getPageRef().format());
 

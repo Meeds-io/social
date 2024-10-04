@@ -60,15 +60,6 @@
 
   <portlet-skin>
     <application-name>social-portlet</application-name>
-    <portlet-name>SpaceSettingPortlet</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/SpaceSettings/Style.css</css-path>
-    <css-priority>1</css-priority>
-    <additional-module>ImageCropper</additional-module>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social-portlet</application-name>
     <portlet-name>Image</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-priority>1</css-priority>
@@ -96,14 +87,6 @@
     <portlet-name>SpacesAdministration</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/SpacesAdministration/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social-portlet</application-name>
-    <portlet-name>SpacesList</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/SpacesList/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
 
@@ -177,14 +160,6 @@
     <portlet-name>SpaceInfos</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/SpaceInfos/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social-portlet</application-name>
-    <portlet-name>WhoIsOnLinePortlet</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/WhoIsOnLine/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
 
@@ -287,15 +262,6 @@
     <portlet-name>ProfileSearch</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/ProfileSearch/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social-portlet</application-name>
-    <!-- Not a portlet but a module. TODO : Enhance SkinService to manage CSS Modules a  done for JS -->
-    <portlet-name>SpaceSearch</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/SpaceSearch/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
 

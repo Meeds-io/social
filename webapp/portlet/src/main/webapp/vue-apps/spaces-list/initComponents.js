@@ -3,9 +3,8 @@ import SpacesToolbar from './components/SpacesToolbar.vue';
 import SpacesCardList from './components/SpacesCardList.vue';
 import SpacesListFilterDrawer from './components/SpacesListFilterDrawer.vue';
 import SpaceCard from './components/SpaceCard.vue';
-import SpaceCardFront from './components/SpaceCardFront.vue';
-import SpaceCardReverse from './components/SpaceCardReverse.vue';
-import SpaceManagersDrawer from './components/SpaceManagersDrawer.vue';
+import SpaceCardButton from './components/SpaceCardButton.vue';
+import SpaceCardMembershipOptions from './components/SpaceCardMembershipOptions.vue';
 import SpaceFormDrawer from './components/SpaceFormDrawer.vue';
 import SpaceFavoriteAction from './components/SpaceFavoriteAction.vue';
 
@@ -15,9 +14,8 @@ const components = {
   'spaces-card-list': SpacesCardList,
   'spaces-list-filter-drawer': SpacesListFilterDrawer,
   'space-card': SpaceCard,
-  'space-card-front': SpaceCardFront,
-  'space-card-reverse': SpaceCardReverse,
-  'space-managers-drawer': SpaceManagersDrawer,
+  'space-card-button': SpaceCardButton,
+  'space-card-membership-options': SpaceCardMembershipOptions,
   'space-form-drawer': SpaceFormDrawer,
   'space-favorite-action': SpaceFavoriteAction,
 };

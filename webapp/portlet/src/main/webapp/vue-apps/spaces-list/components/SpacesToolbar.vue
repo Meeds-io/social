@@ -12,6 +12,7 @@
     }"
     :compact="compactDisplay || $root.isMobile"
     :filters-count="filtersCount"
+    class="px-1"
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-button-click="$root.$emit('spaces-list-filter-open', filter)"
     @loading="$emit('loading', $event)">
