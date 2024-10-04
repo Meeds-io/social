@@ -63,7 +63,7 @@
                 </div>
               </template>
             </v-radio>
-            <v-tooltip :value="isHiddenSpace" bottom>
+            <v-tooltip :disabled="!isHiddenSpace" bottom>
               <template #activator="{on, attrs}">
                 <div v-on="on" v-bind="attrs">
                   <v-radio
@@ -71,7 +71,7 @@
                     value="internal"
                     class="mt-0 mb-2">
                     <template #label>
-                      <div class="text-body">
+                      <div :class="isHiddenSpace && 'text--disabled' || 'text-body'">
                         {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersNoGuests') }}
                       </div>
                     </template>
@@ -81,7 +81,7 @@
                     value="authenticated"
                     class="mt-0 mb-2">
                     <template #label>
-                      <div class="text-body">
+                      <div :class="isHiddenSpace && 'text--disabled' || 'text-body'">
                         {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersWithGuests') }}
                       </div>
                     </template>
@@ -91,7 +91,7 @@
                     value="everyone"
                     class="mt-0 mb-2">
                     <template #label>
-                      <div class="text-body">
+                      <div :class="isHiddenSpace && 'text--disabled' || 'text-body'">
                         {{ $t('SpaceSettings.publicSite.drawer.accessChoiceAnonymous') }}
                       </div>
                     </template>
