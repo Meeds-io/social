@@ -113,14 +113,10 @@
                 <include>portlet/SpaceInfos/Style.less</include>
                 <include>portlet/SpaceMenu/Style.less</include>
                 <include>portlet/SpacesAdministration/Style.less</include>
-                <include>portlet/SpaceSearch/Style.less</include>
-                <include>portlet/SpaceSettings/Style.less</include>
-                <include>portlet/SpacesList/Style.less</include>
                 <include>portlet/SpacesListExternal/Style.less</include>
                 <include>portlet/SpacesOverview/Style.less</include>
                 <include>portlet/SuggestionsPeopleAndSpace/Style.less</include>
                 <include>portlet/TopBarMenu/Style.less</include>
-                <include>portlet/WhoIsOnLine/Style.less</include>
                 <include>portlet/VerticalMenu/Style.less</include>
                 <include>common/siteDetails/Style.less</include>
                 <include>common/AdministrationSite/Style.less</include>

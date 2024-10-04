@@ -173,7 +173,8 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
       Iterator<? extends Identity> iterator = identities.iterator();
       while (iterator.hasNext()) {
         Identity identity = iterator.next();
-        if (identity.equals(profileFilter.getViewerIdentity())) {
+        if (identity == null || (profileFilter.getViewerIdentity() != null
+                                 && identity.getId().equals(profileFilter.getViewerIdentity().getId()))) {
           iterator.remove();
         }
       }

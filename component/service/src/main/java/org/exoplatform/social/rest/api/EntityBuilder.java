@@ -918,7 +918,7 @@ public class EntityBuilder {
       spaceEntity.setIsMember(spaceService.isMember(space, currentUserIdentity.getRemoteId()));
     }
 
-    PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(GROUP, space.getGroupId()));
+    PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(PortalConfig.GROUP_TYPE, space.getGroupId()));
     spaceEntity.setSiteId((portalConfig.getStorageId().split("_"))[1]);
 
     spaceEntity.setDisplayName(space.getDisplayName());
@@ -932,8 +932,19 @@ public class EntityBuilder {
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
-    spaceEntity.setPublicSiteId(space.getPublicSiteId());
-    spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility());
+    if (space.getPublicSiteId() > 0) {
+      PortalConfig publicPortalConfig = getLayoutService().getPortalConfig(space.getPublicSiteId());
+      if (publicPortalConfig == null
+          || !getUserACL().hasAccessPermission(publicPortalConfig, getCurrentUserIdentity())) {
+        spaceEntity.setPublicSiteId(0l);
+      } else {
+        spaceEntity.setPublicSiteId(space.getPublicSiteId());
+        spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility());
+        spaceEntity.setPublicSiteName(publicPortalConfig.getName());
+      }
+    } else {
+      spaceEntity.setPublicSiteId(0l);
+    }
     spaceEntity.setSubscription(space.getRegistration());
     spaceEntity.setMembersCount(space.getMembers() == null ? 0 : countUsers(space.getMembers()));
     spaceEntity.setManagersCount(space.getManagers() == null ? 0 : countUsers(space.getManagers()));
