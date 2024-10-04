@@ -1,23 +1,25 @@
-import ExoSpacesList from './components/ExoSpacesList.vue';
-import ExoSpacesCardList from './components/ExoSpacesCardList.vue';
-import ExoSpacesToolbar from './components/ExoSpacesToolbar.vue';
-import ExoSpaceCard from './components/ExoSpaceCard.vue';
-import ExoSpaceCardFront from './components/ExoSpaceCardFront.vue';
-import ExoSpaceCardReverse from './components/ExoSpaceCardReverse.vue';
-import ExoSpaceManagersDrawer from './components/ExoSpaceManagersDrawer.vue';
-import ExoSpaceFormDrawer from './components/ExoSpaceFormDrawer.vue';
-import ExoSpaceFavoriteAction from './components/ExoSpaceFavoriteAction.vue';
+import SpacesList from './components/SpacesList.vue';
+import SpacesToolbar from './components/SpacesToolbar.vue';
+import SpacesCardList from './components/SpacesCardList.vue';
+import SpacesListFilterDrawer from './components/SpacesListFilterDrawer.vue';
+import SpaceCard from './components/SpaceCard.vue';
+import SpaceCardFront from './components/SpaceCardFront.vue';
+import SpaceCardReverse from './components/SpaceCardReverse.vue';
+import SpaceManagersDrawer from './components/SpaceManagersDrawer.vue';
+import SpaceFormDrawer from './components/SpaceFormDrawer.vue';
+import SpaceFavoriteAction from './components/SpaceFavoriteAction.vue';
 
 const components = {
-  'exo-spaces-list': ExoSpacesList,
-  'exo-spaces-card-list': ExoSpacesCardList,
-  'exo-spaces-toolbar': ExoSpacesToolbar,
-  'exo-space-card': ExoSpaceCard,
-  'exo-space-card-front': ExoSpaceCardFront,
-  'exo-space-card-reverse': ExoSpaceCardReverse,
-  'exo-space-managers-drawer': ExoSpaceManagersDrawer,
-  'exo-space-form-drawer': ExoSpaceFormDrawer,
-  'exo-space-favorite-action': ExoSpaceFavoriteAction,
+  'spaces-list': SpacesList,
+  'spaces-toolbar': SpacesToolbar,
+  'spaces-card-list': SpacesCardList,
+  'spaces-list-filter-drawer': SpacesListFilterDrawer,
+  'space-card': SpaceCard,
+  'space-card-front': SpaceCardFront,
+  'space-card-reverse': SpaceCardReverse,
+  'space-managers-drawer': SpaceManagersDrawer,
+  'space-form-drawer': SpaceFormDrawer,
+  'space-favorite-action': SpaceFavoriteAction,
 };
 
 for (const key in components) {
