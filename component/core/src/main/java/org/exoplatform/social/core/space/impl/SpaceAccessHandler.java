@@ -141,7 +141,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
   }
 
   private boolean canAccessSpace(Space space, String username) {
-    Identity identity = identityRegistry.getIdentity(username);
+    Identity identity = username == null ? null : identityRegistry.getIdentity(username);
     if (identity == null || space == null) {
       return false;
     } else if (spaceService.isMember(space, username)) {
