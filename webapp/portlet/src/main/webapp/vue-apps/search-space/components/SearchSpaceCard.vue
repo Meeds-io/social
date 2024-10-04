@@ -1,6 +1,6 @@
 <template>
   <div>
-    <exo-space-card
+    <space-card
       :space="result"
       :profile-action-extensions="profileActionExtensions"
       embedded
