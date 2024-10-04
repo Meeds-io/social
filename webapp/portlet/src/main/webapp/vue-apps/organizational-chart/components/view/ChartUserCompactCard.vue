@@ -23,7 +23,7 @@
     v-slot="{ hover }">
     <v-card
       :class="hover && 'elevation-2'"
-      class="mx-auto d-flex flex-column border-box-sizing card-border-radius chartCompactUserCard"
+      class="mx-auto d-flex flex-column border-box-sizing chartCompactUserCard"
       width="268"
       height="85"
       outlined
