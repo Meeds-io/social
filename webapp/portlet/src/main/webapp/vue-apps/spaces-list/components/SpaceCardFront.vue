@@ -25,7 +25,7 @@
           <v-icon size="12">fa-info</v-icon>
         </v-btn>
         <v-spacer />
-        <exo-space-favorite-action
+        <space-favorite-action
           v-if="space.isMember && !isMobile"
           :is-favorite="space.isFavorite"
           :space-id="space.id" />
@@ -110,7 +110,7 @@
                 </v-list-item>
                 <v-list-item v-if="space.isMember">
                   <v-list-item-title>
-                    <exo-space-favorite-action
+                    <space-favorite-action
                       :is-favorite="space.isFavorite"
                       :space-id="space.id"
                       extra-class="ms-3"
@@ -191,7 +191,7 @@
         </a>
       </v-card-text>
       <v-list-item v-if="!isMobile" class="spaceCardActions pa-2">
-        <exo-confirm-dialog
+        <confirm-dialog
           ref="confirmDialog"
           :title="confirmTitle"
           :message="confirmMessage"

@@ -162,16 +162,16 @@
             v-if="showFilterButton"
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
-            :small="isCompact"
+            :small="!showRightFilterButtonText"
             text
             @click="$emit('filter-button-click', $event)">
             <v-icon
-              :size="isCompact && 24 || 16"
+              :size="showRightFilterButtonText && 16 || 24"
               :class="filtersCount && 'primary--text' || 'icon-default-color'">
               fa-sliders-h
             </v-icon>
             <span
-              v-if="!isCompact"
+              v-if="showRightFilterButtonText"
               class="ms-2">
               {{ rightFilterButton.text }}
             </span>
@@ -282,6 +282,7 @@ export default {
       default: () => ({
         hide: true,
         text: null,
+        displayText: null, // Force to display text even in compact mode
       }),
     },
     filtersCount: { // Filter button: applied filter count
@@ -334,6 +335,9 @@ export default {
     },
     showLeftContent() {
       return !this.hideLeft && !this.expandFilter && (!this.isCompact || this.hasLeftContent || (this.hasCenterContent && this.hasRightContent));
+    },
+    showRightFilterButtonText() {
+      return !this.isCompact || this.rightFilterButton?.displayText;
     },
     hasCenterButtonToggle() {
       return this.centerButtonToggle
@@ -396,7 +400,7 @@ export default {
       return this.hasButtonFilter && !this.hideRightInputs;
     },
     filterButtonClass() {
-      return `${this.isCompact && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || ''} ${!this.isCompact && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
+      return `${!this.showRightFilterButtonText && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || ''} ${this.showRightFilterButtonText && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
     },
     hasRightContent() {
       return this.rightInputsCount > 0;
@@ -480,6 +484,7 @@ export default {
     }
   },
   beforeDestroy() {
+    this.$root.$off('reset-filter', this.reset);
     document.removeEventListener('keydown', this.clearSearch);
     document.removeEventListener('keydown', this.closeFilter);
   },
