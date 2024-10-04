@@ -4,7 +4,7 @@ import UserPopoverContent from './components/UserPopoverContent.vue';
 import SpacePopoverContent from './components/SpacePopoverContent.vue';
 import SpaceMuteNotificationButton from './components/SpaceMuteNotificationButton.vue';
 import UsersListDrawer from './components/UsersListDrawer.vue';
-import ExoSpaceFavoriteAction from '../spaces-list/components/ExoSpaceFavoriteAction.vue';
+import SpaceFavoriteAction from '../spaces-list/components/SpaceFavoriteAction.vue';
 
 const components = {
   'popover': Popover,
@@ -14,7 +14,7 @@ const components = {
   'space-mute-notification-button': SpaceMuteNotificationButton,
   'users-list-drawer': UsersListDrawer
 };
-components['exo-space-favorite-action'] = ExoSpaceFavoriteAction;
+components['space-favorite-action'] = SpaceFavoriteAction;
 
 for (const key in components) {
   Vue.component(key, components[key]);
