@@ -12,10 +12,29 @@ export function init(filter, canCreateSpace) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
+      data: {
+        filter: filter || 'all',
+      },
+      computed: {
+        isMobile() {
+          return this.$vuetify.breakpoint.mobile;
+        },
+      },
+      created() {
+        this.$root.$on('spaces-list-filter-update', this.updateFilter);
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<exo-spaces-list id="${appId}" filter="${filter || 'all'}" :can-create-space="${canCreateSpace}"></exo-spaces-list>`,
+      beforeDestroy() {
+        this.$root.$off('spaces-list-filter-update', this.updateFilter);
+      },
+      methods: {
+        updateFilter(filter) {
+          this.filter = filter;
+        },
+      },
+      template: `<spaces-list id="${appId}" :filter="filter" :can-create-space="${canCreateSpace}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, `#${appId}`, 'Spaces List');
