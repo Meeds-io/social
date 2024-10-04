@@ -105,9 +105,6 @@
             <field name="jsModule">
               <string>SHARED/SpaceSearchResultCard</string>
             </field>
-            <field name="cssModule">
-              <string>social-portlet/SpaceSearch</string>
-            </field>
             <field name="i18nBundle">
               <string>locale.portlet.social.SpacesListApplication</string>
             </field>

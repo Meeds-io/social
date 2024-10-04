@@ -17,11 +17,8 @@
 package org.exoplatform.social.core.space;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -441,6 +438,9 @@ public class SpaceUtils {
    */
 
   public static void changeAppPageTitle(UserNode spacePageNode, String newSpaceName) throws Exception {
+    if (spacePageNode == null || spacePageNode.getPageRef() == null) {
+      return;
+    }
     LayoutService layoutService = getLayoutService();
     Page page = layoutService.getPage(spacePageNode.getPageRef().format());
 
