@@ -36,12 +36,13 @@
         :filter="filter"
         :loading-spaces="loadingSpaces"
         :spaces-size="spacesSize"
-        class="px-5"
+        class="px-3"
         @loading-spaces="loadingSpaces = $event"
         @loaded="spacesLoaded" />
     </v-main>
     <spaces-list-filter-drawer />
     <space-form-drawer />
+    <spaces-pending-drawer />
   </v-app>    
 </template>
 <script>

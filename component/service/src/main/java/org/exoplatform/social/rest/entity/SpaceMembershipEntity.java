@@ -48,9 +48,17 @@ public class SpaceMembershipEntity extends BaseEntity {
   public void setSpace(String space) {
     setProperty("space", space);
   }
-
+  
   public String getSpace() {
     return getString("space");
+  }
+
+  public void setSpaceId(String spaceId) {
+    setProperty("spaceId", spaceId);
+  }
+
+  public String getSpaceId() {
+    return getString("spaceId");
   }
 
   public SpaceMembershipEntity setRole(String role) {
