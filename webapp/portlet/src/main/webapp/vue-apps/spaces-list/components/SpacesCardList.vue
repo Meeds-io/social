@@ -3,36 +3,31 @@
     class="d-flex flex-column"
     min-height="calc(var(--100vh, 100vh) - 180px)"
     flat>
-    <v-progress-linear
-      v-if="loadingSpaces"
-      class="position-absolute"
-      color="primary"
-      indeterminate
-      height="2" />
-    <div id="spacesListBody" class="flex-grow-1 flex-shrink-1 pt-4">
+    <v-card
+      class="position-relative px-2 overflow-hidden"
+      height="8"
+      flat>
+      <v-progress-linear
+        v-if="loadingSpaces"
+        class="position-absolute"
+        color="primary"
+        indeterminate
+        height="2" />
+    </v-card>
+    <div id="spacesListBody" class="flex-grow-1 flex-shrink-1 pt-2">
       <div
         v-if="filteredSpaces && filteredSpaces.length"
-        class="d-flex flex-wrap mx-n2 border-box-sizing">
-        <template v-for="(space, index) in filteredSpaces">
-          <div
-            v-if="index > 0"
-            :key="`spacer-${index}`"
-            class="mx-auto flex-grow-0 flex-shrink-0"></div>
-          <space-card
-            :key="space.id"
-            :space="space"
-            :profile-action-extensions="profileActionExtensions"
-            :style="cardFlexBasis && `flex-basis: ${cardFlexBasis}`"
-            :height="cardHeight"
-            :min-height="cardHeight"
-            class="mx-2 mb-4 flex-grow-1 flex-shrink-1 pa-0"
-            @refresh="searchSpaces" />
-        </template>
-        <div class="mx-auto"></div>
-        <v-card
-          :min-width="402"
-          class="mx-2 flex-grow-1 flex-shrink-1"
-          flat />
+        class="d-flex flex-wrap border-box-sizing">
+        <space-card
+          v-for="space in filteredSpaces"
+          :key="space.id"
+          :space="space"
+          :profile-action-extensions="profileActionExtensions"
+          :style="cardFlexBasis && `flex-basis: ${cardFlexBasis}`"
+          :height="cardHeight"
+          :min-height="cardHeight"
+          max-width="100%"
+          class="mx-2 mb-4 flex-grow-0 flex-shrink-0 pa-0" />
       </div>
       <v-card
         v-else-if="!loadingSpaces"
@@ -70,7 +65,7 @@
         </div>
       </v-card>
     </div>
-    <div id="spacesListFooter" class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing">
+    <div id="spacesListFooter" class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing px-2">
       <v-btn
         v-if="canShowMore"
         :loading="loadingSpaces"
@@ -106,6 +101,7 @@ export default {
   },
   data: () => ({
     profileActionExtensions: [],
+    resizeObserver: null,
     hasSpaces: false,
     offset: 0,
     pageSize: 12,
@@ -123,9 +119,9 @@ export default {
     },
     cardMinWidthBase() {
       if (this.cardsListWidth > 1000) {
-        return 300;
-      } else if (this.cardsListWidth < 600) {
-        return this.cardsListWidth;
+        return 280;
+      } else if (this.cardsListWidth < 480) {
+        return this.cardsListWidth - this.cardXSpacing;
       } else {
         return 220;
       }
@@ -134,7 +130,7 @@ export default {
       return this.cardsListWidth && parseInt((this.cardsListWidth + 8) / (this.cardMinWidthBase + this.cardXSpacing));
     },
     cardFlexBasis() {
-      return this.cardsListWidth && `calc(${String(100 / this.cardPerLine).substring(0, 12)}% - ${this.cardXSpacing}px)`;
+      return this.cardsListWidth && `calc(${String(100 / this.cardPerLine).substring(0, 12)}% - ${this.cardXSpacing - 2}px)`;
     },
     filteredSpaces() {
       if (!this.keyword || !this.loadingSpaces) {
@@ -160,19 +156,22 @@ export default {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    this.$root.$on('spaces-list-refresh', this.searchSpaces);
     this.refreshExtensions();
   },
   mounted() {
-    this.$el.addEventListener('resize', this.computeWidth);
+    this.resizeObserver = new ResizeObserver(this.computeWidth);
+    this.resizeObserver.observe(this.$el);
     this.computeWidth();
   },
   beforeDestroy() {
-    this.$el?.removeEventListener?.('resize', this.computeWidth);
     document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    this.$root.$off('spaces-list-refresh', this.searchSpaces);
+    this.resizeObserver?.disconnect?.();
   },
   methods: {
     computeWidth() {
-      this.cardsListWidth = this.$el?.offsetWidth;
+      this.cardsListWidth = this.$el?.offsetWidth - 40;
     },
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];

@@ -1123,6 +1123,7 @@ public class EntityBuilder {
       userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, userId, restPath));
     }
     spaceMembership.setDataUser(userEntity);
+    spaceMembership.setUser(userId);
 
     if (expandFields.contains(CREATED_DATE)) {
       Instant createdDate = getSpaceService().getSpaceMembershipDate(Long.parseLong(space.getId()), userId);
@@ -1138,6 +1139,7 @@ public class EntityBuilder {
       spaceEntity = new LinkEntity(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
     }
     spaceMembership.setDataSpace(spaceEntity);
+    spaceMembership.setSpaceId(space.getId());
 
     spaceMembership.setRole(type);
     switch (type) {
