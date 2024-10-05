@@ -8,11 +8,18 @@ import SpaceCardMembershipOptions from './components/SpaceCardMembershipOptions.
 import SpaceCardUnreadBadge from './components/SpaceCardUnreadBadge.vue';
 import SpaceFormDrawer from './components/SpaceFormDrawer.vue';
 import SpaceFavoriteAction from './components/SpaceFavoriteAction.vue';
+import SpacePendingButton from './components/SpacePendingButton.vue';
+import SpacePendingDrawer from './components/SpacePendingDrawer.vue';
+import SpaceRoleListItem from './components/SpaceRoleListItem.vue';
+import SpaceRoleList from './components/SpaceRoleList.vue';
 
 const components = {
   'spaces-list': SpacesList,
   'spaces-toolbar': SpacesToolbar,
   'spaces-card-list': SpacesCardList,
+  'spaces-pending-drawer': SpacePendingDrawer,
+  'spaces-role-list-item': SpaceRoleListItem,
+  'spaces-role-list': SpaceRoleList,
   'spaces-list-filter-drawer': SpacesListFilterDrawer,
   'space-card': SpaceCard,
   'space-card-button': SpaceCardButton,
@@ -20,6 +27,7 @@ const components = {
   'space-card-unread-badge': SpaceCardUnreadBadge,
   'space-form-drawer': SpaceFormDrawer,
   'space-favorite-action': SpaceFavoriteAction,
+  'space-pending-button': SpacePendingButton,
 };
 
 for (const key in components) {
