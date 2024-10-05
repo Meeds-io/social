@@ -22,7 +22,7 @@
           :src="space.bannerUrl"
           :alt="$t('spaceList.spaceBanner.alt')"
           style="max-width: 1000%; min-width: 100%; max-height: 100%; min-height: 100%;"
-          class="position-absolute"
+          class="position-absolute border-top-left-radius border-top-right-radius"
           height="100%"
           width="auto">
       </v-card>
@@ -42,7 +42,7 @@
           flat>
           <img
             :src="space.avatarUrl"
-            :alt="$t('spaceList.spaceBanner.alt')"
+            :alt="$t('spaceList.spaceAvatar.alt')"
             style="max-width: 1000%; max-height: 100%;"
             height="100%"
             width="auto"
@@ -89,8 +89,7 @@
           class="ms-1" />
         <space-card-membership-options
           :space="space"
-          class="ms-1"
-          @refresh="$emit('refresh')" />
+          class="ms-1" />
       </v-card>
     </v-card>
   </v-hover>
@@ -142,7 +141,9 @@ export default {
       return `${eXo.env.portal.context}/s/${this.space.id}`;
     },
     spacePublicSiteUrl() {
-      return this.space.publicSiteName && `${eXo.env.portal.context}/${this.space.publicSiteName}`;
+      return this.space.publicSiteName
+        && this.space.publicSiteVisibility !== 'manager'
+        && `${eXo.env.portal.context}/${this.space.publicSiteName}`;
     },
     enabledProfileActionExtensions() {
       if (!this.profileActionExtensions || !this.space || !this.space.isMember) {
