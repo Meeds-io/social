@@ -1,9 +1,15 @@
 <template>
   <div>
-    <v-menu
+    <component
       v-if="space.canEdit"
+      :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+      ref="actionMenu"
       v-model="menu"
-      content-class="application-menu z-index-modal"
+      :attach="$root.isMobile && '#vuetify-apps' || attachMenu"
+      :left="!$vuetify.rtl"
+      :right="$vuetify.rtl"
+      transition="slide-x-reverse-transition"
+      content-class="position-absolute application-menu z-index-modal"
       offset-y>
       <template #activator="{attrs}">
         <space-card-button
@@ -157,7 +163,7 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-    </v-menu>
+    </component>
     <space-card-button
       v-else-if="space.isMember"
       :extension="{
@@ -168,10 +174,16 @@
       }"
       :space="space"
       icon />
-    <v-menu
+    <component
       v-else-if="space.isInvited"
+      :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+      ref="actionMenu"
       v-model="menu"
-      content-class="application-menu z-index-modal"
+      :attach="$root.isMobile && '#vuetify-apps' || attachMenu"
+      :left="!$vuetify.rtl"
+      :right="$vuetify.rtl"
+      transition="slide-x-reverse-transition"
+      content-class="position-absolute application-menu z-index-modal"
       offset-y>
       <template #activator="{attrs}">
         <space-card-button
@@ -221,7 +233,7 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-    </v-menu>
+    </component>
     <space-card-button
       v-else-if="space.isPending"
       :extension="{
@@ -308,7 +320,7 @@ export default {
     removeSpace() {
       this.sendingAction = true;
       this.$spaceService.removeSpace(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$root.$emit('spaces-list-refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -333,7 +345,7 @@ export default {
     leave() {
       this.sendingAction = true;
       this.$spaceService.leave(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$root.$emit('spaces-list-refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -345,7 +357,7 @@ export default {
     acceptToJoin() {
       this.sendingAction = true;
       this.$spaceService.accept(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$root.$emit('spaces-list-refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -357,7 +369,7 @@ export default {
     refuseToJoin() {
       this.sendingAction = true;
       this.$spaceService.deny(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$root.$emit('spaces-list-refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -369,7 +381,7 @@ export default {
     join() {
       this.sendingAction = true;
       this.$spaceService.join(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$root.$emit('spaces-list-refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -381,7 +393,7 @@ export default {
     requestJoin() {
       this.sendingAction = true;
       this.$spaceService.requestJoin(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$root.$emit('spaces-list-refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);
@@ -393,7 +405,7 @@ export default {
     cancelRequest() {
       this.sendingAction = true;
       this.$spaceService.cancel(this.space.id)
-        .then(() => this.$emit('refresh'))
+        .then(() => this.$root.$emit('spaces-list-refresh'))
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error('Error processing action', e);

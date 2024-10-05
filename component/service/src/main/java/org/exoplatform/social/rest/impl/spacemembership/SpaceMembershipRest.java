@@ -73,11 +73,14 @@ public class SpaceMembershipRest implements ResourceContainer {
   private IdentityManager identityManager;
 
   public enum MembershipType {
-    PENDING(SpaceUtils.PENDING, SpaceMembershipStatus.PENDING), APPROVED(SpaceUtils.MEMBER,
-        SpaceMembershipStatus.MEMBER), IGNORED(SpaceUtils.IGNORED, SpaceMembershipStatus.IGNORED), INVITED(
-            SpaceUtils.INVITED, SpaceMembershipStatus.INVITED), MEMBER(SpaceUtils.MEMBER, SpaceMembershipStatus.MEMBER), MANAGER(
-                SpaceUtils.MANAGER, SpaceMembershipStatus.MANAGER), PUBLISHER(SpaceUtils.PUBLISHER,
-                    SpaceMembershipStatus.PUBLISHER), REDACTOR(SpaceUtils.REDACTOR, SpaceMembershipStatus.REDACTOR);
+    PENDING(SpaceUtils.PENDING, SpaceMembershipStatus.PENDING),
+    APPROVED(SpaceUtils.MEMBER, SpaceMembershipStatus.MEMBER),
+    IGNORED(SpaceUtils.IGNORED, SpaceMembershipStatus.IGNORED),
+    INVITED(SpaceUtils.INVITED, SpaceMembershipStatus.INVITED),
+    MEMBER(SpaceUtils.MEMBER, SpaceMembershipStatus.MEMBER),
+    MANAGER(SpaceUtils.MANAGER, SpaceMembershipStatus.MANAGER),
+    PUBLISHER(SpaceUtils.PUBLISHER, SpaceMembershipStatus.PUBLISHER),
+    REDACTOR(SpaceUtils.REDACTOR, SpaceMembershipStatus.REDACTOR);
 
     @Getter
     private final SpaceMembershipStatus status;
