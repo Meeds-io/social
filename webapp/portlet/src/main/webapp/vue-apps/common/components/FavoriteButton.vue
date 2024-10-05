@@ -18,9 +18,9 @@
           @click="changeFavorite">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
-              class="mx-auto"
               :class="favoriteIconColor"
-              size="16">
+              :size="iconSize"
+              class="mx-auto">
               {{ favoriteIcon }}
             </v-icon>
           </div>
@@ -102,7 +102,11 @@ export default {
     extraClass: {
       type: String,
       default: () => '',
-    }
+    },
+    iconSize: {
+      type: Number,
+      default: () => 16,
+    },
   },
   data: () => ({
     isFavorite: false,
