@@ -6,20 +6,27 @@
       <template #activator="{on, attrs}">
         <v-btn
           v-on="on"
-          v-bind="attrs"
+          v-bind="extension.href && {
+            ...(attrs || {}),
+            'href': extension.href,
+          } || attrs"
           :aria-label="extension.title"
           :icon="icon"
           :color="!icon && 'primary'"
           :outlined="!icon"
           :loading="extension.loading"
-          :small="!icon"
           class="absolute-vertical-align z-index-one"
           ripple
+          small
           @mousedown.stop="0"
           @mouseup.stop="0"
-          @click.stop.prevent="extension.click(space)">
+          @click.stop.prevent="() => extension?.click?.(space)">
           <div class="d-flex align-center justify-center">
-            <v-icon v-if="extension.icon" size="16">{{ extension.icon }}</v-icon>
+            <v-icon
+              v-if="extension.icon"
+              :size="extension.iconSize || 20">
+              {{ extension.icon }}
+            </v-icon>
             <span
               v-if="!icon"
               :class="extension.icon && 'ms-2'"
@@ -40,6 +47,7 @@ export default {
       type: Object,
       default: () => ({
         icon: null,
+        iconSize: null,
         title: null,
         loading: false,
         click: null,

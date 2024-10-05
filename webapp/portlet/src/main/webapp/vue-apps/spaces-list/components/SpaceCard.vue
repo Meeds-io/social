@@ -9,13 +9,14 @@
       :min-width="minWidth"
       :max-width="maxWidth"
       width="auto"
-      class="d-flex flex-column overflow-hidden border-color">
+      class="d-flex flex-column border-color">
+      <space-card-unread-badge :space="space" />
       <v-card
         :min-height="bannerHeight"
         :max-height="bannerHeight"
         min-width="100%"
         max-width="100%"
-        class="overflow-hidden no-border-radius position-relative d-flex justify-center "
+        class="overflow-hidden no-border-radius position-relative d-flex justify-center z-index-one"
         flat>
         <img
           :src="space.bannerUrl"
@@ -37,7 +38,7 @@
           :max-width="avatarSize"
           :min-height="avatarSize"
           :max-height="avatarSize"
-          class="overflow-hidden d-flex align-center justify-center"
+          class="overflow-hidden d-flex align-center justify-center z-index-two"
           flat>
           <img
             :src="space.avatarUrl"
@@ -59,69 +60,36 @@
       <div class="flex-grow-1 flex-shrink-1">
         <div
           v-sanitized-html="spaceDescription"
-          class="text-truncate-3 max-height-3lh full-width flex-shrink-1 px-2 mt-3"></div>
+          class="text-truncate-3 max-height-3lh full-width flex-shrink-1 px-2 mt-2"></div>
       </div>
       <v-card
-        :height="buttonSize"
-        class="d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2"
+        class="d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2 position-absolute b-0"
         flat>
-        <v-card
+        <space-card-button
           v-if="spacePublicSiteUrl"
-          width="36"
-          flat>
-          <v-tooltip :disabled="$root.isMobile" bottom>
-            <template #activator="{on, attrs}">
-              <v-btn
-                v-on="on"
-                v-bind="attrs"
-                :href="spacePublicSiteUrl"
-                :aria-label="$t('spaceList.publicSite')"
-                class="absolute-vertical-align z-index-one"
-                ripple
-                icon
-                @mousedown.stop="0"
-                @click.stop="0"
-                @mouseup.stop="0">
-                <v-icon size="24">fa-globe</v-icon>
-              </v-btn>
-            </template>
-            <span>{{ $t('spaceList.publicSite') }}</span>
-          </v-tooltip>
-        </v-card>
+          :extension="{
+            icon: 'fa-globe',
+            href: spacePublicSiteUrl,
+            title: $t('spaceList.publicSite'),
+          }"
+          :space="space"
+          icon />
         <v-spacer />
-        <v-card
+        <space-favorite-action
           v-if="space.isMember"
-          width="36"
-          flat>
-          <space-favorite-action
-            :is-favorite="space.isFavorite"
-            :space-id="space.id" />
-        </v-card>
-        <v-card
+          :is-favorite="space.isFavorite"
+          :space-id="space.id"
+          :icon-size="20"
+          class="ms-1" />
+        <space-card-button
           v-for="(extension, i) in enabledProfileActionExtensions"
           :key="i"
-          width="36"
-          flat>
-          <v-tooltip :disabled="$root.isMobile" bottom>
-            <template #activator="{on, attrs}">
-              <v-btn
-                v-on="on"
-                v-bind="attrs"
-                :aria-label="extension.title"
-                class="absolute-vertical-align z-index-one"
-                ripple
-                icon
-                @mousedown.stop="0"
-                @mouseup.stop="0"
-                @click.stop="extension.click(space)">
-                <v-icon size="24">{{ extension.icon }}</v-icon>
-              </v-btn>
-            </template>
-            <span>{{ extension.title }}</span>
-          </v-tooltip>
-        </v-card>
+          :extension="extension"
+          :space="space"
+          class="ms-1" />
         <space-card-membership-options
           :space="space"
+          class="ms-1"
           @refresh="$emit('refresh')" />
       </v-card>
     </v-card>
@@ -158,7 +126,6 @@ export default {
   data: () => ({
     avatarSize: 65,
     bannerHeight: 50,
-    buttonSize: 20,
     hoverCard: false,
   }),
   computed: {
@@ -166,7 +133,7 @@ export default {
       return this.space.displayName;
     },
     spaceDescription() {
-      return this.space.description?.replace?.(/<p>/g, '<div>')?.replace?.(/<\/p>/g, '</div>') || '';
+      return this.space.description?.replace?.(/<p>/g, '<div>')?.replace?.(/<\/p>/g, '</div>')?.replace?.(/<ul>/g, '<ul class="ma-0 pa-0">') || '';
     },
     spaceMembersCount() {
       return this.$t('spaceList.spaceMembers', {0: `<strong>${this.space.membersCount}</strong>`});
