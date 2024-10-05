@@ -6,12 +6,13 @@
     :absolute="absolute"
     :top="top"
     :right="right"
-    :small="false"
-    type="space"
-    type-label="space"
     :entity-type="entityType"
     :display-label="displayLabel"
     :extra-class="extraClass"
+    :icon-size="iconSize"
+    small
+    type="space"
+    type-label="space"
     @removed="removed"
     @remove-error="removeError"
     @added="added"
@@ -52,6 +53,10 @@ export default {
     extraClass: {
       type: String,
       default: () => '',
+    },
+    iconSize: {
+      type: Number,
+      default: () => 16,
     },
   },
   data: () => ({

@@ -5,6 +5,7 @@ import SpacesListFilterDrawer from './components/SpacesListFilterDrawer.vue';
 import SpaceCard from './components/SpaceCard.vue';
 import SpaceCardButton from './components/SpaceCardButton.vue';
 import SpaceCardMembershipOptions from './components/SpaceCardMembershipOptions.vue';
+import SpaceCardUnreadBadge from './components/SpaceCardUnreadBadge.vue';
 import SpaceFormDrawer from './components/SpaceFormDrawer.vue';
 import SpaceFavoriteAction from './components/SpaceFavoriteAction.vue';
 
@@ -16,6 +17,7 @@ const components = {
   'space-card': SpaceCard,
   'space-card-button': SpaceCardButton,
   'space-card-membership-options': SpaceCardMembershipOptions,
+  'space-card-unread-badge': SpaceCardUnreadBadge,
   'space-form-drawer': SpaceFormDrawer,
   'space-favorite-action': SpaceFavoriteAction,
 };

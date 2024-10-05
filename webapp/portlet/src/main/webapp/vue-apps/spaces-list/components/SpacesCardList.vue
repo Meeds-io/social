@@ -23,6 +23,8 @@
             :space="space"
             :profile-action-extensions="profileActionExtensions"
             :style="cardFlexBasis && `flex-basis: ${cardFlexBasis}`"
+            :height="cardHeight"
+            :min-height="cardHeight"
             class="mx-2 mb-4 flex-grow-1 flex-shrink-1 pa-0"
             @refresh="searchSpaces" />
         </template>
@@ -113,6 +115,7 @@ export default {
     originalLimitToFetch: 0,
     cardXSpacing: 16 + 2, // margin left/right + border left/right
     cardsListWidth: 0, // computed
+    cardHeight: 229,
   }),
   computed: {
     canShowMore() {
@@ -176,7 +179,7 @@ export default {
     },
     searchSpaces() {
       this.$emit('loading-spaces', true);
-      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite';
+      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,unread';
       return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter, expand)
         .then(data => {
           this.spaces = data && data.spaces || [];
