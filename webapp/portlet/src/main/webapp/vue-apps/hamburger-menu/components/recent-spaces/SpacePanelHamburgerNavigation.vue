@@ -124,7 +124,7 @@
           :space-id="spaceId"
           :muted="muted"
           origin="spaceLeftNavigationAction" />
-        <exo-space-favorite-action
+        <space-favorite-action
           :is-favorite="isFavorite"
           :space-id="spaceId"
           entity-type="spaces_left_navigation" />

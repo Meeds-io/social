@@ -35,6 +35,7 @@
   boolean isFavorite= false;
   boolean muted= false;
   boolean isMember =false;
+  boolean canRedactOnSpace =false;
   String authenticatedUser = request.getRemoteUser();
   List<Profile> managers = new ArrayList<>();
   String spaceDescription= "";
@@ -69,6 +70,7 @@
     spaceId = space.getId();
     SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
     isMember = authenticatedUser == null ? false : spaceService.isMember(space, authenticatedUser);
+    canRedactOnSpace = authenticatedUser == null ? false : spaceService.canRedactOnSpace(space, authenticatedUser);
     isFavorite = authenticatedUser == null ? false : favoriteService.isFavorite(new Favorite(space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
     muted = authenticatedUser == null ? false : userSetting.isSpaceMuted(Long.parseLong(spaceId));
     logoPath = space.getAvatarUrl();
@@ -130,7 +132,8 @@
                 membersNumber: `<%=membersNumber%>`,
                 spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
                 managers: window.topbarLogoManagers,
-                homePath: `<%=homePath%>`
+                homePath: `<%=homePath%>`,
+                canRedactOnSpace: <%=canRedactOnSpace%>,
               }));
             </script>
           </div>
