@@ -20,16 +20,14 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DELETE;
@@ -52,13 +50,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.model.Page;
@@ -89,9 +85,7 @@ import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.notification.service.SpaceWebNotificationService;
 import org.exoplatform.social.rest.api.EntityBuilder;
-import org.exoplatform.social.rest.api.RestProperties;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.BaseEntity;
@@ -281,36 +275,12 @@ public class SpaceRest implements ResourceContainer {
     } else {
       spaces = Collections.emptyList();
     }
-    List<DataEntity> spaceInfos = new ArrayList<>();
-    for (Space space : spaces) {
-      SpaceEntity spaceInfo = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
-      spaceInfos.add(spaceInfo.getDataEntity());
-    }
-
-    CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
+    CollectionEntity collectionSpace = EntityBuilder.buildEntityFromSpaces(spaces, authenticatedUser, offset, limit, expand, uriInfo);
     if (returnSize) {
       collectionSpace.setSize(listAccess.getSize());
     }
 
-    if (StringUtils.isNotBlank(expand) && Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
-      SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
-      Map<Long, Long> unreadItemsPerSpace = spaceWebNotificationService.countUnreadItemsBySpace(authenticatedUser);
-      if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
-        collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
-                                                             .stream()
-                                                             .collect(Collectors.toMap(e -> e.getKey().toString(),
-                                                                                       Entry::getValue)));
-      }
-    }
-
-    EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(spaceInfos,
-                                                               spaceFilter,
-                                                               filterType,
-                                                               offset,
-                                                               limit,
-                                                               returnSize,
-                                                               expand,
-                                                               authenticatedUser)));
+    EntityTag eTag = new EntityTag(String.valueOf(collectionSpace.toString().hashCode()));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -393,8 +363,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "404", description = "Resource not found"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response isSpaceContainsExternals(@Context
-  UriInfo uriInfo,
+  public Response isSpaceContainsExternals(
+                                           @Context
+                                           UriInfo uriInfo,
                                            @Context
                                            Request request,
                                            @Parameter(description = "Space Id", required = true)
@@ -458,8 +429,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaceByPrettyName(@Context
-  UriInfo uriInfo,
+  public Response getSpaceByPrettyName(
+                                       @Context
+                                       UriInfo uriInfo,
                                        @Context
                                        Request request,
                                        @Parameter(description = "Space id", required = true)
@@ -487,8 +459,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaceByGroupSuffix(@Context
-  UriInfo uriInfo,
+  public Response getSpaceByGroupSuffix(
+                                        @Context
+                                        UriInfo uriInfo,
                                         @Context
                                         Request request,
                                         @Parameter(description = "Space id", required = true)
@@ -514,8 +487,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaceByDisplayName(@Context
-  UriInfo uriInfo,
+  public Response getSpaceByDisplayName(
+                                        @Context
+                                        UriInfo uriInfo,
                                         @Context
                                         Request request,
                                         @Parameter(description = "Space id", required = true)
@@ -542,8 +516,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input"),
                           @ApiResponse(responseCode = "404", description = "Resource not found") })
-  public Response getSpaceAvatarById(@Context
-  UriInfo uriInfo,
+  public Response getSpaceAvatarById(
+                                     @Context
+                                     UriInfo uriInfo,
                                      @Context
                                      Request request,
                                      @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
@@ -651,8 +626,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input"),
                           @ApiResponse(responseCode = "404", description = "Resource not found") })
-  public Response getSpaceBannerById(@Context
-  UriInfo uriInfo,
+  public Response getSpaceBannerById(
+                                     @Context
+                                     UriInfo uriInfo,
                                      @Context
                                      Request request,
                                      @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
@@ -840,8 +816,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response deleteSpaceById(@Context
-  UriInfo uriInfo,
+  public Response deleteSpaceById(
+                                  @Context
+                                  UriInfo uriInfo,
                                   @Parameter(description = "Space id", required = true)
                                   @PathParam("id")
                                   String id,
@@ -919,7 +896,6 @@ public class SpaceRest implements ResourceContainer {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    long cacheTime = space.getCacheTime();
     if (StringUtils.isBlank(role)) {
       role = SpaceMemberFilterListAccess.Type.MEMBER.name();
     }
@@ -952,14 +928,13 @@ public class SpaceRest implements ResourceContainer {
       collectionUser.setSize(spaceIdentitiesListAccess.getSize());
     }
 
-    String eTagValue = String.valueOf(Objects.hash(collectionUser.hashCode(), authenticatedUser, expand));
-    EntityTag eTag = new EntityTag(eTagValue);
+    EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(collectionUser.toString().hashCode())));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = Response.ok(collectionUser, MediaType.APPLICATION_JSON);
       builder.tag(eTag);
-      builder.lastModified(new Date(cacheTime));
-      builder.expires(new Date(cacheTime));
+      builder.lastModified(new Date());
+      builder.expires(Date.from(Instant.now().plus(7, ChronoUnit.DAYS)));
     }
     return builder.build();
   }
@@ -1338,17 +1313,14 @@ public class SpaceRest implements ResourceContainer {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    long cacheTime = space.getCacheTime();
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
-
-    EntityTag eTag = new EntityTag(eTagValue, true);
+    SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+    EntityTag eTag = new EntityTag(String.valueOf(spaceEntity.hashCode()));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
       builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
       builder.tag(eTag);
-      builder.lastModified(new Date(cacheTime));
-      builder.expires(new Date(cacheTime));
+      builder.lastModified(new Date());
+      builder.expires(Date.from(Instant.now().plus(7, ChronoUnit.DAYS)));
     }
     return builder.build();
   }

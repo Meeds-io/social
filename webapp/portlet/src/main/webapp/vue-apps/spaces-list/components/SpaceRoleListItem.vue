@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <v-list-item class="text-truncate pa-0">
+  <v-list-item class="text-truncate px-0 py-1">
     <exo-user-avatar
       :identity="user"
       :size="36"
