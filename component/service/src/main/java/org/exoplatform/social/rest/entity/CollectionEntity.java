@@ -23,9 +23,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.exoplatform.social.rest.api.RestUtils;
+
+import lombok.EqualsAndHashCode;
+
 import org.json.JSONObject;
 
+@EqualsAndHashCode(callSuper = true)
 public class CollectionEntity extends LinkedHashMap<String, Object> {
+
   private static final long serialVersionUID = 5157400162426650346L;
 
   private final String      key;

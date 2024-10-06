@@ -22,12 +22,28 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import lombok.EqualsAndHashCode;
+import lombok.EqualsAndHashCode.Exclude;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@EqualsAndHashCode
+@NoArgsConstructor
 public class BaseEntity implements Serializable {
   private static final long serialVersionUID = -7245526640639649852L;
-  private DataEntity dataEntity = new DataEntity();
-  private long lastUpdatedTime;
 
-  public BaseEntity() {
+  private DataEntity        dataEntity       = new DataEntity();
+
+  @Exclude
+  @Getter
+  @Setter
+  private long              lastUpdatedTime;
+
+  public BaseEntity(String id) {
+    if (!StringUtils.isEmpty(id)) {
+      setId(id);
+    }
   }
 
   public BaseEntity setProperty(String name, Object value) {
@@ -47,12 +63,6 @@ public class BaseEntity implements Serializable {
     return String.valueOf(o);
   }
 
-  public BaseEntity(String id) {
-    if (!StringUtils.isEmpty(id)) {
-      setId(id);
-    }
-  }
-
   public BaseEntity setId(String id) {
     setProperty("id", id);
     return this;
@@ -66,7 +76,7 @@ public class BaseEntity implements Serializable {
     setProperty("href", href);
     return this;
   }
-  
+
   public String getHref() {
     return (String) dataEntity.get("href");
   }
@@ -88,11 +98,4 @@ public class BaseEntity implements Serializable {
     return new JSONObject(this);
   }
 
-    public void setLastUpdatedTime(long lastUpdatedTime) {
-        this.lastUpdatedTime = lastUpdatedTime;
-    }
-
-    public long getLastUpdatedTime() {
-        return lastUpdatedTime;
-    }
 }
