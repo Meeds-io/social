@@ -46,6 +46,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
@@ -100,6 +101,7 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.util.JsonUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -136,7 +138,11 @@ public class SpaceRest implements ResourceContainer {
 
   private static final CacheControl    CACHE_REVALIDATE_CONTROL    = new CacheControl();
 
+  public static final String           PROFILE_DEFAULT_BANNER_URL  = "/skin/images/banner/DefaultSpaceBanner.png";
+
   private static final Date            DEFAULT_IMAGES_LAST_MODIFED = new Date();
+
+  private static final long            DEFAULT_IMAGES_HASH         = DEFAULT_IMAGES_LAST_MODIFED.getTime();
 
   // 7 days
   private static final int             CACHE_IN_SECONDS            = 7 * 86400;
@@ -154,6 +160,8 @@ public class SpaceRest implements ResourceContainer {
   private final SecuritySettingService securitySettingService;
 
   private final ImageThumbnailService  imageThumbnailService;
+
+  private byte[]                       defaultSpaceBanner          = null;
 
   private byte[]                       defaultSpaceAvatar          = null;
 
@@ -280,7 +288,7 @@ public class SpaceRest implements ResourceContainer {
       collectionSpace.setSize(listAccess.getSize());
     }
 
-    EntityTag eTag = new EntityTag(String.valueOf(collectionSpace.toString().hashCode()));
+    EntityTag eTag = new EntityTag(String.valueOf(JsonUtils.toJsonString(collectionSpace).hashCode()));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -647,11 +655,12 @@ public class SpaceRest implements ResourceContainer {
                                      @QueryParam("r")
                                      String token) throws IOException {
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
-    if (isDefault) {
-      return Response.status(Status.NOT_FOUND).build();
-    }
+    Identity identity = null;
+    Long lastUpdated = null;
 
-    if (RestUtils.isAnonymous() && !LinkProvider.isAttachmentTokenValid(token,
+    if (!isDefault
+        && RestUtils.isAnonymous()
+        && !LinkProvider.isAttachmentTokenValid(token,
                                                                         SpaceIdentityProvider.NAME,
                                                                         id,
                                                                         BannerAttachment.TYPE,
@@ -660,39 +669,47 @@ public class SpaceRest implements ResourceContainer {
       return Response.status(Status.NOT_FOUND).build();
     }
 
-    String authenticatedUser = RestUtils.getCurrentUser();
-    Space space = byId ? spaceService.getSpaceById(id) : spaceService.getSpaceByPrettyName(id);
-    if (space == null
-        || (Space.HIDDEN.equals(space.getVisibility())
-            && !spaceService.canViewSpace(space, authenticatedUser))) {
-      return Response.status(Status.NOT_FOUND).build();
-    }
-    Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-    //
-    Profile profile = identity.getProfile();
-    Long lastUpdated = null;
-    if (profile != null) {
-      lastUpdated = profile.getBannerLastUpdated();
+    if (!isDefault) {
+      String authenticatedUser = RestUtils.getCurrentUser();
+      Space space = byId ? spaceService.getSpaceById(id) : spaceService.getSpaceByPrettyName(id);
+      if (space == null
+          || (Space.HIDDEN.equals(space.getVisibility())
+              && !spaceService.canViewSpace(space, authenticatedUser))) {
+        return Response.status(Status.NOT_FOUND).build();
+      }
+      identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
+      //
+      Profile profile = identity.getProfile();
+      if (profile != null) {
+        lastUpdated = profile.getBannerLastUpdated();
+      }
     }
     EntityTag eTag = null;
-    if (lastUpdated != null) {
+    if (isDefault) {
+      eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
+    } else if (lastUpdated != null) {
       eTag = new EntityTag(Integer.toString(lastUpdated.hashCode()));
     }
+
     //
     Response.ResponseBuilder builder = (eTag == null ? null : request.evaluatePreconditions(eTag));
     if (builder == null) {
-      InputStream stream = identityManager.getBannerInputStream(identity);
-      if (stream == null) {
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+      if (isDefault) {
+        builder = getDefaultBannerBuilder();
+      } else {
+        InputStream stream = identityManager.getBannerInputStream(identity);
+        if (stream == null) {
+          throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        /*
+         * As recommended in the the RFC1341
+         * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we set the
+         * banner content-type to "image/png". So, its data would be recognized as
+         * "image" by the user-agent.
+         */
+        builder = Response.ok(stream, "image/png");
+        builder.tag(eTag);
       }
-      /*
-       * As recommended in the the RFC1341
-       * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we set the
-       * banner content-type to "image/png". So, its data would be recognized as
-       * "image" by the user-agent.
-       */
-      builder = Response.ok(stream, "image/png");
-      builder.tag(eTag);
     }
     builder.cacheControl(CACHE_CONTROL);
     builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
@@ -928,7 +945,7 @@ public class SpaceRest implements ResourceContainer {
       collectionUser.setSize(spaceIdentitiesListAccess.getSize());
     }
 
-    EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(collectionUser.toString().hashCode())));
+    EntityTag eTag = new EntityTag(String.valueOf(JsonUtils.toJsonString(collectionUser).hashCode()));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
       builder = Response.ok(collectionUser, MediaType.APPLICATION_JSON);
@@ -1320,9 +1337,27 @@ public class SpaceRest implements ResourceContainer {
       builder = Response.ok(spaceEntity.getDataEntity(), MediaType.APPLICATION_JSON);
       builder.tag(eTag);
       builder.lastModified(new Date());
-      builder.expires(Date.from(Instant.now().plus(7, ChronoUnit.DAYS)));
+      builder.cacheControl(CACHE_REVALIDATE_CONTROL);
     }
     return builder.build();
+  }
+
+  private Response.ResponseBuilder getDefaultBannerBuilder() throws IOException {
+    if (defaultSpaceBanner == null) {
+      InputStream is = PortalContainer.getInstance().getPortalContext().getResourceAsStream(PROFILE_DEFAULT_BANNER_URL);
+      if (is == null) {
+        LOG.warn("Can't find default user banner file in location {}", PROFILE_DEFAULT_BANNER_URL);
+        defaultSpaceBanner = new byte[] {};
+      } else {
+        defaultSpaceBanner = IOUtil.getStreamContentAsBytes(is);
+      }
+    }
+
+    ResponseBuilder builder = Response.ok(new ByteArrayInputStream(defaultSpaceBanner), "image/png");
+    builder.lastModified(DEFAULT_IMAGES_LAST_MODIFED);
+    EntityTag eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
+    builder.tag(eTag);
+    return builder;
   }
 
 }

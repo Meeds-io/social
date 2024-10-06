@@ -125,7 +125,7 @@
                 :space-id="spaceId"
                 :muted="muted"
                 origin="spaceTopbarpopoverAction" />
-              <exo-space-favorite-action
+              <space-favorite-action
                 :is-favorite="isFavorite"
                 :space-id="spaceId"
                 entity-type="SPACE_TOP_BAR_TIPTIP"
@@ -205,6 +205,10 @@ export default {
       type: Boolean,
       default: false
     },
+    canRedactOnSpace: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     menu: false,
@@ -220,7 +224,10 @@ export default {
     params() {
       return {
         identityType: 'space',
-        identityId: eXo.env.portal.spaceId
+        identityId: eXo.env.portal.spaceId,
+        identityEnabled: true,
+        identityDeleted: false,
+        canRedactOnSpace: this.canRedactOnSpace,
       };
     },
   },
