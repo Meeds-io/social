@@ -248,6 +248,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("canEdit");
   }
 
+  public SpaceEntity setCanRedactOnSpace(boolean canRedactOnSpace) {
+    setProperty("canRedactOnSpace", canRedactOnSpace);
+    return this;
+  }
+
+  public Boolean getCanRedactOnSpace() {
+    return (Boolean) getProperty("canRedactOnSpace");
+  }
+
   public SpaceEntity setCanEditNavigations(boolean canEditNavigations) {
     setProperty("canEditNavigations", canEditNavigations);
     return this;
@@ -310,7 +319,7 @@ public class SpaceEntity extends BaseEntity {
   public String getPublishers() {
     return getString("publishers");
   }
-  
+
   public SpaceEntity setPublishersCount(int publishersCount) {
     setProperty("publishersCount", publishersCount);
     return this;

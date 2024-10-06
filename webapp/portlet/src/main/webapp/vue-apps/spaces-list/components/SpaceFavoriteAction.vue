@@ -10,7 +10,7 @@
     :display-label="displayLabel"
     :extra-class="extraClass"
     :icon-size="iconSize"
-    small
+    :small="false"
     type="space"
     type-label="space"
     @removed="removed"

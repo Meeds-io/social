@@ -51,7 +51,7 @@
               :max-height="height"
               :max-width="maxWidth"
               :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
-              class="border-color mx-auto primary position-relative"
+              class="border-color mx-auto primary position-relative overflow-hidden"
               flat>
               <img
                 v-if="imageData && !isImageGif"
@@ -146,7 +146,7 @@
                   icon
                   outlined
                   @click="zoom -= stepZoom">
-                  <v-icon size="18">fas fa-isImageGifsearch-minus</v-icon>
+                  <v-icon size="18">fas fa-minus</v-icon>
                 </v-btn>
                 <v-slider
                   v-model="zoom"
