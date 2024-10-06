@@ -24,8 +24,8 @@
     :ripple="!ripple"
     :text="text"
     :icon="icon"
-    @mousedown.stop.prevent="nop"
-    @touchstart.stop.prevent="nop"
+    @mousedown.stop.prevent="0"
+    @touchstart.stop.prevent="0"
     @touchend.stop.prevent="emitAction($event, false)"
     @click.stop.prevent="emitAction($event, false)"
     @mouseover.stop.prevent="emitAction($event, true)">
@@ -61,12 +61,6 @@ export default {
     },
   },
   methods: {
-    nop(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    },
     emitAction(event, mouseover) {
       if (!this.active && mouseover) {
         return;
