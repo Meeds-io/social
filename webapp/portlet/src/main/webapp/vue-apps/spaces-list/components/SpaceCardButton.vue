@@ -18,6 +18,8 @@
           class="absolute-vertical-align z-index-one"
           ripple
           small
+          @touchstart.stop="0"
+          @touchend.stop="0"
           @mousedown.stop="0"
           @mouseup.stop="0"
           @click.stop.prevent="() => extension?.click?.(space)">

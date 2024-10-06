@@ -31,13 +31,21 @@ public class SpaceMembershipEntity extends BaseEntity {
     setProperty("user", user.getData());
     return this;
   }
-
+  
   public void setUser(String user) {
     setProperty("user", user);
   }
-
+  
   public String getUser() {
     return getString("user");
+  }
+
+  public void setUsername(String username) {
+    setProperty("username", username);
+  }
+
+  public String getUsername() {
+    return getString("username");
   }
 
   public SpaceMembershipEntity setDataSpace(LinkEntity space) {
