@@ -22,7 +22,7 @@
           v-for="space in filteredSpaces"
           :key="space.id"
           :space="space"
-          :profile-action-extensions="profileActionExtensions"
+          :space-action-extensions="spaceActionExtensions"
           :style="cardFlexBasis && `flex-basis: ${cardFlexBasis}`"
           :height="cardHeight"
           :min-height="cardHeight"
@@ -100,7 +100,7 @@ export default {
     },
   },
   data: () => ({
-    profileActionExtensions: [],
+    spaceActionExtensions: [],
     resizeObserver: null,
     hasSpaces: false,
     offset: 0,
@@ -178,7 +178,7 @@ export default {
       this.cardsListWidth = this.$el?.offsetWidth - 40;
     },
     refreshExtensions() {
-      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+      this.spaceActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
     searchSpaces() {
       this.$emit('loading-spaces', true);

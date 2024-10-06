@@ -60,6 +60,13 @@
 
   <portlet-skin>
     <application-name>social-portlet</application-name>
+    <portlet-name>SpaceSettingPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
     <portlet-name>Image</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-priority>1</css-priority>
