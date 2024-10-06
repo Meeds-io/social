@@ -1090,20 +1090,20 @@ public class EntityBuilder {
    * service
    *
    * @param space the provided space
-   * @param userId the user's remote id
+   * @param username the user's remote id
    * @param type membership type
    * @param restPath base REST path
    * @param expand which fields to expand from space
    * @return a hash map
    */
   public static SpaceMembershipEntity buildEntityFromSpaceMembership(Space space,
-                                                                     String userId,
+                                                                     String username,
                                                                      String type,
                                                                      String restPath,
                                                                      String expand) {
     updateCachedEtagValue(getEtagValue(type));
 
-    String id = space.getPrettyName() + ":" + userId + ":" + type;
+    String id = space.getPrettyName() + ":" + username + ":" + type;
     SpaceMembershipEntity spaceMembership = new SpaceMembershipEntity(id);
     spaceMembership.setHref(RestUtils.getRestUrl(SPACES_MEMBERSHIP_TYPE, id, restPath));
 
@@ -1116,17 +1116,17 @@ public class EntityBuilder {
 
     LinkEntity userEntity;
     if (expandFields.contains(USERS_TYPE)) {
-      Identity identity = getIdentityManager().getOrCreateUserIdentity(userId);
+      Identity identity = getIdentityManager().getOrCreateUserIdentity(username);
       Profile profile = identity == null ? null : identity.getProfile();
       userEntity = profile == null ? null : new LinkEntity(buildEntityProfile(space, profile, restPath, expand));
     } else {
-      userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, userId, restPath));
+      userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, username, restPath));
     }
     spaceMembership.setDataUser(userEntity);
-    spaceMembership.setUser(userId);
+    spaceMembership.setUsername(username);
 
     if (expandFields.contains(CREATED_DATE)) {
-      Instant createdDate = getSpaceService().getSpaceMembershipDate(Long.parseLong(space.getId()), userId);
+      Instant createdDate = getSpaceService().getSpaceMembershipDate(Long.parseLong(space.getId()), username);
       if (createdDate != null && getSpaceService().canManageSpace(space, getCurrentUserName())) {
         spaceMembership.getDataEntity().put(CREATED_DATE, createdDate.toEpochMilli());
       }
@@ -1134,7 +1134,7 @@ public class EntityBuilder {
 
     LinkEntity spaceEntity;
     if (expandFields.contains(SPACES_TYPE)) {
-      spaceEntity = new LinkEntity(buildEntityFromSpace(space, userId, restPath, expand));
+      spaceEntity = new LinkEntity(buildEntityFromSpace(space, username, restPath, expand));
     } else {
       spaceEntity = new LinkEntity(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
     }
