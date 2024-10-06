@@ -22,11 +22,12 @@ import java.util.LinkedHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
-public class DataEntity extends LinkedHashMap<String, Object> {
-  private static final long serialVersionUID = -7245526640639649852L;
+import lombok.EqualsAndHashCode;
 
-  public DataEntity() {
-  }
+@EqualsAndHashCode(callSuper = true)
+public class DataEntity extends LinkedHashMap<String, Object> {
+
+  private static final long serialVersionUID = -7245526640639649852L;
 
   public DataEntity setProperty(String name, Object value) {
     if (value != null && StringUtils.isNotEmpty(String.valueOf(value))) {
@@ -43,4 +44,5 @@ public class DataEntity extends LinkedHashMap<String, Object> {
   public JSONObject toJSONObject() {
     return new JSONObject(this);
   }
+
 }

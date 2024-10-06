@@ -18,7 +18,6 @@ package org.exoplatform.social.core.space;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.ListAccess;
@@ -261,7 +260,7 @@ public class SpaceListAccess implements ListAccess<Space> {
         break;
       case PUBLIC_FILTER: listSpaces = spaceStorage.getPublicSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
         break;
-      case PUBLIC_SUPER_USER: listSpaces = new ArrayList<Space> ();
+      case PUBLIC_SUPER_USER: listSpaces = new ArrayList<> ();
         break;
       case SETTING: listSpaces = spaceStorage.getEditableSpaces(this.userId, offset, limit);
         break;

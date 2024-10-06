@@ -22,6 +22,9 @@ import java.util.Map;
 
 import org.exoplatform.social.core.identity.model.Identity;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = true)
 public class SpaceEntity extends BaseEntity {
   private static final long serialVersionUID = -5407676622915680099L;
 
