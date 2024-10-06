@@ -92,6 +92,8 @@
             :key="extension.id"
             :title="extension.title || $t(extension.titleKey)"
             icon
+            @touchstart.stop="0"
+            @touchend.stop="0"
             @mousedown.stop="0"
             @mouseup.stop="0"
             @click.stop.prevent="extension.click(user)">
@@ -116,6 +118,8 @@
               v-if="!extension.init"
               :aria-label="extension.title || $t(extension.titleKey)"
               icon
+              @touchstart.stop="0"
+              @touchend.stop="0"
               @mousedown.stop="0"
               @mouseup.stop="0"
               @click.stop.prevent="extension.click(user)">
