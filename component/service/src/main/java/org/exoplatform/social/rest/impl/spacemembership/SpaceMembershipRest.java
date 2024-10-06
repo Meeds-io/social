@@ -50,7 +50,7 @@ import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.SpaceMembershipEntity;
+import org.exoplatform.social.rest.entity.SpaceMembershipUpdateEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
@@ -235,7 +235,7 @@ public class SpaceMembershipRest implements ResourceContainer {
                                            "<br />\"user\": \"john\"," +
                                            "<br />\"space\": \"1552\"" +
                                            "<br />}", required = true)
-                                       SpaceMembershipEntity model) {
+                                       SpaceMembershipUpdateEntity model) {
     if (model == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -360,7 +360,7 @@ public class SpaceMembershipRest implements ResourceContainer {
                                                 "<br />\"user\": \"john\"," +
                                                 "<br />\"space\": \"1552\"" +
                                                 "<br />}", required = true)
-                                            SpaceMembershipEntity model) {
+                                            SpaceMembershipUpdateEntity model) {
     if (model == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
