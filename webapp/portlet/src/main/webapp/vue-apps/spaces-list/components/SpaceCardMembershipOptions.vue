@@ -23,7 +23,7 @@
           :space="space"
           icon />
       </template>
-      <v-list max-width="300" dense>
+      <v-list :max-width="!$root.isMobile && 300 || 'auto'" dense>
         <v-list-item
           v-if="space.isMember"
           :aria-label="$t('spacesList.button.leave')"
@@ -197,7 +197,7 @@
           :space="space"
           class="mx-2" />
       </template>
-      <v-list max-width="300" dense>
+      <v-list :max-width="!$root.isMobile && 300 || 'auto'" dense>
         <v-list-item
           :aria-label="$t('spacesList.button.acceptToJoin')"
           class="acceptToJoin ps-0 py-0"

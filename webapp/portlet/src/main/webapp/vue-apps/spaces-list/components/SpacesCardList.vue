@@ -111,11 +111,15 @@ export default {
     originalLimitToFetch: 0,
     cardXSpacing: 16 + 2, // margin left/right + border left/right
     cardsListWidth: 0, // computed
-    cardHeight: 229,
+    cardHeightDesktop: 229,
+    cardHeightMobile: 150,
   }),
   computed: {
     canShowMore() {
       return this.loadingSpaces || this.spaces.length >= this.limitToFetch;
+    },
+    cardHeight() {
+      return !this.$root.isMobile && this.cardHeightDesktop || this.cardHeightMobile;
     },
     cardMinWidthBase() {
       if (this.cardsListWidth > 1000) {

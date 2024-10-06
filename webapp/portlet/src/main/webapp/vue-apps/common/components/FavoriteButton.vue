@@ -14,8 +14,11 @@
           :small="small"
           v-bind="attrs"
           v-on="on"
+          @touchstart.stop="0"
+          @touchend.stop="0"
           @mousedown.stop="0"
-          @click="changeFavorite">
+          @mouseup.stop="0"
+          @click.stop.prevent="changeFavorite">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
               :class="favoriteIconColor"
@@ -31,7 +34,7 @@
           v-bind="attrs" 
           v-on="on" 
           :aria-label="favoriteTooltip"
-          @click="changeFavorite">
+          @click.stop.prevent="changeFavorite">
           <v-icon 
             class="mr-3"
             :class="favoriteIconColor"
@@ -164,11 +167,7 @@ export default {
         favorite: this.isFavorite,
       }}));
     },
-    changeFavorite(event) {
-      if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-      }
+    changeFavorite() {
       this.loading = true;
       if (this.isFavorite) {
         this.$favoriteService.removeFavorite(this.type, this.id)
