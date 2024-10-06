@@ -31,14 +31,6 @@ public class SpaceMembershipEntity extends BaseEntity {
     setProperty("user", user.getData());
     return this;
   }
-  
-  public void setUser(String user) {
-    setProperty("user", user);
-  }
-  
-  public String getUser() {
-    return getString("user");
-  }
 
   public void setUsername(String username) {
     setProperty("username", username);
@@ -51,14 +43,6 @@ public class SpaceMembershipEntity extends BaseEntity {
   public SpaceMembershipEntity setDataSpace(LinkEntity space) {
     setProperty("space", space.getData());
     return this;
-  }
-
-  public void setSpace(String space) {
-    setProperty("space", space);
-  }
-  
-  public String getSpace() {
-    return getString("space");
   }
 
   public void setSpaceId(String spaceId) {
