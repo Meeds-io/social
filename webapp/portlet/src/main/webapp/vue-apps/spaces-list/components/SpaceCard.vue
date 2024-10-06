@@ -83,7 +83,7 @@
           :icon-size="20"
           class="ms-1" />
         <space-card-button
-          v-for="(extension, i) in enabledProfileActionExtensions"
+          v-for="(extension, i) in enabledSpaceActionExtensions"
           :key="i"
           :extension="extension"
           :space="space"
@@ -118,7 +118,7 @@ export default {
       type: Number,
       default: () => (366 - 18),
     },
-    profileActionExtensions: {
+    spaceActionExtensions: {
       type: Array,
       default: null,
     },
@@ -146,11 +146,11 @@ export default {
         && this.space.publicSiteVisibility !== 'manager'
         && `${eXo.env.portal.context}/${this.space.publicSiteName}`;
     },
-    enabledProfileActionExtensions() {
-      if (!this.profileActionExtensions || !this.space || !this.space.isMember) {
+    enabledSpaceActionExtensions() {
+      if (!this.spaceActionExtensions || !this.space || !this.space.isMember) {
         return [];
       }
-      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.space));
+      return this.spaceActionExtensions.slice().filter(extension => extension.enabled(this.space));
     },
   },
 };

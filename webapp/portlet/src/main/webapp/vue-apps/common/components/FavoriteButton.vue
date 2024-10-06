@@ -1,6 +1,5 @@
 <template>
-  <div
-    :class="!displayLabel && 'd-inline-flex'">
+  <div :class="!displayLabel && 'd-inline-flex'">
     <v-tooltip bottom>
       <template v-if="!displayLabel" #activator="{ on, attrs }">
         <v-btn

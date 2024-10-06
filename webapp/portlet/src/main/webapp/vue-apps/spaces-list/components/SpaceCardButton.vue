@@ -1,8 +1,8 @@
 <template>
   <v-card
-    :width="icon && 36 || 'auto'"
+    :width="iconOnly && 36 || 'auto'"
     flat>
-    <v-tooltip :disabled="extension.title && ($root.isMobile || !icon)" bottom>
+    <v-tooltip :disabled="extension.title && ($root.isMobile || !iconOnly)" bottom>
       <template #activator="{on, attrs}">
         <v-btn
           v-on="on"
@@ -11,9 +11,9 @@
             'href': extension.href,
           } || attrs"
           :aria-label="extension.title"
-          :icon="icon"
-          :color="!icon && 'primary'"
-          :outlined="!icon"
+          :icon="iconOnly"
+          :color="!iconOnly && 'primary'"
+          :outlined="!iconOnly"
           :loading="extension.loading"
           class="absolute-vertical-align z-index-one"
           ripple
@@ -30,7 +30,7 @@
               {{ extension.icon }}
             </v-icon>
             <span
-              v-if="!icon"
+              v-if="!iconOnly"
               :class="extension.icon && 'ms-2'"
               class="text-body-font-size">
               {{ extension.title }}
@@ -64,6 +64,11 @@ export default {
       default: false,
     },
   },
+  computed: {
+    iconOnly() {
+      return this.icon || this.extension.iconOnly;
+    },
+  }
 };
 </script>
 

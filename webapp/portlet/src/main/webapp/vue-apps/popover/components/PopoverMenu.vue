@@ -62,10 +62,10 @@ export default {
   },
   computed: {
     isUserIdentity() {
-      return this.identityType && this.identityType === 'User';
+      return this.identityType?.toLowerCase?.() === 'user';
     },
     isSpaceIdentity() {
-      return this.identityType && this.identityType === 'Space';
+      return this.identityType?.toLowerCase?.() === 'space';
     },
   },
   watch: {
