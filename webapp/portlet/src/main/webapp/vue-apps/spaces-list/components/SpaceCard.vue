@@ -16,13 +16,13 @@
         :max-height="bannerHeight"
         min-width="100%"
         max-width="100%"
-        class="overflow-hidden no-border-radius position-relative d-flex justify-center z-index-one"
+        class="overflow-hidden border-top-right-radius border-top-left-radius no-border-bottom-right-radius no-border-bottom-left-radius position-relative d-flex justify-center z-index-one"
         flat>
         <img
           :src="space.bannerUrl"
           :alt="$t('spaceList.spaceBanner.alt')"
           style="max-width: 1000%; min-width: 100%; max-height: 100%; min-height: 100%;"
-          class="position-absolute border-top-left-radius border-top-right-radius"
+          class="position-absolute"
           height="100%"
           width="auto">
       </v-card>
