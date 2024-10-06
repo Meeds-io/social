@@ -59,6 +59,7 @@
       </v-card>
       <div class="flex-grow-1 flex-shrink-1">
         <div
+          v-if="!$root.isMobile"
           v-sanitized-html="spaceDescription"
           class="text-truncate-3 max-height-3lh full-width flex-shrink-1 px-2 mt-2"></div>
       </div>
