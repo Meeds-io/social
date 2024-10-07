@@ -95,6 +95,9 @@ export default {
     spaceId() {
       return this.space?.id;
     },
+    spacePrettyName() {
+      return this.space?.prettyName;
+    },
     spaceMembersCount() {
       return this.space?.membersCount || this.retrievedSpace?.membersCount;
     },
@@ -114,6 +117,7 @@ export default {
       return {
         identityType: 'space',
         identityId: this.spaceId,
+        spacePrettyName: this.spacePrettyName,
         canRedactOnSpace: this.canRedactOnSpace,
       };
     },
