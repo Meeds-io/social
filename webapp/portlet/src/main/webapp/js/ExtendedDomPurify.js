@@ -27,7 +27,7 @@
       replaceFn : function (match) {
         switch(match.getType()) {
           case 'url' :
-            if(match.getUrl().indexOf(window.location.origin) === 0) {
+            if(match.getUrl().indexOf('/') === 0 || match.getUrl().indexOf(window.location.origin) === 0) {
               return true;
             } else {
               const tag = match.buildTag();
