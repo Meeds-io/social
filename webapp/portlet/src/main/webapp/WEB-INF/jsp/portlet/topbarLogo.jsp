@@ -90,12 +90,12 @@
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
 %>
-<div class="VuetifyApp">
+<div class="VuetifyApp full-height">
   <div data-app="true"
-       class="v-application border-box-sizing <%= directionVuetifyClass %> theme--light"
+       class="v-application border-box-sizing full-height <%= directionVuetifyClass %> theme--light"
        id="brandingTopBar" flat="">
-    <div class="v-application--wrap">
-      <div class="container pa-0 ps-3">
+    <div class="v-application--wrap full-height">
+      <div class="container my-auto pa-0 ps-3">
         <div class="d-flex mx-0 pa-0">
           <% if (space == null) { %>
           <% if (logoPath != null) { %>

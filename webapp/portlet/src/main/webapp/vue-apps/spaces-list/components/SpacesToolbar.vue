@@ -28,7 +28,7 @@
           @click="$root.$emit('addNewSpace')">
           <v-icon size="18" dark>fa-plus</v-icon>
           <span class="ms-2 hidden-xs-only">
-            {{ $t('spacesList.label.addNewSpace') }}
+            {{ $t('spacesList.button.add') }}
           </span>
         </v-btn>
         <space-pending-button

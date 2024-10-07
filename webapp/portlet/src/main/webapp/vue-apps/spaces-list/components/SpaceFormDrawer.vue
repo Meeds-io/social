@@ -346,7 +346,7 @@ export default {
         visibility: 'private',
       };
       this.setSpaceTemplateProperties();
-      this.title= this.$t('spacesList.label.addNewSpace');
+      this.title = this.$t('spacesList.label.addNewSpace');
       this.$refs.spaceFormDrawer.open();
     });
     document.addEventListener('meeds.social.editSpace', this.editSpace);
@@ -384,7 +384,7 @@ export default {
       this.spaceToUpdate = space;
       this.space = Object.assign({}, space);
       this.template = this.space.template || this.template;
-      this.title= this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
+      this.title = this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
       this.$refs.spaceFormDrawer.open();
     },
     previousStep() {
