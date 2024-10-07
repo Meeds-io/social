@@ -1,3 +1,23 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <application-toolbar
     id="spacesListToolbar"
@@ -32,22 +52,22 @@
           </span>
         </v-btn>
         <space-pending-button
-          v-if="requestsCount"
-          :count="requestsCount"
+          v-if="$root.requestsCount"
+          :count="$root.requestsCount"
           filter="requests"
           label-key="spacesList.label.pendingRequests"
           icon="fa-user-clock"
           badge-color="error-color-background" />
         <space-pending-button
-          v-if="invitationsCount"
-          :count="invitationsCount"
+          v-if="$root.invitationsCount"
+          :count="$root.invitationsCount"
           filter="invited"
           label-key="spacesList.label.invitationsSent"
           icon="fa-history"
           badge-color="warning-color-background" />
         <space-pending-button
-          v-if="pendingCount"
-          :count="pendingCount"
+          v-if="$root.pendingCount"
+          :count="$root.pendingCount"
           filter="pending"
           label-key="spacesList.label.usersRequests"
           icon="fa-spinner"
@@ -88,9 +108,6 @@ export default {
   },
   data: () => ({
     loading: 0,
-    invitationsCount: 0,
-    pendingCount: 0,
-    requestsCount: 0,
   }),
   created() {
     this.$root.$on('spaces-list-refresh', this.refresh);
@@ -110,22 +127,21 @@ export default {
     getSpacesInvitation() {
       this.loading++;
       this.$spaceService.getSpaces(null, null, null, 'invited')
-        .then(data => this.invitationsCount = data && data.size || 0)
+        .then(data => this.$root.invitationsCount = data && data.size || 0)
         .finally(() => this.loading--);
     },
     getSpacesPending() {
       this.loading++;
       this.$spaceService.getSpaces(null, null, null, 'pending')
-        .then(data => this.pendingCount = data?.size || 0)
+        .then(data => this.$root.pendingCount = data?.size || 0)
         .finally(() => this.loading--);
     },
     getSpacesRequest() {
       this.loading++;
       this.$spaceService.getSpaces(null, null, null, 'requests')
-        .then(data => this.requestsCount = data?.size || 0)
+        .then(data => this.$root.requestsCount = data?.size || 0)
         .finally(() => this.loading--);
     },
   },
 };
 </script>
-
