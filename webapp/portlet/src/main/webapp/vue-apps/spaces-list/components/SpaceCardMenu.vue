@@ -1,7 +1,41 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
-  <div>
+  <div class="d-flex align-center">
+    <space-favorite-action
+      v-if="space.isMember"
+      :is-favorite="space.isFavorite"
+      :space-id="space.id"
+      :icon-size="20"
+      class="ms-1" />
+    <space-card-button
+      v-for="(extension, i) in spaceActionExtensions"
+      :key="i"
+      :extension="extension"
+      :space="space"
+      class="ms-1" />
     <component
-      v-if="space.canEdit"
+      v-if="space.canEdit || space.isMember"
       :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
       ref="actionMenu"
       v-model="menu"
@@ -23,157 +57,71 @@
           :space="space"
           icon />
       </template>
-      <v-list :max-width="!$root.isMobile && 300 || 'auto'" dense>
-        <v-list-item
+      <v-list
+        :max-width="!$root.isMobile && 300 || 'auto'"
+        :class="$root.isMobile && 'border-top-left-radius border-top-right-radius'"
+        dense>
+        <space-card-menu-item
+          v-if="$root.isMobile"
+          :href="url"
+          label="spacesList.button.openSpace"
+          icon="fa-external-link-alt" />
+        <space-card-menu-item
+          label="spacesList.button.copyLink"
+          icon="fa-link"
+          @click="copyLink" />
+        <space-card-menu-item
+          v-if="spacePublicSiteUrl"
+          :href="spacePublicSiteUrl"
+          label="spacesList.button.visitPublicSite"
+          icon="fa-globe" />
+        <space-card-menu-item
           v-if="space.isMember"
-          :aria-label="$t('spacesList.button.leave')"
-          class="leaveSpace ps-0 py-0"
-          link
-          @click="leaveConfirm">
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              size="18">
-              fa-sign-out-alt
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body">{{ $t('spacesList.button.leave') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+          label="spacesList.button.leave"
+          icon="fa-sign-out-alt"
+          @click="leaveConfirm" />
         <template v-else-if="space.isInvited">
-          <v-list-item
-            :aria-label="$t('spacesList.button.acceptToJoin')"
-            class="acceptToJoin ps-0 py-0"
-            link
-            @click="acceptToJoin">
-            <v-list-item-icon class="mx-2">
-              <v-icon
-                class="ma-auto"
-                color="success"
-                size="18">
-                fa-check
-              </v-icon>
-            </v-list-item-icon>
-            <v-list-item-content class="d-inline">
-              <v-list-item-title class="text-body">{{ $t('spacesList.button.acceptToJoin') }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item
-            :aria-label="$t('spacesList.button.refuseToJoin')"
-            class="refuseToJoin ps-0 py-0"
-            link
-            @click="refuseToJoin">
-            <v-list-item-icon class="mx-2">
-              <v-icon
-                class="ma-auto"
-                color="error"
-                size="18">
-                fa-times
-              </v-icon>
-            </v-list-item-icon>
-            <v-list-item-content class="d-inline">
-              <v-list-item-title class="text-body">{{ $t('spacesList.button.refuseToJoin') }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
+          <space-card-menu-item
+            label="spacesList.button.acceptToJoin"
+            icon="fa-check"
+            icon-color="success"
+            @click="acceptToJoin" />
+          <space-card-menu-item
+            label="spacesList.button.refuseToJoin"
+            icon="fa-times"
+            icon-color="error"
+            @click="refuseToJoin" />
         </template>
-        <v-list-item
+        <space-card-menu-item
           v-else-if="space.isPending"
-          :aria-label="$t('spacesList.button.cancelRequest')"
-          class="leaveSpace ps-0 py-0"
-          link
-          @click="cancelRequest">
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              color="error"
-              size="18">
-              fa-times
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body">{{ $t('spacesList.button.cancelRequest') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item
+          label="spacesList.button.cancelRequest"
+          icon="fa-times"
+          icon-color="error"
+          @click="cancelRequest" />
+        <space-card-menu-item
           v-else-if="space.subscription === 'open' && !space.isMember"
-          :aria-label="$t('spacesList.button.join')"
-          class="joinSpace ps-0 py-0"
-          link
-          @click="join">
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              size="18">
-              fa-sign-out-alt
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body">{{ $t('spacesList.button.join') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item
+          label="spacesList.button.join"
+          icon="fa-sign-in-alt"
+          @click="join" />
+        <space-card-menu-item
           v-else-if="space.subscription === 'validation' && !space.isMember && !space.isPending"
-          :aria-label="$t('spacesList.button.requestJoin')"
-          class="requestJoinSpace ps-0 py-0"
-          link
-          @click="requestJoin">
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              size="18">
-              fa-sign-out-alt
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body">{{ $t('spacesList.button.requestJoin') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item
-          :href="`/portal/s/${space.id}/settings`"
-          :aria-label="$t('spacesList.button.edit')"
-          class="editSpace ps-0 py-0"
-          link>
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              size="18">
-              far fa-edit
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body">{{ $t('spacesList.button.edit') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item
-          :aria-label="$t('spacesList.button.remove')"
-          class="removeSpace ps-0 py-0"
-          link
-          @click="removeSpaceConfirm">
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              color="error"
-              size="18">
-              fa-trash
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body error--text">{{ $t('spacesList.button.remove') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+          label="spacesList.button.requestJoin"
+          icon="fa-sign-in-alt"
+          @click="requestJoin" />
+        <space-card-menu-item
+          v-if="space.canEdit"
+          :href="`${url}/settings`"
+          label="spacesList.button.openSettings"
+          icon="far fa-edit" />
+        <space-card-menu-item
+          v-if="space.canEdit"
+          label="spacesList.button.remove"
+          label-color="error"
+          icon="fa-trash"
+          icon-color="error"
+          @click="removeSpaceConfirm" />
       </v-list>
     </component>
-    <space-card-button
-      v-else-if="space.isMember"
-      :extension="{
-        icon: 'fa-sign-out-alt',
-        title: $t('spacesList.button.leave'),
-        loading: sendingAction,
-        click: leaveConfirm
-      }"
-      :space="space"
-      icon />
     <component
       v-else-if="space.isInvited"
       :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
@@ -189,49 +137,28 @@
         <space-card-button
           v-bind="attrs"
           :extension="{
-            icon: 'fa-gift pink--text lighten-1',
-            title: $t('spacesList.button.invited'),
+            icon: 'fa fa-question warning--text',
+            title: $t('spacesList.button.answerInvitation'),
             loading: sendingAction,
             click: () => menu = !menu,
           }"
           :space="space"
           class="mx-2" />
       </template>
-      <v-list :max-width="!$root.isMobile && 300 || 'auto'" dense>
-        <v-list-item
-          :aria-label="$t('spacesList.button.acceptToJoin')"
-          class="acceptToJoin ps-0 py-0"
-          link
-          @click="acceptToJoin">
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              color="success"
-              size="18">
-              fa-check
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body">{{ $t('spacesList.button.acceptToJoin') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item
-          :aria-label="$t('spacesList.button.refuseToJoin')"
-          class="refuseToJoin ps-0 py-0"
-          link
-          @click="refuseToJoin">
-          <v-list-item-icon class="mx-2">
-            <v-icon
-              class="ma-auto"
-              color="error"
-              size="18">
-              fa-times
-            </v-icon>
-          </v-list-item-icon>
-          <v-list-item-content class="d-inline">
-            <v-list-item-title class="text-body">{{ $t('spacesList.button.refuseToJoin') }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+      <v-list
+        :max-width="!$root.isMobile && 300 || 'auto'"
+        :class="$root.isMobile && 'border-top-left-radius border-top-right-radius'"
+        dense>
+        <space-card-menu-item
+          label="spacesList.button.acceptToJoin"
+          icon="fa-check"
+          icon-color="success"
+          @click="acceptToJoin" />
+        <space-card-menu-item
+          label="spacesList.button.refuseToJoin"
+          icon="fa-times"
+          icon-color="error"
+          @click="refuseToJoin" />
       </v-list>
     </component>
     <space-card-button
@@ -279,6 +206,10 @@ export default {
       type: Object,
       default: null,
     },
+    spaceActionExtensions: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     id: Math.random(), // NOSONAR
@@ -289,6 +220,16 @@ export default {
     menu: false,
     okMethod: null,
   }),
+  computed: {
+    url() {
+      return `${eXo.env.portal.context}/s/${this.space.id}`;
+    },
+    spacePublicSiteUrl() {
+      return this.space.publicSiteName
+        && this.space.publicSiteVisibility !== 'manager'
+        && `${eXo.env.portal.context}/${this.space.publicSiteName}`;
+    },
+  },
   watch: {
     menu() {
       // Workaround to fix closing menu when clicking outside
@@ -440,6 +381,14 @@ export default {
         } else {
           this.menu = false;
         }
+      }
+    },
+    copyLink() {
+      try {
+        navigator.clipboard.writeText(`${window.location.origin}${eXo.env.portal.context}/s/${this.space.id}`);
+        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.success'), 'success');
+      } catch (e) {
+        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.error'), 'warning');
       }
     },
     closeConfirmDialog() {
