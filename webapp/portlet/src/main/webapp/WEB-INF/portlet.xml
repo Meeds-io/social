@@ -498,7 +498,7 @@
     </init-param>
     <init-param>
       <name>layout-css-class</name>
-      <value>no-layout-style</value>
+      <value>no-layout-style full-height</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>

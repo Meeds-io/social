@@ -9,36 +9,21 @@
       :min-width="minWidth"
       :max-width="maxWidth"
       width="auto"
-      class="d-flex flex-column border-color">
+      class="d-flex flex-column application-border-radius border-color">
       <space-card-unread-badge :space="space" />
-      <v-card
-        :min-height="bannerHeight"
-        :max-height="bannerHeight"
-        min-width="100%"
-        max-width="100%"
-        class="overflow-hidden border-top-right-radius border-top-left-radius no-border-bottom-right-radius no-border-bottom-left-radius position-relative d-flex justify-center z-index-one"
-        flat>
-        <img
-          :src="space.bannerUrl"
-          :alt="$t('spaceList.spaceBanner.alt')"
-          style="max-width: 1000%; min-width: 100%; max-height: 100%; min-height: 100%;"
-          class="position-absolute"
-          height="100%"
-          width="auto">
-      </v-card>
       <v-card
         :min-height="avatarSize"
         :max-height="avatarSize"
         min-width="100%"
         max-width="100%"
-        class="d-flex mt-n2 px-2"
+        class="d-flex mt-4 px-4"
         flat>
         <v-card
           :min-width="avatarSize"
           :max-width="avatarSize"
           :min-height="avatarSize"
           :max-height="avatarSize"
-          class="overflow-hidden d-flex align-center justify-center z-index-two"
+          class="spaceAvatar overflow-hidden d-flex align-center justify-center z-index-two"
           flat>
           <img
             :src="space.avatarUrl"
@@ -46,35 +31,33 @@
             style="max-width: 1000%; max-height: 100%;"
             height="100%"
             width="auto"
-            class="overflow-hidden border-radius">
+            class="overflow-hidden">
         </v-card>
-        <div class="d-flex flex-column flex-grow-1 justify-center flex-shrink-1 overflow-hidden ps-2 pt-4">
+        <div class="d-flex flex-column flex-grow-1 justify-center flex-shrink-1 overflow-hidden ps-4 ps-sm-3">
           <div
             v-text="spaceDisplayName"
             class="flex-shrink-0 text-truncate-2 max-height-2lh font-weight-bold line-height-normal full-width"></div>
-          <div
-            v-sanitized-html="spaceMembersCount"
-            class="flex-shrink-0 text-subtitle pb-1"></div>
         </div>
       </v-card>
-      <div class="flex-grow-1 flex-shrink-1">
+      <div v-if="!$root.isMobile" class="flex-grow-1 flex-shrink-1 px-4 mt-4">
         <div
-          v-if="!$root.isMobile"
           v-sanitized-html="spaceDescription"
-          class="text-truncate-3 max-height-3lh full-width flex-shrink-1 px-2 mt-2"></div>
+          class="text-truncate-3 max-height-3lh full-width flex-shrink-1"></div>
       </div>
       <v-card
-        class="d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2 position-absolute b-0"
+        class="d-flex align-center full-width flex-grow-0 flex-shrink-0 my-2 px-2 position-absolute b-0"
         flat>
-        <space-card-button
-          v-if="spacePublicSiteUrl"
-          :extension="{
-            icon: 'fa-globe',
-            href: spacePublicSiteUrl,
-            title: $t('spaceList.publicSite'),
-          }"
-          :space="space"
-          icon />
+        <div class="d-flex align-center ps-2">
+          <v-icon
+            color="tertiary"
+            class="me-2"
+            size="20">
+            fa-users
+          </v-icon>
+          <div
+            v-sanitized-html="spaceMembersCount"
+            class="flex-shrink-0 text-subtitle"></div>
+        </div>
         <v-spacer />
         <space-favorite-action
           v-if="space.isMember"
@@ -125,7 +108,6 @@ export default {
   },
   data: () => ({
     avatarSize: 65,
-    bannerHeight: 50,
     hoverCard: false,
   }),
   computed: {
@@ -140,11 +122,6 @@ export default {
     },
     spaceUrl() {
       return `${eXo.env.portal.context}/s/${this.space.id}`;
-    },
-    spacePublicSiteUrl() {
-      return this.space.publicSiteName
-        && this.space.publicSiteVisibility !== 'manager'
-        && `${eXo.env.portal.context}/${this.space.publicSiteName}`;
     },
     enabledSpaceActionExtensions() {
       if (!this.spaceActionExtensions || !this.space || !this.space.isMember) {
