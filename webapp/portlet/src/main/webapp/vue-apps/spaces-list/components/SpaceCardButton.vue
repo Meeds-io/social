@@ -17,7 +17,6 @@
           :loading="extension.loading"
           class="absolute-vertical-align z-index-one"
           ripple
-          small
           @touchstart.stop="0"
           @touchend.stop="0"
           @mousedown.stop="0"
