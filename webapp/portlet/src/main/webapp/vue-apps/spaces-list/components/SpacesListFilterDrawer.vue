@@ -77,7 +77,7 @@ export default {
   }),
   computed: {
     spaceFilters() {
-      return [{
+      const spaceFilters = [{
         text: this.$t('spacesList.filter.all'),
         value: 'all',
       },{
@@ -90,6 +90,19 @@ export default {
         text: this.$t('spacesList.filter.favoriteSpaces'),
         value: 'favorite',
       }];
+      if (this.$root.invitationsCount) {
+        spaceFilters.push({
+          text: this.$t('spacesList.filter.invitedSpaces'),
+          value: 'invited',
+        });
+      }
+      if (this.$root.pendingCount) {
+        spaceFilters.push({
+          text: this.$t('spacesList.filter.pendingSpaces'),
+          value: 'pending',
+        });
+      }
+      return spaceFilters;
     },
   },
   created() {

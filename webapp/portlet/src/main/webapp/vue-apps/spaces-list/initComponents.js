@@ -1,10 +1,29 @@
+/*
+ * This file is part of the Meeds project (https://meeds.io/).
+ * 
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 import SpacesList from './components/SpacesList.vue';
 import SpacesToolbar from './components/SpacesToolbar.vue';
 import SpacesCardList from './components/SpacesCardList.vue';
 import SpacesListFilterDrawer from './components/SpacesListFilterDrawer.vue';
 import SpaceCard from './components/SpaceCard.vue';
 import SpaceCardButton from './components/SpaceCardButton.vue';
-import SpaceCardMembershipOptions from './components/SpaceCardMembershipOptions.vue';
+import SpaceCardMenu from './components/SpaceCardMenu.vue';
+import SpaceCardMenuItem from './components/SpaceCardMenuItem.vue';
 import SpaceCardUnreadBadge from './components/SpaceCardUnreadBadge.vue';
 import SpaceFormDrawer from './components/SpaceFormDrawer.vue';
 import SpaceFavoriteAction from './components/SpaceFavoriteAction.vue';
@@ -23,7 +42,8 @@ const components = {
   'spaces-list-filter-drawer': SpacesListFilterDrawer,
   'space-card': SpaceCard,
   'space-card-button': SpaceCardButton,
-  'space-card-membership-options': SpaceCardMembershipOptions,
+  'space-card-menu': SpaceCardMenu,
+  'space-card-menu-item': SpaceCardMenuItem,
   'space-card-unread-badge': SpaceCardUnreadBadge,
   'space-form-drawer': SpaceFormDrawer,
   'space-favorite-action': SpaceFavoriteAction,
