@@ -190,11 +190,10 @@ export default {
       return this.space?.avatarUrl || (this.prettyName && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.prettyName}/avatar`);
     },
     url() {
-      if (!this.groupId) {
+      if (!this.space?.id) {
         return '#';
       }
-      const uri = this.groupId.replace(/\//g, ':');
-      return `${eXo.env.portal.context}/g/${uri}/`;
+      return `${eXo.env.portal.context}/s/${this.space?.id}`;
     },
     spaceMembersCount() {
       return this.space && this.space.membersCount;
