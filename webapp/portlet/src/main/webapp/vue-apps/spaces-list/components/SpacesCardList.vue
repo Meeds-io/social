@@ -112,7 +112,7 @@ export default {
     cardXSpacing: 16 + 2, // margin left/right + border left/right
     cardsListWidth: 0, // computed
     cardHeightDesktop: 229,
-    cardHeightMobile: 150,
+    cardHeightMobile: 140,
   }),
   computed: {
     canShowMore() {
@@ -122,12 +122,12 @@ export default {
       return !this.$root.isMobile && this.cardHeightDesktop || this.cardHeightMobile;
     },
     cardMinWidthBase() {
-      if (this.cardsListWidth > 1000) {
-        return 280;
+      if (this.cardsListWidth > 800) {
+        return 320;
       } else if (this.cardsListWidth < 480) {
         return this.cardsListWidth - this.cardXSpacing;
       } else {
-        return 220;
+        return 280;
       }
     },
     cardPerLine() {

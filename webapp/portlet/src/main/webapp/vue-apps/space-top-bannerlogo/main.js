@@ -46,7 +46,8 @@ export function init(params) {
                    :managers="managers"
                    :home-path="homePath"
                    :space-description="spaceDescription"
-                   :can-redact-on-space="canRedactOnSpace" />`,
+                   :can-redact-on-space="canRedactOnSpace"
+                   class="full-height" />`,
       created() {
         document.addEventListener('space-settings-updated', this.refreshSpaceSettings);
       },
