@@ -69,13 +69,13 @@ import lombok.Setter;
         + "  ORDER BY spaceMember.space.id DESC"
 )
 @NamedQuery(name = "SpaceMember.getSpaceMembersByStatus",
-        query = "SELECT spaceMember.userId FROM SocSpaceMember AS spaceMember "
+        query = "SELECT DISTINCT spaceMember.userId FROM SocSpaceMember AS spaceMember "
                 + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
                 + " WHERE spaceMember.status = :status "
                 + " AND identity.enabled = true"
                 + " AND   spaceMember.space.id = :spaceId ")
 @NamedQuery(name = "SpaceMember.countSpaceMembersByStatus",
-        query = "SELECT count(*) FROM SocSpaceMember AS spaceMember"
+        query = "SELECT count(DISTINCT spaceMember.userId) FROM SocSpaceMember AS spaceMember"
                 + " INNER JOIN SocIdentityEntity AS identity ON spaceMember.userId = identity.remoteId"
                 + " WHERE spaceMember.status = :status "
                 + " AND identity.enabled = true"

@@ -105,6 +105,24 @@ public class SpaceEntity extends BaseEntity {
     return getString("prettyName");
   }
 
+  public SpaceEntity setPublicSiteId(Long publicSiteId) {
+    setProperty("publicSiteId", publicSiteId);
+    return this;
+  }
+
+  public Long getPublicSiteId() {
+    return (Long) getProperty("publicSiteId");
+  }
+
+  public SpaceEntity setPublicSiteVisibility(String publicSiteVisibility) {
+    setProperty("publicSiteVisibility", publicSiteVisibility);
+    return this;
+  }
+
+  public String getPublicSiteVisibility() {
+    return getString("publicSiteVisibility");
+  }
+
   public SpaceEntity setHasBindings(boolean hasBindings) {
     setProperty("hasBindings", hasBindings);
     return this;

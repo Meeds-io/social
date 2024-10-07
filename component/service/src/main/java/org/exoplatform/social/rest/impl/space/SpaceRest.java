@@ -430,8 +430,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaceById(@Context
-  UriInfo uriInfo,
+  public Response getSpaceById(
+                               @Context
+                               UriInfo uriInfo,
                                @Context
                                Request request,
                                @Parameter(description = "Space id", required = true)
@@ -771,8 +772,14 @@ public class SpaceRest implements ResourceContainer {
       throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
     }
 
+    if (StringUtils.isNotBlank(model.getPublicSiteVisibility())) {
+      spaceService.saveSpacePublicSite(id,
+                                       model.getPublicSiteVisibility(),
+                                       authenticatedUser);
+      space = spaceService.getSpaceById(id);
+    }
+
     if (StringUtils.isNotBlank(model.getDisplayName()) && !StringUtils.equals(space.getDisplayName(), model.getDisplayName())) {
-      space.setEditor(RestUtils.getCurrentUser());
       spaceService.renameSpace(space, model.getDisplayName(), authenticatedUser);
     }
 
@@ -809,9 +816,11 @@ public class SpaceRest implements ResourceContainer {
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     spaceService.updateSpace(space, model.getInvitedMembers());
-    space = spaceService.getSpaceById(space.getId());
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(spaceService.getSpaceById(id),
+                                                                        authenticatedUser,
+                                                                        uriInfo.getPath(),
+                                                                        expand),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);
@@ -853,9 +862,6 @@ public class SpaceRest implements ResourceContainer {
     return Response.ok().build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Path("{id}/users")
   @RolesAllowed("users")
@@ -868,6 +874,8 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  @Deprecated(forRemoval = true, since = "7.0")
+  @DeprecatedAPI(value = "Use SpaceMembershipRest.getSpacesMemberships instead", insist = true)
   public Response getSpaceMembers(
                                   @Context
                                   UriInfo uriInfo,
@@ -976,8 +984,11 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response isSpaceMember(@Context
-  UriInfo uriInfo,
+  @Deprecated(forRemoval = true, since = "7.0")
+  @DeprecatedAPI(value = "Use SpaceMembershipRest.getSpacesMemberships instead", insist = true)
+  public Response isSpaceMember(
+                                @Context
+                                UriInfo uriInfo,
                                 @Parameter(description = "Space id", required = true)
                                 @PathParam("id")
                                 String id,
@@ -1001,9 +1012,13 @@ public class SpaceRest implements ResourceContainer {
   @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "500", description = "Internal server error"),
                           @ApiResponse(responseCode = "401", description = "Unauthorized") })
-  public Response getSpaceNavigations(@Context
-  HttpServletRequest httpRequest, @Context
-  Request request,
+  @Deprecated(forRemoval = true, since = "7.0")
+  @DeprecatedAPI(value = "Use NavigationRest.getSiteTypeNavigations instead", insist = true)
+  public Response getSpaceNavigations(
+                                      @Context
+                                      HttpServletRequest httpRequest,
+                                      @Context
+                                      Request request,
                                       @Parameter(description = "Space id", required = true)
                                       @PathParam("id")
                                       String spaceId) {
@@ -1046,8 +1061,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "401", description = "User not authorized to call this endpoint"),
                           @ApiResponse(responseCode = "500", description = "Internal server error") })
-  public Response restoreSpacePageLayout(@Context
-  UriInfo uriInfo,
+  public Response restoreSpacePageLayout(
+                                         @Context
+                                         UriInfo uriInfo,
                                          @Parameter(description = "Space application identifier to reset. Can be 'home' or any page name.",
                                                     required = true)
                                          @PathParam("appId")
@@ -1081,8 +1097,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
   @Deprecated
   @DeprecatedAPI(value = "Use activityRestResourcesV1.getActivities instead", insist = true)
-  public Response getSpaceActivitiesById(@Context
-  UriInfo uriInfo,
+  public Response getSpaceActivitiesById(
+                                         @Context
+                                         UriInfo uriInfo,
                                          @Parameter(description = "Space id", required = true)
                                          @PathParam("id")
                                          String id,
@@ -1127,8 +1144,9 @@ public class SpaceRest implements ResourceContainer {
                           @ApiResponse(responseCode = "400", description = "Invalid query input") })
   @Deprecated
   @DeprecatedAPI(value = "Use activityRestResourcesV1.postActivity instead", insist = true)
-  public Response postActivityOnSpace(@Context
-  UriInfo uriInfo,
+  public Response postActivityOnSpace(
+                                      @Context
+                                      UriInfo uriInfo,
                                       @Parameter(description = "Space id", required = true)
                                       @PathParam("id")
                                       String id,

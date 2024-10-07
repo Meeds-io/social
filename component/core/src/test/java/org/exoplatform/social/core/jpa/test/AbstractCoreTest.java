@@ -312,9 +312,8 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     ActivityDAO activityDAO = getService(ActivityDAO.class);
     activityDAO.deleteAll();
   }
-  public static void persist() {
-    RequestLifeCycle.end();
-    RequestLifeCycle.begin(PortalContainer.getInstance());
+  public void persist() {
+    restartTransaction();
   }
 
   protected void sleep(int time) {

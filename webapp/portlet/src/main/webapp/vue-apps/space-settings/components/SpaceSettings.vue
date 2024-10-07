@@ -24,6 +24,7 @@
       <space-setting-overview id="SpaceSettingsOverview" />
       <space-setting-roles id="SpaceSettingsRoles" />
       <space-setting-access id="SpaceSettingsAccess" />
+      <space-setting-public-site id="SpaceSettingsPublicAccess" />
       <template>
         <extension-registry-components
           :params="extensionParams"

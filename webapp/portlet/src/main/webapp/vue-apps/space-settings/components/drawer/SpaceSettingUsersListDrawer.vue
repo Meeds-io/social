@@ -152,7 +152,7 @@ export default {
           this.page = 0;
         }
         const data = await this.$spaceService.getSpaceMemberships({
-          space: eXo.env.portal.spaceId,
+          space: this.$root.spaceId,
           offset: resetUsers && !resetPage ? 0 : this.page * this.pageSize,
           limit: resetUsers && !resetPage ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
           status: this.role,
@@ -241,7 +241,7 @@ export default {
     },
     async computeLastAdmin() {
       const data = await this.$spaceService.getSpaceMemberships({
-        space: eXo.env.portal.spaceId,
+        space: this.$root.spaceId,
         offset: 0,
         limit: 2,
         status: 'manager',

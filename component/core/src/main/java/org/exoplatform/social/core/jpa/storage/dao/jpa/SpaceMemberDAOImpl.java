@@ -71,12 +71,14 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     } else if (isMSSQLDialect()) {
       queryStringBuilder =
                          new StringBuilder("SELECT try_convert(varchar(200), identity_1.remote_id) as remote_id , identity_1.identity_id, try_convert(varchar(200) \n");
+    } else if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
+      queryStringBuilder = new StringBuilder("SELECT DISTINCT identity_1.remote_id, identity_1.identity_id, LOWER(identity_prop.value) sort_field \n");
     } else {
       queryStringBuilder = new StringBuilder("SELECT identity_1.remote_id, identity_1.identity_id \n");
     }
     queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
-      queryStringBuilder.append(" LEFT JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
+      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop \n");
       queryStringBuilder.append("   ON identity_1.identity_id = identity_prop.identity_id \n");
       queryStringBuilder.append("       AND identity_prop.name = '").append(escapeSQLValue(sortField)).append("' \n");
     }
@@ -95,7 +97,7 @@ public class SpaceMemberDAOImpl extends GenericDAOJPAImpl<SpaceMemberEntity, Lon
     }
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
-      queryStringBuilder.append(" ORDER BY lower(identity_prop.value) " + escapeSQLValue(sortDirection));
+      queryStringBuilder.append(" ORDER BY sort_field " + escapeSQLValue(sortDirection));
     }
 
     Query query = getEntityManager().createNativeQuery(queryStringBuilder.toString());

@@ -22,17 +22,22 @@ import static org.junit.Assert.assertThrows;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.model.ModelObject;
 import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.navigation.NavigationContext;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.portal.mop.navigation.NodeModel;
@@ -51,6 +56,7 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -78,7 +84,12 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
+import lombok.SneakyThrows;
+
 public class SpaceServiceTest extends AbstractCoreTest {
+
+  private static final String           EXTERNAL_USER = "externalUser";
+
   private IdentityStorage               identityStorage;
 
   private OrganizationService           organizationService;
@@ -175,8 +186,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     member1 = new Identity(OrganizationIdentityProvider.NAME, "member1");
     member2 = new Identity(OrganizationIdentityProvider.NAME, "member2");
     member3 = new Identity(OrganizationIdentityProvider.NAME, "member3");
-    externalUser = new Identity(OrganizationIdentityProvider.NAME, "externalUser");
-
+    externalUser = new Identity(OrganizationIdentityProvider.NAME, EXTERNAL_USER);
+    checkExternalUserMemberships();
 
     identityStorage.saveIdentity(demo);
     identityStorage.saveIdentity(tom);
@@ -2739,7 +2750,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
    * @throws Exception
    * @since 1.2.0-GA
    */
-  private Space getSpaceInstance(int number) throws Exception {
+  private Space getSpaceInstance(int number) {
     Space space = new Space();
     space.setDisplayName("my space " + number);
     space.setPrettyName(space.getDisplayName());
@@ -2834,23 +2845,16 @@ public class SpaceServiceTest extends AbstractCoreTest {
     return space2;
   }
 
-  public void testSpaceContainsExternalMembers() throws Exception {
+  public void testSpaceContainsExternalMembers() {
+    checkExternalUserMemberships();
     externalUser.getProfile().setProperty("external", "true");
     identityStorage.saveIdentity(externalUser);
-    User external = organizationService.getUserHandler().createUserInstance("externalUser");
-    organizationService.getUserHandler().createUser(external, false);
     Space space = getSpaceInstance(10);
-    boolean hasExternals;
+    assertFalse(spaceService.isSpaceContainsExternals(Long.valueOf(space.getId())));
 
-    hasExternals = spaceService.isSpaceContainsExternals(Long.valueOf(space.getId()));
-    assertEquals(false, hasExternals);
-
-    spaceService.addMember(space, "externalUser");
-    hasExternals = spaceService.isSpaceContainsExternals(Long.valueOf(space.getId()));
-    assertEquals(true, hasExternals);
-    tearDownUserList.add(externalUser);
+    spaceService.addMember(space, EXTERNAL_USER);
+    assertTrue(spaceService.isSpaceContainsExternals(Long.valueOf(space.getId())));
   }
-
 
   public void testGetCommonSpaces() throws Exception {
 
@@ -2951,6 +2955,158 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(2, countPageApplications(page.getChildren(), 0));
   }
 
+  @SneakyThrows
+  public void testSaveSpacePublicSite() {
+    Space space = getSpaceInstance(18);
+    String spaceId = space.getId();
+
+    assertThrows(ObjectNotFoundException.class,
+                 () -> spaceService.saveSpacePublicSite("15587688", SpaceUtils.AUTHENTICATED, "demo"));
+    assertThrows(IllegalAccessException.class,
+                 () -> spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "raul"));
+
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "demo");
+    space = spaceService.getSpaceById(space.getId());
+    assertEquals(SpaceUtils.AUTHENTICATED, space.getPublicSiteVisibility());
+    long publicSiteId = space.getPublicSiteId();
+    assertTrue(publicSiteId > 0);
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
+    assertNotNull(publicSitePortalConfig);
+    assertEquals(space.getPrettyName(), publicSitePortalConfig.getName());
+    assertEquals(space.getDisplayName(), publicSitePortalConfig.getLabel());
+    assertEquals(2, publicSitePortalConfig.getAccessPermissions().length);
+    assertEquals(new HashSet<String>(Arrays.asList("member:/platform/externals",
+                                                   "member:/platform/users")),
+                 new HashSet<String>(Arrays.asList(publicSitePortalConfig.getAccessPermissions())));
+    assertEquals(SpaceUtils.MANAGER + ":" + space.getGroupId(), publicSitePortalConfig.getEditPermission());
+    assertEquals(spaceId, publicSitePortalConfig.getProperty("SPACE_ID"));
+    assertEquals("true", publicSitePortalConfig.getProperty("IS_SPACE_PUBLIC_SITE"));
+  }
+
+  @SneakyThrows
+  public void testChangeSpacePublicSiteVisibility() {
+    Space space = getSpaceInstance(18);
+    String spaceId = space.getId();
+
+    assertThrows(ObjectNotFoundException.class,
+                 () -> spaceService.saveSpacePublicSite("15587688", SpaceUtils.AUTHENTICATED, "demo"));
+    assertThrows(IllegalAccessException.class,
+                 () -> spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "raul"));
+
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "demo");
+    space = spaceService.getSpaceById(space.getId());
+    assertEquals(SpaceUtils.AUTHENTICATED, space.getPublicSiteVisibility());
+    long publicSiteId = space.getPublicSiteId();
+    assertTrue(publicSiteId > 0);
+
+    space.setVisibility(Space.HIDDEN);
+    spaceService.updateSpace(space);
+    space = spaceService.getSpaceById(space.getId());
+
+    assertEquals(SpaceUtils.MEMBER, space.getPublicSiteVisibility());
+    assertEquals(space.getPrettyName(), spaceService.getSpacePublicSiteName(space));
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
+    assertNotNull(publicSitePortalConfig);
+    assertEquals(space.getPrettyName(), publicSitePortalConfig.getName());
+    assertEquals(space.getDisplayName(), publicSitePortalConfig.getLabel());
+    assertFalse(publicSitePortalConfig.isDefaultSite());
+    assertEquals(1, publicSitePortalConfig.getAccessPermissions().length);
+    assertEquals(new HashSet<String>(Arrays.asList(SpaceUtils.MEMBER + ":" + space.getGroupId())),
+                 new HashSet<String>(Arrays.asList(publicSitePortalConfig.getAccessPermissions())));
+    assertEquals(SpaceUtils.MANAGER + ":" + space.getGroupId(), publicSitePortalConfig.getEditPermission());
+  }
+
+  @SneakyThrows
+  public void testSpaceWithPublicSiteRemoved() {
+    Space space = getSpaceInstance(19);
+    String spaceId = space.getId();
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "demo");
+    space = spaceService.getSpaceById(space.getId());
+    long publicSiteId = space.getPublicSiteId();
+    assertTrue(publicSiteId > 0);
+
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig publicSitePortalConfig = layoutService.getPortalConfig(publicSiteId);
+    assertNotNull(publicSitePortalConfig);
+
+    spaceService.deleteSpace(space);
+    assertNull(layoutService.getPortalConfig(publicSiteId));
+  }
+
+  @SneakyThrows
+  public void testCanAccessSpacePublicSite() {
+    checkExternalUserMemberships();
+
+    Space space = getSpaceInstance(20);
+    String spaceId = space.getId();
+
+    assertFalse(spaceService.canAccessSpacePublicSite(null, "demo"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, null));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, "demo"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, "john"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, EXTERNAL_USER));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, IdentityConstants.ANONIM));
+
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.MANAGER, "demo");
+    space = spaceService.getSpaceById(spaceId);
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "john"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "demo"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, "raul"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, "mary"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, "paul"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, EXTERNAL_USER));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, null));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, IdentityConstants.ANONIM));
+
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.MEMBER, "demo");
+    space = spaceService.getSpaceById(spaceId);
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "john"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "demo"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "raul"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, "mary"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, "paul"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, EXTERNAL_USER));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, null));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, IdentityConstants.ANONIM));
+
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.INTERNAL, "demo");
+    space = spaceService.getSpaceById(spaceId);
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "john"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "raul"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "mary"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "paul"));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, EXTERNAL_USER));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, null));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, IdentityConstants.ANONIM));
+
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.AUTHENTICATED, "demo");
+    space = spaceService.getSpaceById(spaceId);
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "john"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "demo"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "raul"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "mary"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "paul"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, EXTERNAL_USER));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, null));
+    assertFalse(spaceService.canAccessSpacePublicSite(space, IdentityConstants.ANONIM));
+
+    spaceService.saveSpacePublicSite(spaceId, SpaceUtils.EVERYONE, "demo");
+    space = spaceService.getSpaceById(spaceId);
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "root"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "john"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "demo"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "raul"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "mary"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, "paul"));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, EXTERNAL_USER));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, null));
+    assertTrue(spaceService.canAccessSpacePublicSite(space, IdentityConstants.ANONIM));
+  }
+
   private int countPageApplications(ArrayList<ModelObject> children, int size) {
     for (ModelObject modelObject : children) {
       if (modelObject instanceof org.exoplatform.portal.config.model.Application) {
@@ -2960,6 +3116,32 @@ public class SpaceServiceTest extends AbstractCoreTest {
       }
     }
     return size;
+  }
+
+  @SneakyThrows
+  private void checkExternalUserMemberships() {
+    Collection<Membership> internalMemberships = organizationService.getMembershipHandler()
+                                                                    .findMembershipsByUserAndGroup(EXTERNAL_USER,
+                                                                                                   "/platform/users");
+    if (CollectionUtils.isNotEmpty(internalMemberships)) {
+      internalMemberships.forEach(this::removeMembership);
+    }
+    Collection<Membership> externalMemberships = organizationService.getMembershipHandler()
+                                                                    .findMembershipsByUserAndGroup(EXTERNAL_USER,
+                                                                                                   "/platform/externals");
+    if (CollectionUtils.isEmpty(externalMemberships)) {
+      organizationService.getMembershipHandler()
+                         .linkMembership(organizationService.getUserHandler().findUserByName(EXTERNAL_USER),
+                                         organizationService.getGroupHandler().findGroupById("/platform/externals"),
+                                         organizationService.getMembershipTypeHandler().findMembershipType("member"),
+                                         true);
+    }
+    restartTransaction();
+  }
+
+  @SneakyThrows
+  private Membership removeMembership(Membership m) {
+    return organizationService.getMembershipHandler().removeMembership(m.getId(), true);
   }
 
 }

@@ -75,26 +75,26 @@ export default {
     managers: null,
     publishers: null,
     redactors: null,
-    expand: 'settings',
+    expand: 'users,settings',
   }),
   computed: {
     items() {
       const items = [{
         name: this.$t('SpaceSettings.roles.manager'),
         description: this.$t('SpaceSettings.roles.manager.description'),
-        users: this.managers?.users,
+        users: this.managers?.spacesMemberships?.map?.(m => m.user),
         size: this.managers?.size,
         role: 'manager',
       },{
         name: this.$t('SpaceSettings.roles.publisher'),
         description: this.$t('SpaceSettings.roles.publisher.description'),
-        users: this.publishers?.users,
+        users: this.publishers?.spacesMemberships?.map?.(m => m.user),
         size: this.publishers?.size,
         role: 'publisher',
       },{
         name: this.$t('SpaceSettings.roles.member'),
         description: this.$t('SpaceSettings.roles.member.description'),
-        users: this.members?.users,
+        users: this.members?.spacesMemberships?.map?.(m => m.user),
         size: this.members?.size,
         role: 'member',
       }];
@@ -102,7 +102,7 @@ export default {
         items.splice(2, 0, {
           name: this.$t('SpaceSettings.roles.redactor'),
           description: this.$t('SpaceSettings.roles.redactor.description'),
-          users: this.redactors?.users,
+          users: this.redactors?.spacesMemberships?.map?.(m => m.user),
           size: this.redactors?.size,
           role: 'redactor',
         });
@@ -172,7 +172,9 @@ export default {
     async refreshManagers() {
       this.loading++;
       try {
-        this.managers = await this.$spaceService.getSpaceMembers(null, 0, 3, this.expand, 'manager', this.space.id);
+        // query, offset, limit, expand, role, spaceId
+        // null, 0, 3, this.expand, 'manager', this.space.id
+        this.managers = await this.getSpaceMemberships('manager');
         this.$emit('managers-loaded', this.managers);
       } finally {
         this.loading--;
@@ -181,7 +183,7 @@ export default {
     async refreshPublishers() {
       this.loading++;
       try {
-        this.publishers = await this.$spaceService.getSpaceMembers(null, 0, 3, this.expand, 'publisher', this.space.id);
+        this.publishers = await this.getSpaceMemberships('publisher');
         this.$emit('publishers-loaded', this.publishers);
       } finally {
         this.loading--;
@@ -190,7 +192,7 @@ export default {
     async refreshRedactors() {
       this.loading++;
       try {
-        this.redactors = await this.$spaceService.getSpaceMembers(null, 0, 3, this.expand, 'redactor', this.space.id);
+        this.redactors = await this.getSpaceMemberships('redactor');
         this.$emit('redactors-loaded', this.redactors);
 
         this.isContentCreationRestricted = !!this.redactors?.size;
@@ -202,11 +204,21 @@ export default {
     async refreshMembers() {
       this.loading++;
       try {
-        this.members = await this.$spaceService.getSpaceMembers(null, 0, 3, this.expand, 'member', this.space.id);
+        this.members = await this.getSpaceMemberships('member');
         this.$emit('members-loaded', this.members);
       } finally {
         this.loading--;
       }
+    },
+    getSpaceMemberships(role) {
+      return this.$spaceService.getSpaceMemberships({
+        offset: 0,
+        limit: 3,
+        status: role,
+        expand: this.expand,
+        space: this.space.id,
+        returnSize: true,
+      });
     },
   },
 };

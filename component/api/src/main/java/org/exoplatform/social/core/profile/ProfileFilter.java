@@ -250,7 +250,7 @@ public class ProfileFilter implements Cloneable {
 
   public Sorting getSorting() {
     if (sorting == null) {
-      return new Sorting(Sorting.SortBy.TITLE, Sorting.OrderBy.ASC);
+      return new Sorting(Sorting.SortBy.LASTNAME, Sorting.OrderBy.ASC);
     }
     return sorting;
   }

@@ -109,6 +109,20 @@ public interface SpaceTemplateService {
   void initSpaceApplications(Space space, SpaceApplicationHandler applicationHandler) throws SpaceException;
 
   /**
+   * Creates a public site for the designated space
+   * 
+   * @param space chosen {@link Space} to create its public site
+   * @param publicSiteName chosen Site Name to create
+   * @param publicSiteLabel chosen Site label
+   * @param accessPermissions Site access Permissions
+   * @return created site identifier
+   */
+  long createSpacePublicSite(Space space,
+                             String publicSiteName,
+                             String publicSiteLabel,
+                             String[] accessPermissions);
+
+  /**
    * an application status is composed with the form of:
    * [appId:appDisplayName:isRemovableString:status]. And space app properties is the combined
    * of application statuses separated by a comma (,). For example:
@@ -122,4 +136,5 @@ public interface SpaceTemplateService {
    * @param status
    */
   void setApp(Space space, String appId, String appName, boolean isRemovable, String status);
+
 }

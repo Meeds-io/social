@@ -978,4 +978,44 @@
     </sql>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-100">
+    <createIndex
+      tableName="SOC_SPACES_MEMBERS"
+      indexName="IDX_SOC_SPACES_MEMBERS_01">
+      <column name="SPACE_ID" />
+      <column name="USER_ID" />
+      <column name="STATUS" />
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-101">
+    <createIndex
+      tableName="SOC_SPACES_MEMBERS"
+      indexName="IDX_SOC_SPACES_MEMBERS_02">
+      <column name="SPACE_ID" />
+      <column name="STATUS" />
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-102">
+    <createIndex
+      tableName="SOC_SPACES_MEMBERS"
+      indexName="IDX_SOC_SPACES_MEMBERS_03">
+      <column name="USER_ID" />
+      <column name="STATUS" />
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-103">
+    <addColumn tableName="SOC_SPACES">
+      <column name="PUBLIC_SITE_ID" type="BIGINT" defaultValueNumeric="0"></column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-104">
+    <addColumn tableName="SOC_SPACES">
+      <column name="PUBLIC_SITE_VISIBILITY" type="TINYINT" defaultValueNumeric="0"></column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

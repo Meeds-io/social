@@ -305,8 +305,7 @@ public class EntityBuilder {
     // Kept for backward compatibility with deleted builder method
     userEntity.getDataEntity().put(RestProperties.USER_NAME, profile.getIdentity().getRemoteId());
 
-    boolean isAdmin = getUserACL().isSuperUser()
-                      || getUserACL().isUserInGroup(getUserACL().getAdminGroups());
+    boolean isAdmin = getUserACL().isAdministrator(getCurrentUserIdentity());
     boolean isCurrentUser = StringUtils.equals(getCurrentUserName(), profile.getIdentity().getRemoteId());
     boolean canViewProperties = isAdmin || isCurrentUser;
 
@@ -903,7 +902,7 @@ public class EntityBuilder {
                                           ExoContainerContext.getService(UserPortalConfigService.class);
           PortalConfig sitePortalConfig =
                                         service.getDataStorage().getPortalConfig(new SiteKey(SiteType.GROUP, space.getGroupId()));
-          spaceEntity.setCanEditNavigations(service.getUserACL().hasPermission(sitePortalConfig));
+          spaceEntity.setCanEditNavigations(service.getUserACL().hasAccessPermission(sitePortalConfig, getCurrentUserIdentity()));
         }
       }
       boolean isManager = spaceService.isManager(space, userId);
@@ -933,6 +932,8 @@ public class EntityBuilder {
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
+    spaceEntity.setPublicSiteId(space.getPublicSiteId());
+    spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility());
     spaceEntity.setSubscription(space.getRegistration());
     spaceEntity.setMembersCount(space.getMembers() == null ? 0 : countUsers(space.getMembers()));
     spaceEntity.setManagersCount(space.getManagers() == null ? 0 : countUsers(space.getManagers()));
@@ -1104,7 +1105,9 @@ public class EntityBuilder {
 
     LinkEntity userEntity;
     if (expandFields.contains(USERS_TYPE)) {
-      userEntity = new LinkEntity(buildEntityProfile(userId, restPath, expand));
+      Identity identity = getIdentityManager().getOrCreateUserIdentity(userId);
+      Profile profile = identity == null ? null : identity.getProfile();
+      userEntity = profile == null ? null : new LinkEntity(buildEntityProfile(space, profile, restPath, expand));
     } else {
       userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, userId, restPath));
     }
@@ -1179,9 +1182,9 @@ public class EntityBuilder {
     activityEntity.setOwner(getActivityOwner(poster, restPath, activity.getSpaceId()));
     activityEntity.setMentions(getActivityMentions(activity, restPath));
     activityEntity.setAttachments(new ArrayList<>());
-    boolean canEdit = getActivityManager().isActivityEditable(activity, ConversationState.getCurrent().getIdentity());
+    boolean canEdit = getActivityManager().isActivityEditable(activity, getCurrentUserIdentity());
     activityEntity.setCanEdit(canEdit);
-    boolean canDelete = getActivityManager().isActivityDeletable(activity, ConversationState.getCurrent().getIdentity());
+    boolean canDelete = getActivityManager().isActivityDeletable(activity, getCurrentUserIdentity());
     activityEntity.setCanDelete(canDelete);
     boolean canPin = getActivityManager().canPinActivity(activity, authentiatedUser);
     activityEntity.setCanPin(canPin);
@@ -1404,9 +1407,9 @@ public class EntityBuilder {
     commentEntity.setUpdateDate(RestUtils.formatISO8601(comment.getUpdated()));
     commentEntity.setActivity(RestUtils.getRestUrl(ACTIVITIES_TYPE, comment.getParentId(), restPath));
     commentEntity.setActivityId(comment.getParentId());
-    boolean canEdit = getActivityManager().isActivityEditable(comment, ConversationState.getCurrent().getIdentity());
+    boolean canEdit = getActivityManager().isActivityEditable(comment, getCurrentUserIdentity());
     commentEntity.setCanEdit(canEdit);
-    boolean canDelete = getActivityManager().isActivityDeletable(comment, ConversationState.getCurrent().getIdentity());
+    boolean canDelete = getActivityManager().isActivityDeletable(comment, getCurrentUserIdentity());
     commentEntity.setCanDelete(canDelete);
     commentEntity.setLikesCount(comment.getLikeIdentityIds() == null ? 0 : comment.getLikeIdentityIds().length);
     commentEntity.setCommentsCount(comment.getCommentedIds() == null ? 0 : comment.getCommentedIds().length);
@@ -2142,7 +2145,10 @@ public class EntityBuilder {
                                                    Locale locale) throws Exception {
     List<PortalConfig> filteredByPermissionSites = sites;
     if (filterByPermission) {
-      filteredByPermissionSites = sites.stream().filter(getUserACL()::hasPermission).toList();
+      filteredByPermissionSites = sites.stream()
+                                       .filter(portalConfig -> getUserACL().hasAccessPermission(portalConfig,
+                                                                                                getCurrentUserIdentity()))
+                                       .toList();
     }
     List<SiteEntity> siteEntities = new ArrayList<>();
     for (PortalConfig site : filteredByPermissionSites) {
@@ -2227,7 +2233,7 @@ public class EntityBuilder {
                           site.getDisplayOrder(),
                           isMetaSite(siteName),
                           siteNavigations,
-                          getUserACL().hasPermission(site.getEditPermission()),
+                          getUserACL().hasEditPermission(site, ConversationState.getCurrent().getIdentity()),
                           site.getBannerFileId(),
                           LinkProvider.buildSiteBannerUrl(siteName, site.getBannerFileId()));
   }
@@ -2241,7 +2247,7 @@ public class EntityBuilder {
   }
 
   private static boolean isMemberOf(String groupId) {
-    org.exoplatform.services.security.Identity identity = ConversationState.getCurrent().getIdentity();
+    org.exoplatform.services.security.Identity identity = getCurrentUserIdentity();
     return identity != null && identity.isMemberOf(groupId);
   }
 
@@ -2420,6 +2426,10 @@ public class EntityBuilder {
     return profilePropertySetting != null
            && (profilePropertySetting.isVisible()
                || !getProfilePropertyService().isPropertySettingHiddenable(profilePropertySetting));
+  }
+
+  private static org.exoplatform.services.security.Identity getCurrentUserIdentity() {
+    return ConversationState.getCurrent().getIdentity();
   }
 
   private static String getCurrentUserName() {

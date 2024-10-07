@@ -19,90 +19,33 @@
  -->
 
 <template>
-  <v-hover v-slot="{hover}">
+  <v-hover v-model="hover">
     <v-card
       :id="userMenuParentId"
-      class="peopleCardItem d-flex mx-2"
       :class="hover && 'grey lighten-4'"
-      ripple
+      class="peopleCardItem d-flex mx-2"
       flat>
       <div class="peopleToolbarIcons my-auto ms-auto">
-        <v-btn
+        <v-avatar
           v-if="user.isGroupBound"
           :title="$t('peopleList.label.groupBound')"
-          :ripple="false"
-          color="grey"
-          class="peopleGroupMemberBindingIcon d-flex not-clickable ms-1"
-          icon
-          small>
-          <span class="d-flex uiIconGroup"></span>
-        </v-btn>
-        <v-spacer />
-        <div v-if="isMobile">
-          <v-icon
-            size="14"
-            class="my-1"
-            @click="openBottomMenu">
-            fas fa-ellipsis-v
-          </v-icon>
-        </div>
-        <template v-else-if="canUseActionsMenu">
-          <v-menu
-            ref="actionMenu"
-            v-model="displayActionMenu"
-            :attach="`#${userMenuParentId}`"
-            transition="slide-x-reverse-transition"
-            content-class="peopleActionMenu mt-n6 me-4"
-            offset-y>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                v-bind="attrs"
-                v-on="on"
-                :title="$t('peopleList.label.openUserMenu')"
-                class="d-block"
-                icon
-                text>
-                <v-icon
-                  class="icon-default-size icon-default-color">
-                  mdi-dots-vertical
-                </v-icon>
-              </v-btn>
-            </template>
-            <v-list class="pa-0 white" dense>
-              <v-list-item
-                v-for="(extension, i) in enabledProfileActionExtensions"
-                :key="i"
-                @click="extension.click(user)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon
-                    size="18">
-                    {{ extension.class }}
-                  </v-icon>
-                  <span class="mx-2">
-                    {{ extension.title }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                v-for="(extension, i) in filteredUserNavigationExtensions"
-                :key="i"
-                @click="extension.click(user)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon
-                    size="18">
-                    {{ extension.class }}
-                  </v-icon>
-                  <span class="mx-2">
-                    {{ extension.title || $t(extension.titleKey) }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </template>
+          :size="28"
+          class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
+          <v-icon size="12" color="white">fa-users</v-icon>
+        </v-avatar>
+        <people-user-menu
+          :user="user"
+          :space-id="spaceId"
+          :user-navigation-extensions="userNavigationExtensions"
+          :space-members-extensions="spaceMembersExtensions"
+          :profile-action-extensions="profileActionExtensions"
+          :display-menu-button="$root.isMobile || hover"
+          :bottom-menu="$root.isMobile"
+          menu-button-class="me-1"
+          attach-menu />
       </div>
-      <div class="mt-3 peopleAvatar">
-        <a :href="url">
+      <div class="peopleAvatar">
+        <a :href="url" :aria-label="$t('profileSettings.label.profile')">
           <v-img
             :lazy-src="`${userAvatarUrl}`"
             :src="`${userAvatarUrl}`"
@@ -116,7 +59,11 @@
         </a>
       </div>
       <v-card-text
-        class="peopleCardBody align-center py-0 py-sm-1 d-flex full-height">
+        class="peopleCardBody align-center d-flex full-height"
+        :class="{
+          'py-0': mobileDisplay,
+          'py-1': !mobileDisplay,
+        }">
         <div class="my-auto">
           <a
             :href="url"
@@ -129,7 +76,11 @@
             </span>
           </a>
           <v-card-subtitle
-            class="userPositionLabel text-truncate pa-0 mt-0 mt-sm-auto">
+            class="userPositionLabel text-truncate pa-0"
+            :class="{
+              'mt-0': mobileDisplay,
+              'mt-auto': !mobileDisplay,
+            }">
             <a
               :href="url"
               class="grey--text text--darken-1">
@@ -141,7 +92,6 @@
     </v-card>
   </v-hover>
 </template>
-
 <script>
 export default {
   props: {
@@ -149,15 +99,15 @@ export default {
       type: Object,
       default: null,
     },
-    isManager: {
-      type: Boolean,
-      default: false,
+    spaceId: {
+      type: String,
+      default: null,
     },
     userNavigationExtensions: {
       type: Array,
       default: () => [],
     },
-    enabledProfileActionExtensions: {
+    profileActionExtensions: {
       type: Array,
       default: () => [],
     },
@@ -165,7 +115,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    isMobile: {
+    mobileDisplay: {
       type: Boolean,
       default: false,
     },
@@ -183,31 +133,11 @@ export default {
     }
   },
   data: () => ({
-    displayActionMenu: false,
-    waitTimeUntilCloseMenu: 200,
-    bottomMenu: false,
+    hover: false,
   }),
-  watch: {
-    displayActionMenu(newVal) {
-      if (newVal) {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 3;
-      } else {
-        document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
-      }
-    }
-  },
   computed: {
-    filteredUserNavigationExtensions() {
-      return this.userNavigationExtensions.filter(extension => extension.enabled(this.user));
-    },
-    isSameUser() {
-      return this.user?.username === eXo?.env?.portal?.userName;
-    },
     userMenuParentId() {
       return this.user?.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
-    },
-    canUseActionsMenu() {
-      return this.user && (this.enabledProfileActionExtensions.length || this.userNavigationExtensions.length);
     },
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-subtitle' || 'primary--text text-truncate-2 mt-0'}`;
@@ -218,26 +148,6 @@ export default {
     externalUser() {
       return this.user?.external === 'true';
     },
-  },
-  created() {
-    $(document).on('mousedown', () => {
-      if (this.displayActionMenu) {
-        window.setTimeout(() => {
-          this.displayActionMenu = false;
-        }, this.waitTimeUntilCloseMenu);
-      }
-    });
-  },
-  methods: {
-    openBottomMenu() {
-      if (!this.isSameUser) {
-        this.$root.$emit('open-people-compact-card-options-drawer',
-          this.user, [...this.enabledProfileActionExtensions, ...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
-      } else {
-        this.$root.$emit('open-people-compact-card-options-drawer',
-          this.user, [...this.filteredUserNavigationExtensions], this.spaceMembersExtensions);
-      }
-    }
   },
 };
 </script>

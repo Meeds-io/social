@@ -65,6 +65,10 @@ export default {
       type: String,
       default: 'mention_activity_stream'
     },
+    enterMode: {
+      type: Number,
+      default: () => 3 // div
+    },
     suggesterSpaceURL: {
       type: String,
       default: eXo.env.portal.spaceUrl
@@ -383,14 +387,14 @@ export default {
         editorplaceholder: this.placeholder,
         toolbar,
         allowedContent: true,
-        enterMode: 3, // div
+        enterMode: this.enterMode,
         typeOfRelation: this.suggestorTypeOfRelation,
         spaceURL: this.suggesterSpaceURL,
         spacePrettyName: this.suggesterSpacePrettyName,
         spaceId: this.spaceId || this.suggesterSpaceId,
         activityId: this.activityId,
         startupFocus: this.autofocus && this.focusPosition,
-        pasteFilter: 'p; a[!href]; strong; i', 
+        pasteFilter: 'p; div; a[!href]; strong; i',
         toolbarLocation: this.toolbarPosition,
         supportsOembed: this.supportsOembed,
       };

@@ -22,81 +22,32 @@
   <v-hover v-slot="{ hover }">
     <v-card
       :class="hover && 'elevation-2'"
-      class="mx-auto border-box-sizing card-border-radius socialUserCard"
       :width="$attrs.width"
       :min-width="$attrs.minWidth"
-      height="227"
       :href="profileUrl"
+      class="mx-auto border-box-sizing card-border-radius socialUserCard"
+      height="227"
       outlined>
       <v-img
         :lazy-src="bannerUrl"
         :src="bannerUrl"
         height="50px">
         <div
-          v-if="spaceMembersExtensions.length"
-          class="full-width position-absolute z-index-two">
-          <v-menu
-            v-if="hover || showMenu"
-            ref="actionMenu"
-            v-model="menu"
-            transition="slide-x-reverse-transition"
-            content-class="mt-6 ms-5"
-            left
-            offset-x>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                v-bind="attrs"
-                v-on="on"
-                :title="$t('peopleList.label.openUserMenu')"
-                class="d-block grey darken-1 mt-2 ms-auto me-2"
-                width="24"
-                height="24"
-                icon
-                text
-                @click.prevent>
-                <v-icon
-                  class="white--text"
-                  size="12">
-                  fas fa-ellipsis-v
-                </v-icon>
-              </v-btn>
-            </template>
-            <v-list class="pa-0 white" dense>
-              <v-list-item
-                v-for="(extension, i) in spaceMembersExtensions"
-                :key="i"
-                @click="extension.click(user)">
-                <v-list-item-title class="align-center d-flex">
-                  <v-icon
-                    size="15">
-                    {{ extension.class }}
-                  </v-icon>
-                  <span class="mx-2">
-                    {{ extension.title }}
-                  </span>
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+          :class="$vuetify.rtl && 'l-0' || 'r-0'"
+          class="position-absolute">
+          <people-user-menu
+            v-if="spaceId"
+            :user="user"
+            :space-id="spaceId"
+            :space-members-extensions="spaceMembersExtensions"
+            :display-menu-button="$root.isMobile || hover"
+            :bottom-menu="$root.isMobile"
+            menu-button-class="mt-2 me-2"
+            dark />
         </div>
-        <div class="ms-11 ps-11 mt-2 position-absolute z-index-two">
-          <people-user-role
-            v-if="isManager"
-            :title="$t('peopleList.label.spaceManager')"
-            :icon="'fas fa-user-cog'" />
-          <people-user-role
-            v-if="isRedactor"
-            :title="$t('peopleList.label.spaceRedactor')"
-            :icon="'fas fa-user-edit'" />
-          <people-user-role
-            v-if="isPublisher"
-            :title="$t('peopleList.label.spacePublisher')"
-            :icon="'fas fa-paper-plane'" />
-          <people-user-role
-            v-if="isGroupBound"
-            :title="$t('peopleList.label.groupBound')"
-            :icon="'fas fa-users'" />
-        </div>
+        <people-user-card-roles
+          :user="user"
+          class="ms-11 ps-11 mt-2 position-absolute z-index-two" />
       </v-img>
       <div class="d-flex">
         <v-avatar
@@ -139,14 +90,18 @@
           <v-btn
             v-for="extension in filteredUserNavigationExtensions"
             :key="extension.id"
-            :aria-label="extension.title"
+            :title="extension.title || $t(extension.titleKey)"
             icon
             @click.prevent="extension.click(user)">
-            <v-icon
-              :title="extension.title"
-              size="20">
-              {{ extension.class }}
-            </v-icon>
+            <v-card
+              class="d-flex align-center justify-center transparent"
+              height="25"
+              width="25"
+              flat>
+              <v-icon size="20">
+                {{ extension.class }}
+              </v-icon>
+            </v-card>
           </v-btn>
         </div>
         <div
@@ -157,11 +112,11 @@
             :key="extension.id">
             <v-btn
               v-if="!extension.init"
-              :aria-label="extension.title"
+              :aria-label="extension.title || $t(extension.titleKey)"
               icon
               @click.prevent="extension.click(user)">
               <v-icon
-                :title="extension.title"
+                :title="extension.title || $t(extension.titleKey)"
                 size="20">
                 {{ extension.class }}
               </v-icon>
@@ -177,17 +132,15 @@
     </v-card>
   </v-hover>
 </template>
-
 <script>
 export default {
-  data() {
-    return {
-      menu: false,
-    };
-  },
   props: {
     user: {
       type: Object,
+      default: null
+    },
+    spaceId: {
+      type: String,
       default: null
     },
     profileActionExtensions: {
@@ -206,7 +159,7 @@ export default {
       type: Array,
       default: () => []
     },
-    isMobile: {
+    compactDisplay: {
       type: Boolean,
       default: false
     },
@@ -215,9 +168,12 @@ export default {
       default: null
     },
   },
+  data: () => ({
+    menu: false,
+  }),
   computed: {
-    showMenu() {
-      return this.menu || this.isMobile;
+    filteredSpaceMembersExtensions() {
+      return this.spaceId && this.spaceMembersExtensions?.filter?.(extension => extension.enabled(this.user)) || [];
     },
     filteredUserNavigationExtensions() {
       return this.userNavigationExtensions.filter(extension => extension.enabled(this.user)
@@ -291,13 +247,6 @@ export default {
     this.initExtensions();
   },
   methods: {
-    closeMenu() {
-      if (this.menu) {
-        setTimeout(() => {
-          this.menu = false;
-        }, 200);
-      }
-    },
     initExtensions() {
       this.filteredProfileActionExtensions.forEach((extension) => {
         if (extension.init) {

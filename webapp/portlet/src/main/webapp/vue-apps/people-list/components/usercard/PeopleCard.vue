@@ -3,29 +3,33 @@
     <people-user-card
       v-if="!compact"
       :user="user"
+      :space-id="spaceId"
       :user-navigation-extensions="userNavigationExtensions"
-      :space-members-extensions="filteredSpaceMembersExtensions"
-      :profile-action-extensions="profileActionExtensions"
-      :is-mobile="isMobile" />
+      :space-members-extensions="spaceMembersExtensions"
+      :profile-action-extensions="profileActionExtensions" />
     <people-user-compact-card
       v-else
-      :is-mobile="isMobile"
+      :mobile-display="mobileDisplay"
       :user="user"
+      :space-id="spaceId"
       :user-navigation-extensions="userNavigationExtensions"
-      :enabled-profile-action-extensions="enabledProfileActionExtensions"
-      :space-members-extensions="filteredSpaceMembersExtensions"
+      :profile-action-extensions="profileActionExtensions"
+      :space-members-extensions="spaceMembersExtensions"
       :url="url"
       :user-avatar-url="userAvatarUrl"
       :is-updating-status="sendingAction || sendingSecondAction" />
   </v-flex>
 </template>
-
 <script>
 export default {
   props: {
     user: {
       type: Object,
       default: () => ({}),
+    },
+    spaceId: {
+      type: String,
+      default: null,
     },
     userNavigationExtensions: {
       type: Array,
@@ -43,23 +47,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    mobileDisplay: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     sendingAction: false,
     sendingSecondAction: false,
   }),
   computed: {
-    filteredSpaceMembersExtensions() {
-      return this.spaceMembersExtensions.filter(extension => extension.enabled(this.user));
-    },
-    enabledProfileActionExtensions() {
-      return this.profileActionExtensions.filter(extension => extension.enabled(this.user));
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.smAndDown;
-    },
     compact() {
-      return this.isMobile || this.compactDisplay;
+      return this.mobileDisplay || this.compactDisplay;
     },
     userAvatarUrl() {
       let userAvatarUrl;

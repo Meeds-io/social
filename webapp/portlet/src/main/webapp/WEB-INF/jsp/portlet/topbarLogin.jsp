@@ -1,8 +1,3 @@
-<%@page import="org.exoplatform.social.core.identity.model.Identity"%>
-<%@page import="org.exoplatform.social.webui.Utils"%>
-<%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
-<%@page import="org.exoplatform.container.ExoContainerContext"%>
-<%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
 <%
 /**
  * This file is part of the Meeds project (https://meeds.io/).
@@ -23,17 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 %>
+<%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
+<%@page import="org.exoplatform.social.core.space.model.Space"%>
+<%@page import="org.exoplatform.social.core.identity.model.Identity"%>
+<%@page import="org.exoplatform.social.webui.Utils"%>
+<%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
+<%@page import="org.exoplatform.container.ExoContainerContext"%>
+<%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
+<%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
   boolean canRegister = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
   Identity viewerIdentity = Utils.getViewerIdentity();
   String avatarUrl = viewerIdentity == null ? "" : viewerIdentity.getProfile().getAvatarUrl();
+
+  SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
+  Space space = SpaceUtils.getSpaceByContext();
+  String username = request.getRemoteUser();
 %>
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application v-application--is-ltr theme--light"
     id="topbarLogin">
-    <% if (request.getRemoteUser() == null) { %>
+    <% if (username == null) { %>
     <div class="v-application--wrap">
       <div class="d-flex">
         <a href="/portal/login"
@@ -44,7 +51,14 @@
     </div>
     <% } %>
     <script type="text/javascript">
-      require(['PORTLET/social-portlet/TopBarLogin'], app => app.init('<%=avatarUrl%>', <%=canRegister%>));
+      require(['PORTLET/social-portlet/TopBarLogin'], app =>
+        app.init('<%=avatarUrl%>',
+          <%=canRegister%>,
+          '<%=space == null ? "" : space.getRegistration()%>',
+          <%=space != null && username != null && spaceService.canViewSpace(space, username)%>,
+          <%=space != null && username != null && spaceService.isPendingUser(space, username)%>,
+          <%=space != null && username != null && spaceService.isInvitedUser(space, username)%>)
+      );
     </script>
   </div>
 </div>

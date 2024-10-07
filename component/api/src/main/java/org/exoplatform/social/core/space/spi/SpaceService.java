@@ -19,6 +19,7 @@ package org.exoplatform.social.core.space.spi;
 import java.time.Instant;
 import java.util.List;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
@@ -595,6 +596,17 @@ public interface SpaceService {
     } else {
       return isSuperManager(username);
     }
+  }
+
+  /**
+   * Checks whether the user can access Space Public Site or not
+   * 
+   * @param space {@link Space}
+   * @param username User name identifier
+   * @return true if can access sitch Space Settings else false
+   */
+  default boolean canAccessSpacePublicSite(Space space, String username) {
+    return false;
   }
 
   /**
@@ -1498,4 +1510,38 @@ public interface SpaceService {
   default Instant getSpaceMembershipDate(long spaceId, String username) {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Saves the space public site characteristics
+   * 
+   * @param spaceId
+   * @param publicSiteVisibility Visibility of public site, possible values: manager, member, internal, authenticated or everyone.
+   * @param username user identifier who's making the operation
+   * @throws IllegalAccessException when 
+   * @throws ObjectNotFoundException 
+   */
+  default void saveSpacePublicSite(String spaceId,
+                                   String publicSiteVisibility,
+                                   String username) throws ObjectNotFoundException, IllegalAccessException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Saves the space public site characteristics
+   * 
+   * @param space {@link Space}
+   * @param publicSiteVisibility Visibility of public site, possible values: manager, member, internal, authenticated or everyone.
+   */
+  default void saveSpacePublicSite(Space space, String publicSiteVisibility) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param space {@link Space}
+   * @return Public site name if exists, else null
+   */
+  default String getSpacePublicSiteName(Space space) {
+    throw new UnsupportedOperationException();
+  }
+
 }

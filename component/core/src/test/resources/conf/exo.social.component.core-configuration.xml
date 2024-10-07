@@ -815,6 +815,22 @@
                 <value>
                   <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
                     <field name="name">
+                      <string>externals</string>
+                    </field>
+                    <field name="parentId">
+                      <string>/platform</string>
+                    </field>
+                    <field name="description">
+                      <string>the /platform/externals group</string>
+                    </field>
+                    <field name="label">
+                      <string>Externals</string>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+                    <field name="name">
                       <string>spaces</string>
                     </field>
                     <field name="parentId">
@@ -1072,6 +1088,28 @@
                     </field>
                     <field name="groups">
                       <string>member:/platform/users</string>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$User">
+                    <field name="userName">
+                      <string>externalUser</string>
+                    </field>
+                    <field name="password">
+                      <string>gtn</string>
+                    </field>
+                    <field name="firstName">
+                      <string>External</string>
+                    </field>
+                    <field name="lastName">
+                      <string>User</string>
+                    </field>
+                    <field name="email">
+                      <string>externalUser@platform.com</string>
+                    </field>
+                    <field name="groups">
+                      <string>member:/platform/externals</string>
                     </field>
                   </object>
                 </value>
@@ -1528,6 +1566,55 @@
           <value>70</value>
         </value-param>
       </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
+    <component-plugin>
+      <name>social.new.user.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.SocialUserEventListenerImpl</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.portal.config.UserPortalConfigService</target-component>
+    <component-plugin>
+      <name>spacePublic.portal.template</name>
+      <set-method>initListener</set-method>
+      <type>org.exoplatform.portal.config.NewPortalConfigListener</type>
+      <init-params>
+        <object-param>
+          <name>site.templates.location</name>
+          <object type="org.exoplatform.portal.config.SiteConfigTemplates">
+            <field name="location">
+              <string>classpath:/portal/config/portal</string>
+            </field>
+            <field name="portalTemplates">
+              <collection type="java.util.HashSet">
+                <value>
+                  <string>spacePublic</string>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
+    <component-plugin>
+      <name>SpaceRenamedListenerImpl</name>
+      <set-method>addSpaceListener</set-method>
+      <type>org.exoplatform.social.core.space.impl.SpaceRenamedListenerImpl</type>
+    </component-plugin>
+    <component-plugin>
+      <name>SpacePublicSiteListener</name>
+      <set-method>addSpaceListener</set-method>
+      <type>io.meeds.social.core.space.listener.SpacePublicSiteListener</type>
     </component-plugin>
   </external-component-plugins>
 

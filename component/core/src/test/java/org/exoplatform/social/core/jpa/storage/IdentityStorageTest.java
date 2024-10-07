@@ -42,6 +42,8 @@ import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
+import lombok.SneakyThrows;
+
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -809,6 +811,7 @@ public class IdentityStorageTest extends AbstractCoreTest {
     for(int i = 0; i < 7; i++) {
       populateUser("username" + i);
     }
+    restartTransaction();
 
     Space space = new Space();
     space.setApp("app");
@@ -1248,10 +1251,10 @@ public class IdentityStorageTest extends AbstractCoreTest {
   private User populateUser(String name) {
     OrganizationService os = SpaceUtils.getOrganizationService();
     User user = os.getUserHandler().createUserInstance(name);
-    
+    user.setFirstName(name);
+    user.setLastName(name);
     try {
-      os.getUserHandler().createUser(user, false);
-      identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, name);
+      os.getUserHandler().createUser(user, true);
     } catch (Exception e) {
       return null;
     }
@@ -1286,24 +1289,18 @@ public class IdentityStorageTest extends AbstractCoreTest {
     space.setUrl(space.getPrettyName());
     return space;
   }
-  
+
+  @SneakyThrows
   private static void addUserToGroupWithMembership(String remoteId, String groupId, String membership) {
     OrganizationService organizationService = SpaceUtils.getOrganizationService();
-    try {
-      // TODO: checks whether user is already manager?
-      MembershipHandler membershipHandler = organizationService.getMembershipHandler();
-      Membership found = membershipHandler.findMembershipByUserGroupAndType(remoteId, groupId, membership);
-      if (found != null) {
-        return;
-      }
+    MembershipHandler membershipHandler = organizationService.getMembershipHandler();
+    Membership found = membershipHandler.findMembershipByUserGroupAndType(remoteId, groupId, membership);
+    if (found == null) {
       User user = organizationService.getUserHandler().findUserByName(remoteId);
       MembershipType membershipType = organizationService.getMembershipTypeHandler().findMembershipType(membership);
       GroupHandler groupHandler = organizationService.getGroupHandler();
       Group existingGroup = groupHandler.findGroupById(groupId);
       membershipHandler.linkMembership(user, existingGroup, membershipType, true);
-      persist();
-    } catch (Exception e) {
-      return;
     }
   }
 

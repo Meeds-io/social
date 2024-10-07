@@ -79,9 +79,9 @@ public class SearchServiceImpl implements SearchService, Startable {
   }
 
   @Override
-  public Set<SearchConnector> getEnabledConnectors() {
+  public Set<SearchConnector> getEnabledConnectors(String username) {
     UserACL userACL = CommonsUtils.getService(UserACL.class);
-    boolean isExternalUser = userACL.isUserInGroup(PLATFORM_EXTERNALS_GROUP);
+    boolean isExternalUser = userACL.isUserInGroup(userACL.getUserIdentity(username), PLATFORM_EXTERNALS_GROUP);
     return Collections.unmodifiableSet(connectors.stream()
                                                  .filter(c -> c.isEnabled() && !((c.getName().equals("people") || c.getName().equals("space")) && isExternalUser))
                                                  .map(SearchConnector::clone)

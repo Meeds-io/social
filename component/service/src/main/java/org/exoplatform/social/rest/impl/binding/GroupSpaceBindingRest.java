@@ -28,22 +28,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -60,8 +60,20 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.GroupNodeEntity;
+import org.exoplatform.social.rest.entity.GroupSpaceBindingEntity;
+import org.exoplatform.social.rest.entity.GroupSpaceBindingOperationReportEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaceGroupBindings")
 @Tag(name = VersionResources.VERSION_ONE
@@ -74,16 +86,12 @@ public class GroupSpaceBindingRest implements ResourceContainer {
 
   private SimpleDateFormat         formater = new SimpleDateFormat("yy-MM-dd_HH-mm-ss");
 
-  private UserACL                  userACL;
-
   private static final Log         LOG      = ExoLogger.getLogger(GroupSpaceBindingRest.class);
 
   public GroupSpaceBindingRest(SpaceService spaceService,
-                                          GroupSpaceBindingService groupSpaceBindingService,
-                                          UserACL userACL) {
+                               GroupSpaceBindingService groupSpaceBindingService) {
     this.groupSpaceBindingService = groupSpaceBindingService;
     this.spaceService = spaceService;
-    this.userACL = userACL;
   }
 
   /**
@@ -104,11 +112,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
                                        @Parameter(description = "Limit") @Schema(defaultValue = "10") @QueryParam("limit") int limit,
                                        @Parameter(description = "Returning the number of spaces found or not") 
                                        @Schema(defaultValue = "false")  @QueryParam("returnSize") boolean returnSize) throws Exception {
-
-    if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
     // Retrieve all removed bindings ids.
     List<Long> removedSpaceBindingsIds =
                                        groupSpaceBindingService.getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE)
@@ -166,9 +169,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
   public Response saveGroupSpaceBindings(@Context UriInfo uriInfo,
                                          @Parameter(description = "SpaceId of the space", required = true) @PathParam("spaceId") String spaceId,
                                          @Parameter(description = "List of group names to be bound to the space", required = true) List<String> groupNames) {
-    if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
     if (groupNames == null || groupNames.isEmpty()) {
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
@@ -213,10 +213,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
           @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response deleteSpaceBinding(@Context UriInfo uriInfo,
                                      @Parameter(description = "spaceId", required = true) @PathParam("bindingId") String bindingId) throws Exception {
-
-    if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
     GroupSpaceBinding binding;
     binding = groupSpaceBindingService.findGroupSpaceBindingById(bindingId);
     if (binding != null) {
@@ -235,11 +231,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
           @ApiResponse(responseCode = "500", description = "Internal server error"),
           @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getGroupsTree(@Context UriInfo uriInfo) throws Exception {
-
-    if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
     List<DataEntity> groupNodesDataEntities = buildGroupTree();
 
     CollectionEntity collectionGroupEntity = new CollectionEntity(groupNodesDataEntities,
@@ -267,11 +258,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
                             @Parameter(description = "action", required = true) @QueryParam("action") String action,
                             @Parameter(description = "group", required = true) @QueryParam("group") String group,
                             @Parameter(description = "groupBindingId") @QueryParam("groupBindingId") String groupBindingId) throws Exception {
-
-    if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
     List<GroupSpaceBindingReportUser> reports = groupSpaceBindingService.findReportsForCsv(Long.parseLong(spaceId),
                                                                                            Long.parseLong(groupBindingId),
                                                                                            group,
@@ -315,10 +301,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
           @ApiResponse(responseCode = "500", description = "Internal server error"),
           @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getBindingReportOperations(@Context UriInfo uriInfo) throws Exception {
-    if (!userACL.isSuperUser() && !userACL.isUserInGroup(userACL.getAdminGroups())) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
     // Get binding operations from the binding queue
     List<GroupSpaceBindingOperationReport> bindingOperationReports =
                                                                    groupSpaceBindingService.getGroupSpaceBindingReportOperations();

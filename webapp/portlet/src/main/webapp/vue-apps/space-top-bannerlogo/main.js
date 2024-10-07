@@ -33,18 +33,18 @@ export function init(params) {
         managers: params.managers,
         homePath: params.homePath,
       }),
-      template: `<exo-space-logo-banner
-                    id="SpaceTopBannerLogo"
-                    :space-id="spaceId"
-                    :muted="muted"
-                    :is-member="isMember"
-                    :logo-path="logoPath" 
-                    :portal-path="portalPath"
-                    :logo-title="logoTitle" 
-                    :members-number="membersNumber"
-                    :managers="managers"
-                    :home-path="homePath"
-                    :space-description="spaceDescription" />`,
+      template: `<space-logo-banner
+                   id="SpaceTopBannerLogo"
+                   :space-id="spaceId"
+                   :muted="muted"
+                   :is-member="isMember"
+                   :logo-path="logoPath" 
+                   :portal-path="portalPath"
+                   :logo-title="logoTitle" 
+                   :members-number="membersNumber"
+                   :managers="managers"
+                   :home-path="homePath"
+                   :space-description="spaceDescription" />`,
       created() {
         document.addEventListener('space-settings-updated', this.refreshSpaceSettings);
       },

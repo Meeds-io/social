@@ -1,24 +1,24 @@
 <!--
-   * This file is part of the Meeds project (https://meeds.io/).
-   *
-   * Copyright (C) 2023 Meeds Association
-   * contact@meeds.io
-   *
-   * This program is free software; you can redistribute it and/or
-   * modify it under the terms of the GNU Lesser General Public
-   * License as published by the Free Software Foundation; either
-   * version 3 of the License, or (at your option) any later version.
-   *
-   * This program is distributed in the hope that it will be useful,
-   * but WITHOUT ANY WARRANTY; without even the implied warranty of
-   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-   * Lesser General Public License for more details.
-   *
-   * You should have received a copy of the GNU Lesser General Public License
-   * along with this program; if not, write to the Free Software Foundation,
-   * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
--->
 
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-list
     class="pa-0"
@@ -120,7 +120,7 @@ export default {
     navigationNodeUri() {
       return this.navigation?.pageLink
         && this.urlVerify(this.navigation?.pageLink)
-        || `${this.baseSiteUri}${this.navigation.uri}`;
+        || (this.hasPage && `${this.baseSiteUri}${this.navigation.uri}`);
     },
     isSelected() {
       return this.navigationNodeUri === this.selectedPath;
@@ -143,6 +143,9 @@ export default {
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
       this.positionY = this.$el.getBoundingClientRect().top;
       this.$root.$emit('close-sibling-drop-menus-children', this);
+    },
+    hasPage() {
+      return !!this.navigation?.pageKey;
     },
   },
   created() {
@@ -183,7 +186,7 @@ export default {
       return url ;
     },
     handleCloseSiblingMenus(emitter) {
-      if (!emitter.navigation.pageLink && !emitter.navigationNodeUri.includes(this.navigationNodeUri) && this.showMenu) {
+      if (!emitter?.navigation?.pageLink && !emitter?.navigationNodeUri?.includes?.(this.navigationNodeUri) && this.showMenu) {
         this.showMenu = false;
       }
     },

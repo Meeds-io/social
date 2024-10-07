@@ -1,18 +1,20 @@
-/*
- * Copyright (C) 2003-2012 eXo Platform SAS.
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
  *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.core.space.impl;
 
@@ -23,16 +25,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.url.PortalURLContext;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -49,11 +49,15 @@ import org.exoplatform.web.url.URLFactoryService;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 public class SpaceAccessHandler extends WebRequestHandler {
 
   private static final String     SPACES_GROUP_PREFIX = SpaceUtils.SPACE_GROUP + "/";
 
-  public static final String      PAGE_URI       = "space-access";
+  public static final String      PAGE_URI            = "space-access";
 
   private IdentityManager         identityManager;
 
@@ -65,6 +69,10 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   private UserPortalConfigService userPortalConfigService;
 
+  private LayoutService           layoutService;
+
+  private UserACL                 userAcl;
+
   @Override
   public void onInit(WebAppController controller, ServletConfig sConfig) throws Exception {
     super.onInit(controller, sConfig);
@@ -75,11 +83,13 @@ public class SpaceAccessHandler extends WebRequestHandler {
     this.identityManager = container.getComponentInstanceOfType(IdentityManager.class);
     this.urlFactoryService = container.getComponentInstanceOfType(URLFactoryService.class);
     this.userPortalConfigService = container.getComponentInstanceOfType(UserPortalConfigService.class);
+    this.layoutService = container.getComponentInstanceOfType(LayoutService.class);
+    this.userAcl = container.getComponentInstanceOfType(UserACL.class);
   }
 
   @Override
   public String getHandlerName() {
-    return "space-access";
+    return PAGE_URI;
   }
 
   @Override
@@ -89,58 +99,61 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   @Override
   public boolean execute(ControllerContext controllerContext) throws Exception {
-    String remoteId = controllerContext.getRequest().getRemoteUser();
+    String username = controllerContext.getRequest().getRemoteUser();
     String requestSiteType = controllerContext.getParameter(REQUEST_SITE_TYPE);
     String requestSiteName = controllerContext.getParameter(REQUEST_SITE_NAME);
-    if (StringUtils.isNotBlank(remoteId)
-        && SiteType.GROUP.name().equalsIgnoreCase(requestSiteType)
-        && requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
-      Space space = spaceService.getSpaceByGroupId(requestSiteName);
-      if (space != null && canAccessSpace(remoteId, space)) {
-        HttpSession session = controllerContext.getRequest().getSession();
-        String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
-        if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
-          spaceService.updateSpaceAccessed(remoteId, space);
-        }
-        cleanupSession(controllerContext);
-        session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
-      } else {
-        processSpaceAccess(controllerContext, remoteId, space);
-        return true;
-      }
+    if (!SiteType.GROUP.name().equalsIgnoreCase(requestSiteType)
+        || !requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
+      return false;
     }
-    return false;
+    Space space = spaceService.getSpaceByGroupId(requestSiteName);
+    if (canAccessSpace(space, username)) {
+      HttpSession session = controllerContext.getRequest().getSession();
+      String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
+      if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
+        spaceService.updateSpaceAccessed(username, space);
+      }
+      cleanupSession(controllerContext);
+      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
+      return false;
+    } else if (space == null || Space.HIDDEN.equals(space.getVisibility())) {
+      controllerContext.getResponse()
+                       .sendRedirect(String.format("%s/%s/page-not-found",
+                                                   controllerContext.getRequest().getContextPath(),
+                                                   getPageNotFoundSite(username)));
+      return true;
+    } else if (canAccessSpacePublicSite(space, username)) {
+      controllerContext.getResponse()
+                       .sendRedirect(String.format("%s/%s",
+                                                   controllerContext.getRequest().getContextPath(),
+                                                   spaceService.getSpacePublicSiteName(space)));
+      return true;
+    } else {
+      processSpaceAccess(controllerContext, username, space);
+      return true;
+    }
   }
 
-  private boolean canAccessSpace(String remoteId, Space space) {
-    Identity identity = identityRegistry.getIdentity(remoteId);
-    if (identity == null) {
+  private boolean canAccessSpacePublicSite(Space space, String username) {
+    return spaceService.canAccessSpacePublicSite(space, username)
+           && userAcl.hasAccessPermission(layoutService.getPortalConfig(space.getPublicSiteId()),
+                                          userAcl.getUserIdentity(username));
+  }
+
+  private boolean canAccessSpace(Space space, String username) {
+    Identity identity = username == null ? null : identityRegistry.getIdentity(username);
+    if (identity == null || space == null) {
       return false;
-    } else {
+    } else if (spaceService.isMember(space, username)) {
+      return true;
+    } else if (spaceService.canViewSpace(space, username)) {
+      // Add user as 'member' to Identity if it's absent
       Collection<MembershipEntry> memberships = identity.getMemberships();
-
-      boolean isSuperManager = spaceService.isSuperManager(remoteId);
-      boolean isManager = spaceService.isManager(space, remoteId);
-      boolean isMember = spaceService.isMember(space, remoteId);
-
-      // add membership's member to Identity if it's absent
       MembershipEntry memberMembership = new MembershipEntry(space.getGroupId(), SpaceUtils.MEMBER);
-      boolean canAccessSpace = isMember || isManager || isSuperManager;
-      if (canAccessSpace) {
-        memberships.add(memberMembership);
-      } else {
-        memberships.remove(memberMembership);
-      }
-
-      @SuppressWarnings("deprecation")
-      MembershipEntry managerMembership = new MembershipEntry(space.getGroupId(), SpaceUtils.MANAGER);
-      // add membership's manager to Identity if it's absent
-      if (isManager || isSuperManager) {
-        memberships.add(managerMembership);
-      } else {
-        memberships.remove(managerMembership);
-      }
-      return canAccessSpace;
+      memberships.add(memberMembership);
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -205,6 +218,10 @@ public class SpaceAccessHandler extends WebRequestHandler {
     url.setAjax(false);
     url.setResource(resource);
     return url.toString();
+  }
+
+  private String getPageNotFoundSite(String username) {
+    return StringUtils.isBlank(username) ? "public" : userPortalConfigService.getMetaPortal();
   }
 
 }
