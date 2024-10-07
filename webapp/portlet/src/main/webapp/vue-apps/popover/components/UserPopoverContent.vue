@@ -98,9 +98,9 @@ export default {
     params() {
       return {
         identityType: 'USER_TIPTIP',
-        identityId: this.identity && this.identity.username,
-        identityEnabled: this.identity && this.identity.enabled,
-        identityDeleted: this.identity && this.identity.deleted,
+        identityId: this.identity?.username,
+        identityEnabled: this.identity?.enabled,
+        identityDeleted: this.identity?.deleted,
       };
     },
     enabledExtensionComponents() {
