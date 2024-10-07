@@ -21,27 +21,27 @@
 -->
 <template>
   <v-list-item class="text-truncate px-0 py-1">
-    <exo-user-avatar
-      :identity="user"
+    <exo-space-avatar
+      :space="space"
       :size="36"
       extra-class="text-truncate"
       avatar />
-    <exo-space-avatar
-      :space="space"
+    <exo-user-avatar
+      :identity="user"
       :size="30"
       extra-class="text-truncate ms-n6 mt-6"
       avatar />
     <v-list-item-content class="py-0 accountTitleLabel text-truncate">
       <v-list-item-title class="font-weight-bold mt-2">
-        <exo-user-avatar
-          :identity="user"
-          extra-class="text-truncate ms-2 me-1"
-          fullname />
-      </v-list-item-title>
-      <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
         <exo-space-avatar
           :space="space"
           extra-class="text-truncate"
+          fullname />
+      </v-list-item-title>
+      <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
+        <exo-user-avatar
+          :identity="user"
+          extra-class="text-truncate ms-2 me-1"
           fullname />
       </v-list-item-subtitle>
     </v-list-item-content>
