@@ -1,3 +1,25 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-card
     class="d-flex flex-column"
@@ -26,6 +48,7 @@
           :style="cardFlexBasis && `flex-basis: ${cardFlexBasis}`"
           :height="cardHeight"
           :min-height="cardHeight"
+          :display-members-count="displayMembersCount"
           max-width="100%"
           class="mx-2 mb-4 flex-grow-0 flex-shrink-0 pa-0" />
       </div>
@@ -136,6 +159,12 @@ export default {
     cardFlexBasis() {
       return this.cardsListWidth && `calc(${String(100 / this.cardPerLine).substring(0, 12)}% - ${this.cardXSpacing - 2}px)`;
     },
+    cardWidth() {
+      return parseInt(this.cardsListWidth / this.cardPerLine) + this.cardXSpacing + 2;
+    },
+    displayMembersCount() {
+      return this.cardWidth > 280;
+    },
     filteredSpaces() {
       if (!this.keyword || !this.loadingSpaces) {
         return this.spaces;
@@ -186,9 +215,8 @@ export default {
       return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter, expand)
         .then(data => {
           this.spaces = data && data.spaces || [];
-          this.spacesSize = data && data.size || 0;
           this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
-          this.$emit('loaded', this.spacesSize);
+          this.$emit('loaded', data?.size || 0);
           return this.$nextTick();
         })
         .then(() => {
