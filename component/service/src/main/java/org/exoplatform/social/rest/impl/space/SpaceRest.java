@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DELETE;
