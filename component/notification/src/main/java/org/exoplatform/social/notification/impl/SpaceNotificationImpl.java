@@ -74,11 +74,11 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
   public void joined(SpaceLifeCycleEvent event) {
     Space space = event.getSpace();
     String userId = event.getTarget();
-    updateNotificationsStatus(space, userId, SpaceInvitationPlugin.ID);
+    updateNotificationsStatus(space, userId, userId, SpaceInvitationPlugin.ID);
     String[] managers = space.getManagers();
     if (managers != null && managers.length > 0) {
       for (String manager : managers) {
-        updateNotificationsStatus(space, manager, RequestJoinSpacePlugin.ID);
+        updateNotificationsStatus(space, userId, manager, RequestJoinSpacePlugin.ID);
       }
     }
   }
@@ -120,19 +120,17 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
     }
   }
 
-  private void updateNotificationsStatus(Space space, String userId, String pluginId) {
-    WebNotificationFilter webNotificationFilter = new WebNotificationFilter(userId);
+  private void updateNotificationsStatus(Space space, String from, String to, String pluginId) {
+    WebNotificationFilter webNotificationFilter = new WebNotificationFilter(to);
     webNotificationFilter.setParameter("spaceId", space.getId());
     webNotificationFilter.setPluginKey(new PluginKey(pluginId));
     List<NotificationInfo> webNotifs = getWebNotificationService().getNotificationInfos(webNotificationFilter, 0, -1);
     for (NotificationInfo info : webNotifs) {
-      if (!info.getTo().equals(userId) ||
-          !info.isRead() ||
-          !"accepted".equals(info.getOwnerParameter().get("status"))) {
+      if (info.getTo().equals(to) && info.getFrom().equals(from) && !"accepted".equals(info.getOwnerParameter().get("status"))) {
         //one element has changed, we need to update
-        info.setTo(userId);
-
-        info.setRead(true);
+        info.setTo(to);
+        info.setFrom(from);
+        info.setRead(false);
         info.setOwnerParameter(new HashMap<>(info.getOwnerParameter()));
         info.getOwnerParameter().put("status", "accepted");
         updateNotification(info);
