@@ -112,7 +112,7 @@
           v-if="space.canEdit"
           :href="`${url}/settings`"
           label="spacesList.button.openSettings"
-          icon="far fa-edit" />
+          icon="fa-edit" />
         <space-card-menu-item
           v-if="space.canEdit"
           label="spacesList.button.remove"
