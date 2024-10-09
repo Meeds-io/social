@@ -49,7 +49,7 @@ import org.exoplatform.social.rest.api.RestUtils;
 import io.meeds.social.link.model.Link;
 import io.meeds.social.link.model.LinkSetting;
 import io.meeds.social.link.rest.model.LinkSettingRestEntity;
-import io.meeds.social.link.rest.util.EntityBuilder;
+import io.meeds.social.link.rest.util.LinkEntityBuilder;
 import io.meeds.social.link.service.LinkService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -130,8 +130,8 @@ public class LinkRest implements ResourceContainer {
       @ApiResponse(responseCode = "401", description = "Unauthorized"), })
   public Response saveLinkSetting(LinkSettingRestEntity linkSettingEntity) {
     try {
-      LinkSetting linkSetting = EntityBuilder.toLinkSetting(linkSettingEntity);
-      List<Link> linksToSave = EntityBuilder.toLinks(linkSettingEntity);
+      LinkSetting linkSetting = LinkEntityBuilder.toLinkSetting(linkSettingEntity);
+      List<Link> linksToSave = LinkEntityBuilder.toLinks(linkSettingEntity);
       linkSetting = linkService.saveLinkSetting(linkSetting, linksToSave, RestUtils.getCurrentUserAclIdentity());
       return Response.ok(getLinkSettingEntity(linkSetting, null)).build();
     } catch (IllegalAccessException e) {
@@ -190,7 +190,7 @@ public class LinkRest implements ResourceContainer {
 
   private LinkSettingRestEntity getLinkSettingEntity(LinkSetting linkSetting, String lang) {
     List<Link> links = linkService.getLinks(linkSetting.getName(), lang, true);
-    return EntityBuilder.build(linkSetting, links);
+    return LinkEntityBuilder.build(linkSetting, links);
   }
 
 }
