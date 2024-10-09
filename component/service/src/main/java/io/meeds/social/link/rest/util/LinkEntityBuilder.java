@@ -34,9 +34,9 @@ import io.meeds.social.link.model.LinkWithIconAttachment;
 import io.meeds.social.link.rest.model.LinkRestEntity;
 import io.meeds.social.link.rest.model.LinkSettingRestEntity;
 
-public class EntityBuilder {
+public class LinkEntityBuilder {
 
-  private EntityBuilder() {
+  private LinkEntityBuilder() {
     // Utils class
   }
 
