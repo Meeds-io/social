@@ -35,6 +35,7 @@ export function init(filter, canCreateSpace) {
         invitationsCount: 0,
         pendingCount: 0,
         requestsCount: 0,
+        unreadPerSpace: null,
       },
       computed: {
         isMobile() {

@@ -538,8 +538,8 @@ public class EntityBuilder {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static void buildListManagers(ProfileEntity userEntity, Profile profile, String restPath) {
-    @SuppressWarnings("unchecked")
     ArrayList<Map<String, String>> userNames = new ArrayList<>();
     if (profile.getProperty(MANAGER) instanceof List<?>) {
       userNames = (ArrayList<Map<String, String>>) profile.getProperty(MANAGER);
@@ -902,18 +902,6 @@ public class EntityBuilder {
                                                                        null,
                                                                        Long.parseLong(userIdentity.getId())));
           spaceEntity.setIsFavorite(String.valueOf(isFavorite));
-        }
-
-        if (expandFields.contains(RestProperties.UNREAD)) {
-          Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
-          SpaceWebNotificationService spaceWebNotificationService =
-                                                                  ExoContainerContext.getService(SpaceWebNotificationService.class);
-          Map<String, Long> unreadItems =
-                                        spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
-                                                                                                  Long.parseLong(space.getId()));
-          if (MapUtils.isNotEmpty(unreadItems)) {
-            spaceEntity.setUnreadItems(unreadItems);
-          }
         }
 
         if (expandFields.contains(RestProperties.MUTED)) {
