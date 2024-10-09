@@ -55,7 +55,7 @@
         // add noopener attribute to external links to eliminate vulnerabilities
         if (nodeLink) {
           // Open external links in a new Browser Tab
-          if (nodeLink.indexOf(window.location.origin) === -1) {
+          if (nodeLink.indexOf('/') !== 0 && nodeLink.indexOf(window.location.origin) === -1) {
             node.setAttribute('target', '_blank');
             node.setAttribute('rel', 'nofollow noopener noreferrer');
           }
