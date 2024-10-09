@@ -137,16 +137,7 @@ export default {
     },
   },
   created() {
-    document.addEventListener(`component-${this.name}-${this.type}-updated`, event => {
-      const component = event && event.detail;
-      if (component) {
-        if (!this.strictType || component.componentName === this.type) {
-          const components = this.components.slice();
-          this.registerComponent(component, components);
-          this.components = components;
-        }
-      }
-    });
+    document.addEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
     const registeredComponents = extensionRegistry.loadComponents(this.name);
     const components = [];
     if (this.strictType) {
@@ -160,7 +151,20 @@ export default {
     }
     this.components = components;
   },
+  beforeDestroy() {
+    document.removeEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
+  },
   methods: {
+    updateComponents(event) {
+      const component = event && event.detail;
+      if (component) {
+        if (!this.strictType || component.componentName === this.type) {
+          const components = this.components.slice();
+          this.registerComponent(component, components);
+          this.components = components;
+        }
+      }
+    },
     registerComponent(component, components) {
       if (component.componentOptions.init) {
         const initResult = component.componentOptions.init(this.params);

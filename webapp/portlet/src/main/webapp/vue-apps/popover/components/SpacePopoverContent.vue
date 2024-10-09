@@ -21,7 +21,7 @@
 <template>
   <v-card
     elevation="2"
-    class="pa-2 card-border-radius"
+    class="pa-2 space-popover card-border-radius"
     max-width="250"
     min-width="250"
     id="identity-popover"
@@ -46,16 +46,16 @@
         <p
           v-if="spaceDescription"
           v-sanitized-html="spaceDescription"
-          class="text-truncate-2 text-caption text--primary font-weight-medium"></p>
+          class="text-truncate-2 text-caption text--primary font-weight-medium mt-2"></p>
       </v-list-item-content>
     </v-list-item>
     <div class="d-flex justify-end">
       <space-mute-notification-button
         :space-id="spaceId"
-        :muted="space?.isMuted === 'true'"
+        :muted="isSpaceMuted"
         origin="spacePopoverAction" />
-      <exo-space-favorite-action
-        v-if="favoriteActionEnabled"
+      <space-favorite-action
+        v-if="isSpaceMember"
         :key="space.id"
         :is-favorite="space.isFavorite"
         :space-id="space.id" />
@@ -76,9 +76,7 @@
     </div>
   </v-card>
 </template>
-
 <script>
-
 export default {
   props: {
     space: {
@@ -86,11 +84,10 @@ export default {
       default: null,
     },
   },
-  data() {
-    return {
-      externalExtensions: [],
-    };
-  },
+  data: () => ({
+    retrievedSpace: null,
+    externalExtensions: [],
+  }),
   computed: {
     enabledExtensionComponents() {
       return this.externalExtensions.filter(extension => extension.enabled);
@@ -98,21 +95,32 @@ export default {
     spaceId() {
       return this.space?.id;
     },
+    spacePrettyName() {
+      return this.space?.prettyName;
+    },
     spaceMembersCount() {
-      return this.space?.membersCount;
+      return this.space?.membersCount || this.retrievedSpace?.membersCount;
     },
     spaceDescription() {
-      return this.space?.description;
+      return this.space?.description || this.retrievedSpace?.description;
+    },
+    isSpaceMember() {
+      return this.space?.isMember || this.retrievedSpace?.isMember;
+    },
+    isSpaceMuted() {
+      return this.space?.isMuted === 'true' || this.retrievedSpace?.isMuted === 'true';
+    },
+    canRedactOnSpace() {
+      return this.retrievedSpace ? this.retrievedSpace?.canRedactOnSpace : this.space?.canRedactOnSpace;
     },
     params() {
       return {
         identityType: 'space',
         identityId: this.spaceId,
+        spacePrettyName: this.spacePrettyName,
+        canRedactOnSpace: this.canRedactOnSpace,
       };
     },
-    favoriteActionEnabled() {
-      return this.space?.isMember;
-    }
   },
   watch: {
     spaceId: {
@@ -124,7 +132,15 @@ export default {
       },
     },
   },
+  created() {
+    this.init();
+  },
   methods: {
+    async init() {
+      if (this.spaceId && !Object.hasOwn(this.space, 'membersCount')) {
+        this.retrievedSpace = await this.$spaceService.getSpaceById(this.spaceId, 'favorite');
+      }
+    },
     refreshExtensions() {
       this.externalExtensions = [];
       this.$nextTick(() => {

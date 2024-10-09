@@ -453,7 +453,7 @@ public class EntityBuilder {
       }
     }
     if (expandAttributes.contains(SETTINGS)) {
-      userEntity.setProperties(EntityBuilder.buildProperties(profile, canViewProperties));
+      userEntity.setProperties(buildProperties(profile, canViewProperties));
     }
     if (expandAttributes.contains(MANAGER) && profile.getProperty(MANAGER) != null) {
       buildListManagers(userEntity, profile, restPath);
@@ -538,8 +538,8 @@ public class EntityBuilder {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static void buildListManagers(ProfileEntity userEntity, Profile profile, String restPath) {
-    @SuppressWarnings("unchecked")
     ArrayList<Map<String, String>> userNames = new ArrayList<>();
     if (profile.getProperty(MANAGER) instanceof List<?>) {
       userNames = (ArrayList<Map<String, String>>) profile.getProperty(MANAGER);
@@ -783,6 +783,31 @@ public class EntityBuilder {
     return userEntities;
   }
 
+  public static CollectionEntity buildEntityFromSpaces(List<Space> spaces,
+                                                       String username,
+                                                       int offset,
+                                                       int limit,
+                                                       String expand,
+                                                       UriInfo uriInfo) {
+    List<DataEntity> spaceInfos = new ArrayList<>();
+    for (Space space : spaces) {
+      SpaceEntity spaceInfo = buildEntityFromSpace(space, username, uriInfo.getPath(), expand);
+      spaceInfos.add(spaceInfo.getDataEntity());
+    }
+    CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, SPACES_TYPE, offset, limit);
+    if (StringUtils.isNotBlank(expand) && Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
+      SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
+      Map<Long, Long> unreadItemsPerSpace = spaceWebNotificationService.countUnreadItemsBySpace(username);
+      if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
+        collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
+                                                             .stream()
+                                                             .collect(Collectors.toMap(e -> e.getKey().toString(),
+                                                                                       Entry::getValue)));
+      }
+    }
+    return collectionSpace;
+  }
+
   /**
    * Get a hash map from a space in order to build a json object for the rest
    * service
@@ -800,7 +825,7 @@ public class EntityBuilder {
     if (StringUtils.isNotBlank(userId)) {
       IdentityManager identityManager = getIdentityManager();
       GroupSpaceBindingService groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
-      if (ArrayUtils.contains(space.getMembers(), userId) || spaceService.isSuperManager(userId)) {
+      if (spaceService.canViewSpace(space, userId)) {
         spaceEntity.setHref(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
         Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
 
@@ -879,18 +904,6 @@ public class EntityBuilder {
           spaceEntity.setIsFavorite(String.valueOf(isFavorite));
         }
 
-        if (expandFields.contains(RestProperties.UNREAD)) {
-          Identity userIdentity = identityManager.getOrCreateUserIdentity(userId);
-          SpaceWebNotificationService spaceWebNotificationService =
-                                                                  ExoContainerContext.getService(SpaceWebNotificationService.class);
-          Map<String, Long> unreadItems =
-                                        spaceWebNotificationService.countUnreadItemsByApplication(Long.parseLong(userIdentity.getId()),
-                                                                                                  Long.parseLong(space.getId()));
-          if (MapUtils.isNotEmpty(unreadItems)) {
-            spaceEntity.setUnreadItems(unreadItems);
-          }
-        }
-
         if (expandFields.contains(RestProperties.MUTED)) {
           UserSettingService userSettingService = ExoContainerContext.getService(UserSettingService.class);
           UserSetting userSetting = userSettingService.get(userId);
@@ -910,6 +923,7 @@ public class EntityBuilder {
       spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
       spaceEntity.setCanEdit(canEdit);
+      spaceEntity.setCanRedactOnSpace(spaceService.canRedactOnSpace(space, getCurrentUserIdentity()));
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
       spaceEntity.setIsPublisher(spaceService.isPublisher(space, userId));
@@ -918,7 +932,7 @@ public class EntityBuilder {
       spaceEntity.setIsMember(spaceService.isMember(space, currentUserIdentity.getRemoteId()));
     }
 
-    PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(GROUP, space.getGroupId()));
+    PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(PortalConfig.GROUP_TYPE, space.getGroupId()));
     spaceEntity.setSiteId((portalConfig.getStorageId().split("_"))[1]);
 
     spaceEntity.setDisplayName(space.getDisplayName());
@@ -932,8 +946,19 @@ public class EntityBuilder {
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
-    spaceEntity.setPublicSiteId(space.getPublicSiteId());
-    spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility());
+    if (space.getPublicSiteId() > 0) {
+      PortalConfig publicPortalConfig = getLayoutService().getPortalConfig(space.getPublicSiteId());
+      if (publicPortalConfig == null
+          || !getUserACL().hasAccessPermission(publicPortalConfig, getCurrentUserIdentity())) {
+        spaceEntity.setPublicSiteId(0l);
+      } else {
+        spaceEntity.setPublicSiteId(space.getPublicSiteId());
+        spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility());
+        spaceEntity.setPublicSiteName(publicPortalConfig.getName());
+      }
+    } else {
+      spaceEntity.setPublicSiteId(0l);
+    }
     spaceEntity.setSubscription(space.getRegistration());
     spaceEntity.setMembersCount(space.getMembers() == null ? 0 : countUsers(space.getMembers()));
     spaceEntity.setManagersCount(space.getManagers() == null ? 0 : countUsers(space.getManagers()));
@@ -1003,11 +1028,11 @@ public class EntityBuilder {
                                                  String restPath,
                                                  String expand) {
     if (getMembershipTypePredicate(spaceService, membershipType).test(space, userId)) {
-      return EntityBuilder.buildSpaceMembershipEntity(space,
-                                                      userId,
-                                                      membershipType.getRole(),
-                                                      restPath,
-                                                      expand);
+      return buildSpaceMembershipEntity(space,
+                                        userId,
+                                        membershipType.getRole(),
+                                        restPath,
+                                        expand);
     } else {
       return null; // NOSONAR
     }
@@ -1018,11 +1043,11 @@ public class EntityBuilder {
                                                         String restPath,
                                                         String expand) {
     return Arrays.stream(getUsersSupplier(space, membershipType).get())
-                 .map(user -> EntityBuilder.buildSpaceMembershipEntity(space,
-                                                                       user,
-                                                                       membershipType.getRole(),
-                                                                       restPath,
-                                                                       expand))
+                 .map(user -> buildSpaceMembershipEntity(space,
+                                                         user,
+                                                         membershipType.getRole(),
+                                                         restPath,
+                                                         expand))
                  .toList();
   }
 
@@ -1079,20 +1104,20 @@ public class EntityBuilder {
    * service
    *
    * @param space the provided space
-   * @param userId the user's remote id
+   * @param username the user's remote id
    * @param type membership type
    * @param restPath base REST path
    * @param expand which fields to expand from space
    * @return a hash map
    */
   public static SpaceMembershipEntity buildEntityFromSpaceMembership(Space space,
-                                                                     String userId,
+                                                                     String username,
                                                                      String type,
                                                                      String restPath,
                                                                      String expand) {
     updateCachedEtagValue(getEtagValue(type));
 
-    String id = space.getPrettyName() + ":" + userId + ":" + type;
+    String id = space.getPrettyName() + ":" + username + ":" + type;
     SpaceMembershipEntity spaceMembership = new SpaceMembershipEntity(id);
     spaceMembership.setHref(RestUtils.getRestUrl(SPACES_MEMBERSHIP_TYPE, id, restPath));
 
@@ -1105,16 +1130,17 @@ public class EntityBuilder {
 
     LinkEntity userEntity;
     if (expandFields.contains(USERS_TYPE)) {
-      Identity identity = getIdentityManager().getOrCreateUserIdentity(userId);
+      Identity identity = getIdentityManager().getOrCreateUserIdentity(username);
       Profile profile = identity == null ? null : identity.getProfile();
       userEntity = profile == null ? null : new LinkEntity(buildEntityProfile(space, profile, restPath, expand));
     } else {
-      userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, userId, restPath));
+      userEntity = new LinkEntity(RestUtils.getRestUrl(USERS_TYPE, username, restPath));
     }
     spaceMembership.setDataUser(userEntity);
+    spaceMembership.setUsername(username);
 
     if (expandFields.contains(CREATED_DATE)) {
-      Instant createdDate = getSpaceService().getSpaceMembershipDate(Long.parseLong(space.getId()), userId);
+      Instant createdDate = getSpaceService().getSpaceMembershipDate(Long.parseLong(space.getId()), username);
       if (createdDate != null && getSpaceService().canManageSpace(space, getCurrentUserName())) {
         spaceMembership.getDataEntity().put(CREATED_DATE, createdDate.toEpochMilli());
       }
@@ -1122,11 +1148,12 @@ public class EntityBuilder {
 
     LinkEntity spaceEntity;
     if (expandFields.contains(SPACES_TYPE)) {
-      spaceEntity = new LinkEntity(buildEntityFromSpace(space, userId, restPath, expand));
+      spaceEntity = new LinkEntity(buildEntityFromSpace(space, username, restPath, expand));
     } else {
       spaceEntity = new LinkEntity(RestUtils.getRestUrl(SPACES_TYPE, space.getId(), restPath));
     }
     spaceMembership.setDataSpace(spaceEntity);
+    spaceMembership.setSpaceId(space.getId());
 
     spaceMembership.setRole(type);
     switch (type) {
@@ -1191,25 +1218,25 @@ public class EntityBuilder {
 
     LinkEntity commentLink;
     if (expandFields.contains(COMMENTS_TYPE)) {
-      List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity,
-                                                                             authentiatedUser,
-                                                                             restPath,
-                                                                             "",
-                                                                             false,
-                                                                             RestUtils.DEFAULT_OFFSET,
-                                                                             RestUtils.DEFAULT_LIMIT);
+      List<DataEntity> commentsEntity = buildEntityFromComment(activity,
+                                                               authentiatedUser,
+                                                               restPath,
+                                                               "",
+                                                               false,
+                                                               RestUtils.DEFAULT_OFFSET,
+                                                               RestUtils.DEFAULT_LIMIT);
       RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity, true);
 
       commentLink = new LinkEntity(commentsEntity);
       activityEntity.setCommentsCount(listAccess.getSize());
     } else if (expandFields.contains(COMMENTS_PREVIEW_TYPE)) {
-      List<DataEntity> commentsEntity = EntityBuilder.buildEntityFromComment(activity,
-                                                                             authentiatedUser,
-                                                                             restPath,
-                                                                             expand,
-                                                                             true,
-                                                                             0,
-                                                                             COMMENTS_PREVIEW_LIMIT);
+      List<DataEntity> commentsEntity = buildEntityFromComment(activity,
+                                                               authentiatedUser,
+                                                               restPath,
+                                                               expand,
+                                                               true,
+                                                               0,
+                                                               COMMENTS_PREVIEW_LIMIT);
       RealtimeListAccess<ExoSocialActivity> listAccess = getActivityManager().getCommentsWithListAccess(activity, true);
 
       commentLink = new LinkEntity(commentsEntity);
@@ -1221,11 +1248,11 @@ public class EntityBuilder {
     activityEntity.setComments(commentLink);
 
     if (expandFields.contains(LIKES_TYPE)) {
-      List<DataEntity> likesEntity = EntityBuilder.buildEntityFromLike(activity,
-                                                                       restPath,
-                                                                       "",
-                                                                       RestUtils.DEFAULT_OFFSET,
-                                                                       DEFAULT_LIKERS_LIMIT);
+      List<DataEntity> likesEntity = buildEntityFromLike(activity,
+                                                         restPath,
+                                                         "",
+                                                         RestUtils.DEFAULT_OFFSET,
+                                                         DEFAULT_LIKERS_LIMIT);
       activityEntity.setLikes(new LinkEntity(likesEntity));
     } else {
       activityEntity.setLikes(new LinkEntity(getLikesActivityRestUrl(activity.getId(), restPath)));
@@ -1540,11 +1567,11 @@ public class EntityBuilder {
     List<DataEntity> infos = new ArrayList<>();
     for (Relationship relationship : relationships) {
       //
-      infos.add(EntityBuilder.buildEntityRelationship(relationship,
-                                                      uriInfo.getPath(),
-                                                      RestUtils.getQueryParam(uriInfo, "expand"),
-                                                      true)
-                             .getDataEntity());
+      infos.add(buildEntityRelationship(relationship,
+                                        uriInfo.getPath(),
+                                        RestUtils.getQueryParam(uriInfo, "expand"),
+                                        true)
+                                             .getDataEntity());
     }
     return infos;
   }

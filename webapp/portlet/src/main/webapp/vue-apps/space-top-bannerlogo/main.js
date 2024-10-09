@@ -32,6 +32,7 @@ export function init(params) {
         spaceDescription: decodeURIComponent(params.spaceDescription || ''),
         managers: params.managers,
         homePath: params.homePath,
+        canRedactOnSpace: params.canRedactOnSpace,
       }),
       template: `<space-logo-banner
                    id="SpaceTopBannerLogo"
@@ -44,7 +45,9 @@ export function init(params) {
                    :members-number="membersNumber"
                    :managers="managers"
                    :home-path="homePath"
-                   :space-description="spaceDescription" />`,
+                   :space-description="spaceDescription"
+                   :can-redact-on-space="canRedactOnSpace"
+                   class="full-height" />`,
       created() {
         document.addEventListener('space-settings-updated', this.refreshSpaceSettings);
       },

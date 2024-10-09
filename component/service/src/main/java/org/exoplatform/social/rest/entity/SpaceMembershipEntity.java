@@ -32,12 +32,12 @@ public class SpaceMembershipEntity extends BaseEntity {
     return this;
   }
 
-  public void setUser(String user) {
-    setProperty("user", user);
+  public void setUsername(String username) {
+    setProperty("username", username);
   }
 
-  public String getUser() {
-    return getString("user");
+  public String getUsername() {
+    return getString("username");
   }
 
   public SpaceMembershipEntity setDataSpace(LinkEntity space) {
@@ -45,12 +45,12 @@ public class SpaceMembershipEntity extends BaseEntity {
     return this;
   }
 
-  public void setSpace(String space) {
-    setProperty("space", space);
+  public void setSpaceId(String spaceId) {
+    setProperty("spaceId", spaceId);
   }
 
-  public String getSpace() {
-    return getString("space");
+  public String getSpaceId() {
+    return getString("spaceId");
   }
 
   public SpaceMembershipEntity setRole(String role) {

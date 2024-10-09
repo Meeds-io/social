@@ -1,3 +1,25 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <exo-drawer
     ref="spaceFormDrawer"
@@ -32,6 +54,7 @@
               <input
                 ref="autoFocusInput1"
                 v-model="space.displayName"
+                :aria-label="$t('spacesList.label.displayName')"
                 :placeholder="$t('spacesList.label.displayName')"
                 type="text"
                 name="name"
@@ -54,6 +77,7 @@
               </v-label>
               <select
                 v-model="template"
+                :aria-label="$t('spacesList.label.spaceTemplate')"
                 :disabled="space && space.id"
                 name="spaceTemplate"
                 class="input-block-level ignore-vuetify-classes my-3"
@@ -346,7 +370,7 @@ export default {
         visibility: 'private',
       };
       this.setSpaceTemplateProperties();
-      this.title= this.$t('spacesList.label.addNewSpace');
+      this.title = this.$t('spacesList.label.addNewSpace');
       this.$refs.spaceFormDrawer.open();
     });
     document.addEventListener('meeds.social.editSpace', this.editSpace);
@@ -384,7 +408,7 @@ export default {
       this.spaceToUpdate = space;
       this.space = Object.assign({}, space);
       this.template = this.space.template || this.template;
-      this.title= this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
+      this.title = this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
       this.$refs.spaceFormDrawer.open();
     },
     previousStep() {

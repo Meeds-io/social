@@ -25,7 +25,7 @@
       :width="$attrs.width"
       :min-width="$attrs.minWidth"
       :href="profileUrl"
-      class="mx-auto border-box-sizing card-border-radius socialUserCard"
+      class="mx-auto border-box-sizing socialUserCard"
       height="227"
       outlined>
       <v-img
@@ -92,7 +92,11 @@
             :key="extension.id"
             :title="extension.title || $t(extension.titleKey)"
             icon
-            @click.prevent="extension.click(user)">
+            @touchstart.stop="0"
+            @touchend.stop="0"
+            @mousedown.stop="0"
+            @mouseup.stop="0"
+            @click.stop.prevent="extension.click(user)">
             <v-card
               class="d-flex align-center justify-center transparent"
               height="25"
@@ -114,7 +118,11 @@
               v-if="!extension.init"
               :aria-label="extension.title || $t(extension.titleKey)"
               icon
-              @click.prevent="extension.click(user)">
+              @touchstart.stop="0"
+              @touchend.stop="0"
+              @mousedown.stop="0"
+              @mouseup.stop="0"
+              @click.stop.prevent="extension.click(user)">
               <v-icon
                 :title="extension.title || $t(extension.titleKey)"
                 size="20">

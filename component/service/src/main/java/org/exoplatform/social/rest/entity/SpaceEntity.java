@@ -22,6 +22,9 @@ import java.util.Map;
 
 import org.exoplatform.social.core.identity.model.Identity;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = true)
 public class SpaceEntity extends BaseEntity {
   private static final long serialVersionUID = -5407676622915680099L;
 
@@ -112,6 +115,15 @@ public class SpaceEntity extends BaseEntity {
 
   public Long getPublicSiteId() {
     return (Long) getProperty("publicSiteId");
+  }
+
+  public SpaceEntity setPublicSiteName(String publicSiteName) {
+    setProperty("publicSiteName", publicSiteName);
+    return this;
+  }
+
+  public String getPublicSiteName() {
+    return (String) getProperty("publicSiteName");
   }
 
   public SpaceEntity setPublicSiteVisibility(String publicSiteVisibility) {
@@ -236,6 +248,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("canEdit");
   }
 
+  public SpaceEntity setCanRedactOnSpace(boolean canRedactOnSpace) {
+    setProperty("canRedactOnSpace", canRedactOnSpace);
+    return this;
+  }
+
+  public Boolean getCanRedactOnSpace() {
+    return (Boolean) getProperty("canRedactOnSpace");
+  }
+
   public SpaceEntity setCanEditNavigations(boolean canEditNavigations) {
     setProperty("canEditNavigations", canEditNavigations);
     return this;
@@ -298,7 +319,7 @@ public class SpaceEntity extends BaseEntity {
   public String getPublishers() {
     return getString("publishers");
   }
-  
+
   public SpaceEntity setPublishersCount(int publishersCount) {
     setProperty("publishersCount", publishersCount);
     return this;

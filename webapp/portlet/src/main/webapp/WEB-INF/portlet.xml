@@ -498,7 +498,7 @@
     </init-param>
     <init-param>
       <name>layout-css-class</name>
-      <value>no-layout-style</value>
+      <value>no-layout-style full-height</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -733,24 +733,10 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/spacesOverview.jsp</value>
+      <value>/html/spacesOverview.html</value>
     </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social-portlet/SpacesOverview</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resources</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>prefetch.resource.rest</name>
-      <value><![CDATA[/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=manager&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=requests&returnSize=true&expand=pending|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=pending&returnSize=true&expand=|/portal/rest/v1/social/spaces?q=&offset=0&limit=0&filterType=invited&returnSize=true&expand=]]></value>
-    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>

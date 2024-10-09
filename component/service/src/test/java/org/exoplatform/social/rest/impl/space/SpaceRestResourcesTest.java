@@ -494,7 +494,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     response = service("GET", getURLResource("spaces/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/banner"), "", null, null);
     assertNotNull(response);
-    assertEquals(404, response.getStatus());
+    assertEquals(200, response.getStatus());
 
     space.setVisibility(Space.HIDDEN);
     space = spaceService.updateSpace(space);
@@ -528,7 +528,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     response = service("GET", getURLResource("spaces/" + LinkProvider.DEFAULT_IMAGE_REMOTE_ID + "/banner"), "", null, null);
     assertNotNull(response);
-    assertEquals(404, response.getStatus());
+    assertEquals(200, response.getStatus());
 
     space.setVisibility(Space.HIDDEN);
     space = spaceService.updateSpace(space);
