@@ -112,6 +112,8 @@ export default {
   created() {
     this.$root.$on('spaces-list-refresh', this.refresh);
     this.$root.$on('space-list-pending-updated', this.refresh);
+  },
+  mounted() {
     this.refresh();
   },
   beforeDestroy() {
