@@ -1,13 +1,12 @@
 <template>
-  <div>
+  <div class="space-search-card">
     <space-card
       :space="result"
-      :profile-action-extensions="profileActionExtensions"
+      :space-action-extensions="spaceActionExtensions"
       embedded
       @refresh="$emit('refresh')" />
   </div>
 </template>
-
 <script>
 export default {
   props: {
@@ -21,12 +20,19 @@ export default {
     },
   },
   data: () => ({
-    profileActionExtensions: [],
+    spaceActionExtensions: [],
   }),
   created() {
-    this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-    this.$root.$on('editSpace', space => document.dispatchEvent(new CustomEvent('editSpaceDetail', {'detail': space})));
-    this.$root.$on('displaySpaceManagers', space => document.dispatchEvent(new CustomEvent('openSpaceManagerDetail', {'detail': space})));
+    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    this.refreshExtensions();
   },
+  beforeDestroy() {
+    document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+  },
+  methods: {
+    refreshExtensions() {
+      this.spaceActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+    },
+  }
 };
 </script>
