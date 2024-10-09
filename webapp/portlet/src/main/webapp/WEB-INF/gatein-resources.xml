@@ -37,6 +37,13 @@
 
   <portlet-skin>
     <application-name>social-portlet</application-name>
+    <portlet-name>SpaceBannerPortlet</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social-portlet</application-name>
     <portlet-name>HamburgerMenu</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/HamburgerMenu/Style.css</css-path>
