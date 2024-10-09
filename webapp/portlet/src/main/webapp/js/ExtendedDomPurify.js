@@ -27,7 +27,7 @@
       replaceFn : function (match) {
         switch(match.getType()) {
           case 'url' :
-            if(match.getUrl().indexOf(window.location.origin) === 0) {
+            if(match.getUrl().indexOf('/') === 0 || match.getUrl().indexOf(window.location.origin) === 0) {
               return true;
             } else {
               const tag = match.buildTag();
@@ -55,7 +55,7 @@
         // add noopener attribute to external links to eliminate vulnerabilities
         if (nodeLink) {
           // Open external links in a new Browser Tab
-          if (nodeLink.indexOf(window.location.origin) === -1) {
+          if (nodeLink.indexOf('/') !== 0 && nodeLink.indexOf(window.location.origin) === -1) {
             node.setAttribute('target', '_blank');
             node.setAttribute('rel', 'nofollow noopener noreferrer');
           }
