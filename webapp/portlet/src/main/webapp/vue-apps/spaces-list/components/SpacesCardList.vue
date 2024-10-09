@@ -101,7 +101,6 @@
     </div>
   </v-card>
 </template>
-
 <script>
 export default {
   props: {
@@ -125,6 +124,7 @@ export default {
   data: () => ({
     spaceActionExtensions: [],
     resizeObserver: null,
+    initialized: false,
     hasSpaces: false,
     offset: 0,
     pageSize: 12,
@@ -176,13 +176,19 @@ export default {
   },
   watch: {
     keyword() {
-      this.searchSpaces();
+      if (this.initialized) {
+        this.searchSpaces();
+      }
     },
     limitToFetch() {
-      this.searchSpaces();
+      if (this.initialized) {
+        this.searchSpaces();
+      }
     },
     filter() {
-      this.searchSpaces();
+      if (this.initialized) {
+        this.searchSpaces();
+      }
     },
   }, 
   created() {
@@ -191,11 +197,13 @@ export default {
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.$root.$on('spaces-list-refresh', this.searchSpaces);
     this.refreshExtensions();
+    this.searchSpaces();
   },
   mounted() {
     this.resizeObserver = new ResizeObserver(this.computeWidth);
     this.resizeObserver.observe(this.$el);
     this.computeWidth();
+    this.refreshUnreadSpaces();
   },
   beforeDestroy() {
     document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
@@ -209,9 +217,13 @@ export default {
     refreshExtensions() {
       this.spaceActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
+    refreshUnreadSpaces() {
+      return this.$spaceService.getSpaces(null, 0, 0, 'member', 'unread')
+        .then(data => this.$root.unreadPerSpace = data?.unreadPerSpace);
+    },
     searchSpaces() {
       this.$emit('loading-spaces', true);
-      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,unread';
+      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite';
       return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter, expand)
         .then(data => {
           this.spaces = data && data.spaces || [];
@@ -224,7 +236,10 @@ export default {
             this.limitToFetch += this.pageSize;
           }
         })
-        .finally(() => this.$emit('loading-spaces', false));
+        .finally(() => {
+          this.$emit('loading-spaces', false);
+          this.initialized = true;
+        });
     },
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;

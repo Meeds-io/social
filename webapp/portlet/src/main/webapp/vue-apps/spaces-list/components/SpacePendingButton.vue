@@ -23,6 +23,7 @@
 <template>
   <v-tooltip
     :disabled="$root.isMobile"
+    transition="scale-transition"
     bottom>
     <template #activator="{on, attrs}">
       <v-btn

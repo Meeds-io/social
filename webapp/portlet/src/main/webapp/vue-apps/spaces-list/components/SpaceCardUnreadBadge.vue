@@ -28,6 +28,7 @@
         v-bind="attrs"
         v-on="on"
         :class="$vuetify.rtl && 'l-0' || 'r-0'"
+        transition="scale-transition"
         class="unread-badge border-radius-circle error-color-background position-absolute z-index-two mt-n2 me-n2"
         min-width="16"
         min-height="16"
@@ -54,7 +55,7 @@ export default {
       return this.space?.id;
     },
     hasUnreadBadge() {
-      return this.unread === null ? !!this.space.unread : this.unread;
+      return this.unread === null ? !!this.$root.unreadPerSpace?.[this.spaceId] : !!this.unread;
     },
   },
   mounted() {
