@@ -22,7 +22,7 @@
   <parent>
     <artifactId>social-component</artifactId>
     <groupId>io.meeds.social</groupId>
-    <version>7.0.0-exo-20241008</version>
+    <version>7.0.x-exo-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
