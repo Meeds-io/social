@@ -80,35 +80,14 @@
     <v-flex>
       <v-list-item-action
         id="HamburgerMenuSpaceLeftNavigationActions"
-        class="my-0 py-3 d-flex flex-row align-center justify-space-around me-0">
-        <v-tooltip bottom>
-          <template #activator="{ on, attrs }">
-            <v-btn
-              :aria-label="$t('menu.spaces.makeAsHomePage')"
-              role="button"
-              link
-              icon
-              v-bind="attrs"
-              v-on="on"
-              @click="$root.$emit('change-home-link-space', space)">
-              <v-icon 
-                :class="isHomeLink && 'primary--text' || 'icon-default-color'" 
-                class="me-0 pa-2" 
-                small>
-                fa-house-user
-              </v-icon>
-            </v-btn>
-          </template>
-          <span>
-            {{ $t('menu.spaces.makeAsHomePage') }}
-          </span>
-        </v-tooltip>
+        class="my-0 pt-3 pb-0 d-flex flex-row align-center justify-end me-0">
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
               :disabled="markAsReadDisabled"
-              v-bind="attrs" 
-              v-on="on" 
+              v-bind="attrs"
+              v-on="on"
+              class="me-2"
               icon
               @click="markAsAllRead">
               <v-icon class="me-0 pa-2" small>
@@ -120,32 +99,32 @@
             {{ $t('menu.spaces.markAsRead') }}
           </span>
         </v-tooltip>
-        <space-mute-notification-button
-          :space-id="spaceId"
-          :muted="muted"
-          origin="spaceLeftNavigationAction" />
-        <space-favorite-action
-          :is-favorite="isFavorite"
-          :space-id="spaceId"
-          entity-type="spaces_left_navigation" />
         <extension-registry-components
           :params="params"
           name="SpacePopover"
           type="space-popover-action"
           parent-element="div"
           element="div"
-          element-class="mx-auto ma-lg-0"
+          element-class="me-2 ms-0"
           class="space-panel-action" />
+        <space-favorite-action
+          :is-favorite="isFavorite"
+          :space-id="spaceId"
+          entity-type="spaces_left_navigation"
+          class="me-2" />
         <span
           v-for="extension in enabledExtensionComponents"
-          class="space-panel-action"
           :key="extension.key"
           :class="`${extension.appClass} ${extension.typeClass}`"
-          :ref="extension.key"></span>
+          :ref="extension.key"
+          class="space-panel-action me-2"></span>
+        <space-hamburger-action-menu
+          :space="space"
+          class="me-2" />
       </v-list-item-action>
     </v-flex>
     <v-flex>
-      <v-list v-if="spaceNavigations">
+      <v-list v-if="spaceNavigations" class="pa-0">
         <site-navigation-tree
           :navigations="spaceNavigations"
           :site-name="spaceGroupId"
