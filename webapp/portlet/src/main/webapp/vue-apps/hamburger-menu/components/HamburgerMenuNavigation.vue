@@ -212,7 +212,11 @@ export default {
     this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
     this.$root.$on('change-site-menu', this.changeSiteMenu);
     this.$root.$on('dialog-opened', () => this.allowClosing = false);
-    this.$root.$on('dialog-closed', () => this.allowClosing = true);
+    this.$root.$on('dialog-closed', () => window.setTimeout(() => {
+      this.allowClosing = true;
+    }, 200));
+    this.$root.$on('menu-opened', () => this.allowClosing = false);
+    this.$root.$on('menu-closed', () => this.allowClosing = true);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     this.init();
   },
