@@ -59,6 +59,8 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.Utils;
+import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -1843,7 +1845,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.addMember(savedSpace, "john");
     spaceService.setManager(savedSpace, "john", true);
     spaceService.addRedactor(savedSpace, "john");
-    
+
     GroupHandler groupHandler = organizationService.getGroupHandler();
     UserHandler userHandler = organizationService.getUserHandler();
     MembershipType mbShipTypeMember = organizationService.getMembershipTypeHandler()
@@ -1851,7 +1853,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     User user = userHandler.findUserByName("john");
     organizationService.getMembershipHandler()
                        .linkMembership(user, groupHandler.findGroupById(space.getGroupId()), mbShipTypeMember, true);
-    
+
     savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
     assertEquals("savedSpace.getMembers().length must return 4", 4, savedSpace.getMembers().length);
 
@@ -1868,8 +1870,167 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertFalse(spaceService.isMember(savedSpace, "john"));
 
     assertEquals("savedSpace.getMembers().length must return 1", 1, savedSpace.getMembers().length);
-    IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
-    ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
+  }
+
+  public void testDeleteSpaceWithBoundMember() throws Exception {
+    String userToBind = "paul";
+
+    int number = 17;
+    Space space = new Space();
+    space.setDisplayName("my space " + number);
+    space.setPrettyName(space.getDisplayName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("add new space " + number);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    space.setGroupId("/space/space" + number);
+    space.setUrl(space.getPrettyName());
+    space.setMembers(new String[] { "john", "mary" });
+    space = this.createSpaceNonInitApps(space, "john", null);
+    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    spaceService.addMember(savedSpace, userToBind);
+
+    Group groupToBind = organizationService.getGroupHandler().createGroupInstance();
+    String groupName = "groupForSpaceToBind";
+    String groupId = "/" + groupName;
+    groupToBind.setId(groupId);
+    groupToBind.setGroupName(groupName);
+    groupToBind.setLabel(groupName);
+    organizationService.getGroupHandler().addChild(null, groupToBind, true);
+
+    MembershipType membershipType = organizationService.getMembershipTypeHandler().findMembershipType(SpaceUtils.MEMBER);
+    User user = organizationService.getUserHandler().findUserByName(userToBind);
+    organizationService.getMembershipHandler().linkMembership(user, groupToBind, membershipType, true);
+    Membership membership = organizationService.getMembershipHandler()
+                                               .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                                 groupToBind.getId(),
+                                                                                 membershipType.getName());
+    assertNotNull(membership);
+
+    restartTransaction();
+    GroupSpaceBindingService groupSpaceBindingService = getContainer().getComponentInstanceOfType(GroupSpaceBindingService.class);
+
+    GroupSpaceBinding groupSpaceBinding = new GroupSpaceBinding(space.getId(), groupToBind.getId());
+    groupSpaceBindingService.saveGroupSpaceBinding(groupSpaceBinding);
+    restartTransaction();
+
+    List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingService.findGroupSpaceBindingsBySpace(savedSpace.getId());
+    assertNotNull(groupSpaceBindings);
+    assertEquals(1, groupSpaceBindings.size());
+
+    assertTrue(spaceService.isMember(savedSpace, userToBind));
+
+    spaceService.deleteSpace(savedSpace);
+    restartTransaction();
+
+    assertNull(spaceService.getSpaceById(savedSpace.getId()));
+
+    membership = organizationService.getMembershipHandler()
+                                    .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                      groupToBind.getId(),
+                                                                      membershipType.getName());
+    assertNotNull(membership);
+
+    membership = organizationService.getMembershipHandler()
+                                    .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                      savedSpace.getGroupId(),
+                                                                      SpaceUtils.MEMBER);
+    assertNull(membership);
+  }
+
+  public void testRemoveBoundMember() throws Exception {
+    String userToBind = "paul";
+
+    int number = 0;
+    Space space = new Space();
+    space.setDisplayName("my space " + number);
+    space.setPrettyName(space.getDisplayName());
+    space.setRegistration(Space.OPEN);
+    space.setDescription("add new space " + number);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    space.setPriority(Space.INTERMEDIATE_PRIORITY);
+    space.setGroupId("/space/space" + number);
+    space.setUrl(space.getPrettyName());
+    space.setMembers(new String[] { "john", "mary" });
+    space = this.createSpaceNonInitApps(space, "john", null);
+    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    spaceService.addMember(savedSpace, userToBind);
+
+    Group groupToBind = organizationService.getGroupHandler().createGroupInstance();
+    String groupName = "groupForSpaceToBind";
+    String groupId = "/" + groupName;
+    groupToBind.setId(groupId);
+    groupToBind.setGroupName(groupName);
+    groupToBind.setLabel(groupName);
+    organizationService.getGroupHandler().addChild(null, groupToBind, true);
+
+    MembershipType membershipType = organizationService.getMembershipTypeHandler().findMembershipType(SpaceUtils.MEMBER);
+    User user = organizationService.getUserHandler().findUserByName(userToBind);
+    organizationService.getMembershipHandler().linkMembership(user, groupToBind, membershipType, true);
+    Membership membership = organizationService.getMembershipHandler()
+                                               .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                                 groupToBind.getId(),
+                                                                                 membershipType.getName());
+    assertNotNull(membership);
+
+    restartTransaction();
+    GroupSpaceBindingService groupSpaceBindingService = getContainer().getComponentInstanceOfType(GroupSpaceBindingService.class);
+
+    GroupSpaceBinding groupSpaceBinding = new GroupSpaceBinding(space.getId(), groupToBind.getId());
+    groupSpaceBindingService.saveGroupSpaceBinding(groupSpaceBinding);
+    restartTransaction();
+
+    List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingService.findGroupSpaceBindingsBySpace(savedSpace.getId());
+    assertNotNull(groupSpaceBindings);
+    assertEquals(1, groupSpaceBindings.size());
+
+    groupSpaceBinding = groupSpaceBindings.get(0);
+    groupSpaceBindingService.bindUsersFromGroupSpaceBinding(groupSpaceBinding);
+    restartTransaction();
+
+    assertThrows(IllegalStateException.class, () -> spaceService.removeMember(savedSpace, userToBind));
+
+    assertThrows(IllegalStateException.class,
+                 () -> organizationService.getMembershipHandler()
+                                          .removeMembership(String.format("%s:%s:%s",
+                                                                          SpaceUtils.MEMBER,
+                                                                          userToBind,
+                                                                          savedSpace.getGroupId()),
+                                                            true));
+
+    membership = organizationService.getMembershipHandler()
+                                    .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                      groupToBind.getId(),
+                                                                      membershipType.getName());
+    assertNotNull(membership);
+
+    membership = organizationService.getMembershipHandler()
+                                    .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                      savedSpace.getGroupId(),
+                                                                      SpaceUtils.MEMBER);
+    assertNotNull(membership);
+
+    assertTrue(spaceService.isMember(savedSpace, userToBind));
+
+    groupSpaceBindingService.deleteAllSpaceBindingsBySpace(savedSpace.getId());
+    restartTransaction();
+
+    spaceService.removeMember(savedSpace, userToBind);
+
+    assertFalse(spaceService.isMember(savedSpace, userToBind));
+    membership = organizationService.getMembershipHandler()
+                                    .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                      groupToBind.getId(),
+                                                                      membershipType.getName());
+    assertNotNull(membership);
+
+    membership = organizationService.getMembershipHandler()
+                                    .findMembershipByUserGroupAndType(user.getUserName(),
+                                                                      savedSpace.getGroupId(),
+                                                                      SpaceUtils.MEMBER);
+    assertNull(membership);
   }
 
   /**
