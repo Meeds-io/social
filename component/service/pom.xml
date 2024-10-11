@@ -29,7 +29,7 @@
   <name>Meeds:: PLF:: Social Service Component</name>
   <description>Meeds Social Service Component</description>
   <properties>
-    <exo.test.coverage.ratio>0.51</exo.test.coverage.ratio>
+    <exo.test.coverage.ratio>0.52</exo.test.coverage.ratio>
 
     <rest.api.doc.title>Social Rest Api</rest.api.doc.title>
     <rest.api.doc.version>1.0</rest.api.doc.version>

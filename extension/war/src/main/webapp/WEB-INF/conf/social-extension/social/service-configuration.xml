@@ -24,9 +24,6 @@
 
   <!-- Deprecated REST service (will be removed in next versions) -->
   <component>
-    <type>org.exoplatform.social.service.rest.IdentityRestService</type>
-  </component>
-  <component>
     <type>org.exoplatform.social.service.rest.PeopleRestService</type>
   </component>
   <component>
@@ -43,9 +40,6 @@
   </component>
   <component>
     <type>org.exoplatform.social.rest.suggest.SpaceRestServices</type>
-  </component>
-  <component>
-    <type>org.exoplatform.social.rest.invitation.PeopleAndSpacesRestService</type>
   </component>
   <!-- END: Deprecated REST service -->
 
