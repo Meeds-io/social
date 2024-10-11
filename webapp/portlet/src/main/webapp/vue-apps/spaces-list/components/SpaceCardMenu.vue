@@ -76,7 +76,7 @@
           label="spacesList.button.visitPublicSite"
           icon="fa-globe" />
         <space-card-menu-item
-          v-if="space.isMember"
+          v-if="space.isMember && !space.isUserBound"
           label="spacesList.button.leave"
           icon="fa-sign-out-alt"
           @click="leaveConfirm" />
