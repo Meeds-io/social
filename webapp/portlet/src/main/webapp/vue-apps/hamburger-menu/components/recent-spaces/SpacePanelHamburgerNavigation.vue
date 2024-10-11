@@ -162,6 +162,9 @@ export default {
     spaceId() {
       return this.space?.id;
     },
+    spacePrettyName() {
+      return this.space?.prettyName;
+    },
     spaceDisplayName() {
       return this.space?.displayName;
     },
@@ -186,10 +189,15 @@ export default {
     isHomeLink() {
       return this.spaceURL === this.homeLink;
     },
+    canRedactOnSpace() {
+      return this.space?.canRedactOnSpace;
+    },
     params() {
       return {
         identityType: 'space',
-        identityId: this.spaceId
+        identityId: this.spaceId,
+        spacePrettyName: this.spacePrettyName,
+        canRedactOnSpace: this.canRedactOnSpace,
       };
     },
     enabledExtensionComponents() {
