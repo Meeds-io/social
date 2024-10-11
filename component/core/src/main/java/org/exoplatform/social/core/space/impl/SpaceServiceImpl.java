@@ -43,6 +43,7 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -63,6 +64,7 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
+import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
@@ -84,6 +86,8 @@ public class SpaceServiceImpl implements SpaceService {
   public static final String          MANAGER              = "manager";
 
   private SpaceStorage                spaceStorage;
+
+  private GroupSpaceBindingStorage    groupSpaceBindingStorage;
 
   private IdentityManager             identityManager;
 
@@ -110,6 +114,7 @@ public class SpaceServiceImpl implements SpaceService {
   private LayoutService               layoutService;
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
+                          GroupSpaceBindingStorage groupSpaceBindingStorage,
                           IdentityManager identityManager,
                           UserACL userACL,
                           IdentityRegistry identityRegistry,
@@ -124,6 +129,7 @@ public class SpaceServiceImpl implements SpaceService {
     this.authenticator = authenticator;
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateService = spaceTemplateService;
+    this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.layoutService = layoutService;
   }
 
@@ -331,6 +337,9 @@ public class SpaceServiceImpl implements SpaceService {
     spaceLifeCycle.setCurrentEvent(Type.SPACE_REMOVED);
     try {
       try {
+        List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingStorage.findGroupSpaceBindingsBySpace(space.getId());
+        groupSpaceBindings.stream().map(GroupSpaceBinding::getId).forEach(groupSpaceBindingStorage::deleteGroupBinding);
+
         // remove memberships of users with deleted space.
         SpaceUtils.removeMembershipFromGroup(space);
 
@@ -396,6 +405,12 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public void removeMember(Space space, String username) {
+    if (groupSpaceBindingStorage.countUserBindings(space.getId(), username) > 0) {
+      throw new IllegalStateException("space.cantLeaveBoundSpace");
+    }
+    if (isManager(space, username)) {
+      setManager(space, username, false);
+    }
     if (isManager(space, username)) {
       setManager(space, username, false);
     }
