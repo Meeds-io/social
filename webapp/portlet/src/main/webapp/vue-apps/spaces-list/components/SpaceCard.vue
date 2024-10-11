@@ -63,7 +63,7 @@
       </v-card>
       <div v-if="!$root.isMobile" class="flex-grow-1 flex-shrink-1 px-4 mt-4">
         <div
-          v-sanitized-html="spaceDescription"
+          v-sanitized-html="spaceDescriptionText"
           class="text-truncate-3 max-height-3lh full-width flex-shrink-1"></div>
       </div>
       <v-card
@@ -125,6 +125,9 @@ export default {
     },
     spaceDescription() {
       return this.space.description?.replace?.(/<p>/g, '<div>')?.replace?.(/<\/p>/g, '</div>')?.replace?.(/<ul>/g, '<ul class="ma-0 pa-0">') || '';
+    },
+    spaceDescriptionText() {
+      return this.$utils.htmlToText(this.spaceDescription);
     },
     spaceMembersCount() {
       return this.$t('spaceList.spaceMembers', {0: `<strong>${this.space.membersCount}</strong>`});
