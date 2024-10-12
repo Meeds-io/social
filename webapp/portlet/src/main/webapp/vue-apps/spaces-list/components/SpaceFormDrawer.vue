@@ -68,7 +68,7 @@
                 v-model="space.description"
                 :placeholder="$t('SpaceSettings.label.description')"
                 :max-length="maxDescriptionLength"
-                :tag-enabled="false"
+                tag-enabled
                 class="my-3"
                 ck-editor-type="spaceDescription"
                 disable-suggester />

@@ -16,8 +16,13 @@
  */
 package org.exoplatform.social.core.space;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.search.Sorting;
@@ -36,154 +41,46 @@ import lombok.Setter;
  */
 @AllArgsConstructor
 @EqualsAndHashCode
+@Getter
+@Setter
 public class SpaceFilter implements Cloneable {
 
-  /** The space name search condition. */
-  private String      spaceNameSearchCondition;
+  private String                spaceNameSearchCondition;
 
-  private List<Space> includeSpaces;
+  private List<Space>           includeSpaces;
 
-  private List<Space> exclusions;
+  private List<Space>           exclusions;
 
-  /** The remoteId search condition. */
-  private String      remoteId;
+  private String                remoteId;
 
-  /** The appId search condition. */
-  private String      appId;
+  private String                template;
 
-  /** The template search condition. */
-  private String      template;
+  private SpaceMembershipStatus status;
+
+  private SpaceMembershipStatus extraStatus;
+
+  private Sorting               sorting;
+
+  private boolean               favorite;
 
   @Getter
   @Setter
-  private Set<SpaceMembershipStatus> status;
+  private List<String>          tagNames;
 
-  private Sorting     sorting;
-
-  private boolean     favorite;
-
-  /**
-   * The constructor.
-   */
   public SpaceFilter() {
     this.spaceNameSearchCondition = null;
   }
 
-  /**
-   * The constructor.
-   * 
-   * @param spaceNameSearchCondition
-   */
   public SpaceFilter(String spaceNameSearchCondition) {
     this.spaceNameSearchCondition = Utils.processUnifiedSearchCondition(spaceNameSearchCondition);
   }
 
-  /**
-   * The constructor.
-   * 
-   * @param remoteId
-   * @param appId
-   */
-  public SpaceFilter(String remoteId, String appId) {
-    this.appId = appId;
-    this.remoteId = remoteId;
-  }
-
-  /**
-   * Gets Space list to filter
-   * 
-   * @return
-   * @since 4.0
-   */
-  public List<Space> getIncludeSpaces() {
-    return includeSpaces;
-  }
-
-  /**
-   * Sets Space list to filter
-   * 
-   * @param includeSpaces
-   * @since 4.0
-   */
-  public void setIncludeSpaces(List<Space> includeSpaces) {
-    this.includeSpaces = includeSpaces;
-  }
-
-  /**
-   * Gets remoteId to filter
-   * 
-   * @return
-   * @since 4.0
-   */
-  public String getRemoteId() {
-    return remoteId;
-  }
-
-  /**
-   * Sets remoteId to filter
-   * 
-   * @param remoteId
-   * @since 4.0
-   */
-  public void setRemoteId(String remoteId) {
-    this.remoteId = remoteId;
-  }
-
-  /**
-   * Gets appId to filter
-   * 
-   * @return
-   * @since 4.0
-   */
-  public String getAppId() {
-    return appId;
-  }
-
-  /**
-   * Sets appId to filter
-   * 
-   * @param appId
-   * @since 4.0
-   */
-  public void setAppId(String appId) {
-    this.appId = appId;
-  }
-
-  /**
-   * Gets template to filter
-   * 
-   * @return
-   */
-  public String getTemplate() {
-    return template;
-  }
-
-  /**
-   * Sets template to filter
-   * 
-   * @param template
-   * @since 4.0
-   */
-  public void setTemplate(String template) {
-    this.template = template;
-  }
-
-  /**
-   * Gets the space name search condition.
-   * 
-   * @return the space name search condition
-   */
-  public String getSpaceNameSearchCondition() {
-    return spaceNameSearchCondition;
-  }
-
-  /**
-   * Sets the space name search condition.
-   * 
-   * @param spaceNameSearchCondition
-   */
   public void setSpaceNameSearchCondition(String spaceNameSearchCondition) {
     this.spaceNameSearchCondition = Utils.processUnifiedSearchCondition(spaceNameSearchCondition);
+  }
+
+  public List<SpaceMembershipStatus> getStatusList() {
+    return Stream.of(status, extraStatus).filter(Objects::nonNull).toList();
   }
 
   public Sorting getSorting() {
@@ -193,24 +90,10 @@ public class SpaceFilter implements Cloneable {
     return sorting;
   }
 
-  public void setSorting(Sorting sorting) {
-    this.sorting = sorting;
-  }
-
-  public List<Space> getExclusions() {
-    return this.exclusions;
-  }
-
-  public void addExclusions(List<Space> exclusions) {
-    this.exclusions = exclusions;
-  }
-
-  public void setIsFavorite(boolean favorite) {
-    this.favorite = favorite;
-  }
-
-  public boolean isFavorite() {
-    return favorite;
+  public boolean isUnifiedSearch() {
+    return favorite
+           || StringUtils.isNotBlank(spaceNameSearchCondition)
+           || CollectionUtils.isNotEmpty(tagNames);
   }
 
   @Override
@@ -219,10 +102,11 @@ public class SpaceFilter implements Cloneable {
                            includeSpaces,
                            exclusions,
                            remoteId,
-                           appId,
                            template,
                            status,
+                           extraStatus,
                            sorting,
-                           favorite);
+                           favorite,
+                           tagNames == null ? null : new ArrayList<>(tagNames));
   }
 }

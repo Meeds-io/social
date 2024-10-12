@@ -227,6 +227,10 @@ public class SpaceRest implements ResourceContainer {
                             @Schema(defaultValue = "false")
                             @QueryParam("favorites")
                             boolean favorites,
+                            @Parameter(description = "Tag names used to search spaces", required = true)
+                            @QueryParam(
+                              "tags"
+                            ) List<String> tagNames,
                             @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
                                        required = false)
                             @QueryParam("expand")
@@ -245,6 +249,7 @@ public class SpaceRest implements ResourceContainer {
     if (StringUtils.isNotBlank(q)) {
       spaceFilter.setSpaceNameSearchCondition(StringUtils.trim(q));
     }
+    spaceFilter.setTagNames(tagNames);
 
     if (StringUtils.isNotBlank(sort)) {
       SortBy sortBy = Sorting.SortBy.valueOf(sort.toUpperCase());
@@ -254,7 +259,7 @@ public class SpaceRest implements ResourceContainer {
       }
       spaceFilter.setSorting(new Sorting(sortBy, orderBy));
     }
-    spaceFilter.setIsFavorite(favorites);
+    spaceFilter.setFavorite(favorites);
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {
       listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
@@ -271,7 +276,7 @@ public class SpaceRest implements ResourceContainer {
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_FAVORITE, filterType)) {
       listAccess = spaceService.getFavoriteSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(LAST_VISITED_SPACES, filterType)) {
-      listAccess = spaceService.getLastAccessedSpace(authenticatedUser, null);
+      listAccess = spaceService.getLastAccessedSpace(authenticatedUser);
     } else {
       return Response.status(400).entity("Unrecognized space filter type").build();
     }

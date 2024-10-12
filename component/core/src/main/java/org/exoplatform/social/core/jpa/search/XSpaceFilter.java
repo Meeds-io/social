@@ -16,15 +16,9 @@
  */
 package org.exoplatform.social.core.jpa.search;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import org.exoplatform.social.core.space.SpaceFilter;
-
-import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 import lombok.EqualsAndHashCode;
 
@@ -34,8 +28,6 @@ public class XSpaceFilter extends SpaceFilter {
   private Set<Long>   ids    = null;
 
   private boolean     includePrivate;
-
-  private boolean     unifiedSearch;
 
   private boolean     notHidden;
 
@@ -47,21 +39,19 @@ public class XSpaceFilter extends SpaceFilter {
 
   public XSpaceFilter setSpaceFilter(SpaceFilter spaceFilter) {
     if (spaceFilter != null) {
-      this.setAppId(spaceFilter.getAppId());
       this.setIncludeSpaces(spaceFilter.getIncludeSpaces());
       this.setRemoteId(spaceFilter.getRemoteId());
       this.setSorting(spaceFilter.getSorting());
-      this.setIsFavorite(spaceFilter.isFavorite());
+      this.setFavorite(spaceFilter.isFavorite());
       if (spaceFilter.getSpaceNameSearchCondition() != null) {
         this.setSpaceNameSearchCondition(spaceFilter.getSpaceNameSearchCondition());
       }
-      if (CollectionUtils.isNotEmpty(spaceFilter.getStatus())) {
-        this.setStatus(new HashSet<>(spaceFilter.getStatus()));
+      if (spaceFilter.getStatus() != null) {
+        this.setStatus(spaceFilter.getStatus());
       }
 
       if (spaceFilter instanceof XSpaceFilter filter) {
         this.setIncludePrivate(filter.isIncludePrivate());
-        this.setUnifiedSearch(filter.isUnifiedSearch());
         this.setNotHidden(filter.isNotHidden());
         this.setLastAccess(filter.isLastAccess());
         this.setVisited(filter.isVisited());
@@ -73,21 +63,8 @@ public class XSpaceFilter extends SpaceFilter {
     return this;
   }
 
-  public XSpaceFilter addStatus(SpaceMembershipStatus... st) {
-    if (getStatus() == null) {
-      setStatus(new HashSet<>());
-    }
-    getStatus().addAll(Arrays.asList(st));
-    return this;
-  }
-
   public XSpaceFilter setIncludePrivate(boolean includePrivate) {
     this.includePrivate = includePrivate;
-    return this;
-  }
-
-  public XSpaceFilter setUnifiedSearch(boolean unifiedSearch) {
-    this.unifiedSearch = unifiedSearch;
     return this;
   }
 
@@ -98,10 +75,6 @@ public class XSpaceFilter extends SpaceFilter {
 
   public boolean isIncludePrivate() {
     return includePrivate;
-  }
-
-  public boolean isUnifiedSearch() {
-    return unifiedSearch;
   }
 
   public boolean isNotHidden() {
