@@ -17,33 +17,20 @@
 package org.exoplatform.social.core.space.spi;
 
 import org.exoplatform.container.component.ComponentPlugin;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.space.SpaceApplicationConfigPlugin;
-import org.exoplatform.social.core.space.SpaceTemplate;
-import org.exoplatform.social.core.space.SpaceTemplateConfigPlugin;
 import org.exoplatform.social.core.space.SpaceException;
+import org.exoplatform.social.core.space.SpaceTemplate;
 import org.exoplatform.social.core.space.model.Space;
 
 /**
- * Handler for working with space applications: install, activate, deactivate, uninstall...
+ * Handler for working with space applications: install, activate, deactivate,
+ * uninstall...
  *
  * @author <a href="mailto:tungcnw@gmail.com">dang.tung</a>
  * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
- * @since  Oct 17, 2008
+ * @since Oct 17, 2008
  */
 
 public interface SpaceApplicationHandler extends ComponentPlugin {
-
-  /**
-   * Initializes home space applications and space applications.
-   *
-   * @param space
-   * @param spaceApplicationConfigPlugin
-   * @throws SpaceException
-   * @since 1.2.0-GA
-   */
-//  @Deprecated
-//  public void initApps(Space space, SpaceApplicationConfigPlugin spaceApplicationConfigPlugin) throws SpaceException;
 
   /**
    * Initializes home space applications and space applications.

@@ -19,6 +19,7 @@ package org.exoplatform.social.core.jpa.search;
 import java.util.*;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.jsoup.Jsoup;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
@@ -199,24 +200,7 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
   }
 
   private String htmlToText(String source) {
-    source = source.replaceAll("<( )*head([^>])*>", "<head>");
-    source = source.replaceAll("(<( )*(/)( )*head( )*>)", "</head>");
-    source = source.replaceAll("(<head>).*(</head>)", "");
-    source = source.replaceAll("<( )*script([^>])*>", "<script>");
-    source = source.replaceAll("(<( )*(/)( )*script( )*>)", "</script>");
-    source = source.replaceAll("(<script>).*(</script>)", "");
-    source = source.replace("javascript:", "");
-    source = source.replaceAll("<( )*style([^>])*>", "<style>");
-    source = source.replaceAll("(<( )*(/)( )*style( )*>)", "</style>");
-    source = source.replaceAll("(<style>).*(</style>)", "");
-    source = source.replaceAll("<( )*td([^>])*>", "\t");
-    source = source.replaceAll("<( )*br( )*(/)*>", "\n");
-    source = source.replaceAll("<( )*li( )*>", "\n");
-    source = source.replaceAll("<( )*div([^>])*>", "\n");
-    source = source.replaceAll("<( )*tr([^>])*>", "\n");
-    source = source.replaceAll("<( )*p([^>])*>", "\n");
-    source = source.replaceAll("<[^>]*>", "");
-    return source;
+    return source == null ? "" : Jsoup.parse(source).text();
   }
 
 }

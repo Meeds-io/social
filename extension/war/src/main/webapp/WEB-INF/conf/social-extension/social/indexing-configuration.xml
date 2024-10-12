@@ -57,9 +57,9 @@
   <external-component-plugins>
     <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
     <component-plugin>
-      <name>SpaceESListenerImpl</name>
+      <name>SpaceIndexingListenerImpl</name>
       <set-method>addSpaceListener</set-method>
-      <type>org.exoplatform.social.core.jpa.search.listener.SpaceESListenerImpl</type>
+      <type>io.meeds.social.core.search.listener.SpaceIndexingListenerImpl</type>
     </component-plugin>
   </external-component-plugins>
 
@@ -98,7 +98,9 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="space_alias" />
-          <property name="index_current" value="space_v2" />
+          <property name="index_previous" value="${meeds.social.index.space.previous:space_v2}" />
+          <property name="index_current" value="${meeds.social.index.space.current:space_v3}" />
+          <property name="reindexOnUpgrade" value="${meeds.social.index.space.reindexOnUpgrade:true}" />
         </properties-param>
       </init-params>
     </component-plugin>

@@ -26,19 +26,38 @@
     <type>org.exoplatform.social.core.mock.SpaceWebNotificationServiceMock</type>
   </component>
 
-   <component>
-     <type>org.exoplatform.social.core.jpa.search.ActivitySearchConnector</type>
-      <init-params>
-        <value-param>
-          <name>query.file.path</name>
-          <value>${exo.social.activities.es.query.path:jar:/activities-search-query.json}</value>
-        </value-param>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="index" value="activity_alias" />
-        </properties-param>
-      </init-params>
-   </component>
+  <component>
+    <type>org.exoplatform.social.core.jpa.search.ActivitySearchConnector</type>
+    <init-params>
+      <value-param>
+        <name>query.file.path</name>
+        <value>${social.activities.es.query.path:jar:/activities-search-query.json}</value>
+      </value-param>
+      <properties-param>
+        <name>constructor.params</name>
+        <property name="index" value="activity_alias" />
+      </properties-param>
+    </init-params>
+  </component>
+
+  <component>
+    <type>io.meeds.social.core.search.SpaceSearchConnector</type>
+    <init-params>
+      <value-param>
+        <name>query.file.path</name>
+        <value>${social.spaces.es.query.path:jar:/spaces-search-query.json}</value>
+      </value-param>
+      <value-param>
+        <name>count.file.path</name>
+        <value>${social.spaces.es.query.path:jar:/spaces-count-query.json}</value>
+      </value-param>
+      <properties-param>
+        <name>constructor.params</name>
+        <property name="index" value="space_alias" />
+        <property name="enabled" value="false" />
+      </properties-param>
+    </init-params>
+  </component>
 
   <component>
     <type>org.exoplatform.social.core.storage.cache.SocialStorageCacheService</type>
@@ -1615,6 +1634,15 @@
       <name>SpacePublicSiteListener</name>
       <set-method>addSpaceListener</set-method>
       <type>io.meeds.social.core.space.listener.SpacePublicSiteListener</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.space.spi.SpaceService</target-component>
+    <component-plugin>
+      <name>SpaceIndexingListenerImpl</name>
+      <set-method>addSpaceListener</set-method>
+      <type>io.meeds.social.core.search.listener.SpaceIndexingListenerImpl</type>
     </component-plugin>
   </external-component-plugins>
 

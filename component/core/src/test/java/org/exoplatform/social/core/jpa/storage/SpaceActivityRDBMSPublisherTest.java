@@ -90,7 +90,7 @@ public class SpaceActivityRDBMSPublisherTest extends AbstractCoreTest {
     String[] members = new String[] {"root"};
     space.setManagers(managers);
     space.setMembers(members);
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     assertNotNull("space.getId() must not be null", space.getId());
     SpaceLifeCycleEvent event  = new SpaceLifeCycleEvent(space, rootIdentity.getRemoteId(), SpaceLifeCycleEvent.Type.SPACE_CREATED);
     spaceActivityPublisher.spaceCreated(event);
@@ -140,7 +140,7 @@ public class SpaceActivityRDBMSPublisherTest extends AbstractCoreTest {
    String[] members = new String[] {"root"};
    space.setManagers(managers);
    space.setMembers(members);
-   spaceService.saveSpace(space, true);
+   spaceService.createSpace(space);
    assertNotNull("space.getId() must not be null", space.getId());
    SpaceLifeCycleEvent event  = new SpaceLifeCycleEvent(space, rootIdentity.getRemoteId(), SpaceLifeCycleEvent.Type.SPACE_CREATED);
    spaceActivityPublisher.spaceCreated(event);
@@ -253,7 +253,7 @@ public class SpaceActivityRDBMSPublisherTest extends AbstractCoreTest {
    String[] members = new String[] {"root"};
    space.setManagers(managers);
    space.setMembers(members);
-   spaceService.saveSpace(space, true);
+   spaceService.createSpace(space);
    //broadcast event
    SpaceLifeCycleEvent event  = new SpaceLifeCycleEvent(space, rootIdentity.getRemoteId(), SpaceLifeCycleEvent.Type.SPACE_CREATED);
    spaceActivityPublisher.spaceCreated(event);
@@ -267,7 +267,7 @@ public class SpaceActivityRDBMSPublisherTest extends AbstractCoreTest {
    
    //Set space's visibility to PRIVATE
    space.setVisibility(Space.PRIVATE);
-   spaceService.saveSpace(space, false);
+   spaceService.updateSpace(space);
    
    spaceActivities = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
    userFeedActivities = activityManager.getActivityFeedWithListAccess(rootIdentity);
@@ -282,7 +282,7 @@ public class SpaceActivityRDBMSPublisherTest extends AbstractCoreTest {
    
    //Set space's visibility to PRIVATE
    space.setVisibility(Space.HIDDEN);
-   spaceService.saveSpace(space, false);
+   spaceService.updateSpace(space);
    
    spaceActivities = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
    userFeedActivities = activityManager.getActivityFeedWithListAccess(rootIdentity);

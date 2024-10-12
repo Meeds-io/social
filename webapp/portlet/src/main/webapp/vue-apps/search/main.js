@@ -7,9 +7,11 @@ let initialized = false;
 
 // Handle Tag Link click
 document.onclick = (event) => {
-  if (event && event.target && event.target.className && JSON.stringify(event.target.className).includes('metadata-tag')) {
+  if (event?.target?.className
+      && JSON.stringify(event.target.className).includes('metadata-tag')) {
     const tagName = event.target.innerText;
-    if (tagName) {
+    if (tagName
+      && document.querySelector(`#${appId}`)) {
       event.stopPropagation();
       event.preventDefault();
       if (!initialized) {
@@ -21,7 +23,7 @@ document.onclick = (event) => {
 };
 
 export function init(tagName) {
-  if (initialized) {
+  if (initialized || !document.querySelector(`#${appId}`)) {
     return;
   }
   initialized = true;
