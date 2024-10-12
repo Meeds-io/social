@@ -74,7 +74,7 @@ public class SpaceRestServices implements ResourceContainer {
             }
 
             SpaceService spaceService = container.getComponentInstanceOfType(SpaceService.class);
-            ListAccess<Space> suggestedSpacesLA = spaceService.getPublicSpacesWithListAccess(userId);
+            ListAccess<Space> suggestedSpacesLA = spaceService.getMemberSpaces(userId);
 
             // new create system with no spaces
             int size = suggestedSpacesLA.getSize();

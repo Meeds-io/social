@@ -191,7 +191,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     space.setInvitedUsers(invitedUsers);
     space.setPendingUsers(pendingUsers);
     space.setManagers(managers);
-    space.setMembers(members);
+    space.setMembers(members == null ? new String[]{manager} : ArrayUtils.add(members, manager));
     space.setUrl(space.getPrettyName());
     return space;
   }
@@ -240,11 +240,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     space.setManagers(managers);
     space.setGroupId(groupId);
     space.setUrl(space.getPrettyName());
-    try {
-      spaceService.saveSpace(space, true);
-    } catch (SpaceException e) {
-      LOG.warn("Error while saving space", e);
-    }
+    spaceService.createSpace(space);
     return space;
   }
 

@@ -19,7 +19,6 @@ package org.exoplatform.social.core.identity;
 import java.util.List;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.social.common.ListAccessValidator;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.storage.api.RelationshipStorage;
 
@@ -95,7 +94,6 @@ public class ConnectionListAccess implements ListAccess<Identity> {
    * {@inheritDoc}
    */
   public Identity[] load(int offset, int limit) throws Exception, IllegalArgumentException {
-    ListAccessValidator.validateIndex(offset, limit, getSize());
     List<Identity> identities = null;
     switch (type) {
       case ALL: identities = relationshipStorage.getRelationships(identity, offset, limit);

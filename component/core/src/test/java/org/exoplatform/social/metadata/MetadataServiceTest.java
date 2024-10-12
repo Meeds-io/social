@@ -1895,7 +1895,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String[] spaceMembers = members == null ? new String[] { creator } : members;
     space.setManagers(managers);
     space.setMembers(spaceMembers);
-    spaceService.saveSpace(space, true); // NOSONAR
+    spaceService.createSpace(space); // NOSONAR
     tearDownSpaceList.add(space);
     return space;
   }
