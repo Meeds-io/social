@@ -583,7 +583,7 @@ public class StreamItemDAOTest extends BaseCoreTest {
     String[] members = new String[] {"demo"};
     space.setManagers(managers);
     space.setMembers(members);
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     return space;
   }
 

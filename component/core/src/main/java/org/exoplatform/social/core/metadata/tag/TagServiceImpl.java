@@ -126,17 +126,18 @@ public class TagServiceImpl implements TagService {
     // Tags to create
     Set<TagName> tagsToCreate = new HashSet<>(tagNames);
     tagsToCreate.removeAll(storedTagNames);
-    createTags(object, tagsToCreate, audienceId, creatorId);
+    if (!tagsToCreate.isEmpty()) {
+      createTags(object, tagsToCreate, audienceId, creatorId);
+    }
 
     // Tags to delete
     Set<TagName> tagsToDelete = new HashSet<>(storedTagNames);
     tagsToDelete.removeAll(tagNames);
-    deleteTags(metadataItems, tagsToDelete);
-    Set<TagName> newTags = tagsToCreate.stream()
-                                       .filter(tagName -> !(storedTagNames.contains(tagName)))
-                                       .collect(Collectors.toSet());
+    if (!tagsToDelete.isEmpty()) {
+      deleteTags(metadataItems, tagsToDelete);
+    }
     try {
-      listenerService.broadcast(TAG_ADDED_EVENT, object, newTags);
+      listenerService.broadcast(TAG_ADDED_EVENT, object, tagsToCreate);
     } catch (Exception e) {
       LOG.error("could not broadcast event", e);
     }

@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
 import org.exoplatform.social.core.jpa.search.XSpaceFilter;
-import org.exoplatform.social.core.jpa.storage.entity.AppEntity_;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity_;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
@@ -132,14 +131,14 @@ public final class SpaceQueryBuilder {
     }
 
     //status
-    if (CollectionUtils.isNotEmpty(spaceFilter.getStatus())) {
+    if (CollectionUtils.isNotEmpty(spaceFilter.getStatusList())) {
       Path<SpaceMemberEntity> join = getMembersJoin(root, JoinType.INNER);
 
-      List<Predicate> pStatusList = new LinkedList<>();      
-      for(SpaceMembershipStatus status : spaceFilter.getStatus()) {
+      List<Predicate> pStatusList = new LinkedList<>();
+      for (SpaceMembershipStatus status : spaceFilter.getStatusList()) {
         pStatusList.add(cb.equal(join.get(SpaceMemberEntity_.status), status));
-      }      
-      
+      }
+
       Predicate tmp = spaceFilter.getRemoteId() == null ? cb.or(pStatusList.toArray(new Predicate[pStatusList.size()])) :
                                                         cb.and(cb.or(pStatusList.toArray(new Predicate[pStatusList.size()])),
                                                                cb.equal(join.get(SpaceMemberEntity_.userId),
@@ -149,7 +148,7 @@ public final class SpaceQueryBuilder {
         predicates.add(cb.or(cb.equal(root.get(SpaceEntity_.visibility), SpaceEntity.VISIBILITY.PRIVATE), tmp));
       } else {
         predicates.add(tmp);
-      }      
+      }
     }
 
     if (spaceFilter.isPublic() && spaceFilter.getRemoteId() != null) {
@@ -161,23 +160,6 @@ public final class SpaceQueryBuilder {
       sub.where(cb.equal(join.get(SpaceMemberEntity_.userId), spaceFilter.getRemoteId()));
 
       predicates.add(cb.not(cb.in(root.get(SpaceEntity_.id)).value(sub)));
-    }
-
-    //appid
-    String app = spaceFilter.getAppId();    
-    if (StringUtils.isNotBlank(app)) {
-      Subquery<Long> sub = criteria.subquery(Long.class);
-      Root<SpaceEntity> spaceSub = sub.from(SpaceEntity.class);      
-      sub.select(spaceSub.get(SpaceEntity_.id));
-      
-      Path<String> appPath = spaceSub.join(SpaceEntity_.app).get(AppEntity_.appId);
-      
-      List<Predicate> appCond = new LinkedList<>();
-      for (String appId : app.trim().split(",")) {
-        appCond.add(cb.like(cb.lower(appPath), buildSearchCondition(appId, true)));
-      }
-      sub.where(cb.or(appCond.toArray(new Predicate[appCond.size()])));
-      predicates.add(cb.in(root.get(SpaceEntity_.id)).value(sub));
     }
 
     //searchCondition

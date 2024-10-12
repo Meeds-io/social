@@ -23,7 +23,9 @@ package org.exoplatform.social.core.space;
  * Time: 11:50:29 AM
  * To change this template use File | Settings | File Templates.
  */
-public class SpaceException extends Exception{
+public class SpaceException extends Exception {
+
+  private static final long serialVersionUID = 7818464172881334514L;
 
   /**
    * The Enum Code.

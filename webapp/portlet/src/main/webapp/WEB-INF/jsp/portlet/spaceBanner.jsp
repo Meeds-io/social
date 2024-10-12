@@ -12,11 +12,8 @@
 <%
   Space space = SpaceUtils.getSpaceByContext();
   String bannerUrl = space == null ? "" : space.getBannerUrl();
-  IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-  int maxUploadSize = identityManager.getImageUploadLimit();
-  SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-  boolean isAdmin = space != null
-      && spaceService.canManageSpace(space, request.getRemoteUser());
+  int maxUploadSize = CommonsUtils.getService(IdentityManager.class).getImageUploadLimit();
+  boolean isAdmin = CommonsUtils.getService(SpaceService.class).canManageSpace(space, request.getRemoteUser());
 %>
 <div class="VuetifyApp">
   <div data-app="true"
