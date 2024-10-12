@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
+
   This file is part of the Meeds project (https://meeds.io/).
-  Copyright (C) 2020 Meeds Association
-  contact@meeds.io
+
+  Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 3 of the License, or (at your option) any later version.
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
+
   You should have received a copy of the GNU Lesser General Public License
   along with this program; if not, write to the Free Software Foundation,
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 -->
 <configuration
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -34,7 +39,7 @@
       <init-params>
         <value-param>
           <name>query.file.path</name>
-          <value>${exo.social.activities.es.query.path:war:/conf/social-extension/social/search/activities-search-query.json}</value>
+          <value>${social.activities.es.query.path:war:/conf/social-extension/social/search/activities-search-query.json}</value>
         </value-param>
         <properties-param>
           <name>constructor.params</name>
@@ -42,6 +47,24 @@
         </properties-param>
       </init-params>
    </component>
+
+  <component>
+    <type>io.meeds.social.core.search.SpaceSearchConnector</type>
+    <init-params>
+      <value-param>
+        <name>query.file.path</name>
+        <value>${social.spaces.es.query.path:war:/conf/social-extension/social/search/spaces-search-query.json}</value>
+      </value-param>
+      <value-param>
+        <name>count.file.path</name>
+        <value>${social.spaces.es.count.path:war:/conf/social-extension/social/search/spaces-count-query.json}</value>
+      </value-param>
+      <properties-param>
+        <name>constructor.params</name>
+        <property name="index" value="space_alias" />
+      </properties-param>
+    </init-params>
+  </component>
 
   <external-component-plugins>
     <target-component>org.exoplatform.social.core.search.SearchService</target-component>
@@ -62,7 +85,7 @@
               <string><![CDATA[/portal/rest/v1/social/users?q={keyword}&limit={limit}&expand=all,spacesCount,relationshipStatus,connectionsCount]]></string>
             </field>
             <field name="enabled">
-              <boolean>${exo.search.people.enabled:true}</boolean>
+              <boolean>${search.people.enabled:true}</boolean>
             </field>
             <field name="jsModule">
               <string>SHARED/PeopleSearchResultCard</string>
@@ -97,10 +120,13 @@
               <string><![CDATA[/portal/rest/v1/social/spaces?q={keyword}&limit={limit}&expand=managers,favorite]]></string>
             </field>
             <field name="enabled">
-              <boolean>${exo.search.space.enabled:true}</boolean>
+              <boolean>${search.space.enabled:true}</boolean>
             </field>
             <field name="favoritesEnabled">
-              <boolean>${exo.search.space.favorites.enabled:true}</boolean>
+              <boolean>${search.space.favorites.enabled:true}</boolean>
+            </field>
+            <field name="tagsEnabled">
+              <boolean>${search.space.tags.enabled:true}</boolean>
             </field>
             <field name="jsModule">
               <string>SHARED/SpaceSearchResultCard</string>
@@ -132,7 +158,7 @@
               <string><![CDATA[/portal/rest/v1/social/activities/search?q={keyword}&limit={limit}]]></string>
             </field>
             <field name="enabled">
-              <boolean>${exo.search.activity.enabled:true}</boolean>
+              <boolean>${search.activity.enabled:true}</boolean>
             </field>
             <field name="favoritesEnabled">
               <boolean>true</boolean>

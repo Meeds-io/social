@@ -187,7 +187,7 @@ public class SpaceMembershipRest implements ResourceContainer {
     } else {
       SpaceFilter spaceFilter = new SpaceFilter();
       spaceFilter.setRemoteId(user);
-      spaceFilter.setStatus(Collections.singleton(membershipType.getStatus()));
+      spaceFilter.setStatus(membershipType.getStatus());
       // 2. Search for spaces using a specific user (either space or user aren't
       // null)
       spaceFilter.setSpaceNameSearchCondition(query);

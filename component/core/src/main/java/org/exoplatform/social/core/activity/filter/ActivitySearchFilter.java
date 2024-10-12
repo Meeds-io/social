@@ -26,6 +26,8 @@ public class ActivitySearchFilter {
 
   private boolean      favorites;
 
+  private boolean      isAdmin;
+
   public ActivitySearchFilter() {
   }
 

@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.log.ExoLogger;
@@ -277,7 +279,7 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
   }
 
   @SuppressWarnings("deprecation")
-  private Space createSpace(String spaceName, String creator, String... members) throws Exception {
+  private Space createSpace(String spaceName, String manager, String... members) throws Exception {
     Space space = new Space();
     space.setDisplayName(spaceName);
     space.setPrettyName(spaceName);
@@ -287,11 +289,10 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    String[] managers = new String[] { creator };
-    String[] spaceMembers = members == null ? new String[] { creator } : members;
+    String[] managers = new String[] { manager };
     space.setManagers(managers);
-    space.setMembers(spaceMembers);
-    spaceService.saveSpace(space, true); // NOSONAR
+    space.setMembers(members == null ? new String[]{manager} : ArrayUtils.add(members, manager));
+    spaceService.createSpace(space); // NOSONAR
     tearDownSpaceList.add(space);
     return space;
   }
