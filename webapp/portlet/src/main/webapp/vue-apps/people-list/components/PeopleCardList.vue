@@ -5,77 +5,76 @@
       'mobile-cards': compact,
     }"
     flat>
-    <v-progress-linear
-      v-if="displayLoading"
-      color="primary"
-      class="position-absolute"
-      indeterminate
-      height="2" />
-    <v-card-text
+    <v-card
+      class="position-relative mx-4 overflow-hidden"
+      height="8"
+      flat>
+      <v-progress-linear
+        v-if="displayLoading"
+        class="position-absolute"
+        color="primary"
+        indeterminate
+        height="2" />
+    </v-card>
+    <div
       v-if="initialized"
       id="peopleListBody"
-      :class="noMargins && compact && 'pa-0' || (noMargins && 'px-3 pb-0') || 'pb-0'">
-      <v-item-group>
-        <v-container
-          class="pa-0"
-          fluid>
-          <v-row v-if="filteredPeople && filteredPeople.length" class="ma-0 border-box-sizing">
-            <v-col
-              v-for="user in filteredPeople"
-              :key="user.id"
-              :id="`peopleCardItem${user.id}`"
-              :sm="$attrs.sm || 6"
-              :md="$attrs.md || 6"
-              :lg="$attrs.lg || 4"
-              :xl="$attrs.xl || 4"
-              :class="noMargins && compact && 'pa-0' || 'pa-2'"
-              cols="12">
-              <people-card
-                :user="user"
-                :space-id="spaceId"
-                :space-members-extensions="spaceMembersActionExtensions"
-                :user-navigation-extensions="userExtensions"
-                :profile-action-extensions="profileActionExtensions"
-                :compact-display="compactDisplay"
-                :mobile-display="mobileDisplay" />
-            </v-col>
-          </v-row>
-          <div v-else-if="!displayLoading" class="d-flex text-center noPeopleYetBlock">
-            <div class="ma-auto noPeopleYet">
-              <p class="noPeopleYetIcons">
-                <v-icon>fa-users</v-icon>
-              </p>
-              <template v-if="filter === 'connections'">
-                <p class="text-title">
-                  {{ $t('peopleList.label.noConnection') }}
-                </p>
-              </template>
-              <template v-else-if="hasPeople">
-                <p class="text-title">
-                  {{ $t('peopleList.label.noResults') }}
-                </p>
-              </template>
-              <template v-else>
-                <p class="text-title">
-                  {{ $t('peopleList.label.noPeopleYet') }}
-                </p>
-              </template>
-              <v-btn
-                class="btn btn-primary"
-                @click="resetFilters">
-                {{ $t('pepole.advanced.filter.button.reset') }}
-              </v-btn>
-            </div>
-          </div>
-        </v-container>
-      </v-item-group>
-    </v-card-text>
+      :class="noMargins && compact && 'pa-0' || (noMargins && 'pt-1 px-3 pb-0') || 'px-4 pb-4'">
+      <v-row v-if="filteredPeople && filteredPeople.length" class="ma-n2 border-box-sizing">
+        <v-col
+          v-for="user in filteredPeople"
+          :key="user.id"
+          :id="`peopleCardItem${user.id}`"
+          :sm="$attrs.sm || 6"
+          :md="$attrs.md || 6"
+          :lg="$attrs.lg || 4"
+          :xl="$attrs.xl || 4"
+          :class="noMargins && compact && 'pa-0' || 'pa-2'"
+          cols="12">
+          <people-card
+            :user="user"
+            :space-id="spaceId"
+            :space-members-extensions="spaceMembersActionExtensions"
+            :user-navigation-extensions="userExtensions"
+            :profile-action-extensions="profileActionExtensions"
+            :compact-display="compactDisplay"
+            :mobile-display="mobileDisplay" />
+        </v-col>
+      </v-row>
+      <div v-else-if="!displayLoading" class="d-flex text-center noPeopleYetBlock">
+        <div class="ma-auto noPeopleYet">
+          <p class="noPeopleYetIcons">
+            <v-icon>fa-users</v-icon>
+          </p>
+          <template v-if="filter === 'connections'">
+            <p class="text-title">
+              {{ $t('peopleList.label.noConnection') }}
+            </p>
+          </template>
+          <template v-else-if="hasPeople">
+            <p class="text-title">
+              {{ $t('peopleList.label.noResults') }}
+            </p>
+          </template>
+          <template v-else>
+            <p class="text-title">
+              {{ $t('peopleList.label.noPeopleYet') }}
+            </p>
+          </template>
+          <v-btn
+            class="btn btn-primary"
+            @click="resetFilters">
+            {{ $t('pepole.advanced.filter.button.reset') }}
+          </v-btn>
+        </div>
+      </div>
+    </div>
     <v-card-actions
       v-if="!noLoadMoreButton"
       id="peopleListFooter"
-      class="pt-0 px-5 border-box-sizing">
+      class="pt-0 px-4 border-box-sizing">
       <v-btn
-        v-if="canShowMore"
+        v-if="hasMore"
         :loading="displayLoading"
         class="loadMoreButton ma-auto btn"
         block
@@ -137,9 +136,10 @@ export default {
     userType: 'internal',
     initialized: false,
     hasPeople: false,
+    hasMore: false,
     offset: 0,
-    pageSize: 20,
-    limit: 20,
+    pageSize: 12,
+    limit: 12,
     users: [],
     limitToFetch: 0,
     originalLimitToFetch: 0,
@@ -157,9 +157,6 @@ export default {
     },
     spaceMembersActionExtensions() {
       return [...this.spaceMemberExtensions].sort((a, b) => (a.order || 100) - (b.order || 100));
-    },
-    canShowMore() {
-      return this.users.length >= this.limitToFetch;
     },
     compact() {
       return this.compactDisplay || this.mobileDisplay;
@@ -185,8 +182,8 @@ export default {
       this.searchPeople();
 
     },
-    canShowMore() {
-      this.$emit('has-more', this.canShowMore);
+    hasMore() {
+      this.$emit('has-more', this.hasMore);
     },
     loadingPeople() {
       this.$emit('loading', this.loadingPeople);
@@ -275,8 +272,9 @@ export default {
       return searchUsersFunction.then(data => {
         const users = data && data.users || [];
         this.users = users.slice(0, this.limitToFetch);
-        this.hasPeople = this.hasPeople || this.peopleCount > 0;
-        this.$emit('loaded', this.peopleCount);
+        this.$emit('loaded', data.size);
+        this.hasPeople = this.hasPeople || data.size > 0;
+        this.hasMore = users.length > this.limitToFetch;
         return this.$nextTick();
       })
         .then(() => {

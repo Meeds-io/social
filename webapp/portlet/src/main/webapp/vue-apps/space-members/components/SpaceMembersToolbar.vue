@@ -21,7 +21,7 @@
       <div class="d-flex">
         <space-invite-buttons-group
           v-if="isManager"
-          class="px-2 me-4" />
+          class="me-4" />
         <div class="showingPeopleText text-subtitle d-none my-auto d-sm-flex">
           {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
         </div>
