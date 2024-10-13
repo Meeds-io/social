@@ -31,20 +31,21 @@
     :right="$vuetify.rtl"
     transition="slide-x-reverse-transition"
     content-class="peopleActionMenu position-absolute z-index-modal"
-    offset-y>
+    offset-y
+    top>
     <template #activator="{ on }">
       <v-btn
         v-show="displayMenuButton"
         v-on="on"
-        v-bind="dark && {
-          height: 28,
-          width: 28,
-        }"
         :title="$t('peopleList.label.openUserMenu')"
         :class="menuButtonClass"
         icon
+        @touchstart.stop="0"
+        @touchend.stop="0"
+        @mousedown.stop="0"
+        @mouseup.stop="0"
         @click.prevent.stop="openMenu">
-        <v-icon :size="dark && 16 || 18" class="icon-default-color">fa-ellipsis-v</v-icon>
+        <v-icon :size="dark && 20 || 18" class="icon-default-color">fa-ellipsis-v</v-icon>
       </v-btn>
     </template>
     <v-sheet
@@ -131,6 +132,7 @@ export default {
     },
   },
   data: () => ({
+    id: Math.random(), // NOSONAR
     displayActionMenu: false,
     waitTimeUntilCloseMenu: 200,
   }),
@@ -161,23 +163,41 @@ export default {
       } else {
         document.getElementById(`peopleCardItem${this.user.id}`).style.zIndex = 0;
       }
+      // Workaround to fix closing menu when clicking outside
+      if (newVal) {
+        document.addEventListener('mousedown', this.closeMenu);
+        document.addEventListener('drawerOpened', this.closeMenu);
+        document.addEventListener('modalOpened', this.closeMenu);
+        this.$root.$emit('spaces-list-menu-opened', this.id);
+      } else {
+        document.removeEventListener('mousedown', this.closeMenu);
+        document.removeEventListener('drawerOpened', this.closeMenu);
+        document.removeEventListener('modalOpened', this.closeMenu);
+      }
     }
   },
   created() {
-    $(document).on('mousedown', () => {
-      if (this.displayActionMenu) {
-        window.setTimeout(() => {
-          this.displayActionMenu = false;
-        }, this.waitTimeUntilCloseMenu);
-      }
-    });
+    this.$root.$on('spaces-list-menu-opened', this.closeMenu);
+  },
+  beforeDestroy() {
+    this.$root.$off('spaces-list-menu-opened', this.closeMenu);
+    document.removeEventListener('mousedown', this.closeMenu);
+    document.removeEventListener('drawerOpened', this.closeMenu);
+    document.removeEventListener('modalOpened', this.closeMenu);
   },
   methods: {
     openMenu() {
       window.setTimeout(() => {
         document.querySelector('.v-overlay--active').addEventListener('click', this.close);
       }, 50);
-    }
+    },
+    closeMenu(event) {
+      if (event !== this.id && this.displayActionMenu) {
+        window.setTimeout(() => {
+          this.displayActionMenu = false;
+        }, this.waitTimeUntilCloseMenu);
+      }
+    },
   },
 };
 </script>
