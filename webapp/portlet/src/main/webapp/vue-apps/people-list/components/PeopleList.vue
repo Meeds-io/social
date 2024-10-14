@@ -4,9 +4,9 @@
     flat>
     <people-toolbar
       :filter="filter"
-      :filter-message="$t('peopleList.label.peopleCount', {0: peopleCount})"
+      :filter-message="peopleCount && $t('peopleList.label.peopleCount', {0: peopleCount})"
       :compact-display="$root.isMobile"
-      filter-message-class="showingPeopleText ms-3 d-none d-sm-flex"
+      filter-message-class="showingPeopleText ms-1 d-none d-sm-flex"
       @keyword-changed="keyword = $event"
       @filter-changed="filter = $event" />
     <people-card-list
@@ -34,7 +34,7 @@ export default {
   methods: {
     peopleLoaded(peopleCount) {
       this.peopleCount = peopleCount;
-    }
+    },
   },
 };
 </script>
