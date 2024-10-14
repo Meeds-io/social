@@ -42,11 +42,8 @@
     @filter-button-click="openPeopleAdvancedFilterDrawer"
     @filter-select-change="filterValue = $event"
     @toggle-select="updateFilter($event)">
-    <template
-      v-if="filterMessage"
-      #left>
-      <div
-        :class="filterMessageClass">
+    <template v-if="filterMessage" #left>
+      <div :class="filterMessageClass">
         {{ filterMessage }}
       </div>
     </template>

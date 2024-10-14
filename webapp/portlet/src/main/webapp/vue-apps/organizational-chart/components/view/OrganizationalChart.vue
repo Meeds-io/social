@@ -48,12 +48,12 @@
     </div>
     <people-user-card
       id="chartCenterUser"
-      class="my-1"
-      width="268"
       :ignored-navigation-extensions="['user-chart']"
       :user="user"
       :user-navigation-extensions="userNavigationExtensions"
-      :profile-action-extensions="profileActionExtensions" />
+      :profile-action-extensions="profileActionExtensions"
+      class="my-1 mx-auto"
+      width="268" />
     <div class="chartVerticalLine">
       <v-divider
         class="d-flex mx-auto"

@@ -16,76 +16,91 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- -->
-
+-->
 <template>
   <v-hover v-slot="{ hover }">
     <v-card
       :class="hover && 'elevation-2'"
+      :height="cardHeight"
       :width="$attrs.width"
       :min-width="$attrs.minWidth"
       :href="profileUrl"
-      class="mx-auto border-box-sizing socialUserCard"
-      height="227"
+      class="d-flex flex-column application-border-radius border-color socialUserCard"
       outlined>
-      <v-img
-        :lazy-src="bannerUrl"
-        :src="bannerUrl"
-        height="50px">
-        <div
-          :class="$vuetify.rtl && 'l-0' || 'r-0'"
-          class="position-absolute">
-          <people-user-menu
-            v-if="spaceId"
-            :user="user"
-            :space-id="spaceId"
-            :space-members-extensions="spaceMembersExtensions"
-            :display-menu-button="$root.isMobile || hover"
-            :bottom-menu="$root.isMobile"
-            menu-button-class="mt-2 me-2"
-            dark />
-        </div>
-        <people-user-card-roles
-          :user="user"
-          class="ms-11 ps-11 mt-2 position-absolute z-index-two" />
-      </v-img>
-      <div class="d-flex">
-        <v-avatar
-          class="mt-n10 ms-5"
-          size="65">
-          <v-img
+      <v-card
+        :min-height="bannerHeight"
+        :max-height="bannerHeight"
+        min-width="100%"
+        max-width="100%"
+        class="overflow-hidden application-border-radius-top no-border-bottom-right-radius no-border-bottom-left-radius position-relative d-flex justify-center z-index-one"
+        flat>
+        <img
+          :src="bannerUrl"
+          :alt="$t('peopleList.userBanner.alt')"
+          style="max-width: 1000%; min-width: 100%; max-height: 100%; min-height: 100%;"
+          class="position-absolute"
+          height="100%"
+          width="auto">
+      </v-card>
+      <v-card
+        :min-height="avatarSize"
+        :max-height="avatarSize"
+        min-width="100%"
+        max-width="100%"
+        class="d-flex mt-n9 pt-2px px-2"
+        flat>
+        <v-card
+          :min-width="avatarSize"
+          :max-width="avatarSize"
+          :min-height="avatarSize"
+          :max-height="avatarSize"
+          class="overflow-hidden d-flex border-radius-circle align-center justify-center z-index-two"
+          flat>
+          <img
             :src="`${avatarUrl}&size=65x65`"
-            :alt="fullName"
-            eager />
-        </v-avatar>
-        <v-card-title
-          class="ps-1 pe-2 py-2 userCardTitle align-baseline">
-          <p
-            class="text-truncate-2 text-body font-weight-bold mb-0">
-            {{ fullName }}
-            <span
-              v-if="externalUser"
-              class="grey--text">
-              {{ $t('peopleList.label.external') }}
-            </span>
-          </p>
-        </v-card-title>
+            :alt="$t('peopleList.userAvatar.alt')"
+            style="max-width: 1000%; max-height: 100%;"
+            height="100%"
+            width="auto"
+            class="overflow-hidden border-radius">
+        </v-card>
+        <div class="d-flex flex-grow-1 align-center flex-shrink-1 ps-1 pt-4">
+          <people-user-card-roles
+            :user="user"
+            class="mt-4" />
+        </div>
+      </v-card>
+      <div
+        :title="fullName"
+        class="font-weight-bold overflow-hidden text-truncate-2 justify-center px-2 mt-4 max-height-2lh">
+        {{ fullName }}
+        <span
+          v-if="externalUser"
+          class="grey--text">
+          {{ $t('peopleList.label.external') }}
+        </span>
       </div>
-      <div class="userFieldsArea">
-        <p class="mb-0 px-3 text-truncate">
+      <div class="userFieldsArea px-2">
+        <div
+          v-if="firstField?.length"
+          :title="firstField"
+          class="text-truncate mt-1">
           {{ firstField }}
-        </p>
-        <v-card-subtitle
-          class="px-3">
-          <p class="mb-0 ext-truncate">
-            {{ secondField }}
-          </p>
-          <p class="mb-0 text-truncate">
-            {{ thirdField }}
-          </p>
-        </v-card-subtitle>
+        </div>
+        <div
+          v-if="secondField?.length"
+          :title="secondField"
+          class="text-subtitle text-truncate mt-1">
+          {{ secondField }}
+        </div>
+        <div
+          v-if="thirdField?.length"
+          :title="thirdField"
+          class="text-subtitle text-truncate mt-1">
+          {{ thirdField }}
+        </div>
       </div>
-      <v-card-actions>
+      <div class="d-flex full-width position-absolute b-0 mb-1 px-1">
         <div class="me-auto">
           <v-btn
             v-for="extension in filteredUserNavigationExtensions"
@@ -136,7 +151,15 @@
             </span>
           </span>
         </div>
-      </v-card-actions>
+        <people-user-menu
+          v-if="spaceId"
+          :user="user"
+          :space-id="spaceId"
+          :space-members-extensions="spaceMembersExtensions"
+          :bottom-menu="$root.isMobile"
+          display-menu-button
+          dark />
+      </div>
     </v-card>
   </v-hover>
 </template>
@@ -177,6 +200,9 @@ export default {
     },
   },
   data: () => ({
+    cardHeight: 254,
+    avatarSize: 65,
+    bannerHeight: 50,
     menu: false,
   }),
   computed: {
