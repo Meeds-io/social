@@ -537,8 +537,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   /**
    * {@inheritDoc}
    */
-  public List<Space> getInvitedSpacesByFilter(
-      final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
+  public List<Space> getInvitedSpacesByFilter(final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
 
     //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.INVITED);
@@ -613,23 +612,6 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
         new ServiceContext<IntegerData>() {
           public IntegerData execute() {
             return new IntegerData(CachedSpaceStorage.super.getVisibleSpacesCount(userId, spaceFilter));
-          }
-        },
-        key).build();
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public int getUnifiedSearchSpacesCount(final String userId, final SpaceFilter spaceFilter) throws SpaceStorageException {
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.UNIFIED_SEARCH);
-
-    //
-    return spacesCountCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getUnifiedSearchSpacesCount(userId, spaceFilter));
           }
         },
         key).build();
@@ -971,7 +953,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   }
 
   public List<Space> getLastSpaces(final int limit) {
-     SpaceFilter filter = new SpaceFilter(null, null);
+     SpaceFilter filter = new SpaceFilter();
      filter.setSorting(new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC));
 
      SpaceFilterKey key = new SpaceFilterKey(null, filter, null);

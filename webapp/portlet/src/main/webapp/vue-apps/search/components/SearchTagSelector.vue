@@ -4,9 +4,9 @@
     <v-chip
       v-for="(selectedTag, index) in selectedTags"
       :key="selectedTag"
-      color="primary"
-      class="border-color mx-1">
-      <span class="text-header">#{{ selectedTag }}</span>
+      class="border-color mx-1"
+      color="primary">
+      <span class="text-header white--text">#{{ selectedTag }}</span>
       <v-icon
         size="10"
         class="ms-2"

@@ -19,6 +19,7 @@ package org.exoplatform.social.core.jpa.storage;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
@@ -55,7 +56,6 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
 
     SpaceFilter filter = new SpaceFilter();
     filter.setRemoteId("ghost");
-    filter.setAppId("app1, app2, app3");
     
     List<Space> result = spaceStorage.getVisitedSpaces(filter, 0, -1);
     assertEquals(2, result.size());
@@ -81,7 +81,6 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
 
     SpaceFilter filter = new SpaceFilter();
     filter.setRemoteId("ghost");
-    filter.setAppId("app1, app2, app3");
     
     List<Space> result = spaceStorage.getLastAccessedSpace(filter, 0, -1);
     assertEquals(2, result.size());
@@ -126,55 +125,67 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
   }
 
   public void testGetLastAccessedPagination() throws Exception {
-    List<Space> spaces = spaceService.getLastAccessedSpace("raul", null, 0, 10);
-    assertEquals(0, spaces.size());
+    assertEquals(0, spaceService.getLastAccessedSpace("raul").getSize());
 
     int numberOfSpaces = 5;
     for(int i = 0; i < numberOfSpaces; i++) {
       Space s = getSpaceInstance(i);
       spaceStorage.saveSpace(s, true);
+      s = spaceStorage.getSpaceByPrettyName(s.getPrettyName());
+      assertNotNull(s);
       tearDownSpaceList.add(s);
+      restartTransaction();
+
       spaceService.updateSpaceAccessed("raul", s);
-      spaces = spaceService.getLastAccessedSpace("raul", null, 0, 10);
+      restartTransaction();
+
+      SpaceFilter filter = new SpaceFilter();
+      filter.setRemoteId("raul");
+      List<Space> spaces = spaceStorage.getLastAccessedSpace(filter, 0, 10);
       assertEquals(s.getPrettyName(), spaces.get(0).getPrettyName());
 
-      spaces = spaceService.getLastAccessedSpace("raul", null, 0, i + 1);
+      spaces = spaceStorage.getLastAccessedSpace(filter, 0, i + 1);
       assertEquals(s.getPrettyName(), spaces.get(0).getPrettyName());
     }
 
-    spaces = spaceService.getLastAccessedSpace("raul", null, 0, 2);
-    assertEquals(2, spaces.size());
-    assertEquals("my_space_test_4", spaces.get(0).getPrettyName());
-    assertEquals("my_space_test_3", spaces.get(1).getPrettyName());
+    ListAccess<Space> spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    Space[] spaces = spacesListAccess.load(0, 2);
+    assertEquals(2, spaces.length);
+    assertEquals("my_space_test_4", spaces[0].getPrettyName());
+    assertEquals("my_space_test_3", spaces[1].getPrettyName());
 
     Space space6 = getSpaceInstance(6);
     spaceStorage.saveSpace(space6, true);
     tearDownSpaceList.add(space6);
-    spaces = spaceService.getLastAccessedSpace("raul", null, 0, 2);
-    assertEquals(2, spaces.size());
-    assertEquals("my_space_test_4", spaces.get(0).getPrettyName());
-    assertEquals("my_space_test_3", spaces.get(1).getPrettyName());
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(0, 2);
+    assertEquals(2, spaces.length);
+    assertEquals("my_space_test_4", spaces[0].getPrettyName());
+    assertEquals("my_space_test_3", spaces[1].getPrettyName());
 
-    spaces = spaceService.getLastAccessedSpace("raul", null, 2, 10);
-    assertEquals(4, spaces.size());
-    assertEquals("my_space_test_2", spaces.get(0).getPrettyName());
-    assertEquals("my_space_test_1", spaces.get(1).getPrettyName());
-    assertEquals("my_space_test_0", spaces.get(2).getPrettyName());
-    assertEquals("my_space_test_6", spaces.get(3).getPrettyName());
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(2, 10);
+    assertEquals(4, spaces.length);
+    assertEquals("my_space_test_2", spaces[0].getPrettyName());
+    assertEquals("my_space_test_1", spaces[1].getPrettyName());
+    assertEquals("my_space_test_0", spaces[2].getPrettyName());
+    assertEquals("my_space_test_6", spaces[3].getPrettyName());
 
     spaceService.updateSpaceAccessed("raul", space6);
 
-    spaces = spaceService.getLastAccessedSpace("raul", null, 0, 2);
-    assertEquals(2, spaces.size());
-    assertEquals("my_space_test_6", spaces.get(0).getPrettyName());
-    assertEquals("my_space_test_4", spaces.get(1).getPrettyName());
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(0, 2);
+    assertEquals(2, spaces.length);
+    assertEquals("my_space_test_6", spaces[0].getPrettyName());
+    assertEquals("my_space_test_4", spaces[1].getPrettyName());
 
-    spaces = spaceService.getLastAccessedSpace("raul", null, 2, 10);
-    assertEquals(4, spaces.size());
-    assertEquals("my_space_test_3", spaces.get(0).getPrettyName());
-    assertEquals("my_space_test_2", spaces.get(1).getPrettyName());
-    assertEquals("my_space_test_1", spaces.get(2).getPrettyName());
-    assertEquals("my_space_test_0", spaces.get(3).getPrettyName());
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(2, 10);
+    assertEquals(4, spaces.length);
+    assertEquals("my_space_test_3", spaces[0].getPrettyName());
+    assertEquals("my_space_test_2", spaces[1].getPrettyName());
+    assertEquals("my_space_test_1", spaces[2].getPrettyName());
+    assertEquals("my_space_test_0", spaces[3].getPrettyName());
   }
 
 

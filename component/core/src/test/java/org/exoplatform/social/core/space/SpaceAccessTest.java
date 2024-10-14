@@ -112,7 +112,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
   public void testInvitedSpace() throws Exception {
     Space space = createSpaceData("invited space", "validation", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
     space.setInvitedUsers(new String[]{demo.getRemoteId(), jame.getRemoteId()});
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
@@ -130,7 +130,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
   public void testRequestedToJoinSpace() throws Exception {
     Space space = createSpaceData("requested space", "validation", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
     space.setPendingUsers(new String[]{demo.getRemoteId(), jame.getRemoteId()});
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
@@ -148,7 +148,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
    */
   public void testRequestToJoinSpace() throws Exception {
     Space space = createSpaceData("request space", "validation", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
@@ -162,7 +162,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
   
   public void testJoinSpace() throws Exception {
     Space space = createSpaceData("request space", "open", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = SpaceAccessType.JOIN_SPACE.doCheck(demo.getRemoteId(), space);
@@ -175,7 +175,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
   
   public void testClosedSpace() throws Exception {
     Space space = createSpaceData("request space", "close", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = SpaceAccessType.CLOSED_SPACE.doCheck(demo.getRemoteId(), space);
@@ -188,7 +188,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
 
   public void testHiddenValidationSpace() throws Exception {
     Space space = createSpaceData("request space", "validation", "hidden", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
-    spaceService.saveSpace(space, true);
+    spaceService.createSpace(space);
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = (!SpaceAccessType.SPACE_NOT_FOUND.doCheck(demo.getRemoteId(), space) && SpaceAccessType.REQUEST_JOIN_SPACE.doCheck(demo.getRemoteId(), space));

@@ -17,6 +17,10 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 
+/**
+ * @deprecated use SpaceBannerPortlet instead
+ */
+@Deprecated(forRemoval = true, since = "7.0")
 public class SpaceHeaderPortlet extends GenericPortlet {
 
   private static final Log LOG = ExoLogger.getLogger(SpaceHeaderPortlet.class);

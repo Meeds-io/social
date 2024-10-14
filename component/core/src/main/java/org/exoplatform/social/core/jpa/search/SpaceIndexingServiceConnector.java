@@ -19,6 +19,7 @@ package org.exoplatform.social.core.jpa.search;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
@@ -35,22 +36,22 @@ import org.exoplatform.social.metadata.model.MetadataObject;
 
 public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
-  public static final String    TYPE                       = "space";
+  public static final String TYPE                       = "space";
 
-  public static final String    SPACE_METADATA_OBJECT_TYPE = "space";
+  public static final String SPACE_METADATA_OBJECT_TYPE = "space";
 
-  private static final Log      LOG                        = ExoLogger.getLogger(SpaceIndexingServiceConnector.class);
+  private static final Log   LOG                        = ExoLogger.getLogger(SpaceIndexingServiceConnector.class);
 
-  private SpaceService          spaceService;
+  private SpaceService       spaceService;
 
-  private SpaceStorage          spaceStorage;
+  private SpaceStorage       spaceStorage;
 
   private MetadataService    metadataService;
 
-  public SpaceIndexingServiceConnector(InitParams initParams,
-                                       SpaceService spaceService,
+  public SpaceIndexingServiceConnector(SpaceService spaceService,
                                        SpaceStorage spaceStorage,
-                                       MetadataService metadataService) {
+                                       MetadataService metadataService,
+                                       InitParams initParams) {
     super(initParams);
     this.spaceService = spaceService;
     this.spaceStorage = spaceStorage;
@@ -79,7 +80,7 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     Map<String, String> fields = new HashMap<>();
     fields.put("prettyName", space.getPrettyName());
     fields.put("displayName", space.getDisplayName());
-    fields.put("description", space.getDescription());
+    fields.put("description", htmlToText(space.getDescription()));
     fields.put("visibility", space.getVisibility());
     fields.put("registration", space.getRegistration());
 
@@ -88,8 +89,29 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     DocumentWithMetadata document = new DocumentWithMetadata();
     document.setId(id);
     document.setLastUpdatedDate(createdDate);
-    document.setPermissions(new HashSet<>(Arrays.asList(space.getMembers())));
     document.setFields(fields);
+
+    document.setPermissions(Space.HIDDEN.equals(space.getVisibility()) ? new HashSet<>(Arrays.asList(space.getMembers())) :
+                                                                       Collections.singleton("all"));
+    document.addListField("member",
+                          new HashSet<>(space.getMembers() == null ? Collections.emptyList() :
+                                                                   Arrays.asList(space.getMembers())));
+    document.addListField("pending",
+                          new HashSet<>(space.getPendingUsers() == null ? Collections.emptyList() :
+                                                                        Arrays.asList(space.getPendingUsers())));
+    document.addListField("invited",
+                          new HashSet<>(space.getInvitedUsers() == null ? Collections.emptyList() :
+                                                                        Arrays.asList(space.getInvitedUsers())));
+    document.addListField("manager",
+                          new HashSet<>(space.getManagers() == null ? Collections.emptyList() :
+                                                                    Arrays.asList(space.getManagers())));
+    document.addListField("publisher",
+                          new HashSet<>(space.getPublishers() == null ? Collections.emptyList() :
+                                                                      Arrays.asList(space.getPublishers())));
+    document.addListField("redactor",
+                          new HashSet<>(space.getRedactors() == null ? Collections.emptyList() :
+                                                                     Arrays.asList(space.getRedactors())));
+
     addDocumentMetadata(document, id);
     LOG.info("space document generated for id={} name={} duration_ms={}",
              id,
@@ -106,19 +128,15 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
 
   @Override
   public List<String> getAllIds(int offset, int limit) {
+    return spaceStorage.getSpaces(offset, limit)
+                       .stream()
+                       .map(Space::getId)
+                       .toList();
+  }
 
-    List<String> ids = new LinkedList<>();
-    try {
-      List<Space> spaces = spaceStorage.getAllSpaces();
-      int to = offset + limit;
-      to = to > spaces.size() ? spaces.size() : to;
-      for (Space space : spaces.subList(offset, to)) {
-        ids.add(space.getId());
-      }
-    } catch (Exception ex) {
-      LOG.error(ex);
-    }
-    return ids;
+  @Override
+  public boolean isReindexOnUpgrade() {
+    return true;
   }
 
   @Override
@@ -140,6 +158,11 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                                                .append("    \"visibility\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"registration\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"permissions\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"pending\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"invited\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"manager\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"publisher\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"redactor\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
                                                .append("  }\n")
                                                .append("}");
@@ -151,6 +174,10 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     MetadataObject metadataObject = new MetadataObject(SPACE_METADATA_OBJECT_TYPE, spaceId);
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
     document.setMetadataItems(metadataItems);
+  }
+
+  private String htmlToText(String source) {
+    return source == null ? "" : Jsoup.parse(source).text();
   }
 
 }

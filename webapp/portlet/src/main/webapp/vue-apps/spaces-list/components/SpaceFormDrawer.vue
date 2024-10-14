@@ -68,7 +68,7 @@
                 v-model="space.description"
                 :placeholder="$t('SpaceSettings.label.description')"
                 :max-length="maxDescriptionLength"
-                :tag-enabled="false"
+                tag-enabled
                 class="my-3"
                 ck-editor-type="spaceDescription"
                 disable-suggester />
@@ -472,8 +472,6 @@ export default {
             window.location.href = `${eXo.env.portal.context}/g/${space.groupId.replace(/\//g, ':')}`;
           })
           .catch(e => {
-            // eslint-disable-next-line no-console
-            console.warn('Error creating space ', this.space, e);
             if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
               this.displayAlert(this.$t('spacesList.error.spaceWithSameNameExists'), 'error');
             } else if (String(e).indexOf('INVALID_SPACE_NAME') >= 0) {
