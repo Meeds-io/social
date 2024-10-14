@@ -25,7 +25,7 @@
     <container id="Menu" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
       <portlet-application>
         <portlet>
-          <application-ref>social-portlet</application-ref>
+          <application-ref>social</application-ref>
           <portlet-ref>SpaceBannerPortlet</portlet-ref>
         </portlet>
         <access-permissions>*:/platform/users</access-permissions>
@@ -36,7 +36,7 @@
       <container id="SpaceHomeActivities" template="system:/groovy/portal/webui/container/UIColumnContainer.gtmpl">
         <portlet-application>
           <portlet>
-            <application-ref>social-portlet</application-ref>
+            <application-ref>social</application-ref>
             <portlet-ref>SpaceActivityStreamPortlet</portlet-ref>
           </portlet>
           <show-info-bar>false</show-info-bar>
@@ -46,7 +46,7 @@
         <container id="SpaceInfos" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <portlet-application>
             <portlet>
-              <application-ref>social-portlet</application-ref>
+              <application-ref>social</application-ref>
               <portlet-ref>SpaceInfos</portlet-ref>
             </portlet>
             <show-info-bar>false</show-info-bar>
@@ -55,7 +55,7 @@
         <container id="OnlineUsers" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <portlet-application>
             <portlet>
-              <application-ref>social-portlet</application-ref>
+              <application-ref>social</application-ref>
               <portlet-ref>WhoIsOnLinePortlet</portlet-ref>
             </portlet>
             <show-info-bar>false</show-info-bar>
@@ -64,7 +64,7 @@
         <container id="HomeCalendar" template="system:/groovy/portal/webui/container/UIContainer.gtmpl">
           <portlet-application>
             <portlet>
-              <application-ref>social-portlet</application-ref>
+              <application-ref>social</application-ref>
               <portlet-ref>HomePageCalendarPortlet</portlet-ref>
             </portlet>
             <show-info-bar>false</show-info-bar>

@@ -227,7 +227,7 @@
                 <value>
                   <object type="org.exoplatform.social.core.space.SpaceApplication">
                     <field name="portletApp">
-                      <string>social-portlet</string>
+                      <string>social</string>
                     </field>
                     <field name="portletName">
                       <string>SpaceSettingPortlet</string>
@@ -256,7 +256,7 @@
                 <value>
                   <object type="org.exoplatform.social.core.space.SpaceApplication">
                     <field name="portletApp">
-                      <string>social-portlet</string>
+                      <string>social</string>
                     </field>
                     <field name="portletName">
                       <string>MembersPortlet</string>
