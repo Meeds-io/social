@@ -1146,9 +1146,6 @@ public class UserRest implements ResourceContainer, Startable {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
           updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false);
           updateProfilePropertyVisibility(profileProperty);
-          if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME) || profileProperty.getPropertyName().equals(Profile.LAST_NAME) ) {
-            profile = getUserIdentity(username).getProfile();
-          }
         } else {
           List<Map<String, String>> maps = new ArrayList<>();
           profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
