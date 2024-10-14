@@ -16,7 +16,12 @@
  */
 package org.exoplatform.social.core.application;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.text.StringEscapeUtils;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
@@ -26,8 +31,6 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.processor.I18NActivityUtils;
@@ -38,10 +41,6 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
-
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * This listener is responsible for initializing and notifying activity stream for the space. We create a special
@@ -125,9 +124,6 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
     this.identityManager = identityManager;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void spaceCreated(SpaceLifeCycleEvent event) {
     Space space = event.getSpace();
@@ -137,35 +133,23 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
     recordActivity(event, activityMessage, SPACE_CREATED_TITLE_ID, templateParams);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void spaceRemoved(SpaceLifeCycleEvent event) {
     LOG.debug("space " + event.getSpace().getDisplayName() + " was removed!");
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void applicationActivated(SpaceLifeCycleEvent event) {
     LOG.debug("application <strong>" + event.getTarget() + "</strong> was activated in space "
             + event.getSpace().getDisplayName());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void applicationAdded(SpaceLifeCycleEvent event) {
     LOG.debug("application <strong>" + event.getTarget() + "</strong> was added in space "
             + event.getSpace().getDisplayName());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void applicationDeactivated(SpaceLifeCycleEvent event) {
     LOG.debug("application " + event.getTarget() + " was deactivated in space "
@@ -173,56 +157,40 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
 
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void applicationRemoved(SpaceLifeCycleEvent event) {
     LOG.debug("application " + event.getTarget() + " was removed in space "
             + event.getSpace().getDisplayName());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void grantedLead(SpaceLifeCycleEvent event) {
     Space space = event.getSpace();
     final String activityMessage = "@" + event.getTarget() + " has been promoted as space's manager.";
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    Map<String, String> templateParams = new LinkedHashMap<>();
     templateParams.put(USER_NAME_PARAM, "@" + event.getTarget());
     templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, USER_NAME_PARAM);
-    
     recordActivity(new SpaceLifeCycleEvent(space, space.getEditor(), Type.GRANTED_LEAD), activityMessage, MANAGER_GRANTED_TITLE_ID, templateParams);
-    LOG.debug("user " + event.getTarget() + " has been promoted as space's manager " + space.getDisplayName());
+    LOG.debug("user {} has been promoted as space's manager {}", event.getTarget(), space.getDisplayName());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void joined(SpaceLifeCycleEvent event) {
     final String activityMessage ="Has joined the space.";
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
-    
-    //
+    Map<String, String> templateParams = new LinkedHashMap<>();
     recordActivity(event, activityMessage, USER_JOINED_TITLE_ID, templateParams);
-    
-    LOG.debug("user " + event.getTarget() + " joined space " + event.getSpace().getDisplayName());
+    LOG.debug("user {} has joined the space {}", event.getTarget(), event.getSpace().getDisplayName());
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public void left(SpaceLifeCycleEvent event) {
     Space space = event.getSpace();
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     
     String activityId = getStorage().getProfileActivityId(spaceIdentity.getProfile(), Profile.AttachedActivityType.SPACE);
     if (activityId != null) {
       try {
-        ExoSocialActivity activity = (ExoSocialActivityImpl) activityManager.getActivity(activityId);
+        ExoSocialActivity activity = activityManager.getActivity(activityId);
         updateActivity(activity, space.getPrettyName());
         activityManager.updateActivity(activity);
       } catch (Exception e) {
@@ -240,7 +208,7 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
   public void revokedLead(SpaceLifeCycleEvent event) {
     Space space = event.getSpace();
     final String activityMessage = "@" + event.getTarget() + " has been revoked as space's manager.";
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    Map<String, String> templateParams = new LinkedHashMap<>();
     templateParams.put(USER_NAME_PARAM, "@" + event.getTarget());
     templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, USER_NAME_PARAM);
     recordActivity(new SpaceLifeCycleEvent(space, space.getEditor(), Type.REVOKED_LEAD), activityMessage, MANAGER_REVOKED_TITLE_ID, templateParams);
@@ -254,7 +222,7 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
   @Override
   public void spaceRenamed(SpaceLifeCycleEvent event) {
     final String activityMessage = "Name has been updated to: "+event.getSpace().getDisplayName();
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    Map<String, String> templateParams = new LinkedHashMap<>();
     templateParams.put(SPACE_DISPLAY_NAME_PARAM, event.getSpace().getDisplayName());
     templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, SPACE_DISPLAY_NAME_PARAM);
     recordActivity(event, activityMessage, SPACE_RENAMED_TITLE_ID, templateParams);
@@ -273,7 +241,7 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
   public void spaceDescriptionEdited(SpaceLifeCycleEvent event) {
     String spaceDescription = StringEscapeUtils.unescapeHtml4(event.getSpace().getDescription());
     final String activityMessage = "Description has been updated to: "+ spaceDescription;
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    Map<String, String> templateParams = new LinkedHashMap<>();
     templateParams.put(SPACE_DESCRIPTION_PARAM, spaceDescription);
     templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, SPACE_DESCRIPTION_PARAM);
     recordActivity(event, activityMessage, SPACE_DESCRIPTION_EDITED_TITLE_ID, templateParams);
@@ -286,7 +254,7 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
   @Override
   public void spaceAvatarEdited(SpaceLifeCycleEvent event) {
     final String activityMessage = "Space has a new avatar.";
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    Map<String, String> templateParams = new LinkedHashMap<>();
     recordActivity(event, activityMessage, SPACE_AVATAR_EDITED_TITLE_ID, templateParams);
     LOG.debug("Space has a new avatar.");
   }
@@ -299,10 +267,10 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
     Space space = event.getSpace();
     
     //Update space's activity
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     String spaceActivityId = getStorage().getProfileActivityId(spaceIdentity.getProfile(), Profile.AttachedActivityType.SPACE);
     if (spaceActivityId != null) {
-      ExoSocialActivity activity = (ExoSocialActivityImpl) activityManager.getActivity(spaceActivityId);
+      ExoSocialActivity activity = activityManager.getActivity(spaceActivityId);
       if (activity != null) {
         if (Space.HIDDEN.equals(space.getVisibility())) {
           activity.isHidden(true);
@@ -317,10 +285,10 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
     //Update user space activity of all member of space
     String[] members = space.getMembers();
     for (String member : members) {
-      Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, member, false);
+      Identity identity = identityManager.getOrCreateUserIdentity(member);
       String userSpaceActivityId = getStorage().getProfileActivityId(identity.getProfile(), Profile.AttachedActivityType.RELATION);
       if (userSpaceActivityId != null) {
-        ExoSocialActivity activity = (ExoSocialActivityImpl) activityManager.getActivity(userSpaceActivityId);
+        ExoSocialActivity activity = activityManager.getActivity(userSpaceActivityId);
         if (activity != null) {
           int numberOfSpacesOfMember = getSpaceStorage().getNumberOfMemberPublicSpaces(identity.getRemoteId());
           Map<String, String> templateParams = activity.getTemplateParams();
@@ -352,9 +320,9 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
   private void recordActivity(SpaceLifeCycleEvent event, String activityMessage, String titleId,
                               Map<String, String> templateParams) {
     Space space = event.getSpace();
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, event.getTarget(), false);
+    Identity identity = identityManager.getOrCreateUserIdentity(event.getTarget());
     String activityId = getStorage().getProfileActivityId(spaceIdentity.getProfile(), Profile.AttachedActivityType.SPACE);
     if (activityId != null) {
       try {
@@ -405,7 +373,7 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
     } else {
       titleId = "space_member";
     }
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = new HashMap<>();
     activity.setTitle(title);
     activity.setTitleId(null);
     activity.setTemplateParams(params);
@@ -430,26 +398,11 @@ public class SpaceActivityPublisher extends SpaceListenerPlugin {
   }
   
   private IdentityStorage getStorage() {
-    return (IdentityStorage) PortalContainer.getInstance().getComponentInstanceOfType(IdentityStorage.class);
+    return PortalContainer.getInstance().getComponentInstanceOfType(IdentityStorage.class);
   }
 
   private SpaceStorage getSpaceStorage() {
-    return (SpaceStorage) PortalContainer.getInstance().getComponentInstanceOfType(SpaceStorage.class);
-  }
-
-  @Override
-  public void addInvitedUser(SpaceLifeCycleEvent event) {
-    
-  }
-
-  @Override
-  public void addPendingUser(SpaceLifeCycleEvent event) {
-    
-  }
-
-  @Override
-  public void spaceBannerEdited(SpaceLifeCycleEvent event) {
-    LOG.debug("Banner of space {} has been updated", event.getSpace().getId());
+    return PortalContainer.getInstance().getComponentInstanceOfType(SpaceStorage.class);
   }
 
 }

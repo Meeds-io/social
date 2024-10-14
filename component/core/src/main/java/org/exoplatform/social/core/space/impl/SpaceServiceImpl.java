@@ -20,9 +20,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -54,20 +56,23 @@ import org.exoplatform.social.core.space.SpaceException.Code;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceLifecycle;
 import org.exoplatform.social.core.space.SpaceListAccess;
+import org.exoplatform.social.core.space.SpaceListAccessType;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.SpaceTemplate;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceApplicationHandler;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.space.spi.SpaceTemplateService;
-import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
+
+import io.meeds.social.core.search.SpaceSearchConnector;
 
 import lombok.SneakyThrows;
 
@@ -79,13 +84,15 @@ import lombok.SneakyThrows;
  */
 public class SpaceServiceImpl implements SpaceService {
 
-  private static final Log            LOG                  = ExoLogger.getLogger(SpaceServiceImpl.class.getName());
+  private static final Log            LOG            = ExoLogger.getLogger(SpaceServiceImpl.class.getName());
 
-  public static final String          MEMBER               = "member";
+  public static final String          MEMBER         = "member";
 
-  public static final String          MANAGER              = "manager";
+  public static final String          MANAGER        = "manager";
 
   private SpaceStorage                spaceStorage;
+
+  private SpaceSearchConnector        spaceSearchConnector;
 
   private GroupSpaceBindingStorage    groupSpaceBindingStorage;
 
@@ -99,13 +106,10 @@ public class SpaceServiceImpl implements SpaceService {
 
   private Authenticator               authenticator;
 
-  private SpaceLifecycle              spaceLifeCycle       = new SpaceLifecycle();
-
-  /** The offset for list access loading. */
-  private static final int            OFFSET               = 0;
+  private SpaceLifecycle              spaceLifeCycle = new SpaceLifecycle();
 
   /** The limit for list access loading. */
-  private static final int            LIMIT                = 200;
+  private static final int            LIMIT          = 200;
 
   private SpacesAdministrationService spacesAdministrationService;
 
@@ -114,6 +118,7 @@ public class SpaceServiceImpl implements SpaceService {
   private LayoutService               layoutService;
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
+                          SpaceSearchConnector spaceSearchConnector,
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
                           IdentityManager identityManager,
                           UserACL userACL,
@@ -123,6 +128,7 @@ public class SpaceServiceImpl implements SpaceService {
                           SpaceTemplateService spaceTemplateService,
                           LayoutService layoutService) {
     this.spaceStorage = spaceStorage;
+    this.spaceSearchConnector = spaceSearchConnector;
     this.identityManager = identityManager;
     this.identityRegistry = identityRegistry;
     this.userACL = userACL;
@@ -135,7 +141,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getAllSpacesWithListAccess() {
-    return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.ALL);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.ALL);
   }
 
   @Override
@@ -170,47 +176,24 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public SpaceListAccess getAccessibleSpacesWithListAccess(String username) {
-    return new SpaceListAccess(this.spaceStorage, username, SpaceListAccess.Type.ACCESSIBLE);
-  }
-
-  @Override
-  public List<Space> getVisibleSpaces(String username, SpaceFilter spaceFilter) throws SpaceException {
-    try {
-      return Arrays.asList(this.getVisibleSpacesWithListAccess(username, spaceFilter).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.ACCESSIBLE);
   }
 
   @Override
   public SpaceListAccess getVisibleSpacesWithListAccess(String username, SpaceFilter spaceFilter) {
     if (isSuperManager(username)) {
       if (spaceFilter == null)
-        return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.ALL);
+        return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.ALL);
       else
-        return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.ALL_FILTER);
+        return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.ALL_FILTER);
     } else {
-      return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.VISIBLE);
-    }
-  }
-
-  @Override
-  public SpaceListAccess getUnifiedSearchSpacesWithListAccess(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.UNIFIED_SEARCH);
-  }
-
-  @Override
-  public SpaceListAccess getPublicSpacesWithListAccess(String username) {
-    if (isSuperManager(username)) {
-      return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.PUBLIC_SUPER_USER);
-    } else {
-      return new SpaceListAccess(this.spaceStorage, username, SpaceListAccess.Type.PUBLIC);
+      return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.VISIBLE);
     }
   }
 
   @Override
   public SpaceListAccess getPendingSpacesWithListAccess(String username) {
-    return new SpaceListAccess(this.spaceStorage, username, SpaceListAccess.Type.PENDING);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.PENDING);
   }
 
   @Override
@@ -236,10 +219,15 @@ public class SpaceServiceImpl implements SpaceService {
 
     // Add creator as a manager and a member to this space
     String[] managers = space.getManagers();
-    String[] members = space.getMembers();
-    managers = ArrayUtils.add(managers, username);
-    members = ArrayUtils.add(members, username);
+    if (!ArrayUtils.contains(managers, username)) {
+      managers = ArrayUtils.add(managers, username);
+    }
     space.setManagers(managers);
+
+    String[] members = space.getMembers();
+    if (!ArrayUtils.contains(members, username)) {
+      members = ArrayUtils.add(members, username);
+    }
     space.setMembers(members);
 
     // Creates new space by creating new group
@@ -257,7 +245,7 @@ public class SpaceServiceImpl implements SpaceService {
     spaceLifeCycle.setCurrentEvent(Type.SPACE_CREATED);
     try {
       spaceTemplateService.initSpaceApplications(space, getSpaceApplicationHandler(space));
-      saveSpace(space, true);
+      spaceStorage.saveSpace(space, true);
       spaceLifeCycle.spaceCreated(space, username);
     } catch (Exception e) {
       throw new SpaceException(Code.UNABLE_TO_INIT_APP, "Failed to init apps for space " + space.getPrettyName(), e);
@@ -288,8 +276,8 @@ public class SpaceServiceImpl implements SpaceService {
         continue;
       }
 
-      if (!isInvited(space, username)) {
-        inviteMember(space, username);
+      if (!isInvitedUser(space, username)) {
+        addInvitedUser(space, username);
       }
     }
   }
@@ -300,11 +288,13 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public void saveSpace(Space space, boolean isNew) {
-    Space oldSpace = getSpaceById(space.getId());
-    spaceStorage.saveSpace(space, isNew);
-    if (!isNew) {
-      triggerSpaceUpdate(space, oldSpace);
+  public void createSpace(Space space) {
+    spaceLifeCycle.setCurrentEvent(Type.SPACE_CREATED);
+    try {
+      spaceStorage.saveSpace(space, true);
+      spaceLifeCycle.spaceCreated(space, space.getEditor());
+    } finally {
+      spaceLifeCycle.resetCurrentEvent(Type.SPACE_CREATED);
     }
   }
 
@@ -328,55 +318,46 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public void deleteSpace(Space space) {
+  public void deleteSpace(Space space) throws SpaceException {
     deleteSpace(space, true);
   }
 
   @Override
-  public void deleteSpace(Space space, boolean deleteGroup) {
+  @SneakyThrows
+  public void deleteSpace(Space space, boolean deleteGroup) throws SpaceException {
     spaceLifeCycle.setCurrentEvent(Type.SPACE_REMOVED);
     try {
-      try {
-        List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingStorage.findGroupSpaceBindingsBySpace(space.getId());
-        groupSpaceBindings.stream().map(GroupSpaceBinding::getId).forEach(groupSpaceBindingStorage::deleteGroupBinding);
+      List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingStorage.findGroupSpaceBindingsBySpace(space.getId());
+      groupSpaceBindings.stream().map(GroupSpaceBinding::getId).forEach(groupSpaceBindingStorage::deleteGroupBinding);
 
-        // remove memberships of users with deleted space.
-        SpaceUtils.removeMembershipFromGroup(space);
+      // remove memberships of users with deleted space.
+      SpaceUtils.removeMembershipFromGroup(space);
 
-        Identity spaceIdentity = null;
-        if (identityManager.identityExisted(SpaceIdentityProvider.NAME, space.getPrettyName())) {
-          spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+      Identity spaceIdentity = null;
+      if (identityManager.identityExisted(SpaceIdentityProvider.NAME, space.getPrettyName())) {
+        spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+      }
+      spaceStorage.deleteSpace(space.getId());
+      if (spaceIdentity != null) {
+        identityManager.hardDeleteIdentity(spaceIdentity);
+      }
+
+      if (deleteGroup) {
+        UserACL acl = getUserACL();
+        GroupHandler groupHandler = getOrgService().getGroupHandler();
+        Group deletedGroup = groupHandler.findGroupById(space.getGroupId());
+        List<String> mandatories = acl.getMandatoryGroups();
+        if (deletedGroup != null && !isMandatory(groupHandler, deletedGroup, mandatories)) {
+          SpaceUtils.removeGroup(space);
         }
-        spaceStorage.deleteSpace(space.getId());
-        if (spaceIdentity != null) {
-          identityManager.hardDeleteIdentity(spaceIdentity);
-        }
 
-        if (deleteGroup) {
-          UserACL acl = getUserACL();
-          GroupHandler groupHandler = getOrgService().getGroupHandler();
-          Group deletedGroup = groupHandler.findGroupById(space.getGroupId());
-          List<String> mandatories = acl.getMandatoryGroups();
-          if (deletedGroup != null
-              && !isMandatory(groupHandler, deletedGroup, mandatories)) {
-            SpaceUtils.removeGroup(space);
-          }
-
-          // remove pages and group navigation of space
-          SpaceUtils.removePagesAndGroupNavigation(space);
-        }
-      } catch (Exception e) {
-        LOG.error("Unable delete space: {}. Cause: {}", space.getPrettyName(), e.getMessage());
+        // remove pages and group navigation of space
+        SpaceUtils.removePagesAndGroupNavigation(space);
       }
       spaceLifeCycle.spaceRemoved(space, space.getEditor());
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.SPACE_REMOVED);
     }
-  }
-
-  @Override
-  public void deleteSpace(String spaceId) {
-    deleteSpace(getSpaceById(spaceId));
   }
 
   @Override
@@ -396,11 +377,6 @@ public class SpaceServiceImpl implements SpaceService {
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.JOINED);
     }
-  }
-
-  @Override
-  public void addMember(String spaceId, String username) {
-    addMember(getSpaceById(spaceId), username);
   }
 
   @Override
@@ -447,76 +423,13 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public void removeMember(String spaceId, String username) {
-    removeMember(getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public List<String> getMembers(Space space) {
-    if (space.getMembers() != null) {
-      return Arrays.asList(space.getMembers());
-    }
-    return Collections.emptyList();
-  }
-
-  @Override
-  public List<String> getMembers(String spaceId) {
-    return getMembers(getSpaceById(spaceId));
-  }
-
-  @Override
   public boolean isMember(Space space, String username) {
     return space != null && ArrayUtils.contains(space.getMembers(), username);
   }
 
   @Override
-  public boolean isMember(String spaceId, String username) {
-    return isMember(getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public boolean hasAccessPermission(Space space, String username) {
-    return canViewSpace(space, username);
-  }
-
-  @Override
-  public boolean hasAccessPermission(String spaceId, String username) {
-    return hasAccessPermission(getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public boolean hasEditPermission(Space space, String username) {
-    return this.hasSettingPermission(space, username);
-  }
-
-  @Override
-  public boolean hasEditPermission(String spaceId, String username) {
-    return this.hasSettingPermission(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public boolean isInvited(Space space, String username) {
-    return this.isInvitedUser(space, username);
-  }
-
-  @Override
-  public boolean isInvited(String spaceId, String username) {
-    return this.isInvitedUser(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public boolean isPending(Space space, String username) {
-    return this.isPendingUser(space, username);
-  }
-
-  @Override
-  public boolean isPending(String spaceId, String username) {
-    return this.isPendingUser(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
   public boolean isIgnored(Space space, String username) {
-    return spaceStorage.isSpaceIgnored(space.getId(), username);
+    return space != null && spaceStorage.isSpaceIgnored(space.getId(), username);
   }
 
   @Override
@@ -561,7 +474,7 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public void installApplication(Space space, String appId) throws SpaceException {
+  public void installApplication(Space space, String appId) {
     spaceLifeCycle.setCurrentEvent(Type.APP_ADDED);
     try {
       spaceLifeCycle.addApplication(space, getPortletId(appId));
@@ -585,17 +498,12 @@ public class SpaceServiceImpl implements SpaceService {
       // Default is removable, or must be added by configuration or support
       // setting for applications.
       spaceTemplateService.setApp(space, appId, appName, true, Space.ACTIVE_STATUS);
-      saveSpace(space, false);
+      spaceStorage.saveSpace(space, false);
       // Use portletId instead of appId for fixing SOC-1633.
       spaceLifeCycle.activateApplication(space, getPortletId(appId));
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.APP_ACTIVATED);
     }
-  }
-
-  @Override
-  public void activateApplication(String spaceId, String appId) throws SpaceException {
-    activateApplication(getSpaceById(spaceId), appId);
   }
 
   @Override
@@ -612,16 +520,11 @@ public class SpaceServiceImpl implements SpaceService {
       SpaceApplicationHandler appHandler = getSpaceApplicationHandler(space);
       appHandler.deactiveApplication(space, appId);
       spaceTemplateService.setApp(space, appId, appId, SpaceUtils.isRemovableApp(space, appId), Space.DEACTIVE_STATUS);
-      saveSpace(space, false);
+      spaceStorage.saveSpace(space, false);
       spaceLifeCycle.deactivateApplication(space, getPortletId(appId));
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.APP_DEACTIVATED);
     }
-  }
-
-  @Override
-  public void deactivateApplication(String spaceId, String appId) throws SpaceException {
-    deactivateApplication(getSpaceById(spaceId), appId);
   }
 
   @Override
@@ -641,93 +544,6 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public void removeApplication(String spaceId, String appId, String appName) throws SpaceException {
-    removeApplication(getSpaceById(spaceId), appId, appName);
-  }
-
-  @Override
-  public void requestJoin(String spaceId, String username) {
-    this.addPendingUser(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public void requestJoin(Space space, String username) {
-    this.addPendingUser(space, username);
-  }
-
-  @Override
-  public void revokeRequestJoin(Space space, String username) {
-    this.removePendingUser(space, username);
-  }
-
-  @Override
-  public void revokeRequestJoin(String spaceId, String username) {
-    Space space = this.getSpaceById(spaceId);
-    this.removePending(space, username);
-    spaceLifeCycle.removePendingUser(space, username);
-  }
-
-  @Override
-  public void inviteMember(Space space, String username) {
-    this.addInvitedUser(space, username);
-  }
-
-  @Override
-  public void inviteMember(String spaceId, String username) {
-    this.addInvitedUser(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public void revokeInvitation(Space space, String username) {
-    this.removeInvitedUser(space, username);
-  }
-
-  @Override
-  public void revokeInvitation(String spaceId, String username) {
-    this.removeInvitedUser(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public void acceptInvitation(Space space, String username) throws SpaceException {
-    this.addMember(space, username);
-  }
-
-  @Override
-  public void acceptInvitation(String spaceId, String username) throws SpaceException {
-    this.addMember(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public void denyInvitation(String spaceId, String username) {
-    this.removeInvitedUser(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public void denyInvitation(Space space, String username) {
-    this.removeInvitedUser(space, username);
-  }
-
-  @Override
-  public void validateRequest(Space space, String username) {
-    this.addMember(space, username);
-  }
-
-  @Override
-  public void validateRequest(String spaceId, String username) {
-    this.addMember(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
-  public void declineRequest(Space space, String username) {
-    this.removePendingUser(space, username);
-  }
-
-  @Override
-  public void declineRequest(String spaceId, String username) {
-    this.removePendingUser(this.getSpaceById(spaceId), username);
-  }
-
-  @Override
   public void registerSpaceLifeCycleListener(SpaceLifeCycleListener listener) {
     spaceLifeCycle.addListener(listener);
   }
@@ -739,13 +555,12 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public void addInvitedUser(Space space, String username) {
-
     if (ArrayUtils.contains(space.getMembers(), username)) {
       // user is already member. Do nothing
       return;
     }
 
-    if (isPending(space, username)) {
+    if (isPendingUser(space, username)) {
       removePending(space, username);
       addMember(space, username);
     } else {
@@ -783,41 +598,48 @@ public class SpaceServiceImpl implements SpaceService {
     if (registration.equals(Space.OPEN)) {
       addMember(space, username);
     } else if (registration.equals(Space.VALIDATION)) {
-      addPending(space, username);
-      saveSpace(space, false);
+      spaceLifeCycle.setCurrentEvent(Type.ADD_PENDING_USER);
+      try {
+        addPending(space, username);
+        spaceStorage.saveSpace(space, false);
+        spaceLifeCycle.addPendingUser(space, username);
+      } finally {
+        spaceLifeCycle.resetCurrentEvent(Type.ADD_PENDING_USER);
+      }
     } else {
       LOG.warn("Unable request to join");
     }
-    spaceLifeCycle.addPendingUser(space, username);
   }
 
   @Override
   public ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (isSuperManager(username)
-        && (spaceFilter == null || spaceFilter.getAppId() == null)) {
-      if (spaceFilter == null) {
-        return new SpaceListAccess(this.spaceStorage, spaceFilter, SpaceListAccess.Type.ALL);
-      } else {
-        return new SpaceListAccess(this.spaceStorage, spaceFilter, SpaceListAccess.Type.ALL_FILTER);
-      }
+    if (isSuperManager(username)) {
+      return new SpaceListAccess(spaceStorage,
+                                 spaceSearchConnector,
+                                 spaceFilter,
+                                 spaceFilter == null ? SpaceListAccessType.ALL : SpaceListAccessType.ALL_FILTER);
     } else {
-      return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.ACCESSIBLE_FILTER);
+      return new SpaceListAccess(spaceStorage,
+                                 spaceSearchConnector,
+                                 username,
+                                 spaceFilter,
+                                 spaceFilter == null ? SpaceListAccessType.ACCESSIBLE : SpaceListAccessType.ACCESSIBLE_FILTER);
     }
   }
 
   @Override
   public ListAccess<Space> getAllSpacesByFilter(SpaceFilter spaceFilter) {
-    return new SpaceListAccess(this.spaceStorage, spaceFilter, SpaceListAccess.Type.ALL_FILTER);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, spaceFilter, SpaceListAccessType.ALL_FILTER);
   }
 
   @Override
   public ListAccess<Space> getInvitedSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.INVITED_FILTER);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.INVITED_FILTER);
   }
 
   @Override
   public ListAccess<Space> getMemberSpaces(String username) {
-    return new SpaceListAccess(this.spaceStorage, username, SpaceListAccess.Type.MEMBER);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MEMBER);
   }
 
   @Override
@@ -842,54 +664,27 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getManagerSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.MANAGER_FILTER);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.MANAGER_FILTER);
   }
 
   @Override
   public ListAccess<Space> getManagerSpaces(String username) {
-    return new SpaceListAccess(this.spaceStorage, username, SpaceListAccess.Type.MANAGER);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MANAGER);
   }
 
   @Override
   public ListAccess<Space> getMemberSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.MEMBER_FILTER);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.MEMBER_FILTER);
   }
 
   @Override
   public ListAccess<Space> getFavoriteSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.FAVORITE_FILTER);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.FAVORITE_FILTER);
   }
 
   @Override
   public ListAccess<Space> getPendingSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.PENDING_FILTER);
-  }
-
-  @Override
-  public ListAccess<Space> getPublicSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (isSuperManager(username)) {
-      return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.PUBLIC_SUPER_USER);
-    } else {
-      return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.PUBLIC_FILTER);
-    }
-  }
-
-  @Override
-  public ListAccess<Space> getSettingableSpaces(String username) {
-    if (isSuperManager(username)) {
-      return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.ALL);
-    } else {
-      return new SpaceListAccess(this.spaceStorage, username, SpaceListAccess.Type.SETTING);
-    }
-  }
-
-  @Override
-  public ListAccess<Space> getSettingabledSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (isSuperManager(username)) {
-      return new SpaceListAccess(this.spaceStorage, spaceFilter, SpaceListAccess.Type.ALL_FILTER);
-    } else {
-      return new SpaceListAccess(this.spaceStorage, username, spaceFilter, SpaceListAccess.Type.SETTING_FILTER);
-    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.PENDING_FILTER);
   }
 
   @Override
@@ -1146,20 +941,14 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getInvitedSpacesWithListAccess(String username) {
-    return new SpaceListAccess(this.spaceStorage, username, SpaceListAccess.Type.INVITED);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.INVITED);
   }
 
   @Override
-  public void updateSpaceAccessed(String remoteId, Space space) throws SpaceException {
+  public void updateSpaceAccessed(String remoteId, Space space) {
     if (isMember(space, remoteId)) {
       spaceStorage.updateSpaceAccessed(remoteId, space);
     }
-  }
-
-  @Override
-  public List<Space> getLastAccessedSpace(String remoteId, String appId, int offset, int limit) throws SpaceException {
-    SpaceFilter filter = new SpaceFilter(remoteId, appId);
-    return spaceStorage.getLastAccessedSpace(filter, offset, limit);
   }
 
   @Override
@@ -1168,18 +957,18 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getLastAccessedSpace(String remoteId, String appId) {
-    return new SpaceListAccess(this.spaceStorage, remoteId, appId, SpaceListAccess.Type.LASTEST_ACCESSED);
+  public ListAccess<Space> getLastAccessedSpace(String remoteId) {
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, remoteId, SpaceListAccessType.LASTEST_ACCESSED);
   }
 
   @Override
-  public ListAccess<Space> getVisitedSpaces(String remoteId, String appId) {
-    return new SpaceListAccess(this.spaceStorage, remoteId, appId, SpaceListAccess.Type.VISITED);
+  public ListAccess<Space> getVisitedSpaces(String remoteId) {
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, remoteId, SpaceListAccessType.VISITED);
   }
 
   @Override
   public ListAccess<Space> getPendingSpaceRequestsToManage(String remoteId) {
-    return new SpaceListAccess(this.spaceStorage, remoteId, SpaceListAccess.Type.PENDING_REQUESTS);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, remoteId, SpaceListAccessType.PENDING_REQUESTS);
   }
 
   @Override
@@ -1206,7 +995,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     saveSpacePublicSite(space, publicSiteVisibility, authenticatedUser);
   }
-  
+
   @Override
   public void saveSpacePublicSite(Space space, String publicSiteVisibility) {
     saveSpacePublicSite(space, publicSiteVisibility, null);
@@ -1281,7 +1070,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getCommonSpaces(String username, String otherUserId) {
-    return new SpaceListAccess(this.spaceStorage, SpaceListAccess.Type.COMMON, username, otherUserId);
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.COMMON, username, otherUserId);
   }
 
   public void addSpaceListener(SpaceListenerPlugin plugin) {
@@ -1290,7 +1079,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   private String checkSpaceEditorPermissions(Space space) {
     String editor = space.getEditor();
-    if (StringUtils.isBlank(editor) || !hasEditPermission(space, editor)) {
+    if (StringUtils.isBlank(editor) || !canManageSpace(space, editor)) {
       throw new IllegalStateException("User " + editor + " is not authorized to change space.");
     }
     return editor;
@@ -1385,37 +1174,37 @@ public class SpaceServiceImpl implements SpaceService {
     }
 
     space.setApp(remainApp.toString());
-    saveSpace(space, false);
+    spaceStorage.saveSpace(space, false);
   }
 
   private Set<String> getUsersToInvite(List<Identity> identities) {
-    Set<String> invitedUserIds = new HashSet<>();
-    for (Identity identity : identities) {
-      if (identity == null
-          || StringUtils.isBlank(identity.getRemoteId())
-          || StringUtils.isBlank(identity.getProviderId())) {
-        continue;
-      }
-      identity = identityManager.getOrCreateIdentity(identity.getProviderId(), identity.getRemoteId());
-      if (identity == null || identity.isDeleted() || !identity.isEnable()) {
-        continue;
-      }
-      String remoteId = identity.getRemoteId();
-      // If it's a space
-      if (identity.isSpace()) {
-        Space space = getSpaceByPrettyName(remoteId);
-        if (space != null) {
-          String[] users = space.getMembers();
-          invitedUserIds.addAll(Arrays.asList(users));
-        }
-      } else if (identity.isUser()) { // Otherwise, it's an user
-        invitedUserIds.add(remoteId);
-      }
-    }
-    return invitedUserIds;
+    return identities.stream()
+                     .filter(identity -> identity != null
+                                         && StringUtils.isNotBlank(identity.getRemoteId())
+                                         && StringUtils.isNotBlank(identity.getProviderId()))
+                     .map(identity -> identityManager.getOrCreateIdentity(identity.getProviderId(), identity.getRemoteId()))
+                     .filter(Objects::nonNull)
+                     .flatMap(identity -> {
+                       if (identity.isSpace()) {
+                         Space space = getSpaceByPrettyName(identity.getRemoteId());
+                         if (space != null) {
+                           return Arrays.stream(space.getMembers());
+                         } else {
+                           return Stream.empty();
+                         }
+                       } else if (identity.isUser()) { // Otherwise, it's an
+                                                       // user
+                         return Stream.of(identity.getRemoteId());
+                       } else {
+                         return Stream.empty();
+                       }
+                     })
+                     .collect(Collectors.toSet());
+
   }
 
-  private boolean isMandatory(GroupHandler groupHandler, Group group, List<String> mandatories) throws Exception {
+  @SneakyThrows
+  private boolean isMandatory(GroupHandler groupHandler, Group group, List<String> mandatories) {
     if (mandatories.contains(group.getId()))
       return true;
     Collection<Group> children = groupHandler.findGroups(group);
@@ -1488,7 +1277,7 @@ public class SpaceServiceImpl implements SpaceService {
     return spaceTemplate;
   }
 
-  public void saveSpacePublicSite(Space space, String publicSiteVisibility, String authenticatedUser) {
+  private void saveSpacePublicSite(Space space, String publicSiteVisibility, String authenticatedUser) {
     boolean visibilityChanged = StringUtils.isNotBlank(publicSiteVisibility)
                                 && !StringUtils.equals(space.getPublicSiteVisibility(), publicSiteVisibility);
 

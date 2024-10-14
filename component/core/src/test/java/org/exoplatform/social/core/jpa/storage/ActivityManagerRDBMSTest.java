@@ -57,6 +57,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
 
 /**
@@ -65,30 +66,33 @@ import org.exoplatform.social.core.storage.cache.CachedIdentityStorage;
  * @author hoat_le
  */
 public class ActivityManagerRDBMSTest extends AbstractCoreTest {
-  private final Log LOG = ExoLogger.getLogger(ActivityManagerRDBMSTest.class);
+  private static final Log LOG = ExoLogger.getLogger(ActivityManagerRDBMSTest.class);
 
-  private Identity  rootIdentity;
+  private Identity         rootIdentity;
 
-  private Identity  johnIdentity;
+  private Identity         johnIdentity;
 
-  private Identity  maryIdentity;
+  private Identity         maryIdentity;
 
-  private Identity  demoIdentity;
+  private Identity         demoIdentity;
 
-  private Identity  ghostIdentity;
+  private Identity         ghostIdentity;
 
-  private Identity  raulIdentity;
+  private Identity         raulIdentity;
 
-  private Identity  jameIdentity;
+  private Identity         jameIdentity;
 
-  private Identity  paulIdentity;
+  private Identity         paulIdentity;
+
+  private SpaceStorage     spaceStorage;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     restartTransaction();
 
-    CachedIdentityStorage identityStorage = (CachedIdentityStorage) getService(IdentityStorage.class);
+    spaceStorage = getService(SpaceStorage.class);
+    CachedIdentityStorage identityStorage = getService(CachedIdentityStorage.class);
     ((RDBMSIdentityStorageImpl) identityStorage.getStorage()).setProfileSearchConnector(mockProfileSearch);
 
     rootIdentity = createIdentity("root");
@@ -1029,7 +1033,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
    */
 
   public void testGetActivitiesOfUserSpacesWithListAccess() throws Exception {
-    Space space = this.getSpaceInstance(spaceService, 0);
+    Space space = this.getSpaceInstance(0);
     Identity spaceIdentity = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
 
     int totalNumber = 10;
@@ -1051,7 +1055,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     assertNotNull("demoActivities must not be null", demoActivities);
     assertEquals("demoActivities.getSize() must return: 10", 10, demoActivities.getSize());
 
-    Space space2 = this.getSpaceInstance(spaceService, 1);
+    Space space2 = this.getSpaceInstance(1);
     Identity spaceIdentity2 = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space2.getPrettyName(), false);
 
     // demo posts activities to space2
@@ -1082,7 +1086,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     this.populateActivityMass(maryIdentity, 3);
     this.populateActivityMass(johnIdentity, 2);
 
-    Space space = this.getSpaceInstance(spaceService, 0);
+    Space space = this.getSpaceInstance(0);
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     populateActivityMass(spaceIdentity, 5);
 
@@ -1138,11 +1142,11 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     populateActivityMass(maryIdentity, 2);
     populateActivityMass(johnIdentity, 3);
 
-    Space space = getSpaceInstance(spaceService, 1);
+    Space space = getSpaceInstance(1);
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     populateActivityMass(spaceIdentity, 4);
 
-    Space space1 = getSpaceInstance(spaceService, 2);
+    Space space1 = getSpaceInstance(2);
     Identity space1Identity = identityManager.getOrCreateSpaceIdentity(space1.getPrettyName());
     populateActivityMass(space1Identity, 3);
 
@@ -1537,7 +1541,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
   }
 
   public void testSpaceRoleMention() throws Exception {
-    Space space = this.getSpaceInstance(spaceService, 0);
+    Space space = this.getSpaceInstance(0);
     Identity spaceIdentity = this.identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     restartTransaction();
 
@@ -1722,7 +1726,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
    * @throws Exception
    * @since 1.2.0-GA
    */
-  private Space getSpaceInstance(SpaceService spaceService, int number) throws Exception {
+  private Space getSpaceInstance(int number) throws Exception {
     Space space = new Space();
     space.setDisplayName("my space " + number);
     space.setPrettyName(space.getDisplayName());
@@ -1746,7 +1750,7 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     space.setMembers(members);
     space.setRedactors(redactors);
     space.setPublishers(publishers);
-    spaceService.saveSpace(space, true);
+    spaceStorage.saveSpace(space, true);
     return space;
   }
 

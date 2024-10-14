@@ -110,6 +110,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.SneakyThrows;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
@@ -227,6 +228,10 @@ public class SpaceRest implements ResourceContainer {
                             @Schema(defaultValue = "false")
                             @QueryParam("favorites")
                             boolean favorites,
+                            @Parameter(description = "Tag names used to search spaces", required = true)
+                            @QueryParam(
+                              "tags"
+                            ) List<String> tagNames,
                             @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
                                        required = false)
                             @QueryParam("expand")
@@ -245,6 +250,7 @@ public class SpaceRest implements ResourceContainer {
     if (StringUtils.isNotBlank(q)) {
       spaceFilter.setSpaceNameSearchCondition(StringUtils.trim(q));
     }
+    spaceFilter.setTagNames(tagNames);
 
     if (StringUtils.isNotBlank(sort)) {
       SortBy sortBy = Sorting.SortBy.valueOf(sort.toUpperCase());
@@ -254,7 +260,8 @@ public class SpaceRest implements ResourceContainer {
       }
       spaceFilter.setSorting(new Sorting(sortBy, orderBy));
     }
-    spaceFilter.setIsFavorite(favorites);
+    spaceFilter.setFavorite(favorites);
+    spaceFilter.setIdentityId(RestUtils.getCurrentUserIdentityId());
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {
       listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
@@ -271,7 +278,7 @@ public class SpaceRest implements ResourceContainer {
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_FAVORITE, filterType)) {
       listAccess = spaceService.getFavoriteSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(LAST_VISITED_SPACES, filterType)) {
-      listAccess = spaceService.getLastAccessedSpace(authenticatedUser, null);
+      listAccess = spaceService.getLastAccessedSpace(authenticatedUser);
     } else {
       return Response.status(400).entity("Unrecognized space filter type").build();
     }
@@ -298,9 +305,6 @@ public class SpaceRest implements ResourceContainer {
     return builder.build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
@@ -325,16 +329,20 @@ public class SpaceRest implements ResourceContainer {
                                   "<br />\"groupId\": \"/spaces/my_space\"," +
                                   "<br />\"visibility\": \"private\"," +
                                   "<br />\"subscription\": \"validation\"<br />}", required = true)
-                              SpaceEntity model) throws Exception {
+                              SpaceEntity model) {
     if (model == null || model.getDisplayName() == null
         || model.getDisplayName().length() < 3
         || model.getDisplayName().length() > 200) {
-      throw new SpaceException(SpaceException.Code.INVALID_SPACE_NAME);
+      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+                                                .entity(SpaceException.Code.INVALID_SPACE_NAME.name())
+                                                .build());
     }
 
     // validate the display name
     if (spaceService.getSpaceByDisplayName(model.getDisplayName()) != null) {
-      throw new SpaceException(SpaceException.Code.SPACE_ALREADY_EXIST);
+      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+                                        .entity(SpaceException.Code.SPACE_ALREADY_EXIST.name())
+                                        .build());
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
@@ -348,8 +356,13 @@ public class SpaceRest implements ResourceContainer {
     space.setManagers(managers);
     space.setMembers(members);
 
-    //
-    spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+    try {
+      spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+    } catch (SpaceException e) {
+      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+                                                .entity(e.getCode().name())
+                                                .build());
+    }
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
                                      uriInfo,
@@ -1150,7 +1163,8 @@ public class SpaceRest implements ResourceContainer {
     return activityRestResourcesV1.postActivity(uriInfo, id, expand, model);
   }
 
-  private void fillSpaceFromModel(Space space, SpaceEntity model) throws IOException {
+  @SneakyThrows
+  private void fillSpaceFromModel(Space space, SpaceEntity model) {
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
 
     if (StringUtils.isNotBlank(model.getDisplayName())) {

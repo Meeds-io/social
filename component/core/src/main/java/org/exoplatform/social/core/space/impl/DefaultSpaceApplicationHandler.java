@@ -219,7 +219,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
   /**
    * {@inheritDoc}
    */
-  public void activateApplication(Space space, String appId, String appName) throws SpaceException {
+  public void activateApplication(Space space, String appId, String appName) {
     NavigationService navService = ExoContainerContext.getService(NavigationService.class);
     NavigationContext navContext;
     NodeContext<NodeContext<?>> homeNodeCtx = null;
@@ -483,7 +483,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
                                                                       Space space,
                                                                       SpaceApplication spaceApplication,
                                                                       String appName,
-                                                                      boolean isRoot) throws SpaceException {
+                                                                      boolean isRoot) {
     String appId = spaceApplication.getPortletName();
     String potletFullId = spaceApplication.getPortletApp() + "/" + spaceApplication.getPortletName();
     if (!isPortletActive(potletFullId)) {

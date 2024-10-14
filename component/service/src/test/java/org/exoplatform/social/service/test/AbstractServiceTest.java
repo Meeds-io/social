@@ -40,6 +40,8 @@ import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import lombok.SneakyThrows;
+
 /**
  * AbstractServiceTest.java
  *
@@ -241,7 +243,12 @@ public abstract class AbstractServiceTest extends BaseExoTestCase {
   protected void deleteAllSpaces() throws Exception {
     SpaceService spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     ListAccess<Space> spaces = spaceService.getAllSpacesWithListAccess();
-    Arrays.stream(spaces.load(0, spaces.getSize())).forEach(space -> spaceService.deleteSpace(space));
+    Arrays.stream(spaces.load(0, spaces.getSize())).forEach(this::deleteSpace);
+  }
+
+  @SneakyThrows
+  protected void deleteSpace(Space space) {
+    getContainer().getComponentInstanceOfType(SpaceService.class).deleteSpace(space);
   }
 
   protected void deleteAllRelationships() throws Exception {
