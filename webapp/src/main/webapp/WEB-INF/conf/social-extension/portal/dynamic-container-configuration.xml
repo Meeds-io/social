@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd" xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+  <external-component-plugins>
+    <target-component>org.exoplatform.commons.addons.AddOnService</target-component>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>30</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>hamburger-menu-items-container</value>
+        </value-param>
+        <object-param>
+          <name>HamburgerMenu</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/HamburgerMenu</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+                <value>
+                  <string>*:/platform/externals</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Hamburger Menu</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>20</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>SearchPortlet</value>
+        </value-param>
+        <object-param>
+          <name>SearchPortlet</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/Search</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+                <value>
+                  <string>*:/platform/externals</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Search</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>20</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>top-bar-logo-container</value>
+        </value-param>
+        <object-param>
+          <name>TopBarLogo</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/TopBarLogo</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+                <value>
+                  <string>*:/platform/externals</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Top bar logo</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>10</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>middle-topNavigation-container</value>
+        </value-param>
+        <object-param>
+          <name>NotificationTopBar</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/TopBarNotification</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+                <value>
+                  <string>*:/platform/externals</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Notification Top Bar</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>15</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>middle-topNavigation-container</value>
+        </value-param>
+        <object-param>
+          <name>FavoritesTopBar</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/TopBarFavorites</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+                <value>
+                  <string>*:/platform/externals</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Favorites Top Bar</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>30</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>MiddleToolBar</value>
+        </value-param>
+        <object-param>
+          <name>Drawers Overlay</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/DrawersOverlay</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>Everyone</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Drawers Overlay</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description>TopBarMenu Navigation Menu</description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>2</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>MiddleToolBar</value>
+        </value-param>
+        <object-param>
+          <name>TopBar Menu</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/TopBarMenu</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>Everyone</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>TopBar Menu</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>1</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>bottom-all-container</value>
+        </value-param>
+        <object-param>
+          <name>popover-extensions-portlet</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/Popover</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+                <value>
+                  <string>*:/platform/externals</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Popover Application</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>addPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
+      <description></description>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>100</value>
+        </value-param>
+        <value-param>
+          <name>containerName</name>
+          <value>middle-topNavigation-container</value>
+        </value-param>
+        <object-param>
+          <name>PlatformSettings</name>
+          <description></description>
+          <object type="org.exoplatform.commons.addons.PortletModel">
+            <field name="contentId">
+              <string>social/PlatformSettings</string>
+            </field>
+            <field name="permissions">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <string>*:/platform/users</string>
+                </value>
+              </collection>
+            </field>
+            <field name="title">
+              <string>Platform Settings</string>
+            </field>
+            <field name="showInfoBar">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationState">
+              <boolean>false</boolean>
+            </field>
+            <field name="showApplicationMode">
+              <boolean>false</boolean>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+</configuration>

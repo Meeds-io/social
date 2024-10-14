@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
+<configuration
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
+   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+
+  <component>
+    <key>org.exoplatform.social.core.search.SearchService</key>
+    <type>org.exoplatform.social.core.search.impl.SearchServiceImpl</type>
+  </component>
+
+  <component>
+    <type>org.exoplatform.social.rest.impl.search.SearchRest</type>
+  </component>
+
+   <component>
+     <type>org.exoplatform.social.core.jpa.search.ActivitySearchConnector</type>
+      <init-params>
+        <value-param>
+          <name>query.file.path</name>
+          <value>${social.activities.es.query.path:war:/conf/social-extension/social/search/activities-search-query.json}</value>
+        </value-param>
+        <properties-param>
+          <name>constructor.params</name>
+          <property name="index" value="activity_alias" />
+        </properties-param>
+      </init-params>
+   </component>
+
+  <component>
+    <type>io.meeds.social.core.search.SpaceSearchConnector</type>
+    <init-params>
+      <value-param>
+        <name>query.file.path</name>
+        <value>${social.spaces.es.query.path:war:/conf/social-extension/social/search/spaces-search-query.json}</value>
+      </value-param>
+      <value-param>
+        <name>count.file.path</name>
+        <value>${social.spaces.es.count.path:war:/conf/social-extension/social/search/spaces-count-query.json}</value>
+      </value-param>
+      <properties-param>
+        <name>constructor.params</name>
+        <property name="index" value="space_alias" />
+      </properties-param>
+    </init-params>
+  </component>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.search.SearchService</target-component>
+    <component-plugin>
+      <name>PeopleSearchConnector</name>
+      <set-method>addConnector</set-method>
+      <type>org.exoplatform.social.core.search.SearchConnectorPlugin</type>
+      <description>People Search connector</description>
+      <init-params>
+        <object-param>
+          <name>PeopleSearchConnector</name>
+          <description>Search connector for users</description>
+          <object type="org.exoplatform.social.core.search.SearchConnector">
+            <field name="name">
+              <string>people</string>
+            </field>
+            <field name="uri">
+              <string><![CDATA[/portal/rest/v1/social/users?q={keyword}&limit={limit}&expand=all,spacesCount,relationshipStatus,connectionsCount]]></string>
+            </field>
+            <field name="enabled">
+              <boolean>${search.people.enabled:true}</boolean>
+            </field>
+            <field name="jsModule">
+              <string>SHARED/PeopleSearchResultCard</string>
+            </field>
+            <field name="cssModule">
+              <string>social/ProfileSearch</string>
+            </field>
+            <field name="i18nBundle">
+              <string>locale.portlet.social.PeopleListApplication</string>
+            </field>
+            <field name="uiComponent">
+              <string>people-search-result-card</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>SpaceSearchConnector</name>
+      <set-method>addConnector</set-method>
+      <type>org.exoplatform.social.core.search.SearchConnectorPlugin</type>
+      <description>Space Search connector</description>
+      <init-params>
+        <object-param>
+          <name>SpaceSearchConnector</name>
+          <description>Search connector for spaces</description>
+          <object type="org.exoplatform.social.core.search.SearchConnector">
+            <field name="name">
+              <string>spaces</string>
+            </field>
+            <field name="uri">
+              <string><![CDATA[/portal/rest/v1/social/spaces?q={keyword}&limit={limit}&expand=managers,favorite]]></string>
+            </field>
+            <field name="enabled">
+              <boolean>${search.space.enabled:true}</boolean>
+            </field>
+            <field name="favoritesEnabled">
+              <boolean>${search.space.favorites.enabled:true}</boolean>
+            </field>
+            <field name="tagsEnabled">
+              <boolean>${search.space.tags.enabled:true}</boolean>
+            </field>
+            <field name="jsModule">
+              <string>SHARED/SpaceSearchResultCard</string>
+            </field>
+            <field name="i18nBundle">
+              <string>locale.portlet.social.SpacesListApplication</string>
+            </field>
+            <field name="uiComponent">
+              <string>space-search-result-card</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>ActivitySearchConnector</name>
+      <set-method>addConnector</set-method>
+      <type>org.exoplatform.social.core.search.SearchConnectorPlugin</type>
+      <description>Activity Search connector</description>
+      <init-params>
+        <object-param>
+          <name>ActivitySearchConnector</name>
+          <description>Search connector for activities</description>
+          <object type="org.exoplatform.social.core.search.SearchConnector">
+            <field name="name">
+              <string>activities</string>
+            </field>
+            <field name="uri">
+              <string><![CDATA[/portal/rest/v1/social/activities/search?q={keyword}&limit={limit}]]></string>
+            </field>
+            <field name="enabled">
+              <boolean>${search.activity.enabled:true}</boolean>
+            </field>
+            <field name="favoritesEnabled">
+              <boolean>true</boolean>
+            </field>
+            <field name="tagsEnabled">
+              <boolean>true</boolean>
+            </field>
+            <field name="jsModule">
+              <string>SHARED/ActivitySearchResultCard</string>
+            </field>
+            <field name="cssModule">
+              <string>social/ActivitySearch</string>
+            </field>
+            <field name="uiComponent">
+              <string>activity-search-result-card</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+</configuration>

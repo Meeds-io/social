@@ -32,7 +32,6 @@
   <name>Meeds:: PLF:: Social</name>
   <description>Meeds Social - Enterprise Social Networking</description>
   <modules>
-    <module>extension</module>
     <module>component</module>
     <module>webapp</module>
   </modules>
@@ -166,43 +165,17 @@
 
       <dependency>
         <groupId>io.meeds.social</groupId>
-        <artifactId>social-extension</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>io.meeds.social</groupId>
-        <artifactId>social-extension-war</artifactId>
+        <artifactId>social-webapp</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
-      <dependency>
-        <groupId>io.meeds.social</groupId>
-        <artifactId>social-extension-war</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-
       <dependency>
         <groupId>io.meeds.social</groupId>
         <artifactId>social-webapp</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
       </dependency>
-      <dependency>
-        <groupId>io.meeds.social</groupId>
-        <artifactId>social-webapp-portlet</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>io.meeds.social</groupId>
-        <artifactId>social-webapp-portlet</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-      </dependency>
-
-     </dependencies>
+    </dependencies>
   </dependencyManagement>
 
   <build>
