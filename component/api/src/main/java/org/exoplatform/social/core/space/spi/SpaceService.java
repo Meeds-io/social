@@ -862,6 +862,7 @@ public interface SpaceService {
    * @throws IllegalAccessException when current user doesn't have permission to
    *           manage spaces
    * @throws SpaceException when error reading Space identified by its id
+   * @deprecated Will be removed when the Meeds-io/MIPs#150 get implemented with new way of Layout management
    */
   @Deprecated(since = "7.0", forRemoval = true)
   default void restoreSpacePageLayout(String spaceId,
