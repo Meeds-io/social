@@ -344,7 +344,7 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     space.setMembers(members);
     space.setUrl(space.getPrettyName());
     space.setAvatarLastUpdated(System.currentTimeMillis());
-    this.spaceService.saveSpace(space, true);
+    this.spaceService.createSpace(space);
     tearDownSpaceList.add(space);
     return space;
   }

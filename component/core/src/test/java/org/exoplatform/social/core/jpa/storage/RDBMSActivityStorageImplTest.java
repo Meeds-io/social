@@ -41,6 +41,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
+import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 
 public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
@@ -53,12 +54,14 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   private Identity johnIdentity;
   private Identity maryIdentity;
   private Identity demoIdentity;
+  private SpaceStorage spaceStorage;
 
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     streamItemDAO = getService(StreamItemDAO.class);
+    spaceStorage = getService(SpaceStorage.class);
 
     assertNotNull(activityStorage);
 
@@ -270,7 +273,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   }
   
   public void testGetSpaceActivityIds() throws Exception {
-    Space space = this.getSpaceInstance(spaceService, 0);
+    Space space = this.getSpaceInstance(0);
     Identity spaceIdentity = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     
     int totalNumber = 5;
@@ -508,7 +511,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   }
 
   public void testGetNewerOnUserSpacesActivities() throws Exception {
-    Space space = this.getSpaceInstance(spaceService, 0);
+    Space space = this.getSpaceInstance(0);
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     
     int totalNumber = 10;
@@ -533,7 +536,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(9, activityStorage.getNewerOnSpaceActivities(spaceIdentity, baseActivity, 10).size());
     assertEquals(9, activityStorage.getNumberOfNewerOnSpaceActivities(spaceIdentity, baseActivity));
     
-    Space space2 = this.getSpaceInstance(spaceService, 1);
+    Space space2 = this.getSpaceInstance(1);
     Identity spaceIdentity2 = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space2.getPrettyName(), false);
     //demo posts activities to space2
     for (int i = 0; i < totalNumber; i ++) {
@@ -551,7 +554,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   }
 
   public void testGetOlderOnUserSpacesActivities() throws Exception {
-    Space space = this.getSpaceInstance(spaceService, 0);
+    Space space = this.getSpaceInstance(0);
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     
     int totalNumber = 5;
@@ -580,7 +583,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(4, activityStorage.getOlderOnSpaceActivities(spaceIdentity, baseActivity, 10).size());
     assertEquals(4, activityStorage.getNumberOfOlderOnSpaceActivities(spaceIdentity, baseActivity));
     
-    Space space2 = this.getSpaceInstance(spaceService, 1);
+    Space space2 = this.getSpaceInstance(1);
     Identity spaceIdentity2 = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space2.getPrettyName(), false);
     //demo posts activities to space2
     for (int i = 0; i < totalNumber; i ++) {
@@ -829,7 +832,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.saveActivity(rootIdentity, activity2);
     tearDownActivityList.add(activity2);
 
-    Space space = this.getSpaceInstance(spaceService, 1);
+    Space space = this.getSpaceInstance(1);
     Identity spaceIdentity2 = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     //demo posts activities to space2
     for (int i = 0; i < 5; i ++) {
@@ -871,7 +874,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.saveActivity(rootIdentity, activity2);
     tearDownActivityList.add(activity2);
 
-    Space space = this.getSpaceInstance(spaceService, 1);
+    Space space = this.getSpaceInstance(1);
     Identity spaceIdentity2 = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     //demo posts activities to space2
     for (int i = 0; i < 5; i ++) {
@@ -1002,7 +1005,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
   }
 
   
-  private Space getSpaceInstance(SpaceService spaceService, int number) throws Exception {
+  private Space getSpaceInstance(int number) throws Exception {
     Space space = new Space();
     space.setDisplayName("my space " + number);
     space.setPrettyName(space.getDisplayName());
@@ -1018,7 +1021,7 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     String[] members = new String[] {"demo"};
     space.setManagers(managers);
     space.setMembers(members);
-    spaceService.saveSpace(space, true);
+    spaceStorage.saveSpace(space, true);
     return space;
   }
   

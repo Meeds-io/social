@@ -81,7 +81,7 @@ public class LegacySpaceRestServiceImpl implements ResourceContainer {
       // --- List of searchedSpaces
       List<Space> spacesSearched = new ArrayList(Arrays.asList(listAccess.load(0, MAX_LOADED_SPACES_BY_REQUEST)));
       // --- List of spaces sorted by access
-      ListAccess<Space> allSpacesSorted = spaceService.getLastAccessedSpace(userId, null);
+      ListAccess<Space> allSpacesSorted = spaceService.getLastAccessedSpace(userId);
       // --- Convert user spaces to List collection
       spaces = Arrays.asList(allSpacesSorted.load(0, MAX_LOADED_SPACES_BY_REQUEST));
 

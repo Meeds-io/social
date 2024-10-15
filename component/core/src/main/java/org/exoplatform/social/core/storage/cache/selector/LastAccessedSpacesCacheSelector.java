@@ -3,14 +3,15 @@ package org.exoplatform.social.core.storage.cache.selector;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.cache.ObjectCacheInfo;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
-import org.exoplatform.social.core.storage.cache.model.key.*;
+import org.exoplatform.social.core.storage.cache.model.key.ListSpacesKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceType;
 
 /**
  * Cache selector for last accessed spaces.
@@ -59,8 +60,8 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
         if (ids.get(0).getId().equals(space.getId())) {
           updateStore = false;
           return;
-        } else if (StringUtils.isBlank(listSpacesKey.getKey().getAppId()) && listSpacesKey.getOffset() == 0
-            && SpaceType.LATEST_ACCESSED.equals(listSpacesKey.getKey().getType())) {
+        } else if (listSpacesKey.getOffset() == 0
+                   && SpaceType.LATEST_ACCESSED.equals(listSpacesKey.getKey().getType())) {
           SpaceKey spaceKey = new SpaceKey(space.getId());
           ids = new ArrayList<>(ids);
           if (ids.contains(spaceKey)) {

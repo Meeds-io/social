@@ -49,6 +49,9 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+
+import lombok.SneakyThrows;
+
 import org.mockito.Mockito;
 
 import java.lang.reflect.InvocationTargetException;
@@ -292,9 +295,13 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   }
 
   protected void deleteAllSpaces() throws Exception {
-    SpaceService spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     ListAccess<Space> spaces = spaceService.getAllSpacesWithListAccess();
-    Arrays.stream(spaces.load(0, spaces.getSize())).forEach(space -> spaceService.deleteSpace(space));
+    Arrays.stream(spaces.load(0, spaces.getSize())).forEach(this::deleteSpace);
+  }
+
+  @SneakyThrows
+  protected void deleteSpace(Space space) {
+    spaceService.deleteSpace(space);
   }
 
   protected void deleteAllRelationships() throws Exception {
