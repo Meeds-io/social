@@ -1018,4 +1018,39 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-105" dbms="oracle,postgresql,hsqldb">
+    <createSequence sequenceName="SEQ_SOC_SPACE_TEMPLATE_ID" startValue="1"/>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-106">
+    <createTable tableName="SOC_SPACE_TEMPLATES">
+      <column name="ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOCIAL_SPACE_TEMPLATE"/>
+      </column>
+      <column name="ICON" type="NVARCHAR(200)" />
+      <column name="ENABLED" type="BOOLEAN" defaultValueBoolean="false" />
+      <column name="DELETED" type="BOOLEAN" defaultValueBoolean="false" />
+      <column name="IS_SYSTEM" type="BOOLEAN" defaultValueBoolean="false" />
+      <column name="TEMPLATE_ORDER" type="BIGINT" defaultValueNumeric="0" />
+      <column name="PERMISSIONS" type="NVARCHAR(2000)" />
+      <column name="SPACE_DELETE_PERMISSIONS" type="NVARCHAR(2000)" />
+      <column name="SPACE_LAYOUT_PERMISSIONS" type="NVARCHAR(2000)" />
+      <column name="SPACE_FIELDS" type="NVARCHAR(2000)" />
+      <column name="SPACE_DEFAULT_ACCESS" type="TINYINT" defaultValueNumeric="0" />
+      <column name="SPACE_DEFAULT_VISIBILITY" type="TINYINT" defaultValueNumeric="0" />
+      <column name="SPACE_ALLOW_CONTENT_CREATION" type="BOOLEAN" defaultValueBoolean="false" />
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+    </modifySql>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-107">
+    <addColumn tableName="SOC_SPACES">
+      <column name="TEMPLATE_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_SPACE_TEMPLATES_ID_01" references="SOC_SPACE_TEMPLATES(ID)" nullable="true" />
+      </column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
