@@ -195,7 +195,7 @@ public class SpaceLastVisitedTest extends AbstractCoreTest {
     space.setManagers(managers);
     space.setMembers(members);
     space.setUrl(space.getPrettyName());
-    this.spaceService.saveSpace(space, true);
+    this.spaceService.createSpace(space);
     return space;
   }
 }

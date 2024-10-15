@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.portlet.RenderRequest;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gatein.common.i18n.LocalizedString;
 import org.gatein.pc.api.Portlet;
@@ -42,7 +41,6 @@ import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ExpressionUtil;
-import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -94,7 +92,6 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
-import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.Utils;
@@ -165,18 +162,11 @@ public class SpaceUtils {
 
   public static final String                                  CURRENT_SPACE            = "CurrentSpace";
 
-  /**
-   * The id of the container in plf.
-   * 
-   * @since 1.2.8
-   */
-  private static final String                                 SPACE_APPLICATIONS       = "SpaceApplications";
-
   private static final ConcurrentHashMap<String, Application> APP_LIST_CACHE           = new ConcurrentHashMap<>();
 
   private static final String                                 PORTAL_PAGE_TITLE        = "portal:requestTitle";
 
-  private static final String                                 NUMBER_REG_PATTERN       = "[0-9]";
+  private static final String                                 NUMBER_REG_PATTERN       = "\\d";
 
   private static final String                                 UNDER_SCORE_STR          = "_";
 
@@ -403,10 +393,10 @@ public class SpaceUtils {
    * Remove pages and group navigation of space when delete space.
    * 
    * @param space
-   * @throws Exception
+   * @throws SpaceException
    * @since 1.2.8
    */
-  public static void removePagesAndGroupNavigation(Space space) throws Exception {
+  public static void removePagesAndGroupNavigation(Space space) throws SpaceException {
     // remove pages
     LayoutService layoutService = getLayoutService();
     String groupId = space.getGroupId();
@@ -1113,9 +1103,8 @@ public class SpaceUtils {
    * Gets NavigationContext by a space's groupId
    *
    * @param groupId
-   * @throws Exception
    */
-  public static NavigationContext getGroupNavigationContext(String groupId) throws Exception {
+  public static NavigationContext getGroupNavigationContext(String groupId) {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
     NavigationService navService = (NavigationService) container.getComponentInstance(NavigationService.class);
     return navService.loadNavigation(SiteKey.group(groupId));
@@ -1125,14 +1114,10 @@ public class SpaceUtils {
    * Gets userNavigation by a space's groupId
    *
    * @param groupId
-   * @throws Exception
    */
-  public static UserNavigation getGroupNavigation(String groupId) throws Exception {
+  public static UserNavigation getGroupNavigation(String groupId) {
     UserPortal userPortal = getUserPortal();
-    if (userPortal != null) {
-      return getUserPortal().getNavigation(SiteKey.group(groupId));
-    }
-    return null;
+    return userPortal == null ? null : userPortal.getNavigation(SiteKey.group(groupId));
   }
 
   /**
@@ -1653,7 +1638,7 @@ public class SpaceUtils {
   }
 
   public static boolean hasSettingPermission(Space space, String username) {
-    return getSpaceService().hasSettingPermission(space, username);
+    return getSpaceService().canManageSpace(space, username);
   }
 
   public static boolean isHomeNavigation(UserNode node) {
