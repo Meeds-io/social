@@ -73,8 +73,7 @@ public class LinkRest implements ResourceContainer {
   private static final Log          LOG                    = ExoLogger.getLogger(LinkRest.class);
 
   static {
-    CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
-    CACHE_CONTROL.setMustRevalidate(true);
+    CACHE_CONTROL.setNoCache(true);
     IMG_CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
   }
 
