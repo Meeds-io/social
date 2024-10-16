@@ -33,16 +33,16 @@ import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.PRIORITY;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.PublicSiteVisibility;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.REGISTRATION;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity.VISIBILITY;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.space.constant.Priority;
+import io.meeds.social.space.constant.PublicSiteVisibility;
+import io.meeds.social.space.constant.Registration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.Visibility;
 
 public class EntityConverterUtils {
 
@@ -282,27 +282,28 @@ public class EntityConverterUtils {
     spaceEntity.setCreatedDate(space.getCreatedTime() > 0 ? new Date(space.getCreatedTime()) : new Date());
     spaceEntity.setDescription(space.getDescription());
     spaceEntity.setTemplate(space.getTemplate());
+    spaceEntity.setTemplateId(space.getTemplateId() == 0 ? null : space.getTemplateId());
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setGroupId(space.getGroupId());
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setPublicSiteId(space.getPublicSiteId());
     spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility() == null ? PublicSiteVisibility.MANAGER : PublicSiteVisibility.valueOf(space.getPublicSiteVisibility().toUpperCase()));
-    PRIORITY priority = null;
+    Priority priority = null;
     if (Space.HIGH_PRIORITY.equals(space.getPriority())) {
-      priority = PRIORITY.HIGH;
+      priority = Priority.HIGH;
     } else if (Space.INTERMEDIATE_PRIORITY.equals(space.getPriority())) {
-      priority = PRIORITY.INTERMEDIATE;
+      priority = Priority.INTERMEDIATE;
     } else if (Space.LOW_PRIORITY.equals(space.getPriority())) {
-      priority = PRIORITY.LOW;
+      priority = Priority.LOW;
     }
     spaceEntity.setPriority(priority);
     if (space.getRegistration() != null) {
-      spaceEntity.setRegistration(REGISTRATION.valueOf(space.getRegistration().toUpperCase()));
+      spaceEntity.setRegistration(Registration.valueOf(space.getRegistration().toUpperCase()));
     }
     spaceEntity.setUrl(space.getUrl());
-    VISIBILITY visibility = null;
+    Visibility visibility = null;
     if (space.getVisibility() != null) {
-      visibility = VISIBILITY.valueOf(space.getVisibility().toUpperCase());
+      visibility = Visibility.valueOf(space.getVisibility().toUpperCase());
     }
     spaceEntity.setVisibility(visibility);
     buildMembers(space, spaceEntity);
