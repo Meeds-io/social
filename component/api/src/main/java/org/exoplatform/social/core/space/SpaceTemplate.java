@@ -28,10 +28,13 @@ import lombok.Setter;
 
 /**
  * Definition of space template model.
+ * @deprecated will be replaced by a managed/stored Space Template
  */
 @NoArgsConstructor
 @AllArgsConstructor
+@Deprecated(forRemoval = true, since = "7.0")
 public class SpaceTemplate implements Cloneable {
+
   private String                 name;
 
   private String                 resolvedLabel;

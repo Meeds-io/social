@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -653,6 +654,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     return spaceMemberDAO.countPendingSpaceRequestsToManage(username);
   }
 
+  @Override
   public List<SpaceExternalInvitation> findSpaceExternalInvitationsBySpaceId(String spaceId) {
     return spaceExternalInvitationDAO.findSpaceExternalInvitationsBySpaceId(spaceId)
                                      .stream()
@@ -660,6 +662,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
                                      .toList();
   }
 
+  @Override
   public void saveSpaceExternalInvitation(String spaceId, String email, String tokenId) {
     SpaceExternalInvitationEntity spaceExternalInvitation = new SpaceExternalInvitationEntity();
     spaceExternalInvitation.setSpaceId(spaceId);
@@ -669,23 +672,50 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     spaceExternalInvitationDAO.create(spaceExternalInvitation);
   }
 
+  @Override
   public SpaceExternalInvitation findSpaceExternalInvitationById(String invitationId) {
     SpaceExternalInvitationEntity spaceExternalInvitationEntity = spaceExternalInvitationDAO.find(Long.parseLong(invitationId));
     return fillSpaceExternalInvitationFromEntity(spaceExternalInvitationEntity);
   }
 
+  @Override
   public void deleteSpaceExternalInvitation(SpaceExternalInvitation spaceExternalInvitation) {
     SpaceExternalInvitationEntity spaceExternalInvitationEntity =
                                                                 spaceExternalInvitationDAO.find(spaceExternalInvitation.getInvitationId());
     spaceExternalInvitationDAO.delete(spaceExternalInvitationEntity);
   }
 
+  @Override
   public List<String> findExternalInvitationsSpacesByEmail(String email) {
     return spaceExternalInvitationDAO.findExternalInvitationsSpacesByEmail(email);
   }
 
+  @Override
   public void deleteExternalUserInvitations(String email) {
     spaceExternalInvitationDAO.deleteExternalUserInvitations(email);
+  }
+
+  @Override
+  public int countExternalMembers(Long spaceId) {
+    return spaceMemberDAO.countExternalMembers(spaceId);
+  }
+
+  @Override
+  public List<Space> getCommonSpaces(String userId, String otherUserId, int offset, int limit) {
+    List<SpaceEntity> commonSpaces = spaceDAO.getCommonSpaces(userId, otherUserId, offset, limit);
+    return commonSpaces.stream()
+                       .map(this::fillSpaceFromEntity)
+                       .toList();
+  }
+
+  @Override
+  public int countCommonSpaces(String userId, String otherUserId) {
+    return spaceDAO.countCommonSpaces(userId, otherUserId);
+  }
+
+  @Override
+  public Map<Long, Long> countSpacesByTemplate() {
+    return spaceDAO.countSpacesByTemplate();
   }
 
   private String[] getSpaceMembers(long spaceId, SpaceMembershipStatus status) {
@@ -863,6 +893,7 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
     }
     space.setDescription(entity.getDescription());
     space.setTemplate(entity.getTemplate());
+    space.setTemplateId(entity.getTemplateId() == null ? 0 : entity.getTemplateId().longValue());
     if (entity.getVisibility() != null) {
       space.setVisibility(entity.getVisibility().name().toLowerCase());
     }
@@ -927,24 +958,6 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
 
   public void setIdentityStorage(IdentityStorage identityStorage) {
     this.identityStorage = identityStorage;
-  }
-
-  @Override
-  public int countExternalMembers(Long spaceId) {
-    return spaceMemberDAO.countExternalMembers(spaceId);
-  }
-
-  @Override
-  public List<Space> getCommonSpaces(String userId, String otherUserId, int offset, int limit) {
-    List<SpaceEntity> commonSpaces = spaceDAO.getCommonSpaces(userId, otherUserId, offset, limit);
-    return commonSpaces.stream()
-                       .map(this::fillSpaceFromEntity)
-                       .toList();
-  }
-
-  @Override
-  public int countCommonSpaces(String userId, String otherUserId) {
-    return spaceDAO.countCommonSpaces(userId, otherUserId);
   }
 
   private Instant computeCreatedDate(Token token) {
