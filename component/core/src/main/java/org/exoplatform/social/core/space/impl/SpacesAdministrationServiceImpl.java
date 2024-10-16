@@ -144,6 +144,21 @@ public class SpacesAdministrationServiceImpl implements Startable, SpacesAdminis
     updateSpacesAdministrationPagePermissions(this.spaceCreatorsMemberships);
   }
 
+  @Override
+  public boolean isSuperManager(String username) {
+    if (StringUtils.isBlank(username)
+        || IdentityConstants.ANONIM.equals(username)
+        || IdentityConstants.SYSTEM.equals(username)) {
+      return false;
+    } else if (username.equals(userACL.getSuperUser())) {
+      return true;
+    }
+    org.exoplatform.services.security.Identity identity = userACL.getUserIdentity(username);
+    return identity != null && (identity.isMemberOf(userACL.getAdminGroups())
+                                || getSpacesAdministratorsMemberships().stream()
+                                                                       .anyMatch(identity::isMemberOf));
+  }
+
   /**
    * Load Spaces Administration settings
    * For both Spaces Administrators and Spaces Creators settings, it uses the value stored in the settings if any,
