@@ -13,6 +13,19 @@ export function getSpaceTemplates() {
   });
 }
 
+export function getSpacesCountByTemplates() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/countByTemplate`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function findSpaceExternalInvitationsBySpaceId(spaceId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/externalInvitations`, {
     method: 'GET',

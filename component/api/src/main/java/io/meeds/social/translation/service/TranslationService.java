@@ -88,6 +88,22 @@ public interface TranslationService {
                              Locale locale);
 
   /**
+   * Retrieves the Translation Label for a given field of an Object (identified
+   * by its type and id) with a designated {@link Locale}. not.
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
+   * @return the translated label for a given {@link Locale}
+   */
+  String getTranslationLabelOrDefault(String objectType,
+                                      long objectId,
+                                      String fieldName,
+                                      Locale locale);
+
+  /**
    * Saves Translation Labels for a given Object's field. This will replace any
    * existing list of translations
    * 
@@ -201,4 +217,5 @@ public interface TranslationService {
    * @param objectType Object type
    */
   void removePlugin(String objectType);
+
 }
