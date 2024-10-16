@@ -35,6 +35,7 @@ import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.model.Space;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.Visibility;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -145,7 +146,7 @@ public final class SpaceQueryBuilder {
                                                                         spaceFilter.getRemoteId()));
       boolean includePrivate = spaceFilter.isIncludePrivate();
       if (includePrivate) {
-        predicates.add(cb.or(cb.equal(root.get(SpaceEntity_.visibility), SpaceEntity.VISIBILITY.PRIVATE), tmp));
+        predicates.add(cb.or(cb.equal(root.get(SpaceEntity_.visibility), Visibility.PRIVATE), tmp));
       } else {
         predicates.add(tmp);
       }
@@ -175,7 +176,7 @@ public final class SpaceQueryBuilder {
     //not hidden
     boolean notHidden = spaceFilter.isNotHidden();
     if (notHidden) {
-      predicates.add(cb.notEqual(root.get(SpaceEntity_.visibility), SpaceEntity.VISIBILITY.HIDDEN));
+      predicates.add(cb.notEqual(root.get(SpaceEntity_.visibility), Visibility.HIDDEN));
     }
     
     //
