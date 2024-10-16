@@ -37,6 +37,10 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
 import io.meeds.social.core.search.SpaceSearchConnectorTest;
 import io.meeds.social.image.plugin.ImageAttachmentPluginTest;
+import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPluginTest;
+import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPluginTest;
+import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
+import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
 
 @RunWith(Suite.class)
@@ -58,6 +62,10 @@ import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
     SpaceNavigationIconUpgradePluginTest.class,
     AuthorizationManagerTest.class,
     SpaceSearchConnectorTest.class,
+    SpaceTemplateBannerAttachmentPluginTest.class,
+    SpaceTemplateTranslationPluginTest.class,
+    SpaceTemplateStorageTest.class,
+    SpaceTemplateServiceTest.class,
 })
 public class NoContainerTestSuite {
 
