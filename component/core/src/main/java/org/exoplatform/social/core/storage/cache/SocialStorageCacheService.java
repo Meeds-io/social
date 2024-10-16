@@ -17,7 +17,8 @@
 
 package org.exoplatform.social.core.storage.cache;
 
-import org.exoplatform.commons.file.model.FileItem;
+import java.util.HashMap;
+
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.social.core.storage.cache.model.data.ActivityData;
@@ -80,6 +81,7 @@ public class SocialStorageCacheService {
   private final ExoCache<SpaceKey, SpaceData> spaceCache;
   private final ExoCache<SpaceRefKey, SpaceKey> spaceRefCache;
   private final ExoCache<SpaceFilterKey, IntegerData> spacesCountCache;
+  private final ExoCache<SpaceKey, HashMap<Long, Long>> spacesCountByTemplateCache;
   private final ExoCache<ListSpacesKey, ListSpacesData> spacesCache;
   
   private final ExoCache<SpaceKey, SpaceSimpleData> spaceSimpleCache;
@@ -107,10 +109,15 @@ public class SocialStorageCacheService {
     this.spaceCache = CacheType.SPACE.getFromService(cacheService);
     this.spaceRefCache = CacheType.SPACE_REF.getFromService(cacheService);
     this.spacesCountCache = CacheType.SPACES_COUNT.getFromService(cacheService);
+    this.spacesCountByTemplateCache = CacheType.SPACES_COUNT_BY_TEMPLATE.getFromService(cacheService);
     this.spacesCache = CacheType.SPACES.getFromService(cacheService);
     
     this.spaceSimpleCache = CacheType.SPACE_SIMPLE.getFromService(cacheService);
 
+  }
+
+  public ExoCache<SpaceKey, HashMap<Long, Long>> getSpacesCountByTemplateCache() {
+    return spacesCountByTemplateCache;
   }
 
   public ExoCache<IdentityKey, IdentityData> getIdentityCache() {
@@ -187,4 +194,5 @@ public class SocialStorageCacheService {
   public ExoCache<ListSpacesKey, ListSpacesData> getSpacesCache() {
     return spacesCache;
   }
+
 }

@@ -25,6 +25,7 @@ import org.exoplatform.social.core.storage.SpaceStorageException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
@@ -850,6 +851,13 @@ public interface SpaceStorage {
    *         membership
    */
   default Instant getSpaceMembershipDate(long spaceId, String username) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return the count of spaces by Space Template identifier
+   */
+  default Map<Long, Long> countSpacesByTemplate() {
     throw new UnsupportedOperationException();
   }
 }

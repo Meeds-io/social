@@ -32,7 +32,10 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
+import io.meeds.social.space.constant.Priority;
+import io.meeds.social.space.constant.Registration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.Visibility;
 
 public class SpaceDAOTest extends BaseCoreTest {
   private SpaceDAO spaceDAO;
@@ -106,10 +109,10 @@ public class SpaceDAOTest extends BaseCoreTest {
     spaceEntity.setDisplayName("testDisplayName");
     spaceEntity.setGroupId("testGroupId");
     spaceEntity.setPrettyName(spacePrettyName);
-    spaceEntity.setPriority(SpaceEntity.PRIORITY.HIGH);
-    spaceEntity.setRegistration(SpaceEntity.REGISTRATION.OPEN);
+    spaceEntity.setPriority(Priority.HIGH);
+    spaceEntity.setRegistration(Registration.OPEN);
     spaceEntity.setUrl("testUrl");
-    spaceEntity.setVisibility(SpaceEntity.VISIBILITY.PRIVATE);
+    spaceEntity.setVisibility(Visibility.PRIVATE);
     spaceEntity.setBannerLastUpdated(new Date());
 
     addMember(spaceEntity, "root", SpaceMembershipStatus.PENDING);

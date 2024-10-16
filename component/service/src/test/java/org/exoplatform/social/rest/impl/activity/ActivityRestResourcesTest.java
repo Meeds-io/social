@@ -28,8 +28,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
   private IdentityStorage         identityStorage;
 
-  private IdentityManager         identityManager;
-
   private ActivityManager         activityManager;
 
   private RelationshipManager     relationshipManager;
@@ -46,13 +44,12 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
   private Identity                testSpaceIdentity;
 
-    public void setUp() throws Exception {
+  public void setUp() throws Exception {
     super.setUp();
 
     System.setProperty("gatein.email.domain.url", "localhost:8080");
 
     identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);

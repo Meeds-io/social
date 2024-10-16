@@ -345,7 +345,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
     NavigationService navService = ExoContainerContext.getService(NavigationService.class);
     NavigationContext navContext = SpaceUtils.getGroupNavigationContext(space.getGroupId());
 
-    NodeContext<NodeContext<?>> parentNodeCtx = navService.loadNode(NodeModel.SELF_MODEL, navContext, Scope.CHILDREN, null);
+    NodeContext<NodeContext<?>> parentNodeCtx = navService.loadNode(NodeModel.SELF_MODEL, navContext, Scope.ALL, null);
 
     String spaceTemplateName = space.getTemplate();
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplateByName(spaceTemplateName);

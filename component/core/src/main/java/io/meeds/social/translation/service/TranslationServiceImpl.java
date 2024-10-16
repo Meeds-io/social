@@ -28,6 +28,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.resources.LocaleConfigService;
 
 import io.meeds.social.translation.model.TranslationEvent;
 import io.meeds.social.translation.model.TranslationField;
@@ -47,13 +48,18 @@ public class TranslationServiceImpl implements TranslationService {
   private static final String            NO_PERMISSION_TO_DELETE_MESSAGE =
                                                                          "User %s doesn't have enough permissions to delete translations of object of type %s identified by %s";
 
+  private LocaleConfigService            localeConfigService;
+
   private ListenerService                listenerService;
 
   private TranslationStorage             translationStorage;
 
   private Map<String, TranslationPlugin> translationPlugins              = new HashMap<>();
 
-  public TranslationServiceImpl(TranslationStorage translationStorage, ListenerService listenerService) {
+  public TranslationServiceImpl(TranslationStorage translationStorage,
+                                LocaleConfigService localeConfigService,
+                                ListenerService listenerService) {
+    this.localeConfigService = localeConfigService;
     this.translationStorage = translationStorage;
     this.listenerService = listenerService;
   }
@@ -70,9 +76,9 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public TranslationField getTranslationField(String objectType,
-                                               long objectId,
-                                               String fieldName,
-                                               String username) throws IllegalAccessException, ObjectNotFoundException {
+                                              long objectId,
+                                              String fieldName,
+                                              String username) throws IllegalAccessException, ObjectNotFoundException {
 
     checkParameters(objectType, objectId, fieldName);
     checkAccessPermission(objectType, objectId, username);
@@ -81,8 +87,8 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public TranslationField getTranslationField(String objectType,
-                                               long objectId,
-                                               String fieldName) {
+                                              long objectId,
+                                              String fieldName) {
     return translationStorage.getTranslationField(objectType, objectId, fieldName);
   }
 
@@ -92,6 +98,32 @@ public class TranslationServiceImpl implements TranslationService {
                                     String fieldName,
                                     Locale locale) {
     return translationStorage.getTranslationLabel(objectType, objectId, fieldName, locale);
+  }
+
+  @Override
+  public String getTranslationLabelOrDefault(String objectType,
+                                             long objectId,
+                                             String fieldName,
+                                             Locale locale) {
+    if (locale == null) {
+      locale = localeConfigService.getDefaultLocaleConfig().getLocale();
+    }
+    TranslationField translationField = getTranslationField(objectType,
+                                                            objectId,
+                                                            fieldName);
+    if (translationField != null && MapUtils.isNotEmpty(translationField.getLabels())) {
+      String label = translationField.getLabels().get(locale);
+      if (label == null) {
+        Locale defaultLocale = localeConfigService.getDefaultLocaleConfig().getLocale();
+        label = translationField.getLabels().get(defaultLocale);
+      }
+      if (label == null) {
+        label = translationField.getLabels().values().iterator().next();
+      }
+      return label;
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -198,7 +230,9 @@ public class TranslationServiceImpl implements TranslationService {
     }
   }
 
-  private void checkEditPermission(String objectType, long objectId, String username,
+  private void checkEditPermission(String objectType,
+                                   long objectId,
+                                   String username,
                                    String message) throws ObjectNotFoundException, IllegalAccessException {
     TranslationPlugin translationPlugin = translationPlugins.get(objectType);
     if (!translationPlugin.hasEditPermission(objectId, username)) {
