@@ -438,6 +438,19 @@ public class SpaceRest implements ResourceContainer {
   }
 
   @GET
+  @Path("countByTemplate")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("administrators")
+  @Operation(
+             summary = "Gets the spaces count by Space Template",
+             method = "GET",
+             description = "This returns the spaces count by Space template identifier")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled") })
+  public Response countSpacesByTemplate() {
+    return Response.ok(spaceService.countSpacesByTemplate()).build();
+  }
+
+  @GET
   @Path("byPrettyName/{prettyName}")
   @RolesAllowed("users")
   @Operation(
