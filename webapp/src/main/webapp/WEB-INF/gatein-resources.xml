@@ -2046,6 +2046,38 @@
     </module>
   </portlet>
 
+  <portlet>
+    <name>SpaceTemplateManagement</name>
+    <module>
+      <load-group>spaceTemplateManagement</load-group>
+      <script>
+        <minify>false</minify>
+        <path>/js/spaceTemplateManagement.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
   <module>
     <name>siteDetailsComponent</name>
     <load-group>vueGRP</load-group>
