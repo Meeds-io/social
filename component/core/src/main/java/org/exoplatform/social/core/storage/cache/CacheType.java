@@ -62,12 +62,11 @@ public enum CacheType {
   SPACE("social.SpaceCache"),
   SPACE_REF("social.SpaceRefCache"),
   SPACES_COUNT("social.SpacesCountCache"),
+  SPACES_COUNT_BY_TEMPLATE("social.SpacesCountByTemplateCache"),
   SPACES("social.SpacesCache"),
   
   //
-  SPACE_SIMPLE("social.SpaceSimpleCache")
-
-  ;
+  SPACE_SIMPLE("social.SpaceSimpleCache");
 
   private final String name;
 

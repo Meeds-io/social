@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,9 +43,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.security.Authenticator;
-import org.exoplatform.services.security.IdentityConstants;
-import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -100,11 +98,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   private OrganizationService         organizationService;
 
-  private UserACL                     userACL;
-
-  private IdentityRegistry            identityRegistry;
-
-  private Authenticator               authenticator;
+  private UserACL                     userAcl;
 
   private SpaceLifecycle              spaceLifeCycle = new SpaceLifecycle();
 
@@ -118,25 +112,21 @@ public class SpaceServiceImpl implements SpaceService {
   private LayoutService               layoutService;
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
-                          SpaceSearchConnector spaceSearchConnector,
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
+                          SpaceSearchConnector spaceSearchConnector,
                           IdentityManager identityManager,
-                          UserACL userACL,
-                          IdentityRegistry identityRegistry,
-                          Authenticator authenticator,
                           SpacesAdministrationService spacesAdministrationService,
                           SpaceTemplateService spaceTemplateService,
-                          LayoutService layoutService) {
+                          LayoutService layoutService,
+                          UserACL userAcl) {
     this.spaceStorage = spaceStorage;
+    this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
     this.identityManager = identityManager;
-    this.identityRegistry = identityRegistry;
-    this.userACL = userACL;
-    this.authenticator = authenticator;
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateService = spaceTemplateService;
-    this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.layoutService = layoutService;
+    this.userAcl = userAcl;
   }
 
   @Override
@@ -343,10 +333,9 @@ public class SpaceServiceImpl implements SpaceService {
       }
 
       if (deleteGroup) {
-        UserACL acl = getUserACL();
         GroupHandler groupHandler = getOrgService().getGroupHandler();
         Group deletedGroup = groupHandler.findGroupById(space.getGroupId());
-        List<String> mandatories = acl.getMandatoryGroups();
+        List<String> mandatories = userAcl.getMandatoryGroups();
         if (deletedGroup != null && !isMandatory(groupHandler, deletedGroup, mandatories)) {
           SpaceUtils.removeGroup(space);
         }
@@ -700,12 +689,12 @@ public class SpaceServiceImpl implements SpaceService {
       return false;
     } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.EVERYONE)) {
       return true;
-    } else if (userACL.isAnonymousUser(username)) {
+    } else if (userAcl.isAnonymousUser(username)) {
       return false;
     } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.AUTHENTICATED)) {
       return true;
     } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.INTERNAL)) {
-      return userACL.getUserIdentity(username).isMemberOf(SpaceUtils.PLATFORM_USERS_GROUP);
+      return userAcl.getUserIdentity(username).isMemberOf(SpaceUtils.PLATFORM_USERS_GROUP);
     } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MEMBER)) {
       return canViewSpace(space, username);
     } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER)) {
@@ -1030,47 +1019,39 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public boolean isSuperManager(String username) {
-    if (StringUtils.isBlank(username)
-        || IdentityConstants.ANONIM.equals(username)
-        || IdentityConstants.SYSTEM.equals(username)) {
-      return false;
-    } else if (username.equals(getUserACL().getSuperUser())) {
-      return true;
-    }
-    org.exoplatform.services.security.Identity identity = getIdentity(username);
-    return identity != null && (identity.isMemberOf(userACL.getAdminGroups())
-                                || spacesAdministrationService.getSpacesAdministratorsMemberships()
-                                                              .stream()
-                                                              .anyMatch(identity::isMemberOf));
+    return spacesAdministrationService.isSuperManager(username);
   }
 
   @Override
   public boolean isContentManager(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username) || IdentityConstants.SYSTEM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return false;
-    } else if (username.equals(getUserACL().getSuperUser())) {
+    } else if (isSuperManager(username)) {
       return true;
     }
-    org.exoplatform.services.security.Identity identity = getIdentity(username);
+    org.exoplatform.services.security.Identity identity = userAcl.getUserIdentity(username);
     return identity != null && identity.isMemberOf(SpaceUtils.PLATFORM_PUBLISHER_GROUP, SpaceUtils.MANAGER);
   }
 
   @Override
   public boolean isContentPublisher(String username) {
-    if (StringUtils.isBlank(username)
-        || IdentityConstants.ANONIM.equals(username)
-        || IdentityConstants.SYSTEM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return false;
-    } else if (username.equals(getUserACL().getSuperUser())) {
+    } else if (isSuperManager(username)) {
       return true;
     }
-    org.exoplatform.services.security.Identity identity = getIdentity(username);
+    org.exoplatform.services.security.Identity identity = userAcl.getUserIdentity(username);
     return identity != null && identity.isMemberOf(SpaceUtils.PLATFORM_PUBLISHER_GROUP, SpaceUtils.PUBLISHER);
   }
 
   @Override
   public ListAccess<Space> getCommonSpaces(String username, String otherUserId) {
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.COMMON, username, otherUserId);
+  }
+
+  @Override
+  public Map<Long, Long> countSpacesByTemplate() {
+    return spaceStorage.countSpacesByTemplate();
   }
 
   public void addSpaceListener(SpaceListenerPlugin plugin) {
@@ -1125,15 +1106,6 @@ public class SpaceServiceImpl implements SpaceService {
       organizationService = ExoContainerContext.getService(OrganizationService.class);
     }
     return organizationService;
-  }
-
-  /**
-   * Gets UserACL
-   *
-   * @return userACL
-   */
-  private UserACL getUserACL() {
-    return userACL;
   }
 
   /**
@@ -1249,22 +1221,6 @@ public class SpaceServiceImpl implements SpaceService {
       space.setInvitedUsers(invitedUsers);
     }
     return space;
-  }
-
-  private org.exoplatform.services.security.Identity getIdentity(String username) {
-    org.exoplatform.services.security.Identity identity = identityRegistry.getIdentity(username);
-    if (identity == null) {
-      try {
-        identity = authenticator.createIdentity(username);
-        identityRegistry.register(identity);
-        return identity;
-      } catch (Exception e) {
-        LOG.warn("Error while retrieving user {} ACL identity", username, e);
-        return null;
-      }
-    } else {
-      return identity;
-    }
   }
 
   private SpaceTemplate getSpaceTemplateOrDefault(String templaceName) {
