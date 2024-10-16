@@ -49,6 +49,8 @@ import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
+import io.meeds.social.space.template.rest.SpaceTemplateRest;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,12 +59,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- *
  * Provides REST Services for manipulating space templates.
- *
+ * @deprecated will be replaced by {@link SpaceTemplateRest}
  */
 @Path(VersionResources.VERSION_ONE + "/social/spaceTemplates")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaceTemplates", description = "Managing Spaces Templates")
+@Deprecated(forRemoval = true)
 public class SpaceTemplatesRest implements ResourceContainer {
 
   private static final Log          LOG                         = ExoLogger.getLogger(SpaceTemplatesRest.class);

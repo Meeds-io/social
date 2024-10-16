@@ -18,6 +18,7 @@ package org.exoplatform.social.core.space.spi;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
@@ -1252,6 +1253,13 @@ public interface SpaceService {
    * @return Public site name if exists, else null
    */
   default String getSpacePublicSiteName(Space space) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return the count of spaces by Space Template identifier
+   */
+  default Map<Long, Long> countSpacesByTemplate() {
     throw new UnsupportedOperationException();
   }
 
