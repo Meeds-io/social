@@ -23,6 +23,16 @@ import SpaceTemplates from './components/list/SpaceTemplates.vue';
 
 import SpaceTemplateItem from './components/list/SpaceTemplateItem.vue';
 import SpaceTemplateItemMenu from './components/list/SpaceTemplateItemMenu.vue';
+import SpaceTemplateItemPermission from './components/list/SpaceTemplateItemPermission.vue';
+
+import SpaceTemplateNameDrawer from './components/drawer/SpaceTemplateNameDrawer.vue';
+import SpaceTemplateCharacteristicsDrawer from './components/drawer/SpaceTemplateCharacteristicsDrawer.vue';
+
+import SpaceTemplateBanner from './components/form/SpaceTemplateBanner.vue';
+import SpaceTemplateVisibility from './components/form/SpaceTemplateVisibility.vue';
+import SpaceTemplateAccess from './components/form/SpaceTemplateAccess.vue';
+import SpaceTemplatePermissions from './components/form/SpaceTemplatePermissions.vue';
+import SpaceTemplatePermissionsEditorial from './components/form/SpaceTemplatePermissionsEditorial.vue';
 
 const components = {
   'space-templates-management': SpaceTemplatesManagement,
@@ -30,6 +40,14 @@ const components = {
   'space-templates-management-list': SpaceTemplates,
   'space-templates-management-item': SpaceTemplateItem,
   'space-templates-management-item-menu': SpaceTemplateItemMenu,
+  'space-templates-management-item-permission': SpaceTemplateItemPermission,
+  'space-templates-management-name-drawer': SpaceTemplateNameDrawer,
+  'space-templates-management-characteristics-drawer': SpaceTemplateCharacteristicsDrawer,
+  'space-templates-management-banner': SpaceTemplateBanner,
+  'space-templates-management-visibility': SpaceTemplateVisibility,
+  'space-templates-management-access': SpaceTemplateAccess,
+  'space-templates-management-permissions': SpaceTemplatePermissions,
+  'space-templates-management-permissions-editorial': SpaceTemplatePermissionsEditorial,
 };
 
 for (const key in components) {
