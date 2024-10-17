@@ -62,7 +62,14 @@
           :close="!disabled"
           class="identitySuggesterItem"
           @click:close="remove(item)">
+          <v-icon
+            v-if="item.providerId === 'group'"
+            color="white"
+            class="me-2">
+            fa-users
+          </v-icon>
           <v-avatar
+            v-else
             :class="{
               'spaceAvatar': item.providerId === 'space',
             }"
@@ -80,8 +87,13 @@
       </template>
 
       <template slot="item" slot-scope="{item}">
+        <v-list-item-icon
+          v-if="item?.providerId === 'group'"
+          class="me-4">
+          <v-icon size="16">fa-users</v-icon>
+        </v-list-item-icon>
         <v-list-item-avatar
-          v-if="item?.profile?.avatarUrl"
+          v-else-if="item?.profile?.avatarUrl"
           :class="{
             'spaceAvatar': item?.providerId === 'space',
           }"
