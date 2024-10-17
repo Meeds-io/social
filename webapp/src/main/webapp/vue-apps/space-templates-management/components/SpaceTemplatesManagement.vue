@@ -31,7 +31,8 @@
         ref="list"
         :keyword="keyword" />
     </v-card>
-    <space-templates-form-drawer />
+    <space-templates-management-name-drawer />
+    <space-templates-management-characteristics-drawer />
   </v-app>
 </template>
 <script>
