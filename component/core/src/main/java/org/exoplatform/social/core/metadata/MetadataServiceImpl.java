@@ -132,8 +132,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public MetadataItem createMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
                                          Map<String, String> properties,
-                                         long userIdentityId,
-                                         boolean broadcast) throws ObjectAlreadyExistsException {
+                                         long userIdentityId) throws ObjectAlreadyExistsException {
     validateUserIdentityId(userIdentityId);
     Metadata metadata = checkAndCreateMetadata(metadataObject, metadataKey, userIdentityId);
     MetadataItem metadataItem = new MetadataItem(0,
@@ -142,22 +141,13 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                  userIdentityId,
                                                  System.currentTimeMillis(),
                                                  properties);
-    return createMetadataItem(metadataItem, userIdentityId, broadcast);
+    return createMetadataItem(metadataItem, userIdentityId);
   }
-  
+
   @Override
   public MetadataItem createMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
-                                         Map<String, String> properties,
-                                         long userIdentityId) throws ObjectAlreadyExistsException {
-    return createMetadataItem(metadataObject, metadataKey, properties, userIdentityId, true);
-  }
-  
-  @Override
-  public MetadataItem createMetadataItem(MetadataObject metadataObject,
-                                         MetadataKey metadataKey,
-                                         Map<String, String> properties,
-                                         boolean broadcast) throws ObjectAlreadyExistsException {
+                                         Map<String, String> properties) throws ObjectAlreadyExistsException {
     Metadata metadata = checkAndCreateMetadata(metadataObject, metadataKey, 0);
     MetadataItem metadataItem = new MetadataItem(0,
                                                  metadata,
@@ -165,37 +155,23 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                  0,
                                                  System.currentTimeMillis(),
                                                  properties);
-    return createMetadataItem(metadataItem, 0, broadcast);
+    return createMetadataItem(metadataItem, 0);
   }
 
   @Override
-  public MetadataItem createMetadataItem(MetadataObject metadataObject,
-                                         MetadataKey metadataKey,
-                                         Map<String, String> properties) throws ObjectAlreadyExistsException {
-    return createMetadataItem(metadataObject, metadataKey, properties, true);
-  }
-  
-  @Override
-  public MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId, boolean broadcast) {
+  public MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
     if (metadataItem == null) {
       throw new IllegalArgumentException("MetadataItem is mandatory");
     }
     validateMetadataItemId(metadataItem.getId());
     validateUserIdentityId(userIdentityId);
     metadataItem = metadataStorage.updateMetadataItem(metadataItem);
-    if (broadcast) {
-      try {
-        this.listenerService.broadcast("social.metadataItem.updated", userIdentityId, metadataItem);
-      } catch (Exception e) {
-        LOG.warn("Error while broadcasting event for metadataItem update", e);
-      }
+    try {
+      this.listenerService.broadcast("social.metadataItem.updated", userIdentityId, metadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadataItem update", e);
     }
     return metadataItem;
-  }
-
-  @Override
-  public MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId) {
-    return updateMetadataItem(metadataItem, userIdentityId, true);
   }
 
   @Override
@@ -633,14 +609,12 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return metadata;
   }
 
-  private MetadataItem createMetadataItem(MetadataItem metadataItem, long userIdentityId, boolean broadcast) {
+  private MetadataItem createMetadataItem(MetadataItem metadataItem, long userIdentityId) {
     metadataItem = metadataStorage.createMetadataItem(metadataItem);
-    if (broadcast) {
-      try {
-        this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
-      } catch (Exception e) {
-        LOG.warn("Error while broadcasting event for metadata item creation", e);
-      }
+    try {
+      this.listenerService.broadcast("social.metadataItem.created", userIdentityId, metadataItem);
+    } catch (Exception e) {
+      LOG.warn("Error while broadcasting event for metadata item creation", e);
     }
     return metadataItem;
   }

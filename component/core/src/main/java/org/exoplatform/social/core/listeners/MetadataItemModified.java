@@ -16,12 +16,14 @@
 package org.exoplatform.social.core.listeners;
 
 import org.exoplatform.commons.search.index.IndexingService;
+import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 
+@Asynchronous
 public class MetadataItemModified extends AbstractMetadataItemListener<Long, MetadataItem> {
 
   public MetadataItemModified(MetadataService metadataService,
