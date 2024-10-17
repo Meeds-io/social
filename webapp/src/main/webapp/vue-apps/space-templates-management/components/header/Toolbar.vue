@@ -33,7 +33,7 @@
         :aria-label="$t('spaceTemplates.add')"
         :class="$root.isMobile && 'px-0'"
         class="btn btn-primary text-truncate"
-        @click="$root.$emit('space-templates-create')">
+        @click="$root.$emit('space-templates-name-open')">
         <v-icon
           size="18">
           fa-plus
