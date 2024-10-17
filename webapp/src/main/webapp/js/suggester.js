@@ -262,7 +262,12 @@
             .on('click', '.remove', function(e) {
               $(this).closest('[data-atwho-at-query]').remove();
             });
-        if (range = this._getRange()) {
+        try {
+          range = this._getRange()
+        } catch (e) {
+          return;
+        }
+        if (range) {
           if (this.query.el.length) {
             range.setEndAfter(this.query.el[0]);
           }
