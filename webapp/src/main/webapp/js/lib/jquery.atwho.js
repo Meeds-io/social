@@ -672,7 +672,7 @@ EditableController = (function(superClass) {
   EditableController.prototype._getRange = function() {
     var sel;
     sel = this.app.window.getSelection();
-    if (sel.rangeCount > 0) {
+    if (sel?.rangeCount) {
       return sel.getRangeAt(0);
     }
   };

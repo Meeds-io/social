@@ -106,7 +106,8 @@ public class SpaceTemplateRest {
                                            @RequestBody
                                            SpaceTemplate spaceTemplate) {
     try {
-      return spaceTemplateService.createSpaceTemplate(spaceTemplate, request.getRemoteUser());
+      spaceTemplate = spaceTemplateService.createSpaceTemplate(spaceTemplate, request.getRemoteUser());
+      return getSpaceTemplate(request, spaceTemplate.getId());
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     } catch (IllegalAccessException e) {

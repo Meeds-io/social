@@ -70,15 +70,14 @@ function searchGroups(filter, groupMember, groupType, items, allGroupsForAdmin, 
 
   return fetch(`/portal/rest/v1/groups/treeMembers?${params}`, { credentials: 'include' })
     .then(resp => resp && resp.ok && resp.json())
-    .catch((e) => {
-      errorCallback(e);
-    })
+    .catch(errorCallback)
     .then(data => {
       data.entities.forEach((item) => {
         items.push({
           id: `group:${item.groupName}`,
           remoteId: item.groupName,
           spaceId: item.id,
+          groupId: item.id,
           providerId: 'group',
           displayName: item.label,
           profile: {
