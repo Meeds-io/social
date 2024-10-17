@@ -37,9 +37,9 @@ public class SpaceTemplateTranslationPlugin extends TranslationPlugin {
 
   public static final String     OBJECT_TYPE            = "spaceTemplate";
 
-  public static final String     DESCRIPTION_FIELD_NAME = "description";
+  public static final String     NAME_FIELD_NAME        = "name";
 
-  public static final String     TITLE_FIELD_NAME       = "title";
+  public static final String     DESCRIPTION_FIELD_NAME = "description";
 
   @Autowired
   protected SpaceTemplateService spaceTemplateService;

@@ -115,6 +115,13 @@
 
   <portlet-skin>
     <application-name>social</application-name>
+    <portlet-name>SpaceTemplateManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social</application-name>
     <portlet-name>SpaceTopbarMenu</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/SpaceMenu/Style.css</css-path>
@@ -2068,6 +2075,9 @@
       </depends>
       <depends>
         <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>imageCropper</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>

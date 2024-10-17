@@ -200,7 +200,7 @@ public class SpaceTemplateService {
   private void computeSpaceTemplateAttributes(SpaceTemplate spaceTemplate, Locale locale) {
     spaceTemplate.setName(translationService.getTranslationLabelOrDefault(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
                                                                           spaceTemplate.getId(),
-                                                                          SpaceTemplateTranslationPlugin.TITLE_FIELD_NAME,
+                                                                          SpaceTemplateTranslationPlugin.NAME_FIELD_NAME,
                                                                           locale));
     spaceTemplate.setDescription(translationService.getTranslationLabelOrDefault(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
                                                                                  spaceTemplate.getId(),
