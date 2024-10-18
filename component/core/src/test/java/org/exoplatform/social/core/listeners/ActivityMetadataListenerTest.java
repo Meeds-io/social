@@ -288,7 +288,6 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     space.setDescription("description of space" + spaceName);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     String[] managers = new String[] { manager };
     space.setManagers(managers);
     space.setMembers(members == null ? new String[]{manager} : ArrayUtils.add(members, manager));

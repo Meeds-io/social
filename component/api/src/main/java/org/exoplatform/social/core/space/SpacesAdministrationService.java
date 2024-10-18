@@ -23,28 +23,6 @@ public interface SpacesAdministrationService {
   void updateSpacesAdministratorsMemberships(List<MembershipEntry> permissionsExpressions);
 
   /**
-   * Returns the list of creators memberships (permission expressions)
-   *
-   * @return a {@link List} of memberships of type {@link String}
-   */
-  List<MembershipEntry> getSpacesCreatorsMemberships();
-
-  /**
-   * Update spaces super creator memberships
-   *
-   * @param permissionsExpressions
-   */
-  void updateSpacesCreatorsMemberships(List<MembershipEntry> permissionsExpressions);
-
-
-  /**
-   * Check if the user can create spaces
-   * @param username
-   * @return true if the user can create spaces
-   */
-  boolean canCreateSpace(String username) ;
-
-  /**
    * Checks if the user is a super manager of all spaces
    *
    * @param username user name

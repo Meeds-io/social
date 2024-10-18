@@ -16,13 +16,13 @@
  */
 package org.exoplatform.social.core.activity;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 /**
  * The real time list access for activities.
@@ -32,7 +32,7 @@ import org.exoplatform.social.core.storage.impl.StorageUtils;
  */
 public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocialActivity> {
 
-  public static enum ActivityType {
+  public enum ActivityType {
     ACTIVITY_FEED,
     USER_ACTIVITIES,
     VIEW_USER_ACTIVITIES,
@@ -162,7 +162,10 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
         return activityStorage.getUserIdsActivities(ownerIdentity, index, limit);
       }
       case VIEW_USER_ACTIVITIES: {
-        return StorageUtils.getIds(activityStorage.getActivities(ownerIdentity, viewerIdentity, index, limit));
+        return activityStorage.getActivities(ownerIdentity, viewerIdentity, index, limit)
+                              .stream()
+                              .map(ExoSocialActivity::getId)
+                              .toList();
       }
       case CONNECTIONS_ACTIVITIES: {
         return activityStorage.getActivityIdsOfConnections(ownerIdentity, index, limit);

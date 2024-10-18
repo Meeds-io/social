@@ -20,7 +20,6 @@ package io.meeds.social.space.template.storage;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
@@ -36,8 +35,11 @@ import io.meeds.social.space.template.utils.EntityMapper;
 @Component
 public class SpaceTemplateStorage {
 
-  @Autowired
-  protected SpaceTemplateDAO spaceTemplateDAO;
+  private SpaceTemplateDAO spaceTemplateDAO;
+
+  public SpaceTemplateStorage(SpaceTemplateDAO spaceTemplateDAO) {
+    this.spaceTemplateDAO = spaceTemplateDAO;
+  }
 
   @Cacheable(cacheNames = "social.spaceTemplates")
   public List<SpaceTemplate> getSpaceTemplates(Pageable pageable) {

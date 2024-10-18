@@ -52,26 +52,6 @@ public class SpaceListenerPluginMock extends SpaceListenerPlugin {
   }
 
   @Override
-  public void applicationActivated(SpaceLifeCycleEvent event) {
-    events.add(Type.APP_ACTIVATED);
-  }
-
-  @Override
-  public void applicationAdded(SpaceLifeCycleEvent event) {
-    events.add(Type.APP_ADDED);
-  }
-
-  @Override
-  public void applicationDeactivated(SpaceLifeCycleEvent event) {
-    events.add(Type.APP_DEACTIVATED);
-  }
-
-  @Override
-  public void applicationRemoved(SpaceLifeCycleEvent event) {
-    events.add(Type.APP_REMOVED);
-  }
-
-  @Override
   public void grantedLead(SpaceLifeCycleEvent event) {
     events.add(Type.GRANTED_LEAD);
   }

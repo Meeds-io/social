@@ -52,6 +52,8 @@ import io.meeds.social.upgrade.model.LayoutUpgrade;
                     path = "conf/exo.social.component.core-local-configuration.xml"),
                 @ConfigurationUnit(scope = ContainerScope.PORTAL,
                     path = "conf/social.component.core-local-portal-configuration.xml"),
+                @ConfigurationUnit(scope = ContainerScope.PORTAL,
+                                   path = "conf/exo.portal.component.portal-configuration-local.xml"),
 })
 public class LayoutUpgradePluginTest extends AbstractCoreTest {// NOSONAR
 

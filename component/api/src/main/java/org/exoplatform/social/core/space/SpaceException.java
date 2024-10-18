@@ -17,11 +17,8 @@
 package org.exoplatform.social.core.space;
 
 /**
- * Created by IntelliJ IDEA.
- * User: jeremi
- * Date: Dec 4, 2008
- * Time: 11:50:29 AM
- * To change this template use File | Settings | File Templates.
+ * Created by IntelliJ IDEA. User: jeremi Date: Dec 4, 2008 Time: 11:50:29 AM To
+ * change this template use File | Settings | File Templates.
  */
 public class SpaceException extends Exception {
 
@@ -35,28 +32,7 @@ public class SpaceException extends Exception {
     /** The INTERNA l_ serve r_ error. */
     INTERNAL_SERVER_ERROR,
 
-    /** The UNABL e_ t o_ lis t_ availabl e_ applications. */
-    UNABLE_TO_LIST_AVAILABLE_APPLICATIONS,
-
-    /** The UNABL e_ t o_ ad d_ application. */
-    UNABLE_TO_ADD_APPLICATION,
-
-    /** The UNABL e_ t o_ remov e_ application. */
-    UNABLE_TO_REMOVE_APPLICATION,
-
-    UNABLE_TO_RESTORE_APPLICATION_LAYOUT,
-
-    APPLICATION_NOT_FOUND,
-
-    APPLICATION_NOT_FOUND_IN_TEMPLATE,
-
     UNAUTHORIZED_TO_RENAME_SPACE,
-
-    /** The UNABL e_ t o_ remov e_ application. */
-    UNABLE_TO_MOVE_APPLICATION,
-
-    /** The UNABL e_ t o_ remov e_ applications. */
-    UNABLE_TO_REMOVE_APPLICATIONS,
 
     /** The UNABL e_ t o_ creat e_ group. */
     UNABLE_TO_CREATE_GROUP,
@@ -74,9 +50,10 @@ public class SpaceException extends Exception {
     UNABLE_TO_REMOVE_USER,
 
     /** The USE r_ onl y_ leader. */
-    USER_ONLY_LEADER, //user is the only leader of a space
+    USER_ONLY_LEADER, // user is the only leader of a space
+
     /** The USE r_ no t_ member. */
- USER_NOT_MEMBER,
+    USER_NOT_MEMBER,
 
     /** The USE r_ no t_ invited. */
     USER_NOT_INVITED,
@@ -131,12 +108,6 @@ public class SpaceException extends Exception {
 
     /** The UNABL e_ reques t_ t o_ joi n_ hidden. */
     UNABLE_REQUEST_TO_JOIN_HIDDEN,
-
-    /** The UNABL e_ t o_ ini t_ app. */
-    UNABLE_TO_INIT_APP,
-
-    /** The UNABL e_ t o_ deini t_ app. */
-    UNABLE_TO_DEINIT_APP,
 
     /** The UNABL e_ t o_ delet e_ space. */
     UNABLE_TO_DELETE_SPACE
@@ -203,4 +174,3 @@ public class SpaceException extends Exception {
     return super.toString() + " Code = " + code;
   }
 }
-

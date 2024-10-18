@@ -148,34 +148,6 @@ export function getSpaceByGroupSuffix(groupSuffix, expand) {
   });
 }
 
-export function restoreSpaceHomeLayout(spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/layout/home/${spaceId}`, {
-    credentials: 'include',
-    method: 'PUT',
-  });
-}
-
-export function getSpaceNavigations(spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${spaceId}/navigations`, {
-    method: 'GET',
-    credentials: 'include',
-  })
-    .then(resp => {
-      if (!resp || !resp.ok) {
-        throw new Error('Response code indicates a server error', resp);
-      } else {
-        return resp.json();
-      }
-    })
-    .then(data => {
-      data = data || [];
-      if (data.length && data[0].children && data[0].children.length) {
-        data = [data[0], ...data[0].children];
-      }
-      return data;
-    });
-}
-
 export function getSpaces(query, offset, limit, filter, expand) {
   if (!expand) {
     expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';

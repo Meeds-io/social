@@ -64,26 +64,6 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     case SPACE_REMOVED:
       listener.spaceRemoved(event);
       break;
-    case APP_ACTIVATED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationActivated(event);
-      }
-      break;
-    case APP_DEACTIVATED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationDeactivated(event);
-      }
-      break;
-    case APP_ADDED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationAdded(event);
-      }
-      break;
-    case APP_REMOVED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationRemoved(event);
-      }
-      break;
     case JOINED:
       if (isSpaceProperEvent(event)) {
         listener.joined(event);
@@ -155,27 +135,6 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
 
   public void spaceRemoved(Space space, String remover) {
     broadcast(new SpaceLifeCycleEvent(space, remover, Type.SPACE_REMOVED));
-  }
-
-  public void addApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_ADDED);
-    event.getSource();
-    broadcast(event);
-  }
-
-  public void deactivateApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_DEACTIVATED);
-    broadcast(event);
-  }
-
-  public void activateApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_ACTIVATED);
-    broadcast(event);
-  }
-
-  public void removeApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_REMOVED);
-    broadcast(event);
   }
 
   public void memberJoined(Space space, String userId) {

@@ -48,7 +48,7 @@ import org.exoplatform.services.log.Log;
  *              &lt;map type=&quot;java.util.HashMap&quot;&gt;
  *                &lt;entry&gt;
  *                  &lt;key&gt;&lt;string&gt;space_created&lt;/string&gt;&lt;/key&gt;
- *                  &lt;value&gt;&lt;string&gt;SpaceActivityPublisher.space_created&lt;/string&gt;&lt;/value&gt;
+ *                  &lt;value&gt;&lt;string&gt;ProfileUpdatesPublisher.avatar_updated&lt;/string&gt;&lt;/value&gt;
  *                &lt;/entry&gt;
  *              &lt;/map&gt;
  *            &lt;/field&gt;

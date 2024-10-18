@@ -321,60 +321,6 @@ public interface SpaceStorage {
   public List<Space> getInvitedSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
 
   /**
-   * Gets the count of the public spaces of the userId.
-   *
-   * @param userId
-   * @return the count of the spaces in which the user can request to join
-   * @throws SpaceStorageException
-   * @since 1.2.0-GA
-   */
-  public int getPublicSpacesCount(String userId) throws SpaceStorageException;
-  
-  /**
-   * Gets the count of the public spaces of the user by space filter.
-   *
-   * @param userId
-   * @param spaceFilter
-   * @return
-   * @since 1.2.0-GA
-   */
-  public int getPublicSpacesByFilterCount(String userId, SpaceFilter spaceFilter);
-
-  /**
-   * Gets the public spaces of the user by filter with offset, limit.
-   *
-   * @param userId
-   * @param spaceFilter
-   * @param offset
-   * @param limit
-   * @return
-   * @since 1.2.0-GA
-   */
-  public List<Space> getPublicSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit);
-
-  /**
-   * Gets a user's public spaces and that user can request to join.
-   *
-   * @param userId
-   * @return spaces list in which the user can request to join.
-   * @throws SpaceStorageException
-   * @since 1.2.0-GA
-   */
-  public List<Space> getPublicSpaces(String userId) throws SpaceStorageException;
-
-  /**
-   * Gets a user's public spaces and that user can request to join with offset, limit.
-   *
-   * @param userId
-   * @param offset
-   * @param limit
-   * @return spaces list in which the user can request to join with offset, limit
-   * @throws SpaceStorageException
-   * @since 1.2.0-GA
-   */
-  public List<Space> getPublicSpaces(String userId, long offset, long limit) throws SpaceStorageException;
-
-  /**
    * Gets the count of the accessible spaces of the userId.
    *
    * @param userId
@@ -635,16 +581,7 @@ public interface SpaceStorage {
    * @param filter
    */
   int getLastAccessedSpaceCount(SpaceFilter filter) throws SpaceStorageException;
-  
-  /**
-   * Gets the count of the public spaces of the userId.
-   *
-   * @param userId
-   * @return number of public space of a user where he is member
-   * @since 4.0.0.Beta01
-   */
-  int getNumberOfMemberPublicSpaces(String userId);
-  
+
   /**
    * Get the visited spaces
    * 

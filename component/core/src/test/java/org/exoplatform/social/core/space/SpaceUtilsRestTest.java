@@ -67,29 +67,7 @@ public class SpaceUtilsRestTest extends AbstractCoreTest {
       identityStorage.deleteIdentity(identity);
     }
   }
-  
-  public void testGetUserPortalForRest() throws Exception {
-    new UnitTest() {
-      @Override
-      protected void execute() throws Exception {
-        UserPortal userPortal = SpaceUtils.getUserPortalForRest();
-        assertNotNull(userPortal);
-      }
-      
-    }.execute(root.getRemoteId());
-  }
-  
-  public void testGetUserPortal() throws Exception {
-    new UnitTest() {
-      @Override
-      protected void execute() throws Exception {
-        UserPortal userPortal = SpaceUtils.getUserPortal();
-        assertNotNull(userPortal);
-      }
-      
-    }.execute(root.getRemoteId());
-  }
-  
+
   private abstract class UnitTest {
 
     protected final void execute(String userId) {

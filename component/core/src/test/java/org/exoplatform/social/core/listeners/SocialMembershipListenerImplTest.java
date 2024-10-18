@@ -25,7 +25,6 @@ import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
@@ -57,7 +56,6 @@ public class SocialMembershipListenerImplTest extends AbstractCoreTest {
     sFoo.setPrettyName("postsave");
     sFoo.setDescription("postsave description");
     sFoo.setManagers(new String[] { "root" });
-    sFoo.setType(DefaultSpaceApplicationHandler.NAME);
     sFoo.setRegistration(Space.OPEN);
     sFoo = createSpaceNonInitApps(sFoo, "root", null);
     sFoo.setEditor("mary");
@@ -101,7 +99,6 @@ public class SocialMembershipListenerImplTest extends AbstractCoreTest {
     sFoo.setPrettyName("postdelete");
     sFoo.setDescription("postdelete description");
     sFoo.setManagers(new String[] { "root" });
-    sFoo.setType(DefaultSpaceApplicationHandler.NAME);
     sFoo.setRegistration(Space.OPEN);
     sFoo = createSpaceNonInitApps(sFoo, "root", null);
 

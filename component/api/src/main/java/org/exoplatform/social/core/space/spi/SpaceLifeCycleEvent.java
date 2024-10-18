@@ -32,7 +32,7 @@ import org.exoplatform.social.core.space.model.Space;
 public class SpaceLifeCycleEvent  extends LifeCycleEvent<String,Space>{
 
   public enum Type {
-    SPACE_CREATED, SPACE_REMOVED, APP_ADDED, APP_REMOVED, APP_ACTIVATED, APP_DEACTIVATED, JOINED, LEFT,
+    SPACE_CREATED, SPACE_REMOVED, JOINED, LEFT,
     GRANTED_LEAD, REVOKED_LEAD, SPACE_RENAMED, SPACE_DESCRIPTION_EDITED, SPACE_AVATAR_EDITED, SPACE_HIDDEN,
     ADD_INVITED_USER, DENY_INVITED_USER, ADD_PENDING_USER, REMOVE_PENDING_USER, SPACE_REGISTRATION, SPACE_BANNER_EDITED,
     SPACE_PUBLIC_SITE_CREATED, SPACE_PUBLIC_SITE_UPDATED
@@ -68,7 +68,7 @@ public class SpaceLifeCycleEvent  extends LifeCycleEvent<String,Space>{
   }
 
   public String toString() {
-    return source + ":" + type + "@" + payload.getName();
+    return source + ":" + type + "@" + payload.getPrettyName();
   }
 
 }
