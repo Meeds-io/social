@@ -17,9 +17,9 @@
 package org.exoplatform.social.core.space;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
-import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
@@ -32,7 +32,7 @@ public class SpaceLifeCycleTest extends AbstractCoreTest {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    completionService = (LifeCycleCompletionService) PortalContainer.getInstance().getComponentInstanceOfType(LifeCycleCompletionService.class);
+    completionService = ExoContainerContext.getService(LifeCycleCompletionService.class);
   }
 
   public void testSimpleBroadcast() {
@@ -44,8 +44,8 @@ public class SpaceLifeCycleTest extends AbstractCoreTest {
     MockListener capture2 = new MockListener();
     lifecycle.addListener(capture2);
 
-    lifecycle.activateApplication(null, "foo");
-    lifecycle.activateApplication(null, "bar");
+    lifecycle.addInvitedUser(null, "foo");
+    lifecycle.addInvitedUser(null, "bar");
 
     end();
     completionService.waitCompletionFinished();
@@ -68,8 +68,8 @@ public class SpaceLifeCycleTest extends AbstractCoreTest {
     MockListener capture2 = new MockListener();
     lifecycle.addListener(capture2);
 
-    lifecycle.activateApplication(null, "foo");
-    lifecycle.activateApplication(null, "bar");
+    lifecycle.addInvitedUser(null, "foo");
+    lifecycle.addInvitedUser(null, "bar");
 
     end();
     completionService.waitCompletionFinished();
@@ -85,7 +85,8 @@ public class SpaceLifeCycleTest extends AbstractCoreTest {
   }
 
   class MockListener implements SpaceLifeCycleListener {
-    public Collection<String> events = new ArrayList<String>();
+
+    protected List<String> events = new ArrayList<>();
 
     public boolean hasEvent(String event) {
       return events.contains(event);
@@ -95,66 +96,62 @@ public class SpaceLifeCycleTest extends AbstractCoreTest {
       events.add(event.getTarget());
     }
 
-    public void applicationActivated(SpaceLifeCycleEvent event) {
-      recordEvent(event);
-    }
-
-    public void applicationAdded(SpaceLifeCycleEvent event) {
-      recordEvent(event);
-    }
-
-    public void applicationDeactivated(SpaceLifeCycleEvent event) {
-      recordEvent(event);
-    }
-
-    public void applicationRemoved(SpaceLifeCycleEvent event) {
-      recordEvent(event);
-    }
-
+    @Override
     public void grantedLead(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void joined(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void left(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void revokedLead(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void spaceCreated(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void spaceRemoved(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void spaceRenamed(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void spaceDescriptionEdited(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void spaceAvatarEdited(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
 
+    @Override
     public void spaceAccessEdited(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
-    
+
+    @Override
     public void addInvitedUser(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
-    
+
+    @Override
     public void addPendingUser(SpaceLifeCycleEvent event) {
       recordEvent(event);
     }
@@ -164,12 +161,15 @@ public class SpaceLifeCycleTest extends AbstractCoreTest {
       recordEvent(event);
     }
 
-
   }
 
   class MockFailingListener extends MockListener {
+    @Override
     protected void recordEvent(SpaceLifeCycleEvent event) {
-      throw new RuntimeException("fake runtime exception thrown on purpose") {
+      throw new IllegalStateException("fake runtime exception thrown on purpose") {
+
+        private static final long serialVersionUID = 6615691329774228817L;
+
         @Override
         public StackTraceElement[] getStackTrace() {
           return new StackTraceElement[0];

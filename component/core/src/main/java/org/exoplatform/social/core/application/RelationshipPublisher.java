@@ -133,7 +133,6 @@ public class RelationshipPublisher extends RelationshipListenerPlugin {
         ExoSocialActivity newActivitySender = createNewActivity(sender, nbOfSenderConnections);
         activityManager.saveActivityNoReturn(sender, newActivitySender);
         getIdentityStorage().updateProfileActivityId(sender, newActivitySender.getId(), Profile.AttachedActivityType.RELATIONSHIP);
-        SpaceUtils.restartRequest();
         activityManager.saveComment(newActivitySender, senderComment);
       }
       
@@ -151,7 +150,6 @@ public class RelationshipPublisher extends RelationshipListenerPlugin {
         ExoSocialActivity newActivityReceiver = createNewActivity(receiver, nbOfReceiverConnections);
         activityManager.saveActivityNoReturn(receiver, newActivityReceiver);
         getIdentityStorage().updateProfileActivityId(receiver, newActivityReceiver.getId(), Profile.AttachedActivityType.RELATIONSHIP);
-        SpaceUtils.restartRequest();
         activityManager.saveComment(newActivityReceiver, receiverComment);
       }
     } catch (Exception e) {
@@ -159,10 +157,11 @@ public class RelationshipPublisher extends RelationshipListenerPlugin {
     }
   }
 
-  private void reloadIfNeeded(Identity identity) throws Exception {
+  private Identity reloadIfNeeded(Identity identity) throws Exception {
     if (identity.getId() == null || identity.getProfile().getFullName().length() == 0) {
-      identity = identityManager.getIdentity(identity.getGlobalId().toString(), true);
+      identity = identityManager.getIdentity(identity.getGlobalId().toString());
     }
+    return identity;
   }
 
   @Override
@@ -246,9 +245,9 @@ public class RelationshipPublisher extends RelationshipListenerPlugin {
    */
   private Map<String,String> getParams(Relationship relationship) throws Exception {
     Identity sender = relationship.getSender();
-    reloadIfNeeded(sender);
+    sender = reloadIfNeeded(sender);
     Identity receiver = relationship.getReceiver();
-    reloadIfNeeded(receiver);
+    receiver = reloadIfNeeded(receiver);
     String senderRemoteId = sender.getRemoteId();
     String receiverRemoteId = receiver.getRemoteId();
     Map<String,String> params = new HashMap<String,String>();
@@ -259,7 +258,7 @@ public class RelationshipPublisher extends RelationshipListenerPlugin {
   }
   
   private IdentityStorage getIdentityStorage() {
-    return (IdentityStorage) PortalContainer.getInstance().getComponentInstanceOfType(IdentityStorage.class);
+    return PortalContainer.getInstance().getComponentInstanceOfType(IdentityStorage.class);
   }
   
   private RelationshipManager getRelationShipManager() {

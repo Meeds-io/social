@@ -87,12 +87,11 @@ public class SpaceTemplateServiceTest {
 
   @Before
   public void init() {
-    spaceTemplateService = new SpaceTemplateService();
-    spaceTemplateService.translationService = translationService;
-    spaceTemplateService.attachmentService = attachmentService;
-    spaceTemplateService.spacesAdministrationService = spacesAdministrationService;
-    spaceTemplateService.userAcl = userAcl;
-    spaceTemplateService.spaceTemplateStorage = spaceTemplateStorage;
+    spaceTemplateService = new SpaceTemplateService(translationService,
+                                                    attachmentService,
+                                                    spacesAdministrationService,
+                                                    userAcl,
+                                                    spaceTemplateStorage);
   }
 
   @Test
@@ -151,6 +150,8 @@ public class SpaceTemplateServiceTest {
     assertFalse(spaceTemplateService.canViewTemplate(2l, null));
     assertFalse(spaceTemplateService.canViewTemplate(2l, TEST_USER));
     setCanManageTemplate(true);
+    assertFalse(spaceTemplateService.canViewTemplate(2l, TEST_USER));
+    when(spaceTemplateStorage.getSpaceTemplate(2l)).thenReturn(newSpaceTemplate(2l));
     assertTrue(spaceTemplateService.canViewTemplate(2l, TEST_USER));
   }
 

@@ -22,7 +22,6 @@ import java.util.List;
 import org.exoplatform.services.organization.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
@@ -94,14 +93,11 @@ public class SpaceUtilsWildCardMembershipTest extends AbstractCoreTest {
 
   private Space populateSpace(String name, String creator) throws Exception {
     Space space = new Space();
-    space.setApp("app");
     space.setDisplayName(name);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space ");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId(SpaceUtils.createGroup(space.getPrettyName(), creator));
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] {};

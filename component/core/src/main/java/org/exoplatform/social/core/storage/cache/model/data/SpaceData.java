@@ -17,10 +17,10 @@
 
 package org.exoplatform.social.core.storage.cache.model.data;
 
-import org.exoplatform.social.core.space.model.Space;
-
 import java.util.Arrays;
 import java.util.Objects;
+
+import org.exoplatform.social.core.space.model.Space;
 
 /**
  * Immutable space data.
@@ -33,8 +33,6 @@ public class SpaceData implements CacheData<Space> {
 
   private final String      id;
 
-  private final String      app;
-
   private final String      prettyName;
 
   private final String      displayName;
@@ -43,11 +41,7 @@ public class SpaceData implements CacheData<Space> {
 
   private final String      description;
 
-  private final String      type;
-
   private final String      visibility;
-
-  private final String      priority;
 
   private final String      avatarUrl;
 
@@ -64,6 +58,8 @@ public class SpaceData implements CacheData<Space> {
   private final Long        createdTime;
 
   private final Long        lastUpdatedTime;
+
+  private final long        templateId;
 
   private final long        cacheTime;
 
@@ -86,14 +82,12 @@ public class SpaceData implements CacheData<Space> {
   public SpaceData(final Space space) {
 
     id = space.getId();
-    app = space.getApp();
+    templateId = space.getTemplateId();
     prettyName = space.getPrettyName();
     displayName = space.getDisplayName();
     registration = space.getRegistration();
     description = space.getDescription();
-    type = space.getType();
     visibility = space.getVisibility();
-    priority = space.getPriority();
     avatarLastUpdated = space.getAvatarLastUpdated();
     bannerLastUpdated = space.getBannerLastUpdated();
     avatarUrl = space.getAvatarUrl();
@@ -120,14 +114,12 @@ public class SpaceData implements CacheData<Space> {
     Space space = new Space();
 
     space.setId(id);
-    space.setApp(app);
+    space.setTemplateId(templateId);
     space.setDisplayName(displayName);
     space.setPrettyName(prettyName);
     space.setRegistration(registration);
     space.setDescription(description);
-    space.setType(type);
     space.setVisibility(visibility);
-    space.setPriority(priority);
     space.setAvatarLastUpdated(avatarLastUpdated);
     space.setBannerLastUpdated(bannerLastUpdated);
     space.setAvatarUrl(avatarUrl);
@@ -154,10 +146,6 @@ public class SpaceData implements CacheData<Space> {
     return id;
   }
 
-  public String getApp() {
-    return app;
-  }
-
   public String getPrettyName() {
     return prettyName;
   }
@@ -174,16 +162,8 @@ public class SpaceData implements CacheData<Space> {
     return description;
   }
 
-  public String getType() {
-    return type;
-  }
-
   public String getVisibility() {
     return visibility;
-  }
-
-  public String getPriority() {
-    return priority;
   }
 
   public String getAvatarUrl() {
@@ -201,11 +181,11 @@ public class SpaceData implements CacheData<Space> {
   public String[] getMembers() {
     return members;
   }
-  
+
   public String[] getRedactors() {
     return redactors;
   }
-  
+
   public String[] getPublishers() {
     return publishers;
   }
@@ -228,37 +208,72 @@ public class SpaceData implements CacheData<Space> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     SpaceData spaceData = (SpaceData) o;
     return Objects.equals(id, spaceData.id) &&
-            Objects.equals(app, spaceData.app) &&
-            Objects.equals(prettyName, spaceData.prettyName) &&
-            Objects.equals(displayName, spaceData.displayName) &&
-            Objects.equals(registration, spaceData.registration) &&
-            Objects.equals(description, spaceData.description) &&
-            Objects.equals(type, spaceData.type) &&
-            Objects.equals(visibility, spaceData.visibility) &&
-            Objects.equals(priority, spaceData.priority) &&
-            Objects.equals(avatarUrl, spaceData.avatarUrl) &&
-            Objects.equals(bannerUrl, spaceData.bannerUrl) &&
-            Objects.equals(groupId, spaceData.groupId) &&
-            Objects.equals(url, spaceData.url) &&
-            Objects.equals(avatarLastUpdated, spaceData.avatarLastUpdated) &&
-            Objects.equals(bannerLastUpdated, spaceData.bannerLastUpdated) &&
-            Objects.equals(createdTime, spaceData.createdTime) &&
-            Arrays.equals(members, spaceData.members) &&
-            Arrays.equals(redactors, spaceData.redactors) &&
-            Arrays.equals(publishers, spaceData.publishers) &&
-            Arrays.equals(managers, spaceData.managers) &&
-            Arrays.equals(pendingUser, spaceData.pendingUser) &&
-            Arrays.equals(invitedUser, spaceData.invitedUser);
+           Objects.equals(prettyName, spaceData.prettyName)
+           &&
+           Objects.equals(displayName, spaceData.displayName)
+           &&
+           Objects.equals(registration, spaceData.registration)
+           &&
+           Objects.equals(description, spaceData.description)
+           &&
+           Objects.equals(templateId, spaceData.templateId)
+           &&
+           Objects.equals(visibility, spaceData.visibility)
+           &&
+           Objects.equals(avatarUrl, spaceData.avatarUrl)
+           &&
+           Objects.equals(bannerUrl, spaceData.bannerUrl)
+           &&
+           Objects.equals(groupId, spaceData.groupId)
+           &&
+           Objects.equals(url, spaceData.url)
+           &&
+           Objects.equals(avatarLastUpdated, spaceData.avatarLastUpdated)
+           &&
+           Objects.equals(bannerLastUpdated, spaceData.bannerLastUpdated)
+           &&
+           Objects.equals(createdTime, spaceData.createdTime)
+           &&
+           Arrays.equals(members, spaceData.members)
+           &&
+           Arrays.equals(redactors, spaceData.redactors)
+           &&
+           Arrays.equals(publishers, spaceData.publishers)
+           &&
+           Arrays.equals(managers, spaceData.managers)
+           &&
+           Arrays.equals(pendingUser, spaceData.pendingUser)
+           &&
+           Arrays.equals(invitedUser, spaceData.invitedUser);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, app, prettyName, displayName, registration, description, type, visibility,
-            priority, avatarUrl, bannerUrl, groupId, url, avatarLastUpdated, bannerLastUpdated, createdTime,
-            members, managers, redactors, publishers, pendingUser, invitedUser);
+    return Objects.hash(id,
+                        templateId,
+                        prettyName,
+                        displayName,
+                        registration,
+                        description,
+                        visibility,
+                        avatarUrl,
+                        bannerUrl,
+                        groupId,
+                        url,
+                        avatarLastUpdated,
+                        bannerLastUpdated,
+                        createdTime,
+                        members,
+                        managers,
+                        redactors,
+                        publishers,
+                        pendingUser,
+                        invitedUser);
   }
 }

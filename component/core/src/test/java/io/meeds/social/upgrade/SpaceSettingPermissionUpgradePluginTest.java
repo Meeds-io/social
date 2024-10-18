@@ -18,6 +18,9 @@
  */
 package io.meeds.social.upgrade;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.junit.Test;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
@@ -26,11 +29,15 @@ import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.portal.config.model.Container;
 import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.Utils;
 import org.exoplatform.portal.mop.dao.PageDAO;
 import org.exoplatform.portal.mop.dao.PageDAOImpl;
 import org.exoplatform.portal.mop.page.PageContext;
+import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.storage.cache.CachePageStorage;
 import org.exoplatform.services.cache.CacheService;
@@ -39,18 +46,22 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 @ConfiguredBy({
-  @ConfigurationUnit(scope = ContainerScope.ROOT,
-      path = "conf/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.ROOT,
-      path = "conf/exo.social.component.core-local-root-configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL,
-      path = "conf/portal/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL,
-      path = "conf/exo.social.component.core-local-configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL,
-      path = "conf/social.component.core-local-portal-configuration.xml"),
+                @ConfigurationUnit(scope = ContainerScope.ROOT,
+                                   path = "conf/configuration.xml"),
+                @ConfigurationUnit(scope = ContainerScope.ROOT,
+                                   path = "conf/exo.social.component.core-local-root-configuration.xml"),
+                @ConfigurationUnit(scope = ContainerScope.PORTAL,
+                                   path = "conf/portal/configuration.xml"),
+                @ConfigurationUnit(scope = ContainerScope.PORTAL,
+                                   path = "conf/exo.social.component.core-local-configuration.xml"),
+                @ConfigurationUnit(scope = ContainerScope.PORTAL,
+                                   path = "conf/social.component.core-local-portal-configuration.xml"),
+                @ConfigurationUnit(scope = ContainerScope.PORTAL,
+                                   path = "conf/exo.portal.component.portal-configuration-local.xml"),
 })
 public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
+
+  private static final String PAGE_NAME = "SpaceSettingPortlet";
 
   @Override
   protected void setUp() {
@@ -63,11 +74,40 @@ public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
     assertTrue(getContainer().getComponentInstanceOfType(PageDAO.class) instanceof PageDAOImpl);
 
     Space space = createSpace("spaceWithSettings", "root");
-    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    String[] accessPermissions = new String[] { "*:" + space.getGroupId() };
+    String managerPermission = "manager:" + space.getGroupId();
 
-    Page page = layoutService.getPage("group::" + space.getGroupId() + "::SpaceSettingPortlet");
+    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    PortalConfig spacePortalConfig = layoutService.getPortalConfig(SiteKey.group(space.getGroupId()));
+    if (spacePortalConfig == null) {
+      spacePortalConfig = new PortalConfig(PortalConfig.GROUP_TYPE, space.getGroupId());
+      spacePortalConfig.setAccessPermissions(accessPermissions);
+      spacePortalConfig.setEditPermission(managerPermission);
+      spacePortalConfig.setPortalLayout(new Container());
+      layoutService.create(spacePortalConfig);
+      restartTransaction();
+    }
+
+    Page page = layoutService.getPage(String.format("group::%s::%s", space.getGroupId(), PAGE_NAME));
+    if (page == null) {
+      page = new Page(PortalConfig.GROUP_TYPE, space.getGroupId(), PAGE_NAME);
+      spacePortalConfig.setAccessPermissions(accessPermissions);
+      spacePortalConfig.setEditPermission(managerPermission);
+      page.setChildren(new ArrayList<>());
+      layoutService.save(new PageContext(page.getPageKey(),
+                                         new PageState(PAGE_NAME,
+                                                       PAGE_NAME,
+                                                       false,
+                                                       null,
+                                                       Arrays.asList(accessPermissions),
+                                                       managerPermission)),
+                         page);
+      restartTransaction();
+      page = layoutService.getPage("group::" + space.getGroupId() + "::SpaceSettingPortlet");
+    }
+
     assertNotNull(page);
-    page.setAccessPermissions(new String[] { "*:" + space.getGroupId() });
+    page.setAccessPermissions(accessPermissions);
     layoutService.save(new PageContext(page.getPageKey(), Utils.toPageState(page)));
     getContainer().getComponentInstanceOfType(CacheService.class).getCacheInstance(CachePageStorage.PAGE_CACHE_NAME).clearCache();
     restartTransaction();
@@ -79,7 +119,7 @@ public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
     assertNotNull(page);
     assertNotNull(page.getAccessPermissions());
     assertEquals(1, page.getAccessPermissions().length);
-    assertEquals("manager:" + space.getGroupId(), page.getAccessPermissions()[0]);
+    assertEquals(managerPermission, page.getAccessPermissions()[0]);
   }
 
   private EntityManagerService getEntityManagerService() {
@@ -102,10 +142,8 @@ public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
     space.setGroupId("/spaces/" + space.getPrettyName());
     space.setRegistration(Space.OPEN);
     space.setDescription("description of space" + spaceName);
-    space.setTemplate("template");
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     String[] managers = new String[] { creator };
     String[] members = new String[] { creator };
     space.setManagers(managers);

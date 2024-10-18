@@ -25,114 +25,64 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
  * @author <a href="mailto:patrice.lamarque@exoplatform.com">Patrice Lamarque</a>
  * @version $Revision$
  */
-public abstract class SpaceListenerPlugin implements
-        SpaceLifeCycleListener {
+public abstract class SpaceListenerPlugin implements SpaceLifeCycleListener {
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void spaceCreated(SpaceLifeCycleEvent event) {
     // No default implementation
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void spaceRemoved(SpaceLifeCycleEvent event) {
     // No default implementation
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void applicationActivated(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void applicationAdded(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void applicationDeactivated(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void applicationRemoved(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void grantedLead(SpaceLifeCycleEvent event) {
     // No default implementation
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void joined(SpaceLifeCycleEvent event) {
     // No default implementation
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void left(SpaceLifeCycleEvent event) {
     // No default implementation
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void revokedLead(SpaceLifeCycleEvent event) {
     // No default implementation
   }
-  
-  /**
-   * {@inheritDoc}
-   */
+
+  @Override
   public void spaceRenamed(SpaceLifeCycleEvent event) {
     // No default implementation
   }
-  
-  /**
-   * {@inheritDoc}
-   */
+
+  @Override
   public void spaceDescriptionEdited(SpaceLifeCycleEvent event) {
     // No default implementation
   }
-  
-  /**
-   * {@inheritDoc}
-   */
+
+  @Override
   public void spaceAvatarEdited(SpaceLifeCycleEvent event) {
     // No default implementation
   }
-  
-  /**
-   * {@inheritDoc}
-   */
+
+  @Override
   public void addInvitedUser(SpaceLifeCycleEvent event) {
     // No default implementation
   }
-  
-  /**
-   * {@inheritDoc}
-   */
+
+  @Override
   public void addPendingUser(SpaceLifeCycleEvent event) {
     // No default implementation
   }
 
+  @Override
   public void removePendingUser(SpaceLifeCycleEvent event) {
     // No default implementation
   }

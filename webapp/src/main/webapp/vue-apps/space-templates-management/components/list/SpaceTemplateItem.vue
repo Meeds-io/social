@@ -25,14 +25,22 @@
       :width="$root.isMobile && '100%' || 'auto'"
       class="px-0">
       <div class="d-flex align-center">
-        <v-icon class="me-4">{{ icon }}</v-icon>
+        <v-card
+          class="d-flex align-center justify-center me-2"
+          width="36"
+          flat>
+          <v-icon size="20">{{ icon }}</v-icon>
+        </v-card>
         <div v-sanitized-html="name" class="text-truncate"></div>
       </div>
     </td>
     <!-- description -->
-    <td
-      v-if="!$root.isMobile"
-      v-sanitized-html="description"></td>
+    <td v-if="!$root.isMobile">
+      <div
+        v-sanitized-html="description"
+        class="text-truncate-3">
+      </div>
+    </td>
     <td
       v-if="!$root.isMobile"
       class="text-truncate text-center"

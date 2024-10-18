@@ -22,7 +22,6 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.impl.SpaceServiceImpl;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -345,9 +344,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/my_space_" + number);
     String[] managers = new String[] {"john"};
     String[] members = new String[] {};

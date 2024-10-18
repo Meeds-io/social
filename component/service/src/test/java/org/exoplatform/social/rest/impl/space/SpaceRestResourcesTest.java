@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,6 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.service.LayoutService;
@@ -23,7 +21,6 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -35,16 +32,13 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.core.space.spi.SpaceTemplateService;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.social.rest.impl.activity.ActivityRest;
-import org.exoplatform.social.rest.impl.spacetemplates.SpaceTemplatesRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
@@ -105,19 +99,9 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
                                                 imageThumbnailService,
                                                 securitySettingService);
     registry(spaceRestResources);
-
-    SpaceTemplatesRest spaceTemplatesRestResourcesV1 = new SpaceTemplatesRest(getContainer().getComponentInstanceOfType(SpaceTemplateService.class), getContainer().getComponentInstanceOfType(ConfigurationManager.class));
-    registry(spaceTemplatesRestResourcesV1);
   }
 
   public void tearDown() throws Exception {
-    // TODO
-    /*
-    for (ExoSocialActivity activity : tearDownActivitiesList) {
-      activityManager.deleteActivity(activity);
-    }
-    */
-
     super.tearDown();
     removeResource(spaceRestResources.getClass());
   }
@@ -470,7 +454,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     Space space = getSpaceInstance(1, user);
 
     String bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
-    assertTrue(bannerUrl.contains("spaceTemplates"));
+    assertThat(bannerUrl, containsString("default-image"));
 
     startSessionAs(user);
     ContainerResponse response = service("GET", bannerUrl, "", null, null);
@@ -554,7 +538,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertNotNull(spaceEntity);
-    assertThat(spaceEntity.getBannerUrl(), containsString("/spaceTemplates/"));
+    assertThat(spaceEntity.getBannerUrl(), containsString("default-image"));
   }
 
   public void testGetSpaceById() throws Exception {
@@ -818,10 +802,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space = this.spaceService.createSpace(space, creator);
     return space;
   }

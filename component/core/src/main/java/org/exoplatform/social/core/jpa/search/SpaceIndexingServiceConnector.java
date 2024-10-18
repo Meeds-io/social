@@ -83,6 +83,7 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     fields.put("description", htmlToText(space.getDescription()));
     fields.put("visibility", space.getVisibility());
     fields.put("registration", space.getRegistration());
+    fields.put("templateId", String.valueOf(space.getTemplateId()));
 
     Date createdDate = new Date(space.getCreatedTime());
 

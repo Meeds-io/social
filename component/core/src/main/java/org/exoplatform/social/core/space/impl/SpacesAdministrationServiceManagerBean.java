@@ -2,7 +2,6 @@ package org.exoplatform.social.core.space.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.exoplatform.management.annotations.Impact;
 import org.exoplatform.management.annotations.ImpactType;
@@ -38,8 +37,8 @@ public class SpacesAdministrationServiceManagerBean {
   public List<String> getSpaceManager() {
     return spacesAdministrationService.getSpacesAdministratorsMemberships()
                        .stream()
-                       .map(membership -> membership.toString())
-                       .collect(Collectors.toList());
+                       .map(MembershipEntry::toString)
+                       .toList();
   }
 
   /**
@@ -70,55 +69,7 @@ public class SpacesAdministrationServiceManagerBean {
     List<MembershipEntry> superManagersMemberships = spacesAdministrationService.getSpacesAdministratorsMemberships();
     List<MembershipEntry> updatedMemberships = superManagersMemberships.stream()
             .filter(m -> !m.toString().equals(permissionExpression))
-            .collect(Collectors.toList());
+            .toList();
     spacesAdministrationService.updateSpacesAdministratorsMemberships(updatedMemberships);
-  }
-  
-  /**
-   * Gets the list of permission expressions of space creators.
-   * See {@link SpacesAdministrationService#getSpacesCreatorsMemberships()}
-   * 
-   * @return {@link List} of type {@link String}
-   */
-  @Managed
-  @ManagedDescription("Get Spaces creators memberships")
-  @Impact(ImpactType.READ)
-  public List<String> getSpacesCreatorsMemberships() {
-    return spacesAdministrationService.getSpacesCreatorsMemberships()
-                       .stream()
-                       .map(membership -> membership.toString())
-                       .collect(Collectors.toList());
-  }
-  
-  /**
-   * Adds a membership in spaces creators
-   * 
-   * @param permissionExpression permission expression of type {@link String}
-   * 
-   */
-  @Managed
-  @ManagedDescription("Add Spaces creators membership")
-  @Impact(ImpactType.WRITE)
-  public void addSpacesCreatorsMembership(@ManagedDescription("Spaces creator membership") @ManagedName("permissionExpression") String permissionExpression) {
-    List<MembershipEntry> superCreatorsMemberships = new ArrayList<>(spacesAdministrationService.getSpacesCreatorsMemberships());
-    superCreatorsMemberships.add(MembershipEntry.parse(permissionExpression));
-    spacesAdministrationService.updateSpacesCreatorsMemberships(superCreatorsMemberships);
-  }
-  
-  /**
-   * Removes a membership in spaces creators
-   * 
-   * @param permissionExpression permission expression of type {@link String}
-   * 
-   */
-  @Managed
-  @ManagedDescription("Remove Spaces creators membership")
-  @Impact(ImpactType.WRITE)
-  public void removeSpacesCreatorsMembership(@ManagedDescription("Spaces creator membership") @ManagedName("permissionExpression") String permissionExpression) {
-    List<MembershipEntry> superCreatorsMemberships = spacesAdministrationService.getSpacesCreatorsMemberships();
-    List<MembershipEntry> updatedMemberships = superCreatorsMemberships.stream()
-            .filter(m -> !m.toString().equals(permissionExpression))
-            .collect(Collectors.toList());
-    spacesAdministrationService.updateSpacesCreatorsMemberships(updatedMemberships);
   }
 }

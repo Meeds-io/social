@@ -2,7 +2,6 @@ package org.exoplatform.social.notification;
 
 
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 
 import java.util.HashSet;
@@ -19,10 +18,8 @@ public class UtilsTestCase extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("new space ");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space");
     String[] managers = new String[] {rootIdentity.getRemoteId()};
     String[] members = new String[] { rootIdentity.getRemoteId(), demoIdentity.getRemoteId(), johnIdentity.getRemoteId() };

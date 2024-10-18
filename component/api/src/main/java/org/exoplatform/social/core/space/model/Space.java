@@ -35,66 +35,54 @@ public class Space implements CacheEntry {
   public static final String DEFAULT_SPACE_METADATA_OBJECT_TYPE = "space";
 
   /** The id. */
-  private String id;
+  private String             id;
 
   /** The display name. */
-  private String displayName;
+  private String             displayName;
 
   /** The group id. */
-  private String groupId;
+  private String             groupId;
 
   /** If the space has at least one binding. */
-  private boolean hasBindings;
-
-  /** The app. */
-  private String app;
+  private boolean            hasBindings;
 
   /** The parent. */
-  private String parent;
+  private String             parent;
 
   /** The description. */
-  private String description;
-
-  /** The tag. */
-  private String tag;
+  private String             description;
 
   /** The pending users. */
-  private String[] pendingUsers; 
-  
-  /** The invited users. */
-  private String[] invitedUsers;
+  private String[]           pendingUsers;
 
-  /** The template. */
-  private String template;
+  /** The invited users. */
+  private String[]           invitedUsers;
 
   @Getter
   @Setter
-  private long   templateId;
+  private long               templateId;
 
   /** The url. */
-  private String url;
+  private String             url;
 
   /** The visibility. */
-  private String visibility;
+  private String             visibility;
 
   /** The registration. */
-  private String registration;
-
-  /** The priority. */
-  private String priority;
+  private String             registration;
 
   /** The space avatar attachment. */
-  private AvatarAttachment avatarAttachment;
+  private AvatarAttachment   avatarAttachment;
 
   /** The space banner attachment. */
-  private BannerAttachment bannerAttachment;
+  private BannerAttachment   bannerAttachment;
 
   /** Created time. */
-  private long createdTime;
+  private long               createdTime;
 
   @Getter
   @Setter
-  private long cacheTime;
+  private long               cacheTime;
 
   @Getter
   @Setter
@@ -105,113 +93,92 @@ public class Space implements CacheEntry {
   private String             publicSiteVisibility;
 
   /** Last Updated time */
-  private long lastUpdatedTime;
+  private long               lastUpdatedTime;
+
   /**
    * The pretty name of space.
    *
    * @since 1.2.0-GA
    */
-  private String prettyName;
+  private String             prettyName;
 
   /**
    * The url of avatar.
    *
    * @since 1.2.0-GA
    */
-  private String avatarUrl;
+  private String             avatarUrl;
 
-  private String bannerUrl;
-  
-  /**
-   * The creator of space.
-   * 
-   * @since 1.2.0-GA
-   * @deprecated Use {@link managers} instead.
-   *             Will be removed by 1.2.8
-   */
-  @Deprecated
-  private String creator;
-  
+  private String             bannerUrl;
+
   /**
    * The editor of space.
    * 
    * @since 4.0.0.Alpha1
    */
-  private String editor;
-  
-  /** 
+  private String             editor;
+
+  /**
    * The managers of a space.
    * 
    * @since 1.2.0-GA
    */
-  private String[] managers;
-  
+  private String[]           managers;
+
   /**
    * The last updated time of avatar ( in millisecond)
    * 
    * @since 1.2.1
    */
-   private Long avatarLastUpdated;
+  private Long               avatarLastUpdated;
 
   /**
    * The last updated time of banner ( in millisecond)
    *
    * @since 1.2.1
    */
-  private Long bannerLastUpdated;
-  
+  private Long               bannerLastUpdated;
+
   /**
    * The members of a space.
    * 
    * @since 1.2.0-GA
    */
-  private String[] members;
-  
-  private String[] redactors;
-  
+  private String[]           members;
+
+  private String[]           redactors;
+
   /**
    * The publishers of a space.
-   * 
    */
-  private String[] publishers;
-  
+  private String[]           publishers;
+
   /** The Constant ACTIVE_STATUS. */
-  public final static String ACTIVE_STATUS = "active";
+  public static final String ACTIVE_STATUS                      = "active";
 
   /** The Constant DEACTIVE_STATUS. */
-  public final static String DEACTIVE_STATUS = "deactive";
+  public static final String DEACTIVE_STATUS                    = "deactive";
 
   /** The Constant INSTALL_STATUS. */
-  public final static String INSTALL_STATUS = "installed";
+  public static final String INSTALL_STATUS                     = "installed";
 
   /** The Constant PUBLIC. */
-  public final static String PUBLIC = "public";
+  public static final String PUBLIC                             = "public";
 
   /** The Constant PRIVATE. */
-  public final static String PRIVATE = "private";
+  public static final String PRIVATE                            = "private";
 
   /** The Constant HIDDEN. */
-  public final static String HIDDEN = "hidden";
+  public static final String HIDDEN                             = "hidden";
 
   /** The Constant OPEN. */
-  public final static String OPEN = "open";
+  public static final String OPEN                               = "open";
 
   /** The Constant VALIDATION. */
-  public final static String VALIDATION = "validation";
+  public static final String VALIDATION                         = "validation";
 
   /** The Constant CLOSED. */
-  public final static String CLOSED = "closed";
-
-  /** The Constant HIGH_PRIORITY. */
-  public final static String HIGH_PRIORITY = "1";
-
-  /** The Constant INTERMEDIATE_PRIORITY. */
-  public final static String INTERMEDIATE_PRIORITY = "2";
-
-  /** The Constant LOW_PRIORITY. */
-  public final static String LOW_PRIORITY = "3";
-  
-  public static final String CREATOR = "space_creator";
+  public static final String CLOSED                             = "closed";
 
   public void setLastUpdatedTime(long lastUpdatedTime) {
     this.lastUpdatedTime = lastUpdatedTime;
@@ -222,21 +189,20 @@ public class Space implements CacheEntry {
   }
 
   /** Types of updating of space. */
-  public static enum                UpdatedField 
-                                      {
-                                        DESCRIPTION(true);
-                                        
-                                        private boolean type;
-                                        
-                                        private UpdatedField(boolean type) {
-                                          this.type = type;
-                                        }
-                                        public boolean value() {
-                                          return this.type;
-                                        }
-                                        
-                                      };
-                                      
+  public enum UpdatedField {
+    DESCRIPTION(true);
+
+    private boolean type;
+
+    private UpdatedField(boolean type) {
+      this.type = type;
+    }
+
+    public boolean value() {
+      return this.type;
+    }
+  }
+
   private UpdatedField field;
 
   public UpdatedField getField() {
@@ -246,11 +212,6 @@ public class Space implements CacheEntry {
   public void setField(UpdatedField field) {
     this.field = field;
   }
-
-  /**
-   * Instantiates a new space.
-   */
-  public Space() {}
 
   /**
    * Sets the id.
@@ -289,16 +250,6 @@ public class Space implements CacheEntry {
   }
 
   /**
-   * Gets space name id for used as space url, space identity remote id.
-   *
-   * @return
-   * @deprecated use #getPrettyName() instead. To be removed at 1.3.x
-   */
-  public String getName() {
-    return getPrettyName();
-  }
-
-  /**
    * Sets the group id.
    *
    * @param groupId the new group id
@@ -315,7 +266,7 @@ public class Space implements CacheEntry {
   public String getGroupId() {
     return groupId;
   }
-  
+
   /**
    * Sets if the space is bound or not.
    * 
@@ -332,24 +283,6 @@ public class Space implements CacheEntry {
    */
   public boolean hasBindings() {
     return hasBindings;
-  }
-
-  /**
-   * Sets the app.
-   *
-   * @param app the new app
-   */
-  public void setApp(String app) {
-    this.app = app;
-  }
-
-  /**
-   * Gets the app.
-   *
-   * @return the app
-   */
-  public String getApp() {
-    return app;
   }
 
   /**
@@ -389,24 +322,6 @@ public class Space implements CacheEntry {
   }
 
   /**
-   * Sets the tag.
-   *
-   * @param tag the new tag
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
-
-  /**
-   * Gets the tag.
-   *
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
-
-  /**
    * Sets the pending users.
    *
    * @param pendingUsers the new pending users
@@ -443,51 +358,12 @@ public class Space implements CacheEntry {
   }
 
   /**
-   * Sets the type.
-   *
-   * @param type the new type
-   **@deprecated Use {@link #setTemplate(String)} instead
-   */
-  @Deprecated
-  public void setType(String type) {
-    this.template = type;
-  }
-
-  /**
-   * Sets the template.
-   *
-   * @param template the new template
-   */
-  public void setTemplate(String template) {
-    this.template = template;
-  }
-
-  /**
-   * Gets the type.
-   *
-   * @return the type
-   **@deprecated Use {@link #getTemplate()} instead
-   */
-  public String getType() {
-    return template;
-  }
-
-  /**
-   * Gets the template.
-   *
-   * @return the template
-   */
-  public String getTemplate() {
-    return template;
-  }
-
-  /**
    * Gets the short name.
    *
    * @return the short name
    */
   public String getShortName() {
-    return groupId.substring(groupId.lastIndexOf("/")+1);
+    return groupId.substring(groupId.lastIndexOf("/") + 1);
   }
 
   /**
@@ -549,32 +425,14 @@ public class Space implements CacheEntry {
   }
 
   /**
-   * Gets the priority.
-   *
-   * @return the priority
-   */
-  public String getPriority() {
-    return priority;
-  }
-
-  /**
-   * Sets the priority.
-   *
-   * @param priority the new priority
-   */
-  public void setPriority(String priority) {
-    this.priority = priority;
-  }
-
-  /**
    * Sets the space attachment.
    *
    * @param avatarAttachment the new space attachment
    */
   public void setAvatarAttachment(AvatarAttachment avatarAttachment) {
     this.avatarAttachment = avatarAttachment;
-    if(avatarAttachment != null) {
-    this.setAvatarLastUpdated(avatarAttachment.getLastModified());
+    if (avatarAttachment != null) {
+      this.setAvatarLastUpdated(avatarAttachment.getLastModified());
     } else {
       this.setAvatarLastUpdated(null);
       this.setAvatarUrl(null);
@@ -633,7 +491,8 @@ public class Space implements CacheEntry {
     return this.avatarUrl;
   }
 
-  /** Sets the url of avatar.
+  /**
+   * Sets the url of avatar.
    *
    * @param avatarUrl
    * @since 1.2.0-GA
@@ -650,31 +509,6 @@ public class Space implements CacheEntry {
     this.bannerUrl = bannerUrl;
   }
 
-  /**
-   * Gets the creator of a space.
-   *  
-   * @return
-   * @since 1.2.0-GA
-   * @deprecated Use {@link #getManagers()} instead.
-   *             Will be removed by 1.2.8
-   */
-  @Deprecated
-  public String getCreator() {
-    return creator;
-  }
-
-  /**
-   * Sets the creator of a space.
-   *  
-   * @since 1.2.0-GA
-   * @deprecated Use {@link #getManagers()} instead.
-   *             Will be removed by 1.2.8
-   */
-  @Deprecated
-  public void setCreator(String creator) {
-    this.creator = creator;
-  }
-  
   /**
    * Gets the editor of a space.
    * 
@@ -704,7 +538,7 @@ public class Space implements CacheEntry {
   public String[] getManagers() {
     return managers;
   }
-  
+
   /**
    * Sets the managers of a space.
    * 
@@ -732,7 +566,7 @@ public class Space implements CacheEntry {
   public void setMembers(String[] members) {
     this.members = members;
   }
-  
+
   /**
    * @return the redactors
    */
@@ -746,7 +580,7 @@ public class Space implements CacheEntry {
   public void setRedactors(String[] redactors) {
     this.redactors = redactors;
   }
-  
+
   /**
    * @return the publishers
    */
@@ -763,6 +597,7 @@ public class Space implements CacheEntry {
 
   /**
    * Gets the last updated time in milliseconds of avatar in a space
+   * 
    * @return {@link Void}
    * @since 1.2.1
    */
@@ -772,6 +607,7 @@ public class Space implements CacheEntry {
 
   /**
    * Sets the last updated time in milliseconds of avatar in a space
+   * 
    * @param avatarLastUpdatedTime
    * @since 1.2.1
    */
@@ -808,14 +644,14 @@ public class Space implements CacheEntry {
   }
 
   @Override
-  public boolean equals(Object obj){
+  public boolean equals(Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    Space other = (Space)obj;
+    Space other = (Space) obj;
     if (id == null) {
       if (other.id != null)
         return false;
