@@ -36,7 +36,6 @@ import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.relationship.model.Relationship;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -1011,10 +1010,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] {"demo"};

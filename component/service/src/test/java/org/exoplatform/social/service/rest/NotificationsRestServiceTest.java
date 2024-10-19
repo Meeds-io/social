@@ -31,7 +31,6 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class NotificationsRestServiceTest extends AbstractResourceTest {
 
-  private IdentityStorage identityStorage;
   private ActivityManagerImpl activityManager;
   private SpaceServiceImpl spaceService;
   
@@ -43,7 +42,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
+    IdentityStorage identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManagerImpl.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceServiceImpl.class);
     
@@ -335,14 +334,13 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     spaceService.deleteSpace(space.getId());
   }
   
-  private Space getSpaceInstance(int number) throws Exception {
+  private Space getSpaceInstance(int number) {
     Space space = new Space();
     space.setDisplayName("my_space_" + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/my_space_" + number);
     String[] managers = new String[] {"john"};
     String[] members = new String[] {};

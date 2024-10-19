@@ -29,7 +29,7 @@
   <artifactId>social-component-oauth-auth</artifactId>
   <packaging>jar</packaging>
 
-  <name>Meeds:: PLF:: Social Oauth authentication and authorization</name>
+  <name>Meeds:: PLF:: Social OAuth</name>
   <description>Oauth authentication and authorization services to integrate with social identity model</description>
   <properties>
     <exo.test.coverage.ratio>0.24</exo.test.coverage.ratio>

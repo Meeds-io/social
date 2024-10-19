@@ -47,29 +47,74 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
  */
 public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
 
-  private static final SpaceKey EMPTY_SPACE_KEY = new SpaceKey("0");
+  private static final SpaceKey                                                                    EMPTY_SPACE_KEY =
+                                                                                                                   new SpaceKey("0");
 
   /** Logger */
-  private static final Log LOG = ExoLogger.getLogger(CachedSpaceStorage.class);
+  private static final Log                                                                         LOG             =
+                                                                                                       ExoLogger.getLogger(CachedSpaceStorage.class);
 
-  private final ExoCache<SpaceKey, SpaceData> spaceCache;
-  private final ExoCache<SpaceKey, SpaceSimpleData> spaceSimpleCache;
-  private final ExoCache<SpaceRefKey, SpaceKey> spaceRefCache;
-  private final ExoCache<SpaceFilterKey, IntegerData> spacesCountCache;
-  private final ExoCache<SpaceKey, HashMap<Long, Long>> spacesCountByTemplateCache;
-  private final ExoCache<ListSpacesKey, ListSpacesData> spacesCache;
-  private final ExoCache<ListIdentitiesKey, ListIdentitiesData> identitiesCache;
+  private final ExoCache<SpaceKey, SpaceData>                                                      spaceCache;
 
-  private final FutureExoCache<SpaceKey, SpaceData, ServiceContext<SpaceData>> spaceFutureCache;
-  private final FutureExoCache<SpaceKey, SpaceSimpleData, ServiceContext<SpaceSimpleData>> spaceSimpleFutureCache;
-  private final FutureExoCache<SpaceRefKey, SpaceKey, ServiceContext<SpaceKey>> spaceRefFutureCache;
-  private final FutureExoCache<SpaceFilterKey, IntegerData, ServiceContext<IntegerData>> spacesCountFutureCache;
+  private final ExoCache<SpaceRefKey, SpaceKey>                                                    spaceRefCache;
+
+  private final ExoCache<SpaceFilterKey, IntegerData>                                              spacesCountCache;
+
+  private final ExoCache<SpaceKey, HashMap<Long, Long>>                                            spacesCountByTemplateCache;
+
+  private final ExoCache<ListSpacesKey, ListSpacesData>                                            spacesCache;
+
+  private final ExoCache<ListIdentitiesKey, ListIdentitiesData>                                    identitiesCache;
+
+  private final FutureExoCache<SpaceKey, SpaceData, ServiceContext<SpaceData>>                     spaceFutureCache;
+
+  private final FutureExoCache<SpaceRefKey, SpaceKey, ServiceContext<SpaceKey>>                    spaceRefFutureCache;
+
+  private final FutureExoCache<SpaceFilterKey, IntegerData, ServiceContext<IntegerData>>           spacesCountFutureCache;
+
   private final FutureExoCache<SpaceKey, HashMap<Long, Long>, ServiceContext<HashMap<Long, Long>>> spacesCountByTemplateFutureCache;
-  private final FutureExoCache<ListSpacesKey, ListSpacesData, ServiceContext<ListSpacesData>> spacesFutureCache;
 
-  private SocialStorageCacheService cacheService;
-  private CachedActivityStorage cachedActivityStorage;
-  private CachedIdentityStorage cachedIdentityStorage;
+  private final FutureExoCache<ListSpacesKey, ListSpacesData, ServiceContext<ListSpacesData>>      spacesFutureCache;
+
+  private SocialStorageCacheService                                                                cacheService;
+
+  private CachedActivityStorage                                                                    cachedActivityStorage;
+
+  private CachedIdentityStorage                                                                    cachedIdentityStorage;
+
+  public CachedSpaceStorage(SpaceDAO spaceDAO, // NOSONAR
+                            SpaceMemberDAO spaceMemberDAO,
+                            IdentityStorage identityStorage,
+                            IdentityDAO identityDAO,
+                            ActivityDAO activityDAO,
+                            SpaceExternalInvitationDAO spaceExternalInvitationDAO,
+                            SocialStorageCacheService cacheService,
+                            FavoriteService favoriteService,
+                            RemindPasswordTokenService remindPasswordTokenService) {
+    super(spaceDAO,
+          spaceMemberDAO,
+          identityStorage,
+          identityDAO,
+          activityDAO,
+          spaceExternalInvitationDAO,
+          favoriteService,
+          remindPasswordTokenService);
+    this.cacheService = cacheService;
+
+    this.spaceCache = cacheService.getSpaceCache();
+    this.spaceRefCache = cacheService.getSpaceRefCache();
+    this.spacesCountCache = cacheService.getSpacesCountCache();
+    this.spacesCache = cacheService.getSpacesCache();
+    this.identitiesCache = cacheService.getIdentitiesCache();
+    this.spacesCountByTemplateCache = cacheService.getSpacesCountByTemplateCache();
+
+    this.spaceFutureCache = CacheType.SPACE.createFutureCache(spaceCache);
+    this.spaceRefFutureCache = CacheType.SPACE_REF.createFutureCache(spaceRefCache);
+    this.spacesCountFutureCache = CacheType.SPACES_COUNT.createFutureCache(spacesCountCache);
+    this.spacesCountByTemplateFutureCache = CacheType.SPACES_COUNT_BY_TEMPLATE.createFutureCache(spacesCountByTemplateCache);
+    this.spacesFutureCache = CacheType.SPACES.createFutureCache(spacesCache);
+
+  }
 
   /**
    * Build the activity list from the caches Ids.
@@ -79,7 +124,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
    */
   private List<Space> buildSpaces(ListSpacesData data) {
 
-    List<Space> spaces = new ArrayList<Space>();
+    List<Space> spaces = new ArrayList<>();
     for (SpaceKey k : data.getIds()) {
       Space s = getSpaceById(k.getId());
       spaces.add(s);
@@ -87,7 +132,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     return spaces;
 
   }
-  
+
   private List<String> buildIds(ListSpacesData data) {
     if (data == null || data.getIds() == null) {
       return Collections.emptyList();
@@ -99,31 +144,6 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
       return identityIds;
     }
   }
-  
-  /**
-   * Build the activity list from the caches Ids.
-   *
-   * @param data ids
-   * @return activities
-   */
-  private List<Space> buildSimpleSpaces(ListSpacesData data) {
-
-    List<Space> spaces = new ArrayList<Space>();
-    for (SpaceKey k : data.getIds()) {
-      Space s = getSpaceSimpleById(k.getId());
-      spaces.add(s);
-    }
-    return spaces;
-
-  }
-
-  public CachedActivityStorage getCachedActivityStorage() {
-    if (cachedActivityStorage == null) {
-      cachedActivityStorage = (CachedActivityStorage)
-          PortalContainer.getInstance().getComponentInstanceOfType(CachedActivityStorage.class);
-    }
-    return cachedActivityStorage;
-  }
 
   /**
    * Get cached identity storage.
@@ -133,12 +153,12 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
    */
   public CachedIdentityStorage getCachedIdentityStorage() {
     if (cachedIdentityStorage == null) {
-      cachedIdentityStorage = (CachedIdentityStorage)
-          PortalContainer.getInstance().getComponentInstanceOfType(CachedIdentityStorage.class);
+      cachedIdentityStorage = PortalContainer.getInstance()
+                                             .getComponentInstanceOfType(CachedIdentityStorage.class);
     }
     return cachedIdentityStorage;
   }
-  
+
   /**
    * Build the ids from the space list.
    *
@@ -146,16 +166,14 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
    * @return ids
    */
   private ListSpacesData buildIds(List<Space> spaces) {
-
-    List<SpaceKey> data = new ArrayList<SpaceKey>();
+    List<SpaceKey> data = new ArrayList<>();
     for (Space s : spaces) {
       SpaceKey k = putSpaceInCacheIfNotExists(s);
       data.add(k);
     }
     return new ListSpacesData(data);
-
   }
-  
+
   /**
    * Build the ids from the space identity id list.
    *
@@ -163,146 +181,43 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
    * @return identities
    */
   private ListSpacesData buildListIdentityIds(List<String> identities) {
-
-    List<SpaceKey> data = new ArrayList<SpaceKey>();
+    List<SpaceKey> data = new ArrayList<>();
     for (String identityId : identities) {
       SpaceKey k = new SpaceKey(identityId);
       data.add(k);
     }
     return new ListSpacesData(data);
-
-  }
-  
-  /**
-   * Build the ids from the space briefing list.
-   *
-   * @param spaces briefing spaces
-   * @return ids
-   */
-  private ListSpacesData buildSimpleIds(List<Space> spaces) {
-
-    List<SpaceKey> data = new ArrayList<SpaceKey>();
-    for (Space s : spaces) {
-      SpaceKey k = putSpaceInCacheIfNotExists(s);
-      data.add(k);
-    }
-    return new ListSpacesData(data);
-
-  }
-
-  public CachedSpaceStorage(SpaceDAO spaceDAO,
-                            SpaceMemberDAO spaceMemberDAO,
-                            IdentityStorage identityStorage,
-                            IdentityDAO identityDAO,
-                            ActivityDAO activityDAO,
-                            SpaceExternalInvitationDAO spaceExternalInvitationDAO,
-                            SocialStorageCacheService cacheService,
-                            FavoriteService favoriteService,
-                            RemindPasswordTokenService remindPasswordTokenService) {
-    super(spaceDAO, spaceMemberDAO, identityStorage, identityDAO, activityDAO, spaceExternalInvitationDAO, favoriteService, remindPasswordTokenService);
-    this.cacheService = cacheService;
-
-    this.spaceCache = cacheService.getSpaceCache();
-    this.spaceSimpleCache = cacheService.getSpaceSimpleCache();
-    this.spaceRefCache = cacheService.getSpaceRefCache();
-    this.spacesCountCache = cacheService.getSpacesCountCache();
-    this.spacesCache = cacheService.getSpacesCache();
-    this.identitiesCache = cacheService.getIdentitiesCache();
-    this.spacesCountByTemplateCache = cacheService.getSpacesCountByTemplateCache();
-
-    this.spaceFutureCache = CacheType.SPACE.createFutureCache(spaceCache);
-    this.spaceSimpleFutureCache = CacheType.SPACE_SIMPLE.createFutureCache(spaceSimpleCache);
-    this.spaceRefFutureCache = CacheType.SPACE_REF.createFutureCache(spaceRefCache);
-    this.spacesCountFutureCache = CacheType.SPACES_COUNT.createFutureCache(spacesCountCache);
-    this.spacesCountByTemplateFutureCache = CacheType.SPACES_COUNT_BY_TEMPLATE.createFutureCache(spacesCountByTemplateCache);
-    this.spacesFutureCache = CacheType.SPACES.createFutureCache(spacesCache);
-
-  }
-
-  private void cleanRef(Space removed) {
-    if (removed == null) {
-      return;
-    }
-    spaceRefCache.remove(new SpaceRefKey(removed.getDisplayName()));
-    spaceRefCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
-    spaceRefCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
-    spaceRefCache.remove(new SpaceRefKey(null, null, null, removed.getUrl()));
-
-    spaceRefFutureCache.remove(new SpaceRefKey(removed.getDisplayName()));
-    spaceRefFutureCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
-    spaceRefFutureCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
-    spaceRefFutureCache.remove(new SpaceRefKey(null, null, null, removed.getUrl()));
-  }
-
-  void clearIdentityCache() {
-
-    try {
-      identitiesCache.select(new IdentityCacheSelector(SpaceIdentityProvider.NAME));
-    }
-    catch (Exception e) {
-      LOG.error("Error deleting cache entries of provider type 'Space Identities'", e);
-    }
-
-  }
-
-  void clearSpaceCache() {
-
-    try {
-      spacesCache.clearCache();
-      spacesCountCache.clearCache();
-      spacesCountByTemplateCache.clearCache();
-    }
-    catch (Exception e) {
-      LOG.error("Error deleting space caches", e);
-    }
-
   }
 
   @Override
   public Space getSpaceByDisplayName(final String spaceDisplayName) throws SpaceStorageException {
-
-    //
     SpaceRefKey refKey = new SpaceRefKey(spaceDisplayName);
-
-    //
-    SpaceKey key = spaceRefFutureCache.get(
-        new ServiceContext<SpaceKey>() {
-          public SpaceKey execute() {
-            Space space = CachedSpaceStorage.super.getSpaceByDisplayName(spaceDisplayName);
-            if (space != null) {
-              return putSpaceInCacheIfNotExists(space);
-            }
-            else {
-              return SpaceKey.NULL_OBJECT;
-            }
-          }
-        },
-        refKey);
-
-    //
+    SpaceKey key = spaceRefFutureCache.get(() -> {
+      Space space = CachedSpaceStorage.super.getSpaceByDisplayName(spaceDisplayName);
+      if (space != null) {
+        return putSpaceInCacheIfNotExists(space);
+      } else {
+        return SpaceKey.NULL_OBJECT;
+      }
+    }, refKey);
     if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
       return getSpaceById(key.getId());
-    }
-    else {
+    } else {
       return null;
     }
-
   }
 
   @Override
   public void saveSpace(final Space space, final boolean isNew) throws SpaceStorageException {
 
-    //
-    super.saveSpace(space, isNew);
-
-    
-    //
-    spaceSimpleCache.remove(new SpaceKey(space.getId()));
-    spaceCache.remove(new SpaceKey(space.getId()));
-    
-    clearSpaceCache();
-    clearIdentityCache();
-    cleanRef(space);
+    try {
+      super.saveSpace(space, isNew);
+    } finally {
+      spaceCache.remove(new SpaceKey(space.getId()));
+      clearSpaceCache();
+      clearIdentityCache();
+      cleanRef(space);
+    }
   }
 
   @Override
@@ -310,18 +225,18 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     String oldDisplayName = space.getDisplayName();
     String oldUrl = Utils.cleanString(oldDisplayName);
     String oldPrettyName = space.getPrettyName();
-    
+
     //
     super.renameSpace(space, newDisplayName);
 
-    //remove identity and profile from cache
+    // remove identity and profile from cache
     cachedIdentityStorage = this.getCachedIdentityStorage();
     Identity identitySpace = cachedIdentityStorage.findIdentity(SpaceIdentityProvider.NAME,
                                                                 space.getPrettyName());
     if (identitySpace == null) {
       identitySpace = cachedIdentityStorage.findIdentity(SpaceIdentityProvider.NAME, oldPrettyName);
     }
-    
+
     if (identitySpace != null) {
       cachedIdentityStorage.clearIdentityCached(identitySpace, oldPrettyName);
     }
@@ -340,7 +255,7 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     spaceRefCache.remove(new SpaceRefKey(null, null, space.getGroupId()));
     spaceRefCache.remove(new SpaceRefKey(null, null, null, oldUrl));
   }
-  
+
   @Override
   public void deleteSpace(final String id) throws SpaceStorageException {
 
@@ -360,15 +275,17 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
 
   @Override
   public void ignoreSpace(String spaceId, String userId) {
-    super.ignoreSpace(spaceId, userId);
-    spaceSimpleCache.remove(new SpaceKey(spaceId));
-    SpaceData spaceData = spaceCache.remove(new SpaceKey(spaceId));
-    if (spaceData != null) {
-      Space space = spaceData.build();
-      clearSpaceCache();
-      clearIdentityCache();
-      if (space != null) {
-        cleanRef(space);
+    try {
+      super.ignoreSpace(spaceId, userId);
+    } finally {
+      SpaceData spaceData = spaceCache.remove(new SpaceKey(spaceId));
+      if (spaceData != null) {
+        Space space = spaceData.build();
+        clearSpaceCache();
+        clearIdentityCache();
+        if (space != null) {
+          cleanRef(space);
+        }
       }
     }
   }
@@ -382,16 +299,16 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MANAGER);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
     ListSpacesData keys = spacesFutureCache.get(() -> {
-                                            if (limit == 0) {
-                                              return buildIds(Collections.emptyList());
-                                            }
-                                            List<Space> got = CachedSpaceStorage.super.getManagerSpacesByFilter(userId,
-                                                                                               spaceFilter,
-                                                                                               offset,
-                                                                                               limit);
-                                            return buildIds(got);
-                                          },
-                                          listKey);
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got = CachedSpaceStorage.super.getManagerSpacesByFilter(userId,
+                                                                          spaceFilter,
+                                                                          offset,
+                                                                          limit);
+      return buildIds(got);
+    },
+                                                listKey);
     return buildSpaces(keys);
 
   }
@@ -400,157 +317,121 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   public int getManagerSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MANAGER);
     return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getManagerSpacesByFilterCount(userId,
-                                                                                                             spaceFilter)),
-                                key)
-                           .build();
+                                                                                                                   spaceFilter)),
+                                      key)
+                                 .build();
   }
 
   @Override
   public int getMemberSpacesByFilterCount(final String userId, final SpaceFilter spaceFilter) {
-
-    //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MEMBER);
-
-    //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getMemberSpacesByFilterCount(userId, spaceFilter));
-          }
-        },
-        key)
-        .build();
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getMemberSpacesByFilterCount(userId,
+                                                                                                                  spaceFilter)),
+                                      key)
+                                 .build();
 
   }
 
   @Override
   public List<Space> getMemberSpacesByFilter(
-      final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
-
-    //
+                                             final String userId,
+                                             final SpaceFilter spaceFilter,
+                                             final long offset,
+                                             final long limit) {
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.MEMBER);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesFutureCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = CachedSpaceStorage.super.getMemberSpacesByFilter(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
-
-    //
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got =
+                      CachedSpaceStorage.super.getMemberSpacesByFilter(userId,
+                                                                       spaceFilter,
+                                                                       offset,
+                                                                       limit);
+      return buildIds(got);
+    }, listKey);
     return buildSpaces(keys);
-
   }
 
   @Override
   public int getPendingSpacesByFilterCount(final String userId, final SpaceFilter spaceFilter) {
-
-    //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.PENDING);
-
-    //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getPendingSpacesByFilterCount(userId, spaceFilter));
-          }
-        },
-        key)
-        .build();
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getPendingSpacesByFilterCount(userId,
+                                                                                                                   spaceFilter)),
+                                      key)
+                                 .build();
 
   }
 
   @Override
   public List<Space> getPendingSpacesByFilter(
-      final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
+                                              final String userId,
+                                              final SpaceFilter spaceFilter,
+                                              final long offset,
+                                              final long limit) {
 
     //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.PENDING);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
-    ListSpacesData keys = spacesFutureCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = CachedSpaceStorage.super.getPendingSpacesByFilter(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got =
+                      CachedSpaceStorage.super.getPendingSpacesByFilter(userId,
+                                                                        spaceFilter,
+                                                                        offset,
+                                                                        limit);
+      return buildIds(got);
+    }, listKey);
 
     //
-    return buildSpaces(keys);
-    
+    return
+
+    buildSpaces(keys);
+
   }
 
   @Override
   public int getInvitedSpacesByFilterCount(final String userId, final SpaceFilter spaceFilter) {
-
-    //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.INVITED);
-
-    //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getInvitedSpacesByFilterCount(userId, spaceFilter));
-          }
-        },
-        key)
-        .build();
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getInvitedSpacesByFilterCount(userId,
+                                                                                                                   spaceFilter)),
+                                      key)
+                                 .build();
 
   }
 
   @Override
-  public List<Space> getInvitedSpacesByFilter(final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
+  public List<Space> getInvitedSpacesByFilter(final String userId,
+                                              final SpaceFilter spaceFilter,
+                                              final long offset,
+                                              final long limit) {
 
     //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.INVITED);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
-    ListSpacesData keys = spacesFutureCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = CachedSpaceStorage.super.getInvitedSpacesByFilter(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got =
+                      CachedSpaceStorage.super.getInvitedSpacesByFilter(userId,
+                                                                        spaceFilter,
+                                                                        offset,
+                                                                        limit);
+      return buildIds(got);
+    }, listKey);
 
     //
-    return buildSpaces(keys);
-    
-  }
+    return
 
-  @Override
-  public int getPublicSpacesByFilterCount(final String userId, final SpaceFilter spaceFilter) {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.PUBLIC);
-
-    //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getPublicSpacesByFilterCount(userId, spaceFilter));
-          }
-        },
-        key)
-        .build();
+    buildSpaces(keys);
 
   }
 
@@ -560,15 +441,11 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.ACCESSIBLE);
 
     //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getAccessibleSpacesByFilterCount(userId, spaceFilter));
-          }
-        },
-        key)
-        .build();
-    
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getAccessibleSpacesByFilterCount(userId,
+                                                                                                                      spaceFilter)),
+                                      key)
+                                 .build();
+
   }
 
   @Override
@@ -576,125 +453,110 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.VISIBLE);
 
-    //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getVisibleSpacesCount(userId, spaceFilter));
-          }
-        },
-        key).build();
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getVisibleSpacesCount(userId,
+                                                                                                           spaceFilter)),
+                                      key)
+                                 .build();
   }
 
   @Override
   public List<Space> getAccessibleSpacesByFilter(
-      final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
+                                                 final String userId,
+                                                 final SpaceFilter spaceFilter,
+                                                 final long offset,
+                                                 final long limit) {
 
     //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.ACCESSIBLE);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
-    ListSpacesData keys = spacesFutureCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = CachedSpaceStorage.super.getAccessibleSpacesByFilter(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got =
+                      CachedSpaceStorage.super.getAccessibleSpacesByFilter(userId,
+                                                                           spaceFilter,
+                                                                           offset,
+                                                                           limit);
+      return buildIds(got);
+    }, listKey);
 
     //
-    return buildSpaces(keys);
+    return
+
+    buildSpaces(keys);
 
   }
 
   @Override
   public int getEditableSpacesByFilterCount(final String userId, final SpaceFilter spaceFilter) {
-
-    //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.EDITABLE);
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getEditableSpacesByFilterCount(userId,
+                                                                                                                    spaceFilter)),
+                                      key)
+                                 .build();
 
-    //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getEditableSpacesByFilterCount(userId, spaceFilter));
-          }
-        },
-        key)
-        .build();
-    
   }
 
   @Override
-  public List<Space> getEditableSpacesByFilter(
-      final String userId, final SpaceFilter spaceFilter, final long offset, final long limit) {
+  public List<Space> getEditableSpacesByFilter(String userId,
+                                               SpaceFilter spaceFilter,
+                                               long offset,
+                                               long limit) {
 
     //
     SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.EDITABLE);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
-    ListSpacesData keys = spacesFutureCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = CachedSpaceStorage.super.getEditableSpacesByFilter(userId, spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got =
+                      CachedSpaceStorage.super.getEditableSpacesByFilter(userId,
+                                                                         spaceFilter,
+                                                                         offset,
+                                                                         limit);
+      return buildIds(got);
+    }, listKey);
 
     //
-    return buildSpaces(keys);
+    return
+
+    buildSpaces(keys);
 
   }
 
   @Override
   public int getAllSpacesByFilterCount(final SpaceFilter spaceFilter) {
-    //
     SpaceFilterKey key = new SpaceFilterKey(null, spaceFilter, null);
-
-    //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getAllSpacesByFilterCount(spaceFilter));
-          }
-        },
-        key)
-        .build();
+    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getAllSpacesByFilterCount(spaceFilter)), key)
+                                 .build();
 
   }
 
   @Override
   public List<Space> getSpacesByFilter(final SpaceFilter spaceFilter, final long offset, final long limit) {
 
-    //
     SpaceFilterKey key = new SpaceFilterKey(spaceFilter == null ? null : spaceFilter.getRemoteId(), spaceFilter, null);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got = CachedSpaceStorage.super.getSpacesByFilter(spaceFilter,
+                                                                   offset,
+                                                                   limit);
+      return buildIds(got);
+    }, listKey);
 
     //
-    ListSpacesData keys = spacesFutureCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = CachedSpaceStorage.super.getSpacesByFilter(spaceFilter, offset, limit);
-            return buildIds(got);
-          }
-        },
-        listKey);
+    return
 
-    //
-    return buildSpaces(keys);
+    buildSpaces(keys);
 
   }
 
@@ -705,68 +567,22 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceKey key = new SpaceKey(id);
 
     //
-    SpaceData data = spaceFutureCache.get(
-        new ServiceContext<SpaceData>() {
-          public SpaceData execute() {
-            Space space = CachedSpaceStorage.super.getSpaceById(id);
-            if (space != null) {
-              putSpaceInCacheIfNotExists(space);
-              return new SpaceData(space);
-            }
-            else {
-              return null;
-            }
-          }
-        },
-        key);
+    SpaceData data = spaceFutureCache.get(() -> {
+      Space space = CachedSpaceStorage.super.getSpaceById(id);
+      if (space != null) {
+        putSpaceInCacheIfNotExists(space);
+        return new SpaceData(space);
+      } else {
+        return null;
+      }
+    }, key);
 
     if (data != null) {
       return data.build();
-    }
-    else {
+    } else {
       return null;
     }
-    
-  }
-  
-  @Override
-  public Space getSpaceSimpleById(final String id) throws SpaceStorageException {
 
-    //
-    SpaceKey key = new SpaceKey(id);
-
-    SpaceData data = spaceCache.get(key);
-    if (data != null) {
-      Space s = data.build();
-      if (spaceSimpleCache.get(key) == null) {
-        putSpaceInCacheIfNotExists(s);
-      }
-      
-      return s;
-      
-    }
-    //
-    SpaceSimpleData simpleData = spaceSimpleFutureCache.get(
-        new ServiceContext<SpaceSimpleData>() {
-          public SpaceSimpleData execute() {
-            Space space = CachedSpaceStorage.super.getSpaceSimpleById(id);
-            if (space != null) {
-              return new SpaceSimpleData(space);
-            }
-            else {
-              return null;
-            }
-          }
-        },
-        key);
-
-    if (simpleData != null) {
-      return simpleData.build();
-    }
-    else {
-      return null;
-    }
-    
   }
 
   @Override
@@ -776,25 +592,19 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceRefKey refKey = new SpaceRefKey(null, spacePrettyName);
 
     //
-    SpaceKey key = spaceRefFutureCache.get(
-        new ServiceContext<SpaceKey>() {
-          public SpaceKey execute() {
-            Space space = CachedSpaceStorage.super.getSpaceByPrettyName(spacePrettyName);
-            if (space != null) {
-              return putSpaceInCacheIfNotExists(space);
-            }
-            else {
-              return SpaceKey.NULL_OBJECT;
-            }
-          }
-        },
-        refKey);
+    SpaceKey key = spaceRefFutureCache.get(() -> {
+      Space space = CachedSpaceStorage.super.getSpaceByPrettyName(spacePrettyName);
+      if (space != null) {
+        return putSpaceInCacheIfNotExists(space);
+      } else {
+        return SpaceKey.NULL_OBJECT;
+      }
+    }, refKey);
 
     //
     if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
       return getSpaceById(key.getId());
-    }
-    else {
+    } else {
       return null;
     }
 
@@ -807,25 +617,19 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceRefKey refKey = new SpaceRefKey(null, null, groupId);
 
     //
-    SpaceKey key = spaceRefFutureCache.get(
-        new ServiceContext<SpaceKey>() {
-          public SpaceKey execute() {
-            Space space = CachedSpaceStorage.super.getSpaceByGroupId(groupId);
-            if (space != null) {
-              return putSpaceInCacheIfNotExists(space);
-            }
-            else {
-              return SpaceKey.NULL_OBJECT;
-            }
-          }
-        },
-        refKey);
+    SpaceKey key = spaceRefFutureCache.get(() -> {
+      Space space = CachedSpaceStorage.super.getSpaceByGroupId(groupId);
+      if (space != null) {
+        return putSpaceInCacheIfNotExists(space);
+      } else {
+        return SpaceKey.NULL_OBJECT;
+      }
+    }, refKey);
 
     //
     if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
       return getSpaceById(key.getId());
-    }
-    else {
+    } else {
       return null;
     }
 
@@ -838,33 +642,28 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceRefKey refKey = new SpaceRefKey(null, null, null, url);
 
     //
-    SpaceKey key = spaceRefFutureCache.get(
-        new ServiceContext<SpaceKey>() {
-          public SpaceKey execute() {
-            Space space = CachedSpaceStorage.super.getSpaceByUrl(url);
-            if (space != null) {
-              return putSpaceInCacheIfNotExists(space);
-            }
-            else {
-              return SpaceKey.NULL_OBJECT;
-            }
-          }
-        },
-        refKey);
+    SpaceKey key = spaceRefFutureCache.get(() -> {
+      Space space = CachedSpaceStorage.super.getSpaceByUrl(url);
+      if (space != null) {
+        return putSpaceInCacheIfNotExists(space);
+      } else {
+        return SpaceKey.NULL_OBJECT;
+      }
+    }, refKey);
 
     //
     if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
       return getSpaceById(key.getId());
-    }
-    else {
+    } else {
       return null;
     }
-    
+
   }
 
   @Override
   public void updateSpaceAccessed(String remoteId, Space space) throws SpaceStorageException {
-    // we remove all cache entries for the given userId and for space type LATEST_ACCESSED
+    // we remove all cache entries for the given userId and for space type
+    // LATEST_ACCESSED
     LastAccessedSpacesCacheSelector selector = new LastAccessedSpacesCacheSelector(remoteId, space, cacheService);
     try {
       // Update the storage only if the user has accessed a different space
@@ -874,74 +673,53 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
       spacesCache.select(selector);
     } catch (Exception e) {
       LOG.error("Error while removing cache entries for remoteId=" + remoteId + ", space=" + space.getDisplayName() +
-              " and type=" + SpaceType.LATEST_ACCESSED.name() + " or type=" + SpaceType.VISITED, e);
+          " and type=" + SpaceType.LATEST_ACCESSED.name() + " or type=" + SpaceType.VISITED, e);
     }
   }
 
   @Override
-  public List<Space> getLastAccessedSpace(final SpaceFilter filter, final int offset, final int limit) throws SpaceStorageException {
+  public List<Space> getLastAccessedSpace(final SpaceFilter filter,
+                                          final int offset,
+                                          final int limit) throws SpaceStorageException {
     //
     SpaceFilterKey key = new SpaceFilterKey(filter.getRemoteId(), filter, SpaceType.LATEST_ACCESSED);
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
-    ListSpacesData keys = spacesFutureCache.get(
-        new ServiceContext<ListSpacesData>() {
-          public ListSpacesData execute() {
-            if (limit == 0) {
-              return buildIds(Collections.emptyList());
-            }
-            List<Space> got = CachedSpaceStorage.super.getLastAccessedSpace(filter, offset, limit);
-            return buildSimpleIds(got);
-          }
-        },
-        listKey);
-
-    //
-    return buildSimpleSpaces(keys);
-  }
-
-  public List<Space> getLastSpaces(final int limit) {
-     SpaceFilter filter = new SpaceFilter();
-     filter.setSorting(new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC));
-
-     SpaceFilterKey key = new SpaceFilterKey(null, filter, null);
-     ListSpacesKey listKey = new ListSpacesKey(key, 0, limit);
-
-     //
-     ListSpacesData keys = spacesFutureCache.get(
-         new ServiceContext<ListSpacesData>() {
-           public ListSpacesData execute() {
-             if (limit == 0) {
-               return buildIds(Collections.emptyList());
-             }
-             List<Space> got = CachedSpaceStorage.super.getLastSpaces(limit);
-             return buildIds(got);
-           }
-         },
-         listKey);
-
-     //
-     return buildSimpleSpaces(keys);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got = CachedSpaceStorage.super.getLastAccessedSpace(filter,
+                                                                      offset,
+                                                                      limit);
+      return buildIds(got);
+    }, listKey);
+    return buildSpaces(keys);
   }
 
   @Override
-  public int getNumberOfMemberPublicSpaces(final String userId) {
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, null, SpaceType.PUBLIC);
+  public List<Space> getLastSpaces(final int limit) {
+    SpaceFilter filter = new SpaceFilter();
+    filter.setSorting(new Sorting(Sorting.SortBy.DATE, Sorting.OrderBy.DESC));
+
+    SpaceFilterKey key = new SpaceFilterKey(null, filter, null);
+    ListSpacesKey listKey = new ListSpacesKey(key, 0, limit);
 
     //
-    return spacesCountFutureCache.get(
-        new ServiceContext<IntegerData>() {
-          public IntegerData execute() {
-            return new IntegerData(CachedSpaceStorage.super.getNumberOfMemberPublicSpaces(userId));
-          }
-        },
-        key)
-        .build();
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
+      }
+      List<Space> got = CachedSpaceStorage.super.getLastSpaces(limit);
+      return buildIds(got);
+    },
+                                                listKey);
 
+    //
+    return buildSpaces(keys);
   }
-  
+
   @Override
   public List<Space> getVisitedSpaces(final SpaceFilter filter, final int offset, final int limit) throws SpaceStorageException {
     //
@@ -949,14 +727,12 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
 
     //
-    ListSpacesData keys = spacesFutureCache.get(new ServiceContext<ListSpacesData>() {
-      public ListSpacesData execute() {
-        if (limit == 0) {
-          return buildIds(Collections.emptyList());
-        }
-        List<Space> got = CachedSpaceStorage.super.getVisitedSpaces(filter, offset, limit);
-        return buildIds(got);
+    ListSpacesData keys = spacesFutureCache.get(() -> {
+      if (limit == 0) {
+        return buildIds(Collections.emptyList());
       }
+      List<Space> got = CachedSpaceStorage.super.getVisitedSpaces(filter, offset, limit);
+      return buildIds(got);
     }, listKey);
 
     //
@@ -1017,7 +793,6 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
     SpaceData cachedSpace = spaceCache.get(cacheKey);
     if (cachedSpace != null) {
       Space space = cachedSpace.build();
-      spaceSimpleCache.remove(cacheKey);
       spaceCache.remove(cacheKey);
       cleanRef(space);
     }
@@ -1027,7 +802,6 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
 
   public void clearCaches() {
     spaceCache.clearCache();
-    spaceSimpleCache.clearCache();
     spacesCountCache.clearCache();
     spacesCountByTemplateCache.clearCache();
     spacesCache.clearCache();
@@ -1037,28 +811,67 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {
     SpaceKey key = new SpaceKey(space.getId());
-    if(spaceCache.get(key) == null) {
+    if (spaceCache.get(key) == null) {
       spaceCache.putLocal(key, new SpaceData(space));
-      spaceSimpleCache.putLocal(key, new SpaceSimpleData(space));
     }
     SpaceRefKey refKey = new SpaceRefKey(space.getDisplayName(), null, null, null);
-    if(spaceRefCache.get(refKey) == null) {
+    if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
     refKey = new SpaceRefKey(null, null, space.getGroupId(), null);
-    if(spaceRefCache.get(refKey) == null) {
+    if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
     refKey = new SpaceRefKey(null, space.getPrettyName(), null, null);
-    if(spaceRefCache.get(refKey) == null) {
+    if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
     refKey = new SpaceRefKey(null, null, null, space.getUrl());
-    if(spaceRefCache.get(refKey) == null) {
+    if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
     return key;
   }
 
-}
+  private CachedActivityStorage getCachedActivityStorage() {
+    if (cachedActivityStorage == null) {
+      cachedActivityStorage = PortalContainer.getInstance()
+                                             .getComponentInstanceOfType(CachedActivityStorage.class);
+    }
+    return cachedActivityStorage;
+  }
 
+  private void cleanRef(Space removed) {
+    if (removed == null) {
+      return;
+    }
+    spaceRefCache.remove(new SpaceRefKey(removed.getDisplayName()));
+    spaceRefCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
+    spaceRefCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
+    spaceRefCache.remove(new SpaceRefKey(null, null, null, removed.getUrl()));
+
+    spaceRefFutureCache.remove(new SpaceRefKey(removed.getDisplayName()));
+    spaceRefFutureCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
+    spaceRefFutureCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
+    spaceRefFutureCache.remove(new SpaceRefKey(null, null, null, removed.getUrl()));
+  }
+
+  private void clearIdentityCache() {
+    try {
+      identitiesCache.select(new IdentityCacheSelector(SpaceIdentityProvider.NAME));
+    } catch (Exception e) {
+      LOG.error("Error deleting cache entries of provider type 'Space Identities'", e);
+    }
+  }
+
+  private void clearSpaceCache() {
+    try {
+      spacesCache.clearCache();
+      spacesCountCache.clearCache();
+      spacesCountByTemplateCache.clearCache();
+    } catch (Exception e) {
+      LOG.error("Error deleting space caches", e);
+    }
+  }
+
+}

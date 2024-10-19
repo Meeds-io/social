@@ -26,20 +26,20 @@ import java.util.Set;
 
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
-import org.exoplatform.social.core.jpa.storage.entity.AppEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
-import io.meeds.social.space.constant.Priority;
 import io.meeds.social.space.constant.Registration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.Visibility;
 
 public class SpaceDAOTest extends BaseCoreTest {
-  private SpaceDAO spaceDAO;
+  private SpaceDAO    spaceDAO;
+
   private ActivityDAO activityDao;
+
   private IdentityDAO identityDAO;
 
   @Override
@@ -56,7 +56,7 @@ public class SpaceDAOTest extends BaseCoreTest {
     super.tearDown();
   }
 
-  public void testSaveSpace() throws Exception {
+  public void testSaveSpace() {
     SpaceEntity spaceEntity = createSpace("testPrettyName");
 
     spaceDAO.create(spaceEntity);
@@ -68,7 +68,7 @@ public class SpaceDAOTest extends BaseCoreTest {
     assertSpace(spaceEntity, result);
   }
 
-  public void testGetSpace() throws Exception {
+  public void testGetSpace() {
     SpaceEntity spaceEntity = createSpace("testPrettyName");
 
     spaceDAO.create(spaceEntity);
@@ -78,38 +78,36 @@ public class SpaceDAOTest extends BaseCoreTest {
 
     SpaceEntity result = spaceDAO.getSpaceByDisplayName(spaceEntity.getDisplayName());
     assertSpace(spaceEntity, result);
-    
+
     result = spaceDAO.getSpaceByGroupId(spaceEntity.getGroupId());
     assertSpace(spaceEntity, result);
-    
+
     result = spaceDAO.getSpaceByPrettyName(spaceEntity.getPrettyName());
     assertSpace(spaceEntity, result);
-    
+
     result = spaceDAO.getSpaceByURL(spaceEntity.getUrl());
     assertSpace(spaceEntity, result);
   }
-  
-  public void testGetLastSpace() throws Exception {
+
+  public void testGetLastSpace() {
     SpaceEntity space2 = createSpace("testPrettyName2");
     spaceDAO.create(space2);
 
     end();
     begin();
-    
+
     List<Long> result = spaceDAO.getLastSpaces(1);
     assertEquals(1, result.size());
     assertEquals(space2.getId(), result.iterator().next());
   }
 
   private SpaceEntity createSpace(String spacePrettyName) {
-    SpaceEntity spaceEntity = new SpaceEntity();    
-    spaceEntity.setApp(createApp());
+    SpaceEntity spaceEntity = new SpaceEntity();
     spaceEntity.setAvatarLastUpdated(new Date());
     spaceEntity.setDescription("testDesc");
     spaceEntity.setDisplayName("testDisplayName");
     spaceEntity.setGroupId("testGroupId");
     spaceEntity.setPrettyName(spacePrettyName);
-    spaceEntity.setPriority(Priority.HIGH);
     spaceEntity.setRegistration(Registration.OPEN);
     spaceEntity.setUrl("testUrl");
     spaceEntity.setVisibility(Visibility.PRIVATE);
@@ -128,30 +126,12 @@ public class SpaceDAOTest extends BaseCoreTest {
     spaceEntity.getMembers().add(mem);
   }
 
-  private Set<AppEntity> createApp() {
-    Set<AppEntity> apps = new HashSet<>();
-    AppEntity app = new AppEntity();
-    app.setAppId("appId");
-    app.setAppName("appName");
-    app.setRemovable(true);
-    app.setStatus(AppEntity.Status.ACTIVE);
-    apps.add(app);
-    return apps;
-  }
-
   private void assertSpace(SpaceEntity spaceEntity, SpaceEntity result) {
     assertNotNull(result);
     assertEquals(spaceEntity.getPrettyName(), result.getPrettyName());
-    assertEquals(1, result.getApp().size());
-    AppEntity appEx = spaceEntity.getApp().iterator().next();
-    AppEntity app = result.getApp().iterator().next();
-    assertEquals(appEx, app);
-    assertEquals(appEx.isRemovable(), app.isRemovable());
-    assertEquals(appEx.getStatus(), app.getStatus());
     assertEquals(spaceEntity.getDescription(), result.getDescription());
     assertEquals(spaceEntity.getDisplayName(), result.getDisplayName());
     assertEquals(spaceEntity.getGroupId(), result.getGroupId());
-    assertEquals(spaceEntity.getPriority(), result.getPriority());
     assertEquals(spaceEntity.getRegistration(), result.getRegistration());
     assertEquals(spaceEntity.getUrl(), result.getUrl());
     assertEquals(spaceEntity.getUrl(), result.getUrl());
@@ -162,7 +142,7 @@ public class SpaceDAOTest extends BaseCoreTest {
     assertEquals(1, result.getMembers().size());
   }
 
-  public void testSaveActivity() throws Exception {
+  public void testSaveActivity() {
     String activityTitle = "activity title";
     String commentTitle = "Comment title";
 
@@ -174,11 +154,10 @@ public class SpaceDAOTest extends BaseCoreTest {
 
     IdentityEntity spaceIdentity = identityDAO.create(createIdentity(SpaceIdentityProvider.NAME, spaceEntity.getPrettyName()));
 
-
     end();
     begin();
 
-    Set<Long> activityIds = new HashSet<Long>();
+    Set<Long> activityIds = new HashSet<>();
     for (int i = 0; i < 15; i++) {
       ActivityEntity activity = createActivityInstance(activityTitle, maryIdentity.getId());
       activity = createActivity(spaceIdentity, activity);
@@ -187,7 +166,7 @@ public class SpaceDAOTest extends BaseCoreTest {
       ActivityEntity got = activityDao.find(activityId);
       assertNotNull(got);
       addCommentsLikersMentionners(activity, commentTitle);
-      activity = activityDao.update(activity);
+      activityDao.update(activity);
     }
 
     end();
@@ -208,7 +187,7 @@ public class SpaceDAOTest extends BaseCoreTest {
     activity.addLiker(johnIdentity.getId());
     activity.addLiker(maryIdentity.getId());
 
-    Set<String> mentionners = new HashSet<String>();
+    Set<String> mentionners = new HashSet<>();
     mentionners.add(demoIdentity.getId());
     mentionners.add(johnIdentity.getId());
     mentionners.add(maryIdentity.getId());
@@ -227,7 +206,7 @@ public class SpaceDAOTest extends BaseCoreTest {
   private ActivityEntity createActivityInstance(String activityTitle, String posterId) {
     ActivityEntity activity = new ActivityEntity();
     // test for reserving order of map values for i18n activity
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    Map<String, String> templateParams = new LinkedHashMap<>();
     templateParams.put("key1", "value 1");
     templateParams.put("key2", "value 2");
     templateParams.put("key3", "value 3");

@@ -5,9 +5,7 @@ import java.util.List;
 import jakarta.persistence.TypedQuery;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportUserDAO;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportUserEntity;
 
 public class GroupSpaceBindingReportUserDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportUserEntity, Long>

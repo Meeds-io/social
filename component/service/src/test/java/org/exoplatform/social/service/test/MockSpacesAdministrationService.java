@@ -15,8 +15,6 @@ public class MockSpacesAdministrationService implements SpacesAdministrationServ
 
   private List<MembershipEntry> spacesAdministrators = new ArrayList<>();
 
-  private List<MembershipEntry> spacesCreators       = new ArrayList<>();
-
   @Override
   public List<MembershipEntry> getSpacesAdministratorsMemberships() {
     return spacesAdministrators;
@@ -29,27 +27,6 @@ public class MockSpacesAdministrationService implements SpacesAdministrationServ
     } else {
       spacesAdministrators.clear();
     }
-  }
-
-  @Override
-  public List<MembershipEntry> getSpacesCreatorsMemberships() {
-    return spacesCreators;
-  }
-
-  @Override
-  public void updateSpacesCreatorsMemberships(List<MembershipEntry> permissionsExpressions) {
-    if (permissionsExpressions != null) {
-      spacesCreators = new ArrayList<>(permissionsExpressions);
-    } else {
-      spacesCreators.clear();
-    }
-  }
-
-  @Override
-  public boolean canCreateSpace(String username) {
-    return StringUtils.isNotBlank(username)
-           && !IdentityConstants.ANONIM.equals(username)
-           && !IdentityConstants.SYSTEM.equals(username);
   }
 
   @Override

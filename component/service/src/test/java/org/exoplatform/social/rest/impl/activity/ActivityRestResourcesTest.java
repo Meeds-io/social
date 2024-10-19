@@ -202,7 +202,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(2, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
     activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     assertEquals("mary activity1", activityEntity.getTitle());
 
@@ -221,7 +221,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(2, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
 
     // Get favorite activities
     Favorite favoriteActivity = new Favorite(ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE,
@@ -265,7 +265,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(4, collections.getEntities().size());
+    assertEquals(3, collections.getEntities().size());
 
     // Get space favorite activities
     response =
@@ -293,12 +293,12 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(2, collections.getEntities().size());
 
     // without filter
-    response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
+    response = service("GET", getURLResource("activities?limit=3&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(5, collections.getEntities().size());
+    assertEquals(3, collections.getEntities().size());
   }
 
   public void testGetActivity() throws Exception {
@@ -465,7 +465,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity activitiesCollections = (CollectionEntity) response.getEntity();
-    assertEquals(6, activitiesCollections.getEntities().size());
+    assertEquals(5, activitiesCollections.getEntities().size());
 
     //root posts another activity
     String input = "{\"title\":title6}";
@@ -474,7 +474,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
-    assertEquals(7, listAccess.getSize());
+    assertEquals(6, listAccess.getSize());
     ExoSocialActivity activity = listAccess.load(0, 10)[0];
     assertEquals("title6", activity.getTitle());
   }
@@ -1149,7 +1149,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesOfSpaceWithListAccess(shareTargetSpaceIdentity);
-    assertEquals(2, listAccess.getSize());
+    assertEquals(1, listAccess.getSize());
     ExoSocialActivity activity = listAccess.load(0, 10)[0];
     assertEquals("shared default activity", activity.getTitle());
   }
@@ -1441,7 +1441,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setDescription("add new space " + prettyName);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     this.spaceService.createSpace(space, creator);
     return space;
   }
@@ -1454,7 +1453,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setDescription("add new space " + prettyName);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setMembers(members);
     this.spaceService.createSpace(space, creator);
     return space;
@@ -1469,7 +1467,6 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setDescription("add new space " + number);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space = this.spaceService.createSpace(space, creator);
     restartTransaction();
     return space;
@@ -1494,9 +1491,9 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(5, collections.getEntities().size());
+    assertEquals(4, collections.getEntities().size());
     OutputHeadersMap outputHeadersMap = (OutputHeadersMap) response.getHttpHeaders();
-    assertEquals(5, outputHeadersMap.get("Link").size());
+    assertEquals(4, outputHeadersMap.get("Link").size());
     //
     for (int i = 5; i < 52; i++) {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
@@ -1527,15 +1524,15 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(52, collections.getEntities().size());
+    assertEquals(51, collections.getEntities().size());
     outputHeadersMap = (OutputHeadersMap) response.getHttpHeaders();
     assertEquals(4, outputHeadersMap.size());
     /* Activity ids list length is 52
      Max to preload is 10
      Preload limit is limit / 2 = 60
      Offset is Preload limit - max to preload = 50
-     Expected: 2 links  */
-    assertEquals(2, outputHeadersMap.get("Link").size());
+     Expected: 1 links  */
+    assertEquals(1, outputHeadersMap.get("Link").size());
   }
 
 }
