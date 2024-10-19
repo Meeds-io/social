@@ -23,7 +23,6 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.attachment.AttachmentServiceTest;
-import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingServiceTest;
 import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest;
 import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnectorTest;
@@ -37,7 +36,6 @@ import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImplTest;
 import org.exoplatform.social.core.jpa.storage.RDBMSRelationshipManagerTest;
 import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageTest;
 import org.exoplatform.social.core.jpa.storage.RelationshipStorageTest;
-import org.exoplatform.social.core.jpa.storage.SpaceActivityRDBMSPublisherTest;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.ProfileLabelDAOTest;
@@ -65,7 +63,6 @@ import org.exoplatform.social.core.service.ProfileLabelServiceTest;
 import org.exoplatform.social.core.space.SpaceLifeCycleTest;
 import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
-import org.exoplatform.social.core.space.spi.SpaceTemplateServiceTest;
 import org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImplTest;
 import org.exoplatform.social.core.utils.MentionUtilsTest;
 import org.exoplatform.social.metadata.MetadataServiceTest;
@@ -86,7 +83,6 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   IdentityDAOTest.class,
   StreamItemDAOTest.class,
   ActivityManagerRDBMSTest.class,
-  SpaceActivityRDBMSPublisherTest.class,
   RelationshipStorageTest.class,
   RDBMSRelationshipManagerTest.class,
   IdentityStorageTest.class,
@@ -107,12 +103,10 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   SpaceServiceTest.class,
   RelationshipManagerTest.class,
   SpaceUtilsTest.class,
-  SpaceActivityPublisherTest.class,
   SpaceLifeCycleTest.class,
   OSHtmlSanitizerProcessorTest.class,
   TemplateParamsProcessorTest.class,
   LinkProviderTest.class,
-  SpaceTemplateServiceTest.class,
   SortingTest.class,
   GroupSpaceBindingServiceTest.class,
   RDBMSGroupSpaceBindingStorageTest.class,

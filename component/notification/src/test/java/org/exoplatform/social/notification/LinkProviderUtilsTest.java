@@ -135,7 +135,6 @@ public class LinkProviderUtilsTest extends AbstractCoreTest {
     String openUrl1 = LinkProviderUtils.getOpenLink(comment1);
     assertEquals(expected, openUrl1);
 
-    //case 2: comment created by AnswersSpaceActivityPublisher
     ExoSocialActivity comment2 = new ExoSocialActivityImpl();
     comment2.setTitle("comment2");
     comment2.setType("ks-answer:spaces");

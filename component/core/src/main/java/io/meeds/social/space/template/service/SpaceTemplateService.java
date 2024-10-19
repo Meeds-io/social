@@ -25,7 +25,6 @@ import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -48,22 +47,29 @@ import io.meeds.social.translation.service.TranslationService;
 @Service
 public class SpaceTemplateService {
 
-  private static final Log              LOG = ExoLogger.getLogger(SpaceTemplateService.class);
+  private static final Log            LOG = ExoLogger.getLogger(SpaceTemplateService.class);
 
-  @Autowired
-  protected TranslationService          translationService;
+  private TranslationService          translationService;
 
-  @Autowired
-  protected AttachmentService           attachmentService;
+  private AttachmentService           attachmentService;
 
-  @Autowired
-  protected SpacesAdministrationService spacesAdministrationService;
+  private SpacesAdministrationService spacesAdministrationService;
 
-  @Autowired
-  protected UserACL                     userAcl;
+  private UserACL                     userAcl;
 
-  @Autowired
-  protected SpaceTemplateStorage        spaceTemplateStorage;
+  private SpaceTemplateStorage        spaceTemplateStorage;
+
+  public SpaceTemplateService(TranslationService translationService,
+                              AttachmentService attachmentService,
+                              SpacesAdministrationService spacesAdministrationService,
+                              UserACL userAcl,
+                              SpaceTemplateStorage spaceTemplateStorage) {
+    this.translationService = translationService;
+    this.attachmentService = attachmentService;
+    this.spacesAdministrationService = spacesAdministrationService;
+    this.userAcl = userAcl;
+    this.spaceTemplateStorage = spaceTemplateStorage;
+  }
 
   public List<SpaceTemplate> getSpaceTemplates() {
     return getSpaceTemplates(null, Pageable.unpaged(), false);
@@ -106,7 +112,7 @@ public class SpaceTemplateService {
     if (spaceTemplate == null) {
       return null;
     }
-    if (!canViewTemplate(templateId, username)) {
+    if (!canViewTemplate(spaceTemplate, username)) {
       throw new IllegalAccessException();
     }
     if (expand) {
@@ -120,18 +126,18 @@ public class SpaceTemplateService {
   }
 
   public boolean canViewTemplate(long templateId, String username) {
-    if (canManageTemplates(username)) {
-      return true;
-    } else if (userAcl.isAnonymousUser(username)) {
-      return false;
-    }
     SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
-    Identity aclIdentity = userAcl.getUserIdentity(username);
-    return spaceTemplate != null
-           && aclIdentity != null
-           && spaceTemplate.getPermissions()
-                           .stream()
-                           .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
+    return canViewTemplate(spaceTemplate, username);
+  }
+
+  public boolean canCreateSpace(long templateId, String username) {
+    return canViewTemplate(templateId, username);
+  }
+
+  public boolean canCreateSpace(String username) {
+    return spaceTemplateStorage.getEnabledSpaceTemplates(Pageable.unpaged())
+                               .stream()
+                               .anyMatch(t -> canViewTemplate(t, username));
   }
 
   public SpaceTemplate createSpaceTemplate(SpaceTemplate spaceTemplate, String username) throws IllegalAccessException {
@@ -215,6 +221,19 @@ public class SpaceTemplateService {
 
   private MembershipEntry getMembershipEntry(String expression) {
     return expression.contains(":") ? MembershipEntry.parse(expression) : new MembershipEntry(expression);
+  }
+
+  private boolean canViewTemplate(SpaceTemplate spaceTemplate, String username) {
+    if (spaceTemplate == null || userAcl.isAnonymousUser(username)) {
+      return false;
+    } else if (canManageTemplates(username)) {
+      return true;
+    }
+    Identity aclIdentity = userAcl.getUserIdentity(username);
+    return aclIdentity != null
+           && spaceTemplate.getPermissions()
+                           .stream()
+                           .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
   }
 
 }
