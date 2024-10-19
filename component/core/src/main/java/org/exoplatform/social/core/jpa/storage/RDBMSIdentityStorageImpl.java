@@ -625,7 +625,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
    * @since 4.0.0.Alpha1
    */
   public String getProfileActivityId(Profile profile, Profile.AttachedActivityType type) {
-    String t = "SPACE_ACTIVITY";
+    String t = null;
     if (type == Profile.AttachedActivityType.USER) {
       t = "USER_PROFILE_ACTIVITY";
     } else if (type == Profile.AttachedActivityType.RELATIONSHIP) {

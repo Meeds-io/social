@@ -106,26 +106,9 @@
 
   <portlet-skin>
     <application-name>social</application-name>
-    <portlet-name>SpaceMenuPortlet</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/SpaceHeader/Style.css</css-path>
-    <css-priority>1</css-priority>
-    <additional-module>ImageCropper</additional-module>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social</application-name>
     <portlet-name>SpaceTemplateManagement</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>ImageCropper</additional-module>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social</application-name>
-    <portlet-name>SpaceTopbarMenu</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/SpaceMenu/Style.css</css-path>
-    <css-priority>1</css-priority>
   </portlet-skin>
 
   <portlet-skin>
@@ -937,72 +920,11 @@
   </portlet>
 
   <portlet>
-    <name>SpaceTopbarMenu</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/spaceMenu.bundle.js</path>
-      </script>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>SpaceMenuPortlet</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/spaceHeader.bundle.js</path>
-      </script>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>jquery</module>
-        <as>$</as>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>imageCropper</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
     <name>SpaceBannerPortlet</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/spaceHeader.bundle.js</path>
+        <path>/js/spaceBanner.bundle.js</path>
       </script>
       <depends>
         <module>commonVueComponents</module>

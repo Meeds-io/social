@@ -34,17 +34,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
+import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.model.ModelObject;
-import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.navigation.NavigationContext;
-import org.exoplatform.portal.mop.navigation.NodeContext;
-import org.exoplatform.portal.mop.navigation.NodeModel;
-import org.exoplatform.portal.mop.navigation.Scope;
-import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.service.LayoutService;
-import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -73,10 +69,8 @@ import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.SpaceTemplate;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.storage.IdentityStorageException;
@@ -87,6 +81,13 @@ import org.exoplatform.social.metadata.favorite.model.Favorite;
 
 import lombok.SneakyThrows;
 
+@ConfiguredBy({
+  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.core-local-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.portal.component.portal-configuration-local.xml"),
+})
 public class SpaceServiceTest extends AbstractCoreTest {
 
   private static final String           EXTERNAL_USER = "externalUser";
@@ -239,12 +240,12 @@ public class SpaceServiceTest extends AbstractCoreTest {
     tearDownUserList.add(member1);
     tearDownUserList.add(member2);
     tearDownUserList.add(member3);
+    begin();
   }
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
 
     for (Identity identity : tearDownUserList) {
       identityRegistry.unregister(identity.getRemoteId());
@@ -256,6 +257,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     }
 
     super.tearDown();
+    end();
   }
 
   /**
@@ -878,10 +880,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setManagers(managers);
     space.setMembers(members);
     space.setPrettyName(space.getDisplayName());
-    space.setPriority("3");
     space.setRegistration("validation");
-    space.setTag("Space Tag for Testing");
-    space.setType("classic");
     space.setUrl(shortName);
     space.setVisibility("public");
     spaceService.createSpace(space, creator);
@@ -904,10 +903,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setGroupId("/spaces/" + shortName);
     space.setManagers(managers);
     space.setPrettyName(space.getDisplayName());
-    space.setPriority("3");
     space.setRegistration("validation");
-    space.setTag("Space Tag for Testing");
-    space.setType("classic");
     space.setUrl(shortName);
     space.setVisibility("public");
 
@@ -1033,10 +1029,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setGroupId("/spaces/" + shortName);
     space.setManagers(managers);
     space.setPrettyName(space.getDisplayName());
-    space.setPriority("3");
     space.setRegistration("validation");
-    space.setTag("Space Tag for Testing");
-    space.setType("classic");
     space.setUrl(shortName);
     space.setVisibility("public");
     spaceService.createSpace(space, creator, invitedIdentities);
@@ -1056,10 +1049,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(shortName);
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space ");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     String creator = "root";
     space.setGroupId("/spaces/" + shortName);
     try {
@@ -1080,10 +1071,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(shortName);
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space ");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space = spaceService.createSpace(space, creator);
     assertEquals(spaceDisplayName, space.getDisplayName());
     assertFalse(space.getPrettyName().contains("%"));
@@ -1407,10 +1396,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] spaceManagers = new String[] { "demo", "tom" };
@@ -1468,10 +1455,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space1");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space1");
     space.setUrl(space.getPrettyName());
     space = spaceService.createSpace(space, "root");
@@ -1501,10 +1486,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space1");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space1");
     space.setUrl(space.getPrettyName());
     space = spaceService.createSpace(space, "root");
@@ -1563,10 +1546,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] spaceManagers = new String[] { "demo" };
@@ -1609,10 +1590,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] spaceManagers = new String[] { "demo" };
@@ -1656,10 +1635,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] spaceManagers = new String[] { "demo" };
@@ -1718,7 +1695,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setDescription("add new space " + number);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     space.setMembers(new String[] { "john", "mary" });
@@ -1785,7 +1761,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setDescription("add new space " + number);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     space.setMembers(new String[] { "john", "mary" });
@@ -1934,47 +1909,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
                 spaceService.isMember(savedSpace, "stranger"));
   }
 
-  /**
-   * Test {@link SpaceService#activateApplication(Space, String)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testActivateApplication() throws Exception {
-    startSessionAs("root");
-    String spaceName = "testSpace";
-    String creator = "john";
-    Space space = new Space();
-    space.setDisplayName(spaceName);
-    space.setPrettyName(spaceName);
-    space.setGroupId("/spaces/" + space.getPrettyName());
-    space.setRegistration(Space.OPEN);
-    space.setDescription("description of space" + spaceName);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
-    space.setVisibility(Space.PRIVATE);
-    space.setRegistration(Space.OPEN);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    space.setManagers(new String[] { creator });
-    space.setMembers(new String[] { creator });
-    space = spaceService.createSpace(space, "root");
-    tearDownSpaceList.add(space);
-
-    assertTrue(space.getApp().contains("DashboardPortlet"));
-    spaceService.removeApplication(space, "DashboardPortlet", "Dashboard");
-    assertFalse(space.getApp().contains("DashboardPortlet"));
-    spaceService.activateApplication(space, "DashboardPortlet");
-    assertTrue(space.getApp().contains("DashboardPortlet"));
-
-    NavigationContext navContext = SpaceUtils.getGroupNavigationContext(space.getGroupId());
-    NodeContext<NodeContext<?>> homeNodeCtx = SpaceUtils.getHomeNodeWithChildren(navContext, space.getUrl());
-    boolean found = homeNodeCtx.getNodes()
-                               .stream()
-                               .filter(node -> "dashboard".equals(node.getName()))
-                               .findAny()
-                               .isPresent();
-    assertTrue(found);
-  }
-
   public void testRequestJoin() throws Exception {
     Space space = this.getSpaceInstance(0);
     int pendingUsersCount = space.getPendingUsers().length;
@@ -2081,10 +2015,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] spaceManagers = new String[] { "demo" };
@@ -2149,10 +2081,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] spaceManagers = new String[] { "demo" };
@@ -2480,7 +2410,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
   private Space populateData() throws Exception {
     String spaceDisplayName = "Space1";
     Space space1 = new Space();
-    space1.setApp("Calendar;FileSharing");
     space1.setDisplayName(spaceDisplayName);
     space1.setPrettyName(space1.getDisplayName());
     String shortName = Utils.cleanString(spaceDisplayName);
@@ -2488,12 +2417,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space1.setUrl(shortName);
     space1.setRegistration("validation");
     space1.setDescription("This is my first space for testing");
-    space1.setType("classic");
     space1.setVisibility("public");
-    space1.setPriority("2");
-    String[] manager = new String[] { "root" };
+    String[] managers = new String[] { "root" };
     String[] members = new String[] { "demo", "john", "mary", "tom", "harry" };
-    space1.setManagers(manager);
+    space1.setManagers(managers);
     space1.setMembers(members);
 
     spaceService.createSpace(space1);
@@ -2508,9 +2435,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setGroupId("/spaces/" + space.getPrettyName());
     space.setRegistration(Space.OPEN);
     space.setDescription("description of space" + spaceName);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PRIVATE);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     String[] managers = new String[] { creator };
     String[] members = new String[] { creator };
     space.setManagers(managers);
@@ -2534,10 +2459,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     String[] managers = new String[] { "demo", "tom" };
     String[] members = new String[] { "demo", "raul", "ghost", "dragon" };
@@ -2579,14 +2502,11 @@ public class SpaceServiceTest extends AbstractCoreTest {
                                               String manager,
                                               String... members) {
     Space space = new Space();
-    space.setApp("app");
     space.setDisplayName("my space " + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(registration);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(visible);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] { manager };
@@ -2602,7 +2522,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   private Space createMoreSpace(String spaceName) throws Exception {
     Space space2 = new Space();
-    space2.setApp("Contact,Forum");
     space2.setDisplayName(spaceName);
     space2.setPrettyName(space2.getDisplayName());
     String shortName = Utils.cleanString(spaceName);
@@ -2610,9 +2529,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space2.setUrl(shortName);
     space2.setRegistration("open");
     space2.setDescription("This is my second space for testing");
-    space2.setType("classic");
     space2.setVisibility("public");
-    space2.setPriority("2");
 
     spaceService.createSpace(space2);
     tearDownSpaceList.add(space2);
@@ -2673,64 +2590,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Space testSpace5 = spaceArray[0];
     assertEquals(space5,testSpace5);
 
-  }
-
-  public void testRestoreSpacePageLayout() throws Exception {
-    org.exoplatform.services.security.Identity rootACLIdentity = new org.exoplatform.services.security.Identity("root");
-    ConversationState.setCurrent(new ConversationState(rootACLIdentity));
-
-    Space space = new Space();
-    space.setDisplayName("testSpaceHomeLayout");
-    space.setDescription("Space Description for Testing");
-    String shortName = Utils.cleanString(space.getDisplayName());
-    space.setGroupId("/spaces/" + shortName);
-    String[] managers = new String[] {
-      rootACLIdentity.getUserId()
-    };
-    space.setManagers(managers);
-    space.setPrettyName(space.getDisplayName());
-    space.setPriority("3");
-    space.setRegistration("validation");
-    space.setTag("Space Tag for Testing");
-    String template = "classic";
-    space.setTemplate(template);
-    space.setUrl(shortName);
-    space.setVisibility("public");
-    space = spaceService.createSpace(space, rootACLIdentity.getUserId());
-
-    SpaceTemplateService spaceTemplateService = getContainer().getComponentInstanceOfType(SpaceTemplateService.class);
-    String spaceTemplateName = space.getTemplate();
-    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplateByName(spaceTemplateName);
-    assertNotNull(spaceTemplate);
-    assertEquals(template, spaceTemplate.getName());
-
-    NavigationService navService = getContainer().getComponentInstanceOfType(NavigationService.class);
-    NavigationContext navContext = SpaceUtils.getGroupNavigationContext(space.getGroupId());
-    assertNotNull(navContext);
-    NodeContext<NodeContext<?>> parentNodeCtx = navService.loadNode(NodeModel.SELF_MODEL, navContext, Scope.CHILDREN, null);
-    assertNotNull(parentNodeCtx);
-
-    NodeContext<NodeContext<?>> homeNodeContext = parentNodeCtx.get(0);
-    assertNotNull(homeNodeContext);
-
-    PageKey homePageKey = homeNodeContext.getState().getPageRef();
-    assertNotNull(homePageKey);
-
-    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
-    Page page = layoutService.getPage(homePageKey.format());
-    assertNotNull(page);
-    assertEquals(5, countPageApplications(page.getChildren(), 0));
-
-    space.setTemplate("meeds");
-    space = spaceService.updateSpace(space);
-
-    String spaceId = space.getId();
-    assertThrows(IllegalAccessException.class, () -> spaceService.restoreSpacePageLayout(spaceId, "home", new org.exoplatform.services.security.Identity("demo")));
-
-    spaceService.restoreSpacePageLayout(spaceId, "home", rootACLIdentity);
-    page = layoutService.getPage(homePageKey.format());
-    assertNotNull(page);
-    assertEquals(2, countPageApplications(page.getChildren(), 0));
   }
 
   @SneakyThrows

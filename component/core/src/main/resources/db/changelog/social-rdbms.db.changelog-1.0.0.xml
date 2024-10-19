@@ -1053,4 +1053,18 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-108">
+    <dropColumn tableName="SOC_SPACES" columnName="PRIORITY"/>
+    <dropColumn tableName="SOC_SPACES" columnName="TEMPLATE"/>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-109">
+    
+    <dropUniqueConstraint tableName="SOC_APPS" constraintName="UK_SPACE_APP_01" uniqueColumns="SPACE_ID, APP_ID" />
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-110">
+    <dropTable tableName="SOC_APPS" />
+  </changeSet>
+
 </databaseChangeLog>
