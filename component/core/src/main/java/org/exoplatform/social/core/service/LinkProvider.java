@@ -63,6 +63,7 @@ import lombok.SneakyThrows;
  * In case something is wrong when building, the default links will be returned.
  */
 public class LinkProvider {
+  private static final String LAST_MODIFIED_PARAM_PREFIX = "?lastModified=";
   public static final String RESOURCE_URL = "/social-resources";
   public static final String JAVASCRIPT_RESOURCE_URL = RESOURCE_URL + "/javascript/";
 
@@ -350,17 +351,10 @@ public class LinkProvider {
     return "/" + getPortalName(portalName) + "/" + getPortalOwner(portalOwner);
   }
 
-  private static String getSpaceBaseUri(final String portalName, String portalOwner) {
-    return "/" + getPortalName(portalName);
-  }
-
   /**
-   * Gets the link of notification settings page
-   * 
-   * @param remoteId
-   * @return
+   * @return the link of notification settings page
    */
-  public static String getUserNotificationSettingUri(final String remoteId) {
+  public static String getUserNotificationSettingUri() {
     return getBaseUri(null, null) + "/settings";
   }
 
@@ -374,13 +368,6 @@ public class LinkProvider {
       return getBaseUri(null, null);
     }
     return getBaseUri(null, null) + "/" + type;
-  }
-
-  public static String getRedirectSpaceUri(String type) {
-    if (type.isEmpty()) {
-      return getSpaceBaseUri(null, null);
-    }
-    return getSpaceBaseUri(null, null) + "/" + type;
   }
 
   /**
@@ -398,20 +385,6 @@ public class LinkProvider {
 
   /**
    * Builds the avatar URL for a given profile
-   * 
-   * @param providerId
-   * @param remoteId
-   * @return
-   * @deprecated user {@link LinkProvider#buildAvatarURL(String, String, boolean, Long)}
-   *             to use browser cache
-   */
-  @Deprecated
-  public static String buildAvatarURL(String providerId, String remoteId) {
-    return buildAttachmentUrl(providerId, remoteId, false, null, AvatarAttachment.TYPE);
-  }
-
-  /**
-   * Builds the avatar URL for a given profile
    * @param providerId
    * @param remoteId
    * @param lastModifiedDate last modified date of avatar
@@ -425,19 +398,6 @@ public class LinkProvider {
     return buildAttachmentUrl(providerId, id, byId, lastModifiedDate, AvatarAttachment.TYPE);
   }
 
-  /**
-   * Builds the banner URL for a given profile
-   * @param providerId
-   * @param id
-   * @return
-   * @deprecated user {@link LinkProvider#buildBannerURL(String, String, boolean, Long)}
-   *             to use browser cache
-   */
-  @Deprecated
-  public static String buildBannerURL(String providerId, String id) {
-    return buildAttachmentUrl(providerId, id, false, null, BannerAttachment.TYPE);
-  }
-  
   /**
    * Builds the banner URL for a given profile
    * @param providerId
@@ -468,7 +428,7 @@ public class LinkProvider {
                                                       .append(id)
                                                       .append("/")
                                                       .append(type)
-                                                      .append("?lastModified=")
+                                                      .append(LAST_MODIFIED_PARAM_PREFIX)
                                                       .append(DEFAULT_IMAGES_LAST_MODIFED)
                                                       .toString();
     }
@@ -501,7 +461,7 @@ public class LinkProvider {
                 .append(id)
                 .append("/")
                 .append(type)
-                .append("?lastModified=")
+                .append(LAST_MODIFIED_PARAM_PREFIX)
                 .append(lastModifiedString)
                 .append("&r=")
                 .append(token);
@@ -515,7 +475,7 @@ public class LinkProvider {
                 .append(id)
                 .append("/")
                 .append(type)
-                .append("?lastModified=")
+                .append(LAST_MODIFIED_PARAM_PREFIX)
                 .append(lastModifiedString)
                 .append("&r=")
                 .append(token);

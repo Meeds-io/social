@@ -10,7 +10,6 @@ public enum ActivityPluginType {
   DEFAULT(""),
   LINK("LINK_ACTIVITY"),
   DOC("DOC_ACTIVITY"),
-  SPACE("SPACE_ACTIVITY"),
   PROFILE("USER_PROFILE_ACTIVITY"),
   FILE("files:spaces"),
   SHARE_FILE("sharefiles:spaces"),

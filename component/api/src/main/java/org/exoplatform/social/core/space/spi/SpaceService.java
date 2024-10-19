@@ -264,8 +264,7 @@ public interface SpaceService {
   }
 
   /**
-   * Creates a new space: creating a group, its group navigation with pages for
-   * installing space applications.
+   * Creates a new space: creating a group, its group navigation with pages
    *
    * @param space The space to be created.
    * @param creatorUsername The remote user Id.
@@ -707,8 +706,7 @@ public interface SpaceService {
   }
 
   /**
-   * Registers a space listener plugin to listen to space lifecyle events:
-   * creating, updating, installing an application, and more.
+   * Registers a space listener plugin to listen to space lifecyle events
    *
    * @param spaceListenerPlugin The space listener plugin to be registered.
    * @LevelAPI Platform
@@ -851,146 +849,6 @@ public interface SpaceService {
    */
   default void setIgnored(String spaceId, String username) {
     throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Restores a page layout to its default associated to Space Template
-   * 
-   * @param spaceId {@link Space} technical identifier
-   * @param appId Id of the installed application or can be 'home' to designate
-   *          the space home page
-   * @param identity user {@link Identity} making the change
-   * @throws IllegalAccessException when current user doesn't have permission to
-   *           manage spaces
-   * @throws SpaceException when error reading Space identified by its id
-   * @deprecated Will be removed when the Meeds-io/MIPs#150 get implemented with new way of Layout management
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void restoreSpacePageLayout(String spaceId,
-                                      String appId,
-                                      org.exoplatform.services.security.Identity identity) throws IllegalAccessException,
-                                                                                           SpaceException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Installs an application in a space.
-   *
-   * @param space The space that the application is installed.
-   * @param appId Id of the installed application.
-   * @throws SpaceException with code SpaceException.Code.ERROR_DATA_STORE
-   * @LevelAPI Platform
-   * @deprecated the spaces pages aren't managed through applications anymore,
-   *             thus this operation isn't needed anymore
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void installApplication(Space space, String appId) throws SpaceException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Activates an installed application in a space.
-   *
-   * @param space The space that the installed application is activated.
-   * @param appId Id of the installed application.
-   * @throws SpaceException with possible code:
-   *           SpaceException.Code.UNABLE_TO_ADD_APPLICATION,
-   *           SpaceExeption.Code.ERROR_DATA_STORE
-   * @LevelAPI Platform
-   * @deprecated the spaces pages aren't managed through applications anymore,
-   *             thus this operation isn't needed anymore
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void activateApplication(Space space, String appId) throws SpaceException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Activates an installed application in a space.
-   *
-   * @param spaceId Id of the space that the installed application is activated.
-   * @param appId Id of the installed application.
-   * @throws SpaceException with possible code:
-   *           SpaceException.Code.UNABLE_TO_ADD_APPLICATION,
-   *           SpaceExeption.Code.ERROR_DATA_STORE
-   * @LevelAPI Platform
-   * @deprecated the spaces pages aren't managed through applications anymore,
-   *             thus this operation isn't needed anymore
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void activateApplication(String spaceId, String appId) throws SpaceException {
-    activateApplication(getSpaceById(spaceId), appId);
-  }
-
-  /**
-   * Deactivates an installed application in a space.
-   *
-   * @param space The space that the installed application is deactivated.
-   * @param appId Id of the installed application.
-   * @throws SpaceException
-   * @LevelAPI Platform
-   * @deprecated the spaces pages aren't managed through applications anymore,
-   *             thus this operation isn't needed anymore
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void deactivateApplication(Space space, String appId) throws SpaceException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Deactivates an installed application in a space.
-   *
-   * @param spaceId Id of the space that the installed application is
-   *          deactivated.
-   * @param appId Id of the installed application.
-   * @throws SpaceException
-   * @LevelAPI Platform
-   * @deprecated the spaces pages aren't managed through applications anymore,
-   *             thus this operation isn't needed anymore
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void deactivateApplication(String spaceId, String appId) throws SpaceException {
-    deactivateApplication(getSpaceById(spaceId), appId);
-  }
-
-  /**
-   * Removes an installed application from a space.
-   *
-   * @param space The space that the installed application is removed.
-   * @param appId Id of the installed application.
-   * @throws SpaceException
-   * @LevelAPI Platform
-   * @deprecated the spaces pages aren't managed through applications anymore,
-   *             thus this operation isn't needed anymore
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void removeApplication(Space space, String appId, String appName) throws SpaceException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * @param spaceId technical id of the space
-   * @param appId application identifier
-   * @param transition how much levels to move up or down an application
-   * @throws SpaceException
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void moveApplication(String spaceId, String appId, int transition) throws SpaceException {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Removes an installed application from a space.
-   *
-   * @param spaceId Id of the space that the installed application is removed.
-   * @param appId Id of the installed application.
-   * @LevelAPI Platform
-   * @deprecated the spaces pages aren't managed through applications anymore,
-   *             thus this operation isn't needed anymore
-   */
-  @Deprecated(since = "7.0", forRemoval = true)
-  default void removeApplication(String spaceId, String appId, String appName) throws SpaceException {
-    removeApplication(getSpaceById(spaceId), appId, appName);
   }
 
   /**
