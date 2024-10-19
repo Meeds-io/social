@@ -55,8 +55,7 @@ public class SpaceTemplateStorageTest {
 
   @Before
   public void init() {
-    spaceTemplateStorage = new SpaceTemplateStorage();
-    spaceTemplateStorage.spaceTemplateDAO = spaceTemplateDAO;
+    spaceTemplateStorage = new SpaceTemplateStorage(spaceTemplateDAO);
   }
 
   @Test

@@ -27,7 +27,6 @@ import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRest;
@@ -85,7 +84,7 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
 
     // Given
     startSessionAs("root");
-    spaceId1 = createSpace("space1", "").getId();
+    spaceId1 = createSpace("space1").getId();
     // Given
     List<GroupSpaceBinding> groupSpaceBindings = new LinkedList<>();
     GroupSpaceBinding binding1 = new GroupSpaceBinding();
@@ -118,7 +117,7 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
     
     // Given
     startSessionAs("root");
-    spaceId1 = createSpace("space1", "").getId();
+    spaceId1 = createSpace("space1").getId();
     // Given
     List<GroupSpaceBinding> groupSpaceBindings = new LinkedList<>();
     GroupSpaceBinding binding1 = new GroupSpaceBinding();
@@ -153,7 +152,7 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
 
     // Given
     startSessionAs("root");
-    spaceId2 = createSpace("space2", "").getId();
+    spaceId2 = createSpace("space2").getId();
 
     // Given
     List<GroupSpaceBinding> groupSpaceBindings = new LinkedList<>();
@@ -186,18 +185,15 @@ public class GroupSpaceBindingRestServiceTest extends AbstractResourceTest {
    * @throws Exception
    * @since 4.0
    */
-  private Space createSpace(String name, String apps) throws Exception {
+  private Space createSpace(String name) {
     Space space = new Space();
     space.setDisplayName(name);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + name);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/" + name);
-    space.setApp(apps);
     String[] managers = new String[] { "john", "mary" };
     String[] members = new String[] { "john", "mary", "demo" };
     space.setManagers(managers);

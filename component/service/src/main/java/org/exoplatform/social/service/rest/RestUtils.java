@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,7 +30,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.ApplicationContext;
 import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.security.ConversationState;
@@ -118,7 +119,6 @@ public class RestUtils {
       map.put(RestProperties.IDENTITY, (expand != null && RestProperties.IDENTITY.equals(expand)) ? buildSpaceIdentity(spaceIdentity, restPath, null) : Util.getRestUrl(IDENTITIES_TYPE, spaceIdentity.getId(), restPath));
       map.put(RestProperties.GROUP_ID, space.getGroupId());
       map.put(RestProperties.AVATAR_URL, space.getAvatarUrl());
-      map.put(RestProperties.APPLICATIONS, getSpaceApplications(space));
       map.put(RestProperties.MANAGERS, Util.getMembersSpaceRestUrl(space.getId(), "manager", restPath));
       map.put(RestProperties.MEMBERS, Util.getMembersSpaceRestUrl(space.getId(), null, restPath));
     }
@@ -257,72 +257,7 @@ public class RestUtils {
     as.put(RestProperties.ID, owner.getRemoteId());
     return as;
   }
-  
-  private static List<Map<String, String>> getSpaceApplications(Space space) {
-    List<Map<String, String>> spaceApplications = new ArrayList<Map<String, String>>();
-    String installedApps = space.getApp();
-    if (installedApps != null) {
-      String[] appStatuses = installedApps.split(",");
-      for (String appStatus : appStatuses) {
-        Map<String, String> app = new LinkedHashMap<String, String>();
-        String[] apps = appStatus.split(":");
-        app.put(RestProperties.ID, apps[0]);
-        app.put(RestProperties.DISPLAY_NAME, apps.length > 1 ? apps[1] : "");
-        spaceApplications.add(app);
-      }
-    }
-    return spaceApplications;
-  }
-  
-  private static List<Map<String, Object>> getSubListByProperties(List<Map<String, String>> sources, Map<String, String> properties) {
-    List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-    if (sources == null || sources.size() == 0) {
-      return results;
-    }
-    for (Map<String, String> map : sources) {
-      if (map.isEmpty()) continue;
-      Map<String, Object> result = new LinkedHashMap<String, Object>();
-      for (Entry<String, String> property : properties.entrySet()) {
-        result.put(property.getKey(), map.get(property.getValue()));
-      }
-      results.add(result);
-    }
-    
-    return results;
-  }
-  
-  private static Map<String, String> getPhoneProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.PHONE_TYPE, KEY);
-    properties.put(RestProperties.PHONE_NUMBER, VALUE);
-    return properties;
-  }
-  
-  private static Map<String, String> getImsProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.IM_TYPE, KEY);
-    properties.put(RestProperties.IM_ID, VALUE);
-    return properties;
-  }
-  
-  private static Map<String, String> getUrlProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.URL, VALUE);
-    return properties;
-  }
-  
-  private static Map<String, String> getExperiencesProperties() {
-    Map<String, String> properties = new LinkedHashMap<String, String>();
-    properties.put(RestProperties.COMPANY, Profile.EXPERIENCES_COMPANY);
-    properties.put(RestProperties.DESCRIPTION, Profile.EXPERIENCES_DESCRIPTION);
-    properties.put(RestProperties.POSITION, Profile.EXPERIENCES_POSITION);
-    properties.put(RestProperties.SKILLS, Profile.EXPERIENCES_SKILLS);
-    properties.put(RestProperties.IS_CURRENT, Profile.EXPERIENCES_IS_CURRENT);
-    properties.put(RestProperties.START_DATE, Profile.EXPERIENCES_START_DATE);
-    properties.put(RestProperties.END_DATE, Profile.EXPERIENCES_END_DATE);
-    return properties;
-  }
-  
+
   private static String formatDateToISO8601(Date date) {
     TimeZone tz = TimeZone.getTimeZone("UTC");
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss'Z'");
@@ -350,7 +285,7 @@ public class RestUtils {
   private static void updateCachedLastModifiedValue(Date lastModifiedDate) {
     ApplicationContext ac = ApplicationContextImpl.getCurrent();
     Map<String, String> properties = ac.getProperties();
-    ConcurrentHashMap<String, String> props = new ConcurrentHashMap<String, String>(properties);
+    ConcurrentHashMap<String, String> props = new ConcurrentHashMap<>(properties);
     
     if (props.containsKey(RestProperties.UPDATE_DATE)) {
       props.remove(RestProperties.UPDATE_DATE);
@@ -418,8 +353,7 @@ public class RestUtils {
     if(StringUtils.isEmpty(currentUsername)) {
       return null;
     }
-
-    return CommonsUtils.getService(IdentityManager.class)
-            .getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUsername, true);
+    return ExoContainerContext.getService(IdentityManager.class)
+            .getOrCreateUserIdentity(currentUsername);
   }
 }
