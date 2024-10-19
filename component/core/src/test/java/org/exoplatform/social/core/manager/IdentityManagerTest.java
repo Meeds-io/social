@@ -38,7 +38,6 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -62,8 +61,6 @@ public class IdentityManagerTest extends AbstractCoreTest {
   private IdentityManager identityManager;
 
   private IdentityStorage identityStorage;
-
-  private List<Space>     tearDownSpaceList;
 
   private List<Identity>  tearDownIdentityList;
 
@@ -89,7 +86,6 @@ public class IdentityManagerTest extends AbstractCoreTest {
     assertNotNull(profilePropertyService);
 
     tearDownIdentityList = new ArrayList<Identity>();
-    tearDownSpaceList = new ArrayList<Space>();
     org.exoplatform.services.security.Identity identity = getService(IdentityRegistry.class).getIdentity("root");
     ConversationState.setCurrent(new ConversationState(identity));
   }
@@ -98,59 +94,9 @@ public class IdentityManagerTest extends AbstractCoreTest {
     for (Identity identity : tearDownIdentityList) {
       identityManager.deleteIdentity(identity);
     }
-    for (Space space : tearDownSpaceList) {
-      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-      if (spaceIdentity != null) {
-        identityManager.deleteIdentity(spaceIdentity);
-      }
-      spaceService.deleteSpace(space);
-    }
     getService(ProfilePropertySettingDAO.class).deleteAll();
     super.tearDown();
   }
-
-  /**
-   * Test {@link IdentityManager#getIdentity(String)}
-   */
-  // FIXME regression JCR to RDBMS migration
-  // public void testGetIdentityById() {
-  // final String username = "root";
-  // Identity foundIdentity =
-  // identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-  // username,
-  // true);
-  //
-  // // Gets Identity By Node Id
-  // {
-  // Identity gotIdentity = identityManager.getIdentity(foundIdentity.getId(),
-  // true);
-  //
-  // assertNotNull(gotIdentity);
-  // assertEquals(foundIdentity.getId(), gotIdentity.getId());
-  // assertEquals("gotIdentity.getProviderId() must return: " +
-  // OrganizationIdentityProvider.NAME,
-  // OrganizationIdentityProvider.NAME,
-  // gotIdentity.getProviderId());
-  // assertEquals("gotIdentity.getRemoteId() must return: " + username,
-  // username,
-  // gotIdentity.getRemoteId());
-  // // By default, when getIdentity(String nodeId) will have load profile by
-  // // default (means saved).
-  // assertNotNull("gotIdentity.getProfile().getId() must not return: null",
-  // gotIdentity.getProfile().getId());
-  //
-  // assertNotNull("gotIdentity.getProfile().getProperty(Profile.FIRST_NAME)
-  // must not be null",
-  // gotIdentity.getProfile().getProperty(Profile.FIRST_NAME));
-  // assertFalse("gotIdentity.getProfile().getFullName().isEmpty() must be
-  // false", gotIdentity.getProfile().getFullName().isEmpty());
-  //
-  //
-  // }
-  //
-  // tearDownIdentityList.add(identityManager.getIdentity(foundIdentity.getId(),
-  // false));
-  // }
 
   /**
    * @throws Exception
@@ -166,10 +112,8 @@ public class IdentityManagerTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
     String[] spaceManagers = new String[] { demoIdentity.getRemoteId() };
@@ -209,10 +153,6 @@ public class IdentityManagerTest extends AbstractCoreTest {
                                                                                  true);
       assertEquals(2, got.getSize());
     }
-
-    // clear space
-    tearDownSpaceList.add(savedSpace);
-
   }
 
   /**

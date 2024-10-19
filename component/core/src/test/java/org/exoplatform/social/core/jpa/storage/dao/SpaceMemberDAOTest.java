@@ -19,19 +19,15 @@ package org.exoplatform.social.core.jpa.storage.dao;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.entity.AppEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
-import io.meeds.social.space.constant.Priority;
 import io.meeds.social.space.constant.Registration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.constant.Visibility;
@@ -119,13 +115,11 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
 
   private SpaceEntity createSpace(String name) {
     SpaceEntity spaceEntity = new SpaceEntity();    
-    spaceEntity.setApp(createApp());
     spaceEntity.setAvatarLastUpdated(new Date());
     spaceEntity.setDescription("testDesc");
     spaceEntity.setDisplayName(name);
     spaceEntity.setGroupId(name+"GroupId");
     spaceEntity.setPrettyName(name);
-    spaceEntity.setPriority(Priority.HIGH);
     spaceEntity.setRegistration(Registration.OPEN);
     spaceEntity.setUrl("testUrl");
     spaceEntity.setVisibility(Visibility.PRIVATE);
@@ -140,17 +134,6 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
     mem.setUserId(userId);
     mem.setCreatedDate(Instant.now());
     spaceEntity.getMembers().add(mem);
-  }
-
-  private Set<AppEntity> createApp() {
-    Set<AppEntity> apps = new HashSet<>();
-    AppEntity app = new AppEntity();
-    app.setAppId("appId");
-    app.setAppName("appName");
-    app.setRemovable(true);
-    app.setStatus(AppEntity.Status.ACTIVE);
-    apps.add(app);
-    return apps;
   }
 
   private IdentityEntity createIdentity(String id, String providerId) {

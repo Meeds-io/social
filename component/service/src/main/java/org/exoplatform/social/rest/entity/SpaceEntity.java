@@ -20,6 +20,8 @@ package org.exoplatform.social.rest.entity;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.social.core.identity.model.Identity;
 
 import lombok.EqualsAndHashCode;
@@ -54,13 +56,14 @@ public class SpaceEntity extends BaseEntity {
     return getString("displayName");
   }
 
-  public SpaceEntity setTemplate(String displayName) {
-    setProperty("template", displayName);
+  public SpaceEntity setTemplateId(Long templateId) {
+    setProperty("templateId", templateId == null ? "0" : templateId.toString());
     return this;
   }
 
-  public String getTemplate() {
-    return getString("template");
+  public long getTemplateId() {
+    String templateId = getString("templateId");
+    return StringUtils.isBlank(templateId) ? 0l : Long.parseLong(templateId);
   }
 
   public SpaceEntity setUrl(String url) {
@@ -169,11 +172,6 @@ public class SpaceEntity extends BaseEntity {
 
   public String getBannerUrl() {
     return getString("bannerUrl");
-  }
-
-  public SpaceEntity setApplications(List<DataEntity> applications) {
-    setProperty("applications", applications);
-    return this;
   }
 
   public SpaceEntity setVisibility(String visibility) {

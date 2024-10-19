@@ -19,7 +19,6 @@ package org.exoplatform.social.core.application;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
@@ -97,7 +96,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     }
   }
   
-  public ProfileUpdatesPublisher(InitParams params, ActivityManager activityManager, IdentityManager identityManager) {
+  public ProfileUpdatesPublisher(ActivityManager activityManager, IdentityManager identityManager) {
     this.activityManager = activityManager;
     this.identityManager = identityManager;
   }
@@ -128,7 +127,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     comment.setUserId(identity.getId());
     comment.setType(PEOPLE_APP_ID);
     comment.setTitleId(titleId);
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
+    Map<String, String> templateParams = new LinkedHashMap<>();
     if (POSITION_TITLE_ID.equals(titleId)) {
       templateParams.put(USER_POSITION_PARAM, StringEscapeUtils.unescapeHtml4(position));
       templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, USER_POSITION_PARAM);
@@ -163,7 +162,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
       activity.setTitleId(newTitleId);
       hasUpdated = true;
     }
-    hasUpdated |= newActivityTitle.replaceAll(BREAKLINE_STR, "").length() > 0 && !newActivityTitle.equals(existingActivityTitle);
+    hasUpdated |= newActivityTitle.replace(BREAKLINE_STR, "").length() > 0 && !newActivityTitle.equals(existingActivityTitle);
     if (activityId != null && hasUpdated) {
       activityManager.updateActivity(activity);
     }
@@ -174,7 +173,7 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     Profile profile = event.getProfile();
     Identity identity = profile.getIdentity();
     try {
-      reloadIfNeeded(identity);
+      identity = reloadIfNeeded(identity);
       if (activityId == null) {
         activityManager.saveActivityNoReturn(identity, activity);
         getStorage().updateProfileActivityId(identity, activity.getId(), Profile.AttachedActivityType.USER);
@@ -187,18 +186,15 @@ public class ProfileUpdatesPublisher extends ProfileListenerPlugin {
     }
   }
 
-  private void reloadIfNeeded(Identity id1) throws Exception {
+  private Identity reloadIfNeeded(Identity id1) {
     if (id1.getId() == null || id1.getProfile().getFullName().length() == 0) {
-      id1 = identityManager.getIdentity(id1.getGlobalId().toString(), true);
+      id1 = identityManager.getOrCreateIdentity(id1.getProviderId(), id1.getRemoteId());
     }
-  }
-  
-  private IdentityStorage getStorage() {
-    return (IdentityStorage) PortalContainer.getInstance().getComponentInstanceOfType(IdentityStorage.class);
+    return id1;
   }
 
-  @Override
-  public void createProfile(ProfileLifeCycleEvent event) {
+  private IdentityStorage getStorage() {
+    return PortalContainer.getInstance().getComponentInstanceOfType(IdentityStorage.class);
   }
 
   @Override

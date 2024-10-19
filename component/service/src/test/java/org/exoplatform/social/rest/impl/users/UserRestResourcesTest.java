@@ -50,7 +50,6 @@ import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.ErrorResource;
@@ -1286,10 +1285,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     String[] managers = new String[] { creator };
     String[] members = new String[] { creator };

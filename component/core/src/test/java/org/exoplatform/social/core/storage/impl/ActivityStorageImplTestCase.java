@@ -29,7 +29,6 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.application.RelationshipPublisher.TitleId;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.*;
@@ -942,9 +941,7 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space");
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] { "john", "demo" };
@@ -985,14 +982,11 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
 
   private Space getSpaceInstance(int number) {
     Space space = new Space();
-    space.setApp("app");
     space.setDisplayName("myspace " + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     String[] managers = new String[] { "demo", "tom" };
     String[] members = new String[] { "raul", "ghost", "dragon" };
