@@ -161,9 +161,7 @@
                 <include>portlet/ProfileSettings/Style.less</include>
                 <include>portlet/ProfileWorkExperience/Style.less</include>
                 <include>portlet/Search/Style.less</include>
-                <include>portlet/SpaceHeader/Style.less</include>
                 <include>portlet/SpaceInfos/Style.less</include>
-                <include>portlet/SpaceMenu/Style.less</include>
                 <include>portlet/SpacesAdministration/Style.less</include>
                 <include>portlet/SpacesListExternal/Style.less</include>
                 <include>portlet/SpacesOverview/Style.less</include>
@@ -171,7 +169,6 @@
                 <include>portlet/TopBarMenu/Style.less</include>
                 <include>portlet/VerticalMenu/Style.less</include>
                 <include>common/siteDetails/Style.less</include>
-                <include>common/AdministrationSite/Style.less</include>
                 <include>portlet/organizational-chart/Style.less</include>
                 <!-- Deprecated Portlets -->
                 <include>portlet/TopBarNotification/Style.less</include>

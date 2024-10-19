@@ -18,13 +18,11 @@ package org.exoplatform.social.rest.impl.spacesadministration;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -39,7 +37,6 @@ import org.exoplatform.social.rest.entity.SpacesAdministrationMembershipsEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -69,11 +66,7 @@ public class SpacesAdministrationRest implements ResourceContainer {
           @ApiResponse (responseCode = "500", description = "Internal server error"),
           @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getAllSettings(@Context UriInfo uriInfo)  {
-    List settings = Arrays.asList(
-            new SpacesAdministrationMembershipsEntity("spacesAdministrators", spacesAdministrationService.getSpacesAdministratorsMemberships()),
-            new SpacesAdministrationMembershipsEntity("spacesCreators", spacesAdministrationService.getSpacesCreatorsMemberships())
-    );
-
+    List<SpacesAdministrationMembershipsEntity> settings = Arrays.asList(new SpacesAdministrationMembershipsEntity("spacesAdministrators", spacesAdministrationService.getSpacesAdministratorsMemberships()));
     return EntityBuilder.getResponse(settings, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
@@ -96,45 +89,6 @@ public class SpacesAdministrationRest implements ResourceContainer {
     return EntityBuilder.getResponse(new SpacesAdministrationMembershipsEntity("spacesAdministrators", memberships), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
-  @GET
-  @Path("permissions/spacesCreators")
-  @RolesAllowed("administrators")
-  @Operation(
-          summary = "Gets spaces creators memberships",
-          method = "GET",
-          description = "This returns space memberships in the following cases: <br/><ul><li>the sender of the space membership is the authenticated user</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is the super user</li></ul>")
-  @ApiResponses(value = {
-          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-          @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
-          @ApiResponse (responseCode = "404", description = "Resource not found"),
-          @ApiResponse (responseCode = "500", description = "Internal server error"),
-          @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response getSpacesCreators(@Context UriInfo uriInfo) {
-    List<MembershipEntry> memberships = spacesAdministrationService.getSpacesCreatorsMemberships();
-
-    return EntityBuilder.getResponse(new SpacesAdministrationMembershipsEntity("spacesCreators", memberships), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-
-
-  @GET
-  @Path("permissions/canCreatespaces/{username}")
-  @RolesAllowed("users")
-  @Operation(
-          summary = "Check if members can create spaces",
-          method = "GET",
-          description = "This returns if members can add spaces")
-  @ApiResponses(value = {
-      @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
-      @ApiResponse (responseCode = "404", description = "Resource not found"),
-      @ApiResponse (responseCode = "500", description = "Internal server error")})
-  public Response canCreatespaces(@Context UriInfo uriInfo, @Parameter(description = "Username", required = true) @PathParam("username") String username) {
-
-    Boolean canCreateSpaces = spacesAdministrationService.canCreateSpace(username);
-
-    return EntityBuilder.getResponse(canCreateSpaces.toString(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-  
   @PUT
   @Path("permissions/spacesAdministrators")
   @RolesAllowed("administrators")
@@ -150,32 +104,8 @@ public class SpacesAdministrationRest implements ResourceContainer {
                                              @RequestBody(description = "Space membership object to be updated", required = true) List<MembershipEntityWrapper> model) {
     List<MembershipEntry> memberships = model.stream()
             .map(m -> new MembershipEntry(m.getGroup(), m.getMembershipType()))
-            .collect(Collectors.toList());
-
+            .toList();
     spacesAdministrationService.updateSpacesAdministratorsMemberships(memberships);
-
-    return EntityBuilder.getResponse("", uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-
-  @PUT
-  @Path("permissions/spacesCreators")
-  @RolesAllowed("administrators")
-  @Operation(
-          summary = "Updates spaces creators memberships",
-          method = "PUT",
-          description = "This updates the space membership in the following cases: <br/><ul><li>the user of the space membership is the authenticated user  but he cannot update his own membership to \"approved\" for a space with a \"validation\" subscription</li><li>the authenticated user is a manager of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
-  @ApiResponses(value = {
-          @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-          @ApiResponse (responseCode = "401", description = "User not authorized to call this endpoint"),
-          @ApiResponse (responseCode = "500", description = "Internal server error") })
-  public Response updateSpacesCreators(@Context UriInfo uriInfo,
-                                       @RequestBody(description = "Space membership object to be updated", required = true) List<MembershipEntityWrapper> model) {
-    List<MembershipEntry> memberships = model.stream()
-            .map(m -> new MembershipEntry(m.getGroup(), m.getMembershipType()))
-            .collect(Collectors.toList());
-
-    spacesAdministrationService.updateSpacesCreatorsMemberships(memberships);
-
     return EntityBuilder.getResponse("", uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 }
