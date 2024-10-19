@@ -1890,7 +1890,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     space.setDescription("description of space" + spaceName);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     String[] managers = new String[] { creator };
     String[] spaceMembers = members == null ? new String[] { creator } : members;
     space.setManagers(managers);

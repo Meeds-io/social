@@ -143,7 +143,6 @@ public class FavoriteRestTest extends AbstractResourceTest {
     space1.setPrettyName(space1.getDisplayName());
     space1.setRegistration("validation");
     space1.setVisibility("public");
-    space1.setPriority("2");
     String[] manager = new String[] { "john" };
     String[] members = new String[] { "john" };
     space1.setManagers(manager);

@@ -41,7 +41,6 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.*;
-import org.exoplatform.social.core.application.SpaceActivityPublisher;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -51,7 +50,6 @@ import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -118,7 +116,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // prepare comment
     ExoSocialActivity comment = Mockito.mock(ExoSocialActivity.class);
     Mockito.when(comment.isComment()).thenReturn(true);
-    Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
     Mockito.when(comment.getPosterId()).thenReturn("1");
     // prepare viewer
     org.exoplatform.services.security.Identity owner = Mockito.mock(org.exoplatform.services.security.Identity.class);
@@ -170,7 +167,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     Mockito.when(params.getValueParam(ActivityManagerImpl.ENABLE_EDIT_COMMENT)).thenReturn(falseVal);
     manager = new ActivityManagerImpl(storage, identityManager, spaceService, relationshipManager, acl, params);
     //
-    Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
     assertFalse(manager.isActivityEditable(comment, admin));
     assertFalse(manager.isActivityEditable(comment, owner));
     assertTrue(manager.isActivityEditable(activity, owner));
@@ -201,7 +197,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // prepare comment
     ExoSocialActivity comment = Mockito.mock(ExoSocialActivity.class);
     Mockito.when(comment.isComment()).thenReturn(true);
-    Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
     Mockito.when(comment.getPosterId()).thenReturn("1");
     Mockito.when(identityManager.getIdentity("1")).thenReturn(rootIdentity);
 
@@ -371,7 +366,6 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     // prepare comment
     ExoSocialActivity comment = Mockito.mock(ExoSocialActivity.class);
     Mockito.when(comment.isComment()).thenReturn(true);
-    Mockito.when(comment.getType()).thenReturn(SpaceActivityPublisher.SPACE_APP_ID);
     Mockito.when(comment.getPosterId()).thenReturn("1");
 
     // prepare viewer
@@ -1732,10 +1726,8 @@ public class ActivityManagerRDBMSTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId(SpaceUtils.SPACE_GROUP + "/" + space.getPrettyName());
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] { "demo", "john" };
