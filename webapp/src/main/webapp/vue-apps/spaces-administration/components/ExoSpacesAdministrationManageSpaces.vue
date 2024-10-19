@@ -81,19 +81,6 @@
             </template>
             <span>{{ $t('social.spaces.administration.manageSpaces.actions.edit') }}</span>
           </v-tooltip>
-          <v-tooltip v-if="resetSpaceHomeLayoutEnabled" bottom>
-            <template #activator="{ on, attrs }">
-              <v-btn
-                :loading="restoringHomeLayout === space.id"
-                icon
-                v-bind="attrs"
-                v-on="on"
-                @click="openRestoreLayoutConfirm(space)">
-                <v-icon color="primary" size="18">fa-undo</v-icon>
-              </v-btn>
-            </template>
-            <span>{{ $t('social.spaces.administration.manageSpaces.actions.resetHomeLayout') }}</span>
-          </v-tooltip>
           <v-tooltip bottom>
             <template #activator="{ on, attrs }">
               <v-btn
@@ -169,8 +156,6 @@
         <div class="btn" @click="closeModal">{{ $t('social.spaces.administration.delete.spaces.button.cancel') }}</div>
       </div>
     </exo-spaces-administration-modal>
-    <spaces-administration-home-layout-confirm
-      v-if="resetSpaceHomeLayoutEnabled" />
     <exo-group-binding-drawer
       ref="groupBindingForm"
       :group-space-bindings="groupSpaceBindings"
@@ -219,8 +204,6 @@ export default {
   data() {
     return {
       showConfirmMessageModal: false,
-      restoringHomeLayout: null,
-      resetSpaceHomeLayoutEnabled: eXo.env.portal.SpaceHomeLayoutResetEnabled,
       spaces: [],
       spaceName: '',
       spaceToBind: null,
@@ -386,24 +369,6 @@ export default {
       let groupPrettyName = groupName.slice(groupName.lastIndexOf('/') + 1, groupName.length);
       groupPrettyName = groupPrettyName.charAt(0).toUpperCase() + groupPrettyName.slice(1);
       return `${groupPrettyName} (${groupName})`;
-    },
-    openRestoreLayoutConfirm(space) {
-      this.$root.$emit('close-alert-message');
-      this.$root.$emit('spaces-administration-retore-home-layout-confirm', {
-        title: 'social.spaces.administration.restore.spaceHomeLayout.confirm.title',
-        message: 'social.spaces.administration.restore.spaceHomeLayout.confirm.message',
-        ok: 'social.spaces.administration.restore.spaceHomeLayout.button.confirm',
-        cancel: 'social.spaces.administration.restore.spaceHomeLayout.button.cancel',
-        callback: () => this.restoreLayoutConfirm(space.id),
-      });
-    },
-    restoreLayoutConfirm(spaceId) {
-      this.$root.$emit('close-alert-message');
-      this.restoringHomeLayout = spaceId;
-      return this.$spaceService.restoreSpaceHomeLayout(spaceId)
-        .then(() => this.$root.$emit('alert-message', this.$t('social.spaces.administration.restore.spaceHomeLayout.confimed'), 'success'))
-        .catch(() => this.$root.$emit('alert-message', this.$t('social.spaces.administration.restore.spaceHomeLayout.error'), 'error'))
-        .finally(() => this.restoringHomeLayout = null);
     },
   }
 };

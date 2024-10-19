@@ -36,7 +36,6 @@ import org.exoplatform.social.core.search.Sorting.OrderBy;
 import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.SpaceStorage;
@@ -732,14 +731,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
     populateUser("username6");
 
     Space space = new Space();
-    space.setApp("app");
     space.setDisplayName("my space");
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space ");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId(SpaceUtils.createGroup(space.getPrettyName(), "username4"));
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] {};
@@ -814,14 +810,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
     restartTransaction();
 
     Space space = new Space();
-    space.setApp("app");
     space.setDisplayName("my space");
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space ");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId(SpaceUtils.createGroup(space.getPrettyName(), "username4"));
     space.setUrl(space.getPrettyName());
     String[] managers = new String[]{"username1", "username2"};
@@ -1269,14 +1262,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
    */
   private Space getSpaceInstance(int number) {
     Space space = new Space();
-    space.setApp("app1,app2");
     space.setDisplayName("my space " + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     String[] managers = new String[] {"demo", "tom"};
     String[] members = new String[] {"raul", "ghost", "dragon"};
