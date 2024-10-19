@@ -47,45 +47,6 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
   }
 
   /**
-   * Invokes this method when an application is added to a space.
-   *
-   * @param event the space lifecycle event
-   */
-  default void applicationAdded(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-
-  /**
-   * Invokes this method when an application is removed from a space.
-   *
-   * @param event the space lifecycle event.
-   */
-  default void applicationRemoved(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-
-  /**
-   * Invokes this method when an application is activated.
-   *
-   * @param event the space lifecyle event
-   */
-  default void applicationActivated(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-
-  /**
-   * Invokes this method when an application is deactivated from a space.
-   *
-   * @param event the space lifecycle event
-   */
-  default void applicationDeactivated(SpaceLifeCycleEvent event) {
-    // No default implementation
-  }
-
-  /**
    * Invokes this method when a user joins a space.
    *
    * @param event the space lifecycle event

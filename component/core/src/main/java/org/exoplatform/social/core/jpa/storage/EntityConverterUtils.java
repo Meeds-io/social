@@ -28,7 +28,6 @@ import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.IdentityWithRelationship;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.entity.AppEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity;
@@ -38,7 +37,6 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
-import io.meeds.social.space.constant.Priority;
 import io.meeds.social.space.constant.PublicSiteVisibility;
 import io.meeds.social.space.constant.Registration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
@@ -268,7 +266,6 @@ public class EntityConverterUtils {
   }
 
   public static SpaceEntity buildFrom(Space space, SpaceEntity spaceEntity) {
-    spaceEntity.setApp(AppEntity.parse(space.getApp()));
     if (space.getAvatarLastUpdated() != null) {
       spaceEntity.setAvatarLastUpdated(space.getAvatarLastUpdated() > 0 ? new Date(space.getAvatarLastUpdated()) : null);
     } else {
@@ -281,22 +278,12 @@ public class EntityConverterUtils {
     }
     spaceEntity.setCreatedDate(space.getCreatedTime() > 0 ? new Date(space.getCreatedTime()) : new Date());
     spaceEntity.setDescription(space.getDescription());
-    spaceEntity.setTemplate(space.getTemplate());
     spaceEntity.setTemplateId(space.getTemplateId() == 0 ? null : space.getTemplateId());
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setGroupId(space.getGroupId());
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setPublicSiteId(space.getPublicSiteId());
     spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility() == null ? PublicSiteVisibility.MANAGER : PublicSiteVisibility.valueOf(space.getPublicSiteVisibility().toUpperCase()));
-    Priority priority = null;
-    if (Space.HIGH_PRIORITY.equals(space.getPriority())) {
-      priority = Priority.HIGH;
-    } else if (Space.INTERMEDIATE_PRIORITY.equals(space.getPriority())) {
-      priority = Priority.INTERMEDIATE;
-    } else if (Space.LOW_PRIORITY.equals(space.getPriority())) {
-      priority = Priority.LOW;
-    }
-    spaceEntity.setPriority(priority);
     if (space.getRegistration() != null) {
       spaceEntity.setRegistration(Registration.valueOf(space.getRegistration().toUpperCase()));
     }

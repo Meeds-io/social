@@ -48,10 +48,6 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
             new MembershipEntry("/platform/users", "manager"),
             new MembershipEntry("/platform/administrators", "*")
     ));
-    spacesAdministrationService.updateSpacesCreatorsMemberships(Arrays.asList(
-            new MembershipEntry("/platform/administrators", "*"),
-            new MembershipEntry("/platform/users", "member")
-    ));
 
     startSessionAs("root", true);
 
@@ -63,7 +59,7 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     assertEquals(200, response.getStatus());
     List<SpacesAdministrationMembershipsEntity> membershipsEntities = (List<SpacesAdministrationMembershipsEntity>) response.getEntity();
     assertNotNull(membershipsEntities);
-    assertEquals(2, membershipsEntities.size());
+    assertEquals(1, membershipsEntities.size());
     List<SpacesAdministrationMembershipsEntity> spacesAdministrators = membershipsEntities.stream().filter(m -> m.getId().equals("spacesAdministrators")).collect(Collectors.toList());
     assertNotNull(spacesAdministrators);
     assertEquals(1, spacesAdministrators.size());
@@ -72,14 +68,6 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     assertEquals(2, spacesAdministratorsMemberships.size());
     assertTrue(spacesAdministratorsMemberships.contains(new MembershipEntry("/platform/users", "manager")));
     assertTrue(spacesAdministratorsMemberships.contains(new MembershipEntry("/platform/administrators", "*")));
-    List<SpacesAdministrationMembershipsEntity> spacesCreators = membershipsEntities.stream().filter(m -> m.getId().equals("spacesCreators")).collect(Collectors.toList());
-    assertNotNull(spacesCreators);
-    assertEquals(1, spacesCreators.size());
-    List<MembershipEntry> spacesCreatorsMemberships = spacesCreators.get(0).getMemberships();
-    assertNotNull(spacesCreatorsMemberships);
-    assertEquals(2, spacesCreatorsMemberships.size());
-    assertTrue(spacesCreatorsMemberships.contains(new MembershipEntry("/platform/administrators", "*")));
-    assertTrue(spacesCreatorsMemberships.contains(new MembershipEntry("/platform/users", "member")));
   }
 
   public void testShouldNotAuthorizedWhenGettingAllSettingsAsNotPlatformAdministrator() throws Exception {
@@ -87,10 +75,6 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
             new MembershipEntry("/platform/users", "manager"),
             new MembershipEntry("/platform/administrators", "*")
-    ));
-    spacesAdministrationService.updateSpacesCreatorsMemberships(Arrays.asList(
-            new MembershipEntry("/platform/administrators", "*"),
-            new MembershipEntry("/platform/users", "member")
     ));
 
     startSessionAs("mary");
@@ -103,45 +87,9 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     assertEquals(403, response.getStatus());
   }
 
-  public void testShouldReturnTrueWhenAuthorizedCanCreateSpaces() throws Exception {
-    // Given
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
-        new MembershipEntry("/platform/users", "manager"),
-        new MembershipEntry("/platform/administrators", "*")
-    ));
-
-    startSessionAs("root");
-
-    // When
-    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/mary"), "", null, null, "mary");
-
-    // Then
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    assertTrue(response.getEntity().equals("true"));
-  }
-
-  public void testShouldReturnFalseWhenUserAuthorizedCanCreateSpaces() throws Exception {
-    // Given
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
-        new MembershipEntry("/platform/users", "manager"),
-        new MembershipEntry("/platform/administrators", "*")
-    ));
-
-    startSessionAs("root");
-
-    // When
-    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/canCreatespaces/__anonim"), "", null, null, "mary");
-
-    // Then
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    assertTrue(response.getEntity().equals("false"));
-  }
-
   public void testShouldReturnEmptySpacesAdministratorsWhenSettingIsEmpty() throws Exception {
     // Given
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Collections.EMPTY_LIST);
+    spacesAdministrationService.updateSpacesAdministratorsMemberships(Collections.emptyList());
 
     startSessionAs("root");
 
@@ -251,116 +199,4 @@ public class SpacesAdministrationRestResourcesTest extends AbstractResourceTest 
     assertEquals(403, response.getStatus());
   }
 
-
-  public void testShouldReturnEmptySpacesCreatorsWhenSettingIsEmpty() throws Exception {
-    // Given
-    spacesAdministrationService.updateSpacesCreatorsMemberships(Collections.EMPTY_LIST);
-
-    startSessionAs("root");
-
-    // When
-    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/spacesCreators"), "", null, null, "root");
-
-    // Then
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    SpacesAdministrationMembershipsEntity membershipsEntity = (SpacesAdministrationMembershipsEntity) response.getEntity();
-    List<MembershipEntry> memberships = membershipsEntity.getMemberships();
-    assertNotNull(memberships);
-    assertEquals(0, memberships.size());
-  }
-
-  public void testShouldReturnSpacesCreatorsWhenSettingIsNotNull() throws Exception {
-    // Given
-    spacesAdministrationService.updateSpacesCreatorsMemberships(Arrays.asList(
-            new MembershipEntry("/platform/users", "manager"),
-            new MembershipEntry("/platform/administrators", "*")
-    ));
-
-    startSessionAs("root");
-
-    // When
-    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/spacesCreators"), "", null, null, "root");
-
-    // Then
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    SpacesAdministrationMembershipsEntity membershipsEntity = (SpacesAdministrationMembershipsEntity) response.getEntity();
-    List<MembershipEntry> memberships = membershipsEntity.getMemberships();
-    assertNotNull(memberships);
-    assertEquals(2, memberships.size());
-    assertTrue(memberships.contains(new MembershipEntry("/platform/users", "manager")));
-    assertTrue(memberships.contains(new MembershipEntry("/platform/administrators", "*")));
-  }
-
-  public void testShouldReturnNotAuthorizedWhenGettingSpacesCreatorsAsNotPlatformAdministrator() throws Exception {
-    // Given
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(
-            new MembershipEntry("/platform/users", "manager"),
-            new MembershipEntry("/platform/administrators", "*")
-    ));
-
-    startSessionAs("mary");
-
-    // When
-    ContainerResponse response = service("GET", getURLResource("spacesAdministration/permissions/spacesCreators"), "", null, null, "mary");
-
-    // Then
-    assertNotNull(response);
-    assertEquals(403, response.getStatus());
-  }
-
-  public void testShouldUpdateSpacesCreatorsWhenSpacesAdministrator() throws Exception {
-    // Given
-    spacesAdministrationService.updateSpacesCreatorsMemberships(Arrays.asList(
-            new MembershipEntry("/platform/users", "manager"),
-            new MembershipEntry("/platform/administrators", "*")
-    ));
-    String newMemberships = "[" +
-            " {" +
-            "   \"membershipType\": \"member\"," +
-            "   \"group\": \"/platform/users\"" +
-            " }" +
-            "]";
-    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    headers.putSingle("content-type", "application/json");
-
-    startSessionAs("root");
-
-    // When
-    ContainerResponse response = service("PUT", getURLResource("spacesAdministration/permissions/spacesCreators"), "", headers, newMemberships.getBytes(), "root");
-
-    // Then
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    List<MembershipEntry> spacesCreatorsMemberships = spacesAdministrationService.getSpacesAdministratorsMemberships();
-    assertNotNull(spacesCreatorsMemberships);
-    assertEquals(1, spacesCreatorsMemberships.size());
-    assertTrue(spacesCreatorsMemberships.contains(new MembershipEntry("/platform/users", "member")));
-  }
-
-  public void testShouldNotAuthorizedWhenUpdatingSpacesCreatorsAsNotPlatformAdministrator() throws Exception {
-    // Given
-    spacesAdministrationService.updateSpacesCreatorsMemberships(Arrays.asList(
-            new MembershipEntry("/platform/users", "manager"),
-            new MembershipEntry("/platform/administrators", "*")
-    ));
-    String newMemberships = "[" +
-            " {" +
-            "   \"membershipType\": \"member\"," +
-            "   \"group\": \"/platform/users\"" +
-            " }" +
-            "]";
-    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-    headers.putSingle("content-type", "application/json");
-
-    startSessionAs("mary");
-
-    // When
-    ContainerResponse response = service("PUT", getURLResource("spacesAdministration/permissions/spacesCreators"), "", headers, newMemberships.getBytes(), "mary");
-
-    // Then
-    assertNotNull(response);
-    assertEquals(403, response.getStatus());
-  }
 }

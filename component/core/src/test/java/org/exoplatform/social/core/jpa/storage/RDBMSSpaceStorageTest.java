@@ -109,7 +109,6 @@ public class RDBMSSpaceStorageTest extends SpaceStorageTest {
     spaceStorage.getLastAccessedSpace(filter,0,10);
     // clear SpaceCache and SpaceSimpleCache
     cacheService.getSpaceCache().clearCache();
-    cacheService.getSpaceSimpleCache().clearCache();
     //Get last accessed space list again, this will fill both SimpleSpaceCache and SpaceCache with a SpaceSimpleData
     //that has members and managers set to null by the function putSpaceInCacheIfNotExists
     spaceStorage.getLastAccessedSpace(filter,0,10);

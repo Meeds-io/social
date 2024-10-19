@@ -49,7 +49,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -57,9 +56,6 @@ import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.deprecation.DeprecatedAPI;
-import org.exoplatform.portal.config.model.Page;
-import org.exoplatform.portal.mop.PageType;
-import org.exoplatform.portal.mop.user.UserNode;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.LocaleConfigService;
@@ -88,7 +84,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.BaseEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
@@ -109,7 +104,6 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
@@ -432,7 +426,7 @@ public class SpaceRest implements ResourceContainer {
                                @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
                                           required = false)
                                @QueryParam("expand")
-                               String expand) throws Exception {
+                               String expand) {
     Space space = spaceService.getSpaceById(id);
     return buildSpaceResponse(space, expand, uriInfo, request);
   }
@@ -474,7 +468,7 @@ public class SpaceRest implements ResourceContainer {
                                                   description = "Asking for a full representation of a specific subresource, ex: members or managers",
                                                   required = false)
                                        @QueryParam("expand")
-                                       String expand) throws Exception {
+                                       String expand) {
 
     Space space = spaceService.getSpaceByPrettyName(prettyName);
     return buildSpaceResponse(space, expand, uriInfo, request);
@@ -532,7 +526,7 @@ public class SpaceRest implements ResourceContainer {
                                                    description = "Asking for a full representation of a specific subresource, ex: members or managers",
                                                    required = false)
                                         @QueryParam("expand")
-                                        String expand) throws Exception {
+                                        String expand) {
 
     Space space = spaceService.getSpaceByDisplayName(displayName);
     return buildSpaceResponse(space, expand, uriInfo, request);
@@ -867,7 +861,7 @@ public class SpaceRest implements ResourceContainer {
                                   @Parameter(description = "Asking for a full representation of a specific subresource if any",
                                              required = false)
                                   @QueryParam("expand")
-                                  String expand) throws Exception {
+                                  String expand) {
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
@@ -876,7 +870,13 @@ public class SpaceRest implements ResourceContainer {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     space.setEditor(authenticatedUser);
-    spaceService.deleteSpace(space);
+    try {
+      spaceService.deleteSpace(space);
+    } catch (SpaceException e) {
+      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+                                                .entity(e.getCode().name())
+                                                .build());
+    }
 
     return Response.ok().build();
   }
@@ -981,14 +981,6 @@ public class SpaceRest implements ResourceContainer {
     return builder.build();
   }
 
-  /**
-   * Checks if is the given userId is a space member.
-   *
-   * @param uriInfo the uri info
-   * @param id the space id
-   * @param userId the user id
-   * @return the response
-   */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("{id}/users/{userId}")
@@ -1020,87 +1012,6 @@ public class SpaceRest implements ResourceContainer {
     return Response.ok().entity("{\"isMember\":\"" + isMember + "\"}").build();
   }
 
-  @GET
-  @Path("{id}/navigations")
-  @RolesAllowed("users")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Return list of navigations of a space", method = "GET",
-             description = "Return list of navigations of a space")
-  @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "401", description = "Unauthorized") })
-  @Deprecated(forRemoval = true, since = "7.0")
-  @DeprecatedAPI(value = "Use NavigationRest.getSiteTypeNavigations instead", insist = true)
-  public Response getSpaceNavigations(
-                                      @Context
-                                      HttpServletRequest httpRequest,
-                                      @Context
-                                      Request request,
-                                      @Parameter(description = "Space id", required = true)
-                                      @PathParam("id")
-                                      String spaceId) {
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Space space = spaceService.getSpaceById(spaceId);
-    if (!spaceService.canViewSpace(space, authenticatedUser)) {
-      return Response.status(Response.Status.UNAUTHORIZED).build();
-    }
-    List<UserNode> navigations = SpaceUtils.getSpaceNavigations(space, httpRequest.getLocale(), authenticatedUser);
-    if (CollectionUtils.isEmpty(navigations)) {
-      return Response.ok(Collections.emptyList()).build();
-    }
-    List<DataEntity> spaceNavigations = navigations.stream().map(node -> {
-      BaseEntity app = new BaseEntity(node.getId());
-      app.setProperty("label", node.getResolvedLabel());
-      app.setProperty("icon", node.getIcon());
-      app.setProperty("uri", node.getURI());
-      app.setProperty("target", node.getTarget());
-      if (node.getPageRef() != null) {
-        Page navigationNodePage = SpaceUtils.getLayoutService().getPage(node.getPageRef());
-        if (PageType.LINK.equals(PageType.valueOf(navigationNodePage.getType()))) {
-          app.setProperty("link", navigationNodePage.getLink());
-        }
-      }
-      return app.getDataEntity();
-    }).toList();
-    return Response.ok(spaceNavigations, MediaType.APPLICATION_JSON).build();
-  }
-
-  @PUT
-  @Path("layout/{appId}/{spaceId}")
-  @RolesAllowed("users")
-  @Operation(
-             summary = "Restores space Page Layout switch associated space template",
-             method = "PUT",
-             description = "This operation will restores the default page layout of a designated space switch its space template as if it was a new space creation." +
-                 "The applications data will not be change, only the layout definition and structure of the page." +
-                 "This endpoint is accessible only for spaces managers.")
-  @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "401", description = "User not authorized to call this endpoint"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error") })
-  public Response restoreSpacePageLayout(
-                                         @Context
-                                         UriInfo uriInfo,
-                                         @Parameter(description = "Space application identifier to reset. Can be 'home' or any page name.",
-                                                    required = true)
-                                         @PathParam("appId")
-                                         String appId,
-                                         @Parameter(description = "Space technical identifier", required = true)
-                                         @PathParam("spaceId")
-                                         String spaceId) {
-    try {
-      spaceService.restoreSpacePageLayout(spaceId, appId, ConversationState.getCurrent().getIdentity());
-      return Response.ok().build();
-    } catch (IllegalAccessException e) {
-      return Response.status(Status.UNAUTHORIZED).build();
-    } catch (SpaceException e) {
-      return Response.serverError().entity(e.getLocalizedMessage()).build();
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Path("{id}/activities")
   @RolesAllowed("users")
@@ -1144,9 +1055,6 @@ public class SpaceRest implements ResourceContainer {
     return activityRestResourcesV1.getActivities(uriInfo, id, before, after, offset, limit, returnSize, expand, null);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @POST
   @Path("{id}/activities")
   @Produces(MediaType.APPLICATION_JSON)
@@ -1178,8 +1086,6 @@ public class SpaceRest implements ResourceContainer {
 
   @SneakyThrows
   private void fillSpaceFromModel(Space space, SpaceEntity model) {
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
-
     if (StringUtils.isNotBlank(model.getDisplayName())) {
       space.setDisplayName(model.getDisplayName());
       space.setDescription(model.getDescription());
@@ -1196,8 +1102,8 @@ public class SpaceRest implements ResourceContainer {
       }
     }
 
-    if (StringUtils.isNotBlank(model.getTemplate())) {
-      space.setTemplate(model.getTemplate());
+    if (model.getTemplateId() > 0) {
+      space.setTemplateId(model.getTemplateId());
     }
 
     if (StringUtils.isNotBlank(model.getBannerId())) {
