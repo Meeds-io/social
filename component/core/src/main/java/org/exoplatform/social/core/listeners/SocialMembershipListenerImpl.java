@@ -21,7 +21,14 @@ import java.util.List;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfig;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.mop.user.UserPortal;
+import org.exoplatform.portal.webui.util.Util;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipTypeHandler;
@@ -48,6 +55,8 @@ import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
  */
 public class SocialMembershipListenerImpl extends MembershipEventListener {
 
+  private static final Log LOG = ExoLogger.getLogger(SocialMembershipListenerImpl.class);
+
   private static final String PLATFORM_EXTERNALS_GROUP = "/platform/externals";
 
   @Override
@@ -65,7 +74,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
   }
 
   @Override
-  public void postDelete(Membership m) throws Exception {
+  public void postDelete(Membership m) throws Exception { // NOSONAR
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)) {
       UserACL acl = CommonsUtils.getService(UserACL.class);
 
@@ -114,7 +123,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         if (!hasPublisherMembership) {
           spaceService.removePublisher(space, m.getUserName());
         }
-        SpaceUtils.refreshNavigation();
+        refreshNavigation();
         clearOwnerGlobalStreamCache(m.getUserName());
       }
     } else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
@@ -128,14 +137,11 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
     // existing SpaceGroup
     if (m.getGroupId().startsWith(SpaceUtils.SPACE_GROUP)) {
 
-      ExoContainer container = ExoContainerContext.getCurrentContainer();
-      UserACL acl = (UserACL) container.getComponentInstanceOfType(UserACL.class);
+      UserACL acl = ExoContainerContext.getService(UserACL.class);
       // only handles these memberships have types likes 'manager' and 'member'
       // , except 'validator', ...so on.
-      SpaceService spaceService = (SpaceService) container.getComponentInstanceOfType(SpaceService.class);
+      SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
       Space space = spaceService.getSpaceByGroupId(m.getGroupId());
-      // TODO A case to confirm: will we create a new space here when a new
-      // group is created via organization portlet
       if (space != null) {
         ConversationState state = ConversationState.getCurrent();
         if (state != null && state.getIdentity() != null && space.getEditor() == null) {
@@ -172,7 +178,7 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         }
 
         // Refresh GroupNavigation
-        SpaceUtils.refreshNavigation();
+        refreshNavigation();
       }
 
     }
@@ -193,6 +199,54 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
     } else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();
     }
+  }
+
+  private void refreshNavigation() {
+    try {
+      UserPortal userPortal = getUserPortal();
+
+      if (userPortal != null) {
+        userPortal.refresh();
+      }
+    } catch (Exception e) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("It seem that we don't have a WebUI context, ignoring.", e);
+      } else {
+        LOG.warn("It seem that we don't have a WebUI context, error message: {}. Ignoring.", e.getMessage());
+      }
+    }
+  }
+
+  private UserPortal getUserPortal() {
+    try {
+      PortalRequestContext prc = Util.getPortalRequestContext();
+      return prc.getUserPortalConfig().getUserPortal();
+    } catch (Exception e) {
+      // Makes sure that in the RestService still gets the UserPortal.
+      try {
+        return getUserPortalForRest();
+      } catch (Exception e1) {
+        return null;
+      }
+    }
+  }
+
+  private UserPortal getUserPortalForRest() {
+    return getUserPortalConfig().getUserPortal();
+  }
+
+  private UserPortalConfig getUserPortalConfig() {
+    ExoContainer container = ExoContainerContext.getCurrentContainer();
+    UserPortalConfigService userPortalConfigSer = container.getComponentInstanceOfType(UserPortalConfigService.class);
+
+    ConversationState conversationState = ConversationState.getCurrent();
+    String remoteId;
+    if (conversationState == null) {
+      remoteId = null;
+    } else {
+      remoteId = conversationState.getIdentity().getUserId();
+    }
+    return userPortalConfigSer.getUserPortalConfig(userPortalConfigSer.getMetaPortal(), remoteId);
   }
 
   private void clearIdentityCaching() {

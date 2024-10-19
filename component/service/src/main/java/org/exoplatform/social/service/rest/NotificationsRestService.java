@@ -433,7 +433,7 @@ public class NotificationsRestService implements ResourceContainer {
           break;
         }
         case connections_request: {
-          userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, objectId, true);
+          userIdentity = getIdentityManager().getOrCreateUserIdentity(objectId);
           targetURL = Util.getBaseUrl() + LinkProvider.getRedirectUri("people/receivedInvitations/" + userIdentity.getRemoteId());
           break;
         }
@@ -442,8 +442,7 @@ public class NotificationsRestService implements ResourceContainer {
           break;
         }
         case notification_settings: {
-          userIdentity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, objectId, true);
-          targetURL = Util.getBaseUrl() + LinkProvider.getUserNotificationSettingUri(userIdentity.getRemoteId());
+          targetURL = Util.getBaseUrl() + LinkProvider.getUserNotificationSettingUri();
           break;
         }
         default: {

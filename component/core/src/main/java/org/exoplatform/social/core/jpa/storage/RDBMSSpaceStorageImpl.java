@@ -379,13 +379,6 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   }
 
   @Override
-  public int getNumberOfMemberPublicSpaces(String userId) {
-    XSpaceFilter filter = new XSpaceFilter();
-    filter.setNotHidden(true);
-    return getSpacesCount(userId, SpaceMembershipStatus.MEMBER, filter);
-  }
-
-  @Override
   public List<Space> getPendingSpaces(String userId) throws SpaceStorageException {
     return getPendingSpaces(userId, 0, -1);
   }
@@ -408,37 +401,6 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
   @Override
   public int getPendingSpacesCount(String userId) throws SpaceStorageException {
     return getPendingSpacesByFilterCount(userId, null);
-  }
-
-  @Override
-  public List<Space> getPublicSpaces(String userId) throws SpaceStorageException {
-    return getPublicSpaces(userId, 0, -1);
-  }
-
-  @Override
-  public List<Space> getPublicSpaces(String userId, long offset, long limit) throws SpaceStorageException {
-    return getPublicSpacesByFilter(userId, null, offset, limit);
-  }
-
-  @Override
-  public List<Space> getPublicSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    XSpaceFilter filter = new XSpaceFilter();
-    filter.setSpaceFilter(spaceFilter);
-    filter.setPublic(userId);
-    return getSpacesByFilter(filter, offset, limit);
-  }
-
-  @Override
-  public int getPublicSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    XSpaceFilter filter = new XSpaceFilter();
-    filter.setSpaceFilter(spaceFilter);
-    filter.setPublic(userId);
-    return getSpacesCount(null, null, filter);
-  }
-
-  @Override
-  public int getPublicSpacesCount(String userId) throws SpaceStorageException {
-    return getPublicSpacesByFilterCount(userId, null);
   }
 
   @Override
@@ -884,7 +846,6 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
    * @param space the space pojo for services
    */
   private Space fillSpaceSimpleFromEntity(SpaceEntity entity, Space space) {
-    space.setApp(StringUtils.join(entity.getApp(), ","));
     space.setId(String.valueOf(entity.getId()));
     space.setDisplayName(entity.getDisplayName());
     space.setPrettyName(entity.getPrettyName());
@@ -892,25 +853,9 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
       space.setRegistration(entity.getRegistration().name().toLowerCase());
     }
     space.setDescription(entity.getDescription());
-    space.setTemplate(entity.getTemplate());
     space.setTemplateId(entity.getTemplateId() == null ? 0 : entity.getTemplateId().longValue());
     if (entity.getVisibility() != null) {
       space.setVisibility(entity.getVisibility().name().toLowerCase());
-    }
-    if (entity.getPriority() != null) {
-      switch (entity.getPriority()) {
-      case HIGH:
-        space.setPriority(Space.HIGH_PRIORITY);
-        break;
-      case INTERMEDIATE:
-        space.setPriority(Space.INTERMEDIATE_PRIORITY);
-        break;
-      case LOW:
-        space.setPriority(Space.LOW_PRIORITY);
-        break;
-      default:
-        space.setPriority(null);
-      }
     }
     space.setGroupId(entity.getGroupId());
     space.setPublicSiteId(entity.getPublicSiteId());
@@ -927,8 +872,8 @@ public class RDBMSSpaceStorageImpl implements SpaceStorage {
                                                    true,
                                                    lastUpdated.getTime()));
     lastUpdated = entity.getBannerLastUpdated();
-    if (lastUpdated == null && !StringUtils.isBlank(space.getTemplate())) {
-      space.setBannerUrl(LinkProvider.buildBannerURL("spaceTemplates", space.getTemplate(), null));
+    if (lastUpdated == null && space.getTemplateId() > 0) {
+      space.setBannerUrl(LinkProvider.buildBannerURL("spaceTemplates", String.valueOf(space.getTemplateId()), null));
     } else {
       Long bannerLastUpdated = lastUpdated == null ? null : lastUpdated.getTime();
       space.setBannerLastUpdated(bannerLastUpdated);
