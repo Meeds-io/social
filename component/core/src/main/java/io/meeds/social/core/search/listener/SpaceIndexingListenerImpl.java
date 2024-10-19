@@ -91,26 +91,6 @@ public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
   }
 
   @Override
-  public void applicationActivated(SpaceLifeCycleEvent event) {
-    reindex(event, "space application activated");
-  }
-
-  @Override
-  public void applicationAdded(SpaceLifeCycleEvent event) {
-    reindex(event, "space application added");
-  }
-
-  @Override
-  public void applicationDeactivated(SpaceLifeCycleEvent event) {
-    reindex(event, "space application disabled");
-  }
-
-  @Override
-  public void applicationRemoved(SpaceLifeCycleEvent event) {
-    reindex(event, "space application removed");
-  }
-
-  @Override
   public void grantedLead(SpaceLifeCycleEvent event) {
     reindex(event, "space member granted as manager");
   }

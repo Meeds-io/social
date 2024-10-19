@@ -30,7 +30,6 @@ import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
 import org.exoplatform.social.core.storage.cache.model.data.ProfileData;
 import org.exoplatform.social.core.storage.cache.model.data.RelationshipData;
 import org.exoplatform.social.core.storage.cache.model.data.SpaceData;
-import org.exoplatform.social.core.storage.cache.model.data.SpaceSimpleData;
 import org.exoplatform.social.core.storage.cache.model.data.SuggestionsData;
 import org.exoplatform.social.core.storage.cache.model.key.ActivityCountKey;
 import org.exoplatform.social.core.storage.cache.model.key.ActivityKey;
@@ -84,8 +83,6 @@ public class SocialStorageCacheService {
   private final ExoCache<SpaceKey, HashMap<Long, Long>> spacesCountByTemplateCache;
   private final ExoCache<ListSpacesKey, ListSpacesData> spacesCache;
   
-  private final ExoCache<SpaceKey, SpaceSimpleData> spaceSimpleCache;
-
   public SocialStorageCacheService(CacheService cacheService) {
     
     this.identityCache = CacheType.IDENTITY.getFromService(cacheService);
@@ -111,9 +108,6 @@ public class SocialStorageCacheService {
     this.spacesCountCache = CacheType.SPACES_COUNT.getFromService(cacheService);
     this.spacesCountByTemplateCache = CacheType.SPACES_COUNT_BY_TEMPLATE.getFromService(cacheService);
     this.spacesCache = CacheType.SPACES.getFromService(cacheService);
-    
-    this.spaceSimpleCache = CacheType.SPACE_SIMPLE.getFromService(cacheService);
-
   }
 
   public ExoCache<SpaceKey, HashMap<Long, Long>> getSpacesCountByTemplateCache() {
@@ -177,10 +171,6 @@ public class SocialStorageCacheService {
 
   public ExoCache<SpaceKey, SpaceData> getSpaceCache() {
     return spaceCache;
-  }
-  
-  public ExoCache<SpaceKey, SpaceSimpleData> getSpaceSimpleCache() {
-    return spaceSimpleCache;
   }
 
   public ExoCache<SpaceRefKey, SpaceKey> getSpaceRefCache() {

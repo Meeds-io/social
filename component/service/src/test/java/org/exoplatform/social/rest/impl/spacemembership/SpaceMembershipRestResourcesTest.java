@@ -654,7 +654,6 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
       space.setDescription("add new space " + index);
       space.setVisibility(visibility);
       space.setRegistration(Space.VALIDATION);
-      space.setPriority(Space.INTERMEDIATE_PRIORITY);
       this.spaceService.createSpace(space, creator);
     }
   }

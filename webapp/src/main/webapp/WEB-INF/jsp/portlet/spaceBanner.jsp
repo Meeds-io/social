@@ -21,7 +21,7 @@
     id="SpaceHeader">
     <v-cacheable-dom-app cache-id="SpaceHeader_<%=space == null ? "0" : space.getId()%>"></v-cacheable-dom-app>
     <script type="text/javascript">
-      require(['PORTLET/social/SpaceBannerPortlet'], app => app.init(null, '<%=bannerUrl%>', <%=maxUploadSize%>, <%=isAdmin%>));
+      require(['PORTLET/social/SpaceBannerPortlet'], app => app.init('<%=bannerUrl%>', <%=maxUploadSize%>, <%=isAdmin%>));
     </script>
   </div>
 </div>
