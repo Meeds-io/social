@@ -70,6 +70,8 @@ import jakarta.persistence.Tuple;
 
 public class SpaceStorage {
 
+  private static final String        DEFAULT_BANNER_URL         = "/social/images/defaultSpaceBanner.webp";
+
   /** Logger */
   private static final Log           LOG                        = ExoLogger.getLogger(SpaceStorage.class);
 
@@ -388,18 +390,6 @@ public class SpaceStorage {
   public Space getSpaceByUrl(String url) throws SpaceStorageException {
     SpaceEntity entity = spaceDAO.getSpaceByURL(url);
     return fillSpaceFromEntity(entity);
-  }
-
-  public Space getSpaceSimpleById(String id) throws SpaceStorageException {
-    Long spaceId;
-    try {
-      spaceId = Long.parseLong(id);
-    } catch (Exception ex) {
-      return null;
-    }
-    SpaceEntity entity = spaceDAO.find(spaceId);
-    Space space = new Space();
-    return fillSpaceSimpleFromEntity(entity, space);
   }
 
   public List<Space> getSpaces(long offset, long limit) throws SpaceStorageException {
@@ -790,6 +780,8 @@ public class SpaceStorage {
     space.setUrl(entity.getUrl());
     space.setCreatedTime(entity.getCreatedDate().getTime());
     space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
+    space.setDeletePermissions(entity.getDeletePermissions());
+    space.setLayoutPermissions(entity.getLayoutPermissions());
 
     Date lastUpdated = ObjectUtils.getFirstNonNull(entity::getAvatarLastUpdated, () -> new Date(System.currentTimeMillis()));
     space.setAvatarLastUpdated(lastUpdated.getTime());
@@ -798,10 +790,10 @@ public class SpaceStorage {
                                                    true,
                                                    lastUpdated.getTime()));
     lastUpdated = entity.getBannerLastUpdated();
-    if (lastUpdated == null && space.getTemplateId() > 0) {
-      space.setBannerUrl(LinkProvider.buildBannerURL("spaceTemplates", String.valueOf(space.getTemplateId()), null));
+    if (lastUpdated == null) {
+      space.setBannerUrl(DEFAULT_BANNER_URL);
     } else {
-      Long bannerLastUpdated = lastUpdated == null ? null : lastUpdated.getTime();
+      Long bannerLastUpdated = lastUpdated.getTime();
       space.setBannerLastUpdated(bannerLastUpdated);
       space.setBannerUrl(LinkProvider.buildBannerURL(SpaceIdentityProvider.NAME, space.getId(), true, bannerLastUpdated));
     }
