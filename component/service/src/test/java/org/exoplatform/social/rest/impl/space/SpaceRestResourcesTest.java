@@ -458,12 +458,9 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     Space space = getSpaceInstance(1, user);
 
     String bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
-    assertThat(bannerUrl, containsString("default-image"));
+    assertThat(bannerUrl, containsString("/social/images/defaultSpaceBanner.webp"));
 
     startSessionAs(user);
-    ContainerResponse response = service("GET", bannerUrl, "", null, null);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
 
     uploadSpaceBanner(user, space.getId());
 
@@ -472,7 +469,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     bannerUrl = space.getBannerUrl().replace("/portal/rest", "");
 
-    response = service("GET", bannerUrl, "", null, null);
+    ContainerResponse response = service("GET", bannerUrl, "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
@@ -542,7 +539,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
     assertNotNull(spaceEntity);
-    assertThat(spaceEntity.getBannerUrl(), containsString("default-image"));
+    assertThat(spaceEntity.getBannerUrl(), containsString("/social/images/defaultSpaceBanner.webp"));
   }
 
   public void testGetSpaceById() throws Exception {

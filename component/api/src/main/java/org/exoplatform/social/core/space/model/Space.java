@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.core.space.model;
 
+import java.util.List;
+
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.CacheEntry;
 import org.exoplatform.social.core.model.AvatarAttachment;
@@ -33,6 +35,33 @@ import lombok.Setter;
 public class Space implements CacheEntry {
 
   public static final String DEFAULT_SPACE_METADATA_OBJECT_TYPE = "space";
+
+  /** The Constant ACTIVE_STATUS. */
+  public static final String ACTIVE_STATUS                      = "active";
+
+  /** The Constant DEACTIVE_STATUS. */
+  public static final String DEACTIVE_STATUS                    = "deactive";
+
+  /** The Constant INSTALL_STATUS. */
+  public static final String INSTALL_STATUS                     = "installed";
+
+  /** The Constant PUBLIC. */
+  public static final String PUBLIC                             = "public";
+
+  /** The Constant PRIVATE. */
+  public static final String PRIVATE                            = "private";
+
+  /** The Constant HIDDEN. */
+  public static final String HIDDEN                             = "hidden";
+
+  /** The Constant OPEN. */
+  public static final String OPEN                               = "open";
+
+  /** The Constant VALIDATION. */
+  public static final String VALIDATION                         = "validation";
+
+  /** The Constant CLOSED. */
+  public static final String CLOSED                             = "closed";
 
   /** The id. */
   private String             id;
@@ -153,32 +182,13 @@ public class Space implements CacheEntry {
    */
   private String[]           publishers;
 
-  /** The Constant ACTIVE_STATUS. */
-  public static final String ACTIVE_STATUS                      = "active";
+  @Getter
+  @Setter
+  private List<String>       layoutPermissions;
 
-  /** The Constant DEACTIVE_STATUS. */
-  public static final String DEACTIVE_STATUS                    = "deactive";
-
-  /** The Constant INSTALL_STATUS. */
-  public static final String INSTALL_STATUS                     = "installed";
-
-  /** The Constant PUBLIC. */
-  public static final String PUBLIC                             = "public";
-
-  /** The Constant PRIVATE. */
-  public static final String PRIVATE                            = "private";
-
-  /** The Constant HIDDEN. */
-  public static final String HIDDEN                             = "hidden";
-
-  /** The Constant OPEN. */
-  public static final String OPEN                               = "open";
-
-  /** The Constant VALIDATION. */
-  public static final String VALIDATION                         = "validation";
-
-  /** The Constant CLOSED. */
-  public static final String CLOSED                             = "closed";
+  @Getter
+  @Setter
+  private List<String>       deletePermissions;
 
   public void setLastUpdatedTime(long lastUpdatedTime) {
     this.lastUpdatedTime = lastUpdatedTime;

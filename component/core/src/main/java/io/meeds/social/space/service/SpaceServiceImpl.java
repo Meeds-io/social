@@ -20,6 +20,28 @@
  */
 package io.meeds.social.space.service;
 
+import static org.exoplatform.social.core.space.SpaceUtils.AUTHENTICATED;
+import static org.exoplatform.social.core.space.SpaceUtils.EVERYONE;
+import static org.exoplatform.social.core.space.SpaceUtils.INTERNAL;
+import static org.exoplatform.social.core.space.SpaceUtils.MANAGER;
+import static org.exoplatform.social.core.space.SpaceUtils.MEMBER;
+import static org.exoplatform.social.core.space.SpaceUtils.PLATFORM_PUBLISHER_GROUP;
+import static org.exoplatform.social.core.space.SpaceUtils.PLATFORM_USERS_GROUP;
+import static org.exoplatform.social.core.space.SpaceUtils.PUBLISHER;
+import static org.exoplatform.social.core.space.SpaceUtils.SPACE_ADMIN_REFERENCE_NAME;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithManagerMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithMemberMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithPublisherMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithRedactorMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.createGroup;
+import static org.exoplatform.social.core.space.SpaceUtils.removeGroup;
+import static org.exoplatform.social.core.space.SpaceUtils.removeMembershipFromGroup;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithAnyMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithManagerMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithMemberMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithPublisherMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
+
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,14 +49,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -46,12 +68,14 @@ import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.ResourceBundleService;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceException.Code;
@@ -60,7 +84,6 @@ import org.exoplatform.social.core.space.SpaceLifecycle;
 import org.exoplatform.social.core.space.SpaceListAccess;
 import org.exoplatform.social.core.space.SpaceListAccessType;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
@@ -82,10 +105,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   private static final int            MAX_SPACE_NAME_LENGTH = 200;
 
-  public static final String          MEMBER                = "member";
-
-  public static final String          MANAGER               = "manager";
-
   private SpaceStorage                spaceStorage;
 
   private SpaceSearchConnector        spaceSearchConnector;
@@ -106,6 +125,8 @@ public class SpaceServiceImpl implements SpaceService {
 
   private SpaceTemplateService        spaceTemplateService;
 
+  private FileService                 fileService;
+
   private SpaceLifecycle              spaceLifeCycle        = new SpaceLifecycle();
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
@@ -115,7 +136,8 @@ public class SpaceServiceImpl implements SpaceService {
                           SpacesAdministrationService spacesAdministrationService,
                           UserACL userAcl,
                           ResourceBundleService resourceBundleService,
-                          LocaleConfigService localeConfigService) {
+                          LocaleConfigService localeConfigService,
+                          FileService fileService) {
     this.spaceStorage = spaceStorage;
     this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
@@ -124,6 +146,7 @@ public class SpaceServiceImpl implements SpaceService {
     this.userAcl = userAcl;
     this.resourceBundleService = resourceBundleService;
     this.localeConfigService = localeConfigService;
+    this.fileService = fileService;
   }
 
   @Override
@@ -193,24 +216,17 @@ public class SpaceServiceImpl implements SpaceService {
   public Space createSpace(Space space, String username, List<Identity> identitiesToInvite) throws SpaceException {
     if (!getSpaceTemplateService().canCreateSpace(space.getTemplateId(), username)) {
       throw new SpaceException(Code.SPACE_PERMISSION);
-    } else if (space.getDisplayName().length() > MAX_SPACE_NAME_LENGTH) {
-      throw new IllegalArgumentException("Error while creating the space " + space.getDisplayName() +
-          ": space name cannot exceed 200 characters");
     }
 
     // Copy only settable properties from provided DTO
     Space spaceToCreate = new Space();
-    spaceToCreate.setDisplayName(space.getDisplayName());
-    spaceToCreate.setDescription(space.getDescription());
-    spaceToCreate.setRegistration(space.getRegistration());
-    spaceToCreate.setVisibility(space.getVisibility());
-    spaceToCreate.setTemplateId(space.getTemplateId());
+    setSpaceProperties(space, spaceToCreate);
     spaceToCreate.setEditor(username);
     spaceToCreate.setMembers(new String[] { username });
     spaceToCreate.setManagers(new String[] { username });
 
     SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplate(spaceToCreate.getTemplateId());
-    copySpaceTemplateProperties(spaceToCreate, spaceTemplate, username);
+    copySpaceTemplateProperties(spaceToCreate, spaceTemplate, username, getUsersToInvite(identitiesToInvite));
 
     spaceLifeCycle.setCurrentEvent(Type.SPACE_CREATED);
     Space createdSpace;
@@ -226,12 +242,15 @@ public class SpaceServiceImpl implements SpaceService {
       spaceLifeCycle.resetCurrentEvent(Type.SPACE_CREATED);
     }
 
-    if (CollectionUtils.isNotEmpty(identitiesToInvite)) {
-      try {
-        inviteIdentities(createdSpace, identitiesToInvite);
-      } catch (Exception e) {
-        LOG.warn("Error inviting identities {} to space {}", identitiesToInvite, spaceToCreate.getDisplayName(), e);
-      }
+    long bannerId = spaceTemplateService.getSpaceTemplateBannerId(spaceTemplate.getId());
+    if (bannerId > 0) {
+      duplicateBannerById(createdSpace, bannerId, username);
+    }
+
+    try {
+      inviteIdentities(createdSpace, identitiesToInvite);
+    } catch (Exception e) {
+      LOG.warn("Error inviting identities {} to space {}", identitiesToInvite, spaceToCreate.getDisplayName(), e);
     }
     String spaceId = createdSpace.getId();
     space.setId(spaceId);
@@ -240,11 +259,11 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public void inviteIdentities(Space space, List<Identity> identitiesToInvite) {
-    if (identitiesToInvite == null || identitiesToInvite.isEmpty()) {
+    if (CollectionUtils.isEmpty(identitiesToInvite)) {
       return;
     }
 
-    Set<String> usernames = getUsersToInvite(identitiesToInvite);
+    List<String> usernames = getUsersToInvite(identitiesToInvite);
     for (String username : usernames) {
       if (isMember(space, username)) {
         continue;
@@ -303,7 +322,7 @@ public class SpaceServiceImpl implements SpaceService {
       groupSpaceBindings.stream().map(GroupSpaceBinding::getId).forEach(groupSpaceBindingStorage::deleteGroupBinding);
 
       // remove memberships of users with deleted space.
-      SpaceUtils.removeMembershipFromGroup(space);
+      removeMembershipFromGroup(space);
 
       Identity spaceIdentity = null;
       if (identityManager.identityExisted(SpaceIdentityProvider.NAME, space.getPrettyName())) {
@@ -319,7 +338,7 @@ public class SpaceServiceImpl implements SpaceService {
         Group spaceGroup = groupHandler.findGroupById(space.getGroupId());
         List<String> mandatories = userAcl.getMandatoryGroups();
         if (spaceGroup != null && !isMandatory(groupHandler, spaceGroup, mandatories)) {
-          SpaceUtils.removeGroup(space);
+          removeGroup(space);
         }
       }
       spaceLifeCycle.spaceRemoved(space, space.getEditor());
@@ -336,7 +355,7 @@ public class SpaceServiceImpl implements SpaceService {
       space = this.removeInvited(space, username);
       space = this.removePending(space, username);
       if (!ArrayUtils.contains(members, username)) {
-        SpaceUtils.addUserToGroupWithMemberMembership(username, space.getGroupId());
+        addUserToGroupWithMemberMembership(username, space.getGroupId());
         members = ArrayUtils.add(members, username);
         space.setMembers(members);
         spaceStorage.saveSpace(space, false);
@@ -376,13 +395,13 @@ public class SpaceServiceImpl implements SpaceService {
         members = ArrayUtils.addAll(members, disabledMembers.toArray(String[]::new));
       }
       if (ArrayUtils.contains(members, username)) {
-        SpaceUtils.removeUserFromGroupWithMemberMembership(username, space.getGroupId());
+        removeUserFromGroupWithMemberMembership(username, space.getGroupId());
         members = ArrayUtils.removeAllOccurrences(members, username);
         space.setMembers(members);
         spaceStorage.saveSpace(space, false);
         setManager(space, username, false);
         removeRedactor(space, username);
-        SpaceUtils.removeUserFromGroupWithAnyMembership(username, space.getGroupId());
+        removeUserFromGroupWithAnyMembership(username, space.getGroupId());
         spaceLifeCycle.memberLeft(space, username);
       }
     } finally {
@@ -561,22 +580,28 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public boolean canDeleteSpace(Space space, String username) {
+    return CollectionUtils.isEmpty(space.getDeletePermissions()) ? canManageSpace(space, username) :
+                                                                 hasDeletePermission(space, username);
+  }
+
+  @Override
   public boolean canAccessSpacePublicSite(Space space, String username) {
     if (space == null
         || space.getPublicSiteId() == 0
         || StringUtils.isBlank(space.getPublicSiteVisibility())) {
       return false;
-    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.EVERYONE)) {
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), EVERYONE)) {
       return true;
     } else if (userAcl.isAnonymousUser(username)) {
       return false;
-    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.AUTHENTICATED)) {
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), AUTHENTICATED)) {
       return true;
-    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.INTERNAL)) {
-      return userAcl.getUserIdentity(username).isMemberOf(SpaceUtils.PLATFORM_USERS_GROUP);
-    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MEMBER)) {
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), INTERNAL)) {
+      return userAcl.getUserIdentity(username).isMemberOf(PLATFORM_USERS_GROUP);
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), MEMBER)) {
       return canViewSpace(space, username);
-    } else if (StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER)) {
+    } else if (StringUtils.equals(space.getPublicSiteVisibility(), MANAGER)) {
       return canManageSpace(space, username);
     }
     return false;
@@ -654,7 +679,7 @@ public class SpaceServiceImpl implements SpaceService {
       redactors = ArrayUtils.add(redactors, username);
       space.setRedactors(redactors);
       spaceStorage.saveSpace(space, false);
-      SpaceUtils.addUserToGroupWithRedactorMembership(username, space.getGroupId());
+      addUserToGroupWithRedactorMembership(username, space.getGroupId());
     }
   }
 
@@ -662,7 +687,7 @@ public class SpaceServiceImpl implements SpaceService {
   public void removeRedactor(Space space, String username) {
     String[] redactors = space.getRedactors();
     if (ArrayUtils.contains(redactors, username)) {
-      SpaceUtils.removeUserFromGroupWithRedactorMembership(username, space.getGroupId());
+      removeUserFromGroupWithRedactorMembership(username, space.getGroupId());
       redactors = ArrayUtils.removeAllOccurrences(redactors, username);
       space.setRedactors(redactors);
       spaceStorage.saveSpace(space, false);
@@ -676,7 +701,7 @@ public class SpaceServiceImpl implements SpaceService {
       publishers = ArrayUtils.add(publishers, username);
       space.setPublishers(publishers);
       spaceStorage.saveSpace(space, false);
-      SpaceUtils.addUserToGroupWithPublisherMembership(username, space.getGroupId());
+      addUserToGroupWithPublisherMembership(username, space.getGroupId());
     }
   }
 
@@ -687,7 +712,7 @@ public class SpaceServiceImpl implements SpaceService {
       publishers = ArrayUtils.removeAllOccurrences(publishers, username);
       space.setPublishers(publishers);
       spaceStorage.saveSpace(space, false);
-      SpaceUtils.removeUserFromGroupWithPublisherMembership(username, space.getGroupId());
+      removeUserFromGroupWithPublisherMembership(username, space.getGroupId());
     }
   }
 
@@ -698,7 +723,7 @@ public class SpaceServiceImpl implements SpaceService {
       if (!ArrayUtils.contains(managers, username)) {
         spaceLifeCycle.setCurrentEvent(Type.GRANTED_LEAD);
         try {
-          SpaceUtils.addUserToGroupWithManagerMembership(username, space.getGroupId());
+          addUserToGroupWithManagerMembership(username, space.getGroupId());
           managers = ArrayUtils.add(managers, username);
           space.setManagers(managers);
           spaceStorage.saveSpace(space, false);
@@ -711,7 +736,7 @@ public class SpaceServiceImpl implements SpaceService {
       if (ArrayUtils.contains(managers, username)) {
         spaceLifeCycle.setCurrentEvent(Type.REVOKED_LEAD);
         try {
-          SpaceUtils.removeUserFromGroupWithManagerMembership(username, space.getGroupId());
+          removeUserFromGroupWithManagerMembership(username, space.getGroupId());
           managers = ArrayUtils.removeAllOccurrences(managers, username);
           space.setManagers(managers);
           spaceStorage.saveSpace(space, false);
@@ -730,7 +755,7 @@ public class SpaceServiceImpl implements SpaceService {
   public void unregisterSpaceListenerPlugin(SpaceListenerPlugin spaceListenerPlugin) {
     spaceLifeCycle.removeListener(spaceListenerPlugin);
   }
-  
+
   @Override
   public Space updateSpace(Space existingSpace) {
     return updateSpace(existingSpace, null);
@@ -786,7 +811,7 @@ public class SpaceServiceImpl implements SpaceService {
       identityManager.updateProfile(profile);
 
       existingSpace = spaceStorage.getSpaceById(existingSpace.getId());
-      existingSpace.setAvatarLastUpdated(System.currentTimeMillis());
+      existingSpace.setBannerLastUpdated(System.currentTimeMillis());
       spaceStorage.saveSpace(existingSpace, false);
 
       spaceLifeCycle.spaceBannerEdited(existingSpace, existingSpace.getEditor());
@@ -879,7 +904,7 @@ public class SpaceServiceImpl implements SpaceService {
       return true;
     }
     org.exoplatform.services.security.Identity identity = userAcl.getUserIdentity(username);
-    return identity != null && identity.isMemberOf(SpaceUtils.PLATFORM_PUBLISHER_GROUP, SpaceUtils.MANAGER);
+    return identity != null && identity.isMemberOf(PLATFORM_PUBLISHER_GROUP, MANAGER);
   }
 
   @Override
@@ -890,7 +915,7 @@ public class SpaceServiceImpl implements SpaceService {
       return true;
     }
     org.exoplatform.services.security.Identity identity = userAcl.getUserIdentity(username);
-    return identity != null && identity.isMemberOf(SpaceUtils.PLATFORM_PUBLISHER_GROUP, SpaceUtils.PUBLISHER);
+    return identity != null && identity.isMemberOf(PLATFORM_PUBLISHER_GROUP, PUBLISHER);
   }
 
   @Override
@@ -907,36 +932,98 @@ public class SpaceServiceImpl implements SpaceService {
     registerSpaceLifeCycleListener(plugin);
   }
 
-  private void copySpaceTemplateProperties(Space space, SpaceTemplate spaceTemplate, String username) throws SpaceException {
-    if (!spaceTemplate.getSpaceFields().contains("access")) {
-      space.setRegistration(spaceTemplate.getSpaceDefaultRegistration().name().toLowerCase());
-      space.setVisibility(spaceTemplate.getSpaceDefaultVisibility().name().toLowerCase());
+  private void setSpaceProperties(Space space, Space spaceToSave) {
+    spaceToSave.setDisplayName(space.getDisplayName());
+    spaceToSave.setDescription(space.getDescription());
+    spaceToSave.setRegistration(space.getRegistration());
+    spaceToSave.setVisibility(space.getVisibility());
+    spaceToSave.setTemplateId(space.getTemplateId());
+  }
+
+  private void copySpaceTemplateProperties(Space space,
+                                           SpaceTemplate spaceTemplate,
+                                           String username,
+                                           List<String> invitees) throws SpaceException {
+    setSpaceAccess(space, spaceTemplate);
+    setSpaceDisplayName(space, spaceTemplate, invitees);
+    // Creates the associated group to the space
+    String groupId = createSpaceGroup(space, username);
+    setDeletePermissions(space, spaceTemplate, groupId);
+    setLayoutPermissions(space, spaceTemplate, groupId);
+    setSpaceDefaultRedactors(space, spaceTemplate, username, groupId);
+  }
+
+  private void setSpaceDefaultRedactors(Space space, SpaceTemplate spaceTemplate, String username, String groupId) {
+    if (spaceTemplate.isSpaceAllowContentCreation()) {
+      space.setRedactors(new String[] { username });
+      addUserToGroupWithRedactorMembership(username, groupId);
+    } else {
+      space.setRedactors(new String[0]);
     }
-    if (!spaceTemplate.getSpaceFields().contains("name")) {
-      String[] users = ArrayUtils.addAll(space.getMembers(), space.getInvitedUsers());
+  }
+
+  private void setSpaceAccess(Space space, SpaceTemplate spaceTemplate) {
+    if (!spaceTemplate.getSpaceFields().contains("access")) {
+      if (StringUtils.isEmpty(space.getRegistration())) {
+        space.setRegistration(spaceTemplate.getSpaceDefaultRegistration().name().toLowerCase());
+      }
+      if (StringUtils.isEmpty(space.getVisibility())) {
+        space.setVisibility(spaceTemplate.getSpaceDefaultVisibility().name().toLowerCase());
+      }
+    }
+  }
+
+  private void setSpaceDisplayName(Space space, SpaceTemplate spaceTemplate, List<String> invitees) throws SpaceException {
+    if (!spaceTemplate.getSpaceFields().contains("name")
+        && StringUtils.isBlank(space.getDisplayName())) {
+      String[] users = ArrayUtils.addAll(space.getMembers(),
+                                         CollectionUtils.isEmpty(invitees) ? new String[0] :
+                                                                           invitees.toArray(new String[invitees.size()]));
       List<String> userFullNames = Arrays.stream(users)
-                                         .map(u -> identityManager.getOrCreateUserIdentity(u).getProfile().getFullName())
+                                         .map(u -> {
+                                           Profile profile = identityManager.getOrCreateUserIdentity(u).getProfile();
+                                           return StringUtils.firstNonBlank(profile.getFullName());
+                                         })
                                          .limit(2)
                                          .toList();
       String displayName = StringUtils.join(userFullNames, ", ");
       if (users.length > 2) {
-        displayName += " " +
-            resourceBundleService.getSharedString("space.name.more", localeConfigService.getDefaultLocaleConfig().getLocale())
-                                 .replace("{0}", String.valueOf(users.length - 2));
+        String moreLabel = resourceBundleService.getSharedString("space.name.more",
+                                                                 localeConfigService.getDefaultLocaleConfig().getLocale());
+        displayName +=
+                    " " + StringUtils.firstNonBlank(moreLabel, "and {0} more").replace("{0}", String.valueOf(users.length - 2));
       }
       space.setDisplayName(displayName);
+    } else if (space.getDisplayName() == null
+               || space.getDisplayName().length() < 3
+               || space.getDisplayName().length() > MAX_SPACE_NAME_LENGTH) {
+      throw new SpaceException(Code.INVALID_SPACE_NAME);
     }
-    // Creates the associated group to the space
-    String groupId = SpaceUtils.createGroup(space.getDisplayName(), space.getPrettyName(), username);
-    String prettyName = groupId.replace("/spaces/", "");
+  }
+
+  private String createSpaceGroup(Space space, String username) throws SpaceException {
+    String groupId = createGroup(space.getDisplayName(), space.getPrettyName(), username);
     space.setGroupId(groupId);
-    space.setPrettyName(prettyName);
-    space.setUrl(prettyName);
-    if (spaceTemplate.isSpaceAllowContentCreation()) {
-      space.setRedactors(new String[] { username });
-      SpaceUtils.addUserToGroupWithRedactorMembership(username, groupId);
+    space.setPrettyName(groupId.replace("/spaces/", ""));
+    space.setUrl(space.getPrettyName());
+    return groupId;
+  }
+
+  private void setLayoutPermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
+    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceLayoutPermissions())
+        || SPACE_ADMIN_REFERENCE_NAME.equals(spaceTemplate.getSpaceLayoutPermissions().getFirst())) {
+      space.setLayoutPermissions(Collections.singletonList(MANAGER + ":" + groupId));
     } else {
-      space.setRedactors(new String[0]);
+      space.setLayoutPermissions(spaceTemplate.getSpaceLayoutPermissions());
+    }
+  }
+
+  private void setDeletePermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
+    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceDeletePermissions())
+        || SPACE_ADMIN_REFERENCE_NAME.equals(spaceTemplate.getSpaceDeletePermissions().getFirst())) {
+      space.setDeletePermissions(Collections.singletonList(MANAGER + ":" + groupId));
+    } else {
+      space.setDeletePermissions(spaceTemplate.getSpaceDeletePermissions());
     }
   }
 
@@ -946,6 +1033,11 @@ public class SpaceServiceImpl implements SpaceService {
       throw new IllegalStateException("User " + editor + " is not authorized to change space.");
     }
     return editor;
+  }
+
+  private boolean hasDeletePermission(Space space, String username) {
+    org.exoplatform.services.security.Identity userIdentity = userAcl.getUserIdentity(username);
+    return space.getDeletePermissions().stream().anyMatch(permission -> userIdentity.isMemberOf(getMembershipEntry(permission)));
   }
 
   private void triggerSpaceUpdate(Space newSpace, Space oldSpace) {
@@ -971,11 +1063,6 @@ public class SpaceServiceImpl implements SpaceService {
     }
   }
 
-  /**
-   * Gets OrganizationService
-   *
-   * @return organizationService
-   */
   private OrganizationService getOrgService() {
     if (organizationService == null) {
       organizationService = ExoContainerContext.getService(OrganizationService.class);
@@ -983,7 +1070,10 @@ public class SpaceServiceImpl implements SpaceService {
     return organizationService;
   }
 
-  private Set<String> getUsersToInvite(List<Identity> identities) {
+  private List<String> getUsersToInvite(List<Identity> identities) {
+    if (identities == null) {
+      return Collections.emptyList();
+    }
     return identities.stream()
                      .filter(identity -> identity != null
                                          && StringUtils.isNotBlank(identity.getRemoteId())
@@ -1005,8 +1095,8 @@ public class SpaceServiceImpl implements SpaceService {
                          return Stream.empty();
                        }
                      })
-                     .collect(Collectors.toSet());
-
+                     .distinct()
+                     .toList();
   }
 
   @SneakyThrows
@@ -1019,6 +1109,18 @@ public class SpaceServiceImpl implements SpaceService {
         return true;
     }
     return false;
+  }
+
+  @SneakyThrows
+  private void duplicateBannerById(Space space, long bannerId, String username) {
+    FileItem file = fileService.getFile(bannerId);
+    BannerAttachment attachment = new BannerAttachment(null,
+                                                       file.getFileInfo().getName(),
+                                                       file.getFileInfo().getMimetype(),
+                                                       file.getAsStream(),
+                                                       System.currentTimeMillis());
+    space.setBannerAttachment(attachment);
+    updateSpaceBanner(space, username);
   }
 
   private Space addPending(Space space, String username) {
@@ -1046,6 +1148,10 @@ public class SpaceServiceImpl implements SpaceService {
       space.setInvitedUsers(invitedUsers);
     }
     return space;
+  }
+
+  private MembershipEntry getMembershipEntry(String expression) {
+    return expression.contains(":") ? MembershipEntry.parse(expression) : new MembershipEntry(expression);
   }
 
   private Space removeInvited(Space space, String username) {
