@@ -41,6 +41,7 @@ import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
+import org.exoplatform.social.core.space.spi.SpaceService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationManagerTest {
@@ -71,6 +72,9 @@ public class AuthorizationManagerTest {
   SpacesAdministrationService          spacesAdministrationService;
 
   @Mock
+  SpaceService                         spacesService;
+
+  @Mock
   InitParams                           params;
 
   @Mock
@@ -94,6 +98,7 @@ public class AuthorizationManagerTest {
   public void setup() {
     authorizationManager = new AuthorizationManager(params);
     authorizationManager.setSpacesAdministrationService(spacesAdministrationService);
+    authorizationManager.setSpaceService(spacesService);
     when(spacesAdministrationService.getSpacesAdministratorsMemberships()).thenReturn(Collections.singletonList(ADMIN_SPACES_MEMBERSHIP));
   }
 

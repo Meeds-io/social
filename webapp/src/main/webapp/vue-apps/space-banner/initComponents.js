@@ -1,7 +1,7 @@
-import SpaceHeader from './components/SpaceHeader.vue';
+import SpaceBanner from './components/SpaceBanner.vue';
 
 const components = {
-  'space-header': SpaceHeader,
+  'space-banner': SpaceBanner,
 };
 
 for (const key in components) {
