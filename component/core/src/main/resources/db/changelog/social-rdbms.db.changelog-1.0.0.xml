@@ -1082,4 +1082,16 @@
     </sql>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-114">
+    <addColumn tableName="SOC_SPACES">
+      <column name="DELETE_PERMISSIONS" type="NVARCHAR(2000)" />
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-115">
+    <addColumn tableName="SOC_SPACES">
+      <column name="LAYOUT_PERMISSIONS" type="NVARCHAR(2000)" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
