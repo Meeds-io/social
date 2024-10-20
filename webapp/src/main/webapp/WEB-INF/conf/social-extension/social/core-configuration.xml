@@ -257,7 +257,7 @@
       Space storage components.
     -->
     <component>
-        <key>org.exoplatform.social.core.storage.api.SpaceStorage</key>
+        <key>org.exoplatform.social.core.jpa.storage.SpaceStorage</key>
         <type>org.exoplatform.social.core.storage.cache.CachedSpaceStorage</type>
     </component>
     <!--
@@ -394,11 +394,12 @@
     </component>
 
     <!-- Space Configuration -->
-    
+
     <component>
-        <key>org.exoplatform.social.core.space.spi.SpaceService</key>
-        <type>org.exoplatform.social.core.space.impl.SpaceServiceImpl</type>
+      <key>org.exoplatform.social.core.space.spi.SpaceService</key>
+      <type>io.meeds.social.space.service.SpaceServiceImpl</type>
     </component>
+
     <component>
         <key>org.exoplatform.social.core.space.SpacesAdministrationService</key>
         <type>org.exoplatform.social.core.space.impl.SpacesAdministrationServiceImpl</type>
@@ -573,11 +574,6 @@
     <component>
         <key>org.exoplatform.social.core.application.ProfileUpdatesPublisher</key>
         <type>org.exoplatform.social.core.application.ProfileUpdatesPublisher</type>
-    </component>
-    
-    <component>
-        <key>org.exoplatform.social.core.application.RelationshipPublisher</key>
-        <type>org.exoplatform.social.core.application.RelationshipPublisher</type>
     </component>
 
     <component>

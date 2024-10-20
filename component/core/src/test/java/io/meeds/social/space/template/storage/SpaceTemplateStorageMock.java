@@ -43,13 +43,14 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
                                       false,
                                       true,
                                       1l,
+                                      null,
                                       Arrays.asList("*:/platform/users"),
                                       Arrays.asList("*:/platform/administrators"),
                                       Arrays.asList("*:/platform/users"),
                                       Arrays.asList("name", "invitation", "properties", "access"),
                                       Visibility.PRIVATE,
                                       Registration.OPEN,
-                                      true);
+                                      false);
   }
 
   @Override

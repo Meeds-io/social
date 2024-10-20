@@ -1,9 +1,9 @@
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import java.util.List;
+
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
-
-import java.util.List;
 
 public interface SpaceExternalInvitationDAO extends GenericDAO<SpaceExternalInvitationEntity, Long> {
 

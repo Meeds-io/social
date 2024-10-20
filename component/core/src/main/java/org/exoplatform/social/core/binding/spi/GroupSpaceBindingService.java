@@ -19,7 +19,12 @@ package org.exoplatform.social.core.binding.spi;
 
 import java.util.List;
 
-import org.exoplatform.social.core.binding.model.*;
+import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
+import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.space.model.Space;
 
 /**

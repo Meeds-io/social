@@ -15,22 +15,23 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import org.exoplatform.commons.file.model.FileInfo;
-import org.exoplatform.commons.file.model.FileItem;
-import org.exoplatform.services.listener.Event;
-import org.exoplatform.services.thumbnail.ImageThumbnailService;
-import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.io.ByteArrayInputStream;
+import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import java.io.ByteArrayInputStream;
-import java.util.Date;
 
-
-import static org.mockito.Mockito.*;
+import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.services.listener.Event;
+import org.exoplatform.services.thumbnail.ImageThumbnailService;
+import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ThumbnailFileListenerTest {

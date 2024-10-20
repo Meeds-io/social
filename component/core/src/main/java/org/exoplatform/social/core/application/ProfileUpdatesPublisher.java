@@ -16,8 +16,12 @@
  */
 package org.exoplatform.social.core.application;
 
-import org.apache.commons.text.StringEscapeUtils;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -32,9 +36,6 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profile.ProfileListenerPlugin;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 
 /**
