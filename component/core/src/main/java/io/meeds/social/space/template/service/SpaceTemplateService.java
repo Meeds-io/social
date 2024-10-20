@@ -121,6 +121,16 @@ public class SpaceTemplateService {
     return spaceTemplate;
   }
 
+  public long getSpaceTemplateBannerId(long templateId) {
+    List<String> attachmentFileIds = attachmentService.getAttachmentFileIds(SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE,
+                                                                            String.valueOf(templateId));
+    if (CollectionUtils.isNotEmpty(attachmentFileIds)) {
+      return Long.parseLong(attachmentFileIds.get(0));
+    } else {
+      return 0l;
+    }
+  }
+
   public boolean canManageTemplates(String username) {
     return spacesAdministrationService.isSuperManager(username);
   }
@@ -131,7 +141,8 @@ public class SpaceTemplateService {
   }
 
   public boolean canCreateSpace(long templateId, String username) {
-    return canViewTemplate(templateId, username);
+    SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
+    return canViewTemplate(spaceTemplate, username) && spaceTemplate.isEnabled();
   }
 
   public boolean canCreateSpace(String username) {
@@ -212,28 +223,30 @@ public class SpaceTemplateService {
                                                                                  spaceTemplate.getId(),
                                                                                  SpaceTemplateTranslationPlugin.DESCRIPTION_FIELD_NAME,
                                                                                  locale));
-    List<String> attachmentFileIds = attachmentService.getAttachmentFileIds(SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE,
-                                                                            String.valueOf(spaceTemplate.getId()));
-    if (CollectionUtils.isNotEmpty(attachmentFileIds)) {
-      spaceTemplate.setBannerFileId(Long.parseLong(attachmentFileIds.get(0)));
-    }
-  }
-
-  private MembershipEntry getMembershipEntry(String expression) {
-    return expression.contains(":") ? MembershipEntry.parse(expression) : new MembershipEntry(expression);
+    spaceTemplate.setBannerFileId(getSpaceTemplateBannerId(spaceTemplate.getId()));
   }
 
   private boolean canViewTemplate(SpaceTemplate spaceTemplate, String username) {
-    if (spaceTemplate == null || userAcl.isAnonymousUser(username)) {
+    if (spaceTemplate == null
+        || spaceTemplate.isDeleted()
+        || userAcl.isAnonymousUser(username)) {
       return false;
     } else if (canManageTemplates(username)) {
       return true;
+    } else if (!spaceTemplate.isEnabled()) {
+      // Only when not manager,
+      // checked in previous step
+      return false;
     }
     Identity aclIdentity = userAcl.getUserIdentity(username);
     return aclIdentity != null
            && spaceTemplate.getPermissions()
                            .stream()
                            .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
+  }
+
+  private MembershipEntry getMembershipEntry(String expression) {
+    return expression.contains(":") ? MembershipEntry.parse(expression) : new MembershipEntry(expression);
   }
 
 }

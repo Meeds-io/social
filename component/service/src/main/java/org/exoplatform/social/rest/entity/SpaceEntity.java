@@ -236,14 +236,23 @@ public class SpaceEntity extends BaseEntity {
   public String getCreatedTime() {
     return (String) getProperty("createdTime");
   }
-
+  
   public SpaceEntity setCanEdit(boolean canEdit) {
     setProperty("canEdit", canEdit);
     return this;
   }
-
+  
   public Boolean getCanEdit() {
     return (Boolean) getProperty("canEdit");
+  }
+
+  public SpaceEntity setCanDelete(boolean canDelete) {
+    setProperty("canDelete", canDelete);
+    return this;
+  }
+
+  public Boolean getCanDelete() {
+    return (Boolean) getProperty("canDelete");
   }
 
   public SpaceEntity setCanRedactOnSpace(boolean canRedactOnSpace) {
