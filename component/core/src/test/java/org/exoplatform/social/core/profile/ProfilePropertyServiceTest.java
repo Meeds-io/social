@@ -20,7 +20,6 @@
 
 package org.exoplatform.social.core.profile;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import java.util.List;

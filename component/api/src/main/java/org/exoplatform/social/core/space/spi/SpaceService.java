@@ -761,7 +761,7 @@ public interface SpaceService {
    *
    * @param space The space to be saved or updated.
    */
-  default void createSpace(Space space) {
+  default Space createSpace(Space space) {
     throw new UnsupportedOperationException();
   }
 

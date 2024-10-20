@@ -63,7 +63,10 @@ public class SpaceTemplateEntity {
   private boolean      system;
 
   @Column(name = "TEMPLATE_ORDER")
-  private long         order;
+  private long         templateOrder;
+
+  @Column(name = "LAYOUT")
+  private String       layout;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "PERMISSIONS")

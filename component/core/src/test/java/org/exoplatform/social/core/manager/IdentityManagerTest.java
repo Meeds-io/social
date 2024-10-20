@@ -17,7 +17,14 @@
 package org.exoplatform.social.core.manager;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.security.ConversationState;
@@ -28,11 +35,11 @@ import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.model.BannerAttachment;
-import org.exoplatform.social.core.profile.*;
+import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
+import org.exoplatform.social.core.profile.ProfileListenerPlugin;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.search.Sorting;
@@ -43,8 +50,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
 
 /**
  * Unit Tests for {@link IdentityManager}

@@ -49,6 +49,8 @@ import org.exoplatform.web.url.URLFactoryService;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
+import io.meeds.social.space.service.SpaceLayoutService;
+
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -62,6 +64,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
   private IdentityManager         identityManager;
 
   private SpaceService            spaceService;
+
+  private SpaceLayoutService      spaceLayoutService;
 
   private IdentityRegistry        identityRegistry;
 
@@ -126,7 +130,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
       controllerContext.getResponse()
                        .sendRedirect(String.format("%s/%s",
                                                    controllerContext.getRequest().getContextPath(),
-                                                   spaceService.getSpacePublicSiteName(space)));
+                                                   spaceLayoutService.getSpacePublicSiteName(space)));
       return true;
     } else {
       processSpaceAccess(controllerContext, username, space);

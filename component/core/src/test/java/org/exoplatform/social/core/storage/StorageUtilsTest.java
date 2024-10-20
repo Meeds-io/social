@@ -17,18 +17,11 @@
 package org.exoplatform.social.core.storage;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 import junit.framework.TestCase;
-
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.storage.impl.StorageUtils;
 
 public class StorageUtilsTest extends TestCase {
 

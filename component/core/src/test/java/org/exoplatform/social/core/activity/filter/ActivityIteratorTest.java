@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+
+import junit.framework.TestCase;
 
 public class ActivityIteratorTest extends TestCase {
   private ActivityIterator ait = null;

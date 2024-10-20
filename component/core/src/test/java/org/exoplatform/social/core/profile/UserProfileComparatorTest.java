@@ -16,7 +16,10 @@
  */
 package org.exoplatform.social.core.profile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.social.core.identity.model.Profile;
 

@@ -35,7 +35,6 @@
      eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
      eXo.env.portal.spaceDisplayName = decodeURIComponent("<%=space == null ? "" : java.net.URLEncoder.encode(space.getDisplayName().replace(" ", "._.")).replace("._.", " ") %>") ;
      eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
-     eXo.env.portal.spaceTemplate = "<%=space == null ? "" : space.getTemplate()%>" ;
      eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
      eXo.env.portal.profileOwner = "<%=ownerIdentityId == null ? "" : Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=ownerIdentityId == null ? "" : Utils.getOwnerIdentityId()%>" ;
