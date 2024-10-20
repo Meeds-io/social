@@ -17,12 +17,13 @@
 
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.List;
+
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
 
 import jakarta.persistence.TypedQuery;
-import java.util.List;
 
 public class GroupSpaceBindingDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingEntity, Long> implements GroupSpaceBindingDAO {
 

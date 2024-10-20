@@ -15,6 +15,12 @@
  */
 package org.exoplatform.social.core.thumbnail;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Date;
+import java.util.List;
+
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
@@ -27,12 +33,6 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.nio.file.Files;
-import java.util.Date;
-import java.util.List;
 
 public class ImageThumbnailServiceImplTest extends AbstractCoreTest {
 

@@ -1,5 +1,5 @@
+<%@page import="io.meeds.social.space.template.service.SpaceTemplateService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
-<%@page import="org.exoplatform.social.core.space.SpacesAdministrationService"%>
 <%
   Object filter = request.getAttribute("filter");
   if (filter == null) {
@@ -7,8 +7,8 @@
   } else {
     filter = ((String[]) filter)[0];
   }
-  SpacesAdministrationService spacesAdministrationService = ExoContainerContext.getService(SpacesAdministrationService.class);
-  boolean canCreateSpace = spacesAdministrationService.canCreateSpace(request.getRemoteUser());
+  boolean canCreateSpace = ExoContainerContext.getService(SpaceTemplateService.class)
+    .canCreateSpace(request.getRemoteUser());
 %>
 <div class="VuetifyApp">
   <div data-app="true"

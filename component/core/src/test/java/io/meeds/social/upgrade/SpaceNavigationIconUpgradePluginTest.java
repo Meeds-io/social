@@ -1,8 +1,11 @@
 package io.meeds.social.upgrade;
-import org.exoplatform.commons.persistence.impl.EntityManagerService;
-import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.ValueParam;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,11 +14,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import org.exoplatform.commons.upgrade.UpgradePluginExecutionContext;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 

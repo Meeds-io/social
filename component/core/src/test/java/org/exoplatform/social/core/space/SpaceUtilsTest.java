@@ -16,16 +16,11 @@
  */
 package org.exoplatform.social.core.space;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.storage.EntityConverterUtils;
-import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
@@ -38,44 +33,12 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
  */
 public class SpaceUtilsTest extends AbstractCoreTest {
 
-  private List<Space>     tearDown = new ArrayList<>();
-
-  private Identity        rootIdentity;
-
   private IdentityStorage identityStorage;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
-    rootIdentity = identityManager.getOrCreateUserIdentity("root");
-    String spaceDisplayName = "Space1";
-    Space space1 = new Space();
-    space1.setDisplayName(spaceDisplayName);
-    space1.setPrettyName(space1.getDisplayName());
-    String shortName = Utils.cleanString(spaceDisplayName);
-    space1.setGroupId("/spaces/" + shortName);
-    space1.setUrl(shortName);
-    space1.setRegistration("validation");
-    space1.setDescription("This is my first space for testing");
-    space1.setVisibility("public");
-    String[] manager = new String[] { "root" };
-    String[] members = new String[] { "root", "demo", "john", "mary" };
-    space1.setManagers(manager);
-    space1.setMembers(members);
-
-    spaceService.createSpace(space1, "root");
-    tearDown.add(space1);
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
-    for (Space space : tearDown) {
-      spaceService.deleteSpace(space);
-    }
-    identityManager.deleteIdentity(rootIdentity);
-    super.tearDown();
   }
 
   /**
@@ -103,8 +66,9 @@ public class SpaceUtilsTest extends AbstractCoreTest {
   }
 
   public void testUpdateDefaultUserAvatar() {
-    FileItem avatarFile = identityStorage.getAvatarFile(rootIdentity);
-    Profile profile = identityStorage.loadProfile(rootIdentity.getProfile());
+    Identity jamesIdentity = identityManager.getOrCreateUserIdentity("james");
+    FileItem avatarFile = identityStorage.getAvatarFile(jamesIdentity);
+    Profile profile = identityStorage.loadProfile(jamesIdentity.getProfile());
     assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
     assertTrue(profile.isDefaultAvatar());
 

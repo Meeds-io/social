@@ -94,6 +94,7 @@ public class EntityConverterUtils {
       // Allow to generate new default avatar file
       // for user or space
       avatarLastUpdated = System.currentTimeMillis();
+      p.setDefaultAvatar(true);
     }
     Long bannerLastUpdated = null;
     if (entity.getBannerFileId() != null && entity.getBannerFileId() > 0) {

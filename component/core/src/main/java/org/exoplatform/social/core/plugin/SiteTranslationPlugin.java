@@ -19,11 +19,12 @@
  */
 package org.exoplatform.social.core.plugin;
 
-import io.meeds.social.translation.plugin.TranslationPlugin;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.service.LayoutService;
+
+import io.meeds.social.translation.plugin.TranslationPlugin;
 
 public class SiteTranslationPlugin extends TranslationPlugin {
 

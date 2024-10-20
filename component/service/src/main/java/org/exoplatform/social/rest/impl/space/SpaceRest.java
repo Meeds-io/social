@@ -95,6 +95,7 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.space.service.SpaceLayoutService;
 import io.meeds.social.util.JsonUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -151,6 +152,8 @@ public class SpaceRest implements ResourceContainer {
 
   private final SpaceService           spaceService;
 
+  private final SpaceLayoutService     spaceLayoutService;
+
   private final SecuritySettingService securitySettingService;
 
   private final ImageThumbnailService  imageThumbnailService;
@@ -161,12 +164,14 @@ public class SpaceRest implements ResourceContainer {
 
   public SpaceRest(ActivityRest activityRestResourcesV1,
                    SpaceService spaceService,
+                   SpaceLayoutService spaceLayoutService,
                    IdentityManager identityManager,
                    UploadService uploadService,
                    ImageThumbnailService imageThumbnailService,
                    SecuritySettingService securitySettingService) {
     this.activityRestResourcesV1 = activityRestResourcesV1;
     this.spaceService = spaceService;
+    this.spaceLayoutService = spaceLayoutService;
     this.identityManager = identityManager;
     this.uploadService = uploadService;
     this.imageThumbnailService = imageThumbnailService;
@@ -223,9 +228,8 @@ public class SpaceRest implements ResourceContainer {
                             @QueryParam("favorites")
                             boolean favorites,
                             @Parameter(description = "Tag names used to search spaces", required = true)
-                            @QueryParam(
-                              "tags"
-                            ) List<String> tagNames,
+                            @QueryParam("tags")
+                            List<String> tagNames,
                             @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
                                        required = false)
                             @QueryParam("expand")
@@ -283,7 +287,12 @@ public class SpaceRest implements ResourceContainer {
     } else {
       spaces = Collections.emptyList();
     }
-    CollectionEntity collectionSpace = EntityBuilder.buildEntityFromSpaces(spaces, authenticatedUser, offset, limit, expand, uriInfo);
+    CollectionEntity collectionSpace = EntityBuilder.buildEntityFromSpaces(spaces,
+                                                                           authenticatedUser,
+                                                                           offset,
+                                                                           limit,
+                                                                           expand,
+                                                                           uriInfo);
     if (returnSize) {
       collectionSpace.setSize(listAccess.getSize());
     }
@@ -335,8 +344,8 @@ public class SpaceRest implements ResourceContainer {
     // validate the display name
     if (spaceService.getSpaceByDisplayName(model.getDisplayName()) != null) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-                                        .entity(SpaceException.Code.SPACE_ALREADY_EXIST.name())
-                                        .build());
+                                                .entity(SpaceException.Code.SPACE_ALREADY_EXIST.name())
+                                                .build());
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
@@ -345,13 +354,8 @@ public class SpaceRest implements ResourceContainer {
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
 
-    String[] managers = new String[] { authenticatedUser };
-    String[] members = new String[] { authenticatedUser };
-    space.setManagers(managers);
-    space.setMembers(members);
-
     try {
-      spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+      space = spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
     } catch (SpaceException e) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
                                                 .entity(e.getCode().name())
@@ -680,10 +684,10 @@ public class SpaceRest implements ResourceContainer {
     if (!isDefault
         && RestUtils.isAnonymous()
         && !LinkProvider.isAttachmentTokenValid(token,
-                                                                        SpaceIdentityProvider.NAME,
-                                                                        id,
-                                                                        BannerAttachment.TYPE,
-                                                                        lastModified)) {
+                                                SpaceIdentityProvider.NAME,
+                                                id,
+                                                BannerAttachment.TYPE,
+                                                lastModified)) {
       LOG.warn("An anonymous user attempts to access banner of space {} without a valid access token", id);
       return Response.status(Status.NOT_FOUND).build();
     }
@@ -722,9 +726,9 @@ public class SpaceRest implements ResourceContainer {
         }
         /*
          * As recommended in the the RFC1341
-         * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we set the
-         * banner content-type to "image/png". So, its data would be recognized as
-         * "image" by the user-agent.
+         * (https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), we set
+         * the banner content-type to "image/png". So, its data would be
+         * recognized as "image" by the user-agent.
          */
         builder = Response.ok(stream, "image/png");
         builder.tag(eTag);
@@ -742,9 +746,6 @@ public class SpaceRest implements ResourceContainer {
     return builder.build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @PUT
   @Path("{id}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -785,9 +786,9 @@ public class SpaceRest implements ResourceContainer {
     }
 
     if (StringUtils.isNotBlank(model.getPublicSiteVisibility())) {
-      spaceService.saveSpacePublicSite(id,
-                                       model.getPublicSiteVisibility(),
-                                       authenticatedUser);
+      spaceLayoutService.saveSpacePublicSite(id,
+                                             model.getPublicSiteVisibility(),
+                                             authenticatedUser);
       space = spaceService.getSpaceById(id);
     }
 
@@ -827,7 +828,7 @@ public class SpaceRest implements ResourceContainer {
 
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
-    spaceService.updateSpace(space, model.getInvitedMembers());
+    space = spaceService.updateSpace(space, model.getInvitedMembers());
 
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(spaceService.getSpaceById(id),
                                                                         authenticatedUser,

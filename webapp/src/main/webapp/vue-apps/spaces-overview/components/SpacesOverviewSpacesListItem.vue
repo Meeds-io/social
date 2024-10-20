@@ -164,11 +164,10 @@ export default {
       return this?.space?.pending?.[0];
     },
     url() {
-      if (!this.space || !this.space.groupId) {
+      if (!this.space?.id) {
         return '#';
       }
-      const uri = this.space.groupId.replace(/\//g, ':');
-      return `${eXo.env.portal.context}/g/${uri}/`;
+      return `${eXo.env.portal.context}/s/${this.space.id}`;
     },
   },
   methods: {
